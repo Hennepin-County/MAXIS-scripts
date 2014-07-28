@@ -1,6 +1,6 @@
 '---------------------------------------------------------------------------------------------------
 'HOW THIS SCRIPT WORKS:
-'
+'dude
 'This script contains functions that the other BlueZone scripts use very commonly. The
 'other BlueZone scripts contain a few lines of code that run this script and get the 
 'functions. This saves time in writing and copy/pasting the same functions in
