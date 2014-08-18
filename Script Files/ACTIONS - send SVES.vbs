@@ -200,3 +200,8 @@ EMWriteScreen case_number, 11, 38
 EMWriteScreen "y", 14, 38
 
 script_end_procedure("")
+
+
+
+
+
