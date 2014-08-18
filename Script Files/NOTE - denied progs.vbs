@@ -128,14 +128,17 @@ BeginDialog denied_dialog, 0, 0, 401, 340 - dialog_shrink_amt, "Denied progs dia
   Text 5, 325 - dialog_shrink_amt, 65, 10, "Worker signature: "
 EndDialog
 
-
-
-
-
-
 'SCRIPT CONNECTS, THEN FINDS THE CASE NUMBER
 
 EMConnect ""
+
+'Resets the check boxes in case this script was run in succession with the closed progs script. In that script, the variables are named the same and when run one 
+'right after another from the Docs Received headquarters it is autofilling these check boxes.------------------------------------------------------------
+SNAP_check = 0
+cash_check = 0
+HC_check = 0
+updated_MMIS_check = 0
+WCOM_check = 0
 
 call find_variable("Case Nbr: ", case_number, 8)
 case_number = trim(case_number)
@@ -331,8 +334,4 @@ PF3
 'SUCCESS NOTICE
 MsgBox "Success! Case noted and TIKL sent."
 script_end_procedure("")
-
-
-
-
 
