@@ -51,6 +51,11 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
+'Resets variables in case this is run from docs received.
+SNAP_check = 0
+cash_check = 0
+HC_check = 0
+
 'Autofills case number
 call find_variable("Case Nbr: ", case_number, 8)
 case_number = trim(case_number)
@@ -148,9 +153,7 @@ End if
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
+'Runs denied progs if selected
+If denied_progs_check = 1 then run_another_script("H:\VKC dev directory\Script Files\NOTE - denied progs.vbs")
+
 script_end_procedure("")
-
-
-
-
-
