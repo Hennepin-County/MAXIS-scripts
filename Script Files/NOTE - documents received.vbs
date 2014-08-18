@@ -14,14 +14,16 @@ Execute text_from_the_other_script
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 
-BeginDialog docs_received_dialog, 0, 0, 466, 125, "Docs received"
+BeginDialog docs_received_dialog, 0, 0, 466, 145, "Docs received"
   EditBox 55, 5, 90, 15, case_number
   EditBox 60, 25, 215, 15, docs_received
   EditBox 75, 45, 390, 15, verif_notes
   EditBox 60, 65, 405, 15, actions_taken
   EditBox 70, 85, 110, 15, worker_signature
-  CheckBox 195, 85, 195, 15, "Check here to start the denied programs script after this.", denied_progs_check
-  EditBox 115, 105, 350, 15, docs_needed
+  CheckBox 195, 85, 205, 10, "Check here to start the approved programs script after this.", approved_progs_check
+  CheckBox 195, 95, 200, 10, "Check here to start the closed programs script after this. ", closed_progs_check
+  CheckBox 195, 105, 195, 10, "Check here to start the denied programs script after this.", denied_progs_check
+  EditBox 115, 120, 350, 15, docs_needed
   ButtonGroup ButtonPressed
     OkButton 355, 5, 50, 15
     CancelButton 410, 5, 50, 15
@@ -31,7 +33,7 @@ BeginDialog docs_received_dialog, 0, 0, 466, 125, "Docs received"
   Text 280, 30, 190, 10, "Note: just list the docs here. This is the title of your note."
   Text 5, 90, 65, 10, "Worker signature:"
   Text 5, 70, 50, 10, "Actions taken: "
-  Text 5, 110, 110, 10, "Verifs still needed (if applicable):"
+  Text 5, 125, 110, 10, "Verifs still needed (if applicable):"
 EndDialog
 
 
@@ -73,12 +75,14 @@ If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
+'Runs approved  progs if selected
+If approved_progs_check = 1 then run_another_script("H:\VKC dev directory\Script Files\NOTE - Approved Programs.vbs")
+
 'Runs denied progs if selected
-If denied_progs_check = 1 then run_another_script("Q:\Blue Zone Scripts\Shared\NOTE - denied progs.vbs")
+If closed_progs_check = 1 then run_another_script("H:\VKC dev directory\Script Files\NOTE - closed progs.vbs")
+
+'Runs denied progs if selected
+If denied_progs_check = 1 then run_another_script("H:\VKC dev directory\Script Files\NOTE - denied progs.vbs")
 
 script_end_procedure("")
-
-
-
-
 
