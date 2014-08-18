@@ -575,7 +575,7 @@ If case_note_mode_check <> "Mode: A" then end_excel_and_script
 EMSendKey ":::CSES messages reviewed:::" + "<newline>"
 If MFIP_active = "True" then EMSendKey "* Updated retro/prospective income amounts." + "<newline>"
 If MFIP_active <> "True" and FS_active = "True" then EMSendKey "* FS PIC reviewed, income appears to be in range." + "<newline>"
-If MFIP_active = "True" and FS_active = "True" then EMSendKey "* FS PIC ignored, as case also has MFIP." + "<newline>"
+If MFIP_active = "True" and FS_active = "True" then EMSendKey "* FS PIC not evalutated, as case also has MFIP." + "<newline>"
 If HC_active = "True" then EMSendKey HC_status + "<newline>"
 EMSendKey "---" + "<newline>"
 BeginDialog worker_sig_dialog, 0, 0, 141, 47, "Worker signature"
@@ -729,8 +729,4 @@ objExcel.quit
 
 'ending script
 script_end_procedure("")
-
-
-
-
 
