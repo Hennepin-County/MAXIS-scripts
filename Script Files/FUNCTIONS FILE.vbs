@@ -1,6 +1,6 @@
 '---------------------------------------------------------------------------------------------------
 'HOW THIS SCRIPT WORKS:
-'dude
+'
 'This script contains functions that the other BlueZone scripts use very commonly. The
 'other BlueZone scripts contain a few lines of code that run this script and get the 
 'functions. This saves time in writing and copy/pasting the same functions in
@@ -25,13 +25,13 @@
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 
-worker_county_code = "x128"
+worker_county_code = "x141"
 collecting_statistics = False
-EDMS_choice = "Compass Pilot"
-county_name = "Beltrami"
-county_address_line_01 = "1234 Beltrami Way"
-county_address_line_02 = "Beltrami, MN 55555"
-case_noting_intake_dates = True
+EDMS_choice = "Compass Forms"
+county_name = "Anoka"
+county_address_line_01 = "1234 Anoka Road"
+county_address_line_02 = "Anoka, MN 55303"
+case_noting_intake_dates = False
 
 is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SETUP SCRIPT WILL OVERWRITE LINES BELOW WHICH DEPEND ON THIS, BY SEPARATING THE VARIABLES WE PREVENT ISSUES
 
@@ -1891,3 +1891,11 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
     EMWaitReady 0, 0
   End if
 End function
+
+
+
+
+
+
+
+
