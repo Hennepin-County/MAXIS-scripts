@@ -662,7 +662,3 @@ If ref_nbr_actual_03 <> "" then
 End if
 script_end_procedure("")
 
-
-
-
-
