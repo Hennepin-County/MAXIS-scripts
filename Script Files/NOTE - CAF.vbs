@@ -406,7 +406,6 @@ End if
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type <> "Recertification" then TIKL_check = 1
 
-
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Do
@@ -467,8 +466,9 @@ Do
       Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
     Loop until ButtonPressed = -1
     If ButtonPressed = previous_to_page_01_button then exit do 'In case the script skipped the third page as a result of hitting "previous page" on part 2
-    If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-  Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" 
+    If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN MsgBox "You need to:" & chr(13) & chr(13) & "-Fill in the datestamp, and/or" & chr(13) & "-Actions taken sections, and/or" & chr(13) & "-HCAPP Status, and/or" & chr(13) & "-Sign your case note." & chr(13) & chr(13) & "Check these items after pressing ''OK''."
+
+  Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""
   If ButtonPressed = -1 then dialog case_note_dialog
   If buttonpressed = yes_case_note_button then
     If client_delay_check = 1 and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
@@ -590,8 +590,4 @@ call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 script_end_procedure("")
-
-
-
-
 
