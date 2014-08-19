@@ -5,6 +5,8 @@ start_time = timer
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+
+
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -38,9 +40,9 @@ BeginDialog case_number_dialog, 0, 0, 181, 115, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
-BeginDialog CSR_dialog, 0, 0, 451, 275, "CSR dialog"
+BeginDialog CSR_dialog, 0, 0, 451, 325, "CSR dialog"
   EditBox 65, 15, 50, 15, CSR_datestamp
-  DropListBox 170, 15, 75, 15, " "+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
+  DropListBox 170, 15, 75, 15, "complete"+chr(9)+"incomplete", CSR_status
   EditBox 40, 35, 280, 15, HH_comp
   EditBox 65, 55, 380, 15, earned_income
   EditBox 70, 75, 375, 15, unearned_income
@@ -50,11 +52,13 @@ BeginDialog CSR_dialog, 0, 0, 451, 275, "CSR dialog"
   EditBox 100, 135, 345, 15, FIAT_reasons
   EditBox 50, 155, 395, 15, other_notes
   EditBox 45, 175, 400, 15, changes
-  EditBox 240, 195, 205, 15, verifs_needed
-  EditBox 235, 215, 210, 15, actions_taken
+  EditBox 60, 195, 385, 15, verifs_needed
+  EditBox 60, 215, 385, 15, actions_taken
   EditBox 380, 235, 65, 15, worker_signature
-  CheckBox 105, 240, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_check
-  CheckBox 105, 255, 210, 15, "Check here if CSR and cash supplement were used as a HRF.", HRF_check
+  CheckBox 165, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_check
+  CheckBox 165, 295, 210, 15, "Check here if CSR and cash supplement were used as a HRF.", HRF_check
+  EditBox 60, 290, 90, 15, MAEPD_premium
+  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_check
   ButtonGroup ButtonPressed
     OkButton 340, 255, 50, 15
     CancelButton 395, 255, 50, 15
@@ -69,20 +73,21 @@ BeginDialog CSR_dialog, 0, 0, 451, 275, "CSR dialog"
     PushButton 30, 120, 25, 10, "HEST:", HEST_button
     PushButton 165, 120, 25, 10, "COEX/", COEX_button
     PushButton 190, 120, 25, 10, "DCEX:", DCEX_button
-    PushButton 10, 210, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 210, 25, 10, "JOBS", JOBS_button
-    PushButton 10, 220, 25, 10, "RBIC", RBIC_button
-    PushButton 35, 220, 25, 10, "UNEA", UNEA_button
-    PushButton 75, 210, 25, 10, "ACCT", ACCT_button
-    PushButton 100, 210, 25, 10, "CARS", CARS_button
-    PushButton 125, 210, 25, 10, "CASH", CASH_button
-    PushButton 150, 210, 25, 10, "OTHR", OTHR_button
-    PushButton 75, 220, 25, 10, "REST", REST_button
-    PushButton 100, 220, 25, 10, "SECU", SECU_button
-    PushButton 125, 220, 25, 10, "TRAN", TRAN_button
-    PushButton 10, 250, 25, 10, "MEMB", MEMB_button
-    PushButton 35, 250, 25, 10, "MEMI", MEMI_button
-    PushButton 60, 250, 25, 10, "REVW", REVW_button
+    PushButton 10, 250, 25, 10, "BUSI", BUSI_button
+    PushButton 35, 250, 25, 10, "JOBS", JOBS_button
+    PushButton 10, 260, 25, 10, "RBIC", RBIC_button
+    PushButton 35, 260, 25, 10, "UNEA", UNEA_button
+    PushButton 75, 250, 25, 10, "ACCT", ACCT_button
+    PushButton 100, 250, 25, 10, "CARS", CARS_button
+    PushButton 125, 250, 25, 10, "CASH", CASH_button
+    PushButton 150, 250, 25, 10, "OTHR", OTHR_button
+    PushButton 75, 260, 25, 10, "REST", REST_button
+    PushButton 100, 260, 25, 10, "SECU", SECU_button
+    PushButton 125, 260, 25, 10, "TRAN", TRAN_button
+    PushButton 190, 250, 25, 10, "MEMB", MEMB_button
+    PushButton 215, 250, 25, 10, "MEMI", MEMI_button
+    PushButton 240, 250, 25, 10, "REVW", REVW_button
+    PushButton 80, 310, 65, 10, "SIR mail", SIR_mail_button
   GroupBox 255, 5, 70, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation:"
   Text 5, 20, 55, 10, "CSR datestamp:"
@@ -94,12 +99,13 @@ BeginDialog CSR_dialog, 0, 0, 451, 275, "CSR dialog"
   Text 5, 140, 95, 10, "FIAT reasons (if applicable):"
   Text 5, 160, 40, 10, "Other notes:"
   Text 5, 180, 35, 10, "Changes?:"
-  GroupBox 5, 200, 60, 35, "Income panels"
-  GroupBox 70, 200, 110, 35, "Asset panels"
-  Text 185, 200, 50, 10, "Verifs needed:"
-  Text 185, 220, 50, 10, "Actions taken:"
-  GroupBox 5, 240, 85, 25, "other STAT panels:"
+  Text 5, 200, 50, 10, "Verifs needed:"
+  Text 5, 220, 50, 10, "Actions taken:"
+  GroupBox 5, 240, 175, 35, "Income and asset panels"
+  GroupBox 185, 240, 85, 25, "other STAT panels:"
   Text 315, 240, 65, 10, "Worker signature:"
+  GroupBox 5, 280, 150, 45, "If MA-EPD..."
+  Text 10, 295, 50, 10, "New premium:"
 EndDialog
 
 
@@ -232,6 +238,7 @@ Do
             dialog cancel_dialog
             If ButtonPressed = yes_cancel_button then stopscript
           End if
+          If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
         Loop until ButtonPressed <> no_cancel_button
         EMReadScreen STAT_check, 4, 20, 21
         If STAT_check = "STAT" then
@@ -307,6 +314,8 @@ If changes <> "" then call write_editbox_in_case_note("Changes", changes, 6)
 If HRF_check = 1 then call write_new_line_in_case_note("* CSR and cash supplement used as HRF.")
 if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
 call write_editbox_in_case_note("Actions taken", actions_taken, 6)
+If MAEPD_premium <> "" then call write_editbox_in_case_note("MA-EPD premium", MAEPD_premium, 6)
+If MADE_check = checked then call write_new_line_in_case_note("* Emailed MADE through DHS-SIR.")
 call write_new_line_in_case_note("---")
 If FSPR_check = "FSPR" then
   call write_new_line_in_case_note("   " & FSSM_line_01)
@@ -317,8 +326,3 @@ End if
 call write_new_line_in_case_note(worker_signature)
 
 call script_end_procedure("")
-
-
-
-
-
