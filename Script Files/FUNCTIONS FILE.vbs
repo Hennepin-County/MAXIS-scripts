@@ -1710,6 +1710,11 @@ Function PF12
   EMWaitReady 0, 0
 End function
 
+function PF19
+  EMSendKey "<PF19>"
+  EMWaitReady 0, 0
+end function
+
 function PF20
   EMSendKey "<PF20>"
   EMWaitReady 0, 0
