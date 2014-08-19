@@ -80,7 +80,6 @@ Function retro_paystubs_info_adder(pay_date, gross_amt, hours)
 End function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-
 BeginDialog paystubs_received_dialog, 0, 0, 256, 220, "Paystubs Received Dialog"
   DropListBox 100, 5, 100, 15, "(select one)"+chr(9)+"One Time Per Month"+chr(9)+"Two Times Per Month"+chr(9)+"Every Other Week"+chr(9)+"Every Week", pay_frequency
   EditBox 15, 45, 65, 15, pay_date_01
@@ -108,11 +107,12 @@ BeginDialog paystubs_received_dialog, 0, 0, 256, 220, "Paystubs Received Dialog"
   Text 10, 30, 80, 10, "Pay date (MM/DD/YY):"
   Text 105, 30, 50, 10, "Gross amount:"
   Text 195, 30, 30, 10, "Hours:"
-  GroupBox 5, 145, 245, 30, "If income other than last 30 days was used, explain here:"
+  GroupBox 5, 145, 245, 30, "Explain how income was calculated:"
   Text 10, 160, 45, 10, "Explanation:"
   Text 10, 185, 60, 10, "JOBS verif code:"
   Text 10, 205, 60, 10, "Worker signature:"
 EndDialog
+
 
 
 
@@ -178,12 +178,15 @@ Do
         Do
           Do
             Do
-              Dialog paystubs_received_dialog
-              If ButtonPressed = 0 then stopscript
-              If pay_frequency = "(select one)" then MsgBox "You must select a pay frequency."
-            Loop until pay_frequency <> "(select one)"
-            If JOBS_verif_code = "(select one)" then MsgBox "You must select a JOBS verif code."
+              Do
+                Dialog paystubs_received_dialog
+                If ButtonPressed = 0 then stopscript
+                If pay_frequency = "(select one)" then MsgBox "You must select a pay frequency."
+              Loop until pay_frequency <> "(select one)"
+              If JOBS_verif_code = "(select one)" then MsgBox "You must select a JOBS verif code."
             Loop until JOBS_verif_code <> "(select one)"
+            If explanation_of_income = "" then MsgBox "You must explain how you calculated this income (ie: ''all paystubs from last 30 days'')"
+          Loop until explanation_of_income <> ""
           If isdate(pay_date_01) = False then MsgBox "Your pay date must be ''MM/DD/YYYY'' format. Please try again."
           If isdate(pay_date_01) = True and (Isnumeric(gross_amt_01) = False or Isnumeric(hours_01) = False) then MsgBox "You must include a gross pay amount as well as an hours amount."
         Loop until (isdate(pay_date_01) = True and (Isnumeric(gross_amt_01) = True and Isnumeric(hours_01) = True))
@@ -518,8 +521,3 @@ End if
 
 MsgBox "Success! Your JOBS panel has been updated with the paystubs you've entered in. Send your case through background, review the results, and take action as appropriate. Don't forget to case note!" 
 script_end_procedure("")
-
-
-
-
-
