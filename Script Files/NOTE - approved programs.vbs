@@ -53,9 +53,9 @@ Do
   Do
     Do
       Dialog benefits_approved
-	If worker_signature = "" then Msgbox "Please sign your case note"
       If buttonpressed = 0 then stopscript
       If case_number = "" then MsgBox "You must have a case number to continue!"
+	If worker_signature = "" then Msgbox "Please sign your case note"
     Loop until case_number <> "" and worker_signature <> ""
     transmit
     EMReadScreen MAXIS_check, 5, 1, 39
@@ -88,3 +88,5 @@ If denied_progs_check = 1 then run_another_script("H:\VKC dev directory\Script F
 
 
 script_end_procedure("")
+
+
