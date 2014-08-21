@@ -74,7 +74,12 @@ End function
 Function add_ACCT_to_variable(x) 'x represents the name of the variable (example: assets vs. spousal_assets)
   EMReadScreen ACCT_amt, 8, 10, 46
   ACCT_amt = trim(ACCT_amt)
-  ACCT_amt = "$" & ACCT_amt
+  EMReadScreen counted_check, 1, 14, 64
+  If counted_check = "N" then
+    ACCT_amt = "excluded"
+  Else
+    ACCT_amt = "$" & ACCT_amt
+  End if
   EMReadScreen ACCT_type, 2, 6, 44
   EMReadScreen ACCT_location, 20, 8, 44
   ACCT_location = replace(ACCT_location, "_", "")
@@ -172,7 +177,12 @@ Function add_CARS_to_variable(x) 'x represents the name of the variable (example
   Next
   EMReadScreen CARS_amt, 8, 9, 45
   CARS_amt = trim(CARS_amt)
-  CARS_amt = "$" & CARS_amt
+  EMReadScreen counted_check, 1, 15, 43
+  If counted_check = "8" then
+    CARS_amt = "$" & CARS_amt
+  Else
+    CARS_amt = "excluded"
+  End if
   x = x & trim(new_CARS_type) & ", (" & CARS_amt & "); "
   new_CARS_type = ""
 End function
@@ -243,7 +253,12 @@ Function add_OTHR_to_variable(x) 'x represents the name of the variable (example
   OTHR_type = trim(OTHR_type)
   EMReadScreen OTHR_amt, 10, 8, 40
   OTHR_amt = trim(OTHR_amt)
-  OTHR_amt = "$" & OTHR_amt
+  EMReadScreen counted_check, 1, 12, 64
+  If counted_check = "N" then
+    OTHR_amt = "excluded"
+  Else
+    OTHR_amt = "$" & OTHR_amt
+  End if
   x = x & trim(OTHR_type) & ", (" & OTHR_amt & ").; "
   new_OTHR_type = ""
 End function
@@ -269,7 +284,12 @@ Function add_REST_to_variable(x) 'x represents the name of the variable (example
   REST_type = trim(REST_type)
   EMReadScreen REST_amt, 10, 8, 41
   REST_amt = trim(REST_amt)
-  REST_amt = "$" & REST_amt
+  EMReadScreen counted_check, 1, 12, 54
+  If counted_check = "3" or counted_check = "4" or counted_check = "7" then
+    REST_amt = "excluded"
+  Else
+    REST_amt = "$" & REST_amt
+  End if
   x = x & trim(REST_type) & ", (" & REST_amt & ").; "
   new_REST_type = ""
 End function
@@ -278,7 +298,12 @@ End function
 Function add_SECU_to_variable(x) 'x represents the name of the variable (example: assets vs. spousal_assets)
   EMReadScreen SECU_amt, 8, 10, 52
   SECU_amt = trim(SECU_amt)
-  SECU_amt = "$" & SECU_amt
+  EMReadScreen counted_check, 1, 15, 64
+  If counted_check = "N" then
+    SECU_amt = "excluded"
+  Else
+    SECU_amt = "$" & SECU_amt
+  End if
   EMReadScreen SECU_type, 2, 6, 50
   EMReadScreen SECU_location, 20, 8, 50
   SECU_location = replace(SECU_location, "_", "")
@@ -775,7 +800,7 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
           If fmed_type = "08" then fmed_type = "Vision Care"
           If fmed_type = "09" then fmed_type = "Medicare Prem"
-          If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
+          If fmed_type = "10" then fmed_type = "No Spdwn Amt/Waiver Obl"
           If fmed_type = "11" then fmed_type = "Home Care"
           If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
           If fmed_type = "15" then fmed_type = "Medi Part D premium"
@@ -1100,7 +1125,7 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
             Else
               SHEL_proof = ""
             End if
-            SHEL_expense = SHEL_expense & "$" & trim(SHEL_amount) & "/mo " & lcase(trim(SHEL_type)) & SHEL_proof & ".; "
+            SHEL_expense = SHEL_expense & "$" & trim(SHEL_amount) & "/mo " & lcase(trim(SHEL_type)) & SHEL_proof & ". ; "
           End if
           row = row + 1
         Loop until row = 19
@@ -1143,14 +1168,7 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
         Else
           STWK_income_stop_date = replace(STWK_income_stop_date, " ", "/")
         End if
-      EMReadScreen voluntary_quit, 1, 10, 46
-	vol_quit_info = ", Vol. Quit " & voluntary_quit
-	  IF voluntary_quit = "Y" THEN
-		EMReadScreen good_cause, 1, 12, 67
-		EMReadScreen fs_pwe, 1, 14, 46
-		vol_quit_info = ", Vol Quit " & voluntary_quit & ", Good Cause " & good_cause & ", FS PWE " & fs_pwe
-	  END IF
-        variable_written_to = variable_written_to & new_STWK_employer & "income stopped " & STWK_income_stop_date & STWK_verification & vol_quit_info & ".; "
+        variable_written_to = variable_written_to & new_STWK_employer & "income stopped " & STWK_income_stop_date & STWK_verification & ".; "
       End if
       new_STWK_employer = "" 'clearing variable to prevent duplicates
     Next
@@ -1170,47 +1188,9 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
         Loop until cint(UNEA_panel_current) = cint(UNEA_total)
       End if
     Next
-  Elseif panel_read_from = "WREG" then '---------------------------------------------------------------------------------------------------WREG
-    For each HH_member in HH_member_array
-	call navigate_to_screen("stat", "wreg")
-      EMWriteScreen HH_member, 20, 76
-      EMWriteScreen "01", 20, 79
-      transmit
-    EMReadScreen wreg_total, 1, 2, 78
-    EMReadScreen snap_case_yn, 1, 6, 50
-    IF wreg_total <> "0" and snap_case_yn = "Y" THEN 
-	EmWriteScreen "x", 13, 57
-	transmit
-	 bene_mo_col = (15 + (4*cint(footer_month)))
-	  bene_yr_row = 10
-       abawd_counted_months = 0
-       second_abawd_period = 0
- 	 month_count = 0
- 	   DO
-  		  EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
-  		    IF is_counted_month = "X" or is_counted_month = "M" THEN abawd_counted_months = abawd_counted_months + 1
-		    IF is_counted_month = "Y" or is_counted_month = "N" THEN second_abawd_period = second_abawd_period + 1
-   		  bene_mo_col = bene_mo_col - 4
-    		    IF bene_mo_col = 15 THEN
-        		bene_yr_row = bene_yr_row - 1
-   	     		bene_mo_col = 63
-   	   	    END IF
-    		  month_count = month_count + 1
-  	   LOOP until month_count = 36
-  	PF3
-	EmreadScreen read_abawd_status, 2, 13, 50
-	If read_abawd_status = 10 or read_abawd_status = 11 or read_abawd_status = 13 then
-	  abawd_status = "Client is ABAWD and has used " & abawd_counted_months & " months"
-	else
-	  abawd_status = "Client is not ABAWD"
-	end if
-      IF second_abawd_period <> 0 THEN abawd_status = "CL is ABAWD and has used second 3-month period"
-	variable_written_to = variable_written_to & "Member " & HH_member & "- " & abawd_status & ".; "
-     END IF
-    Next
   End if
   variable_written_to = trim(variable_written_to) '-----------------------------------------------------------------------------------------cleaning up editbox
-  if right(variable_written_to, 1) = ";" then variable_written_to= left(variable_written_to, len(variable_written_to) - 1)
+  if right(variable_written_to, 1) = ";" then variable_written_to = left(variable_written_to, len(variable_written_to) - 1)
   variable_written_to = replace(variable_written_to, "$________/non-monthly", "amt unknown")
   variable_written_to = replace(variable_written_to, "$________/monthly", "amt unknown")
   variable_written_to = replace(variable_written_to, "$________/weekly", "amt unknown")
@@ -1263,6 +1243,7 @@ Function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 	array_name = split(array_name)
 End function
 
+
 Function create_MAXIS_friendly_date(date_variable, variable_length, screen_row, screen_col) 
   var_month = datepart("m", dateadd("d", variable_length, date_variable))
   If len(var_month) = 1 then var_month = "0" & var_month
@@ -1272,6 +1253,24 @@ Function create_MAXIS_friendly_date(date_variable, variable_length, screen_row, 
   EMWriteScreen var_day, screen_row, screen_col + 3
   var_year = datepart("yyyy", dateadd("d", variable_length, date_variable))
   EMWriteScreen right(var_year, 2), screen_row, screen_col + 6
+End function
+
+Function end_excel_and_script
+  objExcel.Workbooks.Close
+  objExcel.quit
+  stopscript
+End function
+
+Function ERRR_screen_check 'Checks for error prone cases
+	EMReadScreen ERRR_check, 4, 2, 52
+	If ERRR_check = "ERRR" then transmit
+End Function
+
+Function find_variable(x, y, z) 'x is string, y is variable, z is length of new variable
+  row = 1
+  col = 1
+  EMSearch x, row, col
+  If row <> 0 then EMReadScreen y, z, row, col + len(x)
 End function
 
 'This function fixes the case for a phrase. For example, "ROBERT P. ROBERTSON" becomes "Robert P. Robertson". 
@@ -1292,58 +1291,12 @@ Function fix_case(phrase_to_split, smallest_length_to_skip)									'Ex: fix_cas
 	phrase_to_split = output_phrase												'making the phrase_to_split equal to the output, so that it can be used by the rest of the script.
 End function
 
-Function ERRR_screen_check 'Checks for error prone cases
-	EMReadScreen ERRR_check, 4, 2, 52
-	If ERRR_check = "ERRR" then transmit
-End Function
-
-Function end_excel_and_script
-  objExcel.Workbooks.Close
-  objExcel.quit
-  stopscript
-End function
-
-Function find_variable(x, y, z) 'x is string, y is variable, z is length of new variable
-  row = 1
-  col = 1
-  EMSearch x, row, col
-  If row <> 0 then EMReadScreen y, z, row, col + len(x)
-End function
-
 Function get_to_MMIS_session_begin
   Do 
     EMSendkey "<PF6>"
     EMWaitReady 0, 0
     EMReadScreen session_start, 18, 1, 7
   Loop until session_start = "SESSION TERMINATED"
-End function
-
-Function MAXIS_background_check
-	Do
-		EMReadScreen SELF_check, 4, 2, 50
-		If SELF_check = "SELF" then
-			PF3
-			Pause 2
-		End if
-	Loop until SELF_check <> "SELF"
-End function
-
-Function MAXIS_case_number_finder(variable_for_MAXIS_case_number)
-	row = 1
-	col = 1
-	EMSearch "Case Nbr:", row, col
-	If row <> 0 then 
-		EMReadScreen variable_for_MAXIS_case_number, 8, row, col + 10
-		variable_for_MAXIS_case_number = replace(variable_for_MAXIS_case_number, "_", "")
-		variable_for_MAXIS_case_number = trim(variable_for_MAXIS_case_number)
-	End if
-End function
-
-'This function confirms that we're in MAXIS. If we aren't, it will stop.
-Function maxis_check_function
-	transmit
-	EMReadScreen MAXIS_check, 5, 1, 39
-	If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
 End function
 
 Function HH_member_custom_dialog(HH_member_array)
@@ -1439,6 +1392,34 @@ Function HH_member_custom_dialog(HH_member_array)
   If client_15_check = 1 then HH_member_array = HH_member_array & left(HH_member_15, 2) & " "
   HH_member_array = trim(HH_member_array)
   HH_member_array = split(HH_member_array, " ")
+End function
+
+Function MAXIS_background_check
+	Do
+		EMReadScreen SELF_check, 4, 2, 50
+		If SELF_check = "SELF" then
+			PF3
+			Pause 2
+		End if
+	Loop until SELF_check <> "SELF"
+End function
+
+Function MAXIS_case_number_finder(variable_for_MAXIS_case_number)
+	row = 1
+	col = 1
+	EMSearch "Case Nbr:", row, col
+	If row <> 0 then 
+		EMReadScreen variable_for_MAXIS_case_number, 8, row, col + 10
+		variable_for_MAXIS_case_number = replace(variable_for_MAXIS_case_number, "_", "")
+		variable_for_MAXIS_case_number = trim(variable_for_MAXIS_case_number)
+	End if
+End function
+
+'This function confirms that we're in MAXIS. If we aren't, it will stop.
+Function maxis_check_function
+	transmit
+	EMReadScreen MAXIS_check, 5, 1, 39
+	If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
 End function
 
 Function memb_navigation_next
@@ -1710,12 +1691,15 @@ Function PF12
   EMWaitReady 0, 0
 End function
 
+<<<<<<< HEAD
 
 Function PF19
   EMSendKey "<PF19>"
   EMWaitReady 0, 0
 End function
 
+=======
+>>>>>>> origin/master
 function PF20
   EMSendKey "<PF20>"
   EMWaitReady 0, 0
