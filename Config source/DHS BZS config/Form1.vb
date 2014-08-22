@@ -60,6 +60,13 @@ Public Class scripts_config_form
                         text_line = "case_noting_intake_dates = False"
                     End If
                 End If
+                If InStr(text_line, "move_verifs_needed = ") Then
+                    If move_verifs_needed_check.Checked = True Then
+                        text_line = "move_verifs_needed = True"
+                    Else
+                        text_line = "move_verifs_needed = False"
+                    End If
+                End If
             End If
             'INSERT COLLECTING STATS FIXES HERE WHEN ACCESS GOES LIVE
             new_text_file = new_text_file & text_line & Chr(10)
@@ -70,28 +77,7 @@ Public Class scripts_config_form
         new_text_file = Nothing
     End Function
 
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        'Opening a FileSystemObject, and adding the current path to the new_file_path.text variable, as well as to current_directory_path for determining which directory is actually active.
-        fso = CreateObject("Scripting.FileSystemObject")
-        new_file_path.Text = fso.GetAbsolutePathName(".") & "\"
-        current_directory_path = fso.GetAbsolutePathName(".") & "\"
-        'Opening file read-only
-        ObjFSO = CreateObject("Scripting.FileSystemObject")
-        objFile = ObjFSO.OpenTextFile("FUNCTIONS FILE.vbs", read_only)
 
-        'Reading each line, and modifying to replace the original file path with the new one 
-        Do Until objFile.AtEndOfStream
-            function_file_lines = objFile.ReadLine
-            line_to_look_for_in_functions_file = "'Set fso_command = run_another_script_fso.OpenTextFile("
-            If InStr(function_file_lines, line_to_look_for_in_functions_file) Then
-                old_file_path.Text = Replace(Replace(Replace(function_file_lines, line_to_look_for_in_functions_file, ""), Chr(34), ""), "FUNCTIONS FILE.vbs)", "")
-            End If
-        Loop
-
-        'Closing the read-only version
-        objFile.Close()
-
-    End Sub
 
     Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FileToolStripMenuItem.Click
 
@@ -150,7 +136,7 @@ Public Class scripts_config_form
 
     End Sub
 
-    Private Sub GroupBox1_Enter(sender As Object, e As EventArgs) Handles GroupBox1.Enter
+    Private Sub GroupBox1_Enter(sender As Object, e As EventArgs)
 
     End Sub
 
@@ -189,6 +175,39 @@ Public Class scripts_config_form
     End Sub
 
     Private Sub CheckBox1_CheckedChanged_2(sender As Object, e As EventArgs) Handles intake_dates_check.CheckedChanged
+
+    End Sub
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        'Opening a FileSystemObject, and adding the current path to the new_file_path.text variable, as well as to current_directory_path for determining which directory is actually active.
+        fso = CreateObject("Scripting.FileSystemObject")
+        new_file_path.Text = fso.GetAbsolutePathName(".") & "\"
+        current_directory_path = fso.GetAbsolutePathName(".") & "\"
+        'Opening file read-only
+        ObjFSO = CreateObject("Scripting.FileSystemObject")
+        objFile = ObjFSO.OpenTextFile("FUNCTIONS FILE.vbs", read_only)
+
+        'Reading each line, and modifying to replace the original file path with the new one 
+        Do Until objFile.AtEndOfStream
+            function_file_lines = objFile.ReadLine
+            line_to_look_for_in_functions_file = "'Set fso_command = run_another_script_fso.OpenTextFile("
+            If InStr(function_file_lines, line_to_look_for_in_functions_file) Then
+                old_file_path.Text = Replace(Replace(Replace(function_file_lines, line_to_look_for_in_functions_file, ""), Chr(34), ""), "FUNCTIONS FILE.vbs)", "")
+            End If
+        Loop
+
+        'Closing the read-only version
+        objFile.Close()
+
+
+    End Sub
+
+
+    Private Sub TabPage2_Click(sender As Object, e As EventArgs) Handles advanced_file_path_mods_tab.Click
+
+    End Sub
+
+    Private Sub CheckBox1_CheckedChanged_3(sender As Object, e As EventArgs) Handles move_verifs_needed_check.CheckedChanged
 
     End Sub
 End Class
