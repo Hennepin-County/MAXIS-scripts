@@ -5,7 +5,7 @@ start_time = timer
 'LOADING ROUTINE FUNCTIONS
 '<<<GO THROUGH AND REMOVE REDUNDANT FUNCTIONS
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -209,6 +209,7 @@ If updates_made <> 0 then MsgBox "Success! Updates made: " & updates_made & "."
 If updates_made = 0 then MsgBox "Success! However, there were no remedial care entries found for after 07/01/2012. You may have already updated this case! Otherwise, this client may be at their renewal, or no remedial care deduction was made. If this appears to be an error, contact the script administrator."
 
 script_end_procedure("")
+
 
 
 

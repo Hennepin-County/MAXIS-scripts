@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -521,3 +521,4 @@ End if
 
 MsgBox "Success! Your JOBS panel has been updated with the paystubs you've entered in. Send your case through background, review the results, and take action as appropriate. Don't forget to case note!" 
 script_end_procedure("")
+

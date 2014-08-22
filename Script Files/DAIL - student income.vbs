@@ -5,7 +5,7 @@ start_time = timer
 'LOADING ROUTINE FUNCTIONS
 '<<DELETE REDUNDANCIES!
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -80,6 +80,7 @@ EMSendKey "<PF3>"
 MsgBox "MAXIS updated for student income status. A case note has been made, and a TIKL has been sent for 10 days from now. A financial aid form should be sent to the client."
 
 script_end_procedure("")
+
 
 
 

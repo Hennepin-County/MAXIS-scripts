@@ -5,7 +5,7 @@ start_time = timer
 'FUNCTIONS----------------------------------------------------------------------------------------------------
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -90,6 +90,7 @@ If other_action <> "" then Call write_editbox_in_case_note("Other actions", othe
 Call write_new_line_in_case_note("---")
 Call write_new_line_in_case_note(worker_signature)
 script_end_procedure("")
+
 
 
 

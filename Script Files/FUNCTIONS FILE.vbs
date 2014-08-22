@@ -16,7 +16,7 @@
 '
 ''LOADING ROUTINE FUNCTIONS
 'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-'Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+'Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 'text_from_the_other_script = fso_command.ReadAll
 'fso_command.Close
 'Execute text_from_the_other_script
@@ -27,10 +27,10 @@
 
 worker_county_code = "x102"
 collecting_statistics = False
-EDMS_choice = "Compass Pilot"
+EDMS_choice = "Compass Forms"
 county_name = "Anoka"
-county_address_line_01 = "1234"
-county_address_line_02 = "asdasd"
+county_address_line_01 = "1234 Anoka Road"
+county_address_line_02 = "Anoka, MN 55555"
 case_noting_intake_dates = True
 
 is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SETUP SCRIPT WILL OVERWRITE LINES BELOW WHICH DEPEND ON THIS, BY SEPARATING THE VARIABLES WE PREVENT ISSUES
@@ -1927,5 +1927,6 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
     EMWaitReady 0, 0
   End if
 End function
+
 
 

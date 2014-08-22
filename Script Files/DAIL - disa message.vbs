@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -88,6 +88,7 @@ PF3
 
 MsgBox "Case note and TIKL made. Send a Medical Opinion Form using " & EDMS_choice & "."
 script_end_procedure("")
+
 
 
 

@@ -6,7 +6,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("H:\VKC dev directory\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -81,12 +81,13 @@ Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
   call write_new_line_in_case_note(worker_signature)
 
 'Runs denied progs if selected
-If closed_progs_check = 1 then run_another_script("H:\VKC dev directory\Script Files\NOTE - closed progs.vbs")
+If closed_progs_check = 1 then run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\NOTE - closed progs.vbs")
 
 'Runs denied progs if selected
-If denied_progs_check = 1 then run_another_script("H:\VKC dev directory\Script Files\NOTE - denied progs.vbs")
+If denied_progs_check = 1 then run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\NOTE - denied progs.vbs")
 
 
 script_end_procedure("")
+
 
 
