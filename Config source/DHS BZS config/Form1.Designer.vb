@@ -1,0 +1,302 @@
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+Partial Class scripts_config_form
+    Inherits System.Windows.Forms.Form
+
+    'Form overrides dispose to clean up the component list.
+    <System.Diagnostics.DebuggerNonUserCode()> _
+    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+        Try
+            If disposing AndAlso components IsNot Nothing Then
+                components.Dispose()
+            End If
+        Finally
+            MyBase.Dispose(disposing)
+        End Try
+    End Sub
+
+    'Required by the Windows Form Designer
+    Private components As System.ComponentModel.IContainer
+
+    'NOTE: The following procedure is required by the Windows Form Designer
+    'It can be modified using the Windows Form Designer.  
+    'Do not modify it using the code editor.
+    <System.Diagnostics.DebuggerStepThrough()> _
+    Private Sub InitializeComponent()
+        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.county_selection = New System.Windows.Forms.ComboBox()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.access_DB_check = New System.Windows.Forms.CheckBox()
+        Me.EDMS_check = New System.Windows.Forms.CheckBox()
+        Me.EDMS_choice = New System.Windows.Forms.TextBox()
+        Me.county_address_line_01 = New System.Windows.Forms.TextBox()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.county_address_line_02 = New System.Windows.Forms.TextBox()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.new_file_path = New System.Windows.Forms.TextBox()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.old_file_path = New System.Windows.Forms.TextBox()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.run_configuration_button = New System.Windows.Forms.Button()
+        Me.intake_dates_check = New System.Windows.Forms.CheckBox()
+        Me.MenuStrip1.SuspendLayout()
+        Me.GroupBox1.SuspendLayout()
+        Me.GroupBox2.SuspendLayout()
+        Me.SuspendLayout()
+        '
+        'MenuStrip1
+        '
+        Me.MenuStrip1.AccessibleDescription = "Menubar"
+        Me.MenuStrip1.AccessibleName = "Menubar"
+        Me.MenuStrip1.AccessibleRole = System.Windows.Forms.AccessibleRole.MenuBar
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.HelpToolStripMenuItem})
+        Me.MenuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow
+        Me.MenuStrip1.Location = New System.Drawing.Point(2, 0)
+        Me.MenuStrip1.Name = "MenuStrip1"
+        Me.MenuStrip1.Padding = New System.Windows.Forms.Padding(0, 2, 0, 2)
+        Me.MenuStrip1.Size = New System.Drawing.Size(637, 24)
+        Me.MenuStrip1.TabIndex = 7
+        Me.MenuStrip1.Text = "MenuStrip1"
+        '
+        'FileToolStripMenuItem
+        '
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExitToolStripMenuItem})
+        Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
+        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
+        Me.FileToolStripMenuItem.Text = "File"
+        '
+        'ExitToolStripMenuItem
+        '
+        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.ExitToolStripMenuItem.Text = "Exit"
+        '
+        'HelpToolStripMenuItem
+        '
+        Me.HelpToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AboutToolStripMenuItem})
+        Me.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem"
+        Me.HelpToolStripMenuItem.Size = New System.Drawing.Size(44, 20)
+        Me.HelpToolStripMenuItem.Text = "Help"
+        '
+        'AboutToolStripMenuItem
+        '
+        Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(116, 22)
+        Me.AboutToolStripMenuItem.Text = "About..."
+        '
+        'county_selection
+        '
+        Me.county_selection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.county_selection.FormattingEnabled = True
+        Me.county_selection.Items.AddRange(New Object() {"01 - Aitkin", "02 - Anoka", "03 - Becker", "04 - Beltrami", "05 - Benton", "06 - Big Stone", "07 - Blue Earth", "08 - Brown", "09 - Carlton", "10 - Carver", "11 - Cass", "12 - Chippewa", "13 - Chisago", "14 - Clay", "15 - Clearwater", "16 - Cook", "17 - Cottonwood", "18 - Crow Wing", "19 - Dakota", "20 - Dodge", "21 - Douglas", "22 - Faribault", "23 - Fillmore", "24 - Freeborn", "25 - Goodhue", "26 - Grant", "27 - Hennepin", "28 - Houston", "29 - Hubbard", "30 - Isanti", "31 - Itasca", "32 - Jackson", "33 - Kanabec", "34 - Kandiyohi", "35 - Kittson", "36 - Koochiching", "37 - Lac Qui Parle", "38 - Lake", "39 - Lake of the Woods", "40 - LeSueur", "41 - Lincoln", "42 - Lyon", "43 - Mcleod", "44 - Mahnomen", "45 - Marshall", "46 - Martin", "47 - Meeker", "48 - Mille Lacs", "49 - Morrison", "50 - Mower", "51 - Murray", "52 - Nicollet", "53 - Nobles", "54 - Norman", "55 - Olmsted", "56 - Otter Tail", "57 - Pennington", "58 - Pine", "59 - Pipestone", "60 - Polk", "61 - Pope", "62 - Ramsey", "63 - Red Lake", "64 - Redwood", "65 - Renville", "66 - Rice", "67 - Rock", "68 - Roseau", "69 - St. Louis", "70 - Scott", "71 - Sherburne", "72 - Sibley", "73 - Stearns", "74 - Steele", "75 - Stevens", "76 - Swift", "77 - Todd", "78 - Traverse", "79 - Wabasha", "80 - Wadena", "81 - Waseca", "82 - Washington", "83 - Watonwan", "84 - Wilkin", "85 - Winona", "86 - Wright", "87 - Yellow Medicine"})
+        Me.county_selection.Location = New System.Drawing.Point(66, 19)
+        Me.county_selection.Name = "county_selection"
+        Me.county_selection.Size = New System.Drawing.Size(215, 21)
+        Me.county_selection.TabIndex = 0
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(17, 22)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(43, 13)
+        Me.Label1.TabIndex = 2
+        Me.Label1.Text = "County:"
+        '
+        'access_DB_check
+        '
+        Me.access_DB_check.AutoSize = True
+        Me.access_DB_check.Enabled = False
+        Me.access_DB_check.Location = New System.Drawing.Point(20, 133)
+        Me.access_DB_check.Name = "access_DB_check"
+        Me.access_DB_check.Size = New System.Drawing.Size(303, 17)
+        Me.access_DB_check.TabIndex = 1
+        Me.access_DB_check.Text = "Check here to collect statistics using an Access Database."
+        Me.access_DB_check.UseVisualStyleBackColor = True
+        '
+        'EDMS_check
+        '
+        Me.EDMS_check.AutoSize = True
+        Me.EDMS_check.Location = New System.Drawing.Point(20, 156)
+        Me.EDMS_check.Name = "EDMS_check"
+        Me.EDMS_check.Size = New System.Drawing.Size(298, 17)
+        Me.EDMS_check.TabIndex = 2
+        Me.EDMS_check.Text = "Check here if you use an EDMS, and enter its name here:"
+        Me.EDMS_check.UseVisualStyleBackColor = True
+        '
+        'EDMS_choice
+        '
+        Me.EDMS_choice.Location = New System.Drawing.Point(324, 154)
+        Me.EDMS_choice.Name = "EDMS_choice"
+        Me.EDMS_choice.Size = New System.Drawing.Size(156, 20)
+        Me.EDMS_choice.TabIndex = 3
+        Me.EDMS_choice.Text = "ex: Compass Forms"
+        '
+        'county_address_line_01
+        '
+        Me.county_address_line_01.Location = New System.Drawing.Point(134, 46)
+        Me.county_address_line_01.Name = "county_address_line_01"
+        Me.county_address_line_01.Size = New System.Drawing.Size(199, 20)
+        Me.county_address_line_01.TabIndex = 1
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(17, 49)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(111, 13)
+        Me.Label2.TabIndex = 7
+        Me.Label2.Text = "County address line 1:"
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Location = New System.Drawing.Point(17, 75)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(111, 13)
+        Me.Label3.TabIndex = 9
+        Me.Label3.Text = "County address line 2:"
+        '
+        'county_address_line_02
+        '
+        Me.county_address_line_02.Location = New System.Drawing.Point(134, 72)
+        Me.county_address_line_02.Name = "county_address_line_02"
+        Me.county_address_line_02.Size = New System.Drawing.Size(199, 20)
+        Me.county_address_line_02.TabIndex = 2
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Location = New System.Drawing.Point(17, 48)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(72, 13)
+        Me.Label4.TabIndex = 13
+        Me.Label4.Text = "New file path:"
+        '
+        'new_file_path
+        '
+        Me.new_file_path.Location = New System.Drawing.Point(89, 45)
+        Me.new_file_path.Name = "new_file_path"
+        Me.new_file_path.Size = New System.Drawing.Size(514, 20)
+        Me.new_file_path.TabIndex = 1
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Location = New System.Drawing.Point(17, 22)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(66, 13)
+        Me.Label5.TabIndex = 11
+        Me.Label5.Text = "Old file path:"
+        '
+        'old_file_path
+        '
+        Me.old_file_path.Location = New System.Drawing.Point(89, 19)
+        Me.old_file_path.Name = "old_file_path"
+        Me.old_file_path.Size = New System.Drawing.Size(514, 20)
+        Me.old_file_path.TabIndex = 0
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.Label4)
+        Me.GroupBox1.Controls.Add(Me.new_file_path)
+        Me.GroupBox1.Controls.Add(Me.Label5)
+        Me.GroupBox1.Controls.Add(Me.old_file_path)
+        Me.GroupBox1.Location = New System.Drawing.Point(20, 203)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(609, 77)
+        Me.GroupBox1.TabIndex = 5
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "Advanced file path modification"
+        '
+        'GroupBox2
+        '
+        Me.GroupBox2.Controls.Add(Me.county_selection)
+        Me.GroupBox2.Controls.Add(Me.Label1)
+        Me.GroupBox2.Controls.Add(Me.Label3)
+        Me.GroupBox2.Controls.Add(Me.county_address_line_01)
+        Me.GroupBox2.Controls.Add(Me.county_address_line_02)
+        Me.GroupBox2.Controls.Add(Me.Label2)
+        Me.GroupBox2.Location = New System.Drawing.Point(20, 27)
+        Me.GroupBox2.Name = "GroupBox2"
+        Me.GroupBox2.Size = New System.Drawing.Size(346, 100)
+        Me.GroupBox2.TabIndex = 0
+        Me.GroupBox2.TabStop = False
+        Me.GroupBox2.Text = "County information"
+        '
+        'run_configuration_button
+        '
+        Me.run_configuration_button.Location = New System.Drawing.Point(520, 286)
+        Me.run_configuration_button.Name = "run_configuration_button"
+        Me.run_configuration_button.Size = New System.Drawing.Size(109, 30)
+        Me.run_configuration_button.TabIndex = 6
+        Me.run_configuration_button.Text = "Run Configuration"
+        Me.run_configuration_button.UseVisualStyleBackColor = True
+        '
+        'intake_dates_check
+        '
+        Me.intake_dates_check.AutoSize = True
+        Me.intake_dates_check.Location = New System.Drawing.Point(20, 180)
+        Me.intake_dates_check.Name = "intake_dates_check"
+        Me.intake_dates_check.Size = New System.Drawing.Size(488, 17)
+        Me.intake_dates_check.TabIndex = 4
+        Me.intake_dates_check.Text = "Check here to have the ""closed progs"" and ""denied progs"" scripts case note info o" & _
+    "n intake dates."
+        Me.intake_dates_check.UseVisualStyleBackColor = True
+        '
+        'scripts_config_form
+        '
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.ClientSize = New System.Drawing.Size(639, 323)
+        Me.Controls.Add(Me.intake_dates_check)
+        Me.Controls.Add(Me.run_configuration_button)
+        Me.Controls.Add(Me.GroupBox2)
+        Me.Controls.Add(Me.GroupBox1)
+        Me.Controls.Add(Me.EDMS_choice)
+        Me.Controls.Add(Me.EDMS_check)
+        Me.Controls.Add(Me.access_DB_check)
+        Me.Controls.Add(Me.MenuStrip1)
+        Me.MainMenuStrip = Me.MenuStrip1
+        Me.Name = "scripts_config_form"
+        Me.Padding = New System.Windows.Forms.Padding(2, 0, 0, 0)
+        Me.Text = "BlueZone Scripts Configuration"
+        Me.MenuStrip1.ResumeLayout(False)
+        Me.MenuStrip1.PerformLayout()
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
+        Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
+        Me.ResumeLayout(False)
+        Me.PerformLayout()
+
+    End Sub
+    Friend WithEvents MenuStrip1 As System.Windows.Forms.MenuStrip
+    Friend WithEvents FileToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ExitToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents AboutToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents county_selection As System.Windows.Forms.ComboBox
+    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents access_DB_check As System.Windows.Forms.CheckBox
+    Friend WithEvents EDMS_check As System.Windows.Forms.CheckBox
+    Friend WithEvents EDMS_choice As System.Windows.Forms.TextBox
+    Friend WithEvents county_address_line_01 As System.Windows.Forms.TextBox
+    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents county_address_line_02 As System.Windows.Forms.TextBox
+    Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents new_file_path As System.Windows.Forms.TextBox
+    Friend WithEvents Label5 As System.Windows.Forms.Label
+    Friend WithEvents old_file_path As System.Windows.Forms.TextBox
+    Friend WithEvents GroupBox1 As System.Windows.Forms.GroupBox
+    Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
+    Friend WithEvents run_configuration_button As System.Windows.Forms.Button
+    Friend WithEvents intake_dates_check As System.Windows.Forms.CheckBox
+
+End Class

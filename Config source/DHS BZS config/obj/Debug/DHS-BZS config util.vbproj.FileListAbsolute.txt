@@ -1,0 +1,15 @@
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\bin\Debug\DHS-BZS config util.exe.config
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\bin\Debug\DHS-BZS config util.exe.manifest
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\bin\Debug\DHS-BZS config util.application
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\bin\Debug\DHS-BZS config util.exe
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\bin\Debug\DHS-BZS config util.pdb
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\bin\Debug\DHS-BZS config util.xml
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS_BZS_config.AboutBox2.resources
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS_BZS_config.scripts_config_form.resources
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS_BZS_config.Resources.resources
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS-BZS config util.vbproj.GenerateResource.Cache
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS-BZS config util.exe.manifest
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS-BZS config util.application
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS-BZS config util.exe
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS-BZS config util.xml
+C:\Users\VKC\Documents\Visual Studio 2013\Projects\DHS BZS config\DHS BZS config\obj\Debug\DHS-BZS config util.pdb
