@@ -42,6 +42,7 @@ EndDialog
 BeginDialog CAF_dialog_01, 0, 0, 451, 235, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
   EditBox 60, 25, 50, 15, interview_date
+  ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN", how_app_was_received
   EditBox 75, 45, 260, 15, HH_comp
   EditBox 35, 65, 200, 15, cit_id
   EditBox 265, 65, 180, 15, IMIG
@@ -55,13 +56,6 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 235, "CAF dialog part 1"
   ButtonGroup ButtonPressed
     PushButton 340, 215, 50, 15, "NEXT", next_to_page_02_button
     CancelButton 395, 215, 50, 15
-    PushButton 200, 15, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 220, 15, 15, 10, "FS", ELIG_FS_button
-    PushButton 235, 15, 15, 10, "GA", ELIG_GA_button
-    PushButton 250, 15, 15, 10, "HC", ELIG_HC_button
-    PushButton 265, 15, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 285, 15, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 305, 15, 15, 10, "WB", ELIG_WB_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
@@ -78,18 +72,26 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 235, "CAF dialog part 1"
     PushButton 280, 110, 25, 10, "FACI:", FACI_button
     PushButton 5, 140, 25, 10, "PREG:", PREG_button
     PushButton 5, 160, 25, 10, "ABPS:", ABPS_button
+    PushButton 10, 215, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 215, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 215, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 215, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 215, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 215, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 215, 15, 10, "WB", ELIG_WB_button
     PushButton 150, 215, 25, 10, "ADDR", ADDR_button
     PushButton 175, 215, 25, 10, "MEMB", MEMB_button
     PushButton 200, 215, 25, 10, "MEMI", MEMI_button
     PushButton 225, 215, 25, 10, "PROG", PROG_button
     PushButton 250, 215, 25, 10, "REVW", REVW_button
     PushButton 275, 215, 25, 10, "TYPE", TYPE_button
-  GroupBox 195, 5, 130, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 10, 55, 10, "CAF datestamp:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 30, 55, 10, "Interview date:"
+  Text 120, 30, 110, 10, "How was application received?:"
   Text 5, 70, 25, 10, "CIT/ID:"
   Text 5, 190, 50, 10, "Verifs needed:"
+  GroupBox 5, 205, 130, 25, "ELIG panels:"
   GroupBox 145, 205, 160, 25, "other STAT panels:"
 EndDialog
 
@@ -106,11 +108,9 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 155, 245, 290, 15, other_assets
   EditBox 55, 275, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-    PushButton 275, 300, 60, 10, "previous page", previous_to_page_01_button
     PushButton 340, 295, 50, 15, "NEXT", next_to_page_03_button
     CancelButton 395, 295, 50, 15
-  GroupBox 5, 5, 130, 25, "ELIG panels:"
-  ButtonGroup ButtonPressed
+    PushButton 275, 300, 60, 10, "previous page", previous_to_page_01_button
     PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
     PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
     PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
@@ -118,44 +118,40 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
     PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
     PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
     PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-  GroupBox 145, 5, 135, 25, "Income panels"
-  ButtonGroup ButtonPressed
     PushButton 150, 15, 25, 10, "BUSI", BUSI_button
     PushButton 175, 15, 25, 10, "JOBS", JOBS_button
     PushButton 200, 15, 25, 10, "PBEN", PBEN_button
     PushButton 225, 15, 25, 10, "RBIC", RBIC_button
     PushButton 250, 15, 25, 10, "UNEA", UNEA_button
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  ButtonGroup ButtonPressed
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 90, 75, 10, "STWK/inc. changes:", STWK_button
+    PushButton 5, 180, 25, 10, "SHEL/", SHEL_button
+    PushButton 30, 180, 25, 10, "HEST:", HEST_button
+    PushButton 5, 200, 25, 10, "COEX/", COEX_button
+    PushButton 30, 200, 25, 10, "DCEX:", DCEX_button
+    PushButton 5, 230, 25, 10, "CASH/", CASH_button
+    PushButton 30, 230, 30, 10, "ACCTs:", ACCT_button
+    PushButton 5, 250, 25, 10, "CARS/", CARS_button
+    PushButton 30, 250, 25, 10, "REST/", REST_button
+    PushButton 55, 250, 25, 10, "SECU/", SECU_button
+    PushButton 80, 250, 25, 10, "TRAN/", TRAN_button
+    PushButton 105, 250, 45, 10, "other assets:", OTHR_button
+  GroupBox 5, 5, 130, 25, "ELIG panels:"
+  GroupBox 145, 5, 135, 25, "Income panels"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 50, 55, 10, "Earned income:"
   Text 5, 70, 65, 10, "Unearned income:"
-  ButtonGroup ButtonPressed
-    PushButton 5, 90, 75, 10, "STWK/inc. changes:", STWK_button
   Text 5, 110, 50, 10, "ABAWD notes:"
   Text 5, 130, 60, 10, "Notes on income:"
   Text 5, 150, 150, 10, "Is any work temporary? If so, explain details:"
-  ButtonGroup ButtonPressed
-    PushButton 5, 180, 25, 10, "SHEL/", SHEL_button
-    PushButton 30, 180, 25, 10, "HEST:", HEST_button
-    PushButton 105, 250, 45, 10, "other assets:", OTHR_button
-    PushButton 5, 200, 25, 10, "COEX/", COEX_button
-    PushButton 5, 250, 25, 10, "CARS/", CARS_button
-    PushButton 5, 230, 25, 10, "CASH/", CASH_button
-    PushButton 30, 230, 30, 10, "ACCTs:", ACCT_button
-    PushButton 55, 250, 25, 10, "SECU/", SECU_button
-    PushButton 80, 250, 25, 10, "TRAN/", TRAN_button
   Text 5, 280, 50, 10, "Verifs needed:"
-  ButtonGroup ButtonPressed
-    PushButton 30, 200, 25, 10, "DCEX:", DCEX_button
-    PushButton 30, 250, 25, 10, "REST/", REST_button
 EndDialog
 
 
-BeginDialog CAF_dialog_03, 0, 0, 451, 340, "CAF dialog part 3"
+BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
   EditBox 60, 45, 385, 15, INSA
   EditBox 35, 65, 410, 15, ACCI
   EditBox 35, 85, 175, 15, DIET
@@ -175,15 +171,16 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 340, "CAF dialog part 3"
   CheckBox 295, 195, 105, 10, "Managed care packet sent?", managed_care_packet_check
   CheckBox 25, 210, 115, 10, "Managed care referral made?", managed_care_referral_check
   CheckBox 150, 210, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
-  CheckBox 25, 225, 265, 10, "Check here to have the script create a TIKL to deny at the 30/45 day mark.", TIKL_check
-  EditBox 55, 240, 230, 15, other_notes
-  ComboBox 330, 240, 115, 15, ""+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-  EditBox 55, 260, 390, 15, verifs_needed
-  EditBox 55, 280, 390, 15, actions_taken
-  EditBox 395, 300, 50, 15, worker_signature
+  CheckBox 25, 225, 250, 10, "Check here to have the script create a TIKL to deny at the 30/45 day mark.", TIKL_check
+  CheckBox 25, 240, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_check
+  EditBox 55, 255, 230, 15, other_notes
+  ComboBox 330, 255, 115, 15, "incomplete"+chr(9)+"approved", CAF_status
+  EditBox 55, 275, 390, 15, verifs_needed
+  EditBox 55, 295, 390, 15, actions_taken
+  EditBox 395, 315, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 320, 50, 15
-    CancelButton 395, 320, 50, 15
+    OkButton 340, 335, 50, 15
+    CancelButton 395, 335, 50, 15
     PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
     PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
     PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
@@ -202,17 +199,18 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 340, "CAF dialog part 3"
     PushButton 215, 90, 25, 10, "BILS:", BILS_button
     PushButton 5, 110, 25, 10, "FMED:", FMED_button
     PushButton 330, 110, 55, 10, "HC begin date:", HCRE_button
-    PushButton 265, 325, 60, 10, "previous page", previous_to_page_02_button
+    PushButton 265, 340, 60, 10, "previous page", previous_to_page_02_button
   GroupBox 5, 5, 130, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 140, 170, 10, "Reason expedited wasn't processed (if applicable):"
   Text 5, 160, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 245, 50, 10, "Other notes:"
-  Text 290, 245, 40, 10, "CAF status:"
-  Text 5, 265, 50, 10, "Verifs needed:"
-  Text 5, 285, 50, 10, "Actions taken:"
-  Text 330, 305, 60, 10, "Worker signature:"
+  Text 5, 260, 50, 10, "Other notes:"
+  Text 290, 260, 40, 10, "CAF status:"
+  Text 5, 280, 50, 10, "Verifs needed:"
+  Text 5, 300, 50, 10, "Actions taken:"
+  Text 330, 320, 60, 10, "Worker signature:"
 EndDialog
+
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
@@ -406,6 +404,7 @@ End if
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type <> "Recertification" then TIKL_check = 1
 
+
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Do
@@ -467,7 +466,6 @@ Do
     Loop until ButtonPressed = -1
     If ButtonPressed = previous_to_page_01_button then exit do 'In case the script skipped the third page as a result of hitting "previous page" on part 2
     If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN MsgBox "You need to:" & chr(13) & chr(13) & "-Fill in the datestamp, and/or" & chr(13) & "-Actions taken sections, and/or" & chr(13) & "-HCAPP Status, and/or" & chr(13) & "-Sign your case note." & chr(13) & chr(13) & "Check these items after pressing ''OK''."
-
   Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""
   If ButtonPressed = -1 then dialog case_note_dialog
   If buttonpressed = yes_case_note_button then
@@ -522,6 +520,14 @@ Do
         PF3
       End if
     End if
+    If client_delay_TIKL_check = checked then
+      call navigate_to_screen("dail", "writ")
+      call create_MAXIS_friendly_date(date, 10, 5, 18) 
+      EMSetCursor 9, 3
+      EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
+      transmit
+      PF3
+    End if
     call navigate_to_screen("case", "note")
     PF9
     EMReadScreen case_note_check, 17, 2, 33
@@ -541,9 +547,11 @@ If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
+If move_verifs_needed = True and verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 call write_editbox_in_case_note("CAF datestamp", CAF_datestamp, 6)
 if interview_date <> "" then call write_editbox_in_case_note("Interview date", interview_date, 6)
 call write_editbox_in_case_note("Programs applied for", programs_applied_for, 6)
+if how_app_was_received <> "" or how_app_was_received <> " " then call write_editbox_in_case_note("How CAF was received", how_app_was_received, 6)	'This one also uses " " as option, because that is the default
 If HH_comp <> "" then call write_editbox_in_case_note("HH comp/EATS", HH_comp, 6)
 If cit_id <> "" then call write_editbox_in_case_note("Cit/ID", cit_id, 6)
 If IMIG <> "" then call write_editbox_in_case_note("IMIG", IMIG, 6)
@@ -584,11 +592,14 @@ If managed_care_referral_check = 1 then call write_new_line_in_case_note("* Mana
 If client_delay_check = 1 then call write_new_line_in_case_note("* PND2 updated to show client delay.")
 if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
 if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
+If move_verifs_needed = False and verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)		'If global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 script_end_procedure("")
+
+
+
 
 
