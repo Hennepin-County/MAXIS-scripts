@@ -1710,23 +1710,16 @@ Function PF12
   EMWaitReady 0, 0
 End function
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
 Function PF19
   EMSendKey "<PF19>"
   EMWaitReady 0, 0
 End function
 
-=======
->>>>>>> origin/master
-=======
 function PF19
   EMSendKey "<PF19>"
   EMWaitReady 0, 0
 end function
 
->>>>>>> parent of d8e6ab0... Added a space to the SHEL autofill (grammar fix)
 function PF20
   EMSendKey "<PF20>"
   EMWaitReady 0, 0
