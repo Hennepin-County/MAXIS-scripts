@@ -1,7 +1,3 @@
-'Informational front-end message, date dependent.
-If datediff("d", "04/05/2013", now) < 5 then MsgBox "This script has been updated as of 04/05/2013! It will now update HC panels when at the HC review. It will also alert you if any of your CSES panels did NOT receive a corresponding message."
-
-
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "DAIL - CSES processing"
 start_time = timer
@@ -30,15 +26,6 @@ Dim line_11_PMI_array
 Dim line_12_PMI_array
 Dim line_13_PMI_array
 Dim HC_pay_frequency
-
-'First it checks to see if PRISM is on the same screen. If not, the script will stop and notify the worker.
-attn
-EMReadScreen PRISM_check, 7, 17, 15
-If PRISM_check <> "RUNNING" then 
-  MsgBox "You need PRISM running on this BlueZone window to continue. The script will now stop."
-  stopscript
-End if
-attn
 
 'EXCEL BLOCK
 Set objExcel = CreateObject("Excel.Application") 
@@ -597,8 +584,14 @@ If MFIP_active = "True" then
   end_excel_and_script
 End if
 
-'This jumps to PRISM.
+'First it checks to see if PRISM is on the same screen. If not, the script will stop and notify the worker.
 attn
+EMReadScreen PRISM_check, 7, 17, 15
+If PRISM_check <> "RUNNING" then 
+  MsgBox "PRISM is not found! Some agencies require workers to check PRISM for support orders when the DAIL messages come in. If your agency requires this, open PRISM and try again. The script will now stop."
+  attn
+  end_excel_and_script
+End if
 EMWriteScreen "12", 2, 15
 transmit
 
@@ -674,11 +667,9 @@ end if
 
   EMWriteScreen "s", 2, 20
   transmit
-  EMWaitReady 1, 0
 
   EMWriteScreen "CAFS", 21, 17
   transmit
-  EMWaitReady 1, 0
 
 'Now we are in CAFS, and the script will read the Obl field to determine if the Obl is CCC, CMS, or CMI.
   EMReadScreen CAFS_check_01, 3, 17, 18
@@ -704,7 +695,6 @@ end if
 
 'Now it returns to the main menu of PRISM.
   PF3
-  EMWaitReady 0, 0
 
 'Now it marks any SSNs that have already been checked as having been checked. This way it doesn't check them again.
   SSN_check_excel_row = excel_row 'copying the row over so we don't overwrite the overall excel row.
@@ -716,10 +706,8 @@ end if
 Loop until ObjExcel.Cells(excel_row, 9).Value = ""
 
 'Now it will navigate back to MAXIS for the ending.
-EMSendKey "<attn>"
-EMWaitReady 0, 0
-EMSendKey "<attn>"
-EMWaitReady 0, 0
+attn
+attn
 
 MsgBox "PRISM checked, no CMI/CMS/CCC obl types indicated on CAFS. The script findings are listed in this case note."
 
@@ -729,5 +717,3 @@ objExcel.quit
 
 'ending script
 script_end_procedure("")
-
-
