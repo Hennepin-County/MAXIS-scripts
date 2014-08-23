@@ -1100,7 +1100,7 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
             Else
               SHEL_proof = ""
             End if
-            SHEL_expense = SHEL_expense & "$" & trim(SHEL_amount) & "/mo " & lcase(trim(SHEL_type)) & SHEL_proof & ".; "
+            SHEL_expense = SHEL_expense & "$" & trim(SHEL_amount) & "/mo " & lcase(trim(SHEL_type)) & SHEL_proof & ". ;"
           End if
           row = row + 1
         Loop until row = 19
