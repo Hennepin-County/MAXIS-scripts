@@ -10,7 +10,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
+BeginDialog appointment_letter_dialog, 0, 0, 156, 335, "Appointment letter"
   EditBox 75, 5, 50, 15, case_number
   DropListBox 50, 25, 95, 15, "new application"+chr(9)+"recertification", app_type
   EditBox 50, 45, 95, 15, CAF_date
@@ -22,12 +22,11 @@ BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
   CheckBox 10, 190, 95, 10, "Client appears expedited", expedited_check
   CheckBox 10, 205, 135, 10, "Same day interview offered/declined", same_day_declined_check
   EditBox 10, 240, 135, 15, expedited_explanation
-  CheckBox 10, 265, 135, 10, "Check here to have the script update", client_delay_check
-  CheckBox 10, 290, 135, 10, "Check here if you left V/M with client", voicemail_check
-  EditBox 85, 315, 60, 15, worker_signature
+  CheckBox 10, 270, 135, 10, "Check here if you left V/M with client", voicemail_check
+  EditBox 85, 295, 60, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 25, 335, 50, 15
-    CancelButton 85, 335, 50, 15
+    OkButton 25, 315, 50, 15
+    CancelButton 85, 315, 50, 15
   Text 25, 10, 50, 10, "Case number:"
   Text 15, 30, 30, 10, "App type:"
   Text 15, 50, 35, 10, "CAF date:"
@@ -38,13 +37,9 @@ BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
   Text 15, 150, 60, 20, "Client phone (if phone interview):"
   GroupBox 5, 175, 145, 85, "Expedited questions"
   Text 10, 220, 135, 20, "If expedited interview date is not within six days of the application, explain:"
-  Text 45, 275, 75, 10, "PND2 for client delay."
-  Text 45, 300, 75, 10, "requesting a call back."
-  Text 15, 320, 65, 10, "Worker signature:"
+  Text 45, 280, 75, 10, "requesting a call back."
+  Text 15, 300, 65, 10, "Worker signature:"
 EndDialog
-
-
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
@@ -140,38 +135,6 @@ EMSendKey "************************************************************"
 'Exits the MEMO
 PF4
 
-'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
-If client_delay_check = checked then 
-  call navigate_to_screen("rept", "pnd2")
-  EMGetCursor PND2_row, PND2_col
-  for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
-    EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
-    If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
-    EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
-    If PND2_HC_status_check = "P" then
-      EMWriteScreen "x", PND2_row, 3
-      transmit
-      person_delay_row = 7
-      Do
-        EMReadScreen person_delay_check, 1, person_delay_row, 39
-        If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
-        person_delay_row = person_delay_row + 2
-      Loop until person_delay_check = " " or person_delay_row > 20
-      PF3
-    End if
-    EMReadScreen additional_app_check, 14, PND2_row + 1, 17
-    If additional_app_check <> "ADDITIONAL APP" then exit for
-    PND2_row = PND2_row + 1
-  next
-  PF3
-  EMReadScreen PND2_check, 4, 2, 52
-  If PND2_check = "PND2" then
-    MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
-    PF10
-    client_delay_check = unchecked
-  End if
-End if
-
 'Navigates to CASE/NOTE
 call navigate_to_screen("case", "note")
 PF9
@@ -186,7 +149,6 @@ If expedited_explanation <> "" then call write_editbox_in_case_note("Why intervi
 call write_editbox_in_case_note("Appointment type", interview_type, 5)
 If client_phone <> "" then call write_editbox_in_case_note("Client phone", client_phone, 5)
 call write_new_line_in_case_note("* Client must complete interview by " & last_contact_day & ".")
-If client_delay_check = checked then call write_new_line_in_case_note("* PND2 updated for client delay.")
 If voicemail_check = checked then call write_new_line_in_case_note("* Left client a voicemail requesting a call back.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
