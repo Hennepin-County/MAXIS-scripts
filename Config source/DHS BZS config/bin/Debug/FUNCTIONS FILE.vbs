@@ -15,12 +15,12 @@
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 
-worker_county_code = "x109"
+worker_county_code = "x103"
 collecting_statistics = False
 EDMS_choice = "DHS eDocs"
-county_name = "Carlton"
-county_address_line_01 = "asdasd"
-county_address_line_02 = "asdsdsas"
+county_name = "Becker"
+county_address_line_01 = "rerw"
+county_address_line_02 = "werwer"
 case_noting_intake_dates = True
 move_verifs_needed = False
 
@@ -35,6 +35,7 @@ OK = -1		'Value for OK button in dialogs
 'Some screens require the two digit county code, and this determines what that code is
 two_digit_county_code = right(worker_county_code, 2)
 If two_digit_county_code = "PW" then two_digit_county_code = "91"	'For DHS purposes
+
 
 
 
