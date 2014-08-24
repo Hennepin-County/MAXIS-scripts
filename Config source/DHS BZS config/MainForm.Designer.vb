@@ -43,17 +43,18 @@ Partial Class scripts_config_form
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.run_configuration_button = New System.Windows.Forms.Button()
         Me.intake_dates_check = New System.Windows.Forms.CheckBox()
-        Me.TabControl1 = New System.Windows.Forms.TabControl()
-        Me.advanced_script_mods_tab = New System.Windows.Forms.TabPage()
-        Me.advanced_file_path_mods_tab = New System.Windows.Forms.TabPage()
+        Me.Tab_Control_Main_Form = New System.Windows.Forms.TabControl()
         Me.basic_settings_tab = New System.Windows.Forms.TabPage()
+        Me.advanced_script_mods_tab = New System.Windows.Forms.TabPage()
         Me.move_verifs_needed_check = New System.Windows.Forms.CheckBox()
+        Me.advanced_file_path_mods_tab = New System.Windows.Forms.TabPage()
+        Me.Update_Files_Label = New System.Windows.Forms.Label()
         Me.MenuStrip1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
-        Me.TabControl1.SuspendLayout()
+        Me.Tab_Control_Main_Form.SuspendLayout()
+        Me.basic_settings_tab.SuspendLayout()
         Me.advanced_script_mods_tab.SuspendLayout()
         Me.advanced_file_path_mods_tab.SuspendLayout()
-        Me.basic_settings_tab.SuspendLayout()
         Me.SuspendLayout()
         '
         'MenuStrip1
@@ -80,7 +81,7 @@ Partial Class scripts_config_form
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(92, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'HelpToolStripMenuItem
@@ -93,7 +94,7 @@ Partial Class scripts_config_form
         'AboutToolStripMenuItem
         '
         Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(116, 22)
         Me.AboutToolStripMenuItem.Text = "About..."
         '
         'county_selection
@@ -245,16 +246,29 @@ Partial Class scripts_config_form
     "n intake dates."
         Me.intake_dates_check.UseVisualStyleBackColor = True
         '
-        'TabControl1
+        'Tab_Control_Main_Form
         '
-        Me.TabControl1.Controls.Add(Me.basic_settings_tab)
-        Me.TabControl1.Controls.Add(Me.advanced_script_mods_tab)
-        Me.TabControl1.Controls.Add(Me.advanced_file_path_mods_tab)
-        Me.TabControl1.Location = New System.Drawing.Point(6, 27)
-        Me.TabControl1.Name = "TabControl1"
-        Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(509, 185)
-        Me.TabControl1.TabIndex = 8
+        Me.Tab_Control_Main_Form.Controls.Add(Me.basic_settings_tab)
+        Me.Tab_Control_Main_Form.Controls.Add(Me.advanced_script_mods_tab)
+        Me.Tab_Control_Main_Form.Controls.Add(Me.advanced_file_path_mods_tab)
+        Me.Tab_Control_Main_Form.Location = New System.Drawing.Point(6, 27)
+        Me.Tab_Control_Main_Form.Name = "Tab_Control_Main_Form"
+        Me.Tab_Control_Main_Form.SelectedIndex = 0
+        Me.Tab_Control_Main_Form.Size = New System.Drawing.Size(509, 185)
+        Me.Tab_Control_Main_Form.TabIndex = 8
+        '
+        'basic_settings_tab
+        '
+        Me.basic_settings_tab.Controls.Add(Me.GroupBox2)
+        Me.basic_settings_tab.Controls.Add(Me.access_DB_check)
+        Me.basic_settings_tab.Controls.Add(Me.EDMS_check)
+        Me.basic_settings_tab.Controls.Add(Me.EDMS_choice)
+        Me.basic_settings_tab.Location = New System.Drawing.Point(4, 22)
+        Me.basic_settings_tab.Name = "basic_settings_tab"
+        Me.basic_settings_tab.Size = New System.Drawing.Size(501, 159)
+        Me.basic_settings_tab.TabIndex = 2
+        Me.basic_settings_tab.Text = "Basic settings"
+        Me.basic_settings_tab.UseVisualStyleBackColor = True
         '
         'advanced_script_mods_tab
         '
@@ -267,6 +281,16 @@ Partial Class scripts_config_form
         Me.advanced_script_mods_tab.TabIndex = 0
         Me.advanced_script_mods_tab.Text = "Advanced script mods"
         Me.advanced_script_mods_tab.UseVisualStyleBackColor = True
+        '
+        'move_verifs_needed_check
+        '
+        Me.move_verifs_needed_check.AutoSize = True
+        Me.move_verifs_needed_check.Location = New System.Drawing.Point(6, 29)
+        Me.move_verifs_needed_check.Name = "move_verifs_needed_check"
+        Me.move_verifs_needed_check.Size = New System.Drawing.Size(408, 17)
+        Me.move_verifs_needed_check.TabIndex = 5
+        Me.move_verifs_needed_check.Text = "Check here to move the ""verifs needed"" section to the top of the CAF case note."
+        Me.move_verifs_needed_check.UseVisualStyleBackColor = True
         '
         'advanced_file_path_mods_tab
         '
@@ -282,35 +306,23 @@ Partial Class scripts_config_form
         Me.advanced_file_path_mods_tab.Text = "Advanced file path mods"
         Me.advanced_file_path_mods_tab.UseVisualStyleBackColor = True
         '
-        'basic_settings_tab
+        'Update_Files_Label
         '
-        Me.basic_settings_tab.Controls.Add(Me.GroupBox2)
-        Me.basic_settings_tab.Controls.Add(Me.access_DB_check)
-        Me.basic_settings_tab.Controls.Add(Me.EDMS_check)
-        Me.basic_settings_tab.Controls.Add(Me.EDMS_choice)
-        Me.basic_settings_tab.Location = New System.Drawing.Point(4, 22)
-        Me.basic_settings_tab.Name = "basic_settings_tab"
-        Me.basic_settings_tab.Size = New System.Drawing.Size(501, 159)
-        Me.basic_settings_tab.TabIndex = 2
-        Me.basic_settings_tab.Text = "Basic settings"
-        Me.basic_settings_tab.UseVisualStyleBackColor = True
-        '
-        'move_verifs_needed_check
-        '
-        Me.move_verifs_needed_check.AutoSize = True
-        Me.move_verifs_needed_check.Location = New System.Drawing.Point(6, 29)
-        Me.move_verifs_needed_check.Name = "move_verifs_needed_check"
-        Me.move_verifs_needed_check.Size = New System.Drawing.Size(408, 17)
-        Me.move_verifs_needed_check.TabIndex = 5
-        Me.move_verifs_needed_check.Text = "Check here to move the ""verifs needed"" section to the top of the CAF case note."
-        Me.move_verifs_needed_check.UseVisualStyleBackColor = True
+        Me.Update_Files_Label.AutoSize = True
+        Me.Update_Files_Label.Location = New System.Drawing.Point(254, 227)
+        Me.Update_Files_Label.Name = "Update_Files_Label"
+        Me.Update_Files_Label.Size = New System.Drawing.Size(142, 13)
+        Me.Update_Files_Label.TabIndex = 9
+        Me.Update_Files_Label.Text = "Updating files, please wait! :)"
+        Me.Update_Files_Label.Visible = False
         '
         'scripts_config_form
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(519, 254)
-        Me.Controls.Add(Me.TabControl1)
+        Me.Controls.Add(Me.Update_Files_Label)
+        Me.Controls.Add(Me.Tab_Control_Main_Form)
         Me.Controls.Add(Me.run_configuration_button)
         Me.Controls.Add(Me.MenuStrip1)
         Me.MainMenuStrip = Me.MenuStrip1
@@ -321,13 +333,13 @@ Partial Class scripts_config_form
         Me.MenuStrip1.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
-        Me.TabControl1.ResumeLayout(False)
+        Me.Tab_Control_Main_Form.ResumeLayout(False)
+        Me.basic_settings_tab.ResumeLayout(False)
+        Me.basic_settings_tab.PerformLayout()
         Me.advanced_script_mods_tab.ResumeLayout(False)
         Me.advanced_script_mods_tab.PerformLayout()
         Me.advanced_file_path_mods_tab.ResumeLayout(False)
         Me.advanced_file_path_mods_tab.PerformLayout()
-        Me.basic_settings_tab.ResumeLayout(False)
-        Me.basic_settings_tab.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -353,10 +365,11 @@ Partial Class scripts_config_form
     Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
     Friend WithEvents run_configuration_button As System.Windows.Forms.Button
     Friend WithEvents intake_dates_check As System.Windows.Forms.CheckBox
-    Friend WithEvents TabControl1 As System.Windows.Forms.TabControl
+    Friend WithEvents Tab_Control_Main_Form As System.Windows.Forms.TabControl
     Friend WithEvents advanced_script_mods_tab As System.Windows.Forms.TabPage
     Friend WithEvents advanced_file_path_mods_tab As System.Windows.Forms.TabPage
     Friend WithEvents basic_settings_tab As System.Windows.Forms.TabPage
     Friend WithEvents move_verifs_needed_check As System.Windows.Forms.CheckBox
+    Friend WithEvents Update_Files_Label As System.Windows.Forms.Label
 
 End Class

@@ -154,6 +154,10 @@ Public Class scripts_config_form
         "the current file path. If you move your script directory, you'll have to use this tool again. Are you sure you want to do this?", 1)
         If warning = 2 Then Exit Sub
 
+        Update_Files_Label.Visible = True
+        Tab_Control_Main_Form.Enabled = False
+        run_configuration_button.Enabled = False
+
         'Setting EDMS_choice as DHS eDocs if there is not a local EDMS.
         If EDMS_check.Checked = False Then EDMS_choice.Text = "DHS eDocs"
 
@@ -165,7 +169,12 @@ Public Class scripts_config_form
             If UCase(Strings.Right(file_in_array, 4)) = ".VBS" Then update_files(file_in_array)
         Next
 
+        Update_Files_Label.Visible = False
+        Tab_Control_Main_Form.Enabled = True
+        run_configuration_button.Enabled = True
+
         'Success!
+        Me.Hide()
         MsgBox("Success! All scripts modified to work in this directory.")
         Application.Exit()
     End Sub
@@ -208,6 +217,10 @@ Public Class scripts_config_form
     End Sub
 
     Private Sub CheckBox1_CheckedChanged_3(sender As Object, e As EventArgs) Handles move_verifs_needed_check.CheckedChanged
+
+    End Sub
+
+    Private Sub Label6_Click(sender As Object, e As EventArgs) Handles Update_Files_Label.Click
 
     End Sub
 End Class
