@@ -32,7 +32,7 @@ BeginDialog new_job_reported_dialog, 0, 0, 286, 265, "New job reported dialog"
   EditBox 100, 85, 55, 15, income_start_date
   EditBox 125, 105, 55, 15, contract_through_date
   EditBox 90, 125, 100, 15, who_reported_job
-  ComboBox 100, 145, 90, 15, "phone call"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker", job_report_type
+  ComboBox 100, 145, 90, 15, "phone call"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
   EditBox 30, 165, 210, 15, notes
   CheckBox 5, 185, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_check
   CheckBox 5, 200, 190, 10, "Check here if you sent a status update to CCA.", CCA_check
