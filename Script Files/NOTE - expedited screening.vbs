@@ -72,8 +72,8 @@ If phone_check = 0 and electric_check = 0 and heat_AC_check = 0 then utilities =
 
 
 'Calculates expedited status based on above numbers
-If (cint(income) < 150 and cint(assets) <= 100) or ((cint(income) + cint(assets)) < (cint(rent) + cint(utilities))) then expedited_status = "client appears expedited"
-If (cint(income) + cint(assets) >= cint(rent) + cint(utilities)) and (cint(income) >= 150 or cint(assets) > 100) then expedited_status = "client does not appear expedited"
+If (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) then expedited_status = "client appears expedited"
+If (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) then expedited_status = "client does not appear expedited"
 
 'SECTION 03
 'This jumps back to SELF
@@ -138,6 +138,8 @@ If expedited_status = "client does not appear expedited" then
 End if
 
 script_end_procedure("")
+
+
 
 
 
