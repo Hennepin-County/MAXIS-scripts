@@ -491,7 +491,7 @@ If update_PIC_check = 1 then
   EMWriteScreen PIC_line_11, 9, 35
   If explanation_of_income <> "" then 
     EMSendKey "---" & "<newline>"
-    call write_editbox_in_case_note("Reason income other than last 30 days used", explanation_of_income, 6)
+    call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
   End if
   call write_new_line_in_case_note("---")
   call write_new_line_in_case_note(worker_signature)
@@ -511,7 +511,7 @@ If case_note_check = 1 then
   If pay_date_05 <> "01/01/2000" then call write_three_columns_in_case_note(12, pay_date_05, 27, "$" & gross_amt_05, 39, hours_05)
   If explanation_of_income <> "" then 
     EMSendKey "---" & "<newline>"
-    call write_editbox_in_case_note("Reason income other than last 30 days used", explanation_of_income, 6)
+    call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
   End if
   call write_new_line_in_case_note("---")
   call write_new_line_in_case_note(worker_signature)
