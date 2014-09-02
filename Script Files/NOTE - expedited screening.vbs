@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - expedited screening (FAS)"
+name_of_script = "NOTE - expedited screening"
 start_time = timer
 
 
@@ -33,10 +33,18 @@ BeginDialog exp_screening_dialog, 0, 0, 216, 155, "Expedited Screening Dialog"
   Text 55, 140, 70, 10, "Sign your case note:"
 EndDialog
 
+'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
+If date >= cdate("10/01/2014") then			'these variables need to change in October 2014, and subsequently every October
+	heat_AC_amt = 450
+	electric_amt = 150
+	phone_amt = 38
+Else
+	heat_AC_amt = 459
+	electric_amt = 140
+	phone_amt = 40
+End if
 
-
-
-'SECTION 01
+'Connecting to BlueZone
 EMConnect ""
 
 'It will search for a case number.
@@ -44,31 +52,40 @@ call MAXIS_case_number_finder(case_number)
 
 'Shows the dialog
 Do
-  Do
-    Do
-      Do
-        Dialog exp_screening_dialog
-        If ButtonPressed = 0 then stopscript
-        If isnumeric(case_number) = False then MsgBox "You must enter a valid case number."
-      Loop until isnumeric(case_number) = True
-      If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) then MsgBox "The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
-    Loop until (income = "" or isnumeric(income) = True) and (assets = "" or isnumeric(assets) = True) and(rent = "" or isnumeric(rent) = True)
-    If worker_signature = "" then MsgBox "You must sign your case note."
-  Loop until worker_signature <> ""
-  transmit 'to check for MAXIS status
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" then MsgBox "MAXIS is not found. You may need to enter a password. If you are in MAXIS, you may have had a configuration error. To fix this, restart BlueZone."
+	Do
+		Do
+			Do
+				Dialog exp_screening_dialog
+				If ButtonPressed = 0 then stopscript
+				If isnumeric(case_number) = False then MsgBox "You must enter a valid case number."
+			Loop until isnumeric(case_number) = True
+			If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) then MsgBox "The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
+		Loop until (income = "" or isnumeric(income) = True) and (assets = "" or isnumeric(assets) = True) and(rent = "" or isnumeric(rent) = True)
+		If worker_signature = "" then MsgBox "You must sign your case note."
+	Loop until worker_signature <> ""
+	transmit 'to check for MAXIS status
+	EMReadScreen MAXIS_check, 5, 1, 39
+	If MAXIS_check <> "MAXIS" then MsgBox "MAXIS is not found. You may need to enter a password. If you are in MAXIS, you may have had a configuration error. To fix this, restart BlueZone."
 Loop until MAXIS_check = "MAXIS"
 
-'Assigns numbers to the income/asset/rent/utilities variables.
+'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
+If heat_AC_check = checked then
+	utilities = heat_AC_amt
+ElseIf electric_check = checked and phone_check = checked then 
+	utilities = phone_amt + electric_amt					'Phone standard plus electric standard.
+ElseIf phone_check = checked and electric_check = unchecked then
+	utilities = phone_amt
+ElseIf electric_check = checked and phone_check = unchecked then
+	utilities = electric_amt
+End if
+
+'in case no options are clicked, utilities are set to zero.
+If phone_check = unchecked and electric_check = unchecked and heat_AC_check = unchecked then utilities = 0
+
+'If nothing is written for income/assets/rent info, we set to zero.
 If income = "" then income = 0
 If assets = "" then assets = 0
 If rent = "" then rent = 0
-If phone_check = 1 then utilities = 40                                               '$40 is the phone standard for utility calculation as of November 2013.
-If electric_check = 1 then utilities = 141                                           '$141 is the electric standard for utility calculation as of November 2013.
-If electric_check = 1 and phone_check = 1 then utilities = 181                       'Phone standard plus electric standard.
-If heat_AC_check = 1 then utilities = 459                                            '$459 is the maximum utility standard as of November 2013. If a client qualifies for this, they do not get the other two.
-If phone_check = 0 and electric_check = 0 and heat_AC_check = 0 then utilities = 0   'in case no options are clicked, utilities is set to zero.
 
 
 'Calculates expedited status based on above numbers
@@ -92,13 +109,13 @@ EMWriteScreen "disq", 21, 70
 transmit
 EMReadScreen benefit_period_CAF1_check, 14, 24, 2
 If benefit_period_CAF1_check = "BENEFIT PERIOD" then
-  EMReadScreen footer_month, 2, 24, 62
-  EMReadScreen footer_year, 2, 24, 65
-  EMWriteScreen "stat", 16, 43
-  EMWriteScreen footer_month, 20, 43
-  EMWriteScreen footer_year, 20, 46
-  EMWriteScreen "disq", 21, 70
-  transmit
+	EMReadScreen footer_month, 2, 24, 62
+	EMReadScreen footer_year, 2, 24, 65
+	EMWriteScreen "stat", 16, 43
+	EMWriteScreen footer_month, 20, 43
+	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen "disq", 21, 70
+	transmit
 End if
 EMReadScreen SELF_check, 4, 2, 50
 If SELF_check = "SELF" then script_end_procedure("Can't get past SELF. There may be a glitch on this case. Check your case number and try again. You may need to restart BlueZone.")
@@ -106,9 +123,9 @@ If SELF_check = "SELF" then script_end_procedure("Can't get past SELF. There may
 'Reads the DISQ info for the case note.
 EMReadScreen DISQ_member_check, 34, 24, 2
 If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then 
-  has_DISQ = False
+	has_DISQ = False
 Else
-  has_DISQ = True
+	has_DISQ = True
 End if
 
 'Navigates to a blank case note
@@ -119,22 +136,22 @@ If read_only_check = "YOU HAVE 'READ ONLY' ACCESS FOR THIS CASE" then script_end
 
 'Enters data into the case note
 EMSendKey "<home>" 'To get to the top of the case note.
-EMSendKey "Received " & application_type & ", " & expedited_status + "<newline>"
-EMSendKey "---" + "<newline>"
-EMSendKey "     CAF 1 income claimed this month: $" & income & "<newline>"
-EMSendKey "         CAF 1 liquid assets claimed: $" & assets & "<newline>"
-EMSendKey "         CAF 1 rent/mortgage claimed: $" & rent & "<newline>"
-EMSendKey "        Utilities (amt/HEST claimed): $" & utilities & "<newline>"
-EMSendKey "---" + "<newline>"
-If has_DISQ = True then EMSendKey "A DISQ panel exists for someone on this case." + "<newline>"
-If has_DISQ = False then EMSendKey "No DISQ panels were found for this case." + "<newline>"
-EMSendKey "---" + "<newline>"
-EMSendKey worker_signature
+EMSendKey "Received " & application_type & ", " & expedited_status & "<newline>"
+call write_new_line_in_case_note("---")
+call write_new_line_in_case_note("     CAF 1 income claimed this month: $" & income)
+call write_new_line_in_case_note("         CAF 1 liquid assets claimed: $" & assets)
+call write_new_line_in_case_note("         CAF 1 rent/mortgage claimed: $" & rent)
+call write_new_line_in_case_note("        Utilities (amt/HEST claimed): $" & utilities)
+call write_new_line_in_case_note("---")
+If has_DISQ = True then call write_new_line_in_case_note("A DISQ panel exists for someone on this case.")
+If has_DISQ = False then call write_new_line_in_case_note("No DISQ panels were found for this case.")
+call write_new_line_in_case_note("---")
+call write_new_line_in_case_note(worker_signature)
 If expedited_status = "client appears expedited" then
-  MsgBox "This client appears expedited. A same day interview needs to be offered."
+	MsgBox "This client appears expedited. A same day interview needs to be offered."
 End if
 If expedited_status = "client does not appear expedited" then
-  MsgBox "This client does not appear expedited. A same day interview does not need to be offered."
+	MsgBox "This client does not appear expedited. A same day interview does not need to be offered."
 End if
 
 script_end_procedure("")
