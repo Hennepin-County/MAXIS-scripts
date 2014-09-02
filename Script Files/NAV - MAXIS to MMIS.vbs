@@ -17,10 +17,7 @@ EMConnect ""
 EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" then EMReadScreen approval_confirmation_check, 21, 3, 30
 If approval_confirmation_check = "Approval Confirmation" then MAXIS_check = "MAXIS" 'Simplifies the next move
-If MAXIS_check <> "MAXIS" then 
-  MsgBox "You aren't in MAXIS! This script works by starting in MAXIS on a case."
-  stopscript
-End if
+If MAXIS_check <> "MAXIS" then script_end_procedure("You aren't in MAXIS! This script works by starting in MAXIS on a case.")
 
 'Searching for the case number, using row/col variables. If not found, the script will exit.
 row = 1
@@ -32,7 +29,7 @@ If row = 0 then script_end_procedure("A valid case number could not be found. Th
 EMReadScreen case_number, 8, row, col + 10
 case_number = replace(replace(case_number, " ", ""), "_", "0") 'Removing any underscores.
 Do
-  If len(case_number) < 8 then case_number = "0" & case_number
+	If len(case_number) < 8 then case_number = "0" & case_number
 Loop until len(case_number) = 8
 
 'Checking to see if we are on the HC/APP screen, which is not supported at this time (case number is in different place)
@@ -42,20 +39,20 @@ If HC_app_check = "Approval Package" then script_end_procedure("The script needs
 'Now it will look for MMIS on both screens, and enter into it.. 
 attn
 EMReadScreen MMIS_A_check, 7, 15, 15
-IF MMIS_A_check = "RUNNING" then
-  EMSendKey "10"
-  transmit
+If MMIS_A_check = "RUNNING" then
+	EMSendKey "10"
+	transmit
 Else
-  attn
-  EMConnect "B"
-  attn
-  EMReadScreen MMIS_B_check, 7, 15, 15
-  If MMIS_B_check <> "RUNNING" then 
-    script_end_procedure("MMIS does not appear to be running. This script will now stop.")
-  Else
-    EMSendKey "10"
-    transmit
-  End if
+	attn
+	EMConnect "B"
+	attn
+	EMReadScreen MMIS_B_check, 7, 15, 15
+	If MMIS_B_check <> "RUNNING" then 
+		script_end_procedure("MMIS does not appear to be running. This script will now stop.")
+	Else
+		EMSendKey "10"
+		transmit
+	End if
 End if
 EMFocus 'Bringing window focus to the second screen if needed.
 
@@ -72,67 +69,11 @@ EMWriteScreen "mw00", 1, 2
 transmit
 transmit
 
-'The following will select the correct version of MMIS. First it looks for C302, then EK01, then C402.
-row = 1
-col = 1
-EMSearch "C302", row, col
-If row <> 0 then 
-  If row <> 1 then 'It has to do this in case the worker only has one option (as many LTC and OSA workers don't have the option to decide between MAXIS and MCRE case access). The MMIS screen will show the text, but it's in the first row in these instances.
-    EMWriteScreen "x", row, 4
-    transmit
-  End if
-Else 'Some staff may only have EK01 (MMIS MCRE). The script will allow workers to use that if applicable.
-  row = 1
-  col = 1
-  EMSearch "EK01", row, col
-  If row <> 0 then 
-    If row <> 1 then
-      EMWriteScreen "x", row, 4
-      transmit
-    End if
-  Else 'Some users have C402 (limited access). This will search for that.
-    row = 1
-    col = 1
-    EMSearch "C402", row, col
-    If row <> 0 then 
-      If row <> 1 then
-        EMWriteScreen "x", row, 4
-        transmit
-      End if
-    Else 'Some users have EKIQ (limited MCRE access). This will search for that.
-      row = 1
-      col = 1
-      EMSearch "EKIQ", row, col
-      If row <> 0 then 
-        If row <> 1 then
-          EMWriteScreen "x", row, 4
-          transmit
-        End if
-      Else 'Some users have C321 (different access). This will search for that.
-        row = 1
-        col = 1
-        EMSearch "C321", row, col
-        If row <> 0 then 
-          If row <> 1 then
-            EMWriteScreen "x", row, 4
-            transmit
-          End if
-        Else 'Some users have C356 (different access). This will search for that.
-          row = 1
-          col = 1
-          EMSearch "C356", row, col
-          If row <> 0 then 
-            If row <> 1 then
-              EMWriteScreen "x", row, 4
-              transmit
-            End if
-          Else
-            script_end_procedure("C356, C321, C402, C302, EKIQ, or EK01 not found. Your access to MMIS may be limited. Contact your script administrator if you have questions about using this script.")
-          End if
-        End if
-      End if
-    End if
-  End if
+'Finding the right MMIS, if needed, by checking the header of the screen to see if it matches the security group selector
+EMReadScreen MMIS_security_group_check, 21, 1, 35 
+If MMIS_security_group_check = "MMIS MAIN MENU - MAIN" then
+	EMSendKey "x"
+	transmit
 End if
 
 'Now it finds the recipient file application feature and selects it.
