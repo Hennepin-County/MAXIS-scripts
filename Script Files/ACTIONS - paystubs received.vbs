@@ -207,6 +207,25 @@ Do
   If isdate(pay_date_05) = True and (Isnumeric(gross_amt_05) = False or Isnumeric(hours_05) = False) then MsgBox "You must include a gross pay amount as well as an hours amount."
 Loop until(isdate(pay_date_05) = True and (Isnumeric(gross_amt_05) = True and Isnumeric(hours_05) = True)) or pay_date_05 = ""
 
+'Checking dates to make sure all are on the same day of the week, in instances of weekly or biweekly income. This avoids a possible issue
+'resulting from a paydate being "moved" due to a holiday, and affecting the rest of the calculation for income. If the dates are not all on the
+'same day, the script will stop.
+If pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then
+	weekday_baseline = weekday(cdate(pay_date_01))
+	If pay_date_02 <> "" then	'Sets these as nested within the If...then, instead of a single line, because of issues trying to run a cdate on a null variable.
+		If weekday(cdate(pay_date_02)) <> weekday_baseline then script_end_procedure(pay_date_02 & " is on a different pay date than the first pay date on the script. This could result in an error when the script calculates prospective pay, so the script will now stop. Please process manually.")
+	End if
+	If pay_date_03 <> "" then
+		If weekday(cdate(pay_date_03)) <> weekday_baseline then script_end_procedure(pay_date_03 & " is on a different pay date than the first pay date on the script. This could result in an error when the script calculates prospective pay, so the script will now stop. Please process manually.")
+	End if
+	If pay_date_04 <> "" then
+		If weekday(cdate(pay_date_04)) <> weekday_baseline then script_end_procedure(pay_date_04 & " is on a different pay date than the first pay date on the script. This could result in an error when the script calculates prospective pay, so the script will now stop. Please process manually.")
+	End if
+	If pay_date_05 <> "" then
+		If weekday(cdate(pay_date_05)) <> weekday_baseline then script_end_procedure(pay_date_05 & " is on a different pay date than the first pay date on the script. This could result in an error when the script calculates prospective pay, so the script will now stop. Please process manually.")
+	End if
+End if
+
 'Sends a transmit to refresh screen, then checks for MAXIS status. Does this on a loop so as not to lose pay information, and includes a cancel button.
 Do
   transmit
@@ -382,7 +401,7 @@ Do
   call prospective_pay_analyzer(pay_date_04, gross_amt_04)
   call prospective_pay_analyzer(pay_date_05, gross_amt_05)
   total_prospective_dates = MAXIS_row - 12
-  
+
   'Adds the remaining weeks in using a do...loop to determine all of the anticipated pay dates for the client.
   If pay_frequency = "One Time Per Month" then pay_multiplier = 31
   If pay_frequency = "Two Times Per Month" then pay_multiplier = 15
@@ -409,7 +428,6 @@ Do
       total_prospective_dates = total_prospective_dates + 1
     End if
   Loop until datediff("m", prospective_pay_date, footer_month & "/01/" & footer_year) <> 0
-  
   
   'Updates pay frequency
   If pay_frequency = "One Time Per Month" then EMWriteScreen "1", 18, 35
