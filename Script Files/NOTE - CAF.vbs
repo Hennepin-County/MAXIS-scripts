@@ -150,7 +150,6 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   Text 5, 280, 50, 10, "Verifs needed:"
 EndDialog
 
-
 BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
   EditBox 60, 45, 385, 15, INSA
   EditBox 35, 65, 410, 15, ACCI
@@ -160,19 +159,20 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
   EditBox 390, 105, 55, 15, HC_begin
   EditBox 180, 135, 265, 15, reason_expedited_wasnt_processed
   EditBox 100, 155, 345, 15, FIAT_reasons
-  CheckBox 25, 180, 80, 10, "Application signed?", application_signed_check
-  CheckBox 110, 180, 50, 10, "Expedited?", expedited_check
-  CheckBox 170, 180, 65, 10, "R/R explained?", R_R_check
-  CheckBox 240, 180, 80, 10, "Intake packet given?", intake_packet_check
-  CheckBox 325, 180, 70, 10, "EBT referral sent?", EBT_referral_check
-  CheckBox 25, 195, 95, 10, "Workforce referral made?", WF1_check
-  CheckBox 135, 195, 70, 10, "IAAs/OMB given?", IAA_check
-  CheckBox 220, 195, 65, 10, "Updated MMIS?", updated_MMIS_check
-  CheckBox 295, 195, 105, 10, "Managed care packet sent?", managed_care_packet_check
-  CheckBox 25, 210, 115, 10, "Managed care referral made?", managed_care_referral_check
-  CheckBox 150, 210, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
-  CheckBox 25, 225, 250, 10, "Check here to have the script create a TIKL to deny at the 30/45 day mark.", TIKL_check
-  CheckBox 25, 240, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_check
+  CheckBox 10, 180, 80, 10, "Application signed?", application_signed_check
+  CheckBox 95, 180, 50, 10, "Expedited?", expedited_check
+  CheckBox 150, 180, 65, 10, "Appt letter sent?", appt_letter_sent_check
+  CheckBox 220, 180, 65, 10, "R/R explained?", R_R_check
+  CheckBox 290, 180, 80, 10, "Intake packet given?", intake_packet_check
+  CheckBox 375, 180, 70, 10, "EBT referral sent?", EBT_referral_check
+  CheckBox 10, 195, 95, 10, "Workforce referral made?", WF1_check
+  CheckBox 120, 195, 70, 10, "IAAs/OMB given?", IAA_check
+  CheckBox 205, 195, 65, 10, "Updated MMIS?", updated_MMIS_check
+  CheckBox 280, 195, 105, 10, "Managed care packet sent?", managed_care_packet_check
+  CheckBox 10, 210, 115, 10, "Managed care referral made?", managed_care_referral_check
+  CheckBox 135, 210, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
+  CheckBox 10, 225, 250, 10, "Check here to have the script create a TIKL to deny at the 30/45 day mark.", TIKL_check
+  CheckBox 10, 240, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_check
   EditBox 55, 255, 230, 15, other_notes
   ComboBox 330, 255, 115, 15, "incomplete"+chr(9)+"approved", CAF_status
   EditBox 55, 275, 390, 15, verifs_needed
@@ -580,6 +580,7 @@ If HC_begin <> "" then call write_editbox_in_case_note("HC begin date", HC_begin
 If application_signed_check = 1 then call write_new_line_in_case_note("* Application was signed.")
 If application_signed_check = 0 then call write_new_line_in_case_note("* Application was not signed.")
 If expedited_check = 1 then call write_new_line_in_case_note("* Expedited SNAP.")
+If appt_letter_sent_check = 1 then call write_new_line_in_case_note("* Appointment letter was sent before interview.")
 If reason_expedited_wasnt_processed <> "" then call write_editbox_in_case_note("Reason expedited wasn't processed", reason_expedited_wasnt_processed, 6)
 If R_R_check = 1 then call write_new_line_in_case_note("* R/R explained to client.")
 If intake_packet_check = 1 then call write_new_line_in_case_note("* Client received intake packet.")
