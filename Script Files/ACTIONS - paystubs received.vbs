@@ -275,6 +275,11 @@ If total_amt_of_panels <> "1" then
   Loop until current_panel_number = total_amt_of_panels
 End if
 
+'Reads employer name for case note
+EMReadScreen employer_name, 30, 7, 42			'Read the name
+employer_name = replace(employer_name, "_", "")		'Clean up the name with replacing underscores 
+call fix_case(employer_name, 3)				'and using custom fix_case function to set case
+
 'Turns on edit mode
 PF9
 
@@ -511,6 +516,7 @@ If update_PIC_check = 1 then
     EMSendKey "---" & "<newline>"
     call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
   End if
+  call write_editbox_in_case_note("Employer name", employer_name, 6)
   call write_new_line_in_case_note("---")
   call write_new_line_in_case_note(worker_signature)
   PF3
@@ -531,6 +537,7 @@ If case_note_check = 1 then
     EMSendKey "---" & "<newline>"
     call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
   End if
+  call write_editbox_in_case_note("Employer name", employer_name, 6)
   call write_new_line_in_case_note("---")
   call write_new_line_in_case_note(worker_signature)
   PF3
