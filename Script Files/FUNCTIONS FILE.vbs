@@ -1755,7 +1755,7 @@ function script_end_procedure(closing_message)
 		closing_message = replace(closing_message, "'", "")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = H:\VKC dev directory\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1782,7 +1782,7 @@ function script_end_procedure_wsh(closing_message) 'For use when running a scrip
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = H:\VKC dev directory\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
