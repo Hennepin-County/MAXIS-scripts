@@ -73,14 +73,7 @@ footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
 EMConnect ""
 
 'Finds a case number
-row = 1
-col = 1
-EMSearch "Case Nbr: ", row, col
-EMReadScreen case_number, 8, row, col + 10
-case_number = trim(replace(case_number, "_", ""))
-If isnumeric(case_number) = False then case_number = ""
-
-
+call MAXIS_case_number_finder(case_number)
 
 'Shows the case number dialog
 Dialog case_number_and_footer_month_dialog
@@ -129,11 +122,8 @@ Do
 							EMReadScreen MAXIS_check, 5, 1, 39
 							If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again.")
 						Loop until ButtonPressed = OK
-						If isdate(income_start_date) = True then		'Logic to determine if the income start date is correct
-							If (datediff("d", date, income_start_date) > 0) then
-								MsgBox "Your income start date is in the future. The latest date you can enter is today's date."
-								pass_through_inc_date_loop = False
-							Elseif (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
+						If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
+							If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
 								MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
 								pass_through_inc_date_loop = False
 							Else
