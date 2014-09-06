@@ -8,7 +8,11 @@
 '      message text says dictates which script loads up.
 '--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-'CUSTOM FUNCTIONS----------------------------------------------------------------------------------------------------
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "ACTIONS - DAIL scrubber"
+start_time = timer
+
+
 'LOADING ROUTINE FUNCTIONS--------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
@@ -36,8 +40,8 @@ EMReadscreen dail_check, 4, 2, 48
 If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "t" + "<enter>"
-EMWaitReady 0, 0
+EMSendKey "t"
+transmit
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
