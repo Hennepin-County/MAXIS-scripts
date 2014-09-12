@@ -15,6 +15,4 @@ Oh, and don't be surprised if I'm pushing commits late in the evening. Frankly, 
 
 Welcome to it!
 
-Veronica Kahl Cary (VKC)
-SNAP Payment Accuracy Coordinator (and BlueZone Scripts Statewide Coordinator)
-Minnesota Department of Human Services
+Veronica Kahl Cary (VKC), Payment Accuracy Coordinator, Minnesota DHS
