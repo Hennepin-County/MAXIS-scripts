@@ -3,6 +3,8 @@ Imports System
 Imports System.IO
 Imports System.Collections
 
+
+
 Public Class scripts_config_form
 
     Private Property fso As Object
@@ -37,6 +39,22 @@ Public Class scripts_config_form
     Private Property new_text_file As Object
 
     Private Property current_directory_path As Object
+
+    Private Property agency_is_beta As Boolean
+
+    Private Property local_copy_of_zip_file As Object
+
+    Private Property temp_folder As Object
+
+    Private Property GitHub_current_zip_archive As String
+
+    Private Property objXMLHTTP As Object
+
+    Private Property objADOStream As Object
+
+    Private Property objShell As Object
+
+    Private Property FilesInZip As Object
 
     'This is the function that actually modifies the files
     Function update_files(file_name)
@@ -88,7 +106,7 @@ Public Class scripts_config_form
     End Sub
 
     Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
-        Dim frmAbout As New AboutBox2
+        Dim frmAbout As New AboutBox
         frmAbout.ShowDialog(Me)
     End Sub
 
@@ -223,4 +241,95 @@ Public Class scripts_config_form
     Private Sub Label6_Click(sender As Object, e As EventArgs) Handles Update_Files_Label.Click
 
     End Sub
+
+    Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles Button1.Click
+        multiaddressform.ShowDialog(Me)
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        'Make these two dynamic in actual usage, I just included as it already exists elsewhere in my VB app
+        current_directory_path = "C:\zip testing again and again\"
+        agency_is_beta = True                                           'If you don't care about beta/standard users (forks?), ditch this.
+        '|-------------------------------------------------------------------|
+        '|          GRAB A REPO FROM GITHUB WITH VBS FOR SOME REASON         |
+        '|                              BY VKC                               |
+        '|                           (C) VKC 2014                            |
+        '|               REDISTRIBUTE AND REUSE AS DESIRED!!!!!!             |
+        '|-------------------------------------------------------------------|
+
+        'Variables for the thing we're doing
+        local_copy_of_zip_file = current_directory_path & "temp\master.zip"
+        temp_folder = current_directory_path & "temp"
+
+        'If the agency is a beta agency, they'll have the beta version of the scripts instead of the main one.
+        If agency_is_beta = True Then
+            GitHub_current_zip_archive = "https://github.com/MN-DHS-BZS-County-Programmers/MAXIS-BZ-Scripts-County-Beta/archive/master.zip"
+        Else
+            GitHub_current_zip_archive = "https://github.com/MN-DHS-BZS-Official/MAXIS-BZ-Scripts/archive/master.zip"
+        End If
+
+        'First, we create a temp directory for all this madness.
+        fso = CreateObject("Scripting.FileSystemObject")
+        fso.CreateFolder("temp")
+
+        '---------------------------------------------------------------------------------------
+        'Now it downloads the zip file from Github. It was copied from https://gist.github.com/udawtr/2053179 on 09/13/2014, and modified for our purposes.
+
+        'Creating a server object
+        objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
+
+        'Opening the file
+        objXMLHTTP.open("GET", GitHub_current_zip_archive, False)
+        objXMLHTTP.send()
+        If objXMLHTTP.Status = 200 Then     'Guessing this means "found" but admittedly I'm not sure. -VKC, 09/13/2014
+            objADOStream = CreateObject("ADODB.Stream")
+            objADOStream.Open()
+            objADOStream.Type = 1 'adTypeBinary
+            objADOStream.Write(objXMLHTTP.ResponseBody)
+            objADOStream.Position = 0    'Set the stream position to the start
+
+            'Writing the file to the hard disk
+            ObjFSO = CreateObject("Scripting.FileSystemObject")
+            If ObjFSO.Fileexists(local_copy_of_zip_file) Then ObjFSO.DeleteFile(local_copy_of_zip_file)
+            ObjFSO = Nothing
+            objADOStream.SaveToFile(local_copy_of_zip_file)
+            objADOStream.Close()
+            objADOStream = Nothing
+        End If
+
+        objXMLHTTP = Nothing
+        '------------------------------------------------------------------------------------
+
+
+        'The following was inspired by code retrieved 09/13/2014 from "http://stackoverflow.com/questions/911053/how-to-unzip-a-file-in-vbscript-using-internal-windows-xp-options-in".
+        'Modifications were made to map variables to the above.
+        '------------------------------------------------------------------------------------
+        'If the extraction location does not exist create it.
+        fso = CreateObject("Scripting.FileSystemObject")
+        If Not fso.FolderExists(temp_folder) Then
+            fso.CreateFolder(temp_folder)
+        End If
+
+        'Extract the contents of the zip file.
+        objShell = CreateObject("Shell.Application")
+        FilesInZip = objShell.NameSpace(local_copy_of_zip_file).items
+        objShell.NameSpace(temp_folder).CopyHere(FilesInZip, 16)
+        fso = Nothing
+        objShell = Nothing
+
+        '-------------------------------------------------------------------------------------
+        'Now we get copy the script files directory to its rightful place in the current directory. We search for the script files directory dynamically, because some will use a different fork from GitHub.
+        fso = CreateObject("Scripting.FileSystemObject")
+
+        'Uses main_folder because there's typically only one folder in the zip file generated by GitHub
+        For Each main_folder In fso.GetFolder(temp_folder).Subfolders
+            For Each subfolder In fso.GetFolder(main_folder).Subfolders
+                If InStr(subfolder, "Script Files") <> 0 Then fso.CopyFolder(subfolder, current_directory_path, True)
+            Next
+        Next
+
+        'Now we delete the temp directory.
+        fso.DeleteFolder(temp_folder)
+    End Sub
+
 End Class
