@@ -1900,12 +1900,14 @@ Function set_person_test(reason, result)
 	End If
 	row = 1
 	col = 1
+	runs = 0
 	EMSearch reason, row, col
 	If row <> 0 then
 		EMWriteScreen result, row, col - X
-		For i = x_mits To 1 Step -1
+		Do 
 			Transmit
-		Next
+			runs = runs + 1
+		Loop until runs = x_mits
 	End If	
 End Function
 
@@ -1937,20 +1939,22 @@ Function mnsure_fail_person_test
 	If  FAILED_failure_to_provide_information = 1 then	test_1 = "Failed"
 	If  PASSED_withdrawal_client_request = 1 then	test_2 = "Passed"
 	If  FAILED_withdrawal_client_request = 1 then	test_2 = "Failed"
-	A = 0
-	col = 17
-	For i = 6 to 1 Step -1	
-		EMWriteScreen "X", 7, col
-		EMReadScreen B, 1, 7, col
-		If B = "X" then A = A + 1
-		col = col + 11
-	Next
-	For i = A To 1 Step -1
+	If test_1 <> "" or test_2 <> "" then
+		A = 0
+		col = 17
+		For i = 6 to 1 Step -1	
+			EMWriteScreen "X", 7, col
+			EMReadScreen B, 1, 7, col
+			If B = "X" then A = A + 1
+			col = col + 11
+		Next
+		For i = A To 1 Step -1
+			Transmit
+			If test_1 <> "" then call set_person_test("Failure To Provide Information", test_1)
+			If test_2 <> "" then call set_person_test("Withdrawal/Client Request", test_2)
+		Next
 		Transmit
-		If test_1 <> "" then call set_person_test("Failure To Provide Information", test_1)
-		If test_2 <> "" then call set_person_test("Withdrawal/Client Request", test_2)
-	Next
-	Transmit
+	End If
 End Function
 
 Function enter_income_information(A)

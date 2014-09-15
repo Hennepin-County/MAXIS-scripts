@@ -72,7 +72,6 @@ BeginDialog case_note_decision_dialog, 0, 0, 230, 135, "Review and Approve Resul
 	ButtonGroup ButtonPressed
 		OkButton 175, 121, 20, 12
 		CancelButton 198, 121, 30, 12
-		PushButton 117, 121, 55, 12, "Refresh Dialog", refresh_dialog
 	GroupBox 5, 35, 220, 82, "Case Note"
 	Text 3, 3, 224, 25, "Please review the results and make any changes/corrections as necessary. Once complete, approve your results and you may select below to automatically case note."
 	Text 10, 76, 62, 8, "Worker Signature :"
@@ -83,6 +82,9 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------
 
 EMConnect ""
+
+'Call mnsure_fail_person_test
+'stopscript
 
 'Finds the case number in a case
 call find_variable("Case Nbr: ", case_number, 8)
@@ -403,12 +405,6 @@ call navigate_to_screen("ELIG","HC")
  
 Dialog case_note_decision_dialog
 If buttonpressed = 0 then stopscript
-If buttonpressed = refresh_dialog then
-Do
-	Dialog case_note_decision_dialog
-		If buttonpressed = 0 then stopscript
-Loop until buttonpressed = -1
-End If
 
 If case_note_election = 1 then
 	Do
