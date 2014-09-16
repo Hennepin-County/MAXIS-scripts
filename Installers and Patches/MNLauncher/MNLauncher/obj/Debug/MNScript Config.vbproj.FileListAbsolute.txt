@@ -1,0 +1,12 @@
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNLauncher.helpMenu.resources
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNLauncher.main.resources
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNLauncher.aboutMenu.resources
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNLauncher.Resources.resources
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNScript Config.vbproj.GenerateResource.Cache
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\bin\Debug\MNScript Config.exe.config
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\bin\Debug\MNScript Config.exe
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\bin\Debug\MNScript Config.pdb
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\bin\Debug\MNScript Config.xml
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNScript Config.exe
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNScript Config.xml
+c:\users\shanleyl\documents\visual studio 2013\Projects\MNLauncher\MNLauncher\obj\Debug\MNScript Config.pdb

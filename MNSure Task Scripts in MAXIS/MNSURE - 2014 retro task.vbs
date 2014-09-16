@@ -83,9 +83,6 @@ EndDialog
 
 EMConnect ""
 
-'Call mnsure_fail_person_test
-'stopscript
-
 'Finds the case number in a case
 call find_variable("Case Nbr: ", case_number, 8)
 case_number = trim(case_number)
