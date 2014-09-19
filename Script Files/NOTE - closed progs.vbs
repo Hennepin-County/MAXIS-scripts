@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("Q:\Blue Zone Scripts\County beta staging\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -13,7 +13,7 @@ Execute text_from_the_other_script
 If case_noting_intake_dates = False then dialog_shrink_amt = 45
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog closed_dialog, 0, 0, 421, 240, "Closed progs dialog"
+BeginDialog closed_dialog, 0, 0, 421, 240 - dialog_shrink_amt, "Closed progs dialog"
   EditBox 65, 5, 55, 15, case_number
   EditBox 195, 5, 55, 15, closure_date
   CheckBox 315, 10, 35, 10, "SNAP", SNAP_check
