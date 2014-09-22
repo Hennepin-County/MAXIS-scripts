@@ -1465,6 +1465,31 @@ Function HH_member_custom_dialog(HH_member_array)
   HH_member_array = split(HH_member_array, " ")
 End function
 
+function log_usage_stats_without_closing 'For use when logging usage stats but then running another script, i.e. DAIL scrubber
+	stop_time = timer
+	script_run_time = stop_time - start_time
+	If is_county_collecting_stats = True then
+		'Getting user name
+		Set objNet = CreateObject("WScript.NetWork") 
+		user_ID = objNet.UserName
+
+		'Setting constants
+		Const adOpenStatic = 3
+		Const adLockOptimistic = 3
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'Opening DB
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+
+		'Opening usage_log and adding a record
+		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
+		"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & script_run_time & ", '" & "" & "')", objConnection, adOpenStatic, adLockOptimistic
+	End if
+end function
+
 Function memb_navigation_next
   HH_memb_row = HH_memb_row + 1
   EMReadScreen next_HH_memb, 2, HH_memb_row, 3
