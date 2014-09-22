@@ -29,18 +29,30 @@ worker_county_code = "x102"
 collecting_statistics = False
 EDMS_choice = "Compass Forms"
 county_name = "Anoka"
-county_address_line_01 = "1234 Anoka Road"
-county_address_line_02 = "Anoka, MN 55555"
 case_noting_intake_dates = True
 move_verifs_needed = False
 
-is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SETUP SCRIPT WILL OVERWRITE LINES BELOW WHICH DEPEND ON THIS, BY SEPARATING THE VARIABLES WE PREVENT ISSUES
+'Creates a double array of county offices, first by office (using the ~), then by address line (using the |).
+county_office_array = split("2100 3rd Ave, Suite 400|Anoka, MN 55303~1201 89th Ave, Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell Road, Suite 128|Lexington, MN 55014", "~")
 
-'SHARED VARIABLES----------------------------------------------------------------------------------------------------
-checked = 1		'Value for checked boxes
+'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
+checked = 1			'Value for checked boxes
 unchecked = 0		'Value for unchecked boxes
-cancel = 0		'Value for cancel button in dialogs
+cancel = 0			'Value for cancel button in dialogs
 OK = -1			'Value for OK button in dialogs
+
+'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
+
+'Making a list of offices to be used in various scripts
+For each office in county_office_array
+	new_office_array = split(office, "|")									'Assigned earlier in the FUNCTIONS FILE script. Splits into an array, containing each line of the address.
+	comma_location_in_address_line_02 = instr(new_office_array(1), ",")				'Finds the location of the first comma in the second line of the address (because everything before this is the city)
+	city_for_array = left(new_office_array(1), comma_location_in_address_line_02 - 1)		'Pops this city into a variable
+	county_office_list = county_office_list & chr(9) & city_for_array					'Adds the city to the variable called "county_office_list", which also contains a new line, so that it works correctly in dialogs.
+Next
+
+
+is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SETUP SCRIPT WILL OVERWRITE LINES BELOW WHICH DEPEND ON THIS, BY SEPARATING THE VARIABLES WE PREVENT ISSUES
 
 'Some screens require the two digit county code, and this determines what that code is
 two_digit_county_code = right(worker_county_code, 2)
@@ -48,7 +60,7 @@ If two_digit_county_code = "PW" then two_digit_county_code = "91"	'For DHS purpo
 
 
 
-'----------------------------------------------------------------------------------------------------
+'THE SHARED FUNCTIONS----------------------------------------------------------------------------------------------------
 
 Function add_ACCI_to_variable(x) 'x represents the name of the variable (example: assets vs. spousal_assets)
   EMReadScreen ACCI_date, 8, 6, 73
@@ -373,6 +385,17 @@ Function add_UNEA_to_variable(x) 'x represents the name of the variable (example
   Else
     x = x & ").; "
   End if
+End function
+
+'This function will assign an address to a variable selected from the interview_location variable in the Appt Letter script.
+Function assign_county_address_variables(address_line_01, address_line_02)		
+	For each office in county_office_array				'Splits the county_office_array, which is set by the config program and declared earlier in this file
+		If instr(office, interview_location) <> 0 then		'If the name of the office is found in the "interview_location" variable, which is contained in the MEMO - appt letter script.
+			new_office_array = split(office, "|")		'Split the office into its own array
+			address_line_01 = new_office_array(0)		'Line 1 of the address is the first part of this array
+			address_line_02 = new_office_array(1)		'Line 2 of the address is the second part of this array
+		End if
+	Next
 End function
 
 Function attn
@@ -1895,6 +1918,29 @@ Function write_new_line_in_case_note(x)
   EMGetCursor row, col 
   If (row = 17 and col + (len(x)) >= 80) or (row = 4 and col = 3) then
     EMSendKey "<PF8>"
+    EMWaitReady 0, 0
+  End if
+End function
+
+'Creates a new line in SPEC/MEMO
+Function write_new_line_in_SPEC_MEMO(variable_to_enter)
+  variable_array = split(variable_to_enter, " ")					'Each word becomes its own member of the array called variable_array.
+  For each word in variable_array 
+    EMGetCursor row, col 									'Needs the cursor in order to know if it's going to "overflow".
+    If (row = 17 and col + (len(word)) >= 75) then					'If we're on the last possible row, and the current column + length of the current word goes over the last possible column for writing, then...
+      EMSendKey "<PF8>"										'Send an F8!
+      EMWaitReady 0, 0
+    End if
+    EMReadScreen max_check, 12, 24, 2							'Checks to see if we've maxed out our possible screens.
+    If max_check = "END OF INPUT" then exit for						'Quits the for...next if we've maxed out.
+    EMGetCursor row, col 									'Grabs the cursor again.
+    If (row < 17 and col + (len(word)) >= 75) then EMSendKey "<newline>"	'If we're before the last possible row, and the current column + length of the current word goes over the last possible column for writing, then send a newline.
+    EMSendKey word & " "									'Now, after all of the above logic, it can actually send the word, and a space.
+  Next												'It'll do this for every word in the variable_array.
+  EMSendKey "<newline>"										'Once all of the words are sent, it sends a newline.
+  EMGetCursor row, col 										'Grabs the cursor yet again.
+  If row = 3 and col = 15 then								'If we're at the beginning of a page (meaning we "rolled over" on possible characters on this screen, then...
+    EMSendKey "<PF8>"										'Send an F8!
     EMWaitReady 0, 0
   End if
 End function
