@@ -164,7 +164,7 @@ call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 'Runs denied progs if selected
-If denied_progs_check = 1 then run_another_script("Q:\Blue Zone Scripts\County beta staging\NOTE - denied progs.vbs")
+If denied_progs_check = 1 then run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\NOTE - denied progs.vbs")
 
 script_end_procedure("")
 
