@@ -87,7 +87,7 @@ BeginDialog denied_dialog, 0, 0, 401, 340 - dialog_shrink_amt, "Denied progs dia
   EditBox 140, 100, 255, 15, verifs_needed
   EditBox 50, 120, 345, 15, other_notes
   If case_noting_intake_dates = True then
-    CheckBox 15, 155, 355, 10, "Check here if proofs were not provided (or interview not conducted) and this case pended the full 30 day", requested_proofs_not_provided_check
+    CheckBox 15, 155, 355, 10, "Check here if proofs were not provided and this case pended the full 30 day period (or 45/60 days for HC).", requested_proofs_not_provided_check
     CheckBox 15, 180, 365, 10, "Denied SNAP for self-declaration of income over 165% FPG (hold for 30 days, with an add'l 30 for proration)", self_declaration_of_income_over_165_FPG
     CheckBox 15, 195, 130, 10, "Client is disabled (60 day HC period)", disabled_client_check
     CheckBox 15, 210, 305, 10, "Check here if there are any programs still open/pending (doesn't become intake again yet)", open_prog_check
@@ -95,7 +95,7 @@ BeginDialog denied_dialog, 0, 0, 401, 340 - dialog_shrink_amt, "Denied progs dia
     CheckBox 15, 245, 330, 10, "Check here if there are any HH members still open on HC (won't require a HCAPP to add a member)", HH_membs_on_HC_check
     EditBox 105, 260, 235, 15, HH_membs_on_HC
     GroupBox 0, 140, 390, 140, "Important items that affect the intake date/documentation:"
-    Text 40, 165, 125, 10, "period (or 45/60 days for HC)."
+    Text 40, 165, 125, 10, "Applies a 30 day reinstate period."
     Text 35, 230, 70, 10, "If so, list them here:"
     Text 35, 265, 70, 10, "If so, list them here:"
   Else
