@@ -431,14 +431,22 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           End if
         Next
         ABPS_row = 15 'Setting variable for do...loop
-        Do 'Using a do...loop to determine which MEMB numbers are with this parent
-          EMReadScreen child_ref_nbr, 2, ABPS_row, 35
-          If child_ref_nbr <> "__" then
-            amt_of_children_for_ABPS = amt_of_children_for_ABPS + 1
-            children_for_ABPS = children_for_ABPS & child_ref_nbr & ", "
+        Do
+          Do 'Using a do...loop to determine which MEMB numbers are with this parent
+            EMReadScreen child_ref_nbr, 2, ABPS_row, 35
+            If child_ref_nbr <> "__" then
+              amt_of_children_for_ABPS = amt_of_children_for_ABPS + 1
+              children_for_ABPS = children_for_ABPS & child_ref_nbr & ", "
+            End if
+            ABPS_row = ABPS_row + 1
+          Loop until ABPS_row > 17		'End of the row
+          EMReadScreen more_check, 7, 19, 66
+          If more_check = "More: +" then
+            EMSendKey "<PF20>"
+            EMWaitReady 0, 0
+            ABPS_row = 15
           End if
-          ABPS_row = ABPS_row + 1
-        Loop until ABPS_row > 17
+        Loop until more_check <> "More: +"
         'Cleaning up the "children_for_ABPS" variable to be more readable
         children_for_ABPS = left(children_for_ABPS, len(children_for_ABPS) - 2) 'cleaning up the end of the variable (removing the comma for single kids)
         children_for_ABPS = strreverse(children_for_ABPS)                       'flipping it around to change the last comma to an "and"
@@ -1992,6 +2000,3 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
     EMWaitReady 0, 0
   End if
 End function
-
-
-
