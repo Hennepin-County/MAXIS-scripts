@@ -23,13 +23,13 @@ Execute MNSURE_FUNCTIONS_contents
 BeginDialog HC_retro_fiat, 0, 0, 169, 78, "HC Retro Fiat"
   EditBox 98, 4, 65, 12, case_number
   EditBox 98, 20, 65, 12, info_received_date
-  DropListBox 98, 37, 65, 12, "RFI"+chr(9)+"Phone Call"+chr(9)+"Not Received", retro_received_via
+  EditBox 98, 37, 65, 12, retro_month_requested
   ButtonGroup ButtonPressed
     OkButton 110, 59, 20, 12
     CancelButton 133, 59, 30, 12
   Text 3, 5, 68, 10, "Maxis Case Number"
-  Text 3, 22, 90, 10, "Date Retro Info Received"
-  Text 3, 39, 79, 8, "Retro Info Received Via"
+  Text 3, 22, 90, 10, "Application Date"
+  Text 3, 39, 79, 8, "Retro month requested"
 EndDialog
 
 'BeginDialog HC_retro_fiat, 0, 0, 169, 41, "HC Retro Fiat"
@@ -76,13 +76,19 @@ case_number = trim(case_number)
 case_number = replace(case_number, "_", "")
 If IsNumeric(case_number) = False then case_number = ""
 
+'Pulls the application date and retro date.
+call navigate_to_screen ("stat", "hcre")
+EMReadScreen info_received_date, 8, 10, 51
+EMReadScreen retro_month_requested, 5, 10, 64
+
+
 'Starts the first dialog
   Do
     Do
       Dialog HC_retro_fiat
       If buttonpressed = 0 then stopscript
       If case_number <> "" then
-        call maxis_dater(info_received_date,info_received_date,"Information Received Date")
+        call maxis_dater(info_received_date,info_received_date,"Application Date")
       ElseIf case_number = "" then
         MsgBox "You must enter a case number to continue", "Information Error"
       End If
