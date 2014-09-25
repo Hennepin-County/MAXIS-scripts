@@ -135,7 +135,7 @@ Public Function maxis_dater(A,B,C)
 	'B = Output Date Name
 	'C = Specific name of date type
 
-	error_message = "Sorry the date you used for your "& C &" is not a recognizable date format. Please try again."
+	error_message = "The date you used for your "& C &" is not a recognizable date format or was left blank."
 	error_message_title = "Incorrect date format found."
 	
 	A = trim(A)
@@ -1913,13 +1913,13 @@ End Function
 
 Function mnsure_fail_person_test	
 	BeginDialog person_test_fail, 0, 0, 149, 62, "Person Test Fail"
-		CheckBox 7, 14, 10, 10, "", PASSED_failure_to_provide_information
+		ButtonGroup ButtonPressed
+      PushButton 123, 45, 22, 12, "Back", back_button
+      PushButton 91, 45, 29, 12, "Submit", submit_button
+    CheckBox 7, 14, 10, 10, "", PASSED_failure_to_provide_information
 		CheckBox 26, 14, 118, 10, "     Failure To Provide Information", FAILED_failure_to_provide_information
 		CheckBox 7, 27, 10, 10, "", PASSED_withdrawal_client_request
 		CheckBox 26, 27, 110, 10, "     Withdrawal/Client Request", FAILED_withdrawal_client_request
-		ButtonGroup ButtonPressed
-			PushButton 91, 45, 29, 12, "Submit", submit_button
-			PushButton 123, 45, 22, 12, "Back", back_button
 		Text 3, 3, 17, 8, "Pass"
 		Text 24, 3, 12, 8, "Fail"
 	EndDialog
