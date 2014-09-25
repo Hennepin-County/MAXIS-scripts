@@ -20,25 +20,25 @@ Execute MNSURE_FUNCTIONS_contents
 
 'DIALOGS-------------------------------------------------------------------------------------------
 
-'BeginDialog HC_retro_fiat, 0, 0, 169, 78, "HC Retro Fiat"
-'  EditBox 98, 4, 65, 12, case_number
-'  EditBox 98, 20, 65, 12, info_received_date
-'  DropListBox 98, 37, 65, 12, "RFI"+chr(9)+"Phone Call"+chr(9)+"Not Received", retro_received_via
-'  ButtonGroup ButtonPressed
-'    OkButton 110, 59, 20, 12
-'    CancelButton 133, 59, 30, 12
-'  Text 3, 5, 68, 10, "Maxis Case Number"
-'  Text 3, 22, 90, 10, "Date Retro Info Received"
-'  Text 3, 39, 79, 8, "Retro Info Received Via"
-'EndDialog
-
-BeginDialog HC_retro_fiat, 0, 0, 169, 41, "HC Retro Fiat"
+BeginDialog HC_retro_fiat, 0, 0, 169, 78, "HC Retro Fiat"
   EditBox 98, 4, 65, 12, case_number
+  EditBox 98, 20, 65, 12, info_received_date
+  DropListBox 98, 37, 65, 12, "RFI"+chr(9)+"Phone Call"+chr(9)+"Not Received", retro_received_via
   ButtonGroup ButtonPressed
-    OkButton 110, 24, 20, 12
-    CancelButton 133, 24, 30, 12
+    OkButton 110, 59, 20, 12
+    CancelButton 133, 59, 30, 12
   Text 3, 5, 68, 10, "Maxis Case Number"
+  Text 3, 22, 90, 10, "Date Retro Info Received"
+  Text 3, 39, 79, 8, "Retro Info Received Via"
 EndDialog
+
+'BeginDialog HC_retro_fiat, 0, 0, 169, 41, "HC Retro Fiat"
+'  EditBox 98, 4, 65, 12, case_number
+'  ButtonGroup ButtonPressed
+'    OkButton 110, 24, 20, 12
+'    CancelButton 133, 24, 30, 12
+'  Text 3, 5, 68, 10, "Maxis Case Number"
+'EndDialog
 
 BeginDialog elig_prompts_complete_screen, 0, 0, 178, 108, "Prompts Complete"
   ButtonGroup ButtonPressed
@@ -91,6 +91,7 @@ If IsNumeric(case_number) = False then case_number = ""
     If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
     Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
   call back_to_self
+  call change_footer_month(Left(appl_date,2),Right(appl_date,2))
   EMWriteScreen "APPL", 16, 43
   EMWriteScreen case_number, 18, 43
   transmit
@@ -103,7 +104,7 @@ If IsNumeric(case_number) = False then case_number = ""
   call back_to_self
 
         '-------- STAT - WRAP(BGTX) -------------
-  call send_case_through_background("no_update")
+  'call send_case_through_background("no_update")
 
         '-------- ELIG - HC ---------------------
 call navigate_to_screen("ELIG","HC")
@@ -125,8 +126,8 @@ call navigate_to_screen("ELIG","HC")
     EMSearch "* "&HH_member, row, col
     If row <> 0 then EMReadScreen retro_date, 5, row, col + 42    
     retro_date = replace(retro_date, " ", "/")
-    call back_to_self
-    call change_footer_month(Left(appl_date,2),Right(appl_date,2))
+    'call back_to_self
+    'call change_footer_month(Left(appl_date,2),Right(appl_date,2))
 	  call navigate_to_screen("ELIG","HC")
 	  call change_footer_month(Left(retro_date,2),Right(retro_date,2))
 	  call command_line("ignore",HH_member,"NN")
@@ -142,7 +143,7 @@ call navigate_to_screen("ELIG","HC")
 
     Do  
 	  PF9
-      EMWriteScreen "04", 11, 26
+      EMWriteScreen "05", 11, 26
       transmit
 	  
 	  '---Setting Variables ---------------------
