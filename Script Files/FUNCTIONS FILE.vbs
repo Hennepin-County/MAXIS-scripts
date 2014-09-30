@@ -25,10 +25,10 @@
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 
-worker_county_code = "x102"
+worker_county_code = "MULTICOUNTY"
 collecting_statistics = False
 EDMS_choice = "Compass Forms"
-county_name = "Anoka"
+county_name = "Southwest HHS"
 case_noting_intake_dates = True
 move_verifs_needed = False
 
@@ -54,9 +54,11 @@ Next
 
 is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SETUP SCRIPT WILL OVERWRITE LINES BELOW WHICH DEPEND ON THIS, BY SEPARATING THE VARIABLES WE PREVENT ISSUES
 
-'Some screens require the two digit county code, and this determines what that code is
-two_digit_county_code = right(worker_county_code, 2)
-If two_digit_county_code = "PW" then two_digit_county_code = "91"	'For DHS purposes
+'Some screens require the two digit county code, and this determines what that code is. It only does it for single-county agencies 
+'(ie, DHS and other multicounty agencies follow different logic, which will be fleshed out in the individual scripts affected)
+If worker_county_code <> "MULTICOUNTY" then two_digit_county_code = right(worker_county_code, 2)
+
+
 
 
 
@@ -1904,6 +1906,17 @@ function transmit
   EMSendKey "<enter>"
   EMWaitReady 0, 0
 end function
+
+Function worker_county_code_determination(worker_county_code_variable, two_digit_county_code_variable)		'Determines worker_county_code and two_digit_county_code for multi-county agencies and DHS staff
+	If worker_county_code_variable = "MULTICOUNTY" then 
+		Do
+			two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
+			If two_digit_county_code_variable = "" then stopscript
+			If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
+		Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True 
+		worker_county_code_variable = "X1" & two_digit_county_code_variable
+	End if
+End function
 
 Function write_editbox_in_case_note(x, y, z) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
   variable_array = split(y, " ")

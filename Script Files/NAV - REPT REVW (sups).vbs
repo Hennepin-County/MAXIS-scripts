@@ -10,6 +10,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'THE SCRIPT
+call worker_county_code_determination(worker_county_code, two_digit_county_code)
 
 EMConnect ""
 

@@ -124,10 +124,10 @@ transmit
 EMSetCursor 3, 15
 EMSendKey("************************************************************")
 IF app_type = "new application" then
-	call write_new_line_in_SPEC_MEMO("You recently applied for assistance in " & county_name & " County on " & CAF_date & ". An interview is required to process your application.")
+	call write_new_line_in_SPEC_MEMO("You recently applied for assistance in " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
 Elseif app_type = "recertification" then
 	If no_CAF_check = unchecked then 
-		call write_new_line_in_SPEC_MEMO("You sent recertification paperwork to " & county_name & " County on " & CAF_date & ". An interview is required to process your application.")
+		call write_new_line_in_SPEC_MEMO("You sent recertification paperwork to " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
 	Else
 		call write_new_line_in_SPEC_MEMO("You asked us to set up an interview for your recertification. Remember to send in your forms before the interview.")
 	End if
