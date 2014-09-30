@@ -20,6 +20,8 @@ EndDialog
 
 'THE SCRIPT
 
+call worker_county_code_determination(worker_county_code, two_digit_county_code)
+
 EMConnect ""
 
 dialog worker_dialog

@@ -33,6 +33,8 @@ EndDialog
 all_case_numbers_array = " "					'Creating blank variable for the future array
 screen_to_check = "PND2"					'Declaring this here, but in a future revision this will be a dropdown amongst other options
 
+call worker_county_code_determination(worker_county_code, two_digit_county_code)
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Connecting to BlueZone
