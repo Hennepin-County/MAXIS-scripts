@@ -1,6 +1,3 @@
-'warning_box = Inputbox ("Enter password to continue:", 1)
-'If warning_box <> "testitout" then stopscript
-
 name_of_script = "BULK - REVW-MONT closures"
 start_time = timer
 
@@ -143,7 +140,7 @@ If revw_check = 1 then
       last_day_to_turn_in_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
       intake_date = dateadd("m", 1, first_of_working_month)
     End If
-  
+
   '---------------NOW IT CASE NOTES
     PF4
     PF9
@@ -161,7 +158,7 @@ If revw_check = 1 then
     If intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply after " & intake_date & ".")
     call write_new_line_in_case_note("---")
     call write_new_line_in_case_note(worker_signature & ", via automated script.")
-  
+
   '----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
     cash_review_code = ""
     WB_review_code = ""
@@ -180,7 +177,7 @@ If revw_check = 1 then
   call navigate_to_screen("rept", "revw")
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
-    EMWriteScreen worker_county_code & worker_number, 21, 10
+    EMWriteScreen worker_county_code & worker_number, 21, 6
     transmit
   End if
 End If  
@@ -196,7 +193,7 @@ If mont_check = 1 then
   'Checking the current worker number. If it's not the selected one it will enter the selected one.
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
-    EMWriteScreen worker_county_code & worker_number, 21, 10
+    EMWriteScreen worker_county_code & worker_number, 21, 6
     transmit
   End if
 
@@ -278,7 +275,7 @@ If mont_check = 1 then
   call navigate_to_screen("rept", "mont")
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
-    EMWriteScreen worker_county_code & worker_number, 21, 10
+    EMWriteScreen worker_county_code & worker_number, 21, 6
     transmit
   End if
 End If  
@@ -286,9 +283,3 @@ End If
 
 MsgBox "Success! All cases that are coded in REPT/REVW and/or REPT/MONT as either an ''N'' or an ''I'' have been case noted for why they're closing, and what documents need to get turned in."
 script_end_procedure("")
-
-
-
-
-
-
