@@ -87,12 +87,12 @@ transmit
 'Writes the MEMO.
 EMSetCursor 3, 15
 EMSendKey "************************************************************"
-EMSendKey "You are required to attend a Minnesota Family Investment Program orientation. "
+EMSendKey "You are required to attend a Financial Orientation for MFIP. "
 EMSendKey "Your orientation is scheduled on " & orientation_date & " at " & orientation_time & "." & "<newline>"
 EMSendKey "Your orientation is scheduled at the " & interview_location & " office located at: " & "<newline>"
 EMSendKey county_address_line_01 & "<newline>"
 EMSendKey county_address_line_02 & "<newline>"
-EMSendKey "If you cannot attend this orientation, please contact the agency office to reschedule.  Failure to attend an orientation will result in a sanction of your MFIP benefits." & "<newline>"
+EMSendKey "If you cannot attend this orientation, please contact the agency office to reschedule.  Failure to attend an orientation will result in a sanction (reduction) of your MFIP benefits." & "<newline>"
 EMSendKey "************************************************************"
 
 'Exits the MEMO
