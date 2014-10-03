@@ -109,6 +109,127 @@ Do
   message_number = message_number + 1
 Loop until line_check <> "DISB"
 
+'THE FOLLOWING LINES OF CODE WERE COPIED FROM DAKOTA'S ANDREW FINK, AND MODIFIED FOR OUR PURPOSES - VKC, 10/02/2014
+
+'For Penny issue
+'payment_number = 1
+penny_issue_excel_row = 1
+'payment1 = 0
+'payment2 = 0
+'payment4 = 0
+  
+ 'sends partial pennies to a holding tank for each payment.  
+ 
+Do
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "1" then
+    payment1 = payment1 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 11).Value = payment1
+  end if
+  
+  
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "2" then
+    payment2 = payment2 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 12).Value = payment2
+  end if
+  
+  
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "3" then
+    payment3 = payment3 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 13).Value = payment3
+  end if
+
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "4" then
+    payment4 = payment4 + (ObjExcel.Cells(penny_issue_excel_row, 4).Value - (int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 14).Value = payment4
+  end if
+  
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "5" then
+    payment5 = payment5 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 15).Value = payment5
+  end if
+  
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "6" then
+    payment6 = payment6 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 16).Value = payment6
+  end if
+    
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "7" then
+    payment7 = payment7 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 17).Value = payment7
+  end if
+    
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "8" then
+    payment8 = payment8 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 18).Value = payment8
+  end if
+    
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "9" then
+    payment9 = payment9 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 19).Value = payment9
+  end if
+    
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "10" then
+    payment10 = payment10 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 20).Value = payment10
+  end if
+    
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "11" then
+    payment11 = payment11 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 21).Value = payment11
+  end if
+    
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "12" then
+    payment12 = payment12 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 22).Value = payment12
+  end if
+  
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "13" then
+    payment13 = payment13 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 23).Value = payment13
+  end if
+  
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "14" then
+    payment14 = payment14 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 24).Value = payment14
+  end if
+    
+  if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "15" then
+    payment15 = payment15 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
+    ObjExcel.Cells(1, 25).Value = payment15
+  end if
+  
+  
+  penny_issue_excel_row = penny_issue_excel_row + 1
+  
+Loop until ObjExcel.Cells(penny_issue_excel_row, 1).Value = ""
+
+'After partial pennies have been sent to holding tank, all the payments are rounded
+format_row = 1
+Do
+  ObjExcel.Cells(format_row, 4).Value = (Int((ObjExcel.Cells(format_row, 4).Value) * 100)/100)
+  format_row = format_row + 1
+loop until ObjExcel.Cells(format_row, 1).Value = ""
+
+
+'Adding the pennies to the appropriate PMI!
+
+format_row = 1
+payment_number = 1
+
+
+Do
+
+  If ObjExcel.Cells(format_row, 1).Value = payment_number then
+    ObjExcel.Cells(format_row, 4).Value = ObjExcel.Cells(format_row, 4) + ObjExcel.Cells(1, payment_number + 10).Value
+    payment_number = payment_number + 1
+  End IF
+
+
+  format_row = format_row + 1
+loop until ObjExcel.Cells(format_row, 1).Value = ""
+
+'---------------END ANDREW'S CODE
+
 'Now the script goes into case/curr, and checks to see what programs are currently open.
 EMWriteScreen "h", 6, 3
 transmit
@@ -155,7 +276,7 @@ excel_row = 1 'setting the variable for the following Do...Loop
 'The following checks for single-member households. They do not currently work, as the second generation do...loop will not catch the PMI, because the "Enter a valid command" notice doesn't go away.
 EMReadScreen second_member_check, 2, 6, 3
 If second_member_check = "  " then 
-  MsgBox "This is a single-individual household. These are not currently covered by the script. Process manually, and watch your email for a script update which will correct this problem."
+  MsgBox "This is a single-individual household. These are not currently covered by the script. Process manually."
   end_excel_and_script
 End if
 
