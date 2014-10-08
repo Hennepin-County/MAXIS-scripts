@@ -34,11 +34,18 @@ Function budget_month_config(A,B)
 	End If		
 	EMReadScreen Y, 1, 13, 76
 	EMWriteScreen Y, 13, 21 + X
-	EMReadScreen Z, 2, 12, 72
-    EMWriteScreen Z, 12, 17 + X
-	EMReadScreen B, 5, 6, 19 + X
-	If B <> "" then call elig_to_standard(Right(budget_one,2), Z, maxis_standard)
-	EMWriteScreen maxis_standard, 12, 22 + X
+  If Y = "B" then
+    EMReadScreen B_elig_type, 2, 12, 72
+      EMWriteScreen B_elig_type, 12, 17 + X
+    EMReadScreen B_max_standard, 1, 12, 77
+    EMWriteScreen B_max_standard, 12, 22 + X
+  ElseIf Y = "A" then
+    EMReadScreen Z, 2, 12, 72
+      EMWriteScreen Z, 12, 17 + X
+    EMReadScreen B, 5, 6, 19 + X
+    If B <> "" then call elig_to_standard(Right(budget_one,2), Z, maxis_standard)
+    EMWriteScreen maxis_standard, 12, 22 + X
+  End If
 End Function
 
 Public Sub retro_calculator(A,B,C,D)
@@ -427,7 +434,6 @@ function elig_to_standard(A,B,C)
 	  MsgBox D,E
 	End If
   ElseIf A = "14" then
-    'Method A Logic
     If B = "AX" or B = "AA" or B = "CX" then
       C = "J"
     ElseIf B = "PX" or B = "PC" then
@@ -436,9 +442,6 @@ function elig_to_standard(A,B,C)
       C = "K"
     ElseIf B = "CB" then
       C = "I"
-    'Method B Logic
-    ElseIf B= "DX" then
-      C = "E"
 	End If
   End If
 end function
