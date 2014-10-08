@@ -13,7 +13,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 Set MNSURE_FUNCTIONS_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_MNSURE_FUNCTIONS_command = MNSURE_FUNCTIONS_fso.OpenTextFile("M:\Income-Maintence-Share\Bluezone Scripts\Script Files\MNSure\MNSURE FUNCTIONS FILE.vbs")
+Set fso_MNSURE_FUNCTIONS_command = MNSURE_FUNCTIONS_fso.OpenTextFile("C:\Users\shanleyl\Desktop\MAXIS-BZ-Scripts-County-Beta\Alpha quality scripts\Retro HC FIAT Request\MNSURE FUNCTIONS FILE.vbs")
 MNSURE_FUNCTIONS_contents = fso_MNSURE_FUNCTIONS_command.ReadAll
 fso_MNSURE_FUNCTIONS_command.Close
 Execute MNSURE_FUNCTIONS_contents 
@@ -22,7 +22,7 @@ Execute MNSURE_FUNCTIONS_contents
 
 BeginDialog HC_retro_fiat, 0, 0, 169, 78, "HC Retro Fiat"
   EditBox 98, 4, 65, 12, case_number
-  EditBox 98, 20, 65, 12, info_received_date
+  EditBox 98, 20, 65, 12, appl_date
   EditBox 98, 37, 65, 12, retro_month_requested
   ButtonGroup ButtonPressed
     OkButton 110, 59, 20, 12
@@ -31,14 +31,6 @@ BeginDialog HC_retro_fiat, 0, 0, 169, 78, "HC Retro Fiat"
   Text 3, 22, 90, 10, "Application Date"
   Text 3, 39, 79, 8, "Retro month requested"
 EndDialog
-
-'BeginDialog HC_retro_fiat, 0, 0, 169, 41, "HC Retro Fiat"
-'  EditBox 98, 4, 65, 12, case_number
-'  ButtonGroup ButtonPressed
-'    OkButton 110, 24, 20, 12
-'    CancelButton 133, 24, 30, 12
-'  Text 3, 5, 68, 10, "Maxis Case Number"
-'EndDialog
 
 BeginDialog elig_prompts_complete_screen, 0, 0, 178, 108, "Prompts Complete"
   ButtonGroup ButtonPressed
@@ -76,19 +68,13 @@ case_number = trim(case_number)
 case_number = replace(case_number, "_", "")
 If IsNumeric(case_number) = False then case_number = ""
 
-'Pulls the application date and retro date.
-call navigate_to_screen ("stat", "hcre")
-EMReadScreen info_received_date, 8, 10, 51
-EMReadScreen retro_month_requested, 5, 10, 64
-
-
 'Starts the first dialog
   Do
     Do
       Dialog HC_retro_fiat
       If buttonpressed = 0 then stopscript
       If case_number <> "" then
-        call maxis_dater(info_received_date,info_received_date,"Application Date")
+        call maxis_dater(appl_date,appl_date,"Application Date")
       ElseIf case_number = "" then
         MsgBox "You must enter a case number to continue", "Information Error"
       End If
@@ -98,19 +84,9 @@ EMReadScreen retro_month_requested, 5, 10, 64
     Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
   call back_to_self
   call change_footer_month(Left(appl_date,2),Right(appl_date,2))
-  EMWriteScreen "APPL", 16, 43
-  EMWriteScreen case_number, 18, 43
-  transmit
-  EMReadScreen appl_date, 8, 4, 63
-  appl_date = replace(appl_date, " ", "/")
-  PF3
-  call change_footer_month(Left(appl_date,2),Right(appl_date,2))
   call navigate_to_screen("stat","memb")
   call HH_member_custom_dialog(HH_member_array)
   call back_to_self
-
-        '-------- STAT - WRAP(BGTX) -------------
-  'call send_case_through_background("no_update")
 
         '-------- ELIG - HC ---------------------
 call navigate_to_screen("ELIG","HC")
@@ -132,11 +108,11 @@ call navigate_to_screen("ELIG","HC")
     EMSearch "* "&HH_member, row, col
     If row <> 0 then EMReadScreen retro_date, 5, row, col + 42    
     retro_date = replace(retro_date, " ", "/")
-    'call back_to_self
-    'call change_footer_month(Left(appl_date,2),Right(appl_date,2))
+    call back_to_self
+    call change_footer_month(Left(appl_date,2),Right(appl_date,2))
 	  call navigate_to_screen("ELIG","HC")
-	  call change_footer_month(Left(retro_date,2),Right(retro_date,2))
-	  call command_line("ignore",HH_member,"NN")
+    call change_footer_month(Left(retro_date,2),Right(retro_date,2))
+    call command_line("ignore",HH_member,"NN")
 	  EMWriteScreen "X", 8, 8
 	  transmit
 	  EMWriteScreen "06", 9, 23  
@@ -146,11 +122,13 @@ call navigate_to_screen("ELIG","HC")
 	  EMSearch "  "&HH_member&"  ", row, col
 	  EMWriteScreen "X", row, col + 25
 	  transmit
-
     Do  
 	  PF9
-      EMWriteScreen "05", 11, 26
+    EMReadScreen already_in_fiat, 52, 24, 2
+    If already_in_fiat <> "PF9 IS NOT PERMITTED - PANEL IS ALREADY IN FIAT MODE" then
+      EMWriteScreen "04", 11, 26
       transmit
+    End If
 	  
 	  '---Setting Variables ---------------------
 	  
@@ -191,6 +169,8 @@ call navigate_to_screen("ELIG","HC")
 	      elig_hh_count_prompt = trim(elig_hh_count_prompt)
 	    EMReadScreen elig_abud_prompt, 4, 3, 47
 	      elig_abud_prompt = trim(elig_abud_prompt)
+      EMReadScreen elig_bbud_prompt, 4, 3, 47
+	      elig_bbud_prompt = trim(elig_bbud_prompt)
 	    EMReadScreen elig_cbud_prompt, 4, 3, 54
 	      elig_cbud_prompt = trim(elig_cbud_prompt)
   			
@@ -231,8 +211,19 @@ call navigate_to_screen("ELIG","HC")
 		  EMWriteScreen "N", 5, 63
 		  member_span = 1
 		  For i = 1 To 12 Step 1
-			call enter_income_information(member_span)
-			member_span = member_span + 1
+        call enter_income_information(member_span)
+        member_span = member_span + 1
+		  Next		  		  
+		  transmit
+            
+      'Process BBUD Screen----------------
+			 
+  	    ElseIf elig_abud_prompt = "BBUD" then
+		  EMWriteScreen "N", 5, 63
+		  member_span = 1
+		  For i = 1 To 12 Step 1
+        call enter_income_information(member_span)
+        member_span = member_span + 1
 		  Next		  		  
 		  transmit
 		  
@@ -242,8 +233,8 @@ call navigate_to_screen("ELIG","HC")
 		  EMWriteScreen "N", 5, 63
 		  member_span = 1
 		  For i = 1 To 12 Step 1
-			call enter_income_information(member_span)
-			member_span = member_span + 1
+        call enter_income_information(member_span)
+        member_span = member_span + 1
 		  Next		  		  
 		  transmit
 
@@ -265,12 +256,14 @@ call navigate_to_screen("ELIG","HC")
 		  Dialog elig_prompts_complete_screen
 	  	    If buttonpressed = 0 then stopscript
 			If buttonpressed = fail_person_test then
-			  Do
+        '----------------------------------------------------- Known Glitch Here
+        Do
 			    call mnsure_fail_person_test
-				Dialog elig_prompts_complete_screen
+        	Dialog elig_prompts_complete_screen
 				  If buttonpressed = 0 then stopscript
 			  Loop until buttonpressed = -1
-			End If
+        '-----------------------------------------------------
+      End If
 		  End If
 		End If
 	  Loop until elig_hh_count_prompt <> "Household Count" and elig_abud_prompt <> "ABUD" and elig_cbud_prompt <> "CBUD" and all_screens_complete = 1
@@ -305,7 +298,7 @@ call navigate_to_screen("ELIG","HC")
 Dialog case_note_decision_dialog
 If buttonpressed = 0 then stopscript
 
-call run_file("C:\Users\shanleyl\Desktop\MAXIS-BZ-Scripts-County-Beta\Script Files\NOTE - HCAPP.vbs")
+'ADD CASE NOTE HERE
 
 EMReadScreen case_note_edit_test, 5, 20, 3
 If case_note_edit_test = "Mode:" then
