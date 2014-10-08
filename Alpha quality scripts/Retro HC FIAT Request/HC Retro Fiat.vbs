@@ -20,16 +20,14 @@ Execute MNSURE_FUNCTIONS_contents
 
 'DIALOGS-------------------------------------------------------------------------------------------
 
-BeginDialog HC_retro_fiat, 0, 0, 169, 78, "HC Retro Fiat"
+BeginDialog HC_retro_fiat, 0, 0, 169, 56, "HC Retro Fiat"
   EditBox 98, 4, 65, 12, case_number
   EditBox 98, 20, 65, 12, appl_date
-  EditBox 98, 37, 65, 12, retro_month_requested
   ButtonGroup ButtonPressed
-    OkButton 110, 59, 20, 12
-    CancelButton 133, 59, 30, 12
+    OkButton 110, 39, 20, 12
+    CancelButton 133, 39, 30, 12
   Text 3, 5, 68, 10, "Maxis Case Number"
   Text 3, 22, 90, 10, "Application Date"
-  Text 3, 39, 79, 8, "Retro month requested"
 EndDialog
 
 BeginDialog elig_prompts_complete_screen, 0, 0, 178, 108, "Prompts Complete"
