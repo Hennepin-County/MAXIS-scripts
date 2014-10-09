@@ -14,25 +14,27 @@ Execute text_from_the_other_script
 
 'DIALOGS----------------------------------------------------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 291, 107, "New HIRE dialog"
-  EditBox 80, 5, 25, 15, HH_memb
-  DropListBox 120, 25, 40, 15, "Yes"+chr(9)+"No", job_known
-  EditBox 95, 45, 185, 15, employer
-  CheckBox 5, 70, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_check
-  EditBox 70, 85, 80, 15, worker_signature
+BeginDialog new_HIRE_dialog, 0, 0, 291, 115, "New HIRE dialog"
+  EditBox 80, 10, 25, 15, HH_memb
+  CheckBox 5, 30, 160, 10, "Check here if this job is known to the agency.", job_known_check
+  EditBox 95, 45, 190, 15, employer
+  CheckBox 5, 65, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_check
+  CheckBox 5, 80, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_check
+  EditBox 70, 95, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 235, 65, 50, 15
-    CancelButton 235, 85, 50, 15
+    OkButton 180, 95, 50, 15
+    CancelButton 235, 95, 50, 15
     PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 175, 25, 45, 10, "next panel", next_panel_button
     PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 235, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 10, 70, 10, "HH member number:"
   GroupBox 170, 5, 115, 35, "STAT-based navigation"
-  Text 5, 30, 110, 10, "Is this job known to the agency?:"
+  Text 5, 15, 70, 10, "HH member number:"
   Text 5, 50, 85, 10, "Job on DAIL is listed as:"
-  Text 5, 90, 60, 10, "Worker signature:"
+  Text 5, 100, 60, 10, "Worker signature:"
 EndDialog
+
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
 
@@ -122,6 +124,9 @@ transmit
 'MFIP cases need to manually add the JOBS panel for ES purposes.
 If MFIP_case = False then create_JOBS_check = checked 
 
+'Defaulting the "set TIKL" variable to checked
+TIKL_check = checked
+
 'Setting the variable for the following do...loop
 HH_memb_row = 5 
 
@@ -140,7 +145,7 @@ Do
 Loop until ButtonPressed = OK
 
 'If new job is known, script ends.
-If job_known = "Yes" then script_end_procedure("The script will stop as this job is known.")
+If job_known_check = checked then script_end_procedure("The script will stop as this job is known.")
 
 'Now it will create a new JOBS panel for this case.
 If create_JOBS_check = checked then
@@ -196,11 +201,18 @@ EMSendKey replace(new_hire_first_line, new_HIRE_SSN, "XXX-XX-XXXX") & "<newline>
 'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
 call write_new_line_in_case_note("* Job unreported to the agency.")
 call write_new_line_in_case_note("* Sent employment verification and DHS-2919B (Verification Request Form - B).")
-call write_new_line_in_case_note("* TIKLed for 10-day return.")
+If create_JOBS_check = checked then call write_new_line_in_case_note("* JOBS updated with new hire info from DAIL.")
+If TIKL_check = checked then call write_new_line_in_case_note("* TIKLed for 10-day return.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature & ", using automated script.")
 PF3
 PF3
+
+'If TIKL_check is unchecked, it needs to end here.
+If TIKL_check = unchecked then
+	MsgBox "Success! MAXIS updated for new HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & "."
+	script_end_procedure("")
+End if
 
 'Navigates to TIKL
 EMSendKey "w"
@@ -213,7 +225,7 @@ call create_MAXIS_friendly_date(date, 10, 5, 18)
 EMSetCursor 9, 3
 
 'Sending TIKL text.
-EMSendKey "Verification of NEW HIRE should have returned by now. If not received and process, take appropriate action. (TIKL auto-generated from script)." + "<enter>"
+EMSendKey "Verification of NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." + "<enter>"
 
 'Submits TIKL
 transmit
