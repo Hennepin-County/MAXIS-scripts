@@ -265,7 +265,7 @@ If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
+If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 EMReadScreen ERRR_check, 4, 2, 52
 If ERRR_check = "ERRR" then transmit 'For error prone cases.
 

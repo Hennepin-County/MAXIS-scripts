@@ -27,10 +27,12 @@
 
 worker_county_code = "MULTICOUNTY"
 collecting_statistics = False
-EDMS_choice = "Compass Forms"
-county_name = "Southwest HHS"
+EDMS_choice = "Compass Pilot"
+county_name = "Anoka"
 case_noting_intake_dates = True
 move_verifs_needed = False
+code_from_installer = "02 - Anoka County"
+
 
 'Creates a double array of county offices, first by office (using the ~), then by address line (using the |).
 county_office_array = split("2100 3rd Ave, Suite 400|Anoka, MN 55303~1201 89th Ave, Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell Road, Suite 128|Lexington, MN 55014", "~")
