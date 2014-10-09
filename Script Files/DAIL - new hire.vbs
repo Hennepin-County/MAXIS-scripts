@@ -194,8 +194,11 @@ transmit
 EMSendKey replace(new_hire_first_line, new_HIRE_SSN, "XXX-XX-XXXX") & "<newline>" & new_hire_second_line & "<newline>" & new_hire_third_line + "<newline>" & new_hire_fourth_line & "<newline>" & "---" & "<newline>"
 
 'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-EMSendKey "* Job unreported to the agency. Sending employment verification. TIKLed for 10-day return." & "<newline>" & "---" & "<newline>"
-EMSendKey worker_signature & ", using automated script."
+call write_new_line_in_case_note("* Job unreported to the agency.")
+call write_new_line_in_case_note("* Sent employment verification and DHS-2919B (Verification Request Form - B).")
+call write_new_line_in_case_note("* TIKLed for 10-day return.")
+call write_new_line_in_case_note("---")
+call write_new_line_in_case_note(worker_signature & ", using automated script.")
 PF3
 PF3
 
@@ -219,7 +222,7 @@ transmit
 PF3
 
 'Success message
-MsgBox "Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."
+MsgBox "Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & "."
 
 'Exits script and logs stats if appropriate
 script_end_procedure("")
