@@ -9,25 +9,41 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
+'CUSTOM FUNCTION (WILL INCLUDE IN FUNCTIONS FILE BEFORE FULL DEPLOYMENT)
 
+'This function converts a numeric digit to an Excel column, up to 104 digits (columns).
+function convert_digit_to_excel_column(col_in_excel)
+	'Create string with the alphabet
+	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	'Assigning a letter, based on that column. Uses "mid" function to determine it. If number > 26, it handles by adding a letter (per Excel).
+	convert_digit_to_excel_column = Mid(alphabet, col_in_excel, 1)		
+	If col_in_excel >= 27 and col_in_excel < 53 then convert_digit_to_excel_column = "A" & Mid(alphabet, col_in_excel - 26, 1)
+	If col_in_excel >= 53 and col_in_excel < 79 then convert_digit_to_excel_column = "B" & Mid(alphabet, col_in_excel - 52, 1)
+	If col_in_excel >= 79 and col_in_excel < 105 then convert_digit_to_excel_column = "C" & Mid(alphabet, col_in_excel - 78, 1)
+
+	'Closes script if the number gets too high (very rare circumstance, just errorproofing)
+	If col_in_excel >= 105 then script_end_procedure("This script is only able to assign excel columns to 104 rows. You've exceeded this number, and this script cannot continue.")
+end function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog pull_PND2_data_into_excel_dialog, 0, 0, 281, 100, "Pull PND2 data into Excel dialog"
-  EditBox 185, 20, 90, 15, worker_number
-  CheckBox 120, 40, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 10, 35, 100, 10, "Days pending", days_pending_check
-  CheckBox 10, 70, 105, 10, "SNAP cases only", SNAP_cases_only_check
+BeginDialog pull_PND2_data_into_excel_dialog, 0, 0, 286, 115, "Pull PND2 data into Excel dialog"
+  EditBox 150, 20, 130, 15, worker_number
+  CheckBox 70, 55, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
+  CheckBox 10, 50, 40, 10, "Cash?", cash_check
+  CheckBox 10, 65, 40, 10, "HC?", HC_check
+  CheckBox 10, 80, 40, 10, "EA?", EA_check
+  CheckBox 10, 95, 40, 10, "GRH?", GRH_check
   ButtonGroup ButtonPressed
-    OkButton 140, 80, 50, 15
-    CancelButton 195, 80, 50, 15
-  GroupBox 5, 20, 110, 30, "Additional items to log"
-  GroupBox 5, 55, 110, 30, "Filters"
-  Text 120, 25, 60, 10, "Worker to check:"
-  Text 120, 50, 155, 25, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-  Text 40, 5, 220, 10, "***AT THIS TIME, THIS SCRIPT PULLS PND2 DATA ONLY***"
+    OkButton 175, 95, 50, 15
+    CancelButton 230, 95, 50, 15
+  GroupBox 5, 20, 60, 90, "Progs to scan"
+  Text 70, 25, 65, 10, "Worker(s) to check:"
+  Text 70, 70, 215, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 65, 5, 125, 10, "***PULL PND2 DATA INTO EXCEL***"
+  Text 70, 40, 215, 10, "Enter workers' x1 numbers (ex: x100###), separated by a comma."
 EndDialog
-
-
 
 'VARIABLES TO DECLARE
 all_case_numbers_array = " "					'Creating blank variable for the future array
@@ -45,6 +61,11 @@ If screen_to_check = "PND2" then
 	'Dialog asks what stats are being pulled
 	Dialog pull_PND2_data_into_excel_dialog
 	If buttonpressed = 0 then stopscript
+
+	'Starting the query start time (for the query runtime at the end)
+	query_start_time = timer
+
+
 
 	'Checking for MAXIS
 	PF3
@@ -67,15 +88,47 @@ If screen_to_check = "PND2" then
 	objExcel.Cells(1, 3).Font.Bold = TRUE
 	ObjExcel.Cells(1, 4).Value = "APPL DATE"
 	objExcel.Cells(1, 4).Font.Bold = TRUE
+	ObjExcel.Cells(1, 5).Value = "DAYS PENDING"	
+	objExcel.Cells(1, 5).Font.Bold = TRUE
 
 	'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 	'	Below, use the "[blank]_col" variable to recall which col you set for which option.
-	col_to_use = 5 'Starting with 5 because cols 1-4 are already used
-	If days_pending_check = checked then	'NOTE: keep this first, or program a function to convert the numeric days_pending_col to an alpha for the totals later on
-		ObjExcel.Cells(1, col_to_use).Value = "DAYS PENDING"	
+	col_to_use = 6 'Starting with 6 because cols 1-5 are already used
+
+	If SNAP_check = checked then
+		ObjExcel.Cells(1, col_to_use).Value = "SNAP?"
 		objExcel.Cells(1, col_to_use).Font.Bold = TRUE
-		days_pending_col = col_to_use
+		snap_pends_col = col_to_use
 		col_to_use = col_to_use + 1
+		SNAP_letter_col = convert_digit_to_excel_column(snap_pends_col)
+	End if
+	If cash_check = checked then
+		ObjExcel.Cells(1, col_to_use).Value = "CASH?"
+		objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+		cash_pends_col = col_to_use
+		col_to_use = col_to_use + 1
+		cash_letter_col = convert_digit_to_excel_column(cash_pends_col)
+	End if
+	If HC_check = checked then
+		ObjExcel.Cells(1, col_to_use).Value = "HC?"
+		objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+		HC_pends_col = col_to_use
+		col_to_use = col_to_use + 1
+		HC_letter_col = convert_digit_to_excel_column(HC_pends_col)
+	End if
+	If EA_check = checked then
+		ObjExcel.Cells(1, col_to_use).Value = "EA?"
+		objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+		EA_pends_col = col_to_use
+		col_to_use = col_to_use + 1
+		EA_letter_col = convert_digit_to_excel_column(EA_pends_col)
+	End if
+	If GRH_check = checked then
+		ObjExcel.Cells(1, col_to_use).Value = "GRH?"
+		objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+		GRH_pends_col = col_to_use
+		col_to_use = col_to_use + 1
+		GRH_letter_col = convert_digit_to_excel_column(GRH_pends_col)
 	End if
 	If preg_check = checked then
 		ObjExcel.Cells(1, col_to_use).Value = "PREG EXISTS?"
@@ -115,7 +168,15 @@ If screen_to_check = "PND2" then
 	If all_workers_check = checked then
 		call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 	Else
-		worker_array = split(worker_county_code & worker_number)
+		x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+
+		'Need to add the worker_county_code to each one
+		For each x1_number in x1s_from_dialog
+			worker_array = worker_array & ", " & worker_county_code & trim(x1_number)
+		Next
+
+		'Split worker_array
+		worker_array = split(worker_array, ", ")
 	End if
 
 	For each worker in worker_array
@@ -132,26 +193,51 @@ If screen_to_check = "PND2" then
 			Do
 				MAXIS_row = 7
 				Do
-					EMReadScreen SNAP_status, 1, MAXIS_row, 62
-					EMReadScreen case_number, 8, MAXIS_row, 5
-					EMReadScreen client_name, 22, MAXIS_row, 16
-					EMReadScreen APPL_date, 8, MAXIS_row, 38
-					EMReadScreen days_pending, 4, MAXIS_row, 49
+					EMReadScreen case_number, 8, MAXIS_row, 5			'Reading case number
+					EMReadScreen client_name, 22, MAXIS_row, 16		'Reading client name
+					EMReadScreen APPL_date, 8, MAXIS_row, 38			'Reading application date
+					EMReadScreen days_pending, 4, MAXIS_row, 49		'Reading days pending
+					EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
+					EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
+					EMReadScreen HC_status, 1, MAXIS_row, 65			'Reading HC status
+					EMReadScreen EA_status, 1, MAXIS_row, 68			'Reading EA status
+					EMReadScreen GRH_status, 1, MAXIS_row, 72			'Reading GRH status
+
 					'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 					If trim(case_number) <> "" and (instr(all_case_numbers_array, case_number) <> 0 and client_name <> " ADDITIONAL APP       ") then exit do
 					all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
-					If case_number = "        " then exit do
+
+					If case_number = "        " then exit do			'Exits do if we reach the end
+
+					'Cleaning up each program's status
 					SNAP_status = trim(replace(SNAP_status, "_", ""))
-					If (SNAP_cases_only_check = checked and SNAP_status <> "") or SNAP_cases_only_check = 0 then 
+					cash_status = trim(replace(cash_status, "_", ""))
+					HC_status = trim(replace(HC_status, "_", ""))
+					EA_status = trim(replace(EA_status, "_", ""))
+					GRH_status = trim(replace(GRH_status, "_", ""))
+
+					'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
+					If SNAP_status <> "" and SNAP_check = checked then add_case_info_to_Excel = True
+					If cash_status <> "" and cash_check = checked then add_case_info_to_Excel = True
+					If HC_status <> "" and HC_check = checked then add_case_info_to_Excel = True
+					If EA_status <> "" and EA_check = checked then add_case_info_to_Excel = True
+					If GRH_status <> "" and GRH_check = checked then add_case_info_to_Excel = True
+
+					If add_case_info_to_Excel = True then 
 						ObjExcel.Cells(excel_row, 1).Value = worker
 						ObjExcel.Cells(excel_row, 2).Value = case_number
 						ObjExcel.Cells(excel_row, 3).Value = client_name
 						ObjExcel.Cells(excel_row, 4).Value = replace(APPL_date, " ", "/")
-						If days_pending_check = checked then ObjExcel.Cells(excel_row, days_pending_col).Value = cint(days_pending)	'Only grabs this if requested
+						ObjExcel.Cells(excel_row, 5).Value = abs(days_pending)
+						If SNAP_check = checked then ObjExcel.Cells(excel_row, snap_pends_col).Value = SNAP_status
+						If cash_check = checked then ObjExcel.Cells(excel_row, cash_pends_col).Value = cash_status
+						If HC_check = checked then ObjExcel.Cells(excel_row, HC_pends_col).Value = HC_status
+						If EA_check = checked then ObjExcel.Cells(excel_row, EA_pends_col).Value = EA_status
+						If GRH_check = checked then ObjExcel.Cells(excel_row, GRH_pends_col).Value = GRH_status
 						excel_row = excel_row + 1
-
 					End if
 					MAXIS_row = MAXIS_row + 1
+					add_case_info_to_Excel = ""	'Blanking out variable
 				Loop until MAXIS_row = 19
 				PF8
 				EMReadScreen last_page_check, 21, 24, 2
@@ -257,25 +343,78 @@ If screen_to_check = "PND2" then
 		excel_row = excel_row + 1
 	Loop until case_number = ""
 
-	'Wrap-up stats if case pending days was requested
+	'Setting variables for the stats area
 	col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
+	row_to_use = 3			'Setting variable for the if...thens below
+	is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'Pre-declaring this, to clean up the code below
 
+	'Query date/time/runtime info
 	objExcel.Cells(1, col_to_use - 1).Font.Bold = TRUE
 	objExcel.Cells(2, col_to_use - 1).Font.Bold = TRUE
 	ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one, as this is on the next row
 	ObjExcel.Cells(1, col_to_use).Value = now
 	ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-	ObjExcel.Cells(2, col_to_use).Value = timer - start_time
-	If days_pending_check = checked then	'The following is just for days pending.
-		ObjExcel.Cells(3, col_to_use - 1).Value = "Percentage of cases over 30 days:"
-		ObjExcel.Cells(3, col_to_use).Value = "=(COUNTIFS(E:E," & Chr(34) & ">30" & Chr(34) & "))/COUNT(E:E)"
-		ObjExcel.Cells(3, col_to_use).NumberFormat = "0.00%"
-		ObjExcel.Cells(4, col_to_use - 1).Value = "Cases pending over 30 days:"	'Goes back one, as this is on the next row
-		ObjExcel.Cells(4, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ")"
-		objExcel.Cells(3, col_to_use - 1).Font.Bold = TRUE
-		objExcel.Cells(4, col_to_use - 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
+
+	'SNAP info
+	If SNAP_check = checked then	
+		ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "SNAP cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
+		ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of SNAP cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
+		ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
+		row_to_use = row_to_use + 2	'It's two rows we jump, because the SNAP stat takes up two rows
 	End if
 
+	'cash info
+	If cash_check = checked then	
+		ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "Cash cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
+		ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of cash cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
+		ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
+		row_to_use = row_to_use + 2	'It's two rows we jump, because the cash stat takes up two rows
+	End if
+
+	'HC info
+	If HC_check = checked then	
+		ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "HC cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
+		ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">45" & Chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of HC cases pending over 45 days:"	'Row header
+		objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
+		ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">45" & Chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
+		row_to_use = row_to_use + 2	'It's two rows we jump, because the HC stat takes up two rows
+	End if
+
+	'EA info
+	If EA_check = checked then	
+		ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "EA cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
+		ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of EA cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
+		ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
+		row_to_use = row_to_use + 2	'It's two rows we jump, because the EA stat takes up two rows
+	End if
+
+	'GRH info
+	If GRH_check = checked then	
+		ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "GRH cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
+		ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of GRH cases pending over 30 days:"	'Row header
+		objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
+		ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+		ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
+		row_to_use = row_to_use + 2	'It's two rows we jump, because the GRH stat takes up two rows
+	End if
 	'Autofitting columns
 
 	For col_to_autofit = 1 to col_to_use
