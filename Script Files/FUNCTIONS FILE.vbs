@@ -1915,6 +1915,7 @@ Function worker_county_code_determination(worker_county_code_variable, two_digit
 			If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
 		Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True 
 		worker_county_code_variable = "X1" & two_digit_county_code_variable
+		If two_digit_county_code_variable = "91" then worker_county_code_variable = "PW"	'For DHS folks without proxy
 	End if
 End function
 
