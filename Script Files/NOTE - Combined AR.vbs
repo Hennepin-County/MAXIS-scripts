@@ -149,6 +149,9 @@ If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_proced
 'Navigates to STAT
 call navigate_to_screen("STAT", "REVW")
 
+'Checks for error prone, and moves past it
+ERRR_screen_check
+
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
