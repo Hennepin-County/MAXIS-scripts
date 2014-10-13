@@ -247,7 +247,7 @@ Do
   transmit
 loop until col > 76
 
-MSBox "Please make sure to check eligibility for the medicare reimbursement program"
+MSGBox "Please make sure to check eligibility for the medicare reimbursement program"
 
 
 script_end_procedure("")
