@@ -28,9 +28,10 @@
 worker_county_code = "MULTICOUNTY"
 collecting_statistics = False
 EDMS_choice = "Compass Forms"
-county_name = "Southwest HHS"
+county_name = "Pine Tech"
 case_noting_intake_dates = True
 move_verifs_needed = False
+code_from_installer = "PT - Pine Tech"
 
 'Creates a double array of county offices, first by office (using the ~), then by address line (using the |).
 county_office_array = split("2100 3rd Ave, Suite 400|Anoka, MN 55303~1201 89th Ave, Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell Road, Suite 128|Lexington, MN 55014", "~")
@@ -1908,14 +1909,18 @@ function transmit
 end function
 
 Function worker_county_code_determination(worker_county_code_variable, two_digit_county_code_variable)		'Determines worker_county_code and two_digit_county_code for multi-county agencies and DHS staff
-	If worker_county_code_variable = "MULTICOUNTY" then 
-		Do
-			two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
-			If two_digit_county_code_variable = "" then stopscript
-			If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
-		Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True 
-		worker_county_code_variable = "X1" & two_digit_county_code_variable
-		If two_digit_county_code_variable = "91" then worker_county_code_variable = "PW"	'For DHS folks without proxy
+	If left(code_from_installer, 2) = "PT" then 'special handling for Pine Tech
+		worker_county_code_variable = "PWTVS"
+	Else
+		If worker_county_code_variable = "MULTICOUNTY" then 
+			Do
+				two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
+				If two_digit_county_code_variable = "" then stopscript
+				If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
+			Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True 
+			worker_county_code_variable = "X1" & two_digit_county_code_variable
+			If two_digit_county_code_variable = "91" then worker_county_code_variable = "PW"	'For DHS folks without proxy
+		End If
 	End if
 End function
 
