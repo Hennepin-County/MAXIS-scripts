@@ -277,7 +277,6 @@ row = 6 'Setting the variable for the following do loop
 If ref_nbr_recurring_01 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
 			If row = 18 then
 				PF20
@@ -535,6 +534,7 @@ If ref_nbr_actual_03 <> "" then
 End if
 
 script_end_procedure("")
+
 
 
 
