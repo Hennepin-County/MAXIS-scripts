@@ -60,9 +60,6 @@ is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SET
 If worker_county_code <> "MULTICOUNTY" then two_digit_county_code = right(worker_county_code, 2)
 
 
-
-
-
 'THE SHARED FUNCTIONS----------------------------------------------------------------------------------------------------
 
 Function add_ACCI_to_variable(x) 'x represents the name of the variable (example: assets vs. spousal_assets)

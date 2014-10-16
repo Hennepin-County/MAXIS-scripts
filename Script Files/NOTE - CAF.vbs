@@ -39,61 +39,68 @@ BeginDialog case_number_dialog, 0, 0, 181, 185, "Case number dialog"
   Text 15, 110, 160, 50, "(Disabling semicolons will cause your ''income'', ''asset'', and other sections to enter with word wrap, instead of each panel getting it's own line. This can be useful in households with many members, and could help keep case notes from exceeding four pages.)"
 EndDialog
 
-BeginDialog CAF_dialog_01, 0, 0, 451, 235, "CAF dialog part 1"
+BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
+  ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
   EditBox 60, 25, 50, 15, interview_date
-  ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN", how_app_was_received
-  EditBox 75, 45, 260, 15, HH_comp
-  EditBox 35, 65, 200, 15, cit_id
-  EditBox 265, 65, 180, 15, IMIG
-  EditBox 60, 85, 120, 15, AREP
-  EditBox 270, 85, 175, 15, SCHL
-  EditBox 60, 105, 210, 15, DISA
-  EditBox 310, 105, 135, 15, FACI
-  EditBox 35, 135, 410, 15, PREG
-  EditBox 35, 155, 410, 15, ABPS
-  EditBox 55, 185, 390, 15, verifs_needed
+  ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed", how_app_was_received
+  ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)", HC_document_received
+  EditBox 390, 45, 50, 15, HC_datestamp
+  EditBox 75, 70, 370, 15, HH_comp
+  EditBox 35, 90, 200, 15, cit_id
+  EditBox 265, 90, 180, 15, IMIG
+  EditBox 60, 110, 120, 15, AREP
+  EditBox 270, 110, 175, 15, SCHL
+  EditBox 60, 130, 210, 15, DISA
+  EditBox 310, 130, 135, 15, FACI
+  EditBox 35, 160, 410, 15, PREG
+  EditBox 35, 180, 410, 15, ABPS
+  EditBox 55, 210, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-    PushButton 340, 215, 50, 15, "NEXT", next_to_page_02_button
-    CancelButton 395, 215, 50, 15
+    PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
+    CancelButton 395, 240, 50, 15
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 50, 60, 10, "HH comp/EATS:", EATS_button
-    PushButton 240, 70, 20, 10, "IMIG:", IMIG_button
-    PushButton 5, 90, 25, 10, "AREP/", AREP_button
-    PushButton 30, 90, 25, 10, "ALTP:", ALTP_button
-    PushButton 190, 90, 25, 10, "SCHL/", SCHL_button
-    PushButton 215, 90, 25, 10, "STIN/", STIN_button
-    PushButton 240, 90, 25, 10, "STEC:", STEC_button
-    PushButton 5, 110, 25, 10, "DISA/", DISA_button
-    PushButton 30, 110, 25, 10, "PDED:", PDED_button
-    PushButton 280, 110, 25, 10, "FACI:", FACI_button
-    PushButton 5, 140, 25, 10, "PREG:", PREG_button
-    PushButton 5, 160, 25, 10, "ABPS:", ABPS_button
-    PushButton 10, 215, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 215, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 215, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 215, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 215, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 215, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 215, 15, 10, "WB", ELIG_WB_button
-    PushButton 150, 215, 25, 10, "ADDR", ADDR_button
-    PushButton 175, 215, 25, 10, "MEMB", MEMB_button
-    PushButton 200, 215, 25, 10, "MEMI", MEMI_button
-    PushButton 225, 215, 25, 10, "PROG", PROG_button
-    PushButton 250, 215, 25, 10, "REVW", REVW_button
-    PushButton 275, 215, 25, 10, "TYPE", TYPE_button
+    PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
+    PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
+    PushButton 5, 115, 25, 10, "AREP/", AREP_button
+    PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
+    PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
+    PushButton 215, 115, 25, 10, "STIN/", STIN_button
+    PushButton 240, 115, 25, 10, "STEC:", STEC_button
+    PushButton 5, 135, 25, 10, "DISA/", DISA_button
+    PushButton 30, 135, 25, 10, "PDED:", PDED_button
+    PushButton 280, 135, 25, 10, "FACI:", FACI_button
+    PushButton 5, 165, 25, 10, "PREG:", PREG_button
+    PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
+    PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
+    PushButton 150, 240, 25, 10, "ADDR", ADDR_button
+    PushButton 175, 240, 25, 10, "MEMB", MEMB_button
+    PushButton 200, 240, 25, 10, "MEMI", MEMI_button
+    PushButton 225, 240, 25, 10, "PROG", PROG_button
+    PushButton 250, 240, 25, 10, "REVW", REVW_button
+    PushButton 275, 240, 25, 10, "TYPE", TYPE_button
   Text 5, 10, 55, 10, "CAF datestamp:"
+  Text 120, 10, 50, 10, "Interview type:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 30, 55, 10, "Interview date:"
   Text 120, 30, 110, 10, "How was application received?:"
-  Text 5, 70, 25, 10, "CIT/ID:"
-  Text 5, 190, 50, 10, "Verifs needed:"
-  GroupBox 5, 205, 130, 25, "ELIG panels:"
-  GroupBox 145, 205, 160, 25, "other STAT panels:"
+  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+  Text 335, 50, 55, 10, "HC datestamp:"
+  Text 5, 95, 25, 10, "CIT/ID:"
+  Text 5, 215, 50, 10, "Verifs needed:"
+  GroupBox 5, 230, 130, 25, "ELIG panels:"
+  GroupBox 145, 230, 160, 25, "other STAT panels:"
 EndDialog
+
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -155,8 +162,8 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
   EditBox 35, 65, 410, 15, ACCI
   EditBox 35, 85, 175, 15, DIET
   EditBox 245, 85, 200, 15, BILS
-  EditBox 35, 105, 290, 15, FMED
-  EditBox 390, 105, 55, 15, HC_begin
+  EditBox 35, 105, 285, 15, FMED
+  EditBox 390, 105, 55, 15, retro_request
   EditBox 180, 135, 265, 15, reason_expedited_wasnt_processed
   EditBox 100, 155, 345, 15, FIAT_reasons
   CheckBox 10, 180, 80, 10, "Application signed?", application_signed_check
@@ -174,7 +181,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
   CheckBox 10, 225, 250, 10, "Check here to have the script create a TIKL to deny at the 30/45 day mark.", TIKL_check
   CheckBox 10, 240, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_check
   EditBox 55, 255, 230, 15, other_notes
-  ComboBox 330, 255, 115, 15, "incomplete"+chr(9)+"approved", CAF_status
+  ComboBox 330, 255, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
   EditBox 55, 275, 390, 15, verifs_needed
   EditBox 55, 295, 390, 15, actions_taken
   EditBox 395, 315, 50, 15, worker_signature
@@ -198,7 +205,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
     PushButton 5, 90, 25, 10, "DIET:", DIET_button
     PushButton 215, 90, 25, 10, "BILS:", BILS_button
     PushButton 5, 110, 25, 10, "FMED:", FMED_button
-    PushButton 330, 110, 55, 10, "HC begin date:", HCRE_button
+    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
     PushButton 265, 340, 60, 10, "previous page", previous_to_page_02_button
   GroupBox 5, 5, 130, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
@@ -265,7 +272,7 @@ If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
+If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 EMReadScreen ERRR_check, 4, 2, 52
 If ERRR_check = "ERRR" then transmit 'For error prone cases.
 
@@ -549,7 +556,10 @@ If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year
 EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
 If move_verifs_needed = True and verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 call write_editbox_in_case_note("CAF datestamp", CAF_datestamp, 6)
-if interview_date <> "" then call write_editbox_in_case_note("Interview date", interview_date, 6)
+If interview_type <> "" and interview_type <> " " then call write_editbox_in_case_note("Interview type", interview_type, 6)
+If interview_date <> "" then call write_editbox_in_case_note("Interview date", interview_date, 6)
+If HC_document_received <> "" and HC_document_received <> " " then call write_editbox_in_case_note("HC document received", HC_document_received, 6)
+If HC_datestamp <> "" then call write_editbox_in_case_note("HC datestamp", HC_datestamp, 6)
 call write_editbox_in_case_note("Programs applied for", programs_applied_for, 6)
 if how_app_was_received <> "" or how_app_was_received <> " " then call write_editbox_in_case_note("How CAF was received", how_app_was_received, 6)	'This one also uses " " as option, because that is the default
 If HH_comp <> "" then call write_editbox_in_case_note("HH comp/EATS", HH_comp, 6)
@@ -576,7 +586,7 @@ If ACCI <> "" then call write_editbox_in_case_note("ACCI", ACCI, 6)
 If DIET <> "" then call write_editbox_in_case_note("DIET", DIET, 6)
 If BILS <> "" then call write_editbox_in_case_note("BILS", BILS, 6)
 If FMED <> "" then call write_editbox_in_case_note("FMED", FMED, 6)
-If HC_begin <> "" then call write_editbox_in_case_note("HC begin date", HC_begin, 6)
+If retro_request <> "" then call write_editbox_in_case_note("Retro Request (if applicable)", retro_request, 6)
 If application_signed_check = 1 then call write_new_line_in_case_note("* Application was signed.")
 If application_signed_check = 0 then call write_new_line_in_case_note("* Application was not signed.")
 If expedited_check = 1 then call write_new_line_in_case_note("* Expedited SNAP.")

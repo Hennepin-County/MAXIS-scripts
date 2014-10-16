@@ -34,11 +34,18 @@ Function budget_month_config(A,B)
 	End If		
 	EMReadScreen Y, 1, 13, 76
 	EMWriteScreen Y, 13, 21 + X
-	EMReadScreen Z, 2, 12, 72
-    EMWriteScreen Z, 12, 17 + X
-	EMReadScreen B, 5, 6, 19 + X
-	If B <> "" then call elig_to_standard(Right(budget_one,2), Z, maxis_standard)
-	EMWriteScreen maxis_standard, 12, 22 + X
+  If Y = "B" then
+    EMReadScreen B_elig_type, 2, 12, 72
+      EMWriteScreen B_elig_type, 12, 17 + X
+    EMReadScreen B_max_standard, 1, 12, 77
+    EMWriteScreen B_max_standard, 12, 22 + X
+  ElseIf Y = "A" then
+    EMReadScreen Z, 2, 12, 72
+      EMWriteScreen Z, 12, 17 + X
+    EMReadScreen B, 5, 6, 19 + X
+    If B <> "" then call elig_to_standard(Right(budget_one,2), Z, maxis_standard)
+    EMWriteScreen maxis_standard, 12, 22 + X
+  End If
 End Function
 
 Public Sub retro_calculator(A,B,C,D)
@@ -1140,9 +1147,9 @@ BeginDialog addition_income_info_dialog, 0, 0, 220, income_dialog_height, "Incom
   Text 10, earned_number_1, 5, 8, "1"
   Text 10, earned_number_2, 5, 8, "2"
   Text 10, earned_number_3, 5, 8, "3"
-  DropListBox 100, earned_income_type_1, 80, 12, "WIA"+chr(9)+"Wages (Incl Tips)"+chr(9)+"EITC"+chr(9)+"Experiance Works"+chr(9)+"Federal Work Study"+chr(9)+"State Work Study"+chr(9)+"Other (JOBS)"+chr(9)+"Infrequent < %30 n/Recur"+chr(9)+"Infrequent <= $10 MSA Exclusion"+chr(9)+"Contract Income"+chr(9)+"Farm Income"+chr(9)+"Real Estate"+chr(9)+"Home Product Sales"+chr(9)+"Other Sales"+chr(9)+"Personal Services"+chr(9)+"Paper Route"+chr(9)+"In Home Daycare"+chr(9)+"Rental Income"+chr(9)+"Other (BUSI)"+chr(9)+"Roomer/Boarder Income"+chr(9)+"Boarder Income"+chr(9)+"Roomer Income", earned_type_1
-  DropListBox 100, earned_income_type_2, 80, 12, "WIA"+chr(9)+"Wages (Incl Tips)"+chr(9)+"EITC"+chr(9)+"Experiance Works"+chr(9)+"Federal Work Study"+chr(9)+"State Work Study"+chr(9)+"Other (JOBS)"+chr(9)+"Infrequent < %30 n/Recur"+chr(9)+"Infrequent <= $10 MSA Exclusion"+chr(9)+"Contract Income"+chr(9)+"Farm Income"+chr(9)+"Real Estate"+chr(9)+"Home Product Sales"+chr(9)+"Other Sales"+chr(9)+"Personal Services"+chr(9)+"Paper Route"+chr(9)+"In Home Daycare"+chr(9)+"Rental Income"+chr(9)+"Other (BUSI)"+chr(9)+"Roomer/Boarder Income"+chr(9)+"Boarder Income"+chr(9)+"Roomer Income", earned_type_2
-  DropListBox 100, earned_income_type_3, 80, 12, "WIA"+chr(9)+"Wages (Incl Tips)"+chr(9)+"EITC"+chr(9)+"Experiance Works"+chr(9)+"Federal Work Study"+chr(9)+"State Work Study"+chr(9)+"Other (JOBS)"+chr(9)+"Infrequent < %30 n/Recur"+chr(9)+"Infrequent <= $10 MSA Exclusion"+chr(9)+"Contract Income"+chr(9)+"Farm Income"+chr(9)+"Real Estate"+chr(9)+"Home Product Sales"+chr(9)+"Other Sales"+chr(9)+"Personal Services"+chr(9)+"Paper Route"+chr(9)+"In Home Daycare"+chr(9)+"Rental Income"+chr(9)+"Other (BUSI)"+chr(9)+"Roomer/Boarder Income"+chr(9)+"Boarder Income"+chr(9)+"Roomer Income", earned_type_3
+  DropListBox 100, earned_income_type_1, 80, 12, "Wages (Incl Tips)"+chr(9)+"WIA"+chr(9)+"EITC"+chr(9)+"Experiance Works"+chr(9)+"Federal Work Study"+chr(9)+"State Work Study"+chr(9)+"Other (JOBS)"+chr(9)+"Infrequent < %30 n/Recur"+chr(9)+"Infrequent <= $10 MSA Exclusion"+chr(9)+"Contract Income"+chr(9)+"Farm Income"+chr(9)+"Real Estate"+chr(9)+"Home Product Sales"+chr(9)+"Other Sales"+chr(9)+"Personal Services"+chr(9)+"Paper Route"+chr(9)+"In Home Daycare"+chr(9)+"Rental Income"+chr(9)+"Other (BUSI)"+chr(9)+"Roomer/Boarder Income"+chr(9)+"Boarder Income"+chr(9)+"Roomer Income", earned_type_1
+  DropListBox 100, earned_income_type_2, 80, 12, "Wages (Incl Tips)"+chr(9)+"WIA"+chr(9)+"EITC"+chr(9)+"Experiance Works"+chr(9)+"Federal Work Study"+chr(9)+"State Work Study"+chr(9)+"Other (JOBS)"+chr(9)+"Infrequent < %30 n/Recur"+chr(9)+"Infrequent <= $10 MSA Exclusion"+chr(9)+"Contract Income"+chr(9)+"Farm Income"+chr(9)+"Real Estate"+chr(9)+"Home Product Sales"+chr(9)+"Other Sales"+chr(9)+"Personal Services"+chr(9)+"Paper Route"+chr(9)+"In Home Daycare"+chr(9)+"Rental Income"+chr(9)+"Other (BUSI)"+chr(9)+"Roomer/Boarder Income"+chr(9)+"Boarder Income"+chr(9)+"Roomer Income", earned_type_2
+  DropListBox 100, earned_income_type_3, 80, 12, "Wages (Incl Tips)"+chr(9)+"WIA"+chr(9)+"EITC"+chr(9)+"Experiance Works"+chr(9)+"Federal Work Study"+chr(9)+"State Work Study"+chr(9)+"Other (JOBS)"+chr(9)+"Infrequent < %30 n/Recur"+chr(9)+"Infrequent <= $10 MSA Exclusion"+chr(9)+"Contract Income"+chr(9)+"Farm Income"+chr(9)+"Real Estate"+chr(9)+"Home Product Sales"+chr(9)+"Other Sales"+chr(9)+"Personal Services"+chr(9)+"Paper Route"+chr(9)+"In Home Daycare"+chr(9)+"Rental Income"+chr(9)+"Other (BUSI)"+chr(9)+"Roomer/Boarder Income"+chr(9)+"Boarder Income"+chr(9)+"Roomer Income", earned_type_3
   Text 102, earned_col_two_heading, 50, 8, "Income Type"
   Text 185, earned_col_three_heading, 50, 8, "Excluded"
   DropListBox 185, earned_exclude_select_1, 30, 12, "No"+chr(9)+"Yes", earned_exclusion_1
@@ -1289,17 +1296,21 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	If earned_value_1 <> "" then
 	  EMReadScreen elig_abud_check, 4, 3, 47
 	    elig_abud_check = trim(elig_abud_check)
-	  EMReadScreen elig_cbud_check, 4, 3, 54
+	  EMReadScreen elig_bbud_check, 4, 3, 47
+      elig_bbud_check = trim(elig_bbud_check)
+    EMReadScreen elig_cbud_check, 4, 3, 54
 	    elig_cbud_check = trim(elig_cbud_check)
 	  If elig_abud_check = "ABUD" then 
 	    EMWriteScreen "X", 14, 3
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWriteScreen "X", 8, 43
 	  ElseIf elig_cbud_check = "CBUD" then
-		EMWriteScreen "X", 8, 43
+      EMWriteScreen "X", 8, 43
 	  End If
 
 	  transmit
 	  call income_type_converter(earned_type_1)
-	  EMWriteScreen "__", 8, 80
+	  EMWriteScreen "__", 8, 8
 	  EMWriteScreen "___________", 8, 43
 	  EMWriteScreen "_", 8, 59
 	  EMWriteScreen converted_income_type, 8, 8
@@ -1311,17 +1322,21 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	If earned_value_2 <> "" then
 	  EMReadScreen elig_abud_check, 4, 3, 47
 	    elig_abud_check = trim(elig_abud_check)
-	  EMReadScreen elig_cbud_check, 4, 3, 54
+	  EMReadScreen elig_bbud_check, 4, 3, 47
+      elig_bbud_check = trim(elig_bbud_check)
+    EMReadScreen elig_cbud_check, 4, 3, 54
 	    elig_cbud_check = trim(elig_cbud_check)
 	  If elig_abud_check = "ABUD" then 
 	    EMWriteScreen "X", 14, 3
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWriteScreen "X", 8, 43
 	  ElseIf elig_cbud_check = "CBUD" then
-		EMWriteScreen "X", 8, 43
+      EMWriteScreen "X", 8, 43
 	  End If
 
 	  transmit
 	  call income_type_converter(earned_type_2)
-	  EMWriteScreen "__", 9, 80
+	  EMWriteScreen "__", 9, 8
 	  EMWriteScreen "___________", 9, 43
 	  EMWriteScreen "_", 9, 59
 	  EMWriteScreen converted_income_type, 9, 8
@@ -1333,17 +1348,21 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	If earned_value_3 <> "" then
 	  EMReadScreen elig_abud_check, 4, 3, 47
 	    elig_abud_check = trim(elig_abud_check)
-	  EMReadScreen elig_cbud_check, 4, 3, 54
+	  EMReadScreen elig_bbud_check, 4, 3, 47
+      elig_bbud_check = trim(elig_bbud_check)
+    EMReadScreen elig_cbud_check, 4, 3, 54
 	    elig_cbud_check = trim(elig_cbud_check)
 	  If elig_abud_check = "ABUD" then 
 	    EMWriteScreen "X", 14, 3
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWriteScreen "X", 8, 43
 	  ElseIf elig_cbud_check = "CBUD" then
-		EMWriteScreen "X", 8, 43
+      EMWriteScreen "X", 8, 43
 	  End If
 
 	  transmit
 	  call income_type_converter(earned_type_3)
-	  EMWriteScreen "__", 10, 80
+	  EMWriteScreen "__", 10, 8
 	  EMWriteScreen "___________", 10, 43
 	  EMWriteScreen "_", 10, 59
 	  EMWriteScreen converted_income_type, 10, 8
@@ -1353,19 +1372,23 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	  PF3
 	End If
 	If unearned_value_1 <> "" then
-  	  EMReadScreen elig_abud_check, 4, 3, 47
+  	EMReadScreen elig_abud_check, 4, 3, 47
 	    elig_abud_check = trim(elig_abud_check)
+    EMReadScreen elig_bbud_check, 4, 3, 47  
+      elig_bbud_check = trim(elig_bbud_check)
 	  EMReadScreen elig_cbud_check, 4, 3, 54
 	    elig_cbud_check = trim(elig_cbud_check)
 	  If elig_abud_check = "ABUD" then 
 	    EMWriteScreen "X", 9, 3
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWRITEScreen "X", 8, 3
 	  ElseIf elig_cbud_check = "CBUD" then
 		EMWriteScreen "X", 8, 3
 	  End If
 
       transmit
 	  call income_type_converter(unearned_type_1)
-	  EMWriteScreen "__", 8, 80
+	  EMWriteScreen "__", 8, 8
 	  EMWriteScreen "___________", 8, 43
 	  EMWriteScreen "_", 8, 58
 	  EMWriteScreen converted_income_type, 8, 8
@@ -1375,19 +1398,23 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
       PF3	  
 	End If
 	If unearned_value_2 <> "" then
-  	  EMReadScreen elig_abud_check, 4, 3, 47
+  	EMReadScreen elig_abud_check, 4, 3, 47
 	    elig_abud_check = trim(elig_abud_check)
+    EMReadScreen elig_bbud_check, 4, 3, 47  
+      elig_bbud_check = trim(elig_bbud_check)
 	  EMReadScreen elig_cbud_check, 4, 3, 54
 	    elig_cbud_check = trim(elig_cbud_check)
 	  If elig_abud_check = "ABUD" then 
 	    EMWriteScreen "X", 9, 3
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWRITEScreen "X", 8, 3
 	  ElseIf elig_cbud_check = "CBUD" then
 		EMWriteScreen "X", 8, 3
 	  End If
 	  
       transmit
 	  call income_type_converter(unearned_type_2)
-	  EMWriteScreen "__", 9, 80
+	  EMWriteScreen "__", 9, 8
 	  EMWriteScreen "___________", 9, 43
 	  EMWriteScreen "_", 9, 58
 	  EMWriteScreen converted_income_type, 9, 8
@@ -1397,19 +1424,22 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
       PF3	  
 	End If
 	If unearned_value_3 <> "" then
-  	  EMReadScreen elig_abud_check, 4, 3, 47
+  	EMReadScreen elig_abud_check, 4, 3, 47
 	    elig_abud_check = trim(elig_abud_check)
+    EMReadScreen elig_bbud_check, 4, 3, 47  
+      elig_bbud_check = trim(elig_bbud_check)
 	  EMReadScreen elig_cbud_check, 4, 3, 54
 	    elig_cbud_check = trim(elig_cbud_check)
 	  If elig_abud_check = "ABUD" then 
 	    EMWriteScreen "X", 9, 3
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWRITEScreen "X", 8, 3
 	  ElseIf elig_cbud_check = "CBUD" then
 		EMWriteScreen "X", 8, 3
-	  End If
-	  
+	  End If	  
       transmit
 	  call income_type_converter(unearned_type_3)
-	  EMWriteScreen "__", 10, 80
+	  EMWriteScreen "__", 10, 8
 	  EMWriteScreen "___________", 10, 43
 	  EMWriteScreen "_", 10, 58
 	  EMWriteScreen converted_income_type, 10, 8
@@ -1420,7 +1450,19 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	End If
   ElseIf (earned_value_1 <> "" or unearned_value_1 <> "") and client_name_is <> current_client_selected then
     If earned_value_1 <> "" then
-	  EMWriteScreen "X", 13, 43
+	  EMReadScreen elig_abud_check, 4, 3, 47
+	    elig_abud_check = trim(elig_abud_check)
+	  EMReadScreen elig_bbud_check, 4, 3, 47
+      elig_bbud_check = trim(elig_bbud_check)
+    EMReadScreen elig_cbud_check, 4, 3, 54
+	    elig_cbud_check = trim(elig_cbud_check)
+	  If elig_abud_check = "ABUD" then 
+	    EMWriteScreen "X", 13, 43
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWriteScreen "X", 9, 43
+	  ElseIf elig_cbud_check = "CBUD" then
+      EMWriteScreen "X", 13, 43
+	  End If
 	  transmit
 	  row = 1
 	  col = 1
@@ -1441,7 +1483,19 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	  PF3
 	End If
 	If earned_value_2 <> "" then
-	  EMWriteScreen "X", 13, 43
+	  EMReadScreen elig_abud_check, 4, 3, 47
+	    elig_abud_check = trim(elig_abud_check)
+	  EMReadScreen elig_bbud_check, 4, 3, 47
+      elig_bbud_check = trim(elig_bbud_check)
+    EMReadScreen elig_cbud_check, 4, 3, 54
+	    elig_cbud_check = trim(elig_cbud_check)
+	  If elig_abud_check = "ABUD" then 
+	    EMWriteScreen "X", 13, 43
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWriteScreen "X", 9, 43
+	  ElseIf elig_cbud_check = "CBUD" then
+      EMWriteScreen "X", 13, 43
+	  End If
 	  transmit
 	  row = 1
 	  col = 1
@@ -1462,7 +1516,19 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	  PF3
 	End If
 	If earned_value_3 <> "" then
-	  EMWriteScreen "X", 13, 43
+	  EMReadScreen elig_abud_check, 4, 3, 47
+	    elig_abud_check = trim(elig_abud_check)
+	  EMReadScreen elig_bbud_check, 4, 3, 47
+      elig_bbud_check = trim(elig_bbud_check)
+    EMReadScreen elig_cbud_check, 4, 3, 54
+	    elig_cbud_check = trim(elig_cbud_check)
+	  If elig_abud_check = "ABUD" then 
+	    EMWriteScreen "X", 13, 43
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWriteScreen "X", 9, 43
+	  ElseIf elig_cbud_check = "CBUD" then
+      EMWriteScreen "X", 13, 43
+	  End If
 	  transmit
 	  row = 1
 	  col = 1
@@ -1483,7 +1549,19 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	  PF3
 	End If
 	If unearned_value_1 <> "" then
-	  EMWriteScreen "X", 13, 43
+  	EMReadScreen elig_abud_check, 4, 3, 47
+	    elig_abud_check = trim(elig_abud_check)
+    EMReadScreen elig_bbud_check, 4, 3, 47  
+      elig_bbud_check = trim(elig_bbud_check)
+	  EMReadScreen elig_cbud_check, 4, 3, 54
+	    elig_cbud_check = trim(elig_cbud_check)
+	  If elig_abud_check = "ABUD" then 
+	    EMWriteScreen "X", 13, 43
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWRITEScreen "X", 9, 3
+	  ElseIf elig_cbud_check = "CBUD" then
+		EMWriteScreen "X", 13, 43
+	  End If
       transmit
 	  row = 1
 	  col = 1
@@ -1492,7 +1570,7 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	    EMWriteScreen "X", row + 1, col - 1 
 		transmit
 	    call income_type_converter(unearned_type_1)
-		EMWriteScreen "__", 8, 80
+		EMWriteScreen "__", 8, 8
 	    EMWriteScreen "___________", 8, 43
 	    EMWriteScreen "_", 8, 58
 	    EMWriteScreen converted_income_type, 8, 8
@@ -1504,7 +1582,19 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	  PF3	  
 	End If
 	If unearned_value_2 <> "" then
-	  EMWriteScreen "X", 13, 43
+  	EMReadScreen elig_abud_check, 4, 3, 47
+	    elig_abud_check = trim(elig_abud_check)
+    EMReadScreen elig_bbud_check, 4, 3, 47  
+      elig_bbud_check = trim(elig_bbud_check)
+	  EMReadScreen elig_cbud_check, 4, 3, 54
+	    elig_cbud_check = trim(elig_cbud_check)
+	  If elig_abud_check = "ABUD" then 
+	    EMWriteScreen "X", 13, 43
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWRITEScreen "X", 9, 3
+	  ElseIf elig_cbud_check = "CBUD" then
+		EMWriteScreen "X", 13, 43
+	  End If
       transmit
 	  row = 1
 	  col = 1
@@ -1513,7 +1603,7 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	    EMWriteScreen "X", row + 1, col - 1 
 		transmit
 	    call income_type_converter(unearned_type_2)
-		EMWriteScreen "__", 9, 80
+		EMWriteScreen "__", 9, 8
 	    EMWriteScreen "___________", 9, 43
 	    EMWriteScreen "_", 9, 58
 	    EMWriteScreen converted_income_type, 9, 8
@@ -1525,7 +1615,19 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	  PF3	  
 	End If
 	If unearned_value_3 <> "" then
-	  EMWriteScreen "X", 13, 43
+  	EMReadScreen elig_abud_check, 4, 3, 47
+	    elig_abud_check = trim(elig_abud_check)
+    EMReadScreen elig_bbud_check, 4, 3, 47  
+      elig_bbud_check = trim(elig_bbud_check)
+	  EMReadScreen elig_cbud_check, 4, 3, 54
+	    elig_cbud_check = trim(elig_cbud_check)
+	  If elig_abud_check = "ABUD" then 
+	    EMWriteScreen "X", 13, 43
+    ElseIf elig_bbud_check = "BBUD" then
+      EMWRITEScreen "X", 9, 3
+	  ElseIf elig_cbud_check = "CBUD" then
+		EMWriteScreen "X", 13, 43
+	  End If
       transmit
 	  row = 1
 	  col = 1
@@ -1534,7 +1636,7 @@ function enter_income_screen_information(searchable_client_name,client_name_is,c
 	    EMWriteScreen "X", row + 1, col - 1 
 		transmit
 	    call income_type_converter(unearned_type_3)
-		EMWriteScreen "__", 10, 80
+		EMWriteScreen "__", 10, 8
 	    EMWriteScreen "___________", 10, 43
 	    EMWriteScreen "_", 10, 58
 	    EMWriteScreen converted_income_type, 10, 8
