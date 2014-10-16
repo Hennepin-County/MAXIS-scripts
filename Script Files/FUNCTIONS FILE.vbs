@@ -25,13 +25,13 @@
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 
-worker_county_code = "MULTICOUNTY"
+worker_county_code = "X102"
 collecting_statistics = False
 EDMS_choice = "Compass Forms"
-county_name = "DHS"
+county_name = "Anoka County"
 case_noting_intake_dates = True
 move_verifs_needed = False
-code_from_installer = "DHS"
+code_from_installer = "02 - Anoka County"
 
 'Creates a double array of county offices, first by office (using the ~), then by address line (using the |).
 county_office_array = split("2100 3rd Ave, Suite 400|Anoka, MN 55303~1201 89th Ave, Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell Road, Suite 128|Lexington, MN 55014", "~")
@@ -1253,7 +1253,6 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
   variable_written_to = replace(variable_written_to, "$________/semimonthly", "amt unknown")
 End function
 
-
 function back_to_SELF
   Do
     EMSendKey "<PF3>"
@@ -1261,6 +1260,21 @@ function back_to_SELF
     EMReadScreen SELF_check, 4, 2, 50
   Loop until SELF_check = "SELF"
 End function
+
+'This function converts a numeric digit to an Excel column, up to 104 digits (columns).
+function convert_digit_to_excel_column(col_in_excel)
+	'Create string with the alphabet
+	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	'Assigning a letter, based on that column. Uses "mid" function to determine it. If number > 26, it handles by adding a letter (per Excel).
+	convert_digit_to_excel_column = Mid(alphabet, col_in_excel, 1)		
+	If col_in_excel >= 27 and col_in_excel < 53 then convert_digit_to_excel_column = "A" & Mid(alphabet, col_in_excel - 26, 1)
+	If col_in_excel >= 53 and col_in_excel < 79 then convert_digit_to_excel_column = "B" & Mid(alphabet, col_in_excel - 52, 1)
+	If col_in_excel >= 79 and col_in_excel < 105 then convert_digit_to_excel_column = "C" & Mid(alphabet, col_in_excel - 78, 1)
+
+	'Closes script if the number gets too high (very rare circumstance, just errorproofing)
+	If col_in_excel >= 105 then script_end_procedure("This script is only able to assign excel columns to 104 distinct digits. You've exceeded this number, and this script cannot continue.")
+end function
 
 Function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 	'Getting to REPT/USER

@@ -11,20 +11,7 @@ Execute text_from_the_other_script
 
 'CUSTOM FUNCTION (WILL INCLUDE IN FUNCTIONS FILE BEFORE FULL DEPLOYMENT)
 
-'This function converts a numeric digit to an Excel column, up to 104 digits (columns).
-function convert_digit_to_excel_column(col_in_excel)
-	'Create string with the alphabet
-	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-	'Assigning a letter, based on that column. Uses "mid" function to determine it. If number > 26, it handles by adding a letter (per Excel).
-	convert_digit_to_excel_column = Mid(alphabet, col_in_excel, 1)		
-	If col_in_excel >= 27 and col_in_excel < 53 then convert_digit_to_excel_column = "A" & Mid(alphabet, col_in_excel - 26, 1)
-	If col_in_excel >= 53 and col_in_excel < 79 then convert_digit_to_excel_column = "B" & Mid(alphabet, col_in_excel - 52, 1)
-	If col_in_excel >= 79 and col_in_excel < 105 then convert_digit_to_excel_column = "C" & Mid(alphabet, col_in_excel - 78, 1)
-
-	'Closes script if the number gets too high (very rare circumstance, just errorproofing)
-	If col_in_excel >= 105 then script_end_procedure("This script is only able to assign excel columns to 104 rows. You've exceeded this number, and this script cannot continue.")
-end function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 
