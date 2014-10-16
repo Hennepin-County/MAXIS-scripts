@@ -13,27 +13,29 @@ Execute text_from_the_other_script
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 
-BeginDialog benefits_approved, 0, 0, 271, 190, "Benefits Approved"
+BeginDialog benefits_approved, 0, 0, 271, 210, "Benefits Approved"
   CheckBox 15, 25, 35, 10, "SNAP", snap_approved_check
   CheckBox 75, 25, 55, 10, "Health Care", hc_approved_check
   CheckBox 155, 25, 35, 10, "Cash", cash_approved_check
   CheckBox 210, 25, 55, 10, "Emergency", emer_approved_check
-  EditBox 120, 70, 145, 15, benefit_breakdown
-  EditBox 55, 90, 210, 15, other_notes
-  EditBox 85, 110, 180, 15, programs_pending
-  EditBox 65, 130, 200, 15, docs_needed
-  EditBox 65, 150, 80, 15, worker_signature
+  ComboBox 70, 40, 85, 15, ""+chr(9)+"Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
+  EditBox 65, 60, 70, 15, case_number
+  EditBox 120, 85, 145, 15, benefit_breakdown
+  EditBox 55, 105, 210, 15, other_notes
+  EditBox 85, 125, 180, 15, programs_pending
+  EditBox 65, 145, 200, 15, docs_needed
+  EditBox 65, 165, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 155, 170, 50, 15
-    CancelButton 210, 170, 50, 15
+    OkButton 155, 185, 50, 15
+    CancelButton 210, 185, 50, 15
   Text 5, 5, 70, 10, "Approved Programs:"
-  Text 5, 65, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
-  Text 5, 95, 45, 10, "Other Notes:"
-  Text 5, 115, 75, 10, "Pending Program(s):"
-  Text 5, 135, 55, 10, "Verifs Needed:"
-  Text 5, 155, 60, 10, "Worker Signature: "
-  Text 5, 50, 55, 10, "Case Number:"
-  EditBox 65, 45, 70, 15, case_number
+  Text 5, 80, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
+  Text 5, 110, 45, 10, "Other Notes:"
+  Text 5, 130, 75, 10, "Pending Program(s):"
+  Text 5, 150, 55, 10, "Verifs Needed:"
+  Text 5, 170, 60, 10, "Worker Signature: "
+  Text 5, 65, 55, 10, "Case Number:"
+  Text 5, 45, 65, 10, "Type of Approval:"
 EndDialog
 
 
@@ -72,7 +74,7 @@ Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
   IF hc_approved_check = 1 THEN approved_programs = approved_programs & "HC/"
   IF cash_approved_check = 1 THEN approved_programs = approved_programs & "CASH/"
   IF emer_approved_check = 1 THEN approved_programs = approved_programs & "EMER/"
-  EMSendKey "---Approved " & approved_programs & "<backspace>" & "---" & "<newline>"
+  EMSendKey "---Approved " & approved_programs & "<backspace>" & " " & type_of_approval & "---" & "<newline>"
   IF benefit_breakdown <> "" THEN call write_editbox_in_case_note("Benefit Breakdown", benefit_breakdown, 6)
   IF other_notes <> "" THEN call write_editbox_in_case_note("Approval Notes", other_notes, 6)
   IF programs_pending <> "" THEN call write_editbox_in_case_note("Programs Pending", programs_pending, 6)
