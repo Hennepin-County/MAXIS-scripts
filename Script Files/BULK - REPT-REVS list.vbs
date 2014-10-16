@@ -17,10 +17,8 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 115, "Pull REPT data in
   EditBox 150, 20, 130, 15, worker_number
   CheckBox 70, 55, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 50, 40, 10, "Cash?", cash_check
+  CheckBox 10, 50, 40, 10, "Cash/GRH?", cash_check
   CheckBox 10, 65, 40, 10, "HC?", HC_check
-  CheckBox 10, 80, 40, 10, "EA?", EA_check
-  CheckBox 10, 95, 40, 10, "GRH?", GRH_check
   ButtonGroup ButtonPressed
     OkButton 175, 95, 50, 15
     CancelButton 230, 95, 50, 15
