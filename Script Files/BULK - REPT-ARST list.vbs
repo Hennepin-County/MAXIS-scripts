@@ -509,6 +509,7 @@ back_to_self
 'Resetting the footer month
 EMWriteScreen footer_month, 20, 43
 EMWriteScreen footer_year, 20, 46
+transmit
 
 'Getting to REPT/ARST
 call navigate_to_screen("rept", "arst")
