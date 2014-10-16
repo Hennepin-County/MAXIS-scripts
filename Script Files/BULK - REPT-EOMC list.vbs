@@ -150,6 +150,7 @@ For each worker in worker_array
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
 				autoclose_string = ""		'Blanking out variable
+				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"

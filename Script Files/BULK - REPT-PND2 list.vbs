@@ -156,6 +156,7 @@ For each worker in worker_array
 				End if
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
+				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
 			EMReadScreen last_page_check, 21, 24, 2
