@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -101,13 +101,12 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   GroupBox 145, 230, 160, 25, "other STAT panels:"
 EndDialog
 
-
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
   EditBox 70, 65, 375, 15, unearned_income
   EditBox 85, 85, 360, 15, income_changes
   EditBox 65, 105, 380, 15, notes_on_abawd
-  EditBox 65, 125, 380, 15, notes_on_income
+  EditBox 105, 125, 340, 15, notes_on_income
   EditBox 155, 145, 290, 15, is_any_work_temporary
   EditBox 60, 175, 385, 15, SHEL_HEST
   EditBox 60, 195, 250, 15, COEX_DCEX
@@ -152,10 +151,11 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   Text 5, 50, 55, 10, "Earned income:"
   Text 5, 70, 65, 10, "Unearned income:"
   Text 5, 110, 50, 10, "ABAWD notes:"
-  Text 5, 130, 60, 10, "Notes on income:"
+  Text 5, 130, 100, 10, "Notes on income and budget:"
   Text 5, 150, 150, 10, "Is any work temporary? If so, explain details:"
   Text 5, 280, 50, 10, "Verifs needed:"
 EndDialog
+
 
 BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
   EditBox 60, 45, 385, 15, INSA
@@ -575,7 +575,7 @@ If earned_income <> "" then call write_editbox_in_case_note("Earned income", ear
 If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
 If income_changes <> "" then call write_editbox_in_case_note("STWK/inc. changes", income_changes, 6)
 IF notes_on_abawd <> "" then call write_editbox_in_case_note("ABAWD Notes", notes_on_abawd, 6)
-If notes_on_income <> "" then call write_editbox_in_case_note("Notes on income", notes_on_income, 6)
+If notes_on_income <> "" then call write_editbox_in_case_note("Notes on income and budget", notes_on_income, 6)
 If is_any_work_temporary <> "" then call write_editbox_in_case_note("Is any work temporary", is_any_work_temporary, 6)
 If SHEL_HEST <> "" then call write_editbox_in_case_note("SHEL/HEST", SHEL_HEST, 6)
 If COEX_DCEX <> "" then call write_editbox_in_case_note("COEX/DCEX", COEX_DCEX, 6)
