@@ -10,10 +10,9 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
+footer_month = datepart("m", date) & ""
+If len(footer_month) = 1 then footer_month = "0" & footer_month & ""
+footer_year = datepart("yyyy", date)
 footer_year = "" & footer_year - 2000
 
 
@@ -34,6 +33,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 97, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Other programs open or applied for:"
 EndDialog
 
+'This dialog contains a customized "percent rule" variable. As such, it can't directly be edited in the dialog editor.
 BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
   EditBox 60, 45, 65, 15, interview_date
   EditBox 170, 45, 150, 15, HH_comp
@@ -44,7 +44,7 @@ BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
   EditBox 65, 100, 255, 15, cause_of_crisis
   EditBox 85, 160, 235, 15, income
   EditBox 110, 180, 210, 15, income_under_200_FPG
-  EditBox 60, 200, 260, 15, thirty_percent_rule_notes
+  EditBox 60, 200, 260, 15, percent_rule_notes
   EditBox 75, 220, 245, 15, monthly_expense
   EditBox 40, 240, 280, 15, assets
   EditBox 60, 260, 260, 15, verifs_needed
@@ -87,7 +87,7 @@ BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
   GroupBox 145, 120, 110, 35, "Asset panels"
   Text 5, 165, 75, 10, "Income (past 30 days):"
   Text 5, 185, 100, 10, "Is income under 200% FPG?:"
-  Text 5, 205, 55, 10, "30% rule notes:"
+  Text 5, 205, 55, 10, emer_percent_rule_amt & "% rule notes:"
   Text 5, 225, 60, 10, "Monthly expense:"
   Text 5, 245, 30, 10, "Assets:"
   Text 5, 265, 50, 10, "Verifs needed:"
@@ -133,9 +133,11 @@ If IsNumeric(case_number) = False then case_number = ""
 'Grabbing the footer month
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
+	If IsNumeric(MAXIS_footer_month) = True then
+		footer_month = MAXIS_footer_month
+		call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+		If row <> 0 then footer_year = MAXIS_footer_year
+	End if
 End if
 
 'Showing the case number dialog
@@ -244,14 +246,14 @@ Else
 End if
 
 'Writing the case note
-EMSendKey "<home>" & "***Emergency application received***" & "<newline>"
+EMSendKey "<home>" & "***Emergency app: "& replace(crisis, ".", "") & "***" & "<newline>"
 If interview_date <> "" then call write_editbox_in_case_note("Interview date", interview_date, 6)
 If HH_comp <> "" then call write_editbox_in_case_note("HH comp", HH_comp, 6)
 If crisis <> "" then call write_editbox_in_case_note("Crisis", crisis, 6)
 If cause_of_crisis <> "" then call write_editbox_in_case_note("Cause of crisis", cause_of_crisis, 6)
 If income <> "" then call write_editbox_in_case_note("Income, past 30 days", income, 6)
 If income_under_200_FPG <> "" then call write_editbox_in_case_note("Income under 200% FPG", income_under_200_FPG, 6)
-If thirty_percent_rule_notes <> "" then call write_editbox_in_case_note("30% rule notes", thirty_percent_rule_notes, 6)
+If percent_rule_notes <> "" then call write_editbox_in_case_note(emer_percent_rule_amt & "% rule notes", percent_rule_notes, 6)
 If monthly_expense <> "" then call write_editbox_in_case_note("Monthly expense", monthly_expense, 6)
 If assets <> "" then call write_editbox_in_case_note("Assets", assets, 6)
 if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
@@ -260,12 +262,6 @@ If discussion_of_crisis <> "" then call write_editbox_in_case_note("Discussion o
 If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 If referrals <> "" then call write_editbox_in_case_note("Referrals", referrals, 6)
 call write_new_line_in_case_note("---")
-If FSPR_check = "FSPR" then
-  call write_new_line_in_case_note("   " & FSSM_line_01)
-  call write_new_line_in_case_note("   " & FSSM_line_02)
-  call write_new_line_in_case_note("   " & FSSM_line_03)
-  call write_new_line_in_case_note("---")
-End if
 call write_new_line_in_case_note(worker_signature)
 
 script_end_procedure("")
