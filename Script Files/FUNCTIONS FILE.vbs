@@ -790,30 +790,33 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           EMReadScreen fmed_type, 2, fmed_row, 25
           EMReadScreen fmed_proof, 2, fmed_row, 32
           EMReadScreen fmed_amt, 8, fmed_row, 70
-          If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
-            fmed_proof = ", no proof provided"
-          Else
-            fmed_proof = ""
+		  EMReadScreen fmed_end_date, 5, fmed_row, 60		'reading end date to see if this one even gets added.
+		  If fmed_end_date = "__ __" then					'Skips entries with an end date.
+            If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
+              fmed_proof = ", no proof provided"
+            Else
+              fmed_proof = ""
+            End if
+            If fmed_amt = "________" then
+              fmed_amt = ""
+            Else
+              fmed_amt = " ($" & trim(fmed_amt) & ")"
+            End if
+            If fmed_type = "01" then fmed_type = "Nursing Home"
+            If fmed_type = "02" then fmed_type = "Hosp/Clinic"
+            If fmed_type = "03" then fmed_type = "Physicians"
+            If fmed_type = "04" then fmed_type = "Prescriptions"
+            If fmed_type = "05" then fmed_type = "Ins Premiums"
+            If fmed_type = "06" then fmed_type = "Dental"
+            If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
+            If fmed_type = "08" then fmed_type = "Vision Care"
+            If fmed_type = "09" then fmed_type = "Medicare Prem"
+            If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
+            If fmed_type = "11" then fmed_type = "Home Care"
+            If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
+            If fmed_type = "15" then fmed_type = "Medi Part D premium"
+            If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           End if
-          If fmed_amt = "________" then
-            fmed_amt = ""
-          Else
-            fmed_amt = " ($" & trim(fmed_amt) & ")"
-          End if
-          If fmed_type = "01" then fmed_type = "Nursing Home"
-          If fmed_type = "02" then fmed_type = "Hosp/Clinic"
-          If fmed_type = "03" then fmed_type = "Physicians"
-          If fmed_type = "04" then fmed_type = "Prescriptions"
-          If fmed_type = "05" then fmed_type = "Ins Premiums"
-          If fmed_type = "06" then fmed_type = "Dental"
-          If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
-          If fmed_type = "08" then fmed_type = "Vision Care"
-          If fmed_type = "09" then fmed_type = "Medicare Prem"
-          If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
-          If fmed_type = "11" then fmed_type = "Home Care"
-          If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
-          If fmed_type = "15" then fmed_type = "Medi Part D premium"
-          If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           fmed_row = fmed_row + 1
           If fmed_row = 15 then
             PF20
