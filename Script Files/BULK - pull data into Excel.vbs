@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -62,13 +62,13 @@ If buttonpressed = cancel then stopscript
 'Connecting to BlueZone
 EMConnect ""
 
-If buttonpressed = ACTV_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-ACTV list.vbs")
-If buttonpressed = ARST_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-ARST list.vbs")
-If buttonpressed = EOMC_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-EOMC list.vbs")
-If buttonpressed = PND2_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-PND2 list.vbs")
-If buttonpressed = REVS_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-REVS list.vbs")
-If buttonpressed = REVW_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-REVW list.vbs")
-If buttonpressed = LTC_GRH_list_generator_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - LTC-GRH list generator.vbs")
+If buttonpressed = ACTV_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-ACTV list.vbs")
+If buttonpressed = ARST_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-ARST list.vbs")
+If buttonpressed = EOMC_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-EOMC list.vbs")
+If buttonpressed = PND2_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-PND2 list.vbs")
+If buttonpressed = REVS_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-REVS list.vbs")
+If buttonpressed = REVW_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-REVW list.vbs")
+If buttonpressed = LTC_GRH_list_generator_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - LTC-GRH list generator.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")

@@ -16,7 +16,7 @@
 '
 ''LOADING ROUTINE FUNCTIONS
 'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-'Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+'Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 'text_from_the_other_script = fso_command.ReadAll
 'fso_command.Close
 'Execute text_from_the_other_script
@@ -1504,7 +1504,7 @@ function log_usage_stats_without_closing 'For use when logging usage stats but t
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1825,7 +1825,7 @@ function script_end_procedure(closing_message)
 		closing_message = replace(closing_message, "'", "")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1852,7 +1852,7 @@ function script_end_procedure_wsh(closing_message) 'For use when running a scrip
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
