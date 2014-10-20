@@ -84,7 +84,17 @@ Do
 	IF cash_approved_check = 0 AND autofill_cash_check = 1 THEN MsgBox "You checked to have the CASH results autofilled but did not select that CASH was approved. Please reconsider your selections and try again."
       If case_number = "" then MsgBox "You must have a case number to continue!"
 	If worker_signature = "" then Msgbox "Please sign your case note"
-    Loop until case_number <> "" and worker_signature <> "" AND (snap_approved_check = autofill_snap_check) AND (cash_approved_check = autofill_cash_check)
+
+	IF autofill_snap_check = 1 AND snap_approved_check = 1 THEN 
+		'Calculates the number of benefit months the worker is trying to case note.
+		snap_start = cdate(snap_start_mo & "/01/" & snap_start_yr)
+		snap_end = cdate(snap_end_mo & "/01/" & snap_end_yr)
+		IF datediff("M", date, snap_start) > 1 THEN MsgBox "Your start month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
+		IF datediff("M", date, snap_end) > 1 THEN MsgBox "Your end month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
+		IF datediff("M", snap_start, snap_end) < 0 THEN MsgBox "Please double check your date range. Your start month cannot be later than your end month."
+	END IF
+
+    Loop until case_number <> "" and worker_signature <> "" AND ((snap_approved_check = 1 AND autofill_snap_check = 1 AND (datediff("M", snap_start, snap_end) >= 0) AND (datediff("M", date, snap_start) < 2) AND (datediff("M", date, snap_end) < 2)) OR (autofill_snap_check = 0))
     transmit
     EMReadScreen MAXIS_check, 5, 1, 39
     If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
@@ -95,10 +105,8 @@ Do
   If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
 Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
 
-'Calculates the number of benefit months the worker is trying to case note.
-snap_start = cdate(snap_start_mo & "/01" & snap_start_yr)
-snap_end = cdate(snap_end_mo & "/01" & snap_end_yr)
 total_snap_months = (datediff("m", snap_start, snap_end)) + 1
+
 
 'Navigates to the ELIG results for SNAP, if the worker desires to have the script autofill the case note with SNAP approval information.
 IF autofill_snap_check = 1 THEN
