@@ -1,4 +1,4 @@
-MAXIS-BZ-Scripts-County-Beta
+DHS-MAXIS-Scripts
 ================
 
 Welcome to our GitHub repo for the BlueZone Scripts!
