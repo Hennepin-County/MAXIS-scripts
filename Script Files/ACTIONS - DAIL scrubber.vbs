@@ -47,7 +47,7 @@ transmit
 
 'RSDI/BENDEX info received by agency.
 EMReadScreen BENDEX_check, 47, 6, 30
-If BENDEX_check = "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC" then run_DAIL_scrubber_script("C:\DHS-MAXIS-Scripts\Script Files\DAIL - BENDEX INFORMATION HAS BEEN STORED - CHECK INFC.vbs")
+If BENDEX_check = "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC" then run_DAIL_scrubber_script("C:\DHS-MAXIS-Scripts\Script Files\DAIL - BNDX Scrubber.vbs")
 
 'CIT/ID has been verified through the SSA.
 EMReadScreen CIT_check, 46, 6, 20
