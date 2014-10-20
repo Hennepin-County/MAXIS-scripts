@@ -2035,3 +2035,77 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
     EMWaitReady 0, 0
   End if
 End function
+
+FUNCTION write_TIKL_function
+	IF len(tikl_text) <= 60 THEN
+		tikl_line_one = tikl_text
+	ELSE
+		tikl_line_one_len = 61
+		tikl_line_one = left(tikl_text, tikl_line_one_len)
+		IF right(tikl_line_one, 1) = " " THEN
+			whats_left_after_one = right(tikl_text, (len(tikl_text) - tikl_line_one_len))
+		ELSE
+			DO
+				tikl_line_one = left(tikl_text, (tikl_line_one_len - 1))
+				IF right(tikl_line_one, 1) <> " " THEN tikl_line_one_len = tikl_line_one_len - 1
+			LOOP UNTIL right(tikl_line_one, 1) = " "
+			whats_left_after_one = right(tikl_text, (len(tikl_text) - (tikl_line_one_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_one <> "" AND len(whats_left_after_one) <= 60) THEN
+		tikl_line_two = whats_left_after_one
+	ELSEIF (whats_left_after_one <> "" AND len(whats_left_after_one) > 60) THEN
+		tikl_line_two_len = 61
+		tikl_line_two = left(whats_left_after_one, tikl_line_two_len)
+		IF right(tikl_line_two, 1) = " " THEN
+			whats_left_after_two = right(whats_left_after_one, (len(whats_left_after_one) - tikl_line_two_len))
+		ELSE
+			DO
+				tikl_line_two = left(whats_left_after_one, (tikl_line_two_len - 1))
+				IF right(tikl_line_two, 1) <> " " THEN tikl_line_two_len = tikl_line_two_len - 1
+			LOOP UNTIL right(tikl_line_two, 1) = " "
+			whats_left_after_two = right(whats_left_after_one, (len(whats_left_after_one) - (tikl_line_two_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_two <> "" AND len(whats_left_after_two) <= 60) THEN
+		tikl_line_three = whats_left_after_two
+	ELSEIF (whats_left_after_two <> "" AND len(whats_left_after_two) > 60) THEN
+		tikl_line_three_len = 61
+		tikl_line_three = right(whats_left_after_two, tikl_line_three_len)
+		IF right(tikl_line_three, 1) = " " THEN
+			whats_left_after_three = right(whats_left_after_two, (len(whats_left_after_two) - tikl_line_three_len))
+		ELSE
+			DO
+				tikl_line_three = left(whats_left_after_two, (tikl_line_three_len - 1))
+				IF right(tikl_line_three, 1) <> " " THEN tikl_line_three_len = tikl_line_three_len - 1
+			LOOP UNTIL right(tikl_line_three, 1) = " "
+			whats_left_after_three = right(whats_left_after_two, (len(whats_left_after_two) - (tikl_line_three_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_three <> "" AND len(whats_left_after_three) <= 60) THEN
+		tikl_line_four = whats_left_after_three
+	ELSEIF (whats_left_after_three <> "" AND len(whats_left_after_three) > 60) THEN
+		tikl_line_four_len = 61
+		tikl_line_four = left(whats_left_after_three, tikl_line_four_len)
+		IF right(tikl_line_four, 1) = " " THEN
+			tikl_line_five = right(whats_left_after_three, (len(whats_left_after_three) - tikl_line_four_len))
+		ELSE
+			DO
+				tikl_line_four = left(whats_left_after_three, (tikl_line_four_len - 1))
+				IF right(tikl_line_four) <> " " THEN tikl_line_four_len = tikl_line_four_len - 1
+			LOOP UNTIL right(tikl_line_four, 1) = " "
+			tikl_line_five = right(whats_left_after_three, (tikl_line_four_len - 1))
+		END IF
+	END IF
+
+	EMWriteScreen tikl_line_one, 9, 3
+	IF tikl_line_two <> "" THEN EMWriteScreen tikl_line_two, 10, 3
+	IF tikl_line_three <> "" THEN EMWriteScreen tikl_line_three, 11, 3
+	IF tikl_line_four <> "" THEN EMWriteScreen tikl_line_four, 12, 3
+	IF tikl_line_five <> "" THEN EMWriteScreen tikl_line_five, 13, 3
+	transmit
+END FUNCTION
+
