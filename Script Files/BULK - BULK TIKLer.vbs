@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - Custom TIKL"
+name_of_script = "BULK - BULK TIKLer"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS
@@ -201,7 +201,7 @@ For each case_number in case_number_array
 		back_to_self
 		call navigate_to_screen("DAIL", "WRIT")
 		call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)
-		write_TIKL_function
+		call write_TIKL_function(tikl_text)
 		PF3
 	End if
 Next

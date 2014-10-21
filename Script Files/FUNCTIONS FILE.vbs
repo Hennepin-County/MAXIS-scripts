@@ -2036,7 +2036,7 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
   End if
 End function
 
-FUNCTION write_TIKL_function
+FUNCTION write_TIKL_function(tikl_text)
 	IF len(tikl_text) <= 60 THEN
 		tikl_line_one = tikl_text
 	ELSE
