@@ -878,13 +878,15 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       INSA_name = replace(INSA_name, "_", "")
       INSA_name = split(INSA_name)
       For each word in INSA_name
-        first_letter_of_word = ucase(left(word, 1))
-        rest_of_word = LCase(right(word, len(word) -1))
-        If len(word) > 4 then
-          variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
-        Else
-          variable_written_to = variable_written_to & word & " "
-        End if
+	    If trim(word) <> "" then
+          first_letter_of_word = ucase(left(word, 1))
+          rest_of_word = LCase(right(word, len(word) -1))
+          If len(word) > 4 then
+            variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
+          Else
+            variable_written_to = variable_written_to & word & " "
+          End if
+		End if
       Next
       variable_written_to = trim(variable_written_to) & "; "
     End if
