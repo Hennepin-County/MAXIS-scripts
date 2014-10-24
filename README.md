@@ -1,13 +1,17 @@
-MAXIS-BZ-Scripts-County-Beta
+DHS-MAXIS-Scripts
 ================
 
-Welcome to our GitHub repo for the county-beta BlueZone Scripts!
+Welcome to our GitHub repo for the BlueZone Scripts!
 
-This GitHub repo is a fork of the "official" scripts, which are repo MAXIS-BZ-Scripts. This repo focuses on up-and-coming features to the BlueZone Scripts, as requested by DHS and county staff, as well as bug fixes, Power Pads, configuration programs, and all other associated pieces.
+This GitHub repo is the home of Minnesota's BlueZone Scripts, which aim to automate repetetive, error prone tasks using simple extensions to the BlueZone Mainframe Display system. These scripts do not contain any confidential data, nor do they contain information about how to log in to our various state systems. As such, only users who already have access to our systems are likely to find this repository useful.
 
-Admittedly, we're new to GitHub. As the BlueZone Scripts were primarily a one-woman project for a couple of years, the transition to collaborative development has been a bit challenging. But, we are learning and improving as we go. Pay attention for updates/changes as time goes on. 
+Our workflow is pretty simple, and broken into branches:
 
-Basically, the changes made here (assuming they "pass muster" with any policy/procedural folks involved at DHS) will be added to the official repo at MAXIS-BZ-Scripts. We have an issue list currently kept on our SIR page (if you don't know SIR, you probably shouldn't be working on this project). Feel free to tackle issues on that list, just please, update the issue in SIR before starting (so that way I don't start working on it myself).
+1. "master" is our current working directory.
+2. "beta" is our branch for agencies that are testing new features and enhancements.
+3. "release" is our branch for statewide agency use.
+
+Basically, the changes made here (assuming they "pass muster" with any policy/procedural folks involved at DHS) will first be merged into "beta", then into "release". We have an issue list currently kept on our SIR page (if you don't know SIR, you probably shouldn't be working on this project). Feel free to tackle issues on that list, just please, update the issue in SIR before starting (so that way I don't start working on it myself).
 
 This is a casual (and, dare I say, fun) group, but we're doing a pretty epic project, with the goal of saving thousands of hours in work for all of Minnesota. So please be ready with a working knowledge of VBScript, an understanding of Minnesota's assistance programs, and a sense of humor, and I'm sure this will go well.
 

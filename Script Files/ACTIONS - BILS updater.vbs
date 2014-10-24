@@ -5,7 +5,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -277,7 +277,6 @@ row = 6 'Setting the variable for the following do loop
 If ref_nbr_recurring_01 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
 			If row = 18 then
 				PF20
@@ -535,6 +534,7 @@ If ref_nbr_actual_03 <> "" then
 End if
 
 script_end_procedure("")
+
 
 
 
