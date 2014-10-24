@@ -130,7 +130,7 @@ Do
 Loop until isnumeric(case_number) = True
 
 'Gets to STAT/BUDG
-call navigate_to_screen("stat", "budg")
+call navigate_to_screen("STAT", "BUDG")
 EMReadScreen BUDG_check, 4, 2, 52
 If BUDG_check <> "BUDG" then transmit	'ERRR prone checking
 
@@ -221,12 +221,13 @@ End if
 
 'IF THE WORKER REQUESTED TO ADD NEW BILS, THE SCRIPT STARTS THE ADVANCED DIALOG----------------------------------------------------------------------------------------------------
 
-
-Dialog BILS_updater_dialog
-If ButtonPressed = 0 then stopscript
-transmit
-MAXIS_check_function
-
+DO
+	Dialog BILS_updater_dialog
+	If ButtonPressed = 0 then stopscript
+	transmit
+	MAXIS_check_function
+	IF isdate(budget_begin) = False OR isdate(budget_end) = False THEN MsgBox "Your budget range includes dates that are not valid. Please double check your budget months and years before continuing to ensure the script works properly."
+LOOP UNTIL isdate(budget_begin) = True AND isdate(budget_end) = True
 call navigate_to_screen("stat", "bils") 'In case the worker navigated out.
 
 'Cleaning up date field
@@ -304,7 +305,6 @@ End if
 If ref_nbr_recurring_02 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
 			If row = 18 then
 				PF20
@@ -332,7 +332,6 @@ End if
 If ref_nbr_recurring_03 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
 			If row = 18 then
 				PF20
@@ -360,7 +359,6 @@ End if
 If ref_nbr_recurring_04 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
 			If row = 18 then
 				PF20
@@ -388,7 +386,6 @@ End if
 If ref_nbr_recurring_05 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
 			If row = 18 then
 				PF20
@@ -416,7 +413,6 @@ End if
 If ref_nbr_recurring_06 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
 			If row = 18 then
 				PF20
@@ -534,11 +530,3 @@ If ref_nbr_actual_03 <> "" then
 End if
 
 script_end_procedure("")
-
-
-
-
-
-
-
-
