@@ -224,6 +224,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
 call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
 call autofill_editbox_from_MAXIS(HH_member_array, "INSA", INSA)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
+If INSA <> "" then INSA = INSA & "; "	'Inserted to solve a glitch when the INSA and MEDI panels are both read into one variable, but autofill_editbox_from_MAXIS removes that semicolon
 call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", INSA)
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
