@@ -90,30 +90,80 @@ EMConnect ""
 'Shows dialog, allows for cancel, and checks for MAXIS
 Do
 	Do
-		Dialog CEI_dialog
-		IF buttonpressed = cancel then stopscript
-		'Now, it checks to make sure each case number has info, and that no info exists without a case number.
-		'It uses a true/false system to make the do...loop simpler with less code.
-		If (case_number_01 = "" and (CEI_amount_01 <> "" or Mo_Yr_01 <> "" or date_01 <> "")) or _
-		(case_number_02 = "" and (CEI_amount_02 <> "" or Mo_Yr_02 <> "" or date_02 <> "")) or _
-		(case_number_03 = "" and (CEI_amount_03 <> "" or Mo_Yr_03 <> "" or date_03 <> "")) or _
-		(case_number_04 = "" and (CEI_amount_04 <> "" or Mo_Yr_04 <> "" or date_04 <> "")) or _
-		(case_number_05 = "" and (CEI_amount_05 <> "" or Mo_Yr_05 <> "" or date_05 <> "")) or _
-		(case_number_06 = "" and (CEI_amount_06 <> "" or Mo_Yr_06 <> "" or date_06 <> "")) then
-			MsgBox "You either have a case number without CEI, mo/yr, or date info, OR you have CEI info, mo/yr info, or date info without a case number." & chr(10) & chr(10) & "Please make sure you include required info for each case number, and do not enter info on this dialog without a case number."
-			dialog_complete = False
-		ElseIf (case_number_01 <> "" and (CEI_amount_01 = "" or Mo_Yr_01 = "" or date_01 = "")) or _
-		(case_number_02 <> "" and (CEI_amount_02 = "" or Mo_Yr_02 = "" or date_02 = "")) or _
-		(case_number_03 <> "" and (CEI_amount_03 = "" or Mo_Yr_03 = "" or date_03 = "")) or _
-		(case_number_04 <> "" and (CEI_amount_04 = "" or Mo_Yr_04 = "" or date_04 = "")) or _
-		(case_number_05 <> "" and (CEI_amount_05 = "" or Mo_Yr_05 = "" or date_05 = "")) or _
-		(case_number_06 <> "" and (CEI_amount_06 = "" or Mo_Yr_06 = "" or date_06 = "")) then
-			MsgBox "You either have a case number without CEI, mo/yr, or date info, OR you have CEI info, mo/yr info, or date info without a case number." & chr(10) & chr(10) & "Please make sure you include required info for each case number, and do not enter info on this dialog without a case number."
-			dialog_complete = False
-		Else
-			dialog_complete = True
+		Do
+			Do
+				Dialog CEI_premium_dialog
+				IF buttonpressed = cancel then stopscript
+				'If the user selects the prefill months option, it'll add the current month to the dialog
+				If buttonpressed = prefill_months_button then
+					prefill_date = datepart("m", date) & "/" & datepart("yyyy", date)		'Determines the date
+					If instr(prefill_date, "/") = 2 then prefill_date = "0" & prefill_date		'Adding the zero if the month is a single digit
+					'Inserts the above date in when there's already a case number in each field
+					If case_number_01 <> "" then mo_yr_01 = prefill_date
+					If case_number_02 <> "" then mo_yr_02 = prefill_date
+					If case_number_03 <> "" then mo_yr_03 = prefill_date
+					If case_number_04 <> "" then mo_yr_04 = prefill_date
+					If case_number_05 <> "" then mo_yr_05 = prefill_date
+					If case_number_06 <> "" then mo_yr_06 = prefill_date
+				End if
+			Loop until buttonpressed <> prefill_months_button
+			'Now, it checks to make sure each case number has info, and that no info exists without a case number.
+			'It uses a true/false system to make the do...loop simpler with less code.
+			If (case_number_01 = "" and (CEI_amount_01 <> "" or Mo_Yr_01 <> "" or date_01 <> "")) or _
+			(case_number_02 = "" and (CEI_amount_02 <> "" or Mo_Yr_02 <> "" or date_02 <> "")) or _
+			(case_number_03 = "" and (CEI_amount_03 <> "" or Mo_Yr_03 <> "" or date_03 <> "")) or _
+			(case_number_04 = "" and (CEI_amount_04 <> "" or Mo_Yr_04 <> "" or date_04 <> "")) or _
+			(case_number_05 = "" and (CEI_amount_05 <> "" or Mo_Yr_05 <> "" or date_05 <> "")) or _
+			(case_number_06 = "" and (CEI_amount_06 <> "" or Mo_Yr_06 <> "" or date_06 <> "")) then
+				MsgBox "You either have a case number without CEI, mo/yr, or date info, OR you have CEI info, mo/yr info, or date info without a case number." & chr(10) & chr(10) & "Please make sure you include required info for each case number, and do not enter info on this dialog without a case number."
+				dialog_complete = False
+			ElseIf (case_number_01 <> "" and (CEI_amount_01 = "" or Mo_Yr_01 = "" or date_01 = "")) or _
+			(case_number_02 <> "" and (CEI_amount_02 = "" or Mo_Yr_02 = "" or date_02 = "")) or _
+			(case_number_03 <> "" and (CEI_amount_03 = "" or Mo_Yr_03 = "" or date_03 = "")) or _
+			(case_number_04 <> "" and (CEI_amount_04 = "" or Mo_Yr_04 = "" or date_04 = "")) or _
+			(case_number_05 <> "" and (CEI_amount_05 = "" or Mo_Yr_05 = "" or date_05 = "")) or _
+			(case_number_06 <> "" and (CEI_amount_06 = "" or Mo_Yr_06 = "" or date_06 = "")) then
+				MsgBox "You either have a case number without CEI, mo/yr, or date info, OR you have CEI info, mo/yr info, or date info without a case number." & chr(10) & chr(10) & "Please make sure you include required info for each case number, and do not enter info on this dialog without a case number."
+				dialog_complete = False
+			Else
+				dialog_complete = True
+			End if
+		Loop until dialog_complete = True
+		'If the user selects the "need more lines" button, it'll add the existing data to an array and clear the dialog.
+		If buttonpressed = need_more_lines_button then 
+			add_info_to_array_msgbox = MsgBox("This will clear your existing info, moving it into the computer memory, and clearing the lines on this dialog. Is this OK?", vbYesNo)
+			If add_info_to_array_msgbox = vbYes then
+				'Combine the info to the array
+				call combine_CEI_data_to_array(info_array)
+				'Clear the existing dialog info
+				case_number_01 = ""
+				case_number_02 = ""
+				case_number_03 = ""
+				case_number_04 = ""
+				case_number_05 = ""
+				case_number_06 = ""
+				CEI_amount_01 = "" 
+				CEI_amount_02 = "" 
+				CEI_amount_03 = "" 
+				CEI_amount_04 = "" 
+				CEI_amount_05 = "" 
+				CEI_amount_06 = "" 
+				Mo_Yr_01 = "" 
+				Mo_Yr_02 = "" 
+				Mo_Yr_03 = "" 
+				Mo_Yr_04 = "" 
+				Mo_Yr_05 = "" 
+				Mo_Yr_06 = "" 
+				date_01 = ""
+				date_02 = ""
+				date_03 = ""
+				date_04 = ""
+				date_05 = ""
+				date_06 = ""
+			End if
 		End if
-	Loop until dialog_complete = True
+
+	Loop until buttonpressed = OK
 	transmit
 	EMReadScreen MAXIS_check, 5, 1, 39
 	IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of your case. You might need to type your password."
