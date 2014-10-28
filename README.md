@@ -15,6 +15,8 @@ Basically, the changes made here (assuming they "pass muster" with any policy/pr
 
 This is a casual (and, dare I say, fun) group, but we're doing a pretty epic project, with the goal of saving thousands of hours in work for all of Minnesota. So please be ready with a working knowledge of VBScript, an understanding of Minnesota's assistance programs, and a sense of humor, and I'm sure this will go well.
 
+If you don't have a great working knowledge of VBScript, I'm working on documentation, to be posted on GitHub. You can still help by asking to join the beta agency list!
+
 Oh, and don't be surprised if I'm pushing commits late in the evening. Frankly, I'm pretty obsessed with this project. ;)
 
 Welcome to it!
