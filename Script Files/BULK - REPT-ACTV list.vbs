@@ -123,6 +123,9 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
+			
+			'Checking for the last page of cases.
+			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 			Do			
 				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
@@ -166,7 +169,7 @@ For each worker in worker_array
 				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
-			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+			
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
