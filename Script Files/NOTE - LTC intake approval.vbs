@@ -5,7 +5,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -95,21 +95,6 @@ BeginDialog intake_approval_dialog, 0, 0, 381, 372, "Intake Approval Dialog"
   Text 5, 290, 45, 15, "Other notes:"
   Text 5, 310, 50, 15, "Actions taken:"
   Text 130, 350, 60, 15, "Worker signature:"
-EndDialog
-
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
 EndDialog
 
 BeginDialog type_std_dialog, 0, 0, 206, 172, "Type-Std dialog"
@@ -512,10 +497,10 @@ Do
         Do
           Dialog intake_approval_dialog
           If ButtonPressed = 0 then 
-            dialog cancel_dialog
-            If ButtonPressed = yes_cancel_button then stopscript
+            CancelDialog = MsgBox ("Are you sure you want to end this script?" & chr(13) & chr(13) & "Press ''YES'' to end the script. Press ''NO'' to return to the script.", vbYesNo)
+            If CancelDialog = vbYes then stopscript
           End if
-        Loop until ButtonPressed <> no_cancel_button
+        Loop until CancelDialog <> vbNo
         EMReadScreen STAT_check, 4, 20, 21
         If STAT_check = "STAT" then
           If ButtonPressed = prev_panel_button then call panel_navigation_prev
@@ -538,8 +523,8 @@ Do
     Loop until ButtonPressed = -1 
     If actions_taken = "" or application_date = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
   Loop until actions_taken <> "" and application_date <> "" and worker_signature <> "" 
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
+  If ButtonPressed = -1 then CaseNoteDialog = MsgBox("Press ''YES'' to CASE NOTE. Press ''NO'' to return to the script.", vbYesNo)
+  If CaseNoteDialog = vbYes then
     call navigate_to_screen("case", "note")
     PF9
     EMReadScreen case_note_check, 17, 2, 33
@@ -603,9 +588,3 @@ call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

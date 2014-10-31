@@ -2,15 +2,14 @@
 name_of_script = "ACTIONS - BILS updater"
 start_time = timer
 
-
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
-'DIALOGS
+'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog BILS_case_number_dialog, 0, 0, 161, 57, "BILS case number dialog"
   EditBox 95, 0, 60, 15, case_number
   CheckBox 15, 20, 130, 10, "Check here to update existing BILS.", updating_existing_BILS_check
@@ -112,7 +111,7 @@ BeginDialog BILS_updater_dialog, 0, 0, 416, 271, "BILS updater"
     CancelButton 360, 150, 50, 15
 EndDialog
 
-'SECTION 02: CASE NUMBER
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Connecting to MAXIS
 EMConnect ""
@@ -123,33 +122,31 @@ call MAXIS_case_number_finder(case_number)
 'Ask for case number, validate that it's numeric.
 Do
 	Dialog BILS_case_number_dialog	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
-	If ButtonPressed = 0 then stopscript
+	If ButtonPressed = cancel then stopscript
 	transmit
 	MAXIS_check_function
 	If isnumeric(case_number) = False then MsgBox "Enter a valid MAXIS case number."
 Loop until isnumeric(case_number) = True
 
 'Gets to STAT/BUDG
-call navigate_to_screen("stat", "budg")
-EMReadScreen BUDG_check, 4, 2, 52
-If BUDG_check <> "BUDG" then transmit	'ERRR prone checking
+call navigate_to_screen("STAT", "BUDG")
+ERRR_screen_check
 
-'Determines budget begin/end dates.
+'Determines budget begin/end dates. 
 EMReadScreen budget_begin, 5, 10, 35
-budget_begin = replace(budget_begin, " ", "/")	'MM/DD format
+budget_begin = replace(trim(budget_begin), " ", "/")	'MM/DD format, trims the EMReadScreen to ignore strings that are all spaces (implies no budget period established, case may be pending)
 EMReadScreen budget_end, 5, 10, 46
-budget_end = replace(budget_end, " ", "/")	'MM/DD format
+budget_end = replace(trim(budget_end), " ", "/")	'MM/DD format, trims the EMReadScreen to ignore strings that are all spaces (implies no budget period established, case may be pending)
 
 'Gets to BILS
-EMWriteScreen "bils", 20, 71
-transmit
+call navigate_to_screen("STAT", "BILS")
 
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
-If updating_existing_BILS_check = 1 then
+If updating_existing_BILS_check = checked then
 
 	'DIALOG RUNS, PUTS BILS ON EDIT MODE AND CHECKS FOR PASSWORD PROMPT
 	Dialog BILS_updater_abbreviated_dialog
-	If buttonpressed = 0 then stopscript
+	If buttonpressed = cancel then stopscript
 	PF9
 	EMReadScreen BILS_check, 4, 2, 54
 	If BILS_check <> "BILS" then script_end_procedure("BILS not found. Did you navigate away from BILS? Did you get passworded out? The script will now close.")
@@ -221,12 +218,31 @@ End if
 
 'IF THE WORKER REQUESTED TO ADD NEW BILS, THE SCRIPT STARTS THE ADVANCED DIALOG----------------------------------------------------------------------------------------------------
 
-
-Dialog BILS_updater_dialog
-If ButtonPressed = 0 then stopscript
-transmit
-MAXIS_check_function
-
+Do
+	DO
+		Dialog BILS_updater_dialog
+		If ButtonPressed = cancel then stopscript
+		transmit
+		MAXIS_check_function
+		IF isdate(budget_begin) = False OR isdate(budget_end) = False THEN MsgBox "Your budget range includes dates that are not valid. Please double check your budget months and years before continuing to ensure the script works properly."
+	LOOP UNTIL isdate(budget_begin) = True AND isdate(budget_end) = True
+	'Checking to see if the user added verifications. BILS requires that, without it it'll red up and error out.
+	If (ref_nbr_actual_01 <> "" and ver_actual_01 = " ") or _
+	 (ref_nbr_actual_02 <> "" and ver_actual_02 = " ") or _
+	 (ref_nbr_actual_03 <> "" and ver_actual_03 = " ") or _
+	 (ref_nbr_recurring_01 <> "" and ver_recurring_01 = " ") or _
+	 (ref_nbr_recurring_02 <> "" and ver_recurring_02 = " ") or _
+	 (ref_nbr_recurring_03 <> "" and ver_recurring_03 = " ") or _
+	 (ref_nbr_recurring_04 <> "" and ver_recurring_04 = " ") or _
+	 (ref_nbr_recurring_05 <> "" and ver_recurring_05 = " ") or _
+	 (ref_nbr_recurring_06 <> "" and ver_recurring_06 = " ") then 
+		MsgBox "Make sure you select a verification for all indicated BILS. BILS requires an entry here. You can add it in the ''ver'' column."
+		dialog_validation_complete = False		'Simplifying this for the do...loop, rather than typing all possible iterations of the above that could be valid.
+	Else
+		dialog_validation_complete = True
+	End if
+Loop until dialog_validation_complete = True
+ 
 call navigate_to_screen("stat", "bils") 'In case the worker navigated out.
 
 'Cleaning up date field
@@ -234,21 +250,23 @@ budget_begin = replace(budget_begin, ".", "/")		'in case worker used periods ins
 budget_end = replace(budget_end, ".", "/")
 budget_begin = replace(budget_begin, "-", "/")		'in case worker used dashes instead of slashes
 budget_end = replace(budget_end, "-", "/")
+
+'Adding the "01" in to the begin and end dates for the budget selector
 budget_begin = replace(budget_begin, "/", "/01/")
 budget_end = replace(budget_end, "/", "/01/")
 
 
-'SECTION 05: THE SCRIPT ADDS THE BILLS INTO MAXIS
+'Edits panel
 PF9
 
-'Using working_date as a placeholder, it will now determine each footer month between the budget period start and end
-working_date = budget_begin				
-total_months = DateDiff("m", budget_begin, budget_end)
-dim all_possible_dates_array()
-redim all_possible_dates_array(total_months)					
-For i = 0 to total_months
-	all_possible_dates_array(i) = working_date
-	working_date = DateAdd("m", 1, working_date)
+'Using working_date as a variable, it will now determine each footer month between the budget period start and end
+working_date = budget_begin											'starting with the first month
+total_months = DateDiff("m", budget_begin, budget_end)				'Figuring out the total amount of months
+dim all_possible_dates_array()										'Creating a blank array
+redim all_possible_dates_array(total_months)						'Setting the blank array as having a blank element for each one of the total number of months 
+For i = 0 to total_months											'For each one of those blank elements...
+	all_possible_dates_array(i) = working_date						'...the element should be the working date, and...
+	working_date = DateAdd("m", 1, working_date)					'...the working date should increase by one month.
 Next
 
 
@@ -273,272 +291,226 @@ If serv_type_recurring_06 = "25 Medicare Prem" or serv_type_recurring_06 = "26 D
 If serv_type_recurring_06 = "27 Remedial Care" then bill_type_recurring_06 = "P"
 
 
-row = 6 'Setting the variable for the following do loop
+MAXIS_row = 6 'Setting the variable for the following do loop
+
+'NOTE: I'm only commenting this first If...then statement. All others follow the same approach. REMEMBER, IF YOU EDIT THIS ONE, EDIT THE OTHERS TO MATCH!!! :) -VKC, 10/24/2014
+'Now, we enter the recurring bills onto STAT/BILS.
 If ref_nbr_recurring_01 <> "" then 
-	For each possible_date in all_possible_dates_array
-		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
-		Do
-			If row = 18 then
+	For each possible_date in all_possible_dates_array								'Does this for each date in the array.
+		possible_date = cdate(possible_date)										'Converts the string to a date
+		Do																			'Loops the following until we hit a blank MAXIS_row
+			If MAXIS_row = 18 then													'If we've reached the end of possible rows, PF20 and reset MAXIS_row to be 6
 				PF20
-				row = 6
+				MAXIS_row = 6
 			End if
-			EMReadScreen line_check, 1, row, 26
-			If line_check <> "_" then row = row + 1
+			EMReadScreen line_check, 1, MAXIS_row, 26								'Read for the current line.
+			If line_check <> "_" then MAXIS_row = MAXIS_row + 1						'If it isn't blank, increase MAXIS_row by one.
 		Loop until line_check = "_"
-		EMWriteScreen ref_nbr_recurring_01, row, 26
-		EMWriteScreen left(possible_date, 2), row, 30
-		EMWriteScreen "01", row, 33
-		EMWriteScreen right(possible_date, 2), row, 36
-		EMWriteScreen left(serv_type_recurring_01, 2), row, 40
-		EMWriteScreen gross_recurring_01, row, 45
-		If ver_recurring_01 = "No ver prvd" then 
-			EMWriteScreen "no", row, 67
-		Else
-			EMWriteScreen "0" & left(ver_recurring_01, 1), row, 67
+		EMWriteScreen ref_nbr_recurring_01, MAXIS_row, 26							'Write the ref nbr for this MAXIS_row
+		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30) 			'Writes the date
+		EMWriteScreen left(serv_type_recurring_01, 2), MAXIS_row, 40				'Writes the service type
+		EMWriteScreen gross_recurring_01, MAXIS_row, 45								'Writes the recurring dollar amount
+		If ver_recurring_01 = "No ver prvd" then 									'If the verification type is "no ver prvd", it'll do a "NO" for the ver col...
+			EMWriteScreen "no", MAXIS_row, 67
+		Else																		'...otherwise it'll do the "0", and the left character of the ver indicated.
+			EMWriteScreen "0" & left(ver_recurring_01, 1), MAXIS_row, 67	
 		End if
-		EMWriteScreen bill_type_recurring_01, row, 71
-		row = row + 1
+		EMWriteScreen bill_type_recurring_01, MAXIS_row, 71							'Writes the bill type
+		MAXIS_row = MAXIS_row + 1													'Go to the next MAXIS_row
 	Next
 End if
 
 If ref_nbr_recurring_02 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
-			If row = 18 then
+			If MAXIS_row = 18 then
 				PF20
-				row = 6
+				MAXIS_row = 6
 			End if
-			EMReadScreen line_check, 1, row, 26
-			If line_check <> "_" then row = row + 1
+			EMReadScreen line_check, 1, MAXIS_row, 26
+			If line_check <> "_" then MAXIS_row = MAXIS_row + 1
 		Loop until line_check = "_"
-		EMWriteScreen ref_nbr_recurring_02, row, 26
-		EMWriteScreen left(possible_date, 2), row, 30
-		EMWriteScreen "01", row, 33
-		EMWriteScreen right(possible_date, 2), row, 36
-		EMWriteScreen left(serv_type_recurring_02, 2), row, 40
-		EMWriteScreen gross_recurring_02, row, 45
+		EMWriteScreen ref_nbr_recurring_02, MAXIS_row, 26
+		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
+		EMWriteScreen left(serv_type_recurring_02, 2), MAXIS_row, 40
+		EMWriteScreen gross_recurring_02, MAXIS_row, 45
 		If ver_recurring_02 = "No ver prvd" then 
-			EMWriteScreen "no", row, 67
+			EMWriteScreen "no", MAXIS_row, 67
 		Else
-			EMWriteScreen "0" & left(ver_recurring_02, 1), row, 67
+			EMWriteScreen "0" & left(ver_recurring_02, 1), MAXIS_row, 67
 		End if
-		EMWriteScreen bill_type_recurring_02, row, 71
-		row = row + 1
+		EMWriteScreen bill_type_recurring_02, MAXIS_row, 71
+		MAXIS_row = MAXIS_row + 1
 	Next
 End if
 
 If ref_nbr_recurring_03 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
-			If row = 18 then
+			If MAXIS_row = 18 then
 				PF20
-				row = 6
+				MAXIS_row = 6
 			End if
-			EMReadScreen line_check, 1, row, 26
-			If line_check <> "_" then row = row + 1
+			EMReadScreen line_check, 1, MAXIS_row, 26
+			If line_check <> "_" then MAXIS_row = MAXIS_row + 1
 		Loop until line_check = "_"
-		EMWriteScreen ref_nbr_recurring_03, row, 26
-		EMWriteScreen left(possible_date, 2), row, 30
-		EMWriteScreen "01", row, 33
-		EMWriteScreen right(possible_date, 2), row, 36
-		EMWriteScreen left(serv_type_recurring_03, 2), row, 40
-		EMWriteScreen gross_recurring_03, row, 45
+		EMWriteScreen ref_nbr_recurring_03, MAXIS_row, 26
+		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
+		EMWriteScreen left(serv_type_recurring_03, 2), MAXIS_row, 40
+		EMWriteScreen gross_recurring_03, MAXIS_row, 45
 		If ver_recurring_03 = "No ver prvd" then 
-			EMWriteScreen "no", row, 67
+			EMWriteScreen "no", MAXIS_row, 67
 		Else
-			EMWriteScreen "0" & left(ver_recurring_03, 1), row, 67
+			EMWriteScreen "0" & left(ver_recurring_03, 1), MAXIS_row, 67
 		End if
-		EMWriteScreen bill_type_recurring_03, row, 71
-		row = row + 1
+		EMWriteScreen bill_type_recurring_03, MAXIS_row, 71
+		MAXIS_row = MAXIS_row + 1
 	Next
 End if
 
 If ref_nbr_recurring_04 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
-			If row = 18 then
+			If MAXIS_row = 18 then
 				PF20
-				row = 6
+				MAXIS_row = 6
 			End if
-			EMReadScreen line_check, 1, row, 26
-			If line_check <> "_" then row = row + 1
+			EMReadScreen line_check, 1, MAXIS_row, 26
+			If line_check <> "_" then MAXIS_row = MAXIS_row + 1
 		Loop until line_check = "_"
-		EMWriteScreen ref_nbr_recurring_04, row, 26
-		EMWriteScreen left(possible_date, 2), row, 30
-		EMWriteScreen "01", row, 33
-		EMWriteScreen right(possible_date, 2), row, 36
-		EMWriteScreen left(serv_type_recurring_04, 2), row, 40
-		EMWriteScreen gross_recurring_04, row, 45
+		EMWriteScreen ref_nbr_recurring_04, MAXIS_row, 26
+		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
+		EMWriteScreen left(serv_type_recurring_04, 2), MAXIS_row, 40
+		EMWriteScreen gross_recurring_04, MAXIS_row, 45
 		If ver_recurring_04 = "No ver prvd" then 
-			EMWriteScreen "no", row, 67
+			EMWriteScreen "no", MAXIS_row, 67
 		Else
-			EMWriteScreen "0" & left(ver_recurring_04, 1), row, 67
+			EMWriteScreen "0" & left(ver_recurring_04, 1), MAXIS_row, 67
 		End if
-		EMWriteScreen bill_type_recurring_04, row, 71
-		row = row + 1
+		EMWriteScreen bill_type_recurring_04, MAXIS_row, 71
+		MAXIS_row = MAXIS_row + 1
 	Next
 End if
 
 If ref_nbr_recurring_05 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
-			If row = 18 then
+			If MAXIS_row = 18 then
 				PF20
-				row = 6
+				MAXIS_row = 6
 			End if
-			EMReadScreen line_check, 1, row, 26
-			If line_check <> "_" then row = row + 1
+			EMReadScreen line_check, 1, MAXIS_row, 26
+			If line_check <> "_" then MAXIS_row = MAXIS_row + 1
 		Loop until line_check = "_"
-		EMWriteScreen ref_nbr_recurring_05, row, 26
-		EMWriteScreen left(possible_date, 2), row, 30
-		EMWriteScreen "01", row, 33
-		EMWriteScreen right(possible_date, 2), row, 36
-		EMWriteScreen left(serv_type_recurring_05, 2), row, 40
-		EMWriteScreen gross_recurring_05, row, 45
+		EMWriteScreen ref_nbr_recurring_05, MAXIS_row, 26
+		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
+		EMWriteScreen left(serv_type_recurring_05, 2), MAXIS_row, 40
+		EMWriteScreen gross_recurring_05, MAXIS_row, 45
 		If ver_recurring_05 = "No ver prvd" then 
-			EMWriteScreen "no", row, 67
+			EMWriteScreen "no", MAXIS_row, 67
 		Else
-			EMWriteScreen "0" & left(ver_recurring_05, 1), row, 67
+			EMWriteScreen "0" & left(ver_recurring_05, 1), MAXIS_row, 67
 		End if
-		EMWriteScreen bill_type_recurring_05, row, 71
-		row = row + 1
+		EMWriteScreen bill_type_recurring_05, MAXIS_row, 71
+		MAXIS_row = MAXIS_row + 1
 	Next
 End if
 
 If ref_nbr_recurring_06 <> "" then 
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
-		If len(datepart("m", possible_date)) = 1 then possible_date = "0" & possible_date 
 		Do
-			If row = 18 then
+			If MAXIS_row = 18 then
 				PF20
-				row = 6
+				MAXIS_row = 6
 			End if
-			EMReadScreen line_check, 1, row, 26
-			If line_check <> "_" then row = row + 1
+			EMReadScreen line_check, 1, MAXIS_row, 26
+			If line_check <> "_" then MAXIS_row = MAXIS_row + 1
 		Loop until line_check = "_"
-		EMWriteScreen ref_nbr_recurring_06, row, 26
-		EMWriteScreen left(possible_date, 2), row, 30
-		EMWriteScreen "01", row, 33
-		EMWriteScreen right(possible_date, 2), row, 36
-		EMWriteScreen left(serv_type_recurring_06, 2), row, 40
-		EMWriteScreen gross_recurring_06, row, 45
+		EMWriteScreen ref_nbr_recurring_06, MAXIS_row, 26
+		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
+		EMWriteScreen left(serv_type_recurring_06, 2), MAXIS_row, 40
+		EMWriteScreen gross_recurring_06, MAXIS_row, 45
 		If ver_recurring_06 = "No ver prvd" then 
-			EMWriteScreen "no", row, 67
+			EMWriteScreen "no", MAXIS_row, 67
 		Else
-			EMWriteScreen "0" & left(ver_recurring_06, 1), row, 67
+			EMWriteScreen "0" & left(ver_recurring_06, 1), MAXIS_row, 67
 		End if
-		EMWriteScreen bill_type_recurring_06, row, 71
-		row = row + 1
+		EMWriteScreen bill_type_recurring_06, MAXIS_row, 71
+		MAXIS_row = MAXIS_row + 1
 	Next
 End if
 
 'Now actual expenses
-
-If ref_nbr_actual_01 <> "" then 
-	Do
-		If row = 18 then
+'NOTE: again, only commenting on the first one. MAKE SURE IF YOU EDIT THIS ONE, YOU EDIT THE NEXT TWO TO MATCH. :) -VKC, 10/24/2014
+If ref_nbr_actual_01 <> "" then 											'If it isn't blank, add it to BILS
+	Do																		'Looking for blank lines to add stuff to
+		If MAXIS_row = 18 then												'If we're at the end, go to the next page and start looking at row 6 again.
 			PF20
-			row = 6
+			MAXIS_row = 6
 		End if
-		EMReadScreen line_check, 1, row, 26
-		If line_check <> "_" then row = row + 1
-	Loop until line_check = "_"
-	EMWriteScreen ref_nbr_actual_01, row, 26
-	working_month = datepart("m", date_actual_01)
-	If len(working_month) = 1 then working_month = "0" & working_month
-	EMWriteScreen working_month, row, 30
-	working_day = datepart("d", date_actual_01)
-	If len(working_day) = 1 then working_day = "0" & working_day
-	EMWriteScreen working_day, row, 33
-	working_year = datepart("yyyy", date_actual_01)
-	working_year = working_year - 2000
-	EMWriteScreen working_year, row, 36
-	EMWriteScreen left(serv_type_actual_01, 2), row, 40
-	EMWriteScreen gross_actual_01, row, 45
-	If ver_actual_01 = "No ver prvd" then 
-		EMWriteScreen "no", row, 67
+		EMReadScreen line_check, 1, MAXIS_row, 26							'Look for that line...
+		If line_check <> "_" then MAXIS_row = MAXIS_row + 1					'If it isn't blank, add one to the row variable so we can look again.
+	Loop until line_check = "_"												'Loop until an underscore is found, indicating an open line.
+	EMWriteScreen ref_nbr_actual_01, MAXIS_row, 26							'Write the ref nbr on BILS
+	call create_MAXIS_friendly_date(date_actual_01, 0, MAXIS_row, 30)		'Write the date
+	EMWriteScreen left(serv_type_actual_01, 2), MAXIS_row, 40				'Write the service type
+	EMWriteScreen gross_actual_01, MAXIS_row, 45							'Write the gross amt
+	If ver_actual_01 = "No ver prvd" then 									'If proof is none, write "NO", otherwise, write the "0" followed by proof number.
+		EMWriteScreen "no", MAXIS_row, 67
 	Else
-		EMWriteScreen "0" & left(ver_actual_01, 1), row, 67
+		EMWriteScreen "0" & left(ver_actual_01, 1), MAXIS_row, 67
 	End if
-	EMWriteScreen bill_type_actual_01, row, 71
-	row = row + 1
+	EMWriteScreen bill_type_actual_01, MAXIS_row, 71						'Write the bill type
+	MAXIS_row = MAXIS_row + 1												'Go to the next row
 End if
 
 If ref_nbr_actual_02 <> "" then 
 	Do
-		If row = 18 then
+		If MAXIS_row = 18 then
 			PF20
-			row = 6
+			MAXIS_row = 6
 		End if
-		EMReadScreen line_check, 1, row, 26
-		If line_check <> "_" then row = row + 1
+		EMReadScreen line_check, 1, MAXIS_row, 26
+		If line_check <> "_" then MAXIS_row = MAXIS_row + 1
 	Loop until line_check = "_"
-	EMWriteScreen ref_nbr_actual_02, row, 26
-	working_month = datepart("m", date_actual_02)
-	If len(working_month) = 1 then working_month = "0" & working_month
-	EMWriteScreen working_month, row, 30
-	working_day = datepart("d", date_actual_02)
-	If len(working_day) = 1 then working_day = "0" & working_day
-	EMWriteScreen working_day, row, 33
-	working_year = datepart("yyyy", date_actual_02)
-	working_year = working_year - 2000
-	EMWriteScreen working_year, row, 36
-	EMWriteScreen left(serv_type_actual_02, 2), row, 40
-	EMWriteScreen gross_actual_02, row, 45
+	EMWriteScreen ref_nbr_actual_02, MAXIS_row, 26
+	call create_MAXIS_friendly_date(date_actual_02, 0, MAXIS_row, 30)
+	EMWriteScreen left(serv_type_actual_02, 2), MAXIS_row, 40
+	EMWriteScreen gross_actual_02, MAXIS_row, 45
 	If ver_actual_02 = "No ver prvd" then 
-		EMWriteScreen "no", row, 67
+		EMWriteScreen "no", MAXIS_row, 67
 	Else
-		EMWriteScreen "0" & left(ver_actual_02, 1), row, 67
+		EMWriteScreen "0" & left(ver_actual_02, 1), MAXIS_row, 67
 	End if
-	EMWriteScreen bill_type_actual_02, row, 71
-	row = row + 1
+	EMWriteScreen bill_type_actual_02, MAXIS_row, 71
+	MAXIS_row = MAXIS_row + 1
 End if
 
 If ref_nbr_actual_03 <> "" then 
 	Do
-		If row = 18 then
+		If MAXIS_row = 18 then
 			PF20
-			row = 6
+			MAXIS_row = 6
 		End if
-		EMReadScreen line_check, 1, row, 26
-		If line_check <> "_" then row = row + 1
+		EMReadScreen line_check, 1, MAXIS_row, 26
+		If line_check <> "_" then MAXIS_row = MAXIS_row + 1
 	Loop until line_check = "_"
-	EMWriteScreen ref_nbr_actual_03, row, 26
-	working_month = datepart("m", date_actual_03)
-	If len(working_month) = 1 then working_month = "0" & working_month
-	EMWriteScreen working_month, row, 30
-	working_day = datepart("d", date_actual_03)
-	If len(working_day) = 1 then working_day = "0" & working_day
-	EMWriteScreen working_day, row, 33
-	working_year = datepart("yyyy", date_actual_03)
-	working_year = working_year - 2000
-	EMWriteScreen working_year, row, 36
-	EMWriteScreen left(serv_type_actual_03, 2), row, 40
-	EMWriteScreen gross_actual_03, row, 45
+	EMWriteScreen ref_nbr_actual_03, MAXIS_row, 26
+	call create_MAXIS_friendly_date(date_actual_03, 0, MAXIS_row, 30)
+	EMWriteScreen left(serv_type_actual_03, 2), MAXIS_row, 40
+	EMWriteScreen gross_actual_03, MAXIS_row, 45
 	If ver_actual_03 = "No ver prvd" then 
-		EMWriteScreen "no", row, 67
+		EMWriteScreen "no", MAXIS_row, 67
 	Else
-		EMWriteScreen "0" & left(ver_actual_03, 1), row, 67
+		EMWriteScreen "0" & left(ver_actual_03, 1), MAXIS_row, 67
 	End if
-	EMWriteScreen bill_type_actual_03, row, 71
-	row = row + 1
+	EMWriteScreen bill_type_actual_03, MAXIS_row, 71
+	MAXIS_row = MAXIS_row + 1
 End if
 
 script_end_procedure("")
-
-
-
-
-
-
-

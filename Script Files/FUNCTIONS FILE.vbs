@@ -16,7 +16,7 @@
 '
 ''LOADING ROUTINE FUNCTIONS
 'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-'Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+'Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 'text_from_the_other_script = fso_command.ReadAll
 'fso_command.Close
 'Execute text_from_the_other_script
@@ -25,12 +25,15 @@
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 
-worker_county_code = "MULTICOUNTY"
+worker_county_code = "X102"
 collecting_statistics = False
 EDMS_choice = "Compass Forms"
-county_name = "Southwest HHS"
+county_name = "Anoka County"
 case_noting_intake_dates = True
 move_verifs_needed = False
+code_from_installer = "02 - Anoka County"
+county_bndx_variance_threshold = 0
+emer_percent_rule_amt = 30
 
 'Creates a double array of county offices, first by office (using the ~), then by address line (using the |).
 county_office_array = split("2100 3rd Ave, Suite 400|Anoka, MN 55303~1201 89th Ave, Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell Road, Suite 128|Lexington, MN 55014", "~")
@@ -57,9 +60,6 @@ is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SET
 'Some screens require the two digit county code, and this determines what that code is. It only does it for single-county agencies 
 '(ie, DHS and other multicounty agencies follow different logic, which will be fleshed out in the individual scripts affected)
 If worker_county_code <> "MULTICOUNTY" then two_digit_county_code = right(worker_county_code, 2)
-
-
-
 
 
 'THE SHARED FUNCTIONS----------------------------------------------------------------------------------------------------
@@ -790,30 +790,33 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           EMReadScreen fmed_type, 2, fmed_row, 25
           EMReadScreen fmed_proof, 2, fmed_row, 32
           EMReadScreen fmed_amt, 8, fmed_row, 70
-          If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
-            fmed_proof = ", no proof provided"
-          Else
-            fmed_proof = ""
+		  EMReadScreen fmed_end_date, 5, fmed_row, 60		'reading end date to see if this one even gets added.
+		  If fmed_end_date = "__ __" then					'Skips entries with an end date.
+            If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
+              fmed_proof = ", no proof provided"
+            Else
+              fmed_proof = ""
+            End if
+            If fmed_amt = "________" then
+              fmed_amt = ""
+            Else
+              fmed_amt = " ($" & trim(fmed_amt) & ")"
+            End if
+            If fmed_type = "01" then fmed_type = "Nursing Home"
+            If fmed_type = "02" then fmed_type = "Hosp/Clinic"
+            If fmed_type = "03" then fmed_type = "Physicians"
+            If fmed_type = "04" then fmed_type = "Prescriptions"
+            If fmed_type = "05" then fmed_type = "Ins Premiums"
+            If fmed_type = "06" then fmed_type = "Dental"
+            If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
+            If fmed_type = "08" then fmed_type = "Vision Care"
+            If fmed_type = "09" then fmed_type = "Medicare Prem"
+            If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
+            If fmed_type = "11" then fmed_type = "Home Care"
+            If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
+            If fmed_type = "15" then fmed_type = "Medi Part D premium"
+            If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           End if
-          If fmed_amt = "________" then
-            fmed_amt = ""
-          Else
-            fmed_amt = " ($" & trim(fmed_amt) & ")"
-          End if
-          If fmed_type = "01" then fmed_type = "Nursing Home"
-          If fmed_type = "02" then fmed_type = "Hosp/Clinic"
-          If fmed_type = "03" then fmed_type = "Physicians"
-          If fmed_type = "04" then fmed_type = "Prescriptions"
-          If fmed_type = "05" then fmed_type = "Ins Premiums"
-          If fmed_type = "06" then fmed_type = "Dental"
-          If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
-          If fmed_type = "08" then fmed_type = "Vision Care"
-          If fmed_type = "09" then fmed_type = "Medicare Prem"
-          If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
-          If fmed_type = "11" then fmed_type = "Home Care"
-          If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
-          If fmed_type = "15" then fmed_type = "Medi Part D premium"
-          If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           fmed_row = fmed_row + 1
           If fmed_row = 15 then
             PF20
@@ -875,13 +878,15 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       INSA_name = replace(INSA_name, "_", "")
       INSA_name = split(INSA_name)
       For each word in INSA_name
-        first_letter_of_word = ucase(left(word, 1))
-        rest_of_word = LCase(right(word, len(word) -1))
-        If len(word) > 4 then
-          variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
-        Else
-          variable_written_to = variable_written_to & word & " "
-        End if
+	    If trim(word) <> "" then
+          first_letter_of_word = ucase(left(word, 1))
+          rest_of_word = LCase(right(word, len(word) -1))
+          If len(word) > 4 then
+            variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
+          Else
+            variable_written_to = variable_written_to & word & " "
+          End if
+		End if
       Next
       variable_written_to = trim(variable_written_to) & "; "
     End if
@@ -1252,7 +1257,6 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
   variable_written_to = replace(variable_written_to, "$________/semimonthly", "amt unknown")
 End function
 
-
 function back_to_SELF
   Do
     EMSendKey "<PF3>"
@@ -1260,6 +1264,21 @@ function back_to_SELF
     EMReadScreen SELF_check, 4, 2, 50
   Loop until SELF_check = "SELF"
 End function
+
+'This function converts a numeric digit to an Excel column, up to 104 digits (columns).
+function convert_digit_to_excel_column(col_in_excel)
+	'Create string with the alphabet
+	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	'Assigning a letter, based on that column. Uses "mid" function to determine it. If number > 26, it handles by adding a letter (per Excel).
+	convert_digit_to_excel_column = Mid(alphabet, col_in_excel, 1)		
+	If col_in_excel >= 27 and col_in_excel < 53 then convert_digit_to_excel_column = "A" & Mid(alphabet, col_in_excel - 26, 1)
+	If col_in_excel >= 53 and col_in_excel < 79 then convert_digit_to_excel_column = "B" & Mid(alphabet, col_in_excel - 52, 1)
+	If col_in_excel >= 79 and col_in_excel < 105 then convert_digit_to_excel_column = "C" & Mid(alphabet, col_in_excel - 78, 1)
+
+	'Closes script if the number gets too high (very rare circumstance, just errorproofing)
+	If col_in_excel >= 105 then script_end_procedure("This script is only able to assign excel columns to 104 distinct digits. You've exceeded this number, and this script cannot continue.")
+end function
 
 Function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 	'Getting to REPT/USER
@@ -1492,7 +1511,7 @@ function log_usage_stats_without_closing 'For use when logging usage stats but t
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1813,7 +1832,7 @@ function script_end_procedure(closing_message)
 		closing_message = replace(closing_message, "'", "")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1840,7 +1859,7 @@ function script_end_procedure_wsh(closing_message) 'For use when running a scrip
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1908,13 +1927,18 @@ function transmit
 end function
 
 Function worker_county_code_determination(worker_county_code_variable, two_digit_county_code_variable)		'Determines worker_county_code and two_digit_county_code for multi-county agencies and DHS staff
-	If worker_county_code_variable = "MULTICOUNTY" then 
-		Do
-			two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
-			If two_digit_county_code_variable = "" then stopscript
-			If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
-		Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True 
-		worker_county_code_variable = "X1" & two_digit_county_code_variable
+	If left(code_from_installer, 2) = "PT" then 'special handling for Pine Tech
+		worker_county_code_variable = "PWTVS"
+	Else
+		If worker_county_code_variable = "MULTICOUNTY" then 
+			Do
+				two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
+				If two_digit_county_code_variable = "" then stopscript
+				If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
+			Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True 
+			worker_county_code_variable = "X1" & two_digit_county_code_variable
+			If two_digit_county_code_variable = "91" then worker_county_code_variable = "PW"	'For DHS folks without proxy
+		End If
 	End if
 End function
 
@@ -2013,3 +2037,77 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
     EMWaitReady 0, 0
   End if
 End function
+
+FUNCTION write_TIKL_function(tikl_text)
+	IF len(tikl_text) <= 60 THEN
+		tikl_line_one = tikl_text
+	ELSE
+		tikl_line_one_len = 61
+		tikl_line_one = left(tikl_text, tikl_line_one_len)
+		IF right(tikl_line_one, 1) = " " THEN
+			whats_left_after_one = right(tikl_text, (len(tikl_text) - tikl_line_one_len))
+		ELSE
+			DO
+				tikl_line_one = left(tikl_text, (tikl_line_one_len - 1))
+				IF right(tikl_line_one, 1) <> " " THEN tikl_line_one_len = tikl_line_one_len - 1
+			LOOP UNTIL right(tikl_line_one, 1) = " "
+			whats_left_after_one = right(tikl_text, (len(tikl_text) - (tikl_line_one_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_one <> "" AND len(whats_left_after_one) <= 60) THEN
+		tikl_line_two = whats_left_after_one
+	ELSEIF (whats_left_after_one <> "" AND len(whats_left_after_one) > 60) THEN
+		tikl_line_two_len = 61
+		tikl_line_two = left(whats_left_after_one, tikl_line_two_len)
+		IF right(tikl_line_two, 1) = " " THEN
+			whats_left_after_two = right(whats_left_after_one, (len(whats_left_after_one) - tikl_line_two_len))
+		ELSE
+			DO
+				tikl_line_two = left(whats_left_after_one, (tikl_line_two_len - 1))
+				IF right(tikl_line_two, 1) <> " " THEN tikl_line_two_len = tikl_line_two_len - 1
+			LOOP UNTIL right(tikl_line_two, 1) = " "
+			whats_left_after_two = right(whats_left_after_one, (len(whats_left_after_one) - (tikl_line_two_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_two <> "" AND len(whats_left_after_two) <= 60) THEN
+		tikl_line_three = whats_left_after_two
+	ELSEIF (whats_left_after_two <> "" AND len(whats_left_after_two) > 60) THEN
+		tikl_line_three_len = 61
+		tikl_line_three = right(whats_left_after_two, tikl_line_three_len)
+		IF right(tikl_line_three, 1) = " " THEN
+			whats_left_after_three = right(whats_left_after_two, (len(whats_left_after_two) - tikl_line_three_len))
+		ELSE
+			DO
+				tikl_line_three = left(whats_left_after_two, (tikl_line_three_len - 1))
+				IF right(tikl_line_three, 1) <> " " THEN tikl_line_three_len = tikl_line_three_len - 1
+			LOOP UNTIL right(tikl_line_three, 1) = " "
+			whats_left_after_three = right(whats_left_after_two, (len(whats_left_after_two) - (tikl_line_three_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_three <> "" AND len(whats_left_after_three) <= 60) THEN
+		tikl_line_four = whats_left_after_three
+	ELSEIF (whats_left_after_three <> "" AND len(whats_left_after_three) > 60) THEN
+		tikl_line_four_len = 61
+		tikl_line_four = left(whats_left_after_three, tikl_line_four_len)
+		IF right(tikl_line_four, 1) = " " THEN
+			tikl_line_five = right(whats_left_after_three, (len(whats_left_after_three) - tikl_line_four_len))
+		ELSE
+			DO
+				tikl_line_four = left(whats_left_after_three, (tikl_line_four_len - 1))
+				IF right(tikl_line_four) <> " " THEN tikl_line_four_len = tikl_line_four_len - 1
+			LOOP UNTIL right(tikl_line_four, 1) = " "
+			tikl_line_five = right(whats_left_after_three, (tikl_line_four_len - 1))
+		END IF
+	END IF
+
+	EMWriteScreen tikl_line_one, 9, 3
+	IF tikl_line_two <> "" THEN EMWriteScreen tikl_line_two, 10, 3
+	IF tikl_line_three <> "" THEN EMWriteScreen tikl_line_three, 11, 3
+	IF tikl_line_four <> "" THEN EMWriteScreen tikl_line_four, 12, 3
+	IF tikl_line_five <> "" THEN EMWriteScreen tikl_line_five, 13, 3
+	transmit
+END FUNCTION
+
