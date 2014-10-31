@@ -42,9 +42,6 @@ BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
   Text 5, 120, 40, 10, "Footer year:"
 EndDialog
 
-
-
-
 'DEFINING VARIABLES----------------------------------------------------------------------------------------------------
 
 excel_row = 3 'this is the row the workers will start on the spreadsheet
