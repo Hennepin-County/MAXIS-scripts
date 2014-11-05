@@ -7,35 +7,35 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
 'DIALOGS-----------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 115, "Pull REPT data into Excel dialog"
-  EditBox 150, 20, 130, 15, worker_number
-  CheckBox 70, 55, 150, 10, "Check here to run this query county-wide.", all_workers_check
+BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
+  EditBox 140, 20, 140, 15, worker_number
+  CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 50, 40, 10, "Cash/GRH?", cash_check
+  CheckBox 10, 50, 50, 10, "Cash/GRH?", cash_check
   CheckBox 10, 65, 40, 10, "HC?", HC_check
   ButtonGroup ButtonPressed
-    OkButton 175, 95, 50, 15
-    CancelButton 230, 95, 50, 15
-  GroupBox 5, 20, 60, 90, "Progs to scan"
+    OkButton 175, 100, 50, 15
+    CancelButton 230, 100, 50, 15
+  GroupBox 5, 20, 60, 60, "Progs to scan"
   Text 70, 25, 65, 10, "Worker(s) to check:"
-  Text 70, 70, 215, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 215, 10, "Enter workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
 EndDialog
 
 'THE SCRIPT---------------------------------------------------
 
 'Asks if we want to navigate to current month + 2, which REVS is unique in that it can show this screen
-current_month_plus_2 = MsgBox("Navigate to current month + 2 for REVS?", 3)
-If current_month_plus_2 = 2 then stopscript	'Cancel on a Yes/No/Cancel dialog box
-If current_month_plus_2 = 6 then current_month_plus_2 = True
-If current_month_plus_2 = 7 then current_month_plus_2 = False
+current_month_plus_2 = MsgBox("Navigate to current month + 2 for REVS?", vbYesNo)
+If current_month_plus_2 = vbCancel then stopscript
+If current_month_plus_2 = vbYes then current_month_plus_2 = True
+If current_month_plus_2 = vbNo then current_month_plus_2 = False
 
 'Determining what current month + 2 is
 future_footer_month = datepart("m", dateadd("m", 2, date))

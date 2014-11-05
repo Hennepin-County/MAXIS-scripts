@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -28,25 +28,6 @@ BeginDialog rept_scanning_dialog, 0, 0, 296, 130, "REPT scanning dialog"
   Text 115, 80, 175, 20, "--- Creates a list of FACIs, AREPs, and waiver types for a worker or group of workers."
 EndDialog
 
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 115, "Pull REPT data into Excel dialog"
-  EditBox 150, 20, 130, 15, worker_number
-  CheckBox 70, 55, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 50, 40, 10, "Cash?", cash_check
-  CheckBox 10, 65, 40, 10, "HC?", HC_check
-  CheckBox 10, 80, 40, 10, "EA?", EA_check
-  CheckBox 10, 95, 40, 10, "GRH?", GRH_check
-  ButtonGroup ButtonPressed
-    OkButton 175, 95, 50, 15
-    CancelButton 230, 95, 50, 15
-  GroupBox 5, 20, 60, 90, "Progs to scan"
-  Text 70, 25, 65, 10, "Worker(s) to check:"
-  Text 70, 70, 215, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-  Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 215, 10, "Enter workers' x1 numbers (ex: x100###), separated by a comma."
-EndDialog
-
-
 
 'VARIABLES TO DECLARE
 all_case_numbers_array = " "					'Creating blank variable for the future array
@@ -62,13 +43,13 @@ If buttonpressed = cancel then stopscript
 'Connecting to BlueZone
 EMConnect ""
 
-If buttonpressed = ACTV_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-ACTV list.vbs")
-If buttonpressed = ARST_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-ARST list.vbs")
-If buttonpressed = EOMC_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-EOMC list.vbs")
-If buttonpressed = PND2_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-PND2 list.vbs")
-If buttonpressed = REVS_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-REVS list.vbs")
-If buttonpressed = REVW_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - REPT-REVW list.vbs")
-If buttonpressed = LTC_GRH_list_generator_button then call run_another_script("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\BULK - LTC-GRH list generator.vbs")
+If buttonpressed = ACTV_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-ACTV list.vbs")
+If buttonpressed = ARST_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-ARST list.vbs")
+If buttonpressed = EOMC_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-EOMC list.vbs")
+If buttonpressed = PND2_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-PND2 list.vbs")
+If buttonpressed = REVS_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-REVS list.vbs")
+If buttonpressed = REVW_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-REVW list.vbs")
+If buttonpressed = LTC_GRH_list_generator_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - LTC-GRH list generator.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")

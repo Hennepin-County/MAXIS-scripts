@@ -194,5 +194,4 @@ If closed_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script F
 'Runs denied progs if selected
 If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
 
-
 script_end_procedure("")

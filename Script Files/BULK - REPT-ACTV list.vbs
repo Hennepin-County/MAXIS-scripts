@@ -5,17 +5,38 @@
 name_of_script = "BULK - REPT-ACTV list"
 start_time = timer
 
+'DIALOGS----------------------------------------------------------------------
+BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
+  EditBox 150, 20, 130, 15, worker_number
+  CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
+  CheckBox 10, 50, 40, 10, "Cash?", cash_check
+  CheckBox 10, 65, 40, 10, "HC?", HC_check
+  CheckBox 10, 80, 40, 10, "EA?", EA_check
+  CheckBox 10, 95, 40, 10, "GRH?", GRH_check
+  ButtonGroup ButtonPressed
+    OkButton 175, 100, 50, 15
+    CancelButton 230, 100, 50, 15
+  GroupBox 5, 20, 60, 90, "Progs to scan"
+  Text 70, 25, 65, 10, "Worker(s) to check:"
+  Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
+  Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+EndDialog
+
+'THE SCRIPT-------------------------------------------------------------------------
+
 'Connects to BlueZone
 EMConnect ""
 
 'Shows dialog
 Dialog pull_rept_data_into_Excel_dialog
-If buttonpressed = 0 then stopscript
+If buttonpressed = cancel then stopscript
 
 'Asks to grab COLA related stats (will occur below main info collection)
-COLA_stats = MsgBox("Seek COLA income-related info from ACTV cases?", 3)
-If COLA_stats = 2 then StopScript	'Cancel button from MsgBox
-If COLA_stats = 6 then collect_COLA_stats = True	'Will use this variable below
+COLA_stats = MsgBox("Seek COLA income-related info from ACTV cases?", vbYesNo)
+If COLA_stats = vbCancel then StopScript				'Cancel button from MsgBox
+If COLA_stats = vbYes then collect_COLA_stats = True	'Will use this variable below
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -123,6 +144,9 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
+			
+			'Checking for the last page of cases.
+			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 			Do			
 				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
@@ -166,7 +190,7 @@ For each worker in worker_array
 				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
-			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+			
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next

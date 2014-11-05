@@ -16,7 +16,7 @@
 '
 ''LOADING ROUTINE FUNCTIONS
 'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-'Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+'Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 'text_from_the_other_script = fso_command.ReadAll
 'fso_command.Close
 'Execute text_from_the_other_script
@@ -32,6 +32,8 @@ county_name = "Anoka County"
 case_noting_intake_dates = True
 move_verifs_needed = False
 code_from_installer = "02 - Anoka County"
+county_bndx_variance_threshold = 0
+emer_percent_rule_amt = 30
 
 'Creates a double array of county offices, first by office (using the ~), then by address line (using the |).
 county_office_array = split("2100 3rd Ave, Suite 400|Anoka, MN 55303~1201 89th Ave, Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell Road, Suite 128|Lexington, MN 55014", "~")
@@ -788,30 +790,33 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           EMReadScreen fmed_type, 2, fmed_row, 25
           EMReadScreen fmed_proof, 2, fmed_row, 32
           EMReadScreen fmed_amt, 8, fmed_row, 70
-          If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
-            fmed_proof = ", no proof provided"
-          Else
-            fmed_proof = ""
+		  EMReadScreen fmed_end_date, 5, fmed_row, 60		'reading end date to see if this one even gets added.
+		  If fmed_end_date = "__ __" then					'Skips entries with an end date.
+            If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
+              fmed_proof = ", no proof provided"
+            Else
+              fmed_proof = ""
+            End if
+            If fmed_amt = "________" then
+              fmed_amt = ""
+            Else
+              fmed_amt = " ($" & trim(fmed_amt) & ")"
+            End if
+            If fmed_type = "01" then fmed_type = "Nursing Home"
+            If fmed_type = "02" then fmed_type = "Hosp/Clinic"
+            If fmed_type = "03" then fmed_type = "Physicians"
+            If fmed_type = "04" then fmed_type = "Prescriptions"
+            If fmed_type = "05" then fmed_type = "Ins Premiums"
+            If fmed_type = "06" then fmed_type = "Dental"
+            If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
+            If fmed_type = "08" then fmed_type = "Vision Care"
+            If fmed_type = "09" then fmed_type = "Medicare Prem"
+            If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
+            If fmed_type = "11" then fmed_type = "Home Care"
+            If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
+            If fmed_type = "15" then fmed_type = "Medi Part D premium"
+            If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           End if
-          If fmed_amt = "________" then
-            fmed_amt = ""
-          Else
-            fmed_amt = " ($" & trim(fmed_amt) & ")"
-          End if
-          If fmed_type = "01" then fmed_type = "Nursing Home"
-          If fmed_type = "02" then fmed_type = "Hosp/Clinic"
-          If fmed_type = "03" then fmed_type = "Physicians"
-          If fmed_type = "04" then fmed_type = "Prescriptions"
-          If fmed_type = "05" then fmed_type = "Ins Premiums"
-          If fmed_type = "06" then fmed_type = "Dental"
-          If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
-          If fmed_type = "08" then fmed_type = "Vision Care"
-          If fmed_type = "09" then fmed_type = "Medicare Prem"
-          If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
-          If fmed_type = "11" then fmed_type = "Home Care"
-          If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
-          If fmed_type = "15" then fmed_type = "Medi Part D premium"
-          If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           fmed_row = fmed_row + 1
           If fmed_row = 15 then
             PF20
@@ -873,13 +878,15 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       INSA_name = replace(INSA_name, "_", "")
       INSA_name = split(INSA_name)
       For each word in INSA_name
-        first_letter_of_word = ucase(left(word, 1))
-        rest_of_word = LCase(right(word, len(word) -1))
-        If len(word) > 4 then
-          variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
-        Else
-          variable_written_to = variable_written_to & word & " "
-        End if
+	    If trim(word) <> "" then
+          first_letter_of_word = ucase(left(word, 1))
+          rest_of_word = LCase(right(word, len(word) -1))
+          If len(word) > 4 then
+            variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
+          Else
+            variable_written_to = variable_written_to & word & " "
+          End if
+		End if
       Next
       variable_written_to = trim(variable_written_to) & "; "
     End if
@@ -1504,7 +1511,7 @@ function log_usage_stats_without_closing 'For use when logging usage stats but t
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1825,7 +1832,7 @@ function script_end_procedure(closing_message)
 		closing_message = replace(closing_message, "'", "")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1852,7 +1859,7 @@ function script_end_procedure_wsh(closing_message) 'For use when running a scrip
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -2031,7 +2038,7 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
   End if
 End function
 
-FUNCTION write_TIKL_function
+FUNCTION write_TIKL_function(tikl_text)
 	IF len(tikl_text) <= 60 THEN
 		tikl_line_one = tikl_text
 	ELSE
