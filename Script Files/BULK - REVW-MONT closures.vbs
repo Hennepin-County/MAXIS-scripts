@@ -8,18 +8,29 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
+'USER DETERMINATION-------------------------------------------------
+'Getting network ID info for use by the next part of the script.
+Set objNet = CreateObject("WScript.NetWork") 
 
-'----------------------IT NEEDS TO CALCULATE SOME DATES AND DATE INFO
-'current_date = "07/27/2013" 'This setting should be commented out unless testing.
-current_date = date         'This should be the default setting for production.
+'Determines user to enable debugging features. Add individuals to this if...then to include them with developer mode.
+If ucase(objNet.UserName) = "PWVKC45" or _
+  ucase(objNet.UserName) = "VKC" then 
+	inquiry_testing = MsgBox("Developer " & ucase(objNet.UserName) & " detected. Enable inquiry testing and bypass date restrictions?", vbYesNoCancel)
+End if
 
-If datepart("m", dateadd("d", 8, current_date)) = datepart("m", current_date) then script_end_procedure("This script cannot be run until the last week of the month.")
+'If cancelled...
+If inquiry_testing = vbCancel then stopscript
 
+'There's a date restriction on this script: it should only run the last week of the month.
+'If inquiry_testing = vbYes, it should bypass this restriction. Otherwise, it should filter through.
+'Because of that, I've included "if inquiry_testing <> vbYes" at the beginning of my date restriction.
+If inquiry_testing <> vbYes and datepart("m", dateadd("d", 8, date)) = datepart("m", date) then script_end_procedure("This script cannot be run until the last week of the month.")
+
+'Date calculations
 footer_month = datepart("m", dateadd("m", 1, date))
 if len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = datepart("yyyy", dateadd("m", 1, date))
 footer_year = footer_year - 2000
-
 
 '----------------------THIS IS THE DIALOG FOR THE SCRIPT
 BeginDialog REVW_MONT_closures_dialog, 0, 0, 256, 110, "REVW/MONT closures"
@@ -35,19 +46,16 @@ BeginDialog REVW_MONT_closures_dialog, 0, 0, 256, 110, "REVW/MONT closures"
   GroupBox 5, 60, 150, 45, "Case note closing/incomplete cases from:"
 EndDialog
 
-
-
-
 '----------------------CONNECTING TO BLUEZONE, RUNNING THE DIALOG, AND NAVIGATING TO REPT/REVW
 EMConnect ""
 Do
-  Do
-    Dialog REVW_MONT_closures_dialog
-    If ButtonPressed = 0 then StopScript 'Cancel button
-    If worker_number <> "" then worker_number = ucase(worker_number)
-    If len(worker_number) <> 3 then MsgBox "You must enter the last three digits of your " & county_worker_code & "# (and just the last three digits)."
-  Loop until len(worker_number) = 3
-  If worker_signature = "" then MsgBox "You must sign your case note."
+	Do
+		Dialog REVW_MONT_closures_dialog
+		If ButtonPressed = 0 then StopScript 'Cancel button
+		If worker_number <> "" then worker_number = ucase(worker_number)
+		If len(worker_number) <> 3 then MsgBox "You must enter the last three digits of your " & county_worker_code & "# (and just the last three digits)."
+	Loop until len(worker_number) = 3
+	If worker_signature = "" then MsgBox "You must sign your case note."
 Loop until worker_signature <> ""
 
 transmit 'It transmits to check for MAXIS.
@@ -55,7 +63,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found. You may be passworded out. Try it again.")
 
 'THIS PART DOES THE REPT REVW----------------------------------------------------------------------------------------------------
-If revw_check = 1 then 
+If revw_check = checked then 
   call navigate_to_screen("rept", "revw")
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
@@ -142,22 +150,36 @@ If revw_check = 1 then
     End If
 
   '---------------NOW IT CASE NOTES
-    PF4
-    PF9
-  
-    If HC_review_code = "I" or FS_review_code = "I" or WB_review_code = "I" or cash_review_code = "I" then
-      call write_new_line_in_case_note("---Programs closing for incomplete review---")
-    Else
-      call write_new_line_in_case_note("---Programs closing for no review---")
-    End if
-    If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
-    If WB_review_status <> "" then call write_editbox_in_case_note("WB", WB_review_status, 5)
-    If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
-    If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
-    If last_day_to_turn_in_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_docs & " to turn in review doc and/or proofs.")
-    If intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply after " & intake_date & ".")
-    call write_new_line_in_case_note("---")
-    call write_new_line_in_case_note(worker_signature & ", via automated script.")
+    If inquiry_testing <> vbYes then
+	
+		PF4
+		PF9
+	  
+		If HC_review_code = "I" or FS_review_code = "I" or WB_review_code = "I" or cash_review_code = "I" then
+		  call write_new_line_in_case_note("---Programs closing for incomplete review---")
+		Else
+		  call write_new_line_in_case_note("---Programs closing for no review---")
+		End if
+		If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
+		If WB_review_status <> "" then call write_editbox_in_case_note("WB", WB_review_status, 5)
+		If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
+		If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
+		If last_day_to_turn_in_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_docs & " to turn in review doc and/or proofs.")
+		If intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply after " & intake_date & ".")
+		call write_new_line_in_case_note("---")
+		call write_new_line_in_case_note(worker_signature & ", via automated script.")
+	
+	Else	'special handling for inquiry_testing (developers testing scenarios)
+		string_for_msgbox = 	"Cash: " & cash_review_status & chr(10) & _
+								"WB: " & WB_review_status & chr(10) & _
+								"SNAP: " & FS_review_status & chr(10) & _
+								"HC: " & HC_review_status & chr(10) & _
+								"Last doc date: " & last_day_to_turn_in_docs & chr(10) & _
+								"Intake date: " & intake_date
+		debugging_MsgBox = MsgBox(string_for_msgbox, vbOKCancel)
+		If debugging_MsgBox = vbCancel then stopscript
+	End if
+	
 
   '----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
     cash_review_code = ""
