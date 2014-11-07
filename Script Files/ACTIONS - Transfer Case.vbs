@@ -16,36 +16,32 @@ BeginDialog xfer_menu_dialog, 0, 0, 156, 80, "Case XFER"
   Text 10, 10, 125, 10, "Please select transfer type..."
 EndDialog
 
-BeginDialog out_of_county_dlg, 0, 0, 206, 295, "Case Transfer"
+BeginDialog out_of_county_dlg, 0, 0, 206, 270, "Case Transfer"
   EditBox 60, 5, 50, 15, case_number
   EditBox 125, 30, 65, 15, transfer_to
   CheckBox 5, 55, 190, 10, "Check here if the client is active on HC through MNSure", mnsure_active_check
   CheckBox 5, 70, 190, 10, "Check here if the client is active on Minnesota Care", mcre_active_check
   CheckBox 5, 85, 200, 10, "Check here if the client has a pending MNSure application", mnsure_pend_check
-  CheckBox 5, 100, 200, 10, "Check here if you have sent the DHS 3195 transfer form.", transfer_form_check
-  CheckBox 5, 115, 195, 10, "Check here to add a programs closure date to the MEMO", closure_date_check
-  EditBox 100, 130, 55, 15, closure_date
-  EditBox 80, 150, 45, 15, cl_move_date
-  EditBox 80, 170, 45, 15, crf_sent_date
-  DropListBox 65, 190, 40, 15, "No"+chr(9)+"Yes", excluded_time
-  EditBox 155, 190, 45, 15, excl_date
-  EditBox 75, 210, 120, 15, Transfer_reason
-  EditBox 70, 230, 125, 15, Action_to_be_taken
-  EditBox 70, 250, 125, 15, worker_signature
+  CheckBox 5, 100, 200, 10, "Check here if you have sent the DHS 3195 transfer form", transfer_form_check
+  CheckBox 5, 115, 175, 10, "Check here if you sent the Change Report Form", crf_sent_check
+  CheckBox 5, 130, 195, 10, "Check here to add a programs closure date to the MEMO", closure_date_check
+  EditBox 80, 145, 45, 15, cl_move_date
+  DropListBox 65, 165, 40, 15, "No"+chr(9)+"Yes", excluded_time
+  EditBox 155, 165, 45, 15, excl_date
+  EditBox 75, 185, 120, 15, Transfer_reason
+  EditBox 70, 205, 125, 15, Action_to_be_taken
+  EditBox 70, 225, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 45, 275, 50, 15
-    CancelButton 100, 275, 50, 15
-    PushButton 160, 135, 35, 10, "CLS Date", close_button
-  Text 5, 175, 70, 10, "Change Report Sent"
-  Text 5, 195, 55, 10, "Excluded time?"
-  Text 115, 195, 40, 10, "Begin Date"
-  Text 5, 215, 70, 10, "Reason for Transfer:"
-  Text 5, 235, 65, 10, "Actions to be taken:"
-  Text 5, 255, 60, 10, "Worker Signature:"
+    OkButton 50, 250, 50, 15
+    CancelButton 100, 250, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
-  Text 20, 135, 75, 10, "Program closure date:"
   Text 5, 30, 110, 20, "Worker number/Agency you're transferring to  (x###### format)"
-  Text 5, 155, 60, 10, "Client Move Date"
+  Text 5, 150, 60, 10, "Client Move Date"
+  Text 5, 170, 55, 10, "Excluded time?"
+  Text 115, 170, 40, 10, "Begin Date"
+  Text 5, 190, 70, 10, "Reason for Transfer:"
+  Text 5, 210, 65, 10, "Actions to be taken:"
+  Text 5, 230, 60, 10, "Worker Signature:"
 EndDialog
 
 BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
@@ -155,21 +151,13 @@ DIALOG xfer_menu_dialog
 
 		script_end_procedure("")
 	
-	ELSEIF XFERRadioGroup = 1 THEN	
+	ELSEIF XFERRadioGroup = 1 THEN
+
 	DO
 		DO
 			DO
-				DO
-					DIALOG out_of_county_dlg
+				DIALOG out_of_county_dlg
 					IF ButtonPressed = 0 THEN stopscript
-						IF ButtonPressed = close_button THEN
-							IF (closure_date <> "" OR isdate(closure_date) = False) THEN closure_date = ""
-							closure_date = dateadd("m", 1, date)
-							closure_date = datepart("M", closure_date) & "/01/" & datepart("YYYY", closure_date)
-							IF datediff("d", date, closure_date) < 10 THEN closure_date = dateadd("m", 1, closure_date)
-							closure_date = dateadd("d", -1, closure_date) & ""
-						END IF
-				LOOP UNTIL ButtonPressed = -1
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
 				call navigate_to_screen("STAT", "PROG")
@@ -178,20 +166,16 @@ DIALOG xfer_menu_dialog
 					EMReadScreen snap_status, 4, 10, 74
 					EMReadScreen hc_status, 4, 12, 74
 
-					IF closure_date <> "" AND isdate(closure_date) = False THEN MsgBox "Please enter a valid closure date. This must be the end of a month."
-					IF isdate(closure_date) = true THEN				
-						If datepart("d", dateadd("d", 1, closure_date)) <> 1 then MsgBox "Please use the last date of eligibility, which for an open case, should be the last day of the month."
-					ELSE
-						closure_date = "0"
-					END IF
 					IF excluded_time = "Yes" AND isdate(excl_date) = FALSE THEN MsgBox "Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
-					IF isdate(crf_sent_date) = FALSE THEN MsgBox "Please enter information about the Change Report being sent."
 					IF isdate(cl_move_date) = FALSE THEN MsgBox "Please enter a valid date for client move."
 					IF ucase(left(transfer_to, 4)) = ucase(worker_county_code) THEN MsgBox "You must use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
 					IF (hc_status = "ACTV" AND excluded_time = "") THEN MsgBox "Please select whether the client is on excluded time."
-					IF len(transfer_to) <> 7 THEN MsgBox "Please select a valid worker or agency to receive the case (proper format = x######)."
-					
-			LOOP UNTIL (closure_date = "" OR (isdate(closure_date) = True AND datepart("d", dateadd("d", 1, closure_date)) = 1)) AND ((HC_status <> "ACTV") OR (hc_status = "ACTV" AND excluded_time = "No") OR (HC_status = "ACTV" AND excluded_time = "Yes" AND isdate(excl_date) = TRUE)) AND isdate(crf_sent_date) = TRUE AND isdate(cl_move_date) = TRUE AND len(transfer_to) = 7 AND (ucase(left(transfer_to, 4)) <> ucase(worker_county_code))
+					IF len(transfer_to) <> 7 THEN MsgBox "Please select a valid worker or agency to receive the case (proper format = x######)."	
+
+			LOOP UNTIL ((HC_status <> "ACTV") OR (hc_status = "ACTV" AND excluded_time = "No") OR (HC_status = "ACTV" AND excluded_time = "Yes" AND isdate(excl_date) = TRUE)) AND _
+			(isdate(cl_move_date) = TRUE) AND _
+			(len(transfer_to) = 7) AND _
+			(ucase(left(transfer_to, 4)) <> ucase(worker_county_code))
 
 			'----------Checks that the worker or agency is valid----------
 			call navigate_to_screen("REPT", "USER")
@@ -202,6 +186,16 @@ DIALOG xfer_menu_dialog
 				IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
 				IF worker_found = "NO WORKER FOUND" THEN MsgBox "The worker or agency selected does not exist. Please try again."
 		LOOP UNTIL inactive_worker <> "INACTIVE" AND worker_found <> "NO WORKER FOUND"
+
+		IF closure_date_check = checked THEN
+			closure_date = dateadd("m", 1, date)
+			closure_date = datepart("M", closure_date) & "/01/" & datepart("YYYY", closure_date)
+			IF datediff("d", date, closure_date) < 10 THEN 
+				closure_date = dateadd("m", 1, closure_date)
+			END IF
+			closure_date = dateadd("d", -1, closure_date)
+		END IF
+
 
 		EMWriteScreen "X", 7, 3
 		transmit
@@ -228,11 +222,13 @@ DIALOG xfer_menu_dialog
 			cl_move_day = right(left(cl_move_dt, 4), 2)
 			cl_move_year = right(cl_move_dt, 2)
 
-		crf_sent_dt = cdate(crf_sent_date)
-		crf_sent_dt = replace(crf_sent_dt, "/", "")
-			crf_sent_month = left(crf_sent_dt, 2)
-			crf_sent_day = right(left(crf_sent_dt, 4), 2)
-			crf_sent_year = right(crf_sent_dt, 2)
+		IF crf_sent_check = checked THEN
+			crf_sent_month = datepart("M", date)
+				IF len(crf_sent_month) = 1 THEN crf_sent_month = "0" & crf_sent_month
+			crf_sent_day = datepart("D", date)
+				IF len(crf_sent_day) = 1 THEN crf_sent_day = "0" & crf_sent_day
+			crf_sent_year = right(datepart("YYYY", date), 2)
+		END IF
 
 		IF excluded_time = "Yes" THEN
 			excl_dt = cdate(excl_date)
@@ -289,7 +285,7 @@ DIALOG xfer_menu_dialog
 		memo_line = memo_line + 2
 		EMWriteScreen "If you fail to provide required proofs to your new worker", memo_line, 15
 		memo_line = memo_line + 1
-		EMWriteScreen (" or agency then your benefits will close on " & closure_date & "."), memo_line, 15
+		EMWriteScreen ("or agency then your benefits will close on " & closure_date & "."), memo_line, 15
 	END IF
 
 	PF4
@@ -303,16 +299,16 @@ DIALOG xfer_menu_dialog
 
 		IF SNAP_status = "PEND" THEN pend_programs = pend_programs & "SNAP/"
 		IF hc_status = "PEND" THEN pend_programs = pend_programs & "HC/"
-		IF cash_pend_check = 1 THEN pend_programs = pend_programs & "CASH/"
+		IF cash_pend_check = checked THEN pend_programs = pend_programs & "CASH/"
 
 	call write_new_line_in_case_note("**CASE TRANSFER TO " & ucase(transfer_to) & "**")
 	IF active_programs <> "" THEN call write_editbox_in_case_note("Active Programs", (left(active_programs, (len(active_programs) - 1))), 6)
-	IF mnsure_active_check = 1 THEN call write_new_line_in_case_note("* CL is active on HC through MNSure")
-	IF mcre_active_check = 1 THEN call write_new_line_in_case_note("* CL is active on HC through Minnesota Care")
+	IF mnsure_active_check = checked THEN call write_new_line_in_case_note("* CL is active on HC through MNSure")
+	IF mcre_active_check = checked THEN call write_new_line_in_case_note("* CL is active on HC through Minnesota Care")
 	IF pend_programs <> "" THEN call write_editbox_in_case_note("Pending Programs", (left(active_programs, (len(active_programs) - 1))), 6)
-	IF mnsure_pend_check = 1 THEN call write_new_line_in_case_note("* CL has pending HC application through MNSure")
+	IF mnsure_pend_check = checked THEN call write_new_line_in_case_note("* CL has pending HC application through MNSure")
 	call write_editbox_in_case_note("CL Move Date", cl_move_date, 6)
-	call write_editbox_in_case_note("Change Report Sent", crf_sent_date, 6)
+	IF crf_sent_check = checked THEN call write_editbox_in_case_note("Change Report Sent", crf_sent_date, 6)
 	IF excluded_time = "Yes" THEN
 		excluded_time = excluded_time & ", Begins " & excl_date
 		call write_editbox_in_case_note("Excluded Time" , excluded_time, 6)
@@ -332,11 +328,10 @@ DIALOG xfer_menu_dialog
 	IF closure_date_check = checked THEN call write_new_line_in_case_note("* CL has until " & closure_date & " to provide required proofs or the case will close.")
 	call write_editbox_in_case_note("Reason for Transfer", Transfer_reason, 6)
 	call write_editbox_in_case_note("Actions to be Taken", Action_to_be_taken, 6)
-	If transfer_form_check = 1 THEN call write_new_line_in_case_note("DHS 3195 Inter Agency Case Transfer Form completed and sent.")
+	If transfer_form_check = checked THEN call write_new_line_in_case_note("DHS 3195 Inter Agency Case Transfer Form completed and sent.")
 	call write_new_line_in_case_note("---")
 	call write_new_line_in_case_note(worker_signature)
 	PF3	
-
 
 
 	'----------The business end of the script (DON'T POINT THIS SCRIPT AT ANYTHING YOU DON'T WANT TRANSFERRED!!)----------
@@ -348,9 +343,11 @@ DIALOG xfer_menu_dialog
 	EMWriteScreen cl_move_month, 4, 28
 	EMWriteScreen cl_move_day, 4, 31
 	EMWriteScreen cl_move_year, 4, 34
-	EMWriteScreen crf_sent_month, 4, 61
-	EMWriteScreen crf_sent_day, 4, 64
-	EMWriteScreen crf_sent_year, 4, 67
+	IF crf_sent_check = checked THEN
+		EMWriteScreen crf_sent_month, 4, 61
+		EMWriteScreen crf_sent_day, 4, 64
+		EMWriteScreen crf_sent_year, 4, 67
+	END IF
 	EMWriteScreen left(excluded_time, 1), 5, 28
 	IF excluded_time = "Yes" THEN
 		EMWriteScreen excl_month, 6, 28
@@ -384,6 +381,7 @@ DIALOG xfer_menu_dialog
 	EMWriteScreen transfer_to, 18, 61
 
 	transmit
+	IF crf_sent_check = unchecked THEN transmit
 
 	script_end_procedure("")
 	
