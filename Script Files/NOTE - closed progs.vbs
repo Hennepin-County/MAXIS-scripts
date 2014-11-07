@@ -79,7 +79,7 @@ Do
           If ButtonPressed = SPEC_WCOM_button then call navigate_to_screen("spec", "wcom")
         Loop until ButtonPressed = -1
         If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."
-        IF (death_check = 1 AND isdate(hc_close_for_death_date) = TRUE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
+        IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
 	  IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN MsgBox "Please check the box for client death."
       Loop until isdate(closure_date) = True AND ((death_check = 1 AND isdate(hc_close_for_death_date) = TRUE) OR (death_check <> 1 AND hc_close_for_death_date = ""))
       If datepart("d", dateadd("d", 1, closure_date)) <> 1 then MsgBox "Please use the last date of eligibility, which for an open case, should be the last day of the month. If this is a denial, use the denial script."
