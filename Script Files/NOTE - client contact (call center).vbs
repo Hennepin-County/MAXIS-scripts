@@ -37,3 +37,64 @@ BeginDialog contact_dialog, 0, 0, 386, 175, "Client contact"
   Text 5, 120, 45, 10, "Other action: "
   Text 235, 140, 70, 10, "Sign your case note: "
 EndDialog
+
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+
+
+'Connects to BlueZone
+EMConnect ""
+
+'Finds the case number
+row = 1
+col = 1
+EMSearch "Case Nbr:", row, col
+If row <> 0 then 
+  EMReadScreen case_number, 8, row, col + 10
+  case_number = replace(case_number, "_", "")
+  case_number = trim(case_number)
+End if
+
+'Updates the "when contact was made" variable to show the current time
+when_contact_was_made = date & ", " & left(time, 5) & " " & right(time, 2)
+
+'Shows the dialog
+Do
+  Do
+    Do
+      Dialog contact_dialog
+      If buttonpressed = 0 then stopscript
+      If isnumeric(case_number) = False then MsgBox "You must enter a valid MAXIS case number."
+    Loop until (isnumeric(case_number) = True) 
+    transmit
+    If isnumeric(case_number) = True then
+      EMReadScreen MAXIS_check, 5, 1, 39
+      If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your screen to MAXIS and try again. You might be passworded out."
+    End if
+  Loop until MAXIS_check = "MAXIS"
+  call navigate_to_screen("case", "note")
+  PF9
+  EMReadScreen mode_check, 7, 20, 3
+  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
+Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+
+'Case noting
+EMSendKey "Call center received phone call from " & who_contacted
+If regarding <> "" then EMSendKey " re: " & regarding 
+EMSendKey "<newline>"
+If when_contact_was_made <> "" then Call write_editbox_in_case_note("Contact made", when_contact_was_made, 6)
+If phone_number <> "" then Call write_editbox_in_case_note("Phone number", phone_number, 6)
+If issue <> "" then Call write_editbox_in_case_note("Issue/subject", issue, 6)
+If answered_question_check = 1 then call write_new_line_in_case_note("* Call center was able to answer client question.")
+If transferred_question_check = 1 then call write_new_line_in_case_note("* Call center was unable to answer client question, transferred to worker.")
+If caf_1_check = 1 then call write_new_line_in_case_note("* Reminded client about the importance of completing the CAF 1.")
+If other_action <> "" then Call write_editbox_in_case_note("Other actions", other_action, 6)
+Call write_new_line_in_case_note("---")
+Call write_new_line_in_case_note(worker_signature)
+script_end_procedure("")
+
+
+
+
+
+
