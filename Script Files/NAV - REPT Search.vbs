@@ -29,10 +29,12 @@ EMConnect ""
 
 maxis_check_function
 
+'Shows dialog, requires length to be 7, or if it's 3, will add the worker_county_code in.
 DO
-  DIALOG search_dialog
-  IF ButtonPressed = 0 THEN stopscript
-  IF len(case_load_look_up) = 3 THEN case_load_look_up = worker_county_code & case_load_look_up
+	DIALOG search_dialog
+	IF ButtonPressed = 0 THEN stopscript
+	IF len(case_load_look_up) = 3 THEN case_load_look_up = worker_county_code & case_load_look_up
+	If len(case_load_look_up) <> 7 then MsgBox("You must enter in a seven digit worker number. Please try again.")
 LOOP UNTIL case_load_look_up = "" OR (len(case_load_look_up) = 7 AND (ucase(LEFT(case_load_look_up, 1) = "X") or lcase(LEFT(case_load_look_up, 1) = "x")))
 
 person_look_up = UCASE(person_look_up)
@@ -40,122 +42,125 @@ search_length = len(person_look_up)
 
 '========== Checks REPT/ACTV ==========
 IF search_where = "REPT/ACTV" THEN 
-  Call navigate_to_screen("rept", "actv")
-  IF case_load_look_up <> "" THEN
-    EMWriteScreen case_load_look_up, 21, 13
-    transmit
-  END IF
-
-  IF len(person_look_up) > 8 THEN person_look_up = left(person_look_up, 8)
-  EMWriteScreen person_look_up, 21, 33
-  transmit
-  script_end_procedure("REPT/ACTV Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
+	Call navigate_to_screen("rept", "actv")
+	IF case_load_look_up <> "" THEN
+		EMWriteScreen case_load_look_up, 21, 13
+		transmit
+	END IF
+	
+	IF len(person_look_up) > 8 THEN person_look_up = left(person_look_up, 8)
+	EMWriteScreen person_look_up, 21, 33
+	transmit
+	MsgBox("REPT/ACTV Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
 END IF
 
 '========== Checks REPT/INAC ==========
 IF search_where = "REPT/INAC" THEN
-  Call navigate_to_screen("rept", "inac")
-  IF case_load_look_up <> "" THEN
-    EMWriteScreen case_load_look_up, 21, 16
-    transmit
-  END IF
+	Call navigate_to_screen("rept", "inac")
+	IF case_load_look_up <> "" THEN
+		EMWriteScreen case_load_look_up, 21, 16
+		transmit
+	END IF
 
-  DO
-    MAXIS_row = 7
-    EMReadScreen last_page_check, 21, 24, 2
-    DO
-      EMReadScreen client_name, 24, MAXIS_row, 14
-      client_name = left(client_name, search_length)
-      IF person_look_up = client_name THEN
-        EMReadScreen full_name, 24, MAXIS_row, 14
-        EMReadScreen case_number, 8, MAXIS_row, 3
-        script_end_procedure("REPT/INAC Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
-      ELSE
-        MAXIS_row = MAXIS_row + 1
-      END IF
-    LOOP UNTIL MAXIS_row = 19
-    PF8
-    IF last_page_check = "THIS IS THE LAST PAGE" & client_name <> person_look_up THEN script_end_procedure("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
-  LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
+	DO
+		MAXIS_row = 7
+		EMReadScreen last_page_check, 21, 24, 2
+		DO
+			EMReadScreen client_name, 24, MAXIS_row, 14
+			client_name = left(client_name, search_length)
+			IF person_look_up = client_name THEN
+				EMReadScreen full_name, 24, MAXIS_row, 14
+				EMReadScreen case_number, 8, MAXIS_row, 3
+				MsgBox("REPT/INAC Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
+			ELSE
+				MAXIS_row = MAXIS_row + 1
+			END IF
+		LOOP UNTIL MAXIS_row = 19
+		PF8
+		IF last_page_check = "THIS IS THE LAST PAGE" & client_name <> person_look_up THEN MsgBox("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
+	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
 END IF
 
 '========== Checks REPT/PND1 ==========
 IF search_where = "REPT/PND1" THEN
-  Call navigate_to_screen("rept", "pnd1")
-  IF case_load_look_up <> "" THEN
-    EMWriteScreen case_load_look_up, 21, 13
-    transmit
-  END IF
+	Call navigate_to_screen("rept", "pnd1")
+	IF case_load_look_up <> "" THEN
+		EMWriteScreen case_load_look_up, 21, 13
+		transmit
+	END IF
 
-  DO
-    MAXIS_row = 7
-    EMReadScreen last_page_check, 21, 24, 2
-    DO
-      EMReadScreen client_name, 24, MAXIS_row, 14
-      client_name = left(client_name, search_length)
-      IF person_look_up = client_name THEN
-        EMReadScreen full_name, 24, MAXIS_row, 14
-        EMReadScreen case_number, 8, MAXIS_row, 3
-        script_end_procedure("REPT/INAC Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
-      ELSE
-        MAXIS_row = MAXIS_row + 1
-      END IF
-    LOOP UNTIL MAXIS_row = 19
-    PF8
-    IF last_page_check = "THIS IS THE LAST PAGE" & client_name <> person_look_up THEN script_end_procedure("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
-  LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
+	DO
+		MAXIS_row = 7
+		EMReadScreen last_page_check, 21, 24, 2
+		DO
+			EMReadScreen client_name, 24, MAXIS_row, 14
+			client_name = left(client_name, search_length)
+			IF person_look_up = client_name THEN
+				EMReadScreen full_name, 24, MAXIS_row, 14
+				EMReadScreen case_number, 8, MAXIS_row, 3
+				MsgBox("REPT/PND1 Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
+			ELSE
+				MAXIS_row = MAXIS_row + 1
+			END IF
+		LOOP UNTIL MAXIS_row = 19
+		PF8
+		IF last_page_check = "THIS IS THE LAST PAGE" & client_name <> person_look_up THEN MsgBox("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
+	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
 END IF
 
 '========== Checks REPT/PND2 ==========
 IF search_where = "REPT/PND2" THEN
-  Call navigate_to_screen("rept", "pnd2")
-  IF case_load_look_up <> "" THEN
-    EMWriteScreen case_load_look_up, 21, 13
-    transmit
-  END IF
+	Call navigate_to_screen("rept", "pnd2")
+		IF case_load_look_up <> "" THEN
+			EMWriteScreen case_load_look_up, 21, 13
+			transmit
+		END IF
 
-  DO
-    MAXIS_row = 7
-    EMReadScreen last_page_check, 21, 24, 2
-    DO
-      EMReadScreen client_name, 24, MAXIS_row, 16
-      client_name = left(client_name, search_length)
-      IF person_look_up = client_name THEN
-        EMReadScreen full_name, 24, MAXIS_row, 16
-        EMReadScreen case_number, 8, MAXIS_row, 5
-        script_end_procedure("REPT/INAC Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
-      ELSE
-        MAXIS_row = MAXIS_row + 1
-      END IF
-    LOOP UNTIL MAXIS_row = 19
-    PF8
-    IF last_page_check = "THIS IS THE LAST PAGE" AND client_name <> person_look_up THEN script_end_procedure("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
-  LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
+	DO
+		MAXIS_row = 7
+		EMReadScreen last_page_check, 21, 24, 2
+		DO
+			EMReadScreen client_name, 24, MAXIS_row, 16
+			client_name = left(client_name, search_length)
+			IF person_look_up = client_name THEN
+				EMReadScreen full_name, 24, MAXIS_row, 16
+				EMReadScreen case_number, 8, MAXIS_row, 5
+				MsgBox("REPT/PND2 Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
+			ELSE
+				MAXIS_row = MAXIS_row + 1
+			END IF
+		LOOP UNTIL MAXIS_row = 19
+		PF8
+		IF last_page_check = "THIS IS THE LAST PAGE" AND client_name <> person_look_up THEN MsgBox("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
+	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
 END IF
 
 '========== Checks REPT/REVW ==========
 IF search_where = "REPT/REVW" THEN
-  Call navigate_to_screen("rept", "REVW")
-  IF case_load_look_up <> "" THEN
-    EMWriteScreen case_load_look_up, 21, 6
-    transmit
-  END IF
+	Call navigate_to_screen("rept", "REVW")
+	IF case_load_look_up <> "" THEN
+		EMWriteScreen case_load_look_up, 21, 6
+		transmit
+	END IF
 
-  DO
-    MAXIS_row = 7
-    EMReadScreen last_page_check, 21, 24, 2
-    DO
-      EMReadScreen client_name, 24, MAXIS_row, 16
-      client_name = left(client_name, search_length)
-      IF person_look_up = client_name THEN
-        EMReadScreen full_name, 24, MAXIS_row, 16
-        EMReadScreen case_number, 8, MAXIS_row, 6
-        script_end_procedure("REPT/INAC Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
-      ELSE
-        MAXIS_row = MAXIS_row + 1
-      END IF
-    LOOP UNTIL MAXIS_row = 19
-    PF8
-    IF last_page_check = "THIS IS THE LAST PAGE" & client_name <> person_look_up THEN script_end_procedure("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
-  LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
+	DO
+		MAXIS_row = 7
+		EMReadScreen last_page_check, 21, 24, 2
+		DO
+			EMReadScreen client_name, 24, MAXIS_row, 16
+			client_name = left(client_name, search_length)
+			IF person_look_up = client_name THEN
+				EMReadScreen full_name, 24, MAXIS_row, 16
+				EMReadScreen case_number, 8, MAXIS_row, 6
+				MsgBox("REPT/REVW Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
+			ELSE
+				MAXIS_row = MAXIS_row + 1
+			END IF
+		LOOP UNTIL MAXIS_row = 19
+		PF8
+		IF last_page_check = "THIS IS THE LAST PAGE" & client_name <> person_look_up THEN MsgBox("Your search yielded no successful hits in " & search_where & ". You may want to check another REPT or the spelling of the client's name.")
+	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" or client_name = person_look_up
 END IF
+
+'Ends script (and writes stats if stats_collection = True on FUNCTIONS FILE
+script_end_procedure("")
