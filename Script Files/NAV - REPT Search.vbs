@@ -1,7 +1,7 @@
 'This script can be used to look up clients in the REPT/ACTV. This could be useful when checking voicemails if the client garbles their name or has a difficult name to look up or if you just want an easier way of checking your REPT screens.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BETA - NAV - REPT Search"
+name_of_script = "NAV - REPT Search"
 start_time = timer
 
 
