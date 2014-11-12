@@ -5,6 +5,9 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
+'VARIABLES TO DECLARE----------------------------------------------------------------------------
+SPEC_MEMO_check = checked		'Should default to checked, as we usually want to send a new worker memo
+
 '----------DIALOGS----------
 BeginDialog xfer_menu_dialog, 0, 0, 156, 80, "Case XFER"
   OptionGroup XFERRadioGroup
@@ -16,33 +19,35 @@ BeginDialog xfer_menu_dialog, 0, 0, 156, 80, "Case XFER"
   Text 10, 10, 125, 10, "Please select transfer type..."
 EndDialog
 
-BeginDialog out_of_county_dlg, 0, 0, 206, 270, "Case Transfer"
+BeginDialog out_of_county_dlg, 0, 0, 236, 280, "Case Transfer"
   EditBox 60, 5, 50, 15, case_number
-  EditBox 125, 30, 65, 15, transfer_to
-  CheckBox 5, 55, 190, 10, "Check here if the client is active on HC through MNSure", mnsure_active_check
-  CheckBox 5, 70, 190, 10, "Check here if the client is active on Minnesota Care", mcre_active_check
-  CheckBox 5, 85, 200, 10, "Check here if the client has a pending MNSure application", mnsure_pend_check
-  CheckBox 5, 100, 200, 10, "Check here if you have sent the DHS 3195 transfer form", transfer_form_check
-  CheckBox 5, 115, 175, 10, "Check here if you sent the Change Report Form", crf_sent_check
-  CheckBox 5, 130, 195, 10, "Check here to add a programs closure date to the MEMO", closure_date_check
-  EditBox 80, 145, 45, 15, cl_move_date
-  DropListBox 65, 165, 40, 15, "No"+chr(9)+"Yes", excluded_time
-  EditBox 155, 165, 45, 15, excl_date
-  EditBox 75, 185, 120, 15, Transfer_reason
-  EditBox 70, 205, 125, 15, Action_to_be_taken
-  EditBox 70, 225, 125, 15, worker_signature
+  EditBox 115, 30, 65, 15, transfer_to
+  CheckBox 5, 55, 190, 10, "Check here if the client is active on HC through MNSure.", mnsure_active_check
+  CheckBox 5, 70, 190, 10, "Check here if the client is active on Minnesota Care.", mcre_active_check
+  CheckBox 5, 85, 200, 10, "Check here if the client has a pending MNSure application.", mnsure_pend_check
+  CheckBox 5, 100, 200, 10, "Check here if you have sent the DHS 3195 transfer form.", transfer_form_check
+  CheckBox 5, 115, 175, 10, "Check here if you sent the Change Report Form.", crf_sent_check
+  CheckBox 5, 130, 230, 10, "Check here to send a SPEC/MEMO to the client with new worker info.", SPEC_MEMO_check
+  CheckBox 5, 145, 195, 10, "Check here to add a programs closure date to the MEMO.", closure_date_check
+  EditBox 80, 160, 45, 15, cl_move_date
+  DropListBox 65, 180, 40, 15, "No"+chr(9)+"Yes", excluded_time
+  EditBox 155, 180, 45, 15, excl_date
+  EditBox 75, 200, 155, 15, Transfer_reason
+  EditBox 70, 220, 160, 15, Action_to_be_taken
+  EditBox 70, 240, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 50, 250, 50, 15
-    CancelButton 100, 250, 50, 15
+    OkButton 65, 260, 50, 15
+    CancelButton 120, 260, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
   Text 5, 30, 110, 20, "Worker number/Agency you're transferring to  (x###### format)"
-  Text 5, 150, 60, 10, "Client Move Date"
-  Text 5, 170, 55, 10, "Excluded time?"
-  Text 115, 170, 40, 10, "Begin Date"
-  Text 5, 190, 70, 10, "Reason for Transfer:"
-  Text 5, 210, 65, 10, "Actions to be taken:"
-  Text 5, 230, 60, 10, "Worker Signature:"
+  Text 5, 165, 60, 10, "Client Move Date"
+  Text 5, 185, 55, 10, "Excluded time?"
+  Text 115, 185, 40, 10, "Begin Date"
+  Text 5, 205, 70, 10, "Reason for Transfer:"
+  Text 5, 225, 65, 10, "Actions to be taken:"
+  Text 5, 245, 60, 10, "Worker Signature:"
 EndDialog
+
 
 BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   EditBox 65, 10, 50, 15, case_number
@@ -82,12 +87,12 @@ maxis_check_function
 DIALOG xfer_menu_dialog
 	IF ButtonPressed = 0 THEN stopscript
 
-	IF XFERRadioGroup = 0 THEN
+IF XFERRadioGroup = 0 THEN
 			'Finds the case number
-		call find_variable("Case Nbr: ", case_number, 8)
-		case_number = trim(case_number)
-		case_number = replace(case_number, "_", "")
-		If IsNumeric(case_number) = False then case_number = ""
+	call find_variable("Case Nbr: ", case_number, 8)
+	case_number = trim(case_number)
+	case_number = replace(case_number, "_", "")
+	If IsNumeric(case_number) = False then case_number = ""
 
 		'Displays the dialog and navigates to case note
 		Do
@@ -247,48 +252,50 @@ DIALOG xfer_menu_dialog
 	PF3
 
 	'----------Sending the CL a SPEC/MEMO notifying them of the details of the transfer----------
-	call navigate_to_screen("SPEC", "MEMO")
-	PF5
-	EMWriteScreen "X", 5, 10
-	transmit
-
-	EMWriteScreen "Your case has been transferred. Your new worker/agency is:", 3, 15
-	memo_line = 5
-	IF worker_agency_name <> "" THEN
-		EMWriteScreen ("  " & worker_agency_name), memo_line, 15
-		memo_line = memo_line + 1
-	END IF
-	IF mail_addr_line_one <> "" THEN
-		EMWriteScreen ("  " & mail_addr_line_one), memo_line, 15
-		memo_line = memo_line + 1
-	END IF
-	IF mail_addr_line_two <> "" THEN
-		EMWriteScreen ("  " & mail_addr_line_two), memo_line, 15
-		memo_line = memo_line + 1
-	END IF
-	IF mail_addr_line_three <> "" THEN
-		EMWriteScreen ("  " & mail_addr_line_three), memo_line, 15
-		memo_line = memo_line + 1
-	END IF
-	IF mail_addr_line_four <> "" THEN
-		EMWriteScreen ("  " & mail_addr_line_four), memo_line, 15
-		memo_line = memo_line + 1
-	END IF
-	EMWriteScreen ("  " & worker_agency_phone), memo_line, 15
-	memo_line = memo_line + 2
-	EMWriteScreen "If you have any questions, or to send in requested proofs,", memo_line, 15
-	memo_line = memo_line + 1
-	EMWriteScreen "please direct all communications to the worker or agency", memo_line, 15
-	memo_line = memo_line + 1
-	EMWriteScreen "listed above.", memo_line, 15
-	IF closure_date_check = checked THEN
+	If SPEC_MEMO_check = checked then
+		call navigate_to_screen("SPEC", "MEMO")
+		PF5
+		EMWriteScreen "X", 5, 10
+		transmit
+	
+		EMWriteScreen "Your case has been transferred. Your new worker/agency is:", 3, 15
+		memo_line = 5
+		IF worker_agency_name <> "" THEN
+			EMWriteScreen ("  " & worker_agency_name), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_one <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_one), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_two <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_two), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_three <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_three), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_four <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_four), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		EMWriteScreen ("  " & worker_agency_phone), memo_line, 15
 		memo_line = memo_line + 2
-		EMWriteScreen "If you fail to provide required proofs to your new worker", memo_line, 15
+		EMWriteScreen "If you have any questions, or to send in requested proofs,", memo_line, 15
 		memo_line = memo_line + 1
-		EMWriteScreen ("or agency then your benefits will close on " & closure_date & "."), memo_line, 15
-	END IF
-
-	PF4
+		EMWriteScreen "please direct all communications to the worker or agency", memo_line, 15
+		memo_line = memo_line + 1
+		EMWriteScreen "listed above.", memo_line, 15
+		IF closure_date_check = checked THEN
+			memo_line = memo_line + 2
+			EMWriteScreen "If you fail to provide required proofs to your new worker", memo_line, 15
+			memo_line = memo_line + 1
+			EMWriteScreen ("or agency then your benefits will close on " & closure_date & "."), memo_line, 15
+		END IF
+	
+		PF4
+	End if
 
 	'----------The case note of the reason for the XFER----------
 		call navigate_to_screen("CASE", "NOTE")
@@ -385,4 +392,4 @@ DIALOG xfer_menu_dialog
 
 	script_end_procedure("")
 	
-	END IF
+END IF
