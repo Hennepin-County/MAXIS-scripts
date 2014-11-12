@@ -1,8 +1,5 @@
-'Informational front-end message, date dependent.
-If datediff("d", "06/21/2013", now) < 10 then MsgBox "This script has been updated as of 06/21/2013! It will now contain autofill and automatically navigate to CASE/NOTE for you."
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - LTC intake"
+name_of_script = "NOTE - LTC application received"
 start_time = timer
 
 
@@ -26,7 +23,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 115, "Case number dialog"
   Text 110, 30, 25, 10, "Year:"
 EndDialog
 
-BeginDialog LTC_intake_dialog, 0, 0, 286, 335, "LTC intake dialog"
+BeginDialog LTC_app_recd_dialog, 0, 0, 286, 335, "LTC application received dialog"
   EditBox 45, 35, 65, 15, appl_date
   EditBox 75, 55, 205, 15, appl_type
   EditBox 160, 75, 120, 15, forms_needed
@@ -140,7 +137,7 @@ Do
     Do
       Do
         Do
-          Dialog LTC_intake_dialog
+          Dialog LTC_app_recd_dialog
           If ButtonPressed = 0 then stopscript
           If buttonpressed <> -1 then call navigation_buttons
           If buttonpressed = prev_panel_button then call panel_navigation_prev
