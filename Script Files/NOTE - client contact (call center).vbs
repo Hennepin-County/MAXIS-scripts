@@ -21,6 +21,7 @@ BeginDialog contact_dialog, 0, 0, 386, 175, "Client contact"
   EditBox 55, 80, 325, 15, issue
   CheckBox 10, 100, 95, 10, "Answered question", answered_question_check
   CheckBox 110, 100, 95, 10, "Transferred question", transferred_question_check
+  CheckBox 200, 100, 150, 10, "Reminded Client re: Importance of CAF I", caf_1_check
   EditBox 55, 115, 325, 15, other_action
   EditBox 310, 135, 70, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -86,6 +87,7 @@ If phone_number <> "" then Call write_editbox_in_case_note("Phone number", phone
 If issue <> "" then Call write_editbox_in_case_note("Issue/subject", issue, 6)
 If answered_question_check = 1 then call write_new_line_in_case_note("* Call center was able to answer client question.")
 If transferred_question_check = 1 then call write_new_line_in_case_note("* Call center was unable to answer client question, transferred to worker.")
+If caf_1_check = 1 then call write_new_line_in_case_note("* Reminded client about the importance of completing the CAF 1.")
 If other_action <> "" then Call write_editbox_in_case_note("Other actions", other_action, 6)
 Call write_new_line_in_case_note("---")
 Call write_new_line_in_case_note(worker_signature)
