@@ -316,7 +316,37 @@ For each panel_to_scan in all_panels_selected_array
 			ELSEIF panel_to_scan = "BILS" THEN
 				call navigate_to_screen("STAT", "BILS")
 					EMReadScreen total_bils_panel, 1, 3, 78
-					IF total_bils_panel <> "1" THEN
+					IF total_bils_panel = "0" THEN
+						call copy_screen_to_array(screentest)
+						'Adds current screen to Word doc
+						For each line in screentest
+							objSelection.TypeText line & Chr(11)
+						Next
+	
+						'Determines if the Word doc needs a new page
+						If screen_on_page = "" or screen_on_page = 1 then
+							screen_on_page = 2
+							objSelection.TypeText vbCr & vbCr
+						Elseif screen_on_page = 2 then
+							screen_on_page = 1
+							objSelection.InsertBreak(7)
+						End if
+					ELSEIF total_bils_panel = "1" THEN
+						call copy_screen_to_array(screentest)
+						'Adds current screen to Word doc
+						For each line in screentest
+							objSelection.TypeText line & Chr(11)
+						Next
+	
+						'Determines if the Word doc needs a new page
+						If screen_on_page = "" or screen_on_page = 1 then
+							screen_on_page = 2
+							objSelection.TypeText vbCr & vbCr
+						Elseif screen_on_page = 2 then
+							screen_on_page = 1
+							objSelection.InsertBreak(7)
+						End if
+					ELSEIF total_bils_panel <> "0" AND total_bils_panel <> "1" THEN
 						DO
 							EMReadScreen last_bils_screen, 9, 19, 66
 							call copy_screen_to_array(screentest)
@@ -335,7 +365,12 @@ For each panel_to_scan in all_panels_selected_array
 							End if
 							PF20
 						LOOP until last_bils_screen = "More:   -"	
-					ELSE
+					END IF
+
+			ELSEIF panel_to_scan = "FMED" THEN
+				call navigate_to_screen("STAT", "FMED")
+					EMReadScreen more_fmed_screens, 7, 15, 68
+					IF more_fmed_screens = "       " THEN
 						call copy_screen_to_array(screentest)
 						'Adds current screen to Word doc
 						For each line in screentest
@@ -350,12 +385,7 @@ For each panel_to_scan in all_panels_selected_array
 							screen_on_page = 1
 							objSelection.InsertBreak(7)
 						End if
-					END IF
-
-			ELSEIF panel_to_scan = "FMED" THEN
-				call navigate_to_screen("STAT", "FMED")
-					EMReadScreen more_fmed_screens, 7, 15, 68
-					IF more_fmed_screens = "More: +" THEN
+					ELSEIF more_fmed_screens = "More: +" THEN
 						EMReadScreen more_fmed_screens, 7, 15, 68
 						call copy_screen_to_array(screentest)
 						'Adds current screen to Word doc
@@ -380,21 +410,6 @@ For each panel_to_scan in all_panels_selected_array
 							objSelection.TypeText line & Chr(11)
 						Next
 
-						'Determines if the Word doc needs a new page
-						If screen_on_page = "" or screen_on_page = 1 then
-							screen_on_page = 2
-							objSelection.TypeText vbCr & vbCr
-						Elseif screen_on_page = 2 then
-							screen_on_page = 1
-							objSelection.InsertBreak(7)
-						End if
-					ELSE
-						call copy_screen_to_array(screentest)
-						'Adds current screen to Word doc
-						For each line in screentest
-							objSelection.TypeText line & Chr(11)
-						Next
-	
 						'Determines if the Word doc needs a new page
 						If screen_on_page = "" or screen_on_page = 1 then
 							screen_on_page = 2
