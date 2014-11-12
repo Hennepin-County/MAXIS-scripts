@@ -1,7 +1,8 @@
 <NotepadPlus>
     <Project name="Script Files">
-        <Folder name="Actions scripts">
+        <Folder name="ACTIONS scripts">
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - BILS updater.vbs" />
+            <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - Copy panels to Word.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - DAIL scrubber.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - MA-EPD EI FIAT.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - new job reported.vbs" />
@@ -11,7 +12,7 @@
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - Transfer Case.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - view INFC.vbs" />
         </Folder>
-        <Folder name="Bulk scripts">
+        <Folder name="BULK scripts">
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - BULK TIKLer.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - Case Note from Excel List.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - CEI premium.vbs" />
@@ -109,10 +110,11 @@
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - HC ER.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - HCAPP.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - HRF (Family).vbs" />
+            <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - HRF (GRH).vbs" />
+            <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - LTC application received.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - LTC burial assets.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - LTC ER.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - LTC intake approval.vbs" />
-            <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - LTC intake.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - LTC MA approval.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - MNsure docs reqd.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\NOTE - SAVE (LEP).vbs" />
