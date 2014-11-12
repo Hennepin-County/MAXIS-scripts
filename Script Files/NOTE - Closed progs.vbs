@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - closed progs"
+name_of_script = "NOTE - Closed progs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ call write_editbox_in_case_note("Reason for closure", reason_for_closure, 6)
 If verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
 If updated_MMIS_check = 1 then call write_new_line_in_case_note("* Updated MMIS.")
 If WCOM_check = 1 then call write_new_line_in_case_note("* Added WCOM to notice.")
-If CSR_check = 1 then call write_editbox_in_case_note("Case is at renewal", "client has an additional month to turn in the CSR and any required proofs.", 6)
+If CSR_check = 1 then call write_editbox_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.", 6)
 If HC_ER_check = 1 then call write_new_line_in_case_note("* Case is at HC ER.")
 If case_noting_intake_dates = True then
 	call write_new_line_in_case_note("---")
