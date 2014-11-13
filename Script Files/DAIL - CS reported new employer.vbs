@@ -90,6 +90,9 @@ If row <> 0 then transmit
 EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure("This case couldn't get to stat. MAXIS may have slowed down or be in background. Try again in a few seconds. If this continues to happen and MAXIS is up, send the case number to the script administrator.")
 
+'Checks for the error screen, and if found, transmits
+ERRR_screen_check
+
 'Checking for the HH memb on the message. If not found, script will exit.
 EMReadScreen HH_memb_check, 31, 24, 02
 If HH_memb_check = "REFERENCE NUMBER IS INVALID    " then script_end_procedure("That member number is invalid. The script will now stop. Try again from DAIL. If this keeps happening, send the case number to the script administrator.")
