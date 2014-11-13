@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -22,7 +22,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
   CheckBox 10, 80, 30, 10, "GRH", GRH_check
-  CheckBox 50, 80, 30, 10, "MSA", MSA_check
+  CheckBox 50, 80, 30, 10, "MSA", cash_check
   CheckBox 95, 80, 35, 10, "SNAP", SNAP_check
   CheckBox 145, 80, 30, 10, "HC", HC_check
   ButtonGroup ButtonPressed

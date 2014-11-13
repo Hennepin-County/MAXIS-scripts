@@ -6,20 +6,20 @@ name_of_script = "BULK - REPT-REVW list"
 start_time = timer
 
 'DIALOGS-------------------------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 115, "Pull REPT data into Excel dialog"
-  EditBox 150, 20, 130, 15, worker_number
-  CheckBox 70, 55, 150, 10, "Check here to run this query county-wide.", all_workers_check
+BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
+  EditBox 140, 20, 140, 15, worker_number
+  CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 50, 40, 10, "Cash/GRH?", cash_check
+  CheckBox 10, 50, 50, 10, "Cash/GRH?", cash_check
   CheckBox 10, 65, 40, 10, "HC?", HC_check
   ButtonGroup ButtonPressed
-    OkButton 175, 95, 50, 15
-    CancelButton 230, 95, 50, 15
-  GroupBox 5, 20, 60, 90, "Progs to scan"
+    OkButton 175, 100, 50, 15
+    CancelButton 230, 100, 50, 15
+  GroupBox 5, 20, 60, 60, "Progs to scan"
   Text 70, 25, 65, 10, "Worker(s) to check:"
-  Text 70, 70, 215, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 215, 10, "Enter workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------
@@ -111,9 +111,9 @@ Else
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(x1_number)
+			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(x1_number)
+			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 

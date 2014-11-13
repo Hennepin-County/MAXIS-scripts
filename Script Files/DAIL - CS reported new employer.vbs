@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -89,6 +89,9 @@ If row <> 0 then transmit
 'Checking to make sure we're in STAT. If not, script will exit.
 EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure("This case couldn't get to stat. MAXIS may have slowed down or be in background. Try again in a few seconds. If this continues to happen and MAXIS is up, send the case number to the script administrator.")
+
+'Checks for the error screen, and if found, transmits
+ERRR_screen_check
 
 'Checking for the HH memb on the message. If not found, script will exit.
 EMReadScreen HH_memb_check, 31, 24, 02
