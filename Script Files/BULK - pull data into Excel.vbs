@@ -19,14 +19,16 @@ BeginDialog rept_scanning_dialog, 0, 0, 296, 130, "REPT scanning dialog"
     PushButton 85, 30, 25, 10, "REVS", REVS_button
     PushButton 110, 30, 25, 10, "REVW", REVW_button
     PushButton 10, 60, 25, 10, "ARST", ARST_button
+	PushButton 135, 30, 25, 10, "MFCM", MFCM_button
     PushButton 10, 80, 100, 10, "LTC-GRH list generator", LTC_GRH_list_generator_button
     CancelButton 240, 110, 50, 15
   Text 5, 5, 125, 10, "What area of REPT are you scanning?"
-  GroupBox 5, 20, 135, 25, "Case lists"
+  GroupBox 5, 20, 160, 25, "Case lists"
   GroupBox 5, 50, 290, 55, "Other"
   Text 40, 60, 250, 20, "--- Caseload stats by worker. Includes cash/SNAP/HC/emergency/GRH stats."
   Text 115, 80, 175, 20, "--- Creates a list of FACIs, AREPs, and waiver types for a worker or group of workers."
 EndDialog
+
 
 
 'VARIABLES TO DECLARE
@@ -49,6 +51,7 @@ If buttonpressed = EOMC_button then call run_another_script("C:\DHS-MAXIS-Script
 If buttonpressed = PND2_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-PND2 list.vbs")
 If buttonpressed = REVS_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-REVS list.vbs")
 If buttonpressed = REVW_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-REVW list.vbs")
+If buttonpressed = MFCM_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-MFCM list.vbs")
 If buttonpressed = LTC_GRH_list_generator_button then call run_another_script("C:\DHS-MAXIS-Scripts\Script Files\BULK - LTC-GRH list generator.vbs")
 
 'Logging usage stats
