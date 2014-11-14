@@ -1,3 +1,10 @@
+'The following panels have been functionalized...
+'	UNEA
+'	JOBS
+'	DIET
+'	MMSA
+'	TYPE/PROG/REVW (all in one)
+
 FUNCTION write_panel_to_maxis_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
 	call navigate_to_screen("STAT", "UNEA")
 	EMWriteScreen reference_number, 20, 76
