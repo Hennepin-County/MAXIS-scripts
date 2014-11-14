@@ -5,7 +5,7 @@
 '	MMSA
 '	TYPE/PROG/REVW (all in one)
 
-FUNCTION write_panel_to_maxis_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
+FUNCTION write_panel_to_maxis_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_end_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
 	call navigate_to_screen("STAT", "UNEA")
 	EMWriteScreen reference_number, 20, 76
 	EMWriteScreen "NN", 20, 79
@@ -15,6 +15,7 @@ FUNCTION write_panel_to_maxis_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suf
 	EMWriteScreen unea_inc_verif, 5, 65
 	EMWriteScreen (ssn_first & ssn_mid & ssn_last & unea_claim_suffix), 6, 37
 	call create_maxis_friendly_date(unea_start_date, 0, 7, 37)
+	IF unea_end_date <> "" THEN call create_maxis_friendly_date(unea_end_date, 0, 7, 68)
 
 	'=====Navigates to the PIC for UNEA=====
 	EMWriteScreen "X", 10, 26
@@ -309,7 +310,7 @@ FUNCTION write_panel_to_maxis_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn
 END FUNCTION
 
 
-FUNCTION write_panel_to_maxis_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_name, jobs_inc_start, jobs_wkly_hrs, jobs_hrly_wage, jobs_pay_freq)
+FUNCTION write_panel_to_maxis_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_name, jobs_inc_start_date, jobs_inc_end_date, jobs_wkly_hrs, jobs_hrly_wage, jobs_pay_freq)
 	call navigate_to_screen("STAT", "JOBS")
 	EMWriteScreen reference_number, 20, 76
 	EMWriteScreen "NN", 20, 79
@@ -318,7 +319,8 @@ FUNCTION write_panel_to_maxis_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_
 	EMWriteScreen jobs_inc_type, 5, 38
 	EMWriteScreen jobs_inc_verif, 6, 38
 	EMWriteScreen jobs_employer_name, 7, 42
-	call create_maxis_friendly_date(jobs_inc_start, 0, 9, 35)
+	call create_maxis_friendly_date(jobs_inc_start_date, 0, 9, 35)
+	IF jobs_inc_end_date <> "" THEN call create_maxis_friendly_date(jobs_inc_end_date, 0, 9, 49)
 	EMWriteScreen jobs_pay_freq, 18, 35
 	
 	'===== navigates to the SNAP PIC to update the PIC =====
