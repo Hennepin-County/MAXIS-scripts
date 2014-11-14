@@ -134,15 +134,17 @@ FUNCTION write_panel_maxis_ADDR(addr1, addr2, city, zip, res_co, verif1, homeles
 	EMWriteScreen homeless, 10, 43
 	EMWriteScreen ind_res, 10, 74
 	EMWriteScreen res_name, 11, 74
-	EMWriteScreen mail1, 13, 43
-	EMWriteScreen mail2, 14, 43
-	EMWriteScreen mailcity, 15, 43
-	EMWriteScreen "MN", 16, 43
-	EMWriteScreen mailzip, 16, 52
-	EMWriteScreen left(ph1, 3), 17, 45
-	EMWriteScreen right(left(ph1, 6), 3), 17, 51
-	EMWriteScreen right(ph1, 4), 17, 55
-	EMWriteScreen left(ph2, 3), 18, 45
-	EMWriteScreen right(left(ph2, 6), 3), 18, 51
-	EMWriteScreen right(ph2, 4), 18, 51
+	IF mail1 <> "" THEN
+		EMWriteScreen mail1, 13, 43
+		EMWriteScreen mail2, 14, 43
+		EMWriteScreen mailcity, 15, 43
+		EMWriteScreen "MN", 16, 43
+		EMWriteScreen mailzip, 16, 52
+		EMWriteScreen left(ph1, 3), 17, 45
+		EMWriteScreen right(left(ph1, 6), 3), 17, 51
+		EMWriteScreen right(ph1, 4), 17, 55
+		EMWriteScreen left(ph2, 3), 18, 45
+		EMWriteScreen right(left(ph2, 6), 3), 18, 51
+		EMWriteScreen right(ph2, 4), 18, 51
+	END IF
 END FUNCTION
