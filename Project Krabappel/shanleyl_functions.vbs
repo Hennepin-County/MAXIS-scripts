@@ -31,18 +31,30 @@ End Function
 Function create_if_nonexistant()
 	EMWriteScreen reference_number , 20, 76
 	transmit
-	EMReadScreen error_scan, 80, 24, 1
-	error_scan = trim(error_scan)
-	EMReadScreen quantity_of_screens, 1, 2, 78
-	If error_scan = "" and quantity_of_screens <> "0" then
-		PF9
-	ElseIf error_scan <> "" and quantity_of_screens <> "0" then
-		'FIX ERROR HERE
-		msgbox("Error: " & error_scan)
-	ElseIf error_scan <> "" and quantity_of_screens = "0" then
-		EMWriteScreen reference_number, 20, 76
-		EMWriteScreen "NN", 20, 79
-		Transmit
+	EMReadScreen case_panel_check, 44, 24, 2
+	If case_panel_check = "REFERENCE NUMBER IS NOT VALID FOR THIS PANEL" then
+		EMReadScreen quantity_of_screens, 1, 2, 78
+		If quantity_of_screens <> "0" then
+			PF9
+		ElseIf quantity_of_screens = "0" then
+			EMWriteScreen "__", 20, 76
+			EMWriteScreen "NN", 20, 79
+			Transmit
+		End If
+	ElseIf case_panel_check <> "REFERENCE NUMBER IS NOT VALID FOR THIS PANEL" then
+		EMReadScreen error_scan, 80, 24, 1
+		error_scan = trim(error_scan)
+		EMReadScreen quantity_of_screens, 1, 2, 78
+		If error_scan = "" and quantity_of_screens <> "0" then
+			PF9
+		ElseIf error_scan <> "" and quantity_of_screens <> "0" then
+			'FIX ERROR HERE
+			msgbox("Error: " & error_scan)
+		ElseIf error_scan <> "" and quantity_of_screens = "0" then
+			EMWriteScreen reference_number, 20, 76
+			EMWriteScreen "NN", 20, 79
+			Transmit
+		End If
 	End If
 End Function
 
@@ -324,6 +336,9 @@ reference_number = "01"
 
 EMConnect ""
 
-call write_panel_to_maxis_PDED()
+'call write_panel_to_maxis_PDED()
+
+call navigate_to_screen("STAT","EATS")
+call create_if_nonexistant()
 
 stopscript
