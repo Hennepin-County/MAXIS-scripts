@@ -1,3 +1,6 @@
+'This is the bit that dumps into MEMB, MEMI, ADDR for the APPL'ing. 
+'More programming will be needed when the structure of the script takes shape.
+
 DO  'This DO-LOOP is to check that the CL's SSN created via random number generation is unique. If the SSN matches an SSN on file, the script creates a new SSN and re-enters the CL's information on MEMB
 	DO	'This DO-LOOP makes sure that the first digit of the SSN is not a 9
 		Randomize
