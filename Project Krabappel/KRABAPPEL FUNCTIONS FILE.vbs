@@ -1,12 +1,3 @@
-'STATS INFO
-
-'LOADING ROUTINE FUNCTIONS
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
 'MISC functions <<<<<<<<<<MERGE INTO FUNCTIONS FILE, THANKS TO LUKE
 
 Function add_months(D,E,F)
@@ -190,14 +181,11 @@ Function excel_write(Excel_write_row, Excel_write_col, cell_value)
 	ObjExcel.Cells(Excel_write_row, Excel_write_col).Value = cell_value
 End Function
 
-Function excel_open_file(file_url, alerts_status)
-	Set objWorkbook = objExcel.Workbooks.Open(file_url) 'Opens an excel file from a specific URL
-	objExcel.DisplayAlerts = alerts_status
-End Function
-
-Function excel_open(visible_status)
+Function excel_open(file_url, visible_status, alerts_status)
 	Set objExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
 	objExcel.Visible = visible_status
+	Set objWorkbook = objExcel.Workbooks.Open(file_url) 'Opens an excel file from a specific URL
+	objExcel.DisplayAlerts = alerts_status
 End Function
 
 'BIG SLEW OF MAXIS WRITE FUNCTIONS------------------------------------------------------------------------------------------
