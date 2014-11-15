@@ -24,450 +24,220 @@ excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xls
 EMConnect ""
 
 'Opens Excel file
-call excel_open(excel_file_path, True, True)
+call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
 
 '<<<<<<<<<<<DIALOG SHOULD GO HERE, FOR NOW IT WILL SELECT THE ONLY CASE ON THE LIST
 
-'Assigning the Excel info to variables
-ABPS_supp_coop
-ABPS_gc_status
-ACCT_type
-ACCT_numb
-ACCT_location
-ACCT_balance
-ACCT_bal_ver
-ACCT_date
-ACCT_withdraw
-ACCT_cash_count
-ACCT_snap_count
-ACCT_HC_count
-ACCT_GRH_count
-ACCT_IV_count
-ACCT_joint_owner
-ACCT_share_ratio
-ACCT_interest_date_mo
-ACCT_interest_date_yr
-ACUT_shared
-ACUT_heat
-ACUT_air
-ACUT_electric
-ACUT_fuel
-ACUT_garbage
-ACUT_water
-ACUT_sewer
-ACUT_other
-ACUT_phone
-ACUT_heat_verif
-ACUT_air_verif
-ACUT_electric_verif
-ACUT_fuel_verif
-ACUT_garbage_verif
-ACUT_water_verif
-ACUT_sewer_verif
-ACUT_other_verif
-BUSI_type
-BUSI_start_date
-BUSI_end_date
-BUSI_cash_total_retro
-BUSI_cash_total_prosp
-BUSI_cash_total_ver
-BUSI_IV_total_prosp
-BUSI_IV_total_ver
-BUSI_snap_total_retro
-BUSI_snap_total_prosp
-BUSI_snap_total_ver
-BUSI_hc_total_prosp_a
-BUSI_hc_total_ver_a
-BUSI_hc_total_prosp_b
-BUSI_hc_total_ver_b
-BUSI_cash_exp_retro
-BUSI_cash_exp_prosp
-BUSI_cash_exp_ver
-BUSI_IV_exp_prosp
-BUSI_IV_exp_ver
-BUSI_snap_exp_retro
-BUSI_snap_exp_prosp
-BUSI_snap_exp_ver
-BUSI_hc_exp_prosp_a
-BUSI_hc_exp_ver_a
-BUSI_hc_exp_prosp_b
-BUSI_hc_exp_ver_b
-BUSI_retro_hours
-BUSI_prosp_hours
-BUSI_hc_total_est_a
-BUSI_hc_total_est_b
-BUSI_hc_exp_est_a
-BUSI_hc_exp_est_b
-BUSI_hc_hours_est
-CARS_type
-CARS_year
-CARS_make
-CARS_model
-CARS_trade_in
-CARS_loan
-CARS_value_source
-CARS_ownership_ver
-CARS_amount_owed
-CARS_amount_owed_ver
-CARS_date
-CARS_owed_as_of
-CARS_use
-CARS_HC_benefit
-CARS_joint_owner
-CARS_share_ratio
-CASH_amount
-DCEX_provider
-DCEX_reason
-DCEX_subsidy
-DCEX_child_number1
-DCEX_child_number1_ver
-DCEX_child_number1_retro
-DCEX_child_number1_pro
-DCEX_child_number2
-DCEX_child_number2_ver
-DCEX_child_number2_retro
-DCEX_child_number2_pro
-DCEX_child_number3
-DCEX_child_number3_ver
-DCEX_child_number3_retro
-DCEX_child_number3_pro
-DCEX_child_number4
-DCEX_child_number4_ver
-DCEX_child_number4_retro
-DCEX_child_number4_pro
-DCEX_child_number5
-DCEX_child_number5_ver
-DCEX_child_number5_retro
-DCEX_child_number5_pro
-DCEX_child_number6
-DCEX_child_number6_ver
-DCEX_child_number6_retro
-DCEX_child_number6_pro
-'<<<<<<<<WHERE I STOPPED
-MFIP_diet1
-MFIP_dietv1
-MFIP_diet2
-MFIP_dietv2
-msa_diet1
-msa_dietv1
-msa_diet2
-msa_dietv2
-msa_diet3
-msa_dietv3
-msa_diet4
-msa_dietv4
-disa_begin_date
-disa_end_date
-disa_cert_begin
-disa_cert_end
-disa_wavr_begin
-disa_wavr_end
-disa_grh_begin
-disa_grh_end
-disa_cash_status
-disa_cash_status_ver
-disa_snap_status
-disa_snap_status_ver
-disa_hc_status
-disa_hc_status_ver
-disa_waiver
-disa_drug_alcohol
-DSTT_ongoing_income
-DSTT_HH_income_stop_date
-DSTT_income_expected_amt
-eats_together
-eats_boarder
-eats_group_one
-eats_group_two
-eats_group_three
-EMMA_medical_emergency
-EMMA_health_consequence
-EMMA_verification
-EMMA_begin_date
-EMMA_end_date
-EMPS_orientation_date
-EMPS_orientation_attended
-EMPS_good_cause
-EMPS_sanc_begin
-EMPS_sanc_end
-EMPS_memb_at_home
-EMPS_care_family
-EMPS_crisis
-EMPS_hard_employ
-EMPS_under1
-EMPS_DWP_date
-FACI_vendor_number
-FACI_name
-FACI_type
-FACI_FS_eligible
-FACI_FS_facility_type
-FACI_date_in
-FACI_date_out
-hcre_appl_addnd_date_input
-hcre_retro_months_input
-hcre_recvd_by_service_date_input
-HEST_FS_choice_date
-HEST_first_month
-HEST_heat_air_retro
-HEST_electric_retro
-HEST_phone_retro
-HEST_heat_air_pro
-HEST_electric_pro
-HEST_phone_pro
-IMIG_imigration_status
-IMIG_entry_date
-IMIG_status_date
-IMIG_status_ver
-IMIG_status_LPR_adj_from
-IMIG_nationality
-insa_pers_coop_ohi
-insa_good_cause_status
-insa_good_cause_cliam_date
-insa_good_cause_evidence
-insa_coop_cost_effect
-insa_insur_name
-insa_prescrip_drug_cover
-insa_prescrip_end_date
-jobs_inc_type
-jobs_inc_verif
-jobs_employer_name
-jobs_inc_start
-jobs_wkly_hrs
-jobs_hrly_wage
-jobs_pay_freq
-SSN_first
-SSN_mid
-SSN_last
-MEDI_claim_number_suffix
-MEDI_part_A_premium
-MEDI_part_B_premium
-MEDI_part_A_begin_date
-MEDI_part_B_begin_date
-mmsa_liv_arr
-mmsa_cont_elig
-mmsa_spous_inc
-mmsa_shared_hous
-msur_begin_date
-othr_type
-othr_cash_value
-othr_cash_value_ver
-othr_owed
-othr_owed_ver
-othr_date
-othr_cash_count
-othr_SNAP_count
-othr_HC_count
-othr_IV_count
-othr_joint
-othr_share_ratio
-PARE_child_1
-PARE_child_1_relation
-PARE_child_1_verif
-PARE_child_2
-PARE_child_2_relation
-PARE_child_2_verif
-PARE_child_3
-PARE_child_3_relation
-PARE_child_3_verif
-PARE_child_4
-PARE_child_4_relation
-PARE_child_4_verif
-PARE_child_5
-PARE_child_5_relation
-PARE_child_5_verif
-PARE_child_6
-PARE_child_6_relation
-PARE_child_6_verif
-pben_referal_date
-pben_appl_date
-pben_appl_ver
-pben_IAA_date
-pben_disp
-pded_wid_deduction
-pded_adult_child_disregard
-pded_wid_disregard
-pded_unea_income_deduction_reason
-pded_unea_income_deduction_value
-pded_earned_income_deduction_reason
-pded_earned_income_deduction_value
-pded_ma_epd_inc_asset_limit
-pded_guard_fee
-pded_rep_payee_fee
-pded_other_expense
-pded_shel_spcl_needs
-pded_excess_need
-pded_restaurant_meals
-PREG_conception_date
-PREG_conception_date_ver
-PREG_third_trimester_ver
-PREG_due_date
-PREG_multiple_birth
-rbic_type
-rbic_start_date
-rbic_end_date
-rbic_group_1
-rbic_retro_income_group_1
-rbic_prosp_income_group_1
-rbic_ver_income_group_1
-rbic_group_2
-rbic_retro_income_group_2
-rbic_prosp_income_group_2
-rbic_ver_income_group_2
-rbic_group_3
-rbic_retro_income_group_3
-rbic_prosp_income_group_3
-rbic_ver_income_group_3
-rbic_retro_hours
-rbic_prosp_hours
-rbic_exp_type_1
-rbic_exp_retro_1
-rbic_exp_prosp_1
-rbic_exp_ver_1
-rbic_exp_type_2
-rbic_exp_retro_2
-rbic_exp_prosp_2
-rbic_exp_ver_2
-rest_type
-rest_type_ver
-rest_market
-rest_market_ver
-rest_owed
-rest_owed_ver
-rest_date
-rest_status
-rest_joint
-rest_share_ratio
-rest_agreement_date
-SCHL_status
-SCHL_ver
-SCHL_type
-SCHL_district_nbr
-SCHL_kindergarten_start_date
-SCHL_grad_date
-SCHL_grad_date_ver
-SCHL_primary_secondary_funding
-SCHL_FS_eligibility_status
-SCHL_higher_ed
-secu_type
-secu_pol_numb
-secu_name
-secu_cash_val
-secu_date
-secu_cash_ver
-secu_face_val
-secu_withdraw
-secu_cash_count
-secu_SNAP_count
-secu_HC_count
-secu_GRH_count
-secu_IV_count
-secu_joint
-secu_share_ratio
-SHEL_subsidized
-SHEL_shared
-SHEL_paid_to
-SHEL_rent_retro
-SHEL_rent_retro_ver
-SHEL_rent_pro
-SHEL_rent_pro_ver
-SHEL_lot_rent_retro
-SHEL_lot_rent_retro_ver
-SHEL_lot_rent_pro
-SHEL_lot_rent_pro_ver
-SHEL_mortgage_retro
-SHEL_mortgage_retro_ver
-SHEL_mortgage_pro
-SHEL_mortgage_pro_ver
-SHEL_insur_retro
-SHEL_insur_retro_ver
-SHEL_insur_pro
-SHEL_insur_pro_ver
-SHEL_taxes_retro
-SHEL_taxes_retro_ver
-SHEL_taxes_pro
-SHEL_taxes_pro_ver
-SHEL_room_retro
-SHEL_room_retro_ver
-SHEL_room_pro
-SHEL_room_pro_ver
-SHEL_garage_retro
-SHEL_garage_retro_ver
-SHEL_garage_pro
-SHEL_garage_pro_ver
-SHEL_subsidy_retro
-SHEL_subsidy_retro_ver
-SHEL_subsidy_pro
-SHEL_subsidy_pro_ver
-SIBL_group_1
-SIBL_group_2
-SIBL_group_3
-SPON_type
-SPON_ver
-SPON_name
-SPON_state
-STEC_type_1
-STEC_amt_1
-STEC_actual_from_thru_months_1
-STEC_ver_1
-STEC_earmarked_amt_1
-STEC_earmarked_from_thru_months_1
-STEC_type_2
-STEC_amt_2
-STEC_actual_from_thru_months_2
-STEC_ver_2
-STEC_earmarked_amt_2
-STEC_earmarked_from_thru_months_2
-STIN_type_1
-STIN_amt_1
-STIN_avail_date_1
-STIN_months_covered_1
-STIN_ver_1
-STIN_type_2
-STIN_amt_2
-STIN_avail_date_2
-STIN_months_covered_2
-STIN_ver_2
-stwk_empl_name
-stwk_wrk_stop_date
-stwk_wrk_stop_date_verif
-stwk_inc_stop_date
-stwk_empl_yn
-stwk_vol_quit
-stwk_ref_empl_date
-stwk_gc_cash
-stwk_gc_grh
-stwk_fs_pwe
-stwk_maepd_ext
-appl_date
-type_cash_yn
-type_hc_yn
-type_fs_yn
-prog_mig_worker
-revw_ar_or_ir
-revw_exempt
-unea_inc_type
-unea_inc_verif
-unea_claim_suffix
-unea_start_date
-unea_pay_freq
-unea_inc_amount
-ssn_first
-ssn_mid
-ssn_last
-wreg_fs_pwe
-wreg_fset_status
-wreg_defer_fs
-wreg_fset_orientation_date
-wreg_fset_sanction_date
-wreg_num_sanctions
-wreg_abawd_status
-wreg_ga_basis
+'Determines how many HH members there are, as this script can run for multiple-member households.
+excel_col = 3																		'Col 3 is always the primary applicant's col
+Do																					'Loops through each col looking for more HH members. If found, it adds one to the counter.
+	If ObjExcel.Cells(2, excel_col).Value <> "" then excel_col = excel_col + 1		'Adds one so that the loop will check again
+Loop until ObjExcel.Cells(2, excel_col).Value = ""									'Exits loop when we have no number in the MEMB col
+total_membs = excel_col - 3															'minus 3 because we started on column 3
 
+'Navigates to SELF, checks for MAXIS training, stops if not on MAXIS training
+back_to_self
+EMReadScreen training_region_check, 8, 22, 48
+If training_region_check <> "TRAINING" then script_end_procedure("You must be in the training region to use this script. It will now stop.")
 
+'Assigning the Excel info to variables for appl, and enters into MAXIS. It does this by first declaring a "starting row" variable for each section, and then
+'	each variable will be that row plus however far down it may be on the spreadsheet. This will enable future variable addition without having to modify
+'	hundreds of variable entries here.
 
-'Appl Case
-'For next for MEMB/MEMI
-'ADDR is separate
+'Grabs APPL screen variables (APPL date, primary applicant name (memb 01))
+APPL_starting_excel_row = 4		'Starting row for APPL function pieces
+APPL_date = ObjExcel.Cells(APPL_starting_excel_row, 3).Value
+APPL_last_name = ObjExcel.Cells(APPL_starting_excel_row + 1, 3).Value
+APPL_first_name = ObjExcel.Cells(APPL_starting_excel_row + 2, 3).Value
+APPL_middle_initial = ObjExcel.Cells(APPL_starting_excel_row + 3, 3).Value
+
+'Gets the footer month and year of the application off of the spreadsheet, enters into SELF and transmits (can only enter an application on APPL in the footer month of app)
+footer_month = left(APPL_date, 2)
+If right(footer_month, 1) = "/" then footer_month = "0" & left(footer_month, 1)		'Does this to account for single digit months
+footer_year = right(APPL_date, 2)
+EMWriteScreen footer_month, 20, 43
+EMWriteScreen footer_year, 20, 46
+transmit
+
+'Goes to APPL function
+call navigate_to_screen("APPL", "____")
+
+'Enters info in APPL and transmits
+call create_MAXIS_friendly_date(APPL_date, 0, 4, 63)
+EMWriteScreen APPL_last_name, 7, 30
+EMWriteScreen APPL_first_name, 7, 63
+EMWriteScreen APPL_middle_initial, 7, 79
+transmit
+
+'Uses a for...next to enter each HH member's info
+For current_memb = 1 to total_membs
+	current_excel_col = current_memb + 2							'There's two columns before the first HH member, so we have to add 2 to get the current excel col
+	reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
+
+	'Gets MEMB info for the current household member using the current_excel_col field. Starts by declaring the MEMB starting row
+	MEMB_starting_excel_row = 5
+	MEMB_last_name = ObjExcel.Cells(MEMB_starting_excel_row, current_excel_col).Value
+	MEMB_first_name = ObjExcel.Cells(MEMB_starting_excel_row + 1, current_excel_col).Value
+	MEMB_mid_init = ObjExcel.Cells(MEMB_starting_excel_row + 2, current_excel_col).Value
+	MEMB_age = ObjExcel.Cells(MEMB_starting_excel_row + 3, current_excel_col).Value
+	MEMB_DOB_verif = ObjExcel.Cells(MEMB_starting_excel_row + 4, current_excel_col).Value
+	MEMB_gender = ObjExcel.Cells(MEMB_starting_excel_row + 5, current_excel_col).Value
+	MEMB_ID_verif = ObjExcel.Cells(MEMB_starting_excel_row + 6, current_excel_col).Value
+	MEMB_rel_to_appl = ObjExcel.Cells(MEMB_starting_excel_row + 7, current_excel_col).Value
+	MEMB_spoken_lang = ObjExcel.Cells(MEMB_starting_excel_row + 8, current_excel_col).Value
+	MEMB_interpreter_yn = ObjExcel.Cells(MEMB_starting_excel_row + 9, current_excel_col).Value
+	MEMB_alias_yn = ObjExcel.Cells(MEMB_starting_excel_row + 10, current_excel_col).Value
+	MEMB_hisp_lat_yn = ObjExcel.Cells(MEMB_starting_excel_row + 11, current_excel_col).Value
+
+	DO  'This DO-LOOP is to check that the CL's SSN created via random number generation is unique. If the SSN matches an SSN on file, the script creates a new SSN and re-enters the CL's information on MEMB. The checking for duplicates part is on the bottom, as that occurs when the worker presses transmit.
+		DO
+			Randomize
+			ssn_first = Rnd
+			ssn_first = 1000000000 * ssn_first
+			ssn_first = left(ssn_first, 3)
+		LOOP UNTIL left(ssn_first, 1) <> "9"	'starting with a 9 is invalid
+		Randomize
+		ssn_mid = Rnd
+		ssn_mid = 100000000 * ssn_mid
+		ssn_mid = left(ssn_mid, 2)
+		Randomize
+		ssn_end = Rnd 
+		ssn_end = 100000000 * ssn_end
+		ssn_end = left(ssn_end, 4)
+	
+		'Entering info on MEMB
+		EMWriteScreen reference_number, 4, 33
+		EMWriteScreen MEMB_last_name, 6, 30
+		EMWriteScreen MEMB_first_name, 6, 63
+		EMWriteScreen MEMB_mid_init, 6, 79
+		EMWriteScreen ssn_first, 7, 42		'Determined above
+		EMWriteScreen ssn_mid, 7, 46
+		EMWriteScreen ssn_end, 7, 49
+		EMWriteScreen "P", 7, 68			'All SSNs should pend in the training region
+		EMWriteScreen "01", 8, 42			'At this time, everyone will have a January 1st birthday. The year will be determined by the age on the spreadsheet
+		EMWriteScreen "01", 8, 45
+		EMWriteScreen datepart("yyyy", date) - abs(MEMB_age), 8, 48
+		EMWriteScreen MEMB_DOB_verif, 8, 68
+		EMWriteScreen MEMB_gender, 9, 42
+		EMWriteScreen MEMB_ID_verif, 9, 68
+		EMWriteScreen MEMB_rel_to_appl, 10, 42
+		EMWriteScreen MEMB_spoken_lang, 12, 42
+		EMWriteScreen MEMB_spoken_lang, 13, 42
+		EMWriteScreen MEMB_interpreter_yn, 14, 68
+		EMWriteScreen MEMB_alias_yn, 15, 42
+		EMWriteScreen MEMB_alien_ID, 15, 68
+		EMWriteScreen MEMB_hisp_lat_yn, 16, 68
+		EMWriteScreen "X", 17, 34			'Enters race as unknown at this time
+		transmit
+		DO				'Does this as a loop based on Robert's suggestion that there may be issues in loading without one. It's a small popup window.
+			EMReadScreen race_mini_box, 18, 5, 12
+			IF race_mini_box = "X AS MANY AS APPLY" THEN
+				EMWriteScreen "X", 15, 12
+				transmit
+				transmit
+			END IF
+		LOOP UNTIL race_mini_box = "X AS MANY AS APPLY"
+		cl_ssn = ssn_first & "-" & ssn_mid & "-" & ssn_end
+		EMReadScreen ssn_match, 11, 8, 7
+		IF cl_ssn <> ssn_match THEN
+			PF8
+			PF8
+			PF5
+		ELSE
+			PF3
+		END IF
+	LOOP UNTIL cl_ssn <> ssn_match
+	EMWaitReady 0, 0
+	EMWriteScreen "Y", 6, 67
+	transmit
+
+	'Gets MEMI info from spreadsheet
+	MEMI_starting_excel_row = 17
+	MEMI_marital_status = ObjExcel.Cells(MEMI_starting_excel_row, current_excel_col).Value
+	MEMI_spouse = ObjExcel.Cells(MEMI_starting_excel_row + 1, current_excel_col).Value
+	MEMI_last_grade_completed = ObjExcel.Cells(MEMI_starting_excel_row + 2, current_excel_col).Value
+	MEMI_cit_yn = ObjExcel.Cells(MEMI_starting_excel_row + 3, current_excel_col).Value
+
+	'Updates MEMI with the info
+	EMWriteScreen MEMI_marital_status, 7, 49
+	EMWriteScreen MEMI_spouse, 8, 49
+	EMWriteScreen MEMI_last_grade_completed, 9, 49
+	EMWriteScreen MEMI_cit_yn, 10, 49
+	EMWriteScreen "NO", 10, 78		'Always defaulting to none for cit/ID proof right now
+	EMWriteScreen "Y", 13, 49		'Always defualting to yes for been in MN > 12 months
+	EMWriteScreen "N", 13, 78		'Always defualting to no for residence verification
+	transmit
+	
+	
+Next
+
+'This next transmit gets to the ADDR screen
+transmit
+
+'Gets ADDR info from spreadsheet, gets from column 3 because it's case based
+ADDR_starting_excel_row = 21
+ADDR_line_one = ObjExcel.Cells(ADDR_starting_excel_row, 3).Value
+ADDR_line_two = ObjExcel.Cells(ADDR_starting_excel_row + 1, 3).Value
+ADDR_city = ObjExcel.Cells(ADDR_starting_excel_row + 2, 3).Value
+ADDR_zip = ObjExcel.Cells(ADDR_starting_excel_row + 3, 3).Value
+ADDR_county = ObjExcel.Cells(ADDR_starting_excel_row + 4, 3).Value
+ADDR_addr_verif = ObjExcel.Cells(ADDR_starting_excel_row + 5, 3).Value
+ADDR_homeless = ObjExcel.Cells(ADDR_starting_excel_row + 6, 3).Value
+ADDR_reservation = ObjExcel.Cells(ADDR_starting_excel_row + 7, 3).Value
+ADDR_mailing_addr_line_one = ObjExcel.Cells(ADDR_starting_excel_row + 8, 3).Value
+ADDR_mailing_addr_line_two = ObjExcel.Cells(ADDR_starting_excel_row + 9, 3).Value
+ADDR_mailing_addr_city = ObjExcel.Cells(ADDR_starting_excel_row + 10, 3).Value
+ADDR_mailing_addr_zip = ObjExcel.Cells(ADDR_starting_excel_row + 11, 3).Value
+ADDR_phone_1 = ObjExcel.Cells(ADDR_starting_excel_row + 12, 3).Value
+ADDR_phone_2 = ObjExcel.Cells(ADDR_starting_excel_row + 13, 3).Value
+ADDR_phone_3 = ObjExcel.Cells(ADDR_starting_excel_row + 14, 3).Value
+
+'Writes spreadsheet info to ADDR
+EMWriteScreen ADDR_line_one, 6, 43
+EMWriteScreen ADDR_line_two, 7, 43
+EMWriteScreen ADDR_city, 8, 43
+EMWriteScreen "MN", 8, 66		'Defaults to MN for all cases at this time
+EMWriteScreen ADDR_zip, 9, 43
+EMWriteScreen ADDR_county, 9, 66
+EMWriteScreen ADDR_addr_verif, 9, 74
+EMWriteScreen ADDR_homeless, 10, 43
+EMWriteScreen ADDR_reservation, 10, 74
+EMWriteScreen ADDR_mailing_addr_line_one, 13, 43
+EMWriteScreen ADDR_mailing_addr_line_two, 14, 43
+EMWriteScreen ADDR_mailing_addr_city, 15, 43
+If ADDR_mailing_addr_line_one <> "" then EMWriteScreen "MN", 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
+EMWriteScreen ADDR_mailing_addr_zip, 16, 52
+EMWriteScreen left(ADDR_phone_1, 3), 17, 45						'Has to split phone numbers up into three parts each
+EMWriteScreen mid(ADDR_phone_1, 5, 3), 17, 51
+EMWriteScreen right(ADDR_phone_1, 4), 17, 55
+EMWriteScreen left(ADDR_phone_2, 3), 18, 45
+EMWriteScreen mid(ADDR_phone_2, 5, 3), 18, 51
+EMWriteScreen right(ADDR_phone_2, 4), 18, 55
+EMWriteScreen left(ADDR_phone_3, 3), 19, 45
+EMWriteScreen mid(ADDR_phone_3, 5, 3), 19, 51
+EMWriteScreen right(ADDR_phone_3, 4), 19, 55
+
+transmit
+EMReadScreen addr_warning, 7, 3, 6
+IF addr_warning = "Warning" THEN transmit
+transmit
+PF3
+
+stopscript
+
+'PND1 function variables
+'TYPE_cash_yn
+'TYPE_hc_yn
+'TYPE_fs_yn
+'PROG_mig_worker
+'REVW_ar_or_ir
+'REVW_exempt
+
+'VARIABLES THAT NEED TO BE COLLECTED PER EACH MEMB (IN FOR NEXT)
+'SSN_first
+'SSN_mid
+'SSN_last
+
 'Do all STAT panels
 'STORE ALL CASE NUMBERS AS AN ARRAY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 'Do approval
