@@ -19,13 +19,14 @@ Execute text_from_the_other_script
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
+scenario_dropdown = "McSample"	'<<<<<<<<DELETE BEFORE GO...LIVE
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
 
 'Set objWorkSheet = objWorkbook.Worksheet
 For Each objWorkSheet In objWorkbook.Worksheets
-    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+	If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
 Next
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------
@@ -36,9 +37,9 @@ BeginDialog training_case_creator_dialog, 0, 0, 371, 130, "Training case creator
   EditBox 125, 60, 40, 15, how_many_cases_to_make
   EditBox 130, 80, 235, 15, workers_to_XFER_cases_to
   ButtonGroup ButtonPressed
-    OkButton 265, 110, 50, 15
-    CancelButton 320, 110, 50, 15
-    PushButton 310, 5, 55, 15, "Reload details", reload_excel_file_button
+	OkButton 265, 110, 50, 15
+	CancelButton 320, 110, 50, 15
+	PushButton 310, 5, 55, 15, "Reload details", reload_excel_file_button
   Text 5, 10, 75, 10, "File path of Excel file:"
   Text 60, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
   Text 5, 45, 55, 10, "Scenario to run:"
@@ -79,6 +80,8 @@ Loop until final_check_before_running = vbYes
 	'DIALOG SHOULD POP UP A MSGBOX CONFIRMING DETAILS AND WARNING THAT THIS COULD TAKE A WHILE
 	
 
+'Activates worksheet based on user selection
+objExcel.worksheets(scenario_dropdown).Activate
 
 
 'Determines how many HH members there are, as this script can run for multiple-member households.
@@ -416,11 +419,14 @@ Next
 
 '========================================================================PND2 PANELS========================================================================
 For each case_number in case_number_array
+	
+	
 	'Navigates to STAT/SUMM for each case
 	call navigate_to_screen("STAT", "SUMM")
+	MAXIS_background_check
 	ERRR_screen_check
 		
-	'Uses a for...next to enter each HH member's info
+	'Uses a for...next to enter each HH member's info (person based panels only
 	For current_memb = 1 to total_membs
 		current_excel_col = current_memb + 2							'There's two columns before the first HH member, so we have to add 2 to get the current excel col
 		reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
@@ -433,15 +439,138 @@ For each case_number in case_number_array
 		EMReadScreen SSN_mid, 2, 7, 46
 		EMReadScreen SSN_last, 4, 7, 49
 		
-		
+		'-------------------------------ACCT
+		ACCT_starting_excel_row = 44
+		ACCT_type = ObjExcel.Cells(ACCT_starting_excel_row, current_excel_col).Value
+		ACCT_numb = ObjExcel.Cells(ACCT_starting_excel_row + 1, current_excel_col).Value
+		ACCT_location = ObjExcel.Cells(ACCT_starting_excel_row + 2, current_excel_col).Value
+		ACCT_balance = ObjExcel.Cells(ACCT_starting_excel_row + 3, current_excel_col).Value
+		ACCT_bal_ver = ObjExcel.Cells(ACCT_starting_excel_row + 4, current_excel_col).Value
+		ACCT_date = ObjExcel.Cells(ACCT_starting_excel_row + 5, current_excel_col).Value
+		ACCT_withdraw = ObjExcel.Cells(ACCT_starting_excel_row + 6, current_excel_col).Value
+		ACCT_cash_count = ObjExcel.Cells(ACCT_starting_excel_row + 7, current_excel_col).Value
+		ACCT_snap_count = ObjExcel.Cells(ACCT_starting_excel_row + 8, current_excel_col).Value
+		ACCT_HC_count = ObjExcel.Cells(ACCT_starting_excel_row + 9, current_excel_col).Value
+		ACCT_GRH_count = ObjExcel.Cells(ACCT_starting_excel_row + 10, current_excel_col).Value
+		ACCT_IV_count = ObjExcel.Cells(ACCT_starting_excel_row + 11, current_excel_col).Value
+		ACCT_joint_owner = ObjExcel.Cells(ACCT_starting_excel_row + 12, current_excel_col).Value
+		ACCT_share_ratio = ObjExcel.Cells(ACCT_starting_excel_row + 13, current_excel_col).Value
+		ACCT_interest_date_mo = ObjExcel.Cells(ACCT_starting_excel_row + 14, current_excel_col).Value
+		ACCT_interest_date_yr = ObjExcel.Cells(ACCT_starting_excel_row + 15, current_excel_col).Value
+
+		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
+
+		'-------------------------------WREG
+		WREG_starting_excel_row = 496
+		WREG_fs_pwe = ObjExcel.Cells(WREG_starting_excel_row, current_excel_col).Value
+		WREG_fset_status = ObjExcel.Cells(WREG_starting_excel_row + 1, current_excel_col).Value
+		WREG_defer_fs = ObjExcel.Cells(WREG_starting_excel_row + 2, current_excel_col).Value
+		WREG_fset_orientation_date = ObjExcel.Cells(WREG_starting_excel_row + 3, current_excel_col).Value
+		WREG_fset_sanction_date = ObjExcel.Cells(WREG_starting_excel_row + 4, current_excel_col).Value
+		WREG_num_sanctions = ObjExcel.Cells(WREG_starting_excel_row + 5, current_excel_col).Value
+		WREG_abawd_status = ObjExcel.Cells(WREG_starting_excel_row + 6, current_excel_col).Value
+		WREG_ga_basis = ObjExcel.Cells(WREG_starting_excel_row + 7, current_excel_col).Value
+
+		If WREG_fs_pwe <> "" then call write_panel_to_MAXIS_WREG(WREG_fs_pwe, WREG_fset_status, WREG_defer_fs, WREG_fset_orientation_date, WREG_fset_sanction_date, WREG_num_sanctions, WREG_abawd_status, WREG_ga_basis)
+	
 	Next
 
+	'Gets back to self
+	back_to_self
 
 Next
 
 
 '========================================================================APPROVAL========================================================================
-'<<<<<Needs to wait for cases to come out of background
+FOR EACH case_number IN case_number_array
+	If SNAP_application = True then 
+		DO
+			back_to_SELF
+			EMWriteScreen "ELIG", 16, 43
+			EMWriteScreen case_number, 18, 43
+			EMWriteScreen appl_date_month, 20, 43
+			EMWriteScreen appl_date_year, 20, 46
+			EMWriteScreen "FS", 21, 70
+			'========== This TRANSMIT sends the case to the FSPR screen ==========
+			transmit
+			EMReadScreen no_version, 10, 24, 2
+		LOOP UNTIL no_version <> "NO VERSION"
+		EMReadScreen is_case_approved, 10, 3, 3
+		IF is_case_approved <> "UNAPPROVED" THEN
+			back_to_SELF
+		ELSE
+		'========== This TRANSMIT sends the case to the FSCR screen ==========
+			transmit
+		'========== Reading for EXPEDITED STATUS ==========
+			EMReadScreen is_case_expedited, 9, 4, 3
+		'========== This TRANSMIT sends the case to the FSB1 screen ==========
+			transmit
+		'========== This TRANSMIT sends the case to the FSB2 screen ==========
+			transmit
+		'========== This TRANSMIT sends the case to the FSSM screen ==========
+			transmit
+			IF is_case_expedited <> "EXPEDITED" THEN
+				DO
+					EMWriteScreen "APP", 19, 70
+					transmit
+					EMReadScreen not_allowed, 11, 24, 18
+					EMReadScreen locked_by_background, 6, 24, 19
+					EMReadScreen what_is_next, 5, 16, 44
+				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
+				DO
+					EMReadScreen please_examine, 14, 4, 25
+				LOOP UNTIL please_examine = "PLEASE EXAMINE"
+				EMWriteScreen "Y", 16, 51
+				transmit
+				transmit
+			ELSE
+				DO
+					EMWriteScreen "APP", 19, 70
+					transmit
+					EMReadScreen not_allowed, 11, 24, 18
+					EMReadScreen locked_by_background, 6, 24, 19
+					EMReadScreen what_is_next, 5, 16, 44
+				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
+				DO
+					EMReadScreen rei_benefit, 3, 15, 33
+				LOOP UNTIL rei_benefit = "REI"
+				EMWriteScreen "Y", 15, 60
+				transmit
+				DO
+					EMReadScreen rei_confirm, 3, 14, 30
+				LOOP UNTIL rei_confirm = "REI"
+				EMWriteScreen "Y", 14, 62
+				transmit
+				DO
+					EMReadScreen continue_with_approval, 5, 16, 44
+				LOOP UNTIL continue_with_approval = "(Y/N)"
+				EMWriteScreen "Y", 16, 51
+				transmit
+				transmit
+			END IF
+		END IF
+	End if
+	
+	'Checks for WORK panel (Workforce One Referral), makes one with a week from now as the appointment date (default)
+	EMReadScreen WORK_check, 4, 2, 51
+	If WORK_check = "WORK" then
+		call create_MAXIS_friendly_date(date, 7, 7, 59)
+		EMWriteScreen "X", 7, 47
+		transmit
+		EMWriteScreen "X", 5, 9
+		transmit
+		transmit
+		transmit
+		'Special error handling for DHS and possibly multicounty agencies (don't have WF1 sites)
+		EMReadScreen ES_provider_check, 2, 2, 37		'Looks for the ES in ES provider, indicating we're stuck on a screen
+		If worker_county_code = "MULTICOUNTY" and ES_provider_check = "ES" then 
+			'Clear out the X and get back to the SELF menu
+			EMWriteScreen "_", 5, 9	
+			transmit
+			back_to_SELF
+		End if
+	End if
+NEXT
 
 
 MsgBox "EXIT"
