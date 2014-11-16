@@ -25,7 +25,7 @@
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 
-worker_county_code = "X102"
+worker_county_code = "MULTICOUNTY"
 collecting_statistics = False
 EDMS_choice = "Compass Forms"
 county_name = "Anoka County"
@@ -1403,6 +1403,7 @@ End function
 
 Function MAXIS_background_check
 	Do
+		call navigate_to_screen("STAT", "SUMM")
 		EMReadScreen SELF_check, 4, 2, 50
 		If SELF_check = "SELF" then
 			PF3
