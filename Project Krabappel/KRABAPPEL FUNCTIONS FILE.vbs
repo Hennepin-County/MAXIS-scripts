@@ -1,12 +1,3 @@
-'STATS INFO
-
-'LOADING ROUTINE FUNCTIONS
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
 'MISC functions <<<<<<<<<<MERGE INTO FUNCTIONS FILE, THANKS TO LUKE
 
 Function add_months(D,E,F)
@@ -178,26 +169,13 @@ Function debugger()
 	End If
 End Function
 
-'Excel Functions <<<<<<<MERGE INTO FUNCTIONS FILE, THANKS TO LUKE
+'Excel Function <<<<<<<MERGE INTO FUNCTIONS FILE, THANKS TO LUKE
 
-Function excel_read(Excel_read_row, Excel_read_col)
-	'Reads the value of the specified Excel_read_row and Excel_read_col in Excel.
-	ObjExcel.Cells(Excel_read_row, Excel_read_col).Value
-End Function
-
-Function excel_write(Excel_write_row, Excel_write_col, cell_value)
-	'Writes the cell_value variable in the specified Excel_write_row and Excel_write_col.	
-	ObjExcel.Cells(Excel_write_row, Excel_write_col).Value = cell_value
-End Function
-
-Function excel_open_file(file_url, alerts_status)
-	Set objWorkbook = objExcel.Workbooks.Open(file_url) 'Opens an excel file from a specific URL
-	objExcel.DisplayAlerts = alerts_status
-End Function
-
-Function excel_open(visible_status)
+Function excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 	Set objExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
 	objExcel.Visible = visible_status
+	Set objWorkbook = objExcel.Workbooks.Open(file_url) 'Opens an excel file from a specific URL
+	objExcel.DisplayAlerts = alerts_status
 End Function
 
 'BIG SLEW OF MAXIS WRITE FUNCTIONS------------------------------------------------------------------------------------------
@@ -420,29 +398,25 @@ FUNCTION write_panel_to_maxis_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCE
 	transmit
 End function
 
+FUNCTION write_panel_to_maxis_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DIET_mfip_2_ver, DIET_msa_1, DIET_msa_1_ver, DIET_msa_2, DIET_msa_2_ver, DIET_msa_3, DIET_msa_3_ver, DIET_msa_4, DIET_msa_4_ver)
+	call navigate_to_screen("STAT", "DIET")
+	EMWriteScreen reference_number, 20, 76
+	EMWriteScreen "NN", 20, 79
+	transmit
 
-'<<<<<<<<<FIX MFIP TO BE MFIP DIET 1
-FUNCTION write_panel_to_maxis_DIET(mfip_diet1, mfip_dietv1, mfip_diet2, mfip_dietv2, msa_diet1, msa_dietv1, msa_diet2, msa_dietv2, msa_diet3, msa_dietv3, msa_diet4, msa_dietv4)
-	IF mfip_diet1 <> "" AND mfip_diet2 <> "" AND msa_diet1 <> "" AND msa_diet2 <> "" AND msa_diet3 <> "" AND msa_diet4 <> "" THEN
-		call navigate_to_screen("STAT", "DIET")
-		EMWriteScreen reference_number, 20, 76
-		EMWriteScreen "NN", 20, 79
-		transmit
-
-		EMWriteScreen mfip1, 8, 40
-		EMWriteScreen mfipv1, 8, 51
-		EMWriteScreen mfip2, 9, 40
-		EMWriteScreen mfipv2, 9, 51
-		EMWriteScreen msa1, 11, 40
-		EMWriteScreen msav1, 11, 51
-		EMWriteScreen msa2, 12, 40
-		EMWriteScreen msav2, 12, 51
-		EMWriteScreen msa3, 13, 40
-		EMWriteScreen msav3, 13, 51
-		EMWriteScreen msa4, 14, 40
-		EMWriteScreen msav4, 14, 51
-		transmit
-	End if
+	EMWriteScreen DIET_mfip_1, 8, 40
+	EMWriteScreen DIET_mfip_1_ver, 8, 51
+	EMWriteScreen DIET_mfip_2, 9, 40
+	EMWriteScreen DIET_mfip_2_ver, 9, 51
+	EMWriteScreen DIET_msa_1, 11, 40
+	EMWriteScreen DIET_msa_1_ver, 11, 51
+	EMWriteScreen DIET_msa_2, 12, 40
+	EMWriteScreen DIET_msa_2_ver, 12, 51
+	EMWriteScreen DIET_msa_3, 13, 40
+	EMWriteScreen DIET_msa_3_ver, 13, 51
+	EMWriteScreen DIET_msa_4, 14, 40
+	EMWriteScreen DIET_msa_4_ver, 14, 51
+	transmit
 END FUNCTION
 
 '---This function writes using the variables read off of the specialized excel template to the disa panel in MAXIS
@@ -920,7 +894,7 @@ FUNCTION write_panel_to_maxis_PARE(PARE_child_1, PARE_child_1_relation, PARE_chi
 end function
 
 '---This function writes using the variables read off of the specialized excel template to the pben panel in MAXIS
-Function write_panel_to_maxis_PBEN(pben_referal_date, pben_appl_date, pben_appl_ver, pben_IAA_date, pben_disp)
+Function write_panel_to_maxis_PBEN(pben_referal_date, pben_type, pben_appl_date, pben_appl_ver, pben_IAA_date, pben_disp)
 	Call navigate_to_screen(STAT, PBEN)  'navigates to the stat panel
 	Emreadscreen pben_row_check, 2, 8, 24  'reads the maxis screen to find out if the PBEN row has already been used. 
 	If pben_row_check = "  " THEN   'if the row is blank it enters it in the 8th row.
@@ -955,7 +929,7 @@ Function write_panel_to_maxis_PBEN(pben_referal_date, pben_appl_date, pben_appl_
 	END IF
 End Function
 
-Function write_panel_to_maxis_PDED(pded_wid_deduction,pded_adult_child_disregard,pded_wid_disregard,pded_unea_income_deduction_reason,pded_unea_income_deduction_value,pded_earned_income_deduction_reason,pded_earned_income_deduction_value,pded_ma_epd_inc_asset_limit,pded_guard_fee,pded_rep_payee_fee,pded_other_expense,pded_shel_spcl_needs,pded_excess_need,pded_restaurant_meals)
+Function write_panel_to_maxis_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
 	call navigate_to_screen("STAT","PDED")
 	call create_panel_if_nonexistent
 	
@@ -1322,7 +1296,7 @@ Function write_panel_to_MAXIS_STIN(STIN_type_1, STIN_amt_1, STIN_avail_date_1, S
 	EMWriteScreen STIN_ver_2, 9, 76
 End function
 
-Function write_panel_to_maxis_STWK(stwk_empl_name,stwk_wrk_stop_date,stwk_wrk_stop_date_verif,stwk_inc_stop_date,stwk_empl_yn,stwk_vol_quit,stwk_ref_empl_date,stwk_gc_cash,stwk_gc_grh,stwk_fs_pwe,stwk_maepd_ext)
+Function write_panel_to_maxis_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_stop_date_verif, STWK_inc_stop_date, STWK_refused_empl_yn, STWK_vol_quit, STWK_ref_empl_date, STWK_gc_cash, STWK_gc_grh, STWK_gc_fs, STWK_fs_pwe, STWK_maepd_ext)
 	call navigate_to_screen("STAT","STWK")
 	call create_panel_if_nonexistent
 	
@@ -1351,10 +1325,10 @@ Function write_panel_to_maxis_STWK(stwk_empl_name,stwk_wrk_stop_date,stwk_wrk_st
 	End If
 	
 	'Refused Empl
-	If stwk_empl_yn <> "" then
-		stwk_empl_yn = ucase(stwk_empl_yn)
-		stwk_empl_yn = left(stwk_empl_yn,1)
-		EMWriteScreen stwk_empl_yn, 8, 78
+	If stwk_refused_empl_yn <> "" then
+		stwk_refused_empl_yn = ucase(stwk_empl_yn)
+		stwk_refused_empl_yn = left(stwk_empl_yn,1)
+		EMWriteScreen stwk_refused_empl_yn, 8, 78
 	End If
 	
 	'Voluntarily Quit
