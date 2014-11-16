@@ -17,7 +17,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
-excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"
+
 
 '--------- Project Krabappel --------------
 'Connects to BlueZone
@@ -27,7 +27,10 @@ EMConnect ""
 call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
 
 '<<<<<<<<<<<DIALOG SHOULD GO HERE, FOR NOW IT WILL SELECT THE ONLY CASE ON THE LIST
-how_many_cases_to_make = 2
+	'DIALOG SHOULD WARN USERS THAT IF THEY JUST WROTE A SCENARIO THEY SHOULD CHECK IT BY ONLY MAKING ONE CASE BEFORE ASSUMING IT WORKS
+	'FOR NOW, THESE VARIABLES EXIST WITHOUT A DIALOG. ADD THEM TO A DIALOG SOMEDAY.
+how_many_cases_to_make = 1
+excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
 
 'Determines how many HH members there are, as this script can run for multiple-member households.
 excel_col = 3																		'Col 3 is always the primary applicant's col
@@ -235,19 +238,136 @@ Next
 'Removing the last "|" from the case_number_array so as to avoid it trying to work a blank case number through PND1
 case_number_array = left(case_number_array, len(case_number_array) - 1)
 
+'Splitting the case numbers into an array
+case_number_array = split(case_number_array, "|")
+
 '========================================================================PND1 PANELS========================================================================
 
-MsgBox case_number_array
+For each case_number in case_number_array
+	'Navigates into STAT. For PND1 cases, this will trigger workflow for adding the right panels.
+	call navigate_to_screen ("STAT", "____")
+	
+	'Transmits, to get to TYPE panel
+	transmit
+	
+	'At this time, it will always mark GRH and IV-E as "N"
+	EMWriteScreen "N", 6, 64	'GRH
+	EMWriteScreen "N", 6, 73	'IV-E
+	
+	'Reading and writing info for the TYPE panel
+	'Uses a for...next to enter each HH member's info
+	For current_memb = 1 to total_membs
+		current_excel_col = current_memb + 2							'There's two columns before the first HH member, so we have to add 2 to get the current excel col
+		current_MAXIS_row = current_memb + 5							'MEMB 01 always gets entered on row 6, which each subsequent added to the following row. Adding 5 to current_memb simplifies this.
+		'reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
+		
+		'Reading the info
+		TYPE_starting_excel_row = 36
+		TYPE_cash_yn = objExcel.Cells(TYPE_starting_excel_row, current_excel_col).Value
+		TYPE_hc_yn = objExcel.Cells(TYPE_starting_excel_row + 1, current_excel_col).Value
+		TYPE_fs_yn = objExcel.Cells(TYPE_starting_excel_row + 2, current_excel_col).Value
+		
+		'Writing the info
+		EMWriteScreen TYPE_cash_yn, current_MAXIS_row, 28
+		EMWriteScreen TYPE_hc_yn, current_MAXIS_row, 37
+		EMWriteScreen TYPE_fs_yn, current_MAXIS_row, 46
+		EMWriteScreen "N", current_MAXIS_row, 55			'At this time, it will always mark EMER as "N"
+		
+		'If any TYPE options are selected, we need to track this to know which items to type on PROG. If any are "Y", it'll update these variables.
+		If ucase(TYPE_cash_yn) = "Y" then cash_application = True
+		If ucase(TYPE_hc_yn) = "Y" then hc_application = True
+		If ucase(TYPE_fs_yn) = "Y" then SNAP_application = True
+	Next
+	
+	'Transmits to get to PROG
+	transmit
+	
+	'Gathers the mig worker variable from Excel. Since it's the only one, we won't use a PROG starting row variable. And since it's case based, we'll only look in col 3
+	PROG_mig_worker = objExcel.Cells(39, 3).Value
+	
+	'Enters in the APPL date on PROG for any programs applied for, and the interview date will always be the APPL date at this time.
+	If cash_application = True then
+		call create_MAXIS_friendly_date(APPL_date, 0, 6, 33)
+		call create_MAXIS_friendly_date(APPL_date, 0, 6, 44)
+		call create_MAXIS_friendly_date(APPL_date, 0, 6, 55)
+	End if
+	If SNAP_application = True then
+		call create_MAXIS_friendly_date(APPL_date, 0, 10, 33)
+		call create_MAXIS_friendly_date(APPL_date, 0, 10, 44)
+		call create_MAXIS_friendly_date(APPL_date, 0, 10, 55)
+	End if
+	If HC_application = True then call create_MAXIS_friendly_date(APPL_date, 0, 12, 33)		'No interview or elig begin dt for HC
+	
+	'Enters migrant worker info
+	EMWriteScreen PROG_mig_worker, 18, 67
+	
+	'If the case is HC, it needs to transmit one more time, to get off of the HCRE screen (we'll add it later)
+	If HC_application = True then transmit
+	
+	'Transmits (gets to REVW)
+	transmit
+	
+	'Now we're on REVW and it needs to take different actions for each program. We need to know 6 month and 12 month dates though, for the sake of figuring out review months.
+	'Scanning info from REPT section of spreadsheet
+	REVW_starting_excel_row = 40
+	REVW_ar_or_ir = objExcel.Cells(REVW_starting_excel_row, 3).Value	'Will return either a blank, an "IR", or an "AR"
+	REVW_exempt = objExcel.Cells(REVW_starting_excel_row + 1, 3).Value	'Case based, so we'll only look at col 3
+	
+	'Determining those dates
+	six_month_recert_date = dateadd("m", 6, APPL_date)							'Determines info for the six month recert
+	six_month_month = datepart("m", six_month_recert_date)
+	If len(six_month_month) = 1 then six_month_month = "0" & six_month_month 
+	six_month_year = right(six_month_recert_date, 2)
+	one_year_recert_date = dateadd("m", 12, APPL_date)							'Determines info for the annual recert
+	one_year_month = datepart("m", one_year_recert_date)
+	If len(one_year_month) = 1 then one_year_month = "0" & one_year_month 
+	one_year_year = right(one_year_recert_date, 2)
 
+	'Adds cash dates
+	If cash_application = true then
+		EMWriteScreen one_year_month, 9, 37
+		EMWriteScreen one_year_year, 9, 43
+	End if
+	
+	'Adds SNAP dates and info
+	If SNAP_application = true then
+		EMWriteScreen "N", 15, 75		'Phone interview field
+		EMWriteScreen "x", 5, 58		
+		transmit
+		EMWriteScreen six_month_month, 9, 26
+		EMWriteScreen six_month_year, 9, 32
+		EMWriteScreen one_year_month, 9, 64
+		EMWriteScreen one_year_year, 9, 70
+		transmit
+		transmit
+	End if
+	
+	'Adds HC dates and info
+	If HC_application = true then
+		EMWriteScreen "x", 5, 71
+		transmit
+		If REVW_ar_or_ir = "IR" then
+			EMWriteScreen six_month_month, 8, 27
+			EMWriteScreen six_month_year, 8, 33
+		ElseIf REVW_ar_or_ir = "AR" then
+			EMWriteScreen six_month_month, 8, 71
+			EMWriteScreen six_month_year, 8, 77
+		End if
+		EMWriteScreen one_year_month, 9, 27
+		EMWriteScreen one_year_year, 9, 33
+		EMWriteScreen REVW_exempt, 9, 71
+		transmit
+		transmit
+	End if
+
+	transmit
+	transmit	
+	
+Next
+
+MsgBox "EXIT"
 stopscript
 
-'PND1 function variables
-'TYPE_cash_yn
-'TYPE_hc_yn
-'TYPE_fs_yn
-'PROG_mig_worker
-'REVW_ar_or_ir
-'REVW_exempt
 
 'VARIABLES THAT NEED TO BE COLLECTED PER EACH MEMB (IN FOR NEXT)
 'SSN_first
@@ -255,7 +375,6 @@ stopscript
 'SSN_last
 
 'Do all STAT panels
-'STORE ALL CASE NUMBERS AS AN ARRAY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 'Do approval
 
 call script_end_procedure("")
