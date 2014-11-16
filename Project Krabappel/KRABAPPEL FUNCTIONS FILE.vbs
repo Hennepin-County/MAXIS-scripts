@@ -180,7 +180,7 @@ End Function
 
 'BIG SLEW OF MAXIS WRITE FUNCTIONS------------------------------------------------------------------------------------------
 Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
-	call navigate_to_screen("STAT","PARE")
+	call navigate_to_screen("STAT","PARE")							'Starts by creating an array of all the kids on PARE
 	EMReadScreen abps_pare_check, 1, 2, 78
 	If abps_pare_check = "0" then
 		MsgBox "No PARE exists. Exiting Creating ABPS."
@@ -202,7 +202,7 @@ Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 				row = 8
 			End If
 		Loop until child_check = "__"
-		call navigate_to_screen("STAT","ABPS")
+		call navigate_to_screen("STAT","ABPS")						'Navigates to ABPS to enter kids in
 		call create_panel_if_nonexistent		
 		abps_child_list = split(child_list, ",")
 		row = 15
@@ -216,11 +216,11 @@ Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 				row = 15
 			End If		
 		next
-		call MAXIS_dater(date(),abps_act_date,"Actual Date")
+		call MAXIS_dater(date, abps_act_date, "Actual Date")
 		EMWriteScreen left(abps_act_date,2)			, 18, 38
 		EMWriteScreen mid(abps_act_date,4,2)		, 18, 41
 		EMWriteScreen "20" & right(abps_act_date,2)	, 18, 44
-		EMWriteScreen reference_number, 4, 47
+		EMWriteScreen reference_number, 4, 47		'Enters the reference_number
 		If abps_supp_coop <> "" then
 			abps_supp_coop = ucase(abps_supp_coop)
 			abps_supp_coop = left(abps_supp_coop,1)
@@ -458,6 +458,7 @@ End function
 FUNCTION write_panel_to_MAXIS_EATS(eats_together, eats_boarder, eats_group_one, eats_group_two, eats_group_three)
 	IF reference_number = "01" THEN
 		call navigate_to_screen("STAT", "EATS")
+		call create_panel_if_nonexistent
 		EMWriteScreen eats_together, 4, 72
 		EMWriteScreen eats_boarder, 5, 72
 		IF ucase(eats_together) = "N" THEN
@@ -877,25 +878,24 @@ End Function
 FUNCTION write_panel_to_MAXIS_PARE(PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
 	Call navigate_to_screen("STAT", "PARE") 
 	call create_panel_if_nonexistent
-	call create_panel_if_nonexistent
-		EMWritescreen PARE_child_1, 8, 24
-		EMWritescreen PARE_child_1_relation, 8, 53
-		EMWritescreen PARE_child_1_verif, 8, 71
-		EMWritescreen PARE_child_2, 9, 24
-		EMWritescreen PARE_child_2_relation, 9, 53
-		EMWritescreen PARE_child_2_verif, 9, 71
-		EMWritescreen PARE_child_3, 10, 24
-		EMWritescreen PARE_child_3_relation, 10, 53
-		EMWritescreen PARE_child_3_verif, 10, 71
-		EMWritescreen PARE_child_4, 11, 24
-		EMWritescreen PARE_child_4_relation, 11, 53
-		EMWritescreen PARE_child_4_verif, 11, 71
-		EMWritescreen PARE_child_5, 12, 24
-		EMWritescreen PARE_child_5_relation, 12, 53
-		EMWritescreen PARE_child_5_verif, 12, 71
-		EMWritescreen PARE_child_6, 13, 24
-		EMWritescreen PARE_child_6_relation, 13, 53
-		EMWritescreen PARE_child_6_verif, 13, 71
+	EMWritescreen PARE_child_1, 8, 24
+	EMWritescreen PARE_child_1_relation, 8, 53
+	EMWritescreen PARE_child_1_verif, 8, 71
+	EMWritescreen PARE_child_2, 9, 24
+	EMWritescreen PARE_child_2_relation, 9, 53
+	EMWritescreen PARE_child_2_verif, 9, 71
+	EMWritescreen PARE_child_3, 10, 24
+	EMWritescreen PARE_child_3_relation, 10, 53
+	EMWritescreen PARE_child_3_verif, 10, 71
+	EMWritescreen PARE_child_4, 11, 24
+	EMWritescreen PARE_child_4_relation, 11, 53
+	EMWritescreen PARE_child_4_verif, 11, 71
+	EMWritescreen PARE_child_5, 12, 24
+	EMWritescreen PARE_child_5_relation, 12, 53
+	EMWritescreen PARE_child_5_verif, 12, 71
+	EMWritescreen PARE_child_6, 13, 24
+	EMWritescreen PARE_child_6_relation, 13, 53
+	EMWritescreen PARE_child_6_verif, 13, 71
 	transmit
 end function
 
@@ -1209,35 +1209,35 @@ FUNCTION write_panel_to_MAXIS_SIBL(SIBL_group_1, SIBL_group_2, SIBL_group_3)
 	call navigate_to_screen("STAT", "SIBL")
 	call create_panel_if_nonexistent
 	If SIBL_group_1 <> "" then 
-		EMWritescreen "01", 13, 28
-		SIBL_group_1 = relace(SIBL_group_1, " ", "") 'Removing spaces
+		EMWritescreen "01", 7, 28
+		SIBL_group_1 = replace(SIBL_group_1, " ", "") 'Removing spaces
 		SIBL_group_1 = split(SIBL_group_1, ",") 'Splits the sibling group value into an array by commas
 		SIBL_col = 39
 		For Each SIBL_group_member in SIBL_group_1 'Writes the member numbers onto the group line
-			EMWritescreen SIBL_group_member, 13, SIBL_col
-			SIBL_col = SIBL_col + 5
+			EMWritescreen SIBL_group_member, 7, SIBL_col
+			SIBL_col = SIBL_col + 4
 		Next
 	End if
 	
 	If SIBL_group_2 <> "" then
-		EMWritescreen "02", 14, 28
-		SIBL_group_2 = relace(SIBL_group_2, " ", "")
+		EMWritescreen "02", 8, 28
+		SIBL_group_2 = replace(SIBL_group_2, " ", "")
 		SIBL_group_2 = split(SIBL_group_2, ",")
 		SIBL_col = 39
 		For Each SIBL_group_member in SIBL_group_2
-			EMWritescreen SIBL_group_member, 14, SIBL_col
-			SIBL_col = SIBL_col + 5
+			EMWritescreen SIBL_group_member, 8, SIBL_col
+			SIBL_col = SIBL_col + 4
 		Next
 	End if
 	
 	If SIBL_group_3 <> "" then
-		EMWritescreen "03", 15, 28
-		SIBL_group_2 = relace(SIBL_group_3, " ", "")
+		EMWritescreen "03", 9, 28
+		SIBL_group_2 = replace(SIBL_group_3, " ", "")
 		SIBL_group_2 = split(SIBL_group_3, ",")
 		SIBL_col = 39
 		For Each SIBL_group_member in SIBL_group_3
-			EMWritescreen SIBL_group_member, 14, SIBL_col
-			SIBL_col = SIBL_col + 5
+			EMWritescreen SIBL_group_member, 9, SIBL_col
+			SIBL_col = SIBL_col + 4
 		Next
 	End if		
 	transmit
