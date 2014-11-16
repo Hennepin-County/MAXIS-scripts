@@ -551,7 +551,7 @@ FOR EACH case_number IN case_number_array
 		END IF
 	End if
 	
-	'Checks for WORK panel (Workforce One Referral), makes one with a week from now as the appointment date (default)
+	'Checks for WORK panel (Workforce One Referral), makes one with a week from now as the appointment date as a default (we can add a specific date/location checker as an enhancement
 	EMReadScreen WORK_check, 4, 2, 51
 	If WORK_check = "WORK" then
 		call create_MAXIS_friendly_date(date, 7, 7, 59)
