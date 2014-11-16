@@ -179,8 +179,7 @@ Function excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbo
 End Function
 
 'BIG SLEW OF MAXIS WRITE FUNCTIONS------------------------------------------------------------------------------------------
-
-Function write_panel_to_maxis_ABPS(abps_supp_coop,abps_gc_status)
+Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 	call navigate_to_screen("STAT","PARE")
 	EMReadScreen abps_pare_check, 1, 2, 78
 	If abps_pare_check = "0" then
@@ -217,7 +216,7 @@ Function write_panel_to_maxis_ABPS(abps_supp_coop,abps_gc_status)
 				row = 15
 			End If		
 		next
-		call maxis_dater(date(),abps_act_date,"Actual Date")
+		call MAXIS_dater(date(),abps_act_date,"Actual Date")
 		EMWriteScreen left(abps_act_date,2)			, 18, 38
 		EMWriteScreen mid(abps_act_date,4,2)		, 18, 41
 		EMWriteScreen "20" & right(abps_act_date,2)	, 18, 44
@@ -232,17 +231,16 @@ Function write_panel_to_maxis_ABPS(abps_supp_coop,abps_gc_status)
 		End If
 		transmit
 	End If
-	
 End Function
 
-Function write_panel_to_maxis_ACCT(acct_type, acct_numb, acct_location, acct_balance, acct_bal_ver, acct_date, acct_withdraw, acct_cash_count, acct_snap_count, acct_HC_count, acct_GRH_count, acct_IV_count, acct_joint_owner, acct_share_ratio, acct_interest_date_mo, acct_interest_date_yr)
+Function write_panel_to_MAXIS_ACCT(acct_type, acct_numb, acct_location, acct_balance, acct_bal_ver, acct_date, acct_withdraw, acct_cash_count, acct_snap_count, acct_HC_count, acct_GRH_count, acct_IV_count, acct_joint_owner, acct_share_ratio, acct_interest_date_mo, acct_interest_date_yr)
 	Call Navigate_to_screen(STAT, ACCT)  'navigates to the stat panel
 	Emwritescreen acct_type, 6, 44  'enters the account type code
 	Emwritescreen acct_numb, 7, 44  'enters the account number
 	Emwritescreen acct_location, 8, 44  'enters the account location
 	Emwritescreen acct_balance, 10, 46  'enters the balance
 	Emwritescreen acct_bal_ver, 10, 63  'enters the balance verification
-	call create_maxis_friendly_date(acct_date, 0, 11, 44)  'enters the account balance date in a maxis friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(acct_date, 0, 11, 44)  'enters the account balance date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen acct_withdraw, 12, 46  'enters the withdrawl penalty
 	Emwritescreen acct_cash_count, 14, 50  'enters y/n if counted for cash
 	Emwritescreen acct_snap_count, 14, 57  'enters y/n if counted for snap
@@ -256,7 +254,7 @@ Function write_panel_to_maxis_ACCT(acct_type, acct_numb, acct_location, acct_bal
 	Emwritescreen acct_interest_date_yr, 17, 60  'enters the next interest date YY format
 End Function
 
-FUNCTION write_panel_to_maxis_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electric, ACUT_fuel, ACUT_garbage, ACUT_water, ACUT_sewer, ACUT_other, ACUT_phone, ACUT_heat_verif, ACUT_air_verif, ACUT_electric_verif, ACUT_fuel_verif, ACUT_garbage_verif, ACUT_water_verif, ACUT_sewer_verif, ACUT_other_verif)
+FUNCTION write_panel_to_MAXIS_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electric, ACUT_fuel, ACUT_garbage, ACUT_water, ACUT_sewer, ACUT_other, ACUT_phone, ACUT_heat_verif, ACUT_air_verif, ACUT_electric_verif, ACUT_fuel_verif, ACUT_garbage_verif, ACUT_water_verif, ACUT_sewer_verif, ACUT_other_verif)
 	call navigate_to_screen("STAT", "ACUT")
 	call create_if_nonexistant
 		EMWritescreen ACUT_shared, 6, 42
@@ -281,11 +279,11 @@ FUNCTION write_panel_to_maxis_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electr
 end function
 
 '---This function writes using the variables read off of the specialized excel template to the busi panel in MAXIS
-Function write_panel_to_maxis_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
+Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
 	Call navigate_to_screen(STAT, BUSI)  'navigates to the stat panel
 	Emwritescreen busi_type, 5, 37  'enters self employment type
-	call create_maxis_friendly_date(busi_start_date, 0, 5, 54)  'enters self employment start date in maxis friendly format mm/dd/yy
-	call create_maxis_friendly_date(busi_end_date, 0, 5, 71)  'enters self employment start date in maxis friendly format mm/dd/yy
+	call create_MAXIS_friendly_date(busi_start_date, 0, 5, 54)  'enters self employment start date in MAXIS friendly format mm/dd/yy
+	call create_MAXIS_friendly_date(busi_end_date, 0, 5, 71)  'enters self employment start date in MAXIS friendly format mm/dd/yy
 	Emwritescreen "x", 7, 26  'this enters into the gross income calculator
 	Transmit
 	Do
@@ -339,7 +337,7 @@ Function write_panel_to_maxis_BUSI(busi_type, busi_start_date, busi_end_date, bu
 	End IF
 end function
 
-Function write_panel_to_maxis_CARS(cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_owed_as_of, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio)
+Function write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_owed_as_of, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio)
 	Call Navigate_to_screen(STAT, CARS)  'navigates to the stat screen
 	Emwritescreen cars_type, 6, 43  'enters the vehicle type
 	Emwritescreen cars_year, 8, 31  'enters the vehicle year
@@ -351,7 +349,7 @@ Function write_panel_to_maxis_CARS(cars_type, cars_year, cars_make, cars_model, 
 	Emwritescreen cars_ownership_ver, 10, 60  'enters the ownership verification code
 	Emwritescreen cars_amount_owed, 12, 45  'enters the amount owed on vehicle
 	Emwritescreen cars_amount_owed_ver, 12, 60  'enters the amount owed verification code
-	call create_maxis_friendly_date(cars_date, 0, 13, 43)  'enters the amouted owed as of date in a maxis friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(cars_date, 0, 13, 43)  'enters the amouted owed as of date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen cars_use, 15, 43  'enters the use code for the vehicle
 	Emwritescreen cars_HC_benefit, 15, 76  'enters if the vehicle is for client benefit
 	Emwritescreen cars_joint_owner, 16, 43  'enters if it is a jointly owned car
@@ -360,12 +358,12 @@ Function write_panel_to_maxis_CARS(cars_type, cars_year, cars_make, cars_model, 
 End Function
 
 '---This function writes using the variables read off of the specialized excel template to the cash panel in MAXIS
-Function write_panel_to_maxis_CASH(cash_amount)
+Function write_panel_to_MAXIS_CASH(cash_amount)
 	Call navigate_to_screen(STAT, CASH)  'navigates to the stat panel
 	Emwritescreen cash_amount, 8, 39
 End Function
 
-FUNCTION write_panel_to_maxis_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
+FUNCTION write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
 	call navigate_to_screen("STAT", "DCEX") 
 	call create_if_nonexistant
 	EMWritescreen DCEX_provider, 6, 47
@@ -398,7 +396,7 @@ FUNCTION write_panel_to_maxis_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCE
 	transmit
 End function
 
-FUNCTION write_panel_to_maxis_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DIET_mfip_2_ver, DIET_msa_1, DIET_msa_1_ver, DIET_msa_2, DIET_msa_2_ver, DIET_msa_3, DIET_msa_3_ver, DIET_msa_4, DIET_msa_4_ver)
+FUNCTION write_panel_to_MAXIS_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DIET_mfip_2_ver, DIET_msa_1, DIET_msa_1_ver, DIET_msa_2, DIET_msa_2_ver, DIET_msa_3, DIET_msa_3_ver, DIET_msa_4, DIET_msa_4_ver)
 	call navigate_to_screen("STAT", "DIET")
 	EMWriteScreen reference_number, 20, 76
 	EMWriteScreen "NN", 20, 79
@@ -420,16 +418,16 @@ FUNCTION write_panel_to_maxis_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DI
 END FUNCTION
 
 '---This function writes using the variables read off of the specialized excel template to the disa panel in MAXIS
-Function write_panel_to_maxis_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
+Function write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
 	Call navigate_to_screen(STAT, DISA)  'navigates to the stat panel
-	call create_maxis_friendly_date(disa_begin_date, 0, 6, 47)  'enters the disability begin date in a maxis friendly format. mm/dd/yy
-	call create_maxis_friendly_date(disa_end_date, 0, 6, 69)  'enters the disability end date in a maxis friendly format. mm/dd/yy
-	call create_maxis_friendly_date(disa_cert_begin, 0, 7, 47)  'enters the disability certification begin date in a maxis friendly format. mm/dd/yy
-	call create_maxis_friendly_date(disa_cert_end, 0, 7, 69)  'enters the disability certification end date in a maxis friendly format. mm/dd/yy
-	call create_maxis_friendly_date(disa_wavr_begin, 0, 8, 47)  'enters the disability waiver begin date in a maxis friendly format. mm/dd/yy
-	call create_maxis_friendly_date(disa_wavr_end, 0, 8, 69)  'enters the disability waiver end date in a maxis friendly format. mm/dd/yy
-	call create_maxis_friendly_date(disa_ghr_begin, 0, 9, 47)  'enters the disability ghr begin date in a maxis friendly format. mm/dd/yy
-	call create_maxis_friendly_date(disa_ghr_end, 0, 9, 69)  'enters the disability ghr end date in a maxis friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_begin_date, 0, 6, 47)  'enters the disability begin date in a MAXIS friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_end_date, 0, 6, 69)  'enters the disability end date in a MAXIS friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_cert_begin, 0, 7, 47)  'enters the disability certification begin date in a MAXIS friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_cert_end, 0, 7, 69)  'enters the disability certification end date in a MAXIS friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_wavr_begin, 0, 8, 47)  'enters the disability waiver begin date in a MAXIS friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_wavr_end, 0, 8, 69)  'enters the disability waiver end date in a MAXIS friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_ghr_begin, 0, 9, 47)  'enters the disability ghr begin date in a MAXIS friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(disa_ghr_end, 0, 9, 69)  'enters the disability ghr end date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen disa_cash_status, 11, 59  'enters status code for cash disa status
 	Emwritescreen disa_cash_status_ver, 11, 69  'enters verification code for cash disa status
 	Emwritescreen disa_snap_status, 12, 59  'enters status code for snap disa status
@@ -450,7 +448,7 @@ Function write_panel_to_MAXIS_DSTT(DSTT_ongoing_income, DSTT_HH_income_stop_date
 	EMWriteScreen income_expected_amt, 12, 71
 End function
 
-FUNCTION write_panel_to_maxis_EATS(eats_together, eats_boarder, eats_group_one, eats_group_two, eats_group_three)
+FUNCTION write_panel_to_MAXIS_EATS(eats_together, eats_boarder, eats_group_one, eats_group_two, eats_group_three)
 	IF reference_number = "01" THEN
 		call navigate_to_screen("STAT", "EATS")
 		EMWriteScreen eats_together, 4, 72
@@ -498,21 +496,21 @@ Function write_panel_to_MAXIS_EMMA(EMMA_medical_emergency, EMMA_health_consequen
 	call create_MAXIS_friendly_date(EMMA_end_date, 0, 14, 46)
 End function
 
-FUNCTION write_panel_to_maxis_EMPS(EMPS_orientation_date, EMPS_orientation_attended, EMPS_good_cause, EMPS_sanc_begin, EMPS_sanc_end, EMPS_memb_at_home, EMPS_care_family, EMPS_crisis, EMPS_hard_employ, EMPS_under1, EMPS_DWP_date)
+FUNCTION write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_attended, EMPS_good_cause, EMPS_sanc_begin, EMPS_sanc_end, EMPS_memb_at_home, EMPS_care_family, EMPS_crisis, EMPS_hard_employ, EMPS_under1, EMPS_DWP_date)
 	call navigate_to_screen("STAT", "EMPS")
 	call create_if_nonexistant
-	If EMPS_orientation_date <> "" then call create_maxis_friendly_date(EMPS_orientation_date, 0, 5, 39) 'enter orientation date
+	If EMPS_orientation_date <> "" then call create_MAXIS_friendly_date(EMPS_orientation_date, 0, 5, 39) 'enter orientation date
 	EMWritescreen left(EMPS_orientation_attended, 1), 5, 65 
 	EMWritescreen EMPS_good_cause, 5, 79
-	If EMPS_sanc_begin <> "" then call create_maxis_friendly_date(EMPS_sanc_begin, 1, 6, 39) 'Sanction begin date
-	If EMPS_sanc_end <> "" then call create_maxis_friendly_date(EMPS_sanc_end, 1, 6, 65) 'Sanction end date
+	If EMPS_sanc_begin <> "" then call create_MAXIS_friendly_date(EMPS_sanc_begin, 1, 6, 39) 'Sanction begin date
+	If EMPS_sanc_end <> "" then call create_MAXIS_friendly_date(EMPS_sanc_end, 1, 6, 65) 'Sanction end date
 	EMWritescreen left(EMPS_memb_at_home, 1), 8, 76
 	EMWritescreen left(EMPS_care_family, 1), 9, 76
 	EMWritescreen left(EMPS_crisis, 1), 10, 76
 	EMWritescreen EMPS_hard_employ, 11, 76
 	EMWritescreen left(EMPS_under1, 1), 12, 76
 	EMWritescreen "n", 13, 76 'enters n for child under 12 weeks
-	If EMPS_DWP_date <> "" then call create_maxis_friendly_date(EMPS_DWP_date, 1, 17, 40) 'DWP plan date
+	If EMPS_DWP_date <> "" then call create_MAXIS_friendly_date(EMPS_DWP_date, 1, 17, 40) 'DWP plan date
 End Function	
 
 Function write_panel_to_MAXIS_FACI(FACI_vendor_number, FACI_name, FACI_type, FACI_FS_eligible, FACI_FS_facility_type, FACI_date_in, FACI_date_out)
@@ -535,13 +533,13 @@ Function write_panel_to_MAXIS_FACI(FACI_vendor_number, FACI_name, FACI_type, FAC
 	transmit
 End function
 
-Function write_panel_to_maxis_HCRE(hcre_appl_addnd_date_input,hcre_retro_months_input,hcre_recvd_by_service_date_input)
+Function write_panel_to_MAXIS_HCRE(hcre_appl_addnd_date_input,hcre_retro_months_input,hcre_recvd_by_service_date_input)
 	call navigate_to_screen("STAT","HCRE")
 	call create_panel_if_nonexistent
 	'Converting the Appl Addendum Date into a usable format
-	call maxis_dater(hcre_appl_addnd_date_input, hcre_appl_addnd_date_output, "HCRE Addendum Date") 
+	call MAXIS_dater(hcre_appl_addnd_date_input, hcre_appl_addnd_date_output, "HCRE Addendum Date") 
 	'Converting the Received by service date into a usable format
-	call maxis_dater(hcre_recvd_by_service_date_input, hcre_recvd_by_service_date_output, "received by Service Date") 
+	call MAXIS_dater(hcre_recvd_by_service_date_input, hcre_recvd_by_service_date_output, "received by Service Date") 
 	'Converts Retro Months Input into a negative
 	hcre_retro_months_input = (Abs(hcre_retro_months_input)*(-1))
 	call add_months(hcre_retro_months_input,hcre_appl_addnd_date_output,hcre_retro_date_output)
@@ -570,7 +568,7 @@ Function write_panel_to_maxis_HCRE(hcre_appl_addnd_date_input,hcre_retro_months_
 	
 End Function
 
-FUNCTION write_panel_to_maxis_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
+FUNCTION write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
 	call navigate_to_screen("STAT", "HEST")
 	call create_if_nonexistant
 	call create_MAXIS_friendly_date(HEST_FS_choice_date, 1, 07, 40)
@@ -609,7 +607,7 @@ Function write_panel_to_MAXIS_IMIG(IMIG_imigration_status, IMIG_entry_date, IMIG
 	transmit
 End function
 
-Function write_panel_to_maxis_INSA(insa_pers_coop_ohi,insa_good_cause_status,insa_good_cause_cliam_date,insa_good_cause_evidence,insa_coop_cost_effect,insa_insur_name,insa_prescrip_drug_cover,insa_prescrip_end_date)
+Function write_panel_to_MAXIS_INSA(insa_pers_coop_ohi,insa_good_cause_status,insa_good_cause_cliam_date,insa_good_cause_evidence,insa_coop_cost_effect,insa_insur_name,insa_prescrip_drug_cover,insa_prescrip_end_date)
 	call navigate_to_screen("STAT","INSA")
 	call create_panel_if_nonexistent
 	
@@ -627,7 +625,7 @@ Function write_panel_to_maxis_INSA(insa_pers_coop_ohi,insa_good_cause_status,ins
 	
 	'Good Cause Claim Date
 	If insa_good_cause_cliam_date <> "" then
-		call maxis_dater(insa_good_cause_cliam_date, insa_good_cause_cliam_date_output, "Good Cause Claim Date")
+		call MAXIS_dater(insa_good_cause_cliam_date, insa_good_cause_cliam_date_output, "Good Cause Claim Date")
 		EMWriteScreen left(insa_good_cause_cliam_date_output,2)	, 6, 62	
 		EMWriteScreen mid(insa_good_cause_cliam_date_output,4,2), 6, 65	
 		EMWriteScreen right(insa_good_cause_cliam_date_output,2), 6, 68
@@ -661,7 +659,7 @@ Function write_panel_to_maxis_INSA(insa_pers_coop_ohi,insa_good_cause_status,ins
 	
 	'Prescription Drug Coverage End Date
 	If insa_prescrip_end_date <> "" then
-		call maxis_dater(insa_prescrip_end_date, insa_prescrip_end_date_output, "Good Cause Claim Date")
+		call MAXIS_dater(insa_prescrip_end_date, insa_prescrip_end_date_output, "Good Cause Claim Date")
 		EMWriteScreen left(insa_prescrip_end_date_output,2)	, 12, 62	
 		EMWriteScreen mid(insa_prescrip_end_date_output,4,2), 12, 65	
 		EMWriteScreen right(insa_prescrip_end_date_output,2), 12, 68
@@ -692,7 +690,7 @@ Function write_panel_to_maxis_INSA(insa_pers_coop_ohi,insa_good_cause_status,ins
 
 End Function
 
-FUNCTION write_panel_to_maxis_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_name, jobs_inc_start, jobs_wkly_hrs, jobs_hrly_wage, jobs_pay_freq)
+FUNCTION write_panel_to_MAXIS_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_name, jobs_inc_start, jobs_wkly_hrs, jobs_hrly_wage, jobs_pay_freq)
 	call navigate_to_screen("STAT", "JOBS")
 	EMWriteScreen reference_number, 20, 76
 	EMWriteScreen "NN", 20, 79
@@ -701,7 +699,7 @@ FUNCTION write_panel_to_maxis_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_
 	EMWriteScreen jobs_inc_type, 5, 38
 	EMWriteScreen jobs_inc_verif, 6, 38
 	EMWriteScreen jobs_employer_name, 7, 42
-	call create_maxis_friendly_date(jobs_inc_start, 0, 9, 35)
+	call create_MAXIS_friendly_date(jobs_inc_start, 0, 9, 35)
 	EMWriteScreen jobs_pay_freq, 18, 35
 	
 	'===== navigates to the SNAP PIC to update the PIC =====
@@ -710,7 +708,7 @@ FUNCTION write_panel_to_maxis_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_
 	DO
 		EMReadScreen at_snap_pic, 12, 3, 22
 	LOOP UNTIL at_snap_pic = "Food Support"
-	call create_maxis_friendly_date(date, 0, 5, 34)
+	call create_MAXIS_friendly_date(date, 0, 5, 34)
 	EMWriteScreen jobs_pay_freq, 5, 64
 	EMWriteScreen jobs_wkly_hrs, 8, 64
 	EMWriteScreen jobs_hrly_wage, 9, 66
@@ -812,7 +810,7 @@ Function write_panel_to_MAXIS_MEDI(SSN_first, SSN_mid, SSN_last, MEDI_claim_numb
 	transmit
 End function
 
-FUNCTION write_panel_to_maxis_MMSA(mmsa_liv_arr, mmsa_cont_elig, mmsa_spous_inc, mmsa_shared_hous)
+FUNCTION write_panel_to_MAXIS_MMSA(mmsa_liv_arr, mmsa_cont_elig, mmsa_spous_inc, mmsa_shared_hous)
 	IF mmsa_liv_arr <> "" THEN
 		call navigate_to_screen("STAT", "MMSA")
 		EMWriteScreen "NN", 20, 79
@@ -825,10 +823,10 @@ FUNCTION write_panel_to_maxis_MMSA(mmsa_liv_arr, mmsa_cont_elig, mmsa_spous_inc,
 	END IF
 END FUNCTION
 
-Function write_panel_to_maxis_MSUR(msur_begin_date)
+Function write_panel_to_MAXIS_MSUR(msur_begin_date)
 	call navigate_to_screen("STAT","MSUR")
 	call create_panel_if_nonexistent
-	call maxis_dater(msur_begin_date,return_date,"MNSure Begin Date")
+	call MAXIS_dater(msur_begin_date,return_date,"MNSure Begin Date")
 	'msur_begin_date This is the date MSUR began for this client  
 	col = 36
 	row = 7
@@ -851,14 +849,14 @@ Function write_panel_to_maxis_MSUR(msur_begin_date)
 End Function
 
 '---This function writes using the variables read off of the specialized excel template to the othr panel in MAXIS
-Function write_panel_to_maxis_OTHR(othr_type, othr_cash_value, othr_cash_value_ver, othr_owed, othr_owed_ver, othr_date, othr_cash_count, othr_SNAP_count, othr_HC_count, othr_IV_count, othr_joint, othr_share_ratio)
+Function write_panel_to_MAXIS_OTHR(othr_type, othr_cash_value, othr_cash_value_ver, othr_owed, othr_owed_ver, othr_date, othr_cash_count, othr_SNAP_count, othr_HC_count, othr_IV_count, othr_joint, othr_share_ratio)
 	Call navigate_to_screen(STAT, OTHR)  'navigates to the stat panel
 	Emwritescreen othr_type, 6, 40  'enters other asset type
 	Emwritescreen othr_cash_value, 8, 40  'enters cash value of asset
 	Emwritescreen othr_cash_value_ver, 8, 57  'enters cash value verification code
 	Emwritescreen othr_owed, 9, 40  'enters amount owed value
 	Emwritescreen othr_owed_ver, 9, 57  'enters amount owed verification code
-	call create_maxis_friendly_date(othr_date, 0, 10, 39)  'enters the as of date in a maxis friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(othr_date, 0, 10, 39)  'enters the as of date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen othr_cash_count, 12, 50  'enters y/n if counted for cash
 	Emwritescreen othr_SNAP_count, 12, 57  'enters y/n if counted for snap
 	Emwritescreen othr_HC_count, 12, 64  'enters y/n if counted for hc
@@ -868,7 +866,7 @@ Function write_panel_to_maxis_OTHR(othr_type, othr_cash_value, othr_cash_value_v
 	Emwritescreen right(othr_share_ratio, 1), 15, 54  'enters the ratio of ownership using the right 1 digit of what is entered into the file
 End Function
 
-FUNCTION write_panel_to_maxis_PARE(PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+FUNCTION write_panel_to_MAXIS_PARE(PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
 	Call navigate_to_screen("STAT", "PARE") 
 	call create_if_nonexistant
 	call create_if_nonexistant
@@ -894,42 +892,42 @@ FUNCTION write_panel_to_maxis_PARE(PARE_child_1, PARE_child_1_relation, PARE_chi
 end function
 
 '---This function writes using the variables read off of the specialized excel template to the pben panel in MAXIS
-Function write_panel_to_maxis_PBEN(pben_referal_date, pben_type, pben_appl_date, pben_appl_ver, pben_IAA_date, pben_disp)
+Function write_panel_to_MAXIS_PBEN(pben_referal_date, pben_type, pben_appl_date, pben_appl_ver, pben_IAA_date, pben_disp)
 	Call navigate_to_screen(STAT, PBEN)  'navigates to the stat panel
-	Emreadscreen pben_row_check, 2, 8, 24  'reads the maxis screen to find out if the PBEN row has already been used. 
+	Emreadscreen pben_row_check, 2, 8, 24  'reads the MAXIS screen to find out if the PBEN row has already been used. 
 	If pben_row_check = "  " THEN   'if the row is blank it enters it in the 8th row.
 		Emwritescreen pben_type, 8, 24  'enters pben type code
-		call create_maxis_friendly_date(pben_referal_date, 0, 8, 40)  'enters referal date in maxis friendly format mm/dd/yy
-		call create_maxis_friendly_date(pben_appl_date, 0, 8, 51)  'enters appl date in  maxis friendly format mm/dd/yy
+		call create_MAXIS_friendly_date(pben_referal_date, 0, 8, 40)  'enters referal date in MAXIS friendly format mm/dd/yy
+		call create_MAXIS_friendly_date(pben_appl_date, 0, 8, 51)  'enters appl date in  MAXIS friendly format mm/dd/yy
 		Emwritescreen pben_appl_ver, 8, 62  'enters appl verification code
-		call create_maxis_friendly_date(pben_IAA_date, 0, 8, 66)  'enters IAA date in maxis friendly format mm/dd/yy
+		call create_MAXIS_friendly_date(pben_IAA_date, 0, 8, 66)  'enters IAA date in MAXIS friendly format mm/dd/yy
 		Emwritescreen pben_disp, 8, 77  'enters the status of pben application 
 	else 
 		EMreadscreen pben_row_check, 2, 9, 24  'if row 8 is filled already it will move to row 9 and see if it has been used. 
 		IF pben_row_check = "  " THEN  'if the 9th row is blank it enters the information there. 
 		'second pben row
 			Emwritescreen pben_type, 9, 24
-			call create_maxis_friendly_date(pben_referal_date, 0, 9, 40)
-			call create_maxis_friendly_date(pben_appl_date, 0, 9, 51)
+			call create_MAXIS_friendly_date(pben_referal_date, 0, 9, 40)
+			call create_MAXIS_friendly_date(pben_appl_date, 0, 9, 51)
 			Emwritescreen pben_appl_ver, 9, 62
-			call create_maxis_friendly_date(pben_IAA_date, 0, 9, 66)
+			call create_MAXIS_friendly_date(pben_IAA_date, 0, 9, 66)
 			Emwritescreen pben_disp, 9, 77
 		else
 		Emreadscreen pben_row_check, 2, 10, 24  'if row 8 is filled already it will move to row 9 and see if it has been used.
 			IF pben-row_check = "  " THEN  'if the 9th row is blank it enters the information there.
 			'third pben row
 				Emwritescreen pben_type, 10, 24
-				call create_maxis_friendly_date(pben_referal_date, 0, 10, 40)
-				call create_maxis_friendly_date(pben_appl_date, 0, 10, 51)
+				call create_MAXIS_friendly_date(pben_referal_date, 0, 10, 40)
+				call create_MAXIS_friendly_date(pben_appl_date, 0, 10, 51)
 				Emwritescreen pben_appl_ver, 10, 62
-				call create_maxis_friendly_date(pben_IAA_date, 0, 10, 66)
+				call create_MAXIS_friendly_date(pben_IAA_date, 0, 10, 66)
 				Emwritescreen pben_disp, 10, 77
 			END IF
 		END IF
 	END IF
 End Function
 
-Function write_panel_to_maxis_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
+Function write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
 	call navigate_to_screen("STAT","PDED")
 	call create_panel_if_nonexistent
 	
@@ -1035,7 +1033,7 @@ Function write_panel_to_maxis_PDED(PDED_wid_deduction, PDED_adult_child_disregar
 	
 End Function
 
-FUNCTION write_panel_to_maxis_PREG(PREG_conception_date, PREG_conception_date_ver, PREG_third_trimester_ver,PREG_due_date, PREG_multiple_birth)
+FUNCTION write_panel_to_MAXIS_PREG(PREG_conception_date, PREG_conception_date_ver, PREG_third_trimester_ver,PREG_due_date, PREG_multiple_birth)
 	call navigate_to_screen("STAT", "PREG")
 	call create_if_nonexistant
 	EMWritescreen "NN", 20, 79
@@ -1049,11 +1047,11 @@ FUNCTION write_panel_to_maxis_PREG(PREG_conception_date, PREG_conception_date_ve
 end function
 
 '---This function writes using the variables read off of the specialized excel template to the rbic panel in MAXIS
-Function write_panel_to_maxis_RBIC(rbic_type, rbic_start_date, rbic_end_date, rbic_group_1, rbic_retro_income_group_1, rbic_prosp_income_group_1, rbic_ver_income_group_1, rbic_group_2, rbic_retro_income_group_2, rbic_prosp_income_group_2, rbic_ver_income_group_2, rbic_group_3, rbic_retro_income_group_3, rbic_prosp_income_group_3, rbic_ver_income_group_3, rbic_retro_hours, rbic_prosp_hours, rbic_exp_type_1, rbic_exp_retro_1, rbic_exp_prosp_1, rbic_exp_ver_1, rbic_exp_type_2, rbic_exp_retro_2, rbic_exp_prosp_2, rbic_exp_ver_2)
+Function write_panel_to_MAXIS_RBIC(rbic_type, rbic_start_date, rbic_end_date, rbic_group_1, rbic_retro_income_group_1, rbic_prosp_income_group_1, rbic_ver_income_group_1, rbic_group_2, rbic_retro_income_group_2, rbic_prosp_income_group_2, rbic_ver_income_group_2, rbic_group_3, rbic_retro_income_group_3, rbic_prosp_income_group_3, rbic_ver_income_group_3, rbic_retro_hours, rbic_prosp_hours, rbic_exp_type_1, rbic_exp_retro_1, rbic_exp_prosp_1, rbic_exp_ver_1, rbic_exp_type_2, rbic_exp_retro_2, rbic_exp_prosp_2, rbic_exp_ver_2)
 	call navigate_to_screen(STAT, RBIC)  'navigates to the stat panel
 	EMwritescreen rbic_type, 5, 44  'enters rbic type code
-	call create_maxis_friendly_date(rbic_start_date, 0, 6, 44)  'creates and enters a maxis friend date in the format mm/dd/yy for rbic start date
-	call create_maxis_friendly_date(rbic_end_date, 6, 68)  'creates and enters a maxis friend date in the format mm/dd/yy for rbic end date
+	call create_MAXIS_friendly_date(rbic_start_date, 0, 6, 44)  'creates and enters a MAXIS friend date in the format mm/dd/yy for rbic start date
+	call create_MAXIS_friendly_date(rbic_end_date, 6, 68)  'creates and enters a MAXIS friend date in the format mm/dd/yy for rbic end date
 	rbic_group_1 = replace(rbic_group_1, " ", "")  'this will replace any spaces in the array with nothing removing the spaces.
 	rbic_group_1 = split(rbic_group_1, ",")  'this will split up the reference numbers in the array based on commas
 	rbic_col = 25                            'this will set the starting column to enter rbic reference numbers
@@ -1097,7 +1095,7 @@ Function write_panel_to_maxis_RBIC(rbic_type, rbic_start_date, rbic_end_date, rb
 end function
 
 '---This function writes using the variables read off of the specialized excel template to the rest panel in MAXIS
-Function write_panel_to_maxis_REST(rest_type, rest_type_ver, rest_market, rest_market_ver, rest_owed, rest_owed_ver, rest_date, rest_status, rest_joint, rest_share_ratio, rest_agreement_date)
+Function write_panel_to_MAXIS_REST(rest_type, rest_type_ver, rest_market, rest_market_ver, rest_owed, rest_owed_ver, rest_date, rest_status, rest_joint, rest_share_ratio, rest_agreement_date)
 	Call navigate_to_screen(STAT, REST)  'navigates to the stat panel
 	Emwritescreen rest_type, 6, 39  'enters residence type
 	Emwritescreen rest_type_ver, 6, 62  'enters verification of residence type
@@ -1105,12 +1103,12 @@ Function write_panel_to_maxis_REST(rest_type, rest_type_ver, rest_market, rest_m
 	Emwritescreen rest_market_ver, 8, 62  'enters market value verification code
 	Emwritescreen rest_owed, 9, 41  'enters amount owned on residence
 	Emwritescreen rest_owed_ver, 9, 62  'enters amount owed verification code
-	call create_maxis_friendly_date(rest_date, 0, 10, 39)  'enters the as of date in a maxis friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(rest_date, 0, 10, 39)  'enters the as of date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen rest_status, 12, 54  'enters property status code
 	Emwritescreen rest_joint, 13, 54  'enters if it is a jointly owned home
 	Emwritescreen left(rest_share_ratio, 1), 14, 54  'enters the ratio of ownership using the left 1 digit of what is entered into the file
 	Emwritescreen right(rest_share_ratio, 1), 14, 58  'enters the ratio of ownership using the right 1 digit of what is entered into the file
-	call create_maxis_friendly_date(rest_agreement_date, 0, 16, 62)
+	call create_MAXIS_friendly_date(rest_agreement_date, 0, 16, 62)
 End Function
 
 Function write_panel_to_MAXIS_SCHL(SCHL_status, SCHL_ver, SCHL_type, SCHL_district_nbr, SCHL_kindergarten_start_date, SCHL_grad_date, SCHL_grad_date_ver, SCHL_primary_secondary_funding, SCHL_FS_eligibility_status, SCHL_higher_ed)
@@ -1135,13 +1133,13 @@ Function write_panel_to_MAXIS_SCHL(SCHL_status, SCHL_ver, SCHL_type, SCHL_distri
 End function
 
 '---This function writes using the variables read off of the specialized excel template to the secu panel in MAXIS
-Function write_panel_to_maxis_SECU(secu_type, secu_pol_numb, secu_name, secu_cash_val, secu_date, secu_cash_ver, secu_face_val, secu_withdraw, secu_cash_count, secu_SNAP_count, secu_HC_count, secu_GRH_count, secu_IV_count, secu_joint, secu_share_ratio)
+Function write_panel_to_MAXIS_SECU(secu_type, secu_pol_numb, secu_name, secu_cash_val, secu_date, secu_cash_ver, secu_face_val, secu_withdraw, secu_cash_count, secu_SNAP_count, secu_HC_count, secu_GRH_count, secu_IV_count, secu_joint, secu_share_ratio)
 	Call navigate_to_screen(STAT, SECU)  'navigates to the stat panel
 	Emwritescreen secu_type, 6, 50  'enters security type
 	Emwritescreen secu_pol_numb, 7, 50  'enters policy number
 	Emwritescreen secu_name, 8, 50  'enters name of policy
 	Emwritescreen secu_cash_val, 10, 52  'enters cash value of policy
-	call create_maxis_friendly_date(secu_date, 0, 11, 35)  'enters the as of date in a maxis friendly format. mm/dd/yy
+	call create_MAXIS_friendly_date(secu_date, 0, 11, 35)  'enters the as of date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen secu_cash_ver, 11, 50  'enters cash value verification code
 	Emwritescreen secu_face_val, 12, 52  'enters face value of policy
 	Emwritescreen secu_withdraw, 13, 52  'enters withdrawl penalty
@@ -1155,7 +1153,7 @@ Function write_panel_to_maxis_SECU(secu_type, secu_pol_numb, secu_name, secu_cas
 	Emwritescreen right(secu_share_ratio, 1), 16, 80  'enters the ratio of ownership using the right 1 digit of what is entered into the file
 End Function
 
-FUNCTION write_panel_to_maxis_SHEL(SHEL_subsidized, SHEL_shared, SHEL_paid_to, SHEL_rent_retro, SHEL_rent_retro_ver, SHEL_rent_pro, SHEL_rent_pro_ver, SHEL_lot_rent_retro, SHEL_lot_rent_retro_ver, SHEL_lot_rent_pro, SHEL_lot_rent_pro_ver, SHEL_mortgage_retro, SHEL_mortgage_retro_ver, SHEL_mortgage_pro, SHEL_mortgage_pro_ver, SHEL_insur_retro, SHEL_insur_retro_ver, SHEL_insur_pro, SHEL_insur_pro_ver, SHEL_taxes_retro, SHEL_taxes_retro_ver, SHEL_taxes_pro, SHEL_taxes_pro_ver, SHEL_room_retro, SHEL_room_retro_ver, SHEL_room_pro, SHEL_room_pro_ver, SHEL_garage_retro, SHEL_garage_retro_ver, SHEL_garage_pro, SHEL_garage_pro_ver, SHEL_subsidy_retro, SHEL_subsidy_retro_ver, SHEL_subsidy_pro, SHEL_subsidy_pro_ver)
+FUNCTION write_panel_to_MAXIS_SHEL(SHEL_subsidized, SHEL_shared, SHEL_paid_to, SHEL_rent_retro, SHEL_rent_retro_ver, SHEL_rent_pro, SHEL_rent_pro_ver, SHEL_lot_rent_retro, SHEL_lot_rent_retro_ver, SHEL_lot_rent_pro, SHEL_lot_rent_pro_ver, SHEL_mortgage_retro, SHEL_mortgage_retro_ver, SHEL_mortgage_pro, SHEL_mortgage_pro_ver, SHEL_insur_retro, SHEL_insur_retro_ver, SHEL_insur_pro, SHEL_insur_pro_ver, SHEL_taxes_retro, SHEL_taxes_retro_ver, SHEL_taxes_pro, SHEL_taxes_pro_ver, SHEL_room_retro, SHEL_room_retro_ver, SHEL_room_pro, SHEL_room_pro_ver, SHEL_garage_retro, SHEL_garage_retro_ver, SHEL_garage_pro, SHEL_garage_pro_ver, SHEL_subsidy_retro, SHEL_subsidy_retro_ver, SHEL_subsidy_pro, SHEL_subsidy_pro_ver)
 	call navigate_to_screen("STAT", "SHEL")
 	call create_if_nonexistant
 	EMWritescreen SHEL_subsidized, 6, 42
@@ -1195,7 +1193,7 @@ FUNCTION write_panel_to_maxis_SHEL(SHEL_subsidized, SHEL_shared, SHEL_paid_to, S
 	transmit
 end function
 
-FUNCTION write_panel_to_maxis_SIBL(SIBL_group_1, SIBL_group_2, SIBL_group_3)
+FUNCTION write_panel_to_MAXIS_SIBL(SIBL_group_1, SIBL_group_2, SIBL_group_3)
 	call navigate_to_screen("STAT", "SIBL")
 	call create_if_nonexistant
 	If SIBL_group_1 <> "" then 
@@ -1296,7 +1294,7 @@ Function write_panel_to_MAXIS_STIN(STIN_type_1, STIN_amt_1, STIN_avail_date_1, S
 	EMWriteScreen STIN_ver_2, 9, 76
 End function
 
-Function write_panel_to_maxis_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_stop_date_verif, STWK_inc_stop_date, STWK_refused_empl_yn, STWK_vol_quit, STWK_ref_empl_date, STWK_gc_cash, STWK_gc_grh, STWK_gc_fs, STWK_fs_pwe, STWK_maepd_ext)
+Function write_panel_to_MAXIS_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_stop_date_verif, STWK_inc_stop_date, STWK_refused_empl_yn, STWK_vol_quit, STWK_ref_empl_date, STWK_gc_cash, STWK_gc_grh, STWK_gc_fs, STWK_fs_pwe, STWK_maepd_ext)
 	call navigate_to_screen("STAT","STWK")
 	call create_panel_if_nonexistent
 	
@@ -1307,7 +1305,7 @@ Function write_panel_to_maxis_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_
 	
 	'Work Stop Date and Verif
 	If stwk_wrk_stop_date <> "" then
-		call maxis_dater(stwk_wrk_stop_date, stwk_wrk_stop_date_output, "Good Cause Claim Date")
+		call MAXIS_dater(stwk_wrk_stop_date, stwk_wrk_stop_date_output, "Good Cause Claim Date")
 		EMWriteScreen left(stwk_wrk_stop_date_output,2)	, 7, 46	
 		EMWriteScreen mid(stwk_wrk_stop_date_output,4,2), 7, 49	
 		EMWriteScreen right(stwk_wrk_stop_date_output,2), 7, 52
@@ -1318,7 +1316,7 @@ Function write_panel_to_maxis_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_
 	
 	'Income Stop Date 
 	If stwk_inc_stop_date <> "" then
-		call maxis_dater(stwk_inc_stop_date, stwk_inc_stop_date_output, "Good Cause Claim Date")
+		call MAXIS_dater(stwk_inc_stop_date, stwk_inc_stop_date_output, "Good Cause Claim Date")
 		EMWriteScreen left(stwk_inc_stop_date_output,2)	, 8, 46	
 		EMWriteScreen mid(stwk_inc_stop_date_output,4,2), 8, 49	
 		EMWriteScreen right(stwk_inc_stop_date_output,2), 8, 52
@@ -1340,7 +1338,7 @@ Function write_panel_to_maxis_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_
 	
 	'Refused Empl Date
 	If stwk_ref_empl_date <> "" then
-		call maxis_dater(stwk_ref_empl_date, stwk_ref_empl_date_output, "Good Cause Claim Date")
+		call MAXIS_dater(stwk_ref_empl_date, stwk_ref_empl_date_output, "Good Cause Claim Date")
 		EMWriteScreen left(stwk_ref_empl_date_output,2)	, 10, 72	
 		EMWriteScreen mid(stwk_ref_empl_date_output,4,2), 10, 75	
 		EMWriteScreen right(stwk_ref_empl_date_output,2), 10, 78
@@ -1379,7 +1377,7 @@ Function write_panel_to_maxis_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_
 	
 End Function
 
-FUNCTION write_panel_to_maxis_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn, type_fs_yn, prog_mig_worker, revw_ar_or_ir, revw_exempt)
+FUNCTION write_panel_to_MAXIS_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn, type_fs_yn, prog_mig_worker, revw_ar_or_ir, revw_exempt)
 	call navigate_to_screen("STAT", "TYPE")
 	IF reference_number = "01" THEN
 		EMWriteScreen "NN", 20, 79
@@ -1426,18 +1424,18 @@ FUNCTION write_panel_to_maxis_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn
 		EMWriteScreen "NN", 20, 71
 		transmit
 			IF type_cash_yn = "Y" THEN
-				call create_maxis_friendly_date(appl_date, 0, 6, 33)
-				call create_maxis_friendly_date(appl_date, 0, 6, 44)
-				call create_maxis_friendly_date(appl_date, 0, 6, 55)
+				call create_MAXIS_friendly_date(appl_date, 0, 6, 33)
+				call create_MAXIS_friendly_date(appl_date, 0, 6, 44)
+				call create_MAXIS_friendly_date(appl_date, 0, 6, 55)
 			END IF
 			IF type_fs_yn = "Y" THEN
-				call create_maxis_friendly_date(appl_date, 0, 10, 33)
-				call create_maxis_friendly_date(appl_date, 0, 10, 44)
-				call create_maxis_friendly_date(appl_date, 0, 10, 55)
+				call create_MAXIS_friendly_date(appl_date, 0, 10, 33)
+				call create_MAXIS_friendly_date(appl_date, 0, 10, 44)
+				call create_MAXIS_friendly_date(appl_date, 0, 10, 55)
 			END IF
 			IF type_hc_yn = "Y" THEN
-				call create_maxis_friendly_date(appl_date, 0, 12, 33)
-				call create_maxis_friendly_date(appl_date, 0, 12, 55)
+				call create_MAXIS_friendly_date(appl_date, 0, 12, 33)
+				call create_MAXIS_friendly_date(appl_date, 0, 12, 55)
 			END IF
 			EMWriteScreen mig_worker, 18, 67
 			transmit
@@ -1449,7 +1447,7 @@ FUNCTION write_panel_to_maxis_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn
 		transmit
 			IF type_cash_yn = "Y" THEN
 				cash_review_date = dateadd("YYYY", 1, appl_date)
-				call create_maxis_friendly_date(cash_review_date, 0, 9, 37)
+				call create_MAXIS_friendly_date(cash_review_date, 0, 9, 37)
 			END IF
 			IF type_fs_yn = "Y" THEN
 				EMWriteScreen "X", 5, 58
@@ -1459,8 +1457,8 @@ FUNCTION write_panel_to_maxis_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn
 				LOOP UNTIL food_support_reports = "FOOD SUPPORT REPORTS"
 				fs_csr_date = dateadd("M", 6, appl_date)
 				fs_er_date = dateadd("M", 12, appl_date)
-				call create_maxis_friendly_date(fs_csr_date, 0, 9, 26)
-				call create_maxis_friendly_date(fs_er_date, 0, 9, 64)
+				call create_MAXIS_friendly_date(fs_csr_date, 0, 9, 26)
+				call create_MAXIS_friendly_date(fs_er_date, 0, 9, 64)
 				transmit
 			END IF
 			IF type_hc_yn = "Y" THEN
@@ -1470,18 +1468,18 @@ FUNCTION write_panel_to_maxis_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn
 					EMReadScreen health_care_renewals, 20, 4, 32
 				LOOP UNTIL health_care_renewals = "HEALTH CARE RENEWALS"
 				IF revw_ar_or_ir = "AR" THEN
-					call create_maxis_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 71)
+					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 71)
 				ELSEIF revw_ar_or_ir = "IR" THEN
-					call create_maxis_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 27)
+					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 27)
 				END IF
-				call create_maxis_friendly_date((dateadd("M", 12, appl_date)), 0, 9, 27)
+				call create_MAXIS_friendly_date((dateadd("M", 12, appl_date)), 0, 9, 27)
 				EMWriteScreen revw_exempt, 9, 71
 				transmit
 			END IF
 	END IF
 END FUNCTION
 
-FUNCTION write_panel_to_maxis_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
+FUNCTION write_panel_to_MAXIS_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
 	call navigate_to_screen("STAT", "UNEA")
 	EMWriteScreen reference_number, 20, 76
 	EMWriteScreen "NN", 20, 79
@@ -1490,7 +1488,7 @@ FUNCTION write_panel_to_maxis_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suf
 	EMWriteScreen unea_inc_type, 5, 37
 	EMWriteScreen unea_inc_verif, 5, 65
 	EMWriteScreen (ssn_first & ssn_mid & ssn_last & unea_claim_suffix), 6, 37
-	call create_maxis_friendly_date(unea_start_date, 0, 7, 37)
+	call create_MAXIS_friendly_date(unea_start_date, 0, 7, 37)
 
 	'=====Navigates to the PIC for UNEA=====
 	EMWriteScreen "X", 10, 26
@@ -1587,7 +1585,7 @@ FUNCTION write_panel_to_maxis_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suf
 
 END FUNCTION
 
-FUNCTION write_panel_to_maxis_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis)
+FUNCTION write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis)
 	call navigate_to_screen("STAT", "WREG")
 	EMWriteScreen reference_number, 20, 76
 	EMWriteScreen "NN", 20, 79
@@ -1596,8 +1594,8 @@ FUNCTION write_panel_to_maxis_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs,
 	EMWriteScreen wreg_fs_pwe, 6, 68
 	EMWriteScreen wreg_fset_status, 8, 50
 	EMWriteScreen wreg_defer_fs, 8, 80
-	call create_maxis_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
-	IF wreg_fset_sanction_date <> "" THEN call create_maxis_friendly_date(wreg_fset_orientation_date, 0, 10, 50)
+	call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
+	IF wreg_fset_sanction_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 10, 50)
 	IF wreg_num_sanctions <> "" THEN EMWriteScreen wreg_num_sanctions, 11, 50
 	EMWriteScreen wreg_abawd_status, 13, 50
 	EMWriteScreen wreg_ga_basis, 15, 50
