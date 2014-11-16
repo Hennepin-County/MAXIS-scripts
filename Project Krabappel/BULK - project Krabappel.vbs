@@ -17,20 +17,69 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
+excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
+how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
+'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
+
+'Set objWorkSheet = objWorkbook.Worksheet
+For Each objWorkSheet In objWorkbook.Worksheets
+    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+Next
+
+'DIALOGS-----------------------------------------------------------------------------------------------------------
+BeginDialog training_case_creator_dialog, 0, 0, 371, 130, "Training case creator dialog"
+  EditBox 85, 5, 220, 15, excel_file_path
+  DropListBox 65, 40, 105, 15, "select one..." & scenario_list, scenario_dropdown
+  DropListBox 250, 40, 115, 15, "yes, approve all cases"+chr(9)+"no, leave cases in PND2 status"+chr(9)+"no, leave cases in PND1 status", approve_case_dropdown
+  EditBox 125, 60, 40, 15, how_many_cases_to_make
+  EditBox 130, 80, 235, 15, workers_to_XFER_cases_to
+  ButtonGroup ButtonPressed
+    OkButton 265, 110, 50, 15
+    CancelButton 320, 110, 50, 15
+    PushButton 310, 5, 55, 15, "Reload details", reload_excel_file_button
+  Text 5, 10, 75, 10, "File path of Excel file:"
+  Text 60, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
+  Text 5, 45, 55, 10, "Scenario to run:"
+  Text 190, 45, 60, 10, "Approve cases?:"
+  Text 5, 65, 120, 10, "How many cases are you creating?:"
+  Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
+  Text 5, 100, 250, 25, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
+EndDialog
 
 '--------- Project Krabappel --------------
 'Connects to BlueZone
 EMConnect ""
 
-'Opens Excel file
-call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
+
+
+Do
+	Do
+		Dialog training_case_creator_dialog
+		If buttonpressed = cancel then stopscript
+		If scenario_dropdown = "select one..." then MsgBox ("You must select a scenario from the dropdown!")
+	Loop until scenario_dropdown <> "select one..."
+	final_check_before_running = MsgBox("Here's what the scenario will try to create. Please review before proceeding:" & Chr(10) & Chr(10) & _
+										"Scenario selection: " & scenario_dropdown & Chr(10) & _
+										"Approving cases: " & approve_case_dropdown & Chr(10) & _
+										"Amt of cases to make: " & how_many_cases_to_make & Chr(10) & _
+										"Workers to XFER cases to: " & workers_to_XFER_cases_to & Chr(10) & Chr(10) & _
+										"It is VERY IMPORTANT to review these details before proceeding. It is also highly recommended that if you've created your own scenarios, " & _
+										"test them first creating a single case. This is to check to see if any details were missed on the spreadsheet. DHS CANNOT TRIAGE ISSUES WITH " & _
+										"COUNTY/AGENCY CUSTOMIZED SCENARIOS." & Chr(10) & Chr(10) & _
+										"Please also note that creating training cases can take a very long time. If you are creating hundreds of cases, you may want to run this " & _
+										"overnight, or on a secondary machine." & Chr(10) & Chr(10) & _
+										"If you are ready to continue, press ''Yes''. Otherwise, press ''no'' to return to the previous screen.", vbYesNo)
+Loop until final_check_before_running = vbYes
 
 '<<<<<<<<<<<DIALOG SHOULD GO HERE, FOR NOW IT WILL SELECT THE ONLY CASE ON THE LIST
-	'DIALOG SHOULD WARN USERS THAT IF THEY JUST WROTE A SCENARIO THEY SHOULD CHECK IT BY ONLY MAKING ONE CASE BEFORE ASSUMING IT WORKS
-	'FOR NOW, THESE VARIABLES EXIST WITHOUT A DIALOG. ADD THEM TO A DIALOG SOMEDAY.
-how_many_cases_to_make = 1
-excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
+	'DIALOG SHOULD ASK FOR WORKER NUMBERS IN AN EDITBOX (TO TURN TO AN ARRAY)
+	'DIALOG SHOULD ASK IF EACH PIECE NEEDS TO HAPPEN (SO, PROVIDE EARLY TERMINATION FOR INSTANCES WHERE WE JUST WANT TO LEAVE A CASE IN PND1 OR PND2 STATUS)
+	'DIALOG SHOULD POP UP A MSGBOX CONFIRMING DETAILS AND WARNING THAT THIS COULD TAKE A WHILE
+	
+
+
 
 'Determines how many HH members there are, as this script can run for multiple-member households.
 excel_col = 3																		'Col 3 is always the primary applicant's col
@@ -365,16 +414,37 @@ For each case_number in case_number_array
 	
 Next
 
+'========================================================================PND2 PANELS========================================================================
+For each case_number in case_number_array
+	'Navigates to STAT/SUMM for each case
+	call navigate_to_screen("STAT", "SUMM")
+	ERRR_screen_check
+		
+	'Uses a for...next to enter each HH member's info
+	For current_memb = 1 to total_membs
+		current_excel_col = current_memb + 2							'There's two columns before the first HH member, so we have to add 2 to get the current excel col
+		reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
+		
+		'Goes to STAT/MEMB to associate a SSN to each member, this will be useful for UNEA/MEDI panels
+		call navigate_to_screen("STAT", "MEMB")
+		EMWriteScreen reference_number, 20, 76
+		transmit
+		EMReadScreen SSN_first, 3, 7, 42
+		EMReadScreen SSN_mid, 2, 7, 46
+		EMReadScreen SSN_last, 4, 7, 49
+		
+		
+	Next
+
+
+Next
+
+
+'========================================================================APPROVAL========================================================================
+'<<<<<Needs to wait for cases to come out of background
+
+
 MsgBox "EXIT"
 stopscript
 
-
-'VARIABLES THAT NEED TO BE COLLECTED PER EACH MEMB (IN FOR NEXT)
-'SSN_first
-'SSN_mid
-'SSN_last
-
-'Do all STAT panels
-'Do approval
-
-call script_end_procedure("")
+'call script_end_procedure("Success! Your cases have been made and transferred to the workers indicated in the dialog.")
