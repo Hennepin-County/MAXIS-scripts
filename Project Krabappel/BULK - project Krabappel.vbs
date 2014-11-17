@@ -2,6 +2,19 @@
 name_of_script = "BULK - project Krabappel"
 start_time = timer
 
+'Hello MsgBox
+hello_MsgBox = MsgBox("Hello! Thanks for clicking the training case creator!" & Chr(10) & Chr(10) & _
+				"This script is very new, and was put together with a lot of hard work from five scriptwriters, using bits and pieces from various scripts written over the last few years." & Chr(10) & Chr(10) & _
+				"We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!" & Chr(10) & Chr(10) & _
+				"If you run into any issues, or have any questions, please join the discussion in SIR's BlueZone Scripts page. One of the scriptwriters involved will be more than happy to assist you." & Chr(10) & Chr(10) & _
+				"Have fun!" & Chr(10) & Chr(10) & _
+				"Veronica Cary, DHS" & Chr(10) & _
+				"Robert Fewins-Kalb, Anoka County" & Chr(10) & _
+				"Charles Potter, Anoka County" & Chr(10) & _
+				"David Courtright, St. Louis County" & Chr(10) & _
+				"Lucas Shanley, St. Louis County", vbOKCancel)
+If hello_MsgBox = vbCancel then stopscript
+
 'LOADING ROUTINE FUNCTIONS
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
@@ -19,7 +32,6 @@ Execute text_from_the_other_script
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
-scenario_dropdown = "McSample"	'<<<<<<<<DELETE BEFORE GO...LIVE
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
@@ -997,15 +1009,133 @@ For each case_number in case_number_array
 		
 		'ACCT
 		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
-
+		
+		'ACUT
+		If ACUT_shared <> "" then call write_panel_to_MAXIS_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electric, ACUT_fuel, ACUT_garbage, ACUT_water, ACUT_sewer, ACUT_other, ACUT_phone, ACUT_heat_verif, ACUT_air_verif, ACUT_electric_verif, ACUT_fuel_verif, ACUT_garbage_verif, ACUT_water_verif, ACUT_sewer_verif, ACUT_other_verif)
+		
+		'BUSI
+		If BUSI_type <> "" then call write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
+		
+		'CARS
+		If CARS_type <> "" then call write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_owed_as_of, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio)
+		
+		'CASH
+		If CASH_amount <> "" then call write_panel_to_MAXIS_CASH(cash_amount)
+		
+		'DCEX
+		If DCEX_provider <> "" then call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
+		
+		'DIET
+		If DIET_mfip_1 <> "" or DIET_MSA_1 <> "" then call write_panel_to_MAXIS_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DIET_mfip_2_ver, DIET_msa_1, DIET_msa_1_ver, DIET_msa_2, DIET_msa_2_ver, DIET_msa_3, DIET_msa_3_ver, DIET_msa_4, DIET_msa_4_ver)
+		
+		'DISA
+		If DISA_begin_date <> "" then call write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
+		
+		'DSTT
+		If DSTT_ongoing_income <> "" then call write_panel_to_MAXIS_DSTT(DSTT_ongoing_income, DSTT_HH_income_stop_date, DSTT_income_expected_amt)
+		
 		'EATS
 		If EATS_together <> "" then call write_panel_to_MAXIS_EATS(eats_together, eats_boarder, eats_group_one, eats_group_two, eats_group_three)
 		
+		
+		'EMMA
+		If EMMA_medical_emergency <> "" then call write_panel_to_MAXIS_EMMA(EMMA_medical_emergency, EMMA_health_consequence, EMMA_verification, EMMA_begin_date, EMMA_end_date)
+		
+		'EMPS
+		If EMPS_orientation_date <> "" then call write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_attended, EMPS_good_cause, EMPS_sanc_begin, EMPS_sanc_end, EMPS_memb_at_home, EMPS_care_family, EMPS_crisis, EMPS_hard_employ, EMPS_under1, EMPS_DWP_date)
+		
+		'FACI
+		If FACI_name <> "" then call write_panel_to_MAXIS_FACI(FACI_vendor_number, FACI_name, FACI_type, FACI_FS_eligible, FACI_FS_facility_type, FACI_date_in, FACI_date_out)
+		
+		'HCRE
+		If HCRE_appl_addnd_date_input <> "" then call write_panel_to_MAXIS_HCRE(HCRE_appl_addnd_date_input,HCRE_retro_months_input,HCRE_recvd_by_service_date_input)
+		
+		'HEST
+		If HEST_FS_choice_date <> "" then call write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
+		
+		'IMIG
+		If IMIG_imigration_status <> "" then call write_panel_to_MAXIS_IMIG(IMIG_imigration_status, IMIG_entry_date, IMIG_status_date, IMIG_status_ver, IMIG_status_LPR_adj_from, IMIG_nationality)
+		
+		'INSA
+		If INSA_pers_coop_ohi <> "" then call write_panel_to_MAXIS_INSA(INSA_pers_coop_ohi,INSA_good_cause_status,INSA_good_cause_cliam_date,INSA_good_cause_evidence,INSA_coop_cost_effect,INSA_insur_name,INSA_prescrip_drug_cover,INSA_prescrip_end_date)
+		
+		'JOBS1
+		If JOBS_1_inc_type <> "" then call write_panel_to_MAXIS_JOBS(JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
+		
+		'JOBS2
+		If JOBS_2_inc_type <> "" then call write_panel_to_MAXIS_JOBS(JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
+		
+		'JOBS3
+		If JOBS_3_inc_type <> "" then call write_panel_to_MAXIS_JOBS(JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
+		
+		'MEDI
+		If MEDI_claim_number_suffix <> "" then call write_panel_to_MAXIS_MEDI(SSN_first, SSN_mid, SSN_last, MEDI_claim_number_suffix, MEDI_part_A_premium, MEDI_part_B_premium, MEDI_part_A_begin_date, MEDI_part_B_begin_date)
+		
+		'MMSA
+		If MMSA_liv_arr <> "" then call write_panel_to_MAXIS_MMSA(MMSA_liv_arr, MMSA_cont_elig, MMSA_spous_inc, MMSA_shared_hous)
+		
+		'MSUR
+		If MSUR_begin_date <> "" then call write_panel_to_MAXIS_MSUR(MSUR_begin_date)
+		
+		'OTHR
+		If OTHR_type <> "" then call write_panel_to_MAXIS_OTHR(OTHR_type, OTHR_cash_value, OTHR_cash_value_ver, OTHR_owed, OTHR_owed_ver, OTHR_date, OTHR_cash_count, OTHR_SNAP_count, OTHR_HC_count, OTHR_IV_count, OTHR_joint, OTHR_share_ratio)
+			
 		'PARE
 		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
 		
+		'PBEN 1
+		If PBEN_1_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_1_referal_date, PBEN_1_type, PBEN_1_appl_date, PBEN_1_appl_ver, PBEN_1_IAA_date, PBEN_1_disp)
+		
+		'PBEN 2
+		If PBEN_2_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_2_referal_date, PBEN_2_type, PBEN_2_appl_date, PBEN_2_appl_ver, PBEN_2_IAA_date, PBEN_2_disp)
+		
+		'PBEN 3
+		If PBEN_3_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_3_referal_date, PBEN_3_type, PBEN_3_appl_date, PBEN_3_appl_ver, PBEN_3_IAA_date, PBEN_3_disp)
+		
+		'PDED
+		If PDED_ <> "" then call write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
+		
+		'PREG
+		If PREG_ <> "" then call write_panel_to_MAXIS_PREG(PREG_conception_date, PREG_conception_date_ver, PREG_third_trimester_ver,PREG_due_date, PREG_multiple_birth)
+		
+		'RBIC
+		If RBIC_ <> "" then call write_panel_to_MAXIS_RBIC(rbic_type, rbic_start_date, rbic_end_date, rbic_group_1, rbic_retro_income_group_1, rbic_prosp_income_group_1, rbic_ver_income_group_1, rbic_group_2, rbic_retro_income_group_2, rbic_prosp_income_group_2, rbic_ver_income_group_2, rbic_group_3, rbic_retro_income_group_3, rbic_prosp_income_group_3, rbic_ver_income_group_3, rbic_retro_hours, rbic_prosp_hours, rbic_exp_type_1, rbic_exp_retro_1, rbic_exp_prosp_1, rbic_exp_ver_1, rbic_exp_type_2, rbic_exp_retro_2, rbic_exp_prosp_2, rbic_exp_ver_2)
+		
+		'REST
+		If REST_ <> "" then call write_panel_to_MAXIS_REST(rest_type, rest_type_ver, rest_market, rest_market_ver, rest_owed, rest_owed_ver, rest_date, rest_status, rest_joint, rest_share_ratio, rest_agreement_date)
+		
+		'SCHL
+		If SCHL_ <> "" then call write_panel_to_MAXIS_SCHL(SCHL_status, SCHL_ver, SCHL_type, SCHL_district_nbr, SCHL_kindergarten_start_date, SCHL_grad_date, SCHL_grad_date_ver, SCHL_primary_secondary_funding, SCHL_FS_eligibility_status, SCHL_higher_ed)
+		
+		'SECU
+		If SECU_ <> "" then call write_panel_to_MAXIS_SECU(secu_type, secu_pol_numb, secu_name, secu_cash_val, secu_date, secu_cash_ver, secu_face_val, secu_withdraw, secu_cash_count, secu_SNAP_count, secu_HC_count, secu_GRH_count, secu_IV_count, secu_joint, secu_share_ratio)
+		
+		'SHEL
+		If SHEL_ <> "" then call write_panel_to_MAXIS_SHEL(SHEL_subsidized, SHEL_shared, SHEL_paid_to, SHEL_rent_retro, SHEL_rent_retro_ver, SHEL_rent_pro, SHEL_rent_pro_ver, SHEL_lot_rent_retro, SHEL_lot_rent_retro_ver, SHEL_lot_rent_pro, SHEL_lot_rent_pro_ver, SHEL_mortgage_retro, SHEL_mortgage_retro_ver, SHEL_mortgage_pro, SHEL_mortgage_pro_ver, SHEL_insur_retro, SHEL_insur_retro_ver, SHEL_insur_pro, SHEL_insur_pro_ver, SHEL_taxes_retro, SHEL_taxes_retro_ver, SHEL_taxes_pro, SHEL_taxes_pro_ver, SHEL_room_retro, SHEL_room_retro_ver, SHEL_room_pro, SHEL_room_pro_ver, SHEL_garage_retro, SHEL_garage_retro_ver, SHEL_garage_pro, SHEL_garage_pro_ver, SHEL_subsidy_retro, SHEL_subsidy_retro_ver, SHEL_subsidy_pro, SHEL_subsidy_pro_ver)
+
 		'SIBL
 		If SIBL_group_1 <> "" then call write_panel_to_MAXIS_SIBL(SIBL_group_1, SIBL_group_2, SIBL_group_3)
+		
+		'SPON
+		If SPON_ <> "" then call write_panel_to_MAXIS_SPON(SPON_type, SPON_ver, SPON_name, SPON_state)
+		
+		'STEC
+		If STEC_ <> "" then call write_panel_to_MAXIS_STEC(STEC_type_1, STEC_amt_1, STEC_actual_from_thru_months_1, STEC_ver_1, STEC_earmarked_amt_1, STEC_earmarked_from_thru_months_1, STEC_type_2, STEC_amt_2, STEC_actual_from_thru_months_2, STEC_ver_2, STEC_earmarked_amt_2, STEC_earmarked_from_thru_months_2)
+		
+		'STIN
+		If STIN_ <> "" then call write_panel_to_MAXIS_STIN(STIN_type_1, STIN_amt_1, STIN_avail_date_1, STIN_months_covered_1, STIN_ver_1, STIN_type_2, STIN_amt_2, STIN_avail_date_2, STIN_months_covered_2, STIN_ver_2)
+		
+		'STWK
+		If STWK_ <> "" then call write_panel_to_MAXIS_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_stop_date_verif, STWK_inc_stop_date, STWK_refused_empl_yn, STWK_vol_quit, STWK_ref_empl_date, STWK_gc_cash, STWK_gc_grh, STWK_gc_fs, STWK_fs_pwe, STWK_maepd_ext)
+		
+		'UNEA 1
+		If UNEA_1_inc_type <> "" then call write_panel_to_MAXIS_UNEA(UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
+		
+		'UNEA 2
+		If UNEA_2_inc_type <> "" then call write_panel_to_MAXIS_UNEA(UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
+		
+		'UNEA 3
+		If UNEA_3_inc_type <> "" then call write_panel_to_MAXIS_UNEA(UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
 				
 		'WREG
 		If WREG_fs_pwe <> "" then call write_panel_to_MAXIS_WREG(WREG_fs_pwe, WREG_fset_status, WREG_defer_fs, WREG_fset_orientation_date, WREG_fset_sanction_date, WREG_num_sanctions, WREG_abawd_status, WREG_ga_basis)
@@ -1092,6 +1222,15 @@ FOR EACH case_number IN case_number_array
 				transmit
 			END IF
 		END IF
+		
+		If HC_application = True then
+		'<<<<<<<<<INSERT LOGIC HERE
+		End if
+		
+		If cash_application = True then
+		'<<<<<<<<<INSERT LOGIC HERE
+		End if
+		
 	End if
 	
 	'Checks for WORK panel (Workforce One Referral), makes one with a week from now as the appointment date as a default (we can add a specific date/location checker as an enhancement
