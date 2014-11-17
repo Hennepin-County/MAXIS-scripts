@@ -180,7 +180,7 @@ End Function
 
 'BIG SLEW OF MAXIS WRITE FUNCTIONS------------------------------------------------------------------------------------------
 Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
-	call navigate_to_screen("STAT","PARE")
+	call navigate_to_screen("STAT","PARE")							'Starts by creating an array of all the kids on PARE
 	EMReadScreen abps_pare_check, 1, 2, 78
 	If abps_pare_check = "0" then
 		MsgBox "No PARE exists. Exiting Creating ABPS."
@@ -202,7 +202,7 @@ Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 				row = 8
 			End If
 		Loop until child_check = "__"
-		call navigate_to_screen("STAT","ABPS")
+		call navigate_to_screen("STAT","ABPS")						'Navigates to ABPS to enter kids in
 		call create_panel_if_nonexistent		
 		abps_child_list = split(child_list, ",")
 		row = 15
@@ -216,11 +216,11 @@ Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 				row = 15
 			End If		
 		next
-		call MAXIS_dater(date(),abps_act_date,"Actual Date")
+		call MAXIS_dater(date, abps_act_date, "Actual Date")
 		EMWriteScreen left(abps_act_date,2)			, 18, 38
 		EMWriteScreen mid(abps_act_date,4,2)		, 18, 41
 		EMWriteScreen "20" & right(abps_act_date,2)	, 18, 44
-		EMWriteScreen reference_number, 4, 47
+		EMWriteScreen reference_number, 4, 47		'Enters the reference_number
 		If abps_supp_coop <> "" then
 			abps_supp_coop = ucase(abps_supp_coop)
 			abps_supp_coop = left(abps_supp_coop,1)
@@ -234,7 +234,8 @@ Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 End Function
 
 Function write_panel_to_MAXIS_ACCT(acct_type, acct_numb, acct_location, acct_balance, acct_bal_ver, acct_date, acct_withdraw, acct_cash_count, acct_snap_count, acct_HC_count, acct_GRH_count, acct_IV_count, acct_joint_owner, acct_share_ratio, acct_interest_date_mo, acct_interest_date_yr)
-	Call Navigate_to_screen(STAT, ACCT)  'navigates to the stat panel
+	Call Navigate_to_screen("STAT", "ACCT")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	Emwritescreen acct_type, 6, 44  'enters the account type code
 	Emwritescreen acct_numb, 7, 44  'enters the account number
 	Emwritescreen acct_location, 8, 44  'enters the account location
@@ -252,11 +253,13 @@ Function write_panel_to_MAXIS_ACCT(acct_type, acct_numb, acct_location, acct_bal
 	Emwritescreen right(acct_share_ratio, 1), 15, 80  'enters the ratio of ownership using the right 1 digit of what is entered into the file
 	Emwritescreen acct_interest_date_mo, 17, 57  'enters the next interest date MM format
 	Emwritescreen acct_interest_date_yr, 17, 60  'enters the next interest date YY format
+	transmit
+	transmit
 End Function
 
 FUNCTION write_panel_to_MAXIS_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electric, ACUT_fuel, ACUT_garbage, ACUT_water, ACUT_sewer, ACUT_other, ACUT_phone, ACUT_heat_verif, ACUT_air_verif, ACUT_electric_verif, ACUT_fuel_verif, ACUT_garbage_verif, ACUT_water_verif, ACUT_sewer_verif, ACUT_other_verif)
 	call navigate_to_screen("STAT", "ACUT")
-	call create_if_nonexistant
+	call create_panel_if_nonexistent
 		EMWritescreen ACUT_shared, 6, 42
 		EMWritescreen ACUT_heat, 10, 61
 		EMWritescreen ACUT_air, 11, 61
@@ -280,7 +283,8 @@ end function
 
 '---This function writes using the variables read off of the specialized excel template to the busi panel in MAXIS
 Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
-	Call navigate_to_screen(STAT, BUSI)  'navigates to the stat panel
+	Call navigate_to_screen("STAT", "BUSI")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	Emwritescreen busi_type, 5, 37  'enters self employment type
 	call create_MAXIS_friendly_date(busi_start_date, 0, 5, 54)  'enters self employment start date in MAXIS friendly format mm/dd/yy
 	call create_MAXIS_friendly_date(busi_end_date, 0, 5, 71)  'enters self employment start date in MAXIS friendly format mm/dd/yy
@@ -338,7 +342,8 @@ Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 end function
 
 Function write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_owed_as_of, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio)
-	Call Navigate_to_screen(STAT, CARS)  'navigates to the stat screen
+	Call Navigate_to_screen("STAT", "CARS")  'navigates to the stat screen
+	call create_panel_if_nonexistent
 	Emwritescreen cars_type, 6, 43  'enters the vehicle type
 	Emwritescreen cars_year, 8, 31  'enters the vehicle year
 	Emwritescreen cars_make, 8, 43  'enters the vehicle make
@@ -359,13 +364,14 @@ End Function
 
 '---This function writes using the variables read off of the specialized excel template to the cash panel in MAXIS
 Function write_panel_to_MAXIS_CASH(cash_amount)
-	Call navigate_to_screen(STAT, CASH)  'navigates to the stat panel
+	Call navigate_to_screen("STAT", "CASH")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	Emwritescreen cash_amount, 8, 39
 End Function
 
 FUNCTION write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
 	call navigate_to_screen("STAT", "DCEX") 
-	call create_if_nonexistant
+	call create_panel_if_nonexistent
 	EMWritescreen DCEX_provider, 6, 47
 	EMWritescreen DCEX_reason, 7, 44
 	EMWritescreen DCEX_subsidy, 8, 44
@@ -419,7 +425,8 @@ END FUNCTION
 
 '---This function writes using the variables read off of the specialized excel template to the disa panel in MAXIS
 Function write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
-	Call navigate_to_screen(STAT, DISA)  'navigates to the stat panel
+	Call navigate_to_screen("STAT", "DISA")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	call create_MAXIS_friendly_date(disa_begin_date, 0, 6, 47)  'enters the disability begin date in a MAXIS friendly format. mm/dd/yy
 	call create_MAXIS_friendly_date(disa_end_date, 0, 6, 69)  'enters the disability end date in a MAXIS friendly format. mm/dd/yy
 	call create_MAXIS_friendly_date(disa_cert_begin, 0, 7, 47)  'enters the disability certification begin date in a MAXIS friendly format. mm/dd/yy
@@ -451,6 +458,7 @@ End function
 FUNCTION write_panel_to_MAXIS_EATS(eats_together, eats_boarder, eats_group_one, eats_group_two, eats_group_three)
 	IF reference_number = "01" THEN
 		call navigate_to_screen("STAT", "EATS")
+		call create_panel_if_nonexistent
 		EMWriteScreen eats_together, 4, 72
 		EMWriteScreen eats_boarder, 5, 72
 		IF ucase(eats_together) = "N" THEN
@@ -498,7 +506,7 @@ End function
 
 FUNCTION write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_attended, EMPS_good_cause, EMPS_sanc_begin, EMPS_sanc_end, EMPS_memb_at_home, EMPS_care_family, EMPS_crisis, EMPS_hard_employ, EMPS_under1, EMPS_DWP_date)
 	call navigate_to_screen("STAT", "EMPS")
-	call create_if_nonexistant
+	call create_panel_if_nonexistent
 	If EMPS_orientation_date <> "" then call create_MAXIS_friendly_date(EMPS_orientation_date, 0, 5, 39) 'enter orientation date
 	EMWritescreen left(EMPS_orientation_attended, 1), 5, 65 
 	EMWritescreen EMPS_good_cause, 5, 79
@@ -570,7 +578,7 @@ End Function
 
 FUNCTION write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
 	call navigate_to_screen("STAT", "HEST")
-	call create_if_nonexistant
+	call create_panel_if_nonexistent
 	call create_MAXIS_friendly_date(HEST_FS_choice_date, 1, 07, 40)
 	EMWritescreen HEST_first_month, 8, 61 
 	'Filling in the #/FS units field (always 01)
@@ -850,7 +858,8 @@ End Function
 
 '---This function writes using the variables read off of the specialized excel template to the othr panel in MAXIS
 Function write_panel_to_MAXIS_OTHR(othr_type, othr_cash_value, othr_cash_value_ver, othr_owed, othr_owed_ver, othr_date, othr_cash_count, othr_SNAP_count, othr_HC_count, othr_IV_count, othr_joint, othr_share_ratio)
-	Call navigate_to_screen(STAT, OTHR)  'navigates to the stat panel
+	Call navigate_to_screen("STAT", "OTHR")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	Emwritescreen othr_type, 6, 40  'enters other asset type
 	Emwritescreen othr_cash_value, 8, 40  'enters cash value of asset
 	Emwritescreen othr_cash_value_ver, 8, 57  'enters cash value verification code
@@ -868,32 +877,32 @@ End Function
 
 FUNCTION write_panel_to_MAXIS_PARE(PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
 	Call navigate_to_screen("STAT", "PARE") 
-	call create_if_nonexistant
-	call create_if_nonexistant
-		EMWritescreen PARE_child_1, 8, 24
-		EMWritescreen PARE_child_1_relation, 8, 53
-		EMWritescreen PARE_child_1_verif, 8, 71
-		EMWritescreen PARE_child_2, 9, 24
-		EMWritescreen PARE_child_2_relation, 9, 53
-		EMWritescreen PARE_child_2_verif, 9, 71
-		EMWritescreen PARE_child_3, 10, 24
-		EMWritescreen PARE_child_3_relation, 10, 53
-		EMWritescreen PARE_child_3_verif, 10, 71
-		EMWritescreen PARE_child_4, 11, 24
-		EMWritescreen PARE_child_4_relation, 11, 53
-		EMWritescreen PARE_child_4_verif, 11, 71
-		EMWritescreen PARE_child_5, 12, 24
-		EMWritescreen PARE_child_5_relation, 12, 53
-		EMWritescreen PARE_child_5_verif, 12, 71
-		EMWritescreen PARE_child_6, 13, 24
-		EMWritescreen PARE_child_6_relation, 13, 53
-		EMWritescreen PARE_child_6_verif, 13, 71
+	call create_panel_if_nonexistent
+	EMWritescreen PARE_child_1, 8, 24
+	EMWritescreen PARE_child_1_relation, 8, 53
+	EMWritescreen PARE_child_1_verif, 8, 71
+	EMWritescreen PARE_child_2, 9, 24
+	EMWritescreen PARE_child_2_relation, 9, 53
+	EMWritescreen PARE_child_2_verif, 9, 71
+	EMWritescreen PARE_child_3, 10, 24
+	EMWritescreen PARE_child_3_relation, 10, 53
+	EMWritescreen PARE_child_3_verif, 10, 71
+	EMWritescreen PARE_child_4, 11, 24
+	EMWritescreen PARE_child_4_relation, 11, 53
+	EMWritescreen PARE_child_4_verif, 11, 71
+	EMWritescreen PARE_child_5, 12, 24
+	EMWritescreen PARE_child_5_relation, 12, 53
+	EMWritescreen PARE_child_5_verif, 12, 71
+	EMWritescreen PARE_child_6, 13, 24
+	EMWritescreen PARE_child_6_relation, 13, 53
+	EMWritescreen PARE_child_6_verif, 13, 71
 	transmit
 end function
 
 '---This function writes using the variables read off of the specialized excel template to the pben panel in MAXIS
 Function write_panel_to_MAXIS_PBEN(pben_referal_date, pben_type, pben_appl_date, pben_appl_ver, pben_IAA_date, pben_disp)
-	Call navigate_to_screen(STAT, PBEN)  'navigates to the stat panel
+	Call navigate_to_screen("STAT", "PBEN")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	Emreadscreen pben_row_check, 2, 8, 24  'reads the MAXIS screen to find out if the PBEN row has already been used. 
 	If pben_row_check = "  " THEN   'if the row is blank it enters it in the 8th row.
 		Emwritescreen pben_type, 8, 24  'enters pben type code
@@ -1035,7 +1044,7 @@ End Function
 
 FUNCTION write_panel_to_MAXIS_PREG(PREG_conception_date, PREG_conception_date_ver, PREG_third_trimester_ver,PREG_due_date, PREG_multiple_birth)
 	call navigate_to_screen("STAT", "PREG")
-	call create_if_nonexistant
+	call create_panel_if_nonexistent
 	EMWritescreen "NN", 20, 79
 	transmit
 	call create_MAXIS_friendly_date(PREG_conception_date, 1, 6, 53)
@@ -1048,7 +1057,8 @@ end function
 
 '---This function writes using the variables read off of the specialized excel template to the rbic panel in MAXIS
 Function write_panel_to_MAXIS_RBIC(rbic_type, rbic_start_date, rbic_end_date, rbic_group_1, rbic_retro_income_group_1, rbic_prosp_income_group_1, rbic_ver_income_group_1, rbic_group_2, rbic_retro_income_group_2, rbic_prosp_income_group_2, rbic_ver_income_group_2, rbic_group_3, rbic_retro_income_group_3, rbic_prosp_income_group_3, rbic_ver_income_group_3, rbic_retro_hours, rbic_prosp_hours, rbic_exp_type_1, rbic_exp_retro_1, rbic_exp_prosp_1, rbic_exp_ver_1, rbic_exp_type_2, rbic_exp_retro_2, rbic_exp_prosp_2, rbic_exp_ver_2)
-	call navigate_to_screen(STAT, RBIC)  'navigates to the stat panel
+	call navigate_to_screen("STAT", "RBIC")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	EMwritescreen rbic_type, 5, 44  'enters rbic type code
 	call create_MAXIS_friendly_date(rbic_start_date, 0, 6, 44)  'creates and enters a MAXIS friend date in the format mm/dd/yy for rbic start date
 	call create_MAXIS_friendly_date(rbic_end_date, 6, 68)  'creates and enters a MAXIS friend date in the format mm/dd/yy for rbic end date
@@ -1096,7 +1106,8 @@ end function
 
 '---This function writes using the variables read off of the specialized excel template to the rest panel in MAXIS
 Function write_panel_to_MAXIS_REST(rest_type, rest_type_ver, rest_market, rest_market_ver, rest_owed, rest_owed_ver, rest_date, rest_status, rest_joint, rest_share_ratio, rest_agreement_date)
-	Call navigate_to_screen(STAT, REST)  'navigates to the stat panel
+	Call navigate_to_screen("STAT", "REST")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	Emwritescreen rest_type, 6, 39  'enters residence type
 	Emwritescreen rest_type_ver, 6, 62  'enters verification of residence type
 	Emwritescreen rest_market, 8, 41  'enters market value of residence
@@ -1134,7 +1145,8 @@ End function
 
 '---This function writes using the variables read off of the specialized excel template to the secu panel in MAXIS
 Function write_panel_to_MAXIS_SECU(secu_type, secu_pol_numb, secu_name, secu_cash_val, secu_date, secu_cash_ver, secu_face_val, secu_withdraw, secu_cash_count, secu_SNAP_count, secu_HC_count, secu_GRH_count, secu_IV_count, secu_joint, secu_share_ratio)
-	Call navigate_to_screen(STAT, SECU)  'navigates to the stat panel
+	Call navigate_to_screen("STAT", "SECU")  'navigates to the stat panel
+	call create_panel_if_nonexistent
 	Emwritescreen secu_type, 6, 50  'enters security type
 	Emwritescreen secu_pol_numb, 7, 50  'enters policy number
 	Emwritescreen secu_name, 8, 50  'enters name of policy
@@ -1155,7 +1167,7 @@ End Function
 
 FUNCTION write_panel_to_MAXIS_SHEL(SHEL_subsidized, SHEL_shared, SHEL_paid_to, SHEL_rent_retro, SHEL_rent_retro_ver, SHEL_rent_pro, SHEL_rent_pro_ver, SHEL_lot_rent_retro, SHEL_lot_rent_retro_ver, SHEL_lot_rent_pro, SHEL_lot_rent_pro_ver, SHEL_mortgage_retro, SHEL_mortgage_retro_ver, SHEL_mortgage_pro, SHEL_mortgage_pro_ver, SHEL_insur_retro, SHEL_insur_retro_ver, SHEL_insur_pro, SHEL_insur_pro_ver, SHEL_taxes_retro, SHEL_taxes_retro_ver, SHEL_taxes_pro, SHEL_taxes_pro_ver, SHEL_room_retro, SHEL_room_retro_ver, SHEL_room_pro, SHEL_room_pro_ver, SHEL_garage_retro, SHEL_garage_retro_ver, SHEL_garage_pro, SHEL_garage_pro_ver, SHEL_subsidy_retro, SHEL_subsidy_retro_ver, SHEL_subsidy_pro, SHEL_subsidy_pro_ver)
 	call navigate_to_screen("STAT", "SHEL")
-	call create_if_nonexistant
+	call create_panel_if_nonexistent
 	EMWritescreen SHEL_subsidized, 6, 42
 	EMWritescreen SHEL_shared, 6, 60
 	EMWritescreen SHEL_paid_to, 7, 46
@@ -1195,37 +1207,37 @@ end function
 
 FUNCTION write_panel_to_MAXIS_SIBL(SIBL_group_1, SIBL_group_2, SIBL_group_3)
 	call navigate_to_screen("STAT", "SIBL")
-	call create_if_nonexistant
+	call create_panel_if_nonexistent
 	If SIBL_group_1 <> "" then 
-		EMWritescreen "01", 13, 28
-		SIBL_group_1 = relace(SIBL_group_1, " ", "") 'Removing spaces
+		EMWritescreen "01", 7, 28
+		SIBL_group_1 = replace(SIBL_group_1, " ", "") 'Removing spaces
 		SIBL_group_1 = split(SIBL_group_1, ",") 'Splits the sibling group value into an array by commas
 		SIBL_col = 39
 		For Each SIBL_group_member in SIBL_group_1 'Writes the member numbers onto the group line
-			EMWritescreen SIBL_group_member, 13, SIBL_col
-			SIBL_col = SIBL_col + 5
+			EMWritescreen SIBL_group_member, 7, SIBL_col
+			SIBL_col = SIBL_col + 4
 		Next
 	End if
 	
 	If SIBL_group_2 <> "" then
-		EMWritescreen "02", 14, 28
-		SIBL_group_2 = relace(SIBL_group_2, " ", "")
+		EMWritescreen "02", 8, 28
+		SIBL_group_2 = replace(SIBL_group_2, " ", "")
 		SIBL_group_2 = split(SIBL_group_2, ",")
 		SIBL_col = 39
 		For Each SIBL_group_member in SIBL_group_2
-			EMWritescreen SIBL_group_member, 14, SIBL_col
-			SIBL_col = SIBL_col + 5
+			EMWritescreen SIBL_group_member, 8, SIBL_col
+			SIBL_col = SIBL_col + 4
 		Next
 	End if
 	
 	If SIBL_group_3 <> "" then
-		EMWritescreen "03", 15, 28
-		SIBL_group_2 = relace(SIBL_group_3, " ", "")
+		EMWritescreen "03", 9, 28
+		SIBL_group_2 = replace(SIBL_group_3, " ", "")
 		SIBL_group_2 = split(SIBL_group_3, ",")
 		SIBL_col = 39
 		For Each SIBL_group_member in SIBL_group_3
-			EMWritescreen SIBL_group_member, 14, SIBL_col
-			SIBL_col = SIBL_col + 5
+			EMWritescreen SIBL_group_member, 9, SIBL_col
+			SIBL_col = SIBL_col + 4
 		Next
 	End if		
 	transmit
@@ -1587,9 +1599,7 @@ END FUNCTION
 
 FUNCTION write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis)
 	call navigate_to_screen("STAT", "WREG")
-	EMWriteScreen reference_number, 20, 76
-	EMWriteScreen "NN", 20, 79
-	transmit
+	call create_panel_if_nonexistent
 
 	EMWriteScreen wreg_fs_pwe, 6, 68
 	EMWriteScreen wreg_fset_status, 8, 50
