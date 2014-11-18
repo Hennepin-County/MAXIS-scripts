@@ -133,8 +133,12 @@ excel_row = 2
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_screen("rept", "actv")
-	EMWriteScreen worker, 21, 13
-	transmit
+	EMReadScreen user_worker, 7, 21, 71
+	EMReadScreen p_worker, 7, 21, 13
+	IF user_worker <> p_worker THEN 
+		EMWriteScreen worker, 21, 13
+		transmit
+	END IF
 
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
