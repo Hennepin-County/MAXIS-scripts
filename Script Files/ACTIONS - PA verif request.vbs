@@ -30,14 +30,14 @@ BeginDialog case_number_dialog, 0, 0, 191, 75, "PA Verification Request"
 EndDialog
 
 BeginDialog PA_verif_dialog, 0, 0, 236, 230, "PA Verif Dialog"
-  EditBox 55, 25, 25, 15, snap_grant
-  EditBox 55, 45, 25, 15, MSA_Grant
-  EditBox 55, 65, 25, 15, GA_grant
-  EditBox 160, 25, 20, 15, MFIP_food
-  EditBox 190, 25, 20, 15, MFIP_cash
-  EditBox 160, 45, 20, 15, relative_food
-  EditBox 190, 45, 20, 15, relative_cash
-  EditBox 190, 65, 20, 15, foster_care
+  EditBox 45, 25, 45, 15, snap_grant
+  EditBox 45, 45, 45, 15, MSA_Grant
+  EditBox 45, 65, 45, 15, GA_grant
+  EditBox 150, 25, 30, 15, MFIP_food
+  EditBox 190, 25, 30, 15, MFIP_cash
+  EditBox 150, 45, 30, 15, relative_food
+  EditBox 190, 45, 30, 15, relative_cash
+  EditBox 190, 65, 30, 15, foster_care
   EditBox 55, 90, 175, 15, other_income
   CheckBox 55, 110, 35, 10, "Yes", subsidy_check
   EditBox 75, 135, 20, 15, cash_members
@@ -48,23 +48,24 @@ BeginDialog PA_verif_dialog, 0, 0, 236, 230, "PA Verif Dialog"
   ButtonGroup ButtonPressed
     OkButton 125, 210, 50, 15
     CancelButton 180, 210, 50, 15
-  GroupBox 20, 5, 195, 80, "PA grant info:"
-  Text 160, 15, 25, 10, "Food"
-  Text 190, 15, 25, 10, "Cash"
-  Text 30, 30, 25, 10, "SNAP:"
-  Text 30, 50, 20, 10, "MSA:"
-  Text 35, 70, 15, 10, "GA:"
-  Text 135, 30, 25, 10, "MFIP:"
-  Text 110, 50, 50, 10, "Relative Care:"
-  Text 115, 70, 40, 10, "Foster Care:"
+  GroupBox 10, 5, 215, 80, "PA grant info:"
+  Text 155, 15, 20, 10, "Food"
+  Text 195, 15, 20, 10, "Cash"
+  Text 20, 30, 25, 10, "SNAP:"
+  Text 20, 50, 20, 10, "MSA:"
+  Text 25, 70, 15, 10, "GA:"
+  Text 125, 30, 20, 10, "MFIP:"
+  Text 100, 50, 50, 10, "Relative Care:"
+  Text 105, 70, 40, 10, "Foster Care:"
   Text 5, 90, 45, 20, "Other income and type"
   Text 5, 110, 45, 20, "$50 subsidy deduction?"
   Text 5, 135, 70, 20, "Number of members on cash grant:"
   Text 5, 165, 50, 10, "Completed by:"
   Text 125, 135, 55, 20, "Total members in household:"
   Text 130, 165, 50, 10, "Worker phone:"
-  Text 100, 190, 60, 10, "Worker Signature:"
+  Text 50, 190, 110, 10, "Worker Signature (for case note):"
 EndDialog
+
 
 
 BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
