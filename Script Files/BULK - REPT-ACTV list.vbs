@@ -117,9 +117,9 @@ Else
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(x1_number)
+			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(x1_number)
+			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -135,6 +135,9 @@ For each worker in worker_array
 	Call navigate_to_screen("rept", "actv")
 	EMWriteScreen worker, 21, 13
 	transmit
+	EMReadScreen user_worker, 7, 21, 71		'
+	EMReadScreen p_worker, 7, 21, 13
+	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
 
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8

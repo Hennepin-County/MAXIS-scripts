@@ -25,7 +25,7 @@
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 
-worker_county_code = "X102"
+worker_county_code = "MULTICOUNTY"
 collecting_statistics = False
 EDMS_choice = "Compass Forms"
 county_name = "Anoka County"
@@ -1345,6 +1345,36 @@ Function fix_case(phrase_to_split, smallest_length_to_skip)									'Ex: fix_cas
 	phrase_to_split = output_phrase												'making the phrase_to_split equal to the output, so that it can be used by the rest of the script.
 End function
 
+Function create_panel_if_nonexistent()
+	EMWriteScreen reference_number , 20, 76
+	transmit
+	EMReadScreen case_panel_check, 44, 24, 2
+	If case_panel_check = "REFERENCE NUMBER IS NOT VALID FOR THIS PANEL" then
+		EMReadScreen quantity_of_screens, 1, 2, 78
+		If quantity_of_screens <> "0" then
+			PF9
+		ElseIf quantity_of_screens = "0" then
+			EMWriteScreen "__", 20, 76
+			EMWriteScreen "NN", 20, 79
+			Transmit
+		End If
+	ElseIf case_panel_check <> "REFERENCE NUMBER IS NOT VALID FOR THIS PANEL" then
+		EMReadScreen error_scan, 80, 24, 1
+		error_scan = trim(error_scan)
+		EMReadScreen quantity_of_screens, 1, 2, 78
+		If error_scan = "" and quantity_of_screens <> "0" then
+			PF9
+		ElseIf error_scan <> "" and quantity_of_screens <> "0" then
+			'FIX ERROR HERE
+			msgbox("Error: " & error_scan)
+		ElseIf error_scan <> "" and quantity_of_screens = "0" then
+			EMWriteScreen reference_number, 20, 76
+			EMWriteScreen "NN", 20, 79
+			Transmit
+		End If
+	End If
+End Function
+
 Function ERRR_screen_check 'Checks for error prone cases
 	EMReadScreen ERRR_check, 4, 2, 52
 	If ERRR_check = "ERRR" then transmit
@@ -1373,6 +1403,7 @@ End function
 
 Function MAXIS_background_check
 	Do
+		call navigate_to_screen("STAT", "SUMM")
 		EMReadScreen SELF_check, 4, 2, 50
 		If SELF_check = "SELF" then
 			PF3
