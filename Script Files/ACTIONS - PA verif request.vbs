@@ -357,7 +357,8 @@ Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'Enters the case note
 EMSendKey "<home>" & "PA verification request completed and sent to requesting agency." & "<newline>"
-EMSendKey worker_signature
+call write_new_line_in_case_note("---")
+call write_new_line_in_case_note(worker_signature)
 
 
 
