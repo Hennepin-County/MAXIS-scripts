@@ -340,10 +340,7 @@ objSelection.TypeParagraph()
 objSelection.TypeText "Worker phone: "
 objSelection.TypeText worker_phone
 
-Function print_word_doc()
-	objword.dialogs(wdDialogFilePrint).Show
-End Function
-call print_word_doc
+
 
 Do	
 	
@@ -361,9 +358,5 @@ call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 
-
-
-
-
-
-
+'Starts the print dialog
+objword.dialogs(wdDialogFilePrint).Show
