@@ -1,6 +1,3 @@
-'Informational front-end message, date dependent.
-If datediff("d", "04/02/2013", now) < 5 then MsgBox "This script has been updated as of 04/02/2013! There's now a checkbox for starting the denied programs script right from this one."
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTE - documents received"
 start_time = timer
