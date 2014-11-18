@@ -29,42 +29,44 @@ BeginDialog case_number_dialog, 0, 0, 191, 75, "PA Verification Request"
   Text 30, 30, 60, 15, "Footer Month"
 EndDialog
 
-BeginDialog grants_dialog, 0, 0, 190, 230, "PA Amounts"
+BeginDialog PA_verif_dialog, 0, 0, 236, 230, "PA Verif Dialog"
+  EditBox 45, 25, 45, 15, snap_grant
+  EditBox 45, 45, 45, 15, MSA_Grant
+  EditBox 45, 65, 45, 15, GA_grant
+  EditBox 150, 25, 30, 15, MFIP_food
+  EditBox 190, 25, 30, 15, MFIP_cash
+  EditBox 150, 45, 30, 15, relative_food
+  EditBox 190, 45, 30, 15, relative_cash
+  EditBox 190, 65, 30, 15, foster_care
+  EditBox 55, 90, 175, 15, other_income
+  CheckBox 55, 110, 35, 10, "Yes", subsidy_check
+  EditBox 75, 135, 20, 15, cash_members
+  EditBox 185, 135, 20, 15, household_members
+  EditBox 60, 160, 50, 15, completed_by
+  EditBox 185, 160, 45, 15, worker_phone
+  EditBox 165, 185, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 85, 200, 50, 15
-    CancelButton 140, 200, 50, 15
-  Text 5, 15, 50, 15, "SNAP "
-  EditBox 50, 15, 25, 15, snap_grant
-  EditBox 50, 35, 25, 15, MSA_Grant
-  EditBox 135, 15, 20, 15, MFIP_food
-  EditBox 135, 35, 20, 15, relative_food
-  Text 5, 35, 35, 15, "MSA"
-  Text 100, 15, 25, 15, "MFIP"
-  Text 100, 55, 30, 15, "Foster Care"
-  Text 100, 35, 35, 15, "Relative Care"
-  Text 5, 80, 45, 20, "Other income and type"
-  EditBox 55, 80, 130, 15, other_income
-  Text 5, 100, 45, 20, "$50 subsidy deduction?"
-  CheckBox 55, 100, 35, 10, "Yes", subsidy_check
-  Text 5, 120, 45, 30, "Number of members on cash grant"
-  EditBox 50, 125, 20, 15, cash_members
-  Text 90, 125, 55, 25, "Total members in household"
-  EditBox 150, 125, 20, 15, household_members
-  EditBox 165, 15, 20, 15, MFIP_cash
-  
-  Text 135, 5, 25, 10, "Food"
-  Text 165, 5, 25, 10, "Cash"
-  EditBox 165, 35, 20, 15, relative_cash
-  EditBox 165, 55, 20, 15, foster_care
-  EditBox 50, 55, 25, 15, GA_grant
-  EditBox 40, 150, 60, 15, completed_by
-  EditBox 140, 150, 45, 15, worker_phone
-  Text 110, 150, 25, 20, "Worker Phone"
-  Text 5, 150, 40, 20, "Completed by:"
-  Text 5, 55, 35, 15, "GA"
-  Text 55, 175, 55, 15, "Worker Signature"
-  EditBox 120, 175, 65, 15, worker_signature
+    OkButton 125, 210, 50, 15
+    CancelButton 180, 210, 50, 15
+  GroupBox 10, 5, 215, 80, "PA grant info:"
+  Text 155, 15, 20, 10, "Food"
+  Text 195, 15, 20, 10, "Cash"
+  Text 20, 30, 25, 10, "SNAP:"
+  Text 20, 50, 20, 10, "MSA:"
+  Text 25, 70, 15, 10, "GA:"
+  Text 125, 30, 20, 10, "MFIP:"
+  Text 100, 50, 50, 10, "Relative Care:"
+  Text 105, 70, 40, 10, "Foster Care:"
+  Text 5, 90, 45, 20, "Other income and type"
+  Text 5, 110, 45, 20, "$50 subsidy deduction?"
+  Text 5, 135, 70, 20, "Number of members on cash grant:"
+  Text 5, 165, 50, 10, "Completed by:"
+  Text 125, 135, 55, 20, "Total members in household:"
+  Text 130, 165, 50, 10, "Worker phone:"
+  Text 50, 190, 110, 10, "Worker Signature (for case note):"
 EndDialog
+
+
 
 BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
   Text 5, 5, 135, 10, "Are you sure you want to end this script?"
@@ -270,7 +272,7 @@ EMSearch "MFIP", row, col
 		
 'calling the main dialog	
 Do
-	Dialog grants_dialog
+	Dialog PA_verif_dialog
 	If ButtonPressed = 0 then stopscript
   If worker_signature = ""  then MsgBox "Please sign your case note."
 Loop until worker_signature <> "" 
@@ -339,10 +341,7 @@ objSelection.TypeParagraph()
 objSelection.TypeText "Worker phone: "
 objSelection.TypeText worker_phone
 
-Function print_word_doc()
-	objword.dialogs(wdDialogFilePrint).Show
-End Function
-call print_word_doc
+
 
 Do	
 	
@@ -356,12 +355,9 @@ Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'Enters the case note
 EMSendKey "<home>" & "PA verification request completed and sent to requesting agency." & "<newline>"
-EMSendKey worker_signature
+call write_new_line_in_case_note("---")
+call write_new_line_in_case_note(worker_signature)
 
 
-
-
-
-
-
-
+'Starts the print dialog
+objword.dialogs(wdDialogFilePrint).Show
