@@ -2,7 +2,6 @@
 name_of_script = "NOTE - client contact"
 start_time = timer
 
-'FUNCTIONS----------------------------------------------------------------------------------------------------
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
@@ -10,24 +9,7 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
-
-'THE DIALOG
-
-EMConnect ""
-
-row = 1
-col = 1
-
-EMSearch "Case Nbr:", row, col
-If row <> 0 then 
-	EMReadScreen case_number, 8, row, col + 10
-	case_number = replace(case_number, "_", "")
-	case_number = trim(case_number)
-End if
-
-
-
-
+'THE DIALOG--------------------------------------------------------------------------------------------------
 BeginDialog contact_dialog, 0, 0, 386, 280, "Client contact"
   ComboBox 50, 5, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
   DropListBox 115, 5, 45, 10, "from"+chr(9)+"to", contact_direction
@@ -43,10 +25,10 @@ BeginDialog contact_dialog, 0, 0, 386, 280, "Client contact"
   EditBox 65, 175, 310, 15, case_status
   CheckBox 5, 200, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
   CheckBox 5, 220, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-  EditBox 310, 260, 70, 15, worker_signature
+  EditBox 310, 240, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 270, 235, 50, 15
-    CancelButton 330, 235, 50, 15
+    OkButton 270, 260, 50, 15
+    CancelButton 330, 260, 50, 15
   Text 5, 10, 45, 10, "Contact type:"
   Text 260, 10, 15, 10, "Re:"
   GroupBox 5, 25, 370, 30, "Optional info:"
@@ -59,12 +41,22 @@ BeginDialog contact_dialog, 0, 0, 386, 280, "Client contact"
   Text 15, 140, 50, 10, "Verifs needed: "
   Text 15, 160, 105, 10, "Instructions/message for client:"
   Text 15, 180, 45, 10, "Case status: "
-  Text 235, 250, 70, 10, "Sign your case note: "
+  Text 240, 245, 70, 10, "Sign your case note: "
 EndDialog
 
+'THE SCRIPT--------------------------------------------------------------------------------------------------
 
+EMConnect ""
 
+row = 1
+col = 1
 
+EMSearch "Case Nbr:", row, col
+If row <> 0 then 
+	EMReadScreen case_number, 8, row, col + 10
+	case_number = replace(case_number, "_", "")
+	case_number = trim(case_number)
+End if
 
 
 DO
