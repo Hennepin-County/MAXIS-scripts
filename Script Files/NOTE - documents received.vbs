@@ -22,8 +22,8 @@ BeginDialog docs_received_dialog, 0, 0, 466, 145, "Docs received"
   CheckBox 195, 105, 195, 10, "Check here to start the denied programs script after this.", denied_progs_check
   EditBox 115, 120, 350, 15, docs_needed
   ButtonGroup ButtonPressed
-    OkButton 355, 5, 50, 15
-    CancelButton 410, 5, 50, 15
+	OkButton 355, 5, 50, 15
+	CancelButton 410, 5, 50, 15
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 55, 10, "Docs received:"
   Text 5, 50, 70, 10, "Notes on your docs:"
@@ -47,20 +47,20 @@ If IsNumeric(case_number) = False then case_number = ""
 
 'Displays the dialog and navigates to case note
 Do
-  Do
-    Do
-      Dialog docs_received_dialog
-      If buttonpressed = 0 then stopscript
-      If case_number = "" then MsgBox "You must have a case number to continue!"
-    Loop until case_number <> ""
-    transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-  call navigate_to_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
+	Do
+		Do
+			Dialog docs_received_dialog
+			If buttonpressed = 0 then stopscript
+			If case_number = "" then MsgBox "You must have a case number to continue!"
+			Loop until case_number <> ""
+		transmit
+		EMReadScreen MAXIS_check, 5, 1, 39
+		If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
+	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+	call navigate_to_screen("case", "note")
+	PF9
+	EMReadScreen mode_check, 7, 20, 3
+	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
 Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
 
 'Case notes
