@@ -133,12 +133,11 @@ excel_row = 2
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_screen("rept", "actv")
-	EMReadScreen user_worker, 7, 21, 71
+	EMReadScreen user_worker, 7, 21, 71		'
 	EMReadScreen p_worker, 7, 21, 13
-	IF user_worker <> p_worker THEN 
-		EMWriteScreen worker, 21, 13
-		transmit
-	END IF
+	EMWriteScreen worker, 21, 13
+	transmit
+	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
 
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
