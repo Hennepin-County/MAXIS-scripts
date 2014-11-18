@@ -579,7 +579,8 @@ End Function
 FUNCTION write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
 	call navigate_to_screen("STAT", "HEST")
 	call create_panel_if_nonexistent
-	call create_MAXIS_friendly_date(HEST_FS_choice_date, 1, 07, 40)
+	Emwritescreen "01", 6, 40
+	call create_MAXIS_friendly_date(HEST_FS_choice_date, 0, 7, 40)
 	EMWritescreen HEST_first_month, 8, 61 
 	'Filling in the #/FS units field (always 01)
 	If ucase(left(HEST_heat_air_retro, 1)) = "Y" then EMWritescreen "01", 13, 42

@@ -135,6 +135,9 @@ For each worker in worker_array
 	Call navigate_to_screen("rept", "actv")
 	EMWriteScreen worker, 21, 13
 	transmit
+	EMReadScreen user_worker, 7, 21, 71		'
+	EMReadScreen p_worker, 7, 21, 13
+	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
 
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
