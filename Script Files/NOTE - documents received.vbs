@@ -11,8 +11,9 @@ Execute text_from_the_other_script
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 
-BeginDialog docs_received_dialog, 0, 0, 466, 145, "Docs received"
+BeginDialog docs_received_dialog, 0, 0, 466, 140, "Docs received"
   EditBox 55, 5, 90, 15, case_number
+  EditBox 215, 5, 65, 15, document_datestamp
   EditBox 60, 25, 215, 15, docs_received
   EditBox 75, 45, 390, 15, verif_notes
   EditBox 60, 65, 405, 15, actions_taken
@@ -22,9 +23,10 @@ BeginDialog docs_received_dialog, 0, 0, 466, 145, "Docs received"
   CheckBox 195, 105, 195, 10, "Check here to start the denied programs script after this.", denied_progs_check
   EditBox 115, 120, 350, 15, docs_needed
   ButtonGroup ButtonPressed
-	OkButton 355, 5, 50, 15
-	CancelButton 410, 5, 50, 15
+    OkButton 355, 5, 50, 15
+    CancelButton 410, 5, 50, 15
   Text 5, 10, 50, 10, "Case number:"
+  Text 160, 10, 55, 10, "Doc datestamp:"
   Text 5, 30, 55, 10, "Docs received:"
   Text 5, 50, 70, 10, "Notes on your docs:"
   Text 280, 30, 190, 10, "Note: just list the docs here. This is the title of your note."
@@ -32,8 +34,6 @@ BeginDialog docs_received_dialog, 0, 0, 466, 145, "Docs received"
   Text 5, 70, 50, 10, "Actions taken: "
   Text 5, 125, 110, 10, "Verifs still needed (if applicable):"
 EndDialog
-
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
@@ -66,6 +66,7 @@ Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
 'Case notes
 EMSendKey "Docs rec'd: "
 call write_new_line_in_case_note(docs_received)
+If document_datestamp <> "" then call write_editbox_in_case_note("Document datestamp", document_datestamp, 6)
 If verif_notes <> "" then call write_editbox_in_case_note("Notes", verif_notes, 6) 
 call write_editbox_in_case_note("Actions taken", actions_taken, 6) 
 If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_needed, 6) 
