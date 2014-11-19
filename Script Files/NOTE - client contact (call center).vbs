@@ -19,9 +19,9 @@ BeginDialog contact_dialog, 0, 0, 386, 175, "Client contact"
   EditBox 255, 35, 115, 15, when_contact_was_made
   EditBox 55, 60, 85, 15, case_number
   EditBox 55, 80, 325, 15, issue
-  CheckBox 10, 100, 95, 10, "Answered question", answered_question_check
-  CheckBox 110, 100, 95, 10, "Transferred question", transferred_question_check
-  CheckBox 200, 100, 150, 10, "Reminded Client re: Importance of CAF I", caf_1_check
+  CheckBox 10, 100, 75, 10, "Answered question", answered_question_check
+  CheckBox 100, 100, 80, 10, "Transferred question", transferred_question_check
+  CheckBox 195, 100, 150, 10, "Reminded Client re: Importance of CAF I", caf_1_check
   EditBox 55, 115, 325, 15, other_action
   EditBox 310, 135, 70, 15, worker_signature
   ButtonGroup ButtonPressed
