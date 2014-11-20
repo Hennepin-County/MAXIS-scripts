@@ -159,7 +159,7 @@ IF autofill_snap_check = 1 THEN
 				script_end_procedure("Your most recent SNAP approval for the benefit month chosen is not from today. The script cannot autofill this result. Process manually.")
 			END IF
 		ELSE
-			EMReadScreen approval_versions, 1, 2, 18
+			EMReadScreen approval_versions, 2, 2, 18
 			IF approval_versions = "1" THEN script_end_procedure("You do not have an approved version of SNAP in the selected benefit month. Please approve before running the script.")
 			approval_versions = int(approval_versions)
 			approval_to_check = approval_versions - 1
