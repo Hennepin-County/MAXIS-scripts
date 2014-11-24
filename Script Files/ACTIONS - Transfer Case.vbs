@@ -312,7 +312,7 @@ IF XFERRadioGroup = 0 THEN
 	IF active_programs <> "" THEN call write_editbox_in_case_note("Active Programs", (left(active_programs, (len(active_programs) - 1))), 6)
 	IF mnsure_active_check = checked THEN call write_new_line_in_case_note("* CL is active on HC through MNSure")
 	IF mcre_active_check = checked THEN call write_new_line_in_case_note("* CL is active on HC through Minnesota Care")
-	IF pend_programs <> "" THEN call write_editbox_in_case_note("Pending Programs", (left(active_programs, (len(active_programs) - 1))), 6)
+	IF pend_programs <> "" THEN call write_editbox_in_case_note("Pending Programs", (left(pend_programs, (len(pend_programs) - 1))), 6)
 	IF mnsure_pend_check = checked THEN call write_new_line_in_case_note("* CL has pending HC application through MNSure")
 	call write_editbox_in_case_note("CL Move Date", cl_move_date, 6)
 	IF crf_sent_check = checked THEN call write_editbox_in_case_note("Change Report Sent", crf_sent_date, 6)
