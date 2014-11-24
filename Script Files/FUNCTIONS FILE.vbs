@@ -1440,6 +1440,7 @@ End function
 
 Function MAXIS_background_check
 	Do
+		call navigate_to_screen("STAT", "SUMM")
 		EMReadScreen SELF_check, 4, 2, 50
 		If SELF_check = "SELF" then
 			PF3
