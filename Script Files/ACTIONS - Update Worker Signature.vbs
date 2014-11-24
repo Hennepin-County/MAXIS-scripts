@@ -16,7 +16,7 @@ windows_user_ID = objNet.UserName
 
 SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
 SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
-update_worker_sig_command.WriteLine(worker_signature)
+update_worker_sig_command.Write(worker_signature)
 update_worker_sig_command.Close
 
 script_end_procedure("")
