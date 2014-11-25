@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -80,7 +80,7 @@ Function retro_paystubs_info_adder(pay_date, gross_amt, hours)
 End function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog paystubs_received_dialog, 0, 0, 256, 220, "Paystubs Received Dialog"
+BeginDialog paystubs_received_dialog, 0, 0, 256, 235, "Paystubs Received Dialog"
   DropListBox 100, 5, 100, 15, "(select one)"+chr(9)+"One Time Per Month"+chr(9)+"Two Times Per Month"+chr(9)+"Every Other Week"+chr(9)+"Every Week", pay_frequency
   EditBox 15, 45, 65, 15, pay_date_01
   EditBox 95, 45, 65, 15, gross_amt_01
@@ -98,23 +98,22 @@ BeginDialog paystubs_received_dialog, 0, 0, 256, 220, "Paystubs Received Dialog"
   EditBox 95, 125, 65, 15, gross_amt_05
   EditBox 175, 125, 65, 15, hours_05
   EditBox 55, 155, 190, 15, explanation_of_income
-  DropListBox 75, 180, 120, 15, "(select one)"+chr(9)+"1 Pay Stubs/Tip Report"+chr(9)+"2 Empl Statement"+chr(9)+"3 Coltrl Stmt"+chr(9)+"4 Other Document"+chr(9)+"5 Pend Out State Verification"+chr(9)+"N No Ver Prvd", JOBS_verif_code
-  EditBox 75, 200, 115, 15, worker_signature
+  EditBox 95, 175, 80, 15, document_datestamp
+  DropListBox 75, 195, 120, 15, "(select one)"+chr(9)+"1 Pay Stubs/Tip Report"+chr(9)+"2 Empl Statement"+chr(9)+"3 Coltrl Stmt"+chr(9)+"4 Other Document"+chr(9)+"5 Pend Out State Verification"+chr(9)+"N No Ver Prvd", JOBS_verif_code
+  EditBox 75, 215, 115, 15, worker_signature
   ButtonGroup buttonpressed
-    OkButton 200, 180, 50, 15
-    CancelButton 200, 200, 50, 15
+    OkButton 200, 195, 50, 15
+    CancelButton 200, 215, 50, 15
   Text 40, 10, 55, 10, "Pay frequency:"
   Text 10, 30, 80, 10, "Pay date (MM/DD/YY):"
   Text 105, 30, 50, 10, "Gross amount:"
   Text 195, 30, 30, 10, "Hours:"
   GroupBox 5, 145, 245, 30, "Explain how income was calculated:"
   Text 10, 160, 45, 10, "Explanation:"
-  Text 10, 185, 60, 10, "JOBS verif code:"
-  Text 10, 205, 60, 10, "Worker signature:"
+  Text 10, 180, 80, 10, "Date paystubs received:"
+  Text 10, 200, 60, 10, "JOBS verif code:"
+  Text 10, 220, 60, 10, "Worker signature:"
 EndDialog
-
-
-
 
 BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
   EditBox 100, 5, 60, 15, case_number
@@ -517,6 +516,7 @@ If update_PIC_check = 1 then
     call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
   End if
   call write_editbox_in_case_note("Employer name", employer_name, 6)
+  If document_datestamp <> "" then call write_editbox_in_case_note("Paystubs received date", document_datestamp, 6)
   call write_new_line_in_case_note("---")
   call write_new_line_in_case_note(worker_signature)
   PF3
@@ -538,6 +538,7 @@ If case_note_check = 1 then
     call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
   End if
   call write_editbox_in_case_note("Employer name", employer_name, 6)
+  If document_datestamp <> "" then call write_editbox_in_case_note("Paystubs received date", document_datestamp, 6)
   call write_new_line_in_case_note("---")
   call write_new_line_in_case_note(worker_signature)
   PF3

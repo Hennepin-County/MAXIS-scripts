@@ -2,10 +2,9 @@
 name_of_script = "ACTIONS - MA-EPD EI FIAT"
 start_time = timer
 
-
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -29,10 +28,7 @@ current_year = current_year - 2000
 current_month_and_year = current_month & "/" & current_year
 next_month_and_year = footer_month & "/" & footer_year
 
-'THE SCRIPT
-
-EMConnect ""
-
+'DIALOGS--------------------------------
 BeginDialog case_number_dialog, 0, 0, 156, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
   EditBox 90, 0, 60, 15, case_number
@@ -43,7 +39,11 @@ BeginDialog case_number_dialog, 0, 0, 156, 61, "Case number"
     CancelButton 85, 40, 50, 15
 EndDialog
 
-MAXIS_case_number_finder(case_number)
+'THE SCRIPT
+
+EMConnect ""
+
+call MAXIS_case_number_finder(case_number)
 
 memb_number = "01" 'Setting a default
 
@@ -247,7 +247,7 @@ Do
   transmit
 loop until col > 76
 
-
+MsgBox "Success! Please make sure to check eligibility for any medicare reimbursement programs such as QMB or SLMB."
 
 
 script_end_procedure("")

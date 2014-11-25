@@ -4,12 +4,13 @@ start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
 'THE SCRIPT
+call worker_county_code_determination(worker_county_code, two_digit_county_code)
 
 EMConnect ""
 

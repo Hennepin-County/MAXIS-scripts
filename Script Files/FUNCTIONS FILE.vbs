@@ -1,22 +1,20 @@
 '---------------------------------------------------------------------------------------------------
 'HOW THIS SCRIPT WORKS:
 '
-'This script contains functions that the other BlueZone scripts use very commonly. The
-'other BlueZone scripts contain a few lines of code that run this script and get the 
-'functions. This saves time in writing and copy/pasting the same functions in
-'many different places. Only add functions to this script if they've been tested by
-'the workgroups. This document is actively used by live scripts, so it needs to be
-'functionally complete at all times.
+'This script contains functions and variables that the other BlueZone scripts use very commonly. The other BlueZone scripts contain a few lines of code that run this 
+'script and get the functions. This saves time in writing and copy/pasting the same functions in many different places. Only add functions to this script if they've 
+'been tested in other scripts first. This document is actively used by live scripts, so it needs to be functionally complete at all times. THAT MEANS THAT IF YOU BREAK
+'THIS SCRIPT, ALL OTHER SCRIPTS WILL NOT WORK! MODIFY WITH CARE! :)
 '
 'Here's the code to add, including stats gathering pieces (without comments of course):
 '
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-'name_of_script = ""
+'name_of_script = "<INSERT SCRIPT NAME FOR ACCESS DATABASE HERE>"
 'start_time = timer
 '
 ''LOADING ROUTINE FUNCTIONS
 'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-'Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-BZ-Scripts-County-Beta\Script Files\FUNCTIONS FILE.vbs")
+'Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
 'text_from_the_other_script = fso_command.ReadAll
 'fso_command.Close
 'Execute text_from_the_other_script
@@ -24,31 +22,83 @@
 '----------------------------------------------------------------------------------------------------
 
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
+'The following variables are dynamically added via the installer. They can be modified manually to make changes without re-running the installer, but doing so should not be undertaken lightly.
 
+'This is used by almost every script which calls a specific agency worker number (like the REPT/ACTV nav and list gen scripts).
 worker_county_code = "x102"
+
+'This is used for determining whether script_end_procedure will also log usage info in an Access table.
 collecting_statistics = False
-EDMS_choice = "Compass Forms"
-county_name = "Anoka"
-county_address_line_01 = "1234 Anoka Road"
-county_address_line_02 = "Anoka, MN 55555"
+
+'This is used by scripts which tell the worker where to find a doc to send to a client (ie "Send form using Compass Pilot")
+EDMS_choice = "Compass Pilot"
+
+'This is used for MEMO scripts, such as appointment letter
+county_name = "Anoka County"
+
+'This is used to allow some agencies to decline to case note intake/rein dates on denied progs and closed progs. We're hoping to convince these agencies to case note this info, so that we can drop this field.
 case_noting_intake_dates = True
+
+'This moves "verifs needed" to be at the top of the CAF case note template, instead of the bottom.
 move_verifs_needed = False
+
+'This merely exists to help the installer determine which dropdown box to default. It is not used by any scripts.
+code_from_installer = "02 - Anoka County"
+
+'This threshold is what the BNDX scrubber will use to determine what is considered "within the realm" of the currently budgeted income.
+county_bndx_variance_threshold = "1"
+
+'These two variables determine the percent rule for EA/EGA, as well as the number of days income is evaluated.
+emer_percent_rule_amt = "30"
+emer_number_of_income_days = "30"
+
+'This is the X1/PW number to send closed cases to in the INAC scrubber.
+CLS_x1_number = "PWKLB34"
+
+'Creates a double array of county offices, first by office (using the ~), then by address line (using the |). Dynamically added with the installer.
+county_office_array = split("2100 3rd Ave Suite 400|Anoka, MN 55303~1201 89th Ave NE Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell RD NE|Lexington, MN 55014", "~")
+
+'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
+checked = 1			'Value for checked boxes
+unchecked = 0		'Value for unchecked boxes
+cancel = 0			'Value for cancel button in dialogs
+OK = -1			'Value for OK button in dialogs
+
+'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
+
+'Making a list of offices to be used in various scripts
+For each office in county_office_array
+	new_office_array = split(office, "|")									'Assigned earlier in the FUNCTIONS FILE script. Splits into an array, containing each line of the address.
+	comma_location_in_address_line_02 = instr(new_office_array(1), ",")				'Finds the location of the first comma in the second line of the address (because everything before this is the city)
+	city_for_array = left(new_office_array(1), comma_location_in_address_line_02 - 1)		'Pops this city into a variable
+	county_office_list = county_office_list & chr(9) & city_for_array					'Adds the city to the variable called "county_office_list", which also contains a new line, so that it works correctly in dialogs.
+Next
+
 
 is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SETUP SCRIPT WILL OVERWRITE LINES BELOW WHICH DEPEND ON THIS, BY SEPARATING THE VARIABLES WE PREVENT ISSUES
 
-'SHARED VARIABLES----------------------------------------------------------------------------------------------------
-checked = 1		'Value for checked boxes
-unchecked = 0		'Value for unchecked boxes
-cancel = 0		'Value for cancel button in dialogs
-OK = -1			'Value for OK button in dialogs
+'Some screens require the two digit county code, and this determines what that code is. It only does it for single-county agencies 
+'(ie, DHS and other multicounty agencies follow different logic, which will be fleshed out in the individual scripts affected)
+If worker_county_code <> "MULTICOUNTY" then two_digit_county_code = right(worker_county_code, 2)
 
-'Some screens require the two digit county code, and this determines what that code is
-two_digit_county_code = right(worker_county_code, 2)
-If two_digit_county_code = "PW" then two_digit_county_code = "91"	'For DHS purposes
+'The following code looks in C:\USERS\''windows_user_ID''\My Documents for a text file called workersig.txt.
+'If the file exists, it pulls the contents (generated by ACTIONS - Update Worker Signature.vbs) and populates worker_signature automatically.
+Set objNet = CreateObject("WScript.NetWork") 
+windows_user_ID = objNet.UserName
+
+Dim oTxtFile 
+With (CreateObject("Scripting.FileSystemObject"))
+	If .FileExists("C:\users\" & windows_user_ID & "\my documents\workersig.txt") Then
+		Set get_worker_sig = CreateObject("Scripting.FileSystemObject")
+		Set worker_sig_command = get_worker_sig.OpenTextFile("C:\users\" & windows_user_ID & "\my documents\workersig.txt")
+		worker_sig = worker_sig_command.ReadAll
+		IF worker_sig <> "" THEN worker_signature = worker_sig	
+		worker_sig_command.Close
+	END IF
+END WITH
 
 
-
-'----------------------------------------------------------------------------------------------------
+'THE SHARED FUNCTIONS----------------------------------------------------------------------------------------------------
 
 Function add_ACCI_to_variable(x) 'x represents the name of the variable (example: assets vs. spousal_assets)
   EMReadScreen ACCI_date, 8, 6, 73
@@ -375,6 +425,17 @@ Function add_UNEA_to_variable(x) 'x represents the name of the variable (example
   End if
 End function
 
+'This function will assign an address to a variable selected from the interview_location variable in the Appt Letter script.
+Function assign_county_address_variables(address_line_01, address_line_02)		
+	For each office in county_office_array				'Splits the county_office_array, which is set by the config program and declared earlier in this file
+		If instr(office, interview_location) <> 0 then		'If the name of the office is found in the "interview_location" variable, which is contained in the MEMO - appt letter script.
+			new_office_array = split(office, "|")		'Split the office into its own array
+			address_line_01 = new_office_array(0)		'Line 1 of the address is the first part of this array
+			address_line_02 = new_office_array(1)		'Line 2 of the address is the second part of this array
+		End if
+	Next
+End function
+
 Function attn
   EMSendKey "<attn>"
   EMWaitReady -1, 0
@@ -408,14 +469,22 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           End if
         Next
         ABPS_row = 15 'Setting variable for do...loop
-        Do 'Using a do...loop to determine which MEMB numbers are with this parent
-          EMReadScreen child_ref_nbr, 2, ABPS_row, 35
-          If child_ref_nbr <> "__" then
-            amt_of_children_for_ABPS = amt_of_children_for_ABPS + 1
-            children_for_ABPS = children_for_ABPS & child_ref_nbr & ", "
+        Do
+          Do 'Using a do...loop to determine which MEMB numbers are with this parent
+            EMReadScreen child_ref_nbr, 2, ABPS_row, 35
+            If child_ref_nbr <> "__" then
+              amt_of_children_for_ABPS = amt_of_children_for_ABPS + 1
+              children_for_ABPS = children_for_ABPS & child_ref_nbr & ", "
+            End if
+            ABPS_row = ABPS_row + 1
+          Loop until ABPS_row > 17		'End of the row
+          EMReadScreen more_check, 7, 19, 66
+          If more_check = "More: +" then
+            EMSendKey "<PF20>"
+            EMWaitReady 0, 0
+            ABPS_row = 15
           End if
-          ABPS_row = ABPS_row + 1
-        Loop until ABPS_row > 17
+        Loop until more_check <> "More: +"
         'Cleaning up the "children_for_ABPS" variable to be more readable
         children_for_ABPS = left(children_for_ABPS, len(children_for_ABPS) - 2) 'cleaning up the end of the variable (removing the comma for single kids)
         children_for_ABPS = strreverse(children_for_ABPS)                       'flipping it around to change the last comma to an "and"
@@ -757,30 +826,33 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           EMReadScreen fmed_type, 2, fmed_row, 25
           EMReadScreen fmed_proof, 2, fmed_row, 32
           EMReadScreen fmed_amt, 8, fmed_row, 70
-          If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
-            fmed_proof = ", no proof provided"
-          Else
-            fmed_proof = ""
+		  EMReadScreen fmed_end_date, 5, fmed_row, 60		'reading end date to see if this one even gets added.
+		  If fmed_end_date = "__ __" then					'Skips entries with an end date.
+            If fmed_proof = "__" or fmed_proof = "?_" or fmed_proof = "NO" then 
+              fmed_proof = ", no proof provided"
+            Else
+              fmed_proof = ""
+            End if
+            If fmed_amt = "________" then
+              fmed_amt = ""
+            Else
+              fmed_amt = " ($" & trim(fmed_amt) & ")"
+            End if
+            If fmed_type = "01" then fmed_type = "Nursing Home"
+            If fmed_type = "02" then fmed_type = "Hosp/Clinic"
+            If fmed_type = "03" then fmed_type = "Physicians"
+            If fmed_type = "04" then fmed_type = "Prescriptions"
+            If fmed_type = "05" then fmed_type = "Ins Premiums"
+            If fmed_type = "06" then fmed_type = "Dental"
+            If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
+            If fmed_type = "08" then fmed_type = "Vision Care"
+            If fmed_type = "09" then fmed_type = "Medicare Prem"
+            If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
+            If fmed_type = "11" then fmed_type = "Home Care"
+            If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
+            If fmed_type = "15" then fmed_type = "Medi Part D premium"
+            If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           End if
-          If fmed_amt = "________" then
-            fmed_amt = ""
-          Else
-            fmed_amt = " ($" & trim(fmed_amt) & ")"
-          End if
-          If fmed_type = "01" then fmed_type = "Nursing Home"
-          If fmed_type = "02" then fmed_type = "Hosp/Clinic"
-          If fmed_type = "03" then fmed_type = "Physicians"
-          If fmed_type = "04" then fmed_type = "Prescriptions"
-          If fmed_type = "05" then fmed_type = "Ins Premiums"
-          If fmed_type = "06" then fmed_type = "Dental"
-          If fmed_type = "07" then fmed_type = "Medical Trans/Flat Amt"
-          If fmed_type = "08" then fmed_type = "Vision Care"
-          If fmed_type = "09" then fmed_type = "Medicare Prem"
-          If fmed_type = "10" then fmed_type = "Mo. Spdwn Amt/Waiver Obl"
-          If fmed_type = "11" then fmed_type = "Home Care"
-          If fmed_type = "12" then fmed_type = "Medical Trans/Mileage Calc"
-          If fmed_type = "15" then fmed_type = "Medi Part D premium"
-          If fmed_type <> "__" then variable_written_to = variable_written_to & fmed_type & fmed_amt & fmed_proof & "; "
           fmed_row = fmed_row + 1
           If fmed_row = 15 then
             PF20
@@ -842,13 +914,15 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       INSA_name = replace(INSA_name, "_", "")
       INSA_name = split(INSA_name)
       For each word in INSA_name
-        first_letter_of_word = ucase(left(word, 1))
-        rest_of_word = LCase(right(word, len(word) -1))
-        If len(word) > 4 then
-          variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
-        Else
-          variable_written_to = variable_written_to & word & " "
-        End if
+	    If trim(word) <> "" then
+          first_letter_of_word = ucase(left(word, 1))
+          rest_of_word = LCase(right(word, len(word) -1))
+          If len(word) > 4 then
+            variable_written_to = variable_written_to & first_letter_of_word & rest_of_word & " "
+          Else
+            variable_written_to = variable_written_to & word & " "
+          End if
+		End if
       Next
       variable_written_to = trim(variable_written_to) & "; "
     End if
@@ -1219,7 +1293,6 @@ Function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
   variable_written_to = replace(variable_written_to, "$________/semimonthly", "amt unknown")
 End function
 
-
 function back_to_SELF
   Do
     EMSendKey "<PF3>"
@@ -1227,6 +1300,21 @@ function back_to_SELF
     EMReadScreen SELF_check, 4, 2, 50
   Loop until SELF_check = "SELF"
 End function
+
+'This function converts a numeric digit to an Excel column, up to 104 digits (columns).
+function convert_digit_to_excel_column(col_in_excel)
+	'Create string with the alphabet
+	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	'Assigning a letter, based on that column. Uses "mid" function to determine it. If number > 26, it handles by adding a letter (per Excel).
+	convert_digit_to_excel_column = Mid(alphabet, col_in_excel, 1)		
+	If col_in_excel >= 27 and col_in_excel < 53 then convert_digit_to_excel_column = "A" & Mid(alphabet, col_in_excel - 26, 1)
+	If col_in_excel >= 53 and col_in_excel < 79 then convert_digit_to_excel_column = "B" & Mid(alphabet, col_in_excel - 52, 1)
+	If col_in_excel >= 79 and col_in_excel < 105 then convert_digit_to_excel_column = "C" & Mid(alphabet, col_in_excel - 78, 1)
+
+	'Closes script if the number gets too high (very rare circumstance, just errorproofing)
+	If col_in_excel >= 105 then script_end_procedure("This script is only able to assign excel columns to 104 distinct digits. You've exceeded this number, and this script cannot continue.")
+end function
 
 Function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 	'Getting to REPT/USER
@@ -1275,23 +1363,35 @@ Function create_MAXIS_friendly_date(date_variable, variable_length, screen_row, 
   EMWriteScreen right(var_year, 2), screen_row, screen_col + 6
 End function
 
-'This function fixes the case for a phrase. For example, "ROBERT P. ROBERTSON" becomes "Robert P. Robertson". 
-'	It capitalizes the first letter of each word.
-Function fix_case(phrase_to_split, smallest_length_to_skip)									'Ex: fix_case(client_name, 3), where 3 means skip words that are 3 characters or shorter
-	phrase_to_split = split(phrase_to_split)											'splits phrase into an array
-	For each word in phrase_to_split												'processes each word independently
-		If word <> "" then													'Skip blanks
-			first_character = ucase(left(word, 1))									'grabbing the first character of the string, making uppercase and adding to variable
-			remaining_characters = LCase(right(word, len(word) -1))						'grabbing the remaining characters of the string, making lowercase and adding to variable
-			If len(word) > smallest_length_to_skip then								'skip any strings shorter than the smallest_length_to_skip variable
-				output_phrase = output_phrase & first_character & remaining_characters & " "		'output_phrase is the output of the function, this combines the first_character and remaining_characters
-			Else															
-				output_phrase = output_phrase & word & " "							'just pops the whole word in if it's shorter than the smallest_length_to_skip variable
-			End if
-		End if
-	Next
-	phrase_to_split = output_phrase												'making the phrase_to_split equal to the output, so that it can be used by the rest of the script.
-End function
+Function create_panel_if_nonexistent()
+	EMWriteScreen reference_number , 20, 76
+	transmit
+	EMReadScreen case_panel_check, 44, 24, 2
+	If case_panel_check = "REFERENCE NUMBER IS NOT VALID FOR THIS PANEL" then
+		EMReadScreen quantity_of_screens, 1, 2, 78
+		If quantity_of_screens <> "0" then
+			PF9
+		ElseIf quantity_of_screens = "0" then
+			EMWriteScreen "__", 20, 76
+			EMWriteScreen "NN", 20, 79
+			Transmit
+		End If
+	ElseIf case_panel_check <> "REFERENCE NUMBER IS NOT VALID FOR THIS PANEL" then
+		EMReadScreen error_scan, 80, 24, 1
+		error_scan = trim(error_scan)
+		EMReadScreen quantity_of_screens, 1, 2, 78
+		If error_scan = "" and quantity_of_screens <> "0" then
+			PF9
+		ElseIf error_scan <> "" and quantity_of_screens <> "0" then
+			'FIX ERROR HERE
+			msgbox("Error: " & error_scan)
+		ElseIf error_scan <> "" and quantity_of_screens = "0" then
+			EMWriteScreen reference_number, 20, 76
+			EMWriteScreen "NN", 20, 79
+			Transmit
+		End If
+	End If
+End Function
 
 Function ERRR_screen_check 'Checks for error prone cases
 	EMReadScreen ERRR_check, 4, 2, 52
@@ -1311,6 +1411,24 @@ Function find_variable(x, y, z) 'x is string, y is variable, z is length of new 
   If row <> 0 then EMReadScreen y, z, row, col + len(x)
 End function
 
+'This function fixes the case for a phrase. For example, "ROBERT P. ROBERTSON" becomes "Robert P. Robertson". 
+'	It capitalizes the first letter of each word.
+Function fix_case(phrase_to_split, smallest_length_to_skip)									'Ex: fix_case(client_name, 3), where 3 means skip words that are 3 characters or shorter
+	phrase_to_split = split(phrase_to_split)											'splits phrase into an array
+	For each word in phrase_to_split												'processes each word independently
+		If word <> "" then													'Skip blanks
+			first_character = ucase(left(word, 1))									'grabbing the first character of the string, making uppercase and adding to variable
+			remaining_characters = LCase(right(word, len(word) -1))						'grabbing the remaining characters of the string, making lowercase and adding to variable
+			If len(word) > smallest_length_to_skip then								'skip any strings shorter than the smallest_length_to_skip variable
+				output_phrase = output_phrase & first_character & remaining_characters & " "		'output_phrase is the output of the function, this combines the first_character and remaining_characters
+			Else															
+				output_phrase = output_phrase & word & " "							'just pops the whole word in if it's shorter than the smallest_length_to_skip variable
+			End if
+		End if
+	Next
+	phrase_to_split = output_phrase												'making the phrase_to_split equal to the output, so that it can be used by the rest of the script.
+End function
+
 Function get_to_MMIS_session_begin
   Do 
     EMSendkey "<PF6>"
@@ -1319,8 +1437,10 @@ Function get_to_MMIS_session_begin
   Loop until session_start = "SESSION TERMINATED"
 End function
 
+
 Function MAXIS_background_check
 	Do
+		call navigate_to_screen("STAT", "SUMM")
 		EMReadScreen SELF_check, 4, 2, 50
 		If SELF_check = "SELF" then
 			PF3
@@ -1441,6 +1561,31 @@ Function HH_member_custom_dialog(HH_member_array)
   HH_member_array = trim(HH_member_array)
   HH_member_array = split(HH_member_array, " ")
 End function
+
+function log_usage_stats_without_closing 'For use when logging usage stats but then running another script, i.e. DAIL scrubber
+	stop_time = timer
+	script_run_time = stop_time - start_time
+	If is_county_collecting_stats = True then
+		'Getting user name
+		Set objNet = CreateObject("WScript.NetWork") 
+		user_ID = objNet.UserName
+
+		'Setting constants
+		Const adOpenStatic = 3
+		Const adLockOptimistic = 3
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'Opening DB
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
+
+		'Opening usage_log and adding a record
+		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
+		"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & script_run_time & ", '" & "" & "')", objConnection, adOpenStatic, adLockOptimistic
+	End if
+end function
 
 Function memb_navigation_next
   HH_memb_row = HH_memb_row + 1
@@ -1755,7 +1900,7 @@ function script_end_procedure(closing_message)
 		closing_message = replace(closing_message, "'", "")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1782,7 +1927,7 @@ function script_end_procedure_wsh(closing_message) 'For use when running a scrip
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\MAXIS-BZ-Scripts-County-Beta\Statistics\usage statistics.accdb"
+		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
 		'Opening usage_log and adding a record
 		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
@@ -1849,52 +1994,173 @@ function transmit
   EMWaitReady 0, 0
 end function
 
+Function worker_county_code_determination(worker_county_code_variable, two_digit_county_code_variable)		'Determines worker_county_code and two_digit_county_code for multi-county agencies and DHS staff
+	If left(code_from_installer, 2) = "PT" then 'special handling for Pine Tech
+		worker_county_code_variable = "PWTVS"
+	Else
+		If worker_county_code_variable = "MULTICOUNTY" then 
+			Do
+				two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
+				If two_digit_county_code_variable = "" then stopscript
+				If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
+			Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True 
+			worker_county_code_variable = "X1" & two_digit_county_code_variable
+			If two_digit_county_code_variable = "91" then worker_county_code_variable = "PW"	'For DHS folks without proxy
+		End If
+	End if
+End function
+
 Function write_editbox_in_case_note(x, y, z) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-  variable_array = split(y, " ")
-  EMSendKey "* " & x & ": "
-  For each x in variable_array 
-    EMGetCursor row, col 
-    If (row = 17 and col + (len(x)) >= 80) or (row = 4 and col = 3) then
-      EMSendKey "<PF8>"
+  variable_array = split(y, " ")	
+  EMSendKey "* " & x & ": "		
+  For each x in variable_array			
+    EMGetCursor row, col 				
+    If (row = 17 and col + (len(x)) >= 80) or (row = 4 and col = 3) then		 
+	PF8													
       EMWaitReady 0, 0
     End if
-    EMReadScreen max_check, 51, 24, 2
-    If max_check = "A MAXIMUM OF 4 PAGES ARE ALLOWED FOR EACH CASE NOTE" then exit for
-    EMGetCursor row, col 
-    If (row < 17 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(z)
-    If (row = 4 and col = 3) then EMSendKey space(z)
-    EMSendKey x & " "
-    If right(x, 1) = ";" then 
-      EMSendKey "<backspace>" & "<backspace>" 
-      EMGetCursor row, col 
-      If row = 17 then
-        EMSendKey "<PF8>"
-        EMWaitReady 0, 0
-        EMSendKey space(z)
-      Else
-        EMSendKey "<newline>" & space(z)
-      End if
-    End if
+
+		'new logic
+		EMGetCursor row, col										
+		If (row < 17 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(z)
+		If (row = 4 and col = 3) then EMSendKey space(z)
+		EMReadScreen case_note_on_page_four, 20, 24, 2						
+		IF case_note_on_page_four = "A MAXIMUM OF 4 PAGES" THEN
+			PF7
+			PF7
+			PF7
+			EMReadScreen case_note_header, 70, 4, 3
+			DO
+				IF right(case_note_header, 1) = " " THEN case_note_header = left(case_note_header, (len(case_note_header) - 1))
+			LOOP UNTIL right(case_note_header, 1) <> " "
+			EMWriteScreen (case_note_header & " (1 of 2)"), 4, 3
+			PF3
+			PF9
+			EMWriteScreen (case_note_header & " (2 of 2)"), 4, 3
+			EMSendKey "<newline>"
+		END IF
+
+		EMSendKey x & " "
+		If right(x, 1) = ";" then 
+		EMSendKey "<backspace>" & "<backspace>" 
+		EMGetCursor row, col 
+		If row = 17 then
+			EMSendKey "<PF8>"
+			EMWaitReady 0, 0
+			EMSendKey space(z)
+		Else
+			EMSendKey "<newline>" & space(z)
+		End if
+	End if
   Next
   EMSendKey "<newline>"
   EMGetCursor row, col 
   If (row = 17 and col + (len(x)) >= 80) or (row = 4 and col = 3) then
     EMSendKey "<PF8>"
     EMWaitReady 0, 0
+    EMReadScreen case_note_on_page_four, 20, 24, 2
+    IF case_note_on_page_four = "A MAXIMUM OF 4 PAGES" THEN
+      PF7
+      PF7
+      PF7
+      EMReadScreen case_note_header, 70, 4, 3
+      DO
+        IF right(case_note_header, 1) = " " THEN case_note_header = left(case_note_header, (len(case_note_header) - 1))
+	LOOP UNTIL right(case_note_header, 1) <> " "
+	EMWriteScreen (case_note_header & " (1 of 2)"), 4, 3
+	PF3
+	PF9
+	EMWriteScreen (case_note_header & " (2 of 2)"), 4, 3
+	EMSendKey "<newline>"
+    END IF
+
   End if
 End function
 
-Function write_new_line_in_case_note(x)
-  EMGetCursor row, col 
-  If (row = 17 and col + (len(x)) >= 80 + 1 ) or (row = 4 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-  EMReadScreen max_check, 51, 24, 2
-  EMSendKey x & "<newline>"
+Function write_new_line_in_case_note(x)			'Most recent update enables the function to create a new case note when the case note goes over 4 pages.
+  variable_array = split(x, " ")
+  For each x in variable_array
+    EMGetCursor row, col
+    If (row = 17 and col + (len(x)) >= 80) or (row = 4 and col = 3) then
+	PF8				
+      EMWaitReady 0, 0
+    End if
+
+		'new logic
+		EMGetCursor row, col
+		If (row < 17 and col + (len(x)) >= 80) then EMSendKey "<newline>"
+		If (row = 4 and col = 3) then EMSendKey space(z)
+		EMReadScreen case_note_on_page_four, 20, 24, 2						
+		IF case_note_on_page_four = "A MAXIMUM OF 4 PAGES" THEN
+			PF7
+			PF7
+			PF7
+			EMReadScreen case_note_header, 70, 4, 3
+			DO
+				IF right(case_note_header, 1) = " " THEN case_note_header = left(case_note_header, (len(case_note_header) - 1))
+			LOOP UNTIL right(case_note_header, 1) <> " "
+			EMWriteScreen (case_note_header & " (1 of 2)"), 4, 3
+			PF3
+			PF9
+			EMWriteScreen (case_note_header & " (2 of 2)"), 4, 3
+			EMSendKey "<newline>"
+		END IF
+
+		EMSendKey x & " "
+		If right(x, 1) = ";" then 
+		EMSendKey "<backspace>" & "<backspace>" 
+		EMGetCursor row, col 
+		If row = 17 then
+			EMSendKey "<PF8>"
+			EMWaitReady 0, 0
+		Else
+			EMSendKey "<newline>"
+		End if
+	End if
+  Next
+  EMSendKey "<newline>"
   EMGetCursor row, col 
   If (row = 17 and col + (len(x)) >= 80) or (row = 4 and col = 3) then
     EMSendKey "<PF8>"
+    EMWaitReady 0, 0
+    EMReadScreen case_note_on_page_four, 20, 24, 2
+    IF case_note_on_page_four = "A MAXIMUM OF 4 PAGES" THEN
+      PF7
+      PF7
+      PF7
+      EMReadScreen case_note_header, 70, 4, 3
+      DO
+        IF right(case_note_header, 1) = " " THEN case_note_header = left(case_note_header, (len(case_note_header) - 1))
+	LOOP UNTIL right(case_note_header, 1) <> " "
+	EMWriteScreen (case_note_header & " (1 of 2)"), 4, 3
+	PF3
+	PF9
+	EMWriteScreen (case_note_header & " (2 of 2)"), 4, 3
+	EMSendKey "<newline>"
+    END IF
+
+  End if
+End function
+
+'Creates a new line in SPEC/MEMO
+Function write_new_line_in_SPEC_MEMO(variable_to_enter)
+  variable_array = split(variable_to_enter, " ")					'Each word becomes its own member of the array called variable_array.
+  For each word in variable_array 
+    EMGetCursor row, col 									'Needs the cursor in order to know if it's going to "overflow".
+    If (row = 17 and col + (len(word)) >= 75) then					'If we're on the last possible row, and the current column + length of the current word goes over the last possible column for writing, then...
+      EMSendKey "<PF8>"										'Send an F8!
+      EMWaitReady 0, 0
+    End if
+    EMReadScreen max_check, 12, 24, 2							'Checks to see if we've maxed out our possible screens.
+    If max_check = "END OF INPUT" then exit for						'Quits the for...next if we've maxed out.
+    EMGetCursor row, col 									'Grabs the cursor again.
+    If (row < 17 and col + (len(word)) >= 75) then EMSendKey "<newline>"	'If we're before the last possible row, and the current column + length of the current word goes over the last possible column for writing, then send a newline.
+    EMSendKey word & " "									'Now, after all of the above logic, it can actually send the word, and a space.
+  Next												'It'll do this for every word in the variable_array.
+  EMSendKey "<newline>"										'Once all of the words are sent, it sends a newline.
+  EMGetCursor row, col 										'Grabs the cursor yet again.
+  If row = 3 and col = 15 then								'If we're at the beginning of a page (meaning we "rolled over" on possible characters on this screen, then...
+    EMSendKey "<PF8>"										'Send an F8!
     EMWaitReady 0, 0
   End if
 End function
@@ -1922,5 +2188,77 @@ Function write_three_columns_in_case_note(col_01_start_point, col_01_variable, c
   End if
 End function
 
+FUNCTION write_TIKL_function(tikl_text)
+	IF len(tikl_text) <= 60 THEN
+		tikl_line_one = tikl_text
+	ELSE
+		tikl_line_one_len = 61
+		tikl_line_one = left(tikl_text, tikl_line_one_len)
+		IF right(tikl_line_one, 1) = " " THEN
+			whats_left_after_one = right(tikl_text, (len(tikl_text) - tikl_line_one_len))
+		ELSE
+			DO
+				tikl_line_one = left(tikl_text, (tikl_line_one_len - 1))
+				IF right(tikl_line_one, 1) <> " " THEN tikl_line_one_len = tikl_line_one_len - 1
+			LOOP UNTIL right(tikl_line_one, 1) = " "
+			whats_left_after_one = right(tikl_text, (len(tikl_text) - (tikl_line_one_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_one <> "" AND len(whats_left_after_one) <= 60) THEN
+		tikl_line_two = whats_left_after_one
+	ELSEIF (whats_left_after_one <> "" AND len(whats_left_after_one) > 60) THEN
+		tikl_line_two_len = 61
+		tikl_line_two = left(whats_left_after_one, tikl_line_two_len)
+		IF right(tikl_line_two, 1) = " " THEN
+			whats_left_after_two = right(whats_left_after_one, (len(whats_left_after_one) - tikl_line_two_len))
+		ELSE
+			DO
+				tikl_line_two = left(whats_left_after_one, (tikl_line_two_len - 1))
+				IF right(tikl_line_two, 1) <> " " THEN tikl_line_two_len = tikl_line_two_len - 1
+			LOOP UNTIL right(tikl_line_two, 1) = " "
+			whats_left_after_two = right(whats_left_after_one, (len(whats_left_after_one) - (tikl_line_two_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_two <> "" AND len(whats_left_after_two) <= 60) THEN
+		tikl_line_three = whats_left_after_two
+	ELSEIF (whats_left_after_two <> "" AND len(whats_left_after_two) > 60) THEN
+		tikl_line_three_len = 61
+		tikl_line_three = right(whats_left_after_two, tikl_line_three_len)
+		IF right(tikl_line_three, 1) = " " THEN
+			whats_left_after_three = right(whats_left_after_two, (len(whats_left_after_two) - tikl_line_three_len))
+		ELSE
+			DO
+				tikl_line_three = left(whats_left_after_two, (tikl_line_three_len - 1))
+				IF right(tikl_line_three, 1) <> " " THEN tikl_line_three_len = tikl_line_three_len - 1
+			LOOP UNTIL right(tikl_line_three, 1) = " "
+			whats_left_after_three = right(whats_left_after_two, (len(whats_left_after_two) - (tikl_line_three_len - 1)))
+		END IF
+	END IF
+
+	IF (whats_left_after_three <> "" AND len(whats_left_after_three) <= 60) THEN
+		tikl_line_four = whats_left_after_three
+	ELSEIF (whats_left_after_three <> "" AND len(whats_left_after_three) > 60) THEN
+		tikl_line_four_len = 61
+		tikl_line_four = left(whats_left_after_three, tikl_line_four_len)
+		IF right(tikl_line_four, 1) = " " THEN
+			tikl_line_five = right(whats_left_after_three, (len(whats_left_after_three) - tikl_line_four_len))
+		ELSE
+			DO
+				tikl_line_four = left(whats_left_after_three, (tikl_line_four_len - 1))
+				IF right(tikl_line_four) <> " " THEN tikl_line_four_len = tikl_line_four_len - 1
+			LOOP UNTIL right(tikl_line_four, 1) = " "
+			tikl_line_five = right(whats_left_after_three, (tikl_line_four_len - 1))
+		END IF
+	END IF
+
+	EMWriteScreen tikl_line_one, 9, 3
+	IF tikl_line_two <> "" THEN EMWriteScreen tikl_line_two, 10, 3
+	IF tikl_line_three <> "" THEN EMWriteScreen tikl_line_three, 11, 3
+	IF tikl_line_four <> "" THEN EMWriteScreen tikl_line_four, 12, 3
+	IF tikl_line_five <> "" THEN EMWriteScreen tikl_line_five, 13, 3
+	transmit
+END FUNCTION
 
 

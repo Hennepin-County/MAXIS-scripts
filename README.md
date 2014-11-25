@@ -1,10 +1,24 @@
-MAXIS-BZ-Scripts
+DHS-MAXIS-Scripts
 ================
 
-BlueZone Scripts for the MAXIS program.
+Welcome to our GitHub repo for the BlueZone Scripts!
 
-BlueZone Scripts are a simple extension of the BlueZone software that counties and the state use to connect to MAXIS, MMIS, PRISM, and InfoPac. These scripts automate repetitive, simple tasks such as processing DAIL messages, adding/updating MAXIS panels, and generating accurate case notes.
+This GitHub repo is the home of Minnesota's BlueZone Scripts, which aim to automate repetetive, error prone tasks using simple extensions to the BlueZone Mainframe Display system. These scripts do not contain any confidential data, nor do they contain information about how to log in to our various state systems. As such, only users who already have access to our systems are likely to find this repository useful.
 
-These tools have the potential to save hundreds of hours of worker time per month, as well as reduce errors, provide detailed statistics, and promote standardization across workers, units, and counties. 
+Our workflow is pretty simple, and broken into branches:
 
-This repo will focus on the development of shared MAXIS-related scripts. The project lead is Veronica Cary, and she can be easily reached at veronica.cary@state.mn.us.
+1. "master" is our current working directory.
+2. "beta" is our branch for agencies that are testing new features and enhancements.
+3. "release" is our branch for statewide agency use.
+
+Basically, the changes made here (assuming they "pass muster" with any policy/procedural folks involved at DHS) will first be merged into "beta", then into "release". We have an issue list currently kept on our SIR page (if you don't know SIR, you probably shouldn't be working on this project). Feel free to tackle issues on that list, just please, update the issue in SIR before starting (so that way I don't start working on it myself).
+
+This is a casual (and, dare I say, fun) group, but we're doing a pretty epic project, with the goal of saving thousands of hours in work for all of Minnesota. So please be ready with a working knowledge of VBScript, an understanding of Minnesota's assistance programs, and a sense of humor, and I'm sure this will go well.
+
+If you don't have a great working knowledge of VBScript, I'm working on documentation, to be posted on GitHub. You can still help by asking to join the beta agency list!
+
+Oh, and don't be surprised if I'm pushing commits late in the evening. Frankly, I'm pretty obsessed with this project. ;)
+
+Welcome to it!
+
+Veronica Kahl Cary (VKC), Payment Accuracy Coordinator, Minnesota DHS
