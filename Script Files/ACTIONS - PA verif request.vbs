@@ -1,5 +1,5 @@
 'STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMO - PA Verif Request"
+name_of_script = "ACTIONS - PA Verif Request"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
@@ -29,44 +29,43 @@ BeginDialog case_number_dialog, 0, 0, 191, 75, "PA Verification Request"
   Text 30, 30, 60, 15, "Footer Month"
 EndDialog
 
-BeginDialog PA_verif_dialog, 0, 0, 236, 230, "PA Verif Dialog"
-  EditBox 45, 25, 45, 15, snap_grant
-  EditBox 45, 45, 45, 15, MSA_Grant
-  EditBox 45, 65, 45, 15, GA_grant
-  EditBox 150, 25, 30, 15, MFIP_food
-  EditBox 190, 25, 30, 15, MFIP_cash
-  EditBox 150, 45, 30, 15, relative_food
-  EditBox 190, 45, 30, 15, relative_cash
-  EditBox 190, 65, 30, 15, foster_care
-  EditBox 55, 90, 175, 15, other_income
-  CheckBox 55, 110, 35, 10, "Yes", subsidy_check
-  EditBox 75, 135, 20, 15, cash_members
-  EditBox 185, 135, 20, 15, household_members
-  EditBox 60, 160, 50, 15, completed_by
-  EditBox 185, 160, 45, 15, worker_phone
-  EditBox 165, 185, 65, 15, worker_signature
+BeginDialog PA_verif_dialog, 0, 0, 190, 230, "PA Verif Dialog"
   ButtonGroup ButtonPressed
-    OkButton 125, 210, 50, 15
-    CancelButton 180, 210, 50, 15
-  GroupBox 10, 5, 215, 80, "PA grant info:"
-  Text 155, 15, 20, 10, "Food"
-  Text 195, 15, 20, 10, "Cash"
-  Text 20, 30, 25, 10, "SNAP:"
-  Text 20, 50, 20, 10, "MSA:"
-  Text 25, 70, 15, 10, "GA:"
-  Text 125, 30, 20, 10, "MFIP:"
-  Text 100, 50, 50, 10, "Relative Care:"
-  Text 105, 70, 40, 10, "Foster Care:"
-  Text 5, 90, 45, 20, "Other income and type"
-  Text 5, 110, 45, 20, "$50 subsidy deduction?"
-  Text 5, 135, 70, 20, "Number of members on cash grant:"
-  Text 5, 165, 50, 10, "Completed by:"
-  Text 125, 135, 55, 20, "Total members in household:"
-  Text 130, 165, 50, 10, "Worker phone:"
-  Text 50, 190, 110, 10, "Worker Signature (for case note):"
+    OkButton 85, 210, 50, 15
+    CancelButton 140, 210, 50, 15
+ 
+  EditBox 50, 15, 25, 15, snap_grant
+  EditBox 125, 15, 25, 15, MFIP_food
+  EditBox 155, 15, 25, 15, MFIP_cash  
+  EditBox 50, 35, 25, 15, MSA_Grant
+  EditBox 155, 35, 25, 15, GA_grant
+  EditBox 155, 55, 25, 15, DWP_grant
+  EditBox 50, 75, 130, 15, other_notes
+  EditBox 50, 100, 130, 15, other_income
+  CheckBox 50, 120, 35, 10, "Yes", subsidy_check
+  EditBox 50, 140, 20, 15, cash_members
+  EditBox 150, 140, 20, 15, household_members
+  EditBox 40, 170, 55, 15, completed_by
+  EditBox 140, 170, 45, 15, worker_phone
+  EditBox 120, 190, 65, 15, worker_signature
+  
+  Text 5, 15, 40, 15, "SNAP:"
+  Text 100, 55, 20, 15, "DWP:"
+  Text 5, 75, 40, 15, "Other notes:"
+  Text 100, 35, 35, 15, "GA:"
+  Text 5, 35, 35, 15, "MSA:"
+  Text 100, 15, 25, 15, "MFIP:"
+  Text 5, 100, 45, 20, "Other income and type:"
+  Text 5, 120, 45, 20, "$50 subsidy deduction?"
+  Text 5, 140, 45, 30, "Number of members on cash grant:"
+  Text 90, 140, 55, 25, "Total members in household:"
+  Text 130, 5, 25, 10, "Food:"
+  Text 160, 5, 25, 10, "Cash:"
+  Text 110, 170, 25, 20, "Worker Phone:"
+  Text 5, 170, 35, 20, "Completed by:"
+  Text 20, 190, 90, 15, "Worker Signature (For case note):"
+ 
 EndDialog
-
-
 
 BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
   Text 5, 5, 135, 10, "Are you sure you want to end this script?"
@@ -121,7 +120,6 @@ If ERRR_check = "ERRR" then transmit 'For error prone cases.
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
-
 'Pulling household and worker info for the letter
 call navigate_to_screen("stat", "addr") 
 EMReadScreen addr_line1, 21, 6, 43
@@ -138,52 +136,41 @@ call find_variable("First: ", first_name, 11)
 client_name = first_name & " " & last_name
 client_name = replace(client_name, "_", "")
 
-
-
-
 'Autofilling info for case note
-
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'Cleaning up info for case note
-
 earned_income = trim(earned_income)
 if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
 other_income = earned_income & " " & unearned_income
 
 'This function looks for an approved version of elig
 Function approved_version 
-		EMReadScreen version, 2, 2, 12
-		For approved = version to 0 Step -1
-		EMReadScreen approved_check, 8, 3, 3
-		If approved_check = "APPROVED" then Exit Function
-		version = version -1
-		EMWriteScreen version, 20, 79
-		transmit
-		Next
-	End Function
+	EMReadScreen version, 2, 2, 12
+	For approved = version to 0 Step -1
+	EMReadScreen approved_check, 8, 3, 3
+	If approved_check = "APPROVED" then Exit Function
+	version = version -1
+	EMWriteScreen version, 20, 79
+	transmit
+	Next
+End Function
 'This finds the number of members on a DWP/MFIP grant
 Function cash_members_finder
-		call find_variable("Caregivers......", caregivers, 4)
-		call find_variable("Children........", children, 4)
-		cash_members = cInt(caregivers) + cInt(children)
-		cash_members = cStr(cash_members)
-		
+	call find_variable("Caregivers......", caregivers, 4)
+	call find_variable("Children........", children, 4)
+	cash_members = cInt(caregivers) + cInt(children)
+	cash_members = cStr(cash_members)
 End Function
 
-
-'Pulling the elig amounts.
+'Pulling the elig amounts for all open progs on case / curr
 call navigate_to_screen("case", "curr")
-row = 7
-EMSearch "MFIP", row, col
-    If row <> 0 then
-      call navigate_to_screen("elig", "mfip") 
-      EMReadScreen MFPR_check, 4, 3, 47
-      If MFPR_check <> "MFPR" then MsgBox "no mfip results" 'need to determine this
-        'Needs readscreen here for "approved" and logic to check for earlier approved version
+ call find_variable("MFIP: ", MFIP_check, 6)
+   If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
+   call navigate_to_screen("elig", "mfip")    
 	  call approved_version
 		EMWriteScreen version, 20, 79
 		transmit
@@ -200,9 +187,7 @@ EMSearch "MFIP", row, col
 		call cash_members_finder
 		Call navigate_to_screen("case", "curr")
 	End if
-	If MFIP_check = "APP CL" then msgbox "MFIP is set to close, please enter amounts manually to avoid errors."
 	If MFIP_check = "PENDIN" then msgbox "MFIP is pending, please enter amounts manually to avoid errors."
-	row = 7
 
 	call find_variable("FS: ", fs_check, 6)
 	If fs_check = "ACTIVE" then
@@ -217,7 +202,6 @@ EMSearch "MFIP", row, col
 	End if
 	If fs_check = "APP CL" then msgbox "SNAP is set to close, please enter amounts manually to avoid errors."
 	If fs_check = "PENDIN" then msgbox "SNAP is pending, please enter amounts manually to avoid errors."
-	row = 7
 	
 	call find_variable("DWP: ", DWP_check, 6)
 	If DWP_check = "ACTIVE" then
@@ -230,12 +214,13 @@ EMSearch "MFIP", row, col
 		EMReadScreen DWP_grant, 7, 5, 37
 	    EMWriteScreen "DWSM", 20, 71
 		transmit
-		call cash_members_finder
+		call find_variable("Caregivers....", caregivers, 5)
+		call find_variable("Children......", children, 5)
+		cash_members = cInt(caregivers) + cInt(children)
+		cash_members = cStr(cash_members)
 		call navigate_to_screen ("case", "curr")
 	 End if
-    If DWP_check = "APP CL" then msgbox "DWP is set to close, please enter amounts manually to avoid errors."
 	If DWP_check = "PENDIN" then msgbox "DWP is pending, please enter amounts manually to avoid errors."
-	row = 7
 	
 	call find_variable("GA: ", GA_check, 6)
 	If GA_check = "ACTIVE" then
@@ -245,15 +230,15 @@ EMSearch "MFIP", row, col
 		transmit
 		EMWriteScreen "GAB2", 20, 70
 		transmit
-		EMReadScreen GA_grant, 7, 13, 75
-	    EMReadScreen ga_members, 1, 13, 32
+		EMReadScreen GA_grant, 7, 9, 73
+	    EMReadScreen ga_members, 1, 13, 32 'Reading file unit type to determine members on cash grant
 		If ga_members = 1 then cash_members = 1
 		If ga_members = 6 then cash_members = 2
 		call navigate_to_screen ("case", "curr")
 	End If
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
 	If GA_check = "PENDIN" then msgbox "GA is pending, please enter amounts manually to avoid errors."
- 
+	
 	call find_variable("MSA: ", MSA_check, 6)
 	If MSA_check = "ACTIVE" then
 		call navigate_to_screen("elig", "msa")
@@ -268,20 +253,20 @@ EMSearch "MFIP", row, col
 	End If
 	If MSA_check = "APP CL" then MsgBox "MSA is set to close, please enter amounts manually to avoid errors."
 	If MSA_check = "PENDIN" then MsgBox "MSA is pending, please enter amounts manually to avoid errors."
-
+	
+	call find_variable("Cash: ", cash_check, 6)
+	If cash_check = "PENDIN" then MsgBox "Cash is pending for this household, please explain in additional notes."
 		
 'calling the main dialog	
 Do
 	Dialog PA_verif_dialog
 	If ButtonPressed = 0 then stopscript
-  If worker_signature = ""  then MsgBox "Please sign your case note."
-Loop until worker_signature <> "" 
-
-	
-	
-    
-	'****writing the word document
-
+	If worker_signature = ""  then MsgBox "Please sign your case note."
+	If completed_by = "" then MsgBox "Please fill out the completed by field."
+	If worker_phone = "" then MsgBox "Please fill out the worker phone field."
+Loop until worker_signature <> "" and completed_by <> "" and worker_phone <> ""
+  
+  '****writing the word document
 Set objWord = CreateObject("Word.Application")
 Const wdDialogFilePrint = 88
 Const end_of_doc = 6
@@ -335,29 +320,39 @@ objSelection.TypeParagraph()
 objSelection.TypeText "Number of persons in household: "
 objSelection.TypeText household_members
 objSelection.TypeParagraph()
+ObjSelection.TypeText "Other Notes: "
+objSelection.TypeText other_notes
+objSelection.TypeParagraph()
 objSelection.TypeText "Completed By: "
 objSelection.TypeText completed_by
 objSelection.TypeParagraph()
 objSelection.TypeText "Worker phone: "
 objSelection.TypeText worker_phone
 
-
-
 Do	
-	
 	call navigate_to_screen("case", "note")
     PF9
     EMReadScreen case_note_check, 17, 2, 33
     EMReadScreen mode_check, 1, 20, 09
     If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'Enters the case note
-EMSendKey "<home>" & "PA verification request completed and sent to requesting agency." & "<newline>"
+call write_new_line_in_case_note("PA verification request completed and sent to requesting agency.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
-
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show
+
+
+
+
+
+
+
+
+
+
+
+
