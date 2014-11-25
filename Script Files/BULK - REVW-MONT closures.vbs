@@ -14,6 +14,9 @@ Set objNet = CreateObject("WScript.NetWork")
 
 'Determines user to enable debugging features. Add individuals to this if...then to include them with developer mode.
 If ucase(objNet.UserName) = "PWVKC45" or _
+  ucase(objNet.UserName) = "VKCARY" or _
+  ucase(objNet.UserName) = "RAKALB" or _
+  ucase(objNet.UserName) = "CDPOTTER" or _
   ucase(objNet.UserName) = "VKC" then 
 	inquiry_testing = MsgBox("Developer " & ucase(objNet.UserName) & " detected. Enable inquiry testing and bypass date restrictions?", vbYesNoCancel)
 End if
@@ -87,8 +90,7 @@ If revw_check = checked then
 		EMReadScreen HC_status, 1, row, 49																'Checks for FS status
 		If HC_status = "N" or HC_status = "I" then 														'If "N" or "I", checks additional info before adding to the array
 			EMReadScreen exempt_IR_check, 1, row, 51													'Checks for exempt IRs (starred IRs)
-			EMReadScreen MAGI_check, 3, row, 54															'Checks for MAGI status
-			If exempt_IR_check <> "*" and MAGI_check <> "ALL" then are_programs_closing = True			'Only adds cases to array if they are not all MAGI and not exempt from an IR
+			If exempt_IR_check <> "*" then are_programs_closing = True									'Only adds cases to array if they are not exempt from an IR
 		End if
 				
 		'If the above found the case is closing, it adds to the array.
