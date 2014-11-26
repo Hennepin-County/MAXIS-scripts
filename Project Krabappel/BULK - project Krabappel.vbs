@@ -21,6 +21,7 @@ Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Scri
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
+'Execute replace(text_from_the_other_script, "EMWaitReady 0, 0", "step_through_handling")
 
 'LOADING ROUTINE FUNCTIONS
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
@@ -28,6 +29,108 @@ Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Proj
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
+
+'========================================================================TRANSFER CASES========================================================================
+Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
+	'Creates an array of the workers selected in the dialog
+	workers_to_XFER_cases_to = split(replace(workers_to_XFER_cases_to, " ", ""), ",")
+
+	'Creates a new two-dimensional array for assigning a worker to each case_number, and collecting the county code for each worker
+	Dim transfer_array()
+	ReDim transfer_array(ubound(case_number_array), 2)
+
+	'Assigns a case_number to each row in the first column of the array
+	For x = 0 to ubound(case_number_array)
+		transfer_array(x, 0) = case_number_array(x)
+	Next
+
+	'Reassigning x as a 0 for the following do...loop
+	x = 0
+
+	'Assigning y as 0, to be used by the following do...loop for deciding which worker gets which case
+	y = 0
+
+	'Now, it'll assign a worker to each case number in the transfer_array. Does this on a loop so that a worker can get multiple cases if that is indicated.
+	Do
+		transfer_array(x, 1) = workers_to_XFER_cases_to(y)	'Assigns column 2 of the array to a worker in the workers_to_XFER_cases_to array
+		x = x + 1											'Adds +1 to X
+		y = y + 1											'Adds +1 to Y
+		If y > ubound(workers_to_XFER_cases_to) then y = 0	'Resets to allow the first worker in the array to get anonther one
+	Loop until x > ubound(case_number_array)
+
+	'--------Now, the array is two columns (case_number, worker_assigned)!
+
+'	'Script must figure out who the current worker is, and what agency they are with. This is vital because transferring within an agency uses different screens than inter-agency.
+'		'To do this, the script will start by analysing the current worker in REPT/ACTV.
+
+	'Now, the array will figure out the current worker, by looking it up in SELF
+	back_to_SELF
+	EMReadScreen current_user, 7, 22, 8
+	
+	'Now, it will go to REPT/USER, and look up the county code for this individual.
+	call navigate_to_screen("REPT", "USER")
+	EMWriteScreen current_user, 21, 12
+	transmit
+	
+	'Now, it will read the county code for the current user
+	EMReadScreen user_county_code, 2, 7, 38
+	
+	'Now, we enter each worker number into this screen, and return their county codes inside the array.
+	For x = 0 to ubound(case_number_array)
+		EMWriteScreen transfer_array(x, 1), 21, 12		'Writes worker
+		transmit										'Gets to next screen
+		EMReadScreen array_county_code, 2, 7, 38		'Reads the county code for this worker
+		transfer_array(x, 2) = array_county_code		'Adds the array_county_code to x, 2 of the transfer array
+	Next
+
+	'Resetting "x" to be a zero placeholder for the following for...next
+	x = 0
+
+	'Now we actually transfer the cases. This for...next does the work (details in comments below)
+	For x = 0 to ubound(case_number_array)		'case_number_array is the same as the first col of the transfer_array
+		'Assigns the number from the array to the case_number variable
+		case_number = transfer_array(x, 0)
+		
+		'Checks to make sure case isn't in background
+		MAXIS_background_check
+		
+		'Determines interagency transfers by comparing the current active user (gathered above) to the user in the transfer array.
+		If user_county_code = transfer_array(x, 2) then
+			county_to_county_XFER = False
+		Else
+			county_to_county_XFER = True
+		End if
+
+		'Getting to SPEC/XFER manually
+		back_to_SELF
+		EMWriteScreen "SPEC", 16, 43
+		EMWriteScreen "________", 18, 43
+		EMWriteScreen case_number, 18, 43
+		EMWriteScreen "XFER", 21, 70
+		transmit
+		
+		'Now to transfer the cases.
+		If county_to_county_XFER = False then
+			EMWriteScreen "x", 7, 16
+			transmit
+			PF9
+			EMWriteScreen transfer_array(x, 1), 18, 61
+			transmit
+			transmit
+		Else
+			EMWriteScreen "x", 9, 16
+			transmit
+			PF9
+			call create_MAXIS_friendly_date(date, 0, 4, 28)
+			call create_MAXIS_friendly_date(date, 0, 4, 61)
+			EMWriteScreen "N", 5, 28
+			call create_MAXIS_friendly_date(date, 0, 5, 61)
+			EMWriteScreen transfer_array(x, 1), 18, 61
+			transmit
+			transmit
+		End if
+	Next
+End function
 
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
@@ -42,24 +145,27 @@ For Each objWorkSheet In objWorkbook.Worksheets
 Next
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------
-BeginDialog training_case_creator_dialog, 0, 0, 371, 130, "Training case creator dialog"
-  EditBox 85, 5, 220, 15, excel_file_path
-  DropListBox 60, 40, 105, 15, "select one..." & scenario_list, scenario_dropdown
-  DropListBox 240, 40, 125, 15, "yes, approve and XFER all cases"+chr(9)+"no, approve all cases but don't XFER"+chr(9)+"no, leave cases in PND2 status"+chr(9)+"no, leave cases in PND1 status", approve_case_dropdown
+'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
+BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator dialog"
+  EditBox 85, 5, 295, 15, excel_file_path
+  DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
+  DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
   EditBox 125, 60, 40, 15, how_many_cases_to_make
-  EditBox 130, 80, 235, 15, workers_to_XFER_cases_to
+  CheckBox 205, 65, 210, 10, "Check here to XFER cases, and enter worker numbers below.", XFER_check
+  EditBox 130, 80, 310, 15, workers_to_XFER_cases_to
   ButtonGroup ButtonPressed
-	OkButton 265, 110, 50, 15
-	CancelButton 320, 110, 50, 15
-	PushButton 310, 5, 55, 15, "Reload details", reload_excel_file_button
+    OkButton 335, 105, 50, 15
+    CancelButton 390, 105, 50, 15
+    PushButton 385, 5, 55, 15, "Reload details", reload_excel_file_button
   Text 5, 10, 75, 10, "File path of Excel file:"
-  Text 60, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
+  Text 130, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
   Text 5, 45, 55, 10, "Scenario to run:"
-  Text 175, 45, 65, 10, "App/XFER cases?:"
+  Text 210, 45, 65, 10, "App/XFER cases?:"
   Text 5, 65, 120, 10, "How many cases are you creating?:"
   Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
-  Text 5, 100, 250, 25, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
+  Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
 EndDialog
+
 
 '--------- Project Krabappel --------------
 'Connects to BlueZone
@@ -95,13 +201,15 @@ Loop until final_check_before_running = vbYes
 'Activates worksheet based on user selection
 objExcel.worksheets(scenario_dropdown).Activate
 
-
 'Determines how many HH members there are, as this script can run for multiple-member households.
 excel_col = 3																		'Col 3 is always the primary applicant's col
 Do																					'Loops through each col looking for more HH members. If found, it adds one to the counter.
 	If ObjExcel.Cells(2, excel_col).Value <> "" then excel_col = excel_col + 1		'Adds one so that the loop will check again
 Loop until ObjExcel.Cells(2, excel_col).Value = ""									'Exits loop when we have no number in the MEMB col
 total_membs = excel_col - 3															'minus 3 because we started on column 3
+
+'Focuses BlueZone so that everyone can see what it's doing
+EMFocus
 
 '========================================================================APPL PANELS========================================================================
 For cases_to_make = 1 to how_many_cases_to_make
@@ -305,9 +413,13 @@ case_number_array = left(case_number_array, len(case_number_array) - 1)
 'Splitting the case numbers into an array
 case_number_array = split(case_number_array, "|")
 
+'Ends here if the user selected to just APPL all cases
+If approve_case_dropdown = "no, just APPL all cases" then 
+	If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
+	script_end_procedure("Success! Cases made and appl'd, per your request.")
+End if
 '========================================================================PND1 PANELS========================================================================
-'Ends here if the user selected to leave cases in PND1 status
-If approve_case_dropdown = "no, leave cases in PND1 status" then script_end_procedure("Success! Cases made and left in PND1 status, per your request.")
+
 
 For each case_number in case_number_array
 	'Navigates into STAT. For PND1 cases, this will trigger workflow for adding the right panels.
@@ -431,8 +543,13 @@ For each case_number in case_number_array
 	
 Next
 
-'========================================================================PND2 PANELS========================================================================
 
+'Ends here if the user selected to just do TYPE/PROG/REVW for all cases
+If approve_case_dropdown = "no, but do TYPE/PROG/REVW" then 
+	If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
+	script_end_procedure("Success! Cases made and appl'd, and TYPE/PROG/REVW updated, per your request.")
+End if
+'========================================================================PND2 PANELS========================================================================
 
 For each case_number in case_number_array
 	
@@ -1150,10 +1267,14 @@ For each case_number in case_number_array
 
 Next
 
-
-'========================================================================APPROVAL========================================================================
 'Ends here if the user selected to leave cases in PND2 status
-If approve_case_dropdown = "no, leave cases in PND2 status" then script_end_procedure("Success! Cases made and left in PND2 status, per your request.")
+If approve_case_dropdown = "no, but enter all STAT panels needed to approve" then 
+	If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
+	script_end_procedure("Success! Cases made, STAT panels added, and left in PND2 status, per your request.")
+End if
+	
+'========================================================================APPROVAL========================================================================
+
 
 FOR EACH case_number IN case_number_array
 	If SNAP_application = True then 
@@ -1255,89 +1376,5 @@ FOR EACH case_number IN case_number_array
 NEXT
 
 
-
-'========================================================================TRANSFER CASES========================================================================
-'Ends here if the user selected to leave cases in PND2 status
-If approve_case_dropdown = "no, approve all cases but don't XFER" then script_end_procedure("Success! Cases made and approved, but not XFERed, per your request.")
-
-'Creates an array of the workers selected in the dialog
-workers_to_XFER_cases_to = split(replace(workers_to_XFER_cases_to, " ", ""), ",")
-
-'Creates a new two-dimensional array for assigning a worker to each case_number
-Dim transfer_array()
-ReDim transfer_array(ubound(case_number_array), 1)
-
-'Assigns a case_number to each row in the first column of the array
-For x = 0 to ubound(case_number_array)
-	transfer_array(x, 0) = case_number_array(x)
-Next
-
-'Reassigning x as a 0 for the following do...loop
-x = 0
-
-'Assigning y as 0, to be used by the following do...loop for deciding which worker gets which case
-y = 0
-
-'Now, it'll assign a worker to each case number in the transfer_array. Does this on a loop so that a worker can get multiple cases if that is indicated.
-Do
-	transfer_array(x, 1) = workers_to_XFER_cases_to(y)	'Assigns column 2 of the array to a worker in the workers_to_XFER_cases_to array
-	x = x + 1											'Adds +1 to X
-	y = y + 1											'Adds +1 to Y
-	If y > ubound(workers_to_XFER_cases_to) then y = 0	'Resets to allow the first worker in the array to get anonther one
-Loop until x > ubound(case_number_array)
-
-'--------Now, the array is two columns (case_number, worker_assigned)!
-
-'Script must figure out who the current worker is, and what agency they are with. This is vital because transferring within an agency uses different screens than inter-agency.
-	'To do this, the script will start by analysing the current worker in REPT/ACTV.
-call navigate_to_screen("REPT", "ACTV")			'Navigates to ACTV
-EMReadScreen current_user, 7, 21, 13			'Reads current user, which will be reused later on to determine if the agency changes or not
-If ucase(left(current_user, 2)) = "PW" then		'Needs special handling for DHS staff (we don't use x1 numbers, we use PW numbers, and the numbers become unique in the 3rd character of the string)
-	XFER_chars_to_compare = 2
-Else
-	XFER_chars_to_compare = 4
-End if
-
-'Resetting "x" to be a zero placeholder for the following for...next
-x = 0
-
-'Now we actually transfer the cases. This for...next does the work (details in comments below)
-For x = 0 to ubound(case_number_array)		'case_number_array is the same as the first col of the transfer_array
-	'Assigns the number from the array to the case_number variable
-	case_number = transfer_array(x, 0)
-	
-	'Determines interagency transfers by comparing the current active user (gathered above) to the user in the transfer array.
-	If ucase(left(transfer_array(x, 1), XFER_chars_to_compare)) = ucase(left(current_user, XFER_chars_to_compare)) then
-		county_to_county_XFER = False
-	Else
-		county_to_county_XFER = True
-	End if
-
-	'Now to transfer the cases.
-	If county_to_county_XFER = False then
-		call navigate_to_screen("SPEC", "XFER")
-		EMWriteScreen "x", 7, 16
-		transmit
-		PF9
-		EMWriteScreen transfer_array(x, 1), 18, 61
-		transmit
-		transmit
-	Else
-		call navigate_to_screen("SPEC", "XFER")
-		EMWriteScreen "x", 9, 16
-		transmit
-		PF9
-		call create_MAXIS_friendly_date(date, 0, 4, 28)
-		call create_MAXIS_friendly_date(date, 0, 4, 61)
-		EMWriteScreen "N", 5, 28
-		call create_MAXIS_friendly_date(date, 0, 5, 61)
-		EMWriteScreen transfer_array(x, 1), 18, 61
-		transmit
-		transmit
-	End if
-Next
-
-MsgBox "EXIT"
-stopscript
-
-'call script_end_procedure("Success! Your cases have been made and transferred to the workers indicated in the dialog.")
+If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
+script_end_procedure("Success! Cases made and approved, per your request.")
