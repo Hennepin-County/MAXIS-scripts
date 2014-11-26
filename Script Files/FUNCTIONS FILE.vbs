@@ -53,7 +53,7 @@ emer_percent_rule_amt = "30"
 emer_number_of_income_days = "30"
 
 'This is the X1/PW number to send closed cases to in the INAC scrubber.
-CLS_x1_number = "PWKLB34"
+CLS_x1_number = "X102CLS"
 
 'Creates a double array of county offices, first by office (using the ~), then by address line (using the |). Dynamically added with the installer.
 county_office_array = split("2100 3rd Ave Suite 400|Anoka, MN 55303~1201 89th Ave NE Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell RD NE|Lexington, MN 55014", "~")
