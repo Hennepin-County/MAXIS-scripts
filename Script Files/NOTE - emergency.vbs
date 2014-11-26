@@ -33,7 +33,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 97, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Other programs open or applied for:"
 EndDialog
 
-'This dialog contains a customized "percent rule" variable. As such, it can't directly be edited in the dialog editor.
+'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
 BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
   EditBox 60, 45, 65, 15, interview_date
   EditBox 170, 45, 150, 15, HH_comp
@@ -85,7 +85,7 @@ BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
   Text 5, 105, 55, 10, "Cause of crisis:"
   GroupBox 70, 120, 60, 35, "Income panels"
   GroupBox 145, 120, 110, 35, "Asset panels"
-  Text 5, 165, 75, 10, "Income (past 30 days):"
+  Text 5, 165, 75, 10, "Income (past " & emer_number_of_income_days & " days):"
   Text 5, 185, 100, 10, "Is income under 200% FPG?:"
   Text 5, 205, 55, 10, emer_percent_rule_amt & "% rule notes:"
   Text 5, 225, 60, 10, "Monthly expense:"
@@ -251,7 +251,7 @@ If interview_date <> "" then call write_editbox_in_case_note("Interview date", i
 If HH_comp <> "" then call write_editbox_in_case_note("HH comp", HH_comp, 6)
 If crisis <> "" then call write_editbox_in_case_note("Crisis", crisis, 6)
 If cause_of_crisis <> "" then call write_editbox_in_case_note("Cause of crisis", cause_of_crisis, 6)
-If income <> "" then call write_editbox_in_case_note("Income, past 30 days", income, 6)
+If income <> "" then call write_editbox_in_case_note("Income, past " & emer_number_of_income_days & " days", income, 6)
 If income_under_200_FPG <> "" then call write_editbox_in_case_note("Income under 200% FPG", income_under_200_FPG, 6)
 If percent_rule_notes <> "" then call write_editbox_in_case_note(emer_percent_rule_amt & "% rule notes", percent_rule_notes, 6)
 If monthly_expense <> "" then call write_editbox_in_case_note("Monthly expense", monthly_expense, 6)
