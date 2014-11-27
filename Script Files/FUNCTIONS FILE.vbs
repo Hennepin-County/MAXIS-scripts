@@ -1979,9 +1979,9 @@ End function
 Function step_through_handling 'This function will introduce "warning screens" before each transmit, which is very helpful for testing new scripts
 	'To use this function, simply replace the "Execute text_from_the_other_script" line with:
 	'Execute replace(text_from_the_other_script, "EMWaitReady 0, 0", "step_through_handling")
-	step_through = MsgBox("Step " & step_number & chr(13) & chr(13) & "If you see something weird on your screen (like a MAXIS or PRISM error), PRESS CANCEL then email your script administrator about it. Make sure you include the step you're on.", 1)
+	step_through = MsgBox("Step " & step_number & chr(13) & chr(13) & "If you see something weird on your screen (like a MAXIS or PRISM error), PRESS CANCEL then email your script administrator about it. Make sure you include the step you're on.", vbOKCancel)
 	If step_number = "" then step_number = 1	'Declaring the variable
-	If step_through = 2 then
+	If step_through = vbCancel then
 		stopscript
 	Else
 		EMWaitReady 0, 0
