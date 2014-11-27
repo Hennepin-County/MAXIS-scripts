@@ -1,10 +1,10 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "COLA summary"
-start_time = timer
+'name_of_script = "NOTE - COLA summary"
+'start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\script files\FUNCTIONS FILE.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
@@ -41,30 +41,8 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
     CancelButton 135, 55, 50, 15
 EndDialog
   
-BeginDialog COLA_dialog, 5, 5, 376, 147, "COLA"
-  DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX", elig_type
-  DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
-  EditBox 285, 5, 85, 15, recipient_amt
-  EditBox 90, 25, 280, 15, income
-  EditBox 50, 45, 320, 15, deductions
-  EditBox 85, 65, 185, 15, designated_provider
-  CheckBox 5, 90, 65, 10, "Updated RSPL?", updated_RSPL_check
-  CheckBox 85, 90, 110, 10, "Approved new MAXIS results?", approved_check
-  CheckBox 210, 90, 70, 10, "Sent DHS-3050?", DHS_3050_check
-  EditBox 75, 105, 295, 15, other
-  EditBox 80, 125, 70, 15, worker_sig
-  ButtonGroup ButtonPressed
-    OkButton 165, 125, 50, 15
-    CancelButton 225, 125, 50, 15
-  Text 5, 10, 35, 10, "Elig type:"
-  Text 85, 10, 45, 10, "Budget type:"
-  Text 175, 10, 110, 10, "Waiver obilgation/recipient amt:"
-  Text 5, 30, 80, 10, "Total countable income:"
-  Text 5, 50, 45, 10, "Deductions:"
-  Text 5, 70, 70, 10, "Designated provider:"
-  Text 5, 110, 70, 10, "Other (if applicable):"
-  Text 5, 130, 70, 10, "Sign your case note:"
-EndDialog
+
+
 
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -75,15 +53,11 @@ Dim col
 HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
 application_signed_check = 1 'The script should default to having the application signed.
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
+'THE SUB routine----------------------------------------------------------------------------------------------------
 
 Sub approval_summary
   PF3
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" then
-    MsgBox "You are not in MAXIS, or you are locked out of your case."
-    stopscript
-  End if
+  maxis_check_function
   
 'First it goes to HCMI check to see if it's coded. If so it'll autofill the designated provider info
 
@@ -93,7 +67,7 @@ Sub approval_summary
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
   EMWriteScreen "01", 20, 43
-  EMWriteScreen "14", 20, 46
+  EMWriteScreen "15", 20, 46
   EMWriteScreen "hcmi", 21, 70
   transmit
   
@@ -145,37 +119,38 @@ Sub approval_summary
     Next
   End if
   back_to_self
-    
+
+
+'navigates to elig HC for first month of the year.     
   EMWriteScreen "elig", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
   EMWriteScreen "01", 20, 43
-  EMWriteScreen "14", 20, 46
+  EMWriteScreen "15", 20, 46
   EMWriteScreen "hc", 21, 70
   transmit
-  
+ 'checks if the first person has HC if not it selects person 02.
   EMReadScreen person_check, 2, 8, 31
   If person_check = "NO" then
     MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
-    EMWriteScreen "x", 9, 29
+    EMWriteScreen "x", 9, 26
   End if
-  If person_check <> "NO" then EMWriteScreen "x", 8, 29
+  If person_check <> "NO" then EMWriteScreen "x", 8, 26
   transmit
   
-  row = 1
+  row = 3
   col = 1
-  EMSearch "01/14", row, col
+  EMSearch "01/15", row, col
   If row = 0 then 
-    MsgBox "A 01/14 span could not be found. Try this again. You may need to run the case through background."
+    MsgBox "A 01/15 span could not be found. Try this again. You may need to run the case through background."
     stopscript
   End if
-  
-  
+
   EMReadScreen elig_type, 2, 12, col - 2
   EMReadScreen budget_type, 1, 13, col + 2
   EMWriteScreen "x", 9, col + 2
   transmit
-  
+  'Reads which BUD screen it ended up on and then acts accordingly 
   EMReadScreen LBUD_check, 4, 3, 45
   If LBUD_check = "LBUD" then
     EMReadScreen recipient_amt, 10, 15, 70
@@ -242,7 +217,7 @@ Sub approval_summary
     income = "$" & trim(income)
     Dialog BBUD_dialog
     If ButtonPressed = 0 then stopscript
-    If ButtonPressed = 4 then
+    If ButtonPressed = BILS_button then
       PF3
       EMReadScreen MAXIS_check, 5, 1, 39
       If MAXIS_check <> "MAXIS" then
@@ -256,21 +231,79 @@ Sub approval_summary
       EMWriteScreen "bils", 21, 70
       transmit
       EMReadScreen BILS_check, 4, 2, 54
-      If BILS_check <> "BILS" then transmit
+      If BILS_check <> "BILS" then transmit  'ERR checkin
     End if
   End if
 
+'---Dialog is dynamically created and needs results from BBUD to be created therefore needs to be seperate from other dialogs. 
 
-  Dialog COLA_dialog
-  If buttonpressed = 0 then stopscript
-  PF3 'checking for password prompt
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" then
-    Do
-      Dialog COLA_dialog
-      If buttonpressed = 0 then stopscript
-    Loop until MAXIS_check = "MAXIS"
-  End if
+BeginDialog COLA_dialog, 0, 0, 376, 147, "COLA"
+  DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX", elig_type
+  DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
+  EditBox 285, 5, 85, 15, recipient_amt
+  EditBox 90, 25, 280, 15, income
+  EditBox 50, 45, 320, 15, deductions
+  EditBox 85, 65, 185, 15, designated_provider
+  If BBUD_check = "BBUD" then
+    Text 280, 65, 25, 10, "NAV to:"
+    ButtonGroup ButtonPressed
+      PushButton 310, 65, 55, 10, "STAT/BILS", BILS_button_COLADLG
+      PushButton 310, 80, 55, 10, "ELIG/BBUD", BBUD_button
+  end if
+  CheckBox 5, 90, 65, 10, "Updated RSPL?", updated_RSPL_check
+  CheckBox 85, 90, 110, 10, "Approved new MAXIS results?", approved_check
+  CheckBox 210, 90, 70, 10, "Sent DHS-3050?", DHS_3050_check
+  EditBox 75, 105, 295, 15, other
+  EditBox 80, 125, 70, 15, worker_sig
+  ButtonGroup ButtonPressed
+    OkButton 165, 125, 50, 15
+    CancelButton 225, 125, 50, 15
+  Text 5, 10, 35, 10, "Elig type:"
+  Text 85, 10, 45, 10, "Budget type:"
+  Text 175, 10, 110, 10, "Waiver obilgation/recipient amt:"
+  Text 5, 30, 80, 10, "Total countable income:"
+  Text 5, 50, 45, 10, "Deductions:"
+  Text 5, 70, 70, 10, "Designated provider:"
+  Text 5, 110, 70, 10, "Other (if applicable):"
+  Text 5, 130, 70, 10, "Sign your case note:"
+EndDialog
+
+
+   Do
+	      Dialog COLA_dialog
+		maxis_check_function
+	      If buttonpressed = 0 then stopscript
+		If buttonpressed = BBUD_button then
+			maxis_check_function
+			back_to_self
+			Call navigate_to_screen("ELIG", "HC")
+ 			 EMReadScreen person_check, 2, 8, 31
+ 			 If person_check = "NO" then
+ 			   MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
+  			   EMWriteScreen "x", 9, 26
+		       End if
+			 If person_check <> "NO" then EMWriteScreen "x", 8, 26
+  			 transmit
+			 row = 3
+  			 col = 1
+  			 EMSearch "01/15", row, col
+ 			 If row = 0 then 
+ 			   MsgBox "A 01/15 span could not be found. Try this again. You may need to run the case through background."
+ 			   stopscript
+			  End if
+			  EMReadScreen elig_type, 2, 12, col - 2
+			  EMReadScreen budget_type, 1, 13, col + 2
+			  EMWriteScreen "x", 9, col + 2
+			  transmit
+		End if
+		If buttonpressed = BILS_button_COLADLG then
+			maxis_check_function
+			back_to_self
+			Call navigate_to_screen("STAT", "BILS")
+			EMReadScreen BILS_check, 4, 2, 54
+   			If BILS_check <> "BILS" then transmit  'ERR checkin
+		End if
+  Loop until buttonpressed = OK
   back_to_self
   
   EMWriteScreen "case", 16, 43
@@ -281,7 +314,7 @@ Sub approval_summary
   PF9
   
   EMSendKey "<home>"
-  EMSendKey "**Approved COLA updates 01/14: " & elig_type & "-" & budget_type & " " & recipient_amt
+  EMSendKey "**Approved COLA updates 01/15: " & elig_type & "-" & budget_type & " " & recipient_amt
   If budget_type = "L" then EMSendKey " LTC sd**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " recip amt**"
@@ -299,14 +332,16 @@ Sub approval_summary
   EMSendKey worker_sig
 End sub
 
+' Function for script--------------------------------------------------------------------------------------------------------
+
 function income_summary
 
 EMConnect ""
 
-'FORCING THE CASE INTO FOOTER MONTH 01/14
+'FORCING THE CASE INTO FOOTER MONTH 01/15
 back_to_self
 EMWriteScreen "01", 20, 43
-EMWriteScreen "14", 20, 46
+EMWriteScreen "15", 20, 46
 
 'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_screen("stat", "unea")
@@ -567,7 +602,7 @@ Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-EMSendKey "===COLA 2014 INCOME SUMMARY==="
+EMSendKey "===COLA 2015 INCOME SUMMARY==="
 EMSendKey "<newline>"
 If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
 If earned_income <> "" then call write_editbox_in_case_note("Earned income", earned_income, 6)
