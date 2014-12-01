@@ -9,7 +9,11 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
+'THE FOLLOWING VARIABLE IS DYNAMICALLY DETERMINED BY THE PRESENCE OF DATA IN CLS_x1_number. IT WILL BE ADDED DYNAMICALLY TO THE DIALOG BELOW.
+If CLS_x1_number <> "" then CLS_dialog_string = "**This script will XFER cases in REPT/INAC to " & CLS_x1_number & ".**"
+
 'DIALOGS----------------------------------------------------------------------------------------------------
+'NOTE: this dialog uses a dynamic CLS_dialog_string variable. As such, it can't be directly edited in dialog editor.
 BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
   EditBox 80, 80, 80, 15, worker_signature
   EditBox 100, 100, 60, 15, worker_number
@@ -18,8 +22,8 @@ BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
   ButtonGroup ButtonPressed
     OkButton 45, 140, 50, 15
     CancelButton 110, 140, 50, 15
-  Text 5, 5, 200, 10, "This script will transfer the cases in your REPT/INAC to CLS."
-  Text 5, 25, 195, 20, "It will check MMIS for each household member, STAT/ABPS for Good Cause status, and CCOL/CLIC for claims."
+  Text 5, 5, 200, 10, CLS_dialog_string
+  Text 5, 25, 195, 20, "Script will check MMIS for each household memb, ABPS for Good Cause status, and CCOL/CLIC for claims."
   Text 5, 55, 195, 20, "Write the information in the boxes below and click ''OK'' to begin. Click ''Cancel'' to exit."
   Text 5, 85, 75, 10, "Sign your case notes:"
   Text 5, 105, 90, 10, "Write your worker number:"
