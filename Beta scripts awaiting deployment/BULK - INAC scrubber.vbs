@@ -241,7 +241,7 @@ For x = 0 to total_cases
 	transmit
 	EMReadScreen claims_due, 10, 19, 58
 	INAC_scrubber_primary_array(x, 3) = claims_due
-	If developer_mode = true then ObjExcel.Cells(x + 2, 4).Value = claims_due
+	If developer_mode = True then ObjExcel.Cells(x + 2, 4).Value = claims_due
 Next
 
 'Entering claims into the Word doc
@@ -324,7 +324,7 @@ For x = 0 to total_cases
 		call navigate_to_screen("STAT", "ABPS")
 		EMReadScreen good_cause_check, 1, 5, 47
 		If good_cause_check = "P" then
-			objselection.typetext ObjExcel.Cells(excel_row, 1).Value & ", " & client_name
+			objselection.typetext case_number & ", " & client_name
 			objselection.TypeParagraph()
 		End if
 	End if
@@ -350,8 +350,6 @@ IF MMIS_A_check <> "RUNNING" then
 	attn
 	EMReadScreen MMIS_B_check, 7, MMIS_MDHS_row, 15
 	If MMIS_B_check <> "RUNNING" then 
-		objExcel.Workbooks.Close
-		objExcel.quit
 		script_end_procedure("MMIS does not appear to be running. This script will now stop.")
 	End if
 	If MMIS_B_check = "RUNNING" then 
