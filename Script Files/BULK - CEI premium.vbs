@@ -87,6 +87,8 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
+
+
 'Shows dialog, allows for cancel, and checks for MAXIS
 Do
 	Do
@@ -96,7 +98,7 @@ Do
 				IF buttonpressed = cancel then stopscript
 				'If the user selects the prefill months option, it'll add the current month to the dialog
 				If buttonpressed = prefill_months_button then
-					prefill_date = datepart("m", date) & "/" & datepart("yyyy", date)		'Determines the date
+					prefill_date = datepart("m", dateadd("m", -1, date)) & "/" & datepart("yyyy", dateadd("m", -1, date))		'Determines the date
 					If instr(prefill_date, "/") = 2 then prefill_date = "0" & prefill_date		'Adding the zero if the month is a single digit
 					'Inserts the above date in when there's already a case number in each field
 					If case_number_01 <> "" then mo_yr_01 = prefill_date

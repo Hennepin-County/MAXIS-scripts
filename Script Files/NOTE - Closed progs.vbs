@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - closed progs"
+name_of_script = "NOTE - Closed progs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS----------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ BeginDialog closed_dialog, 0, 0, 421, 240 - dialog_shrink_amt, "Closed progs dia
   EditBox 140, 45, 280, 15, verifs_needed
   EditBox 170, 65, 250, 15, open_progs
   GroupBox 5, 90, 410, 45, "Elements that affect the REIN date/docs needed"
-  CheckBox 15, 100, 230, 15, "Case is at CSR recert (gets entire next month after closure for REIN)", CSR_check
+  CheckBox 15, 100, 360, 15, "Case is at renewal (monthy, six-month, annual. Client gets entire next month after closure for REIN.)", CSR_check
   CheckBox 15, 120, 360, 10, "Case is at HC annual renewal (can turn in HC ER instead of new HCAPP, but still counts as new application)", HC_ER_check
   CheckBox 5, 145, 65, 10, "Updated MMIS?", updated_MMIS_check
   CheckBox 85, 145, 95, 10, "WCOM added to notice?", WCOM_check
@@ -79,7 +79,7 @@ Do
           If ButtonPressed = SPEC_WCOM_button then call navigate_to_screen("spec", "wcom")
         Loop until ButtonPressed = -1
         If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."
-        IF (death_check = 1 AND isdate(hc_close_for_death_date) = TRUE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
+        IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
 	  IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN MsgBox "Please check the box for client death."
       Loop until isdate(closure_date) = True AND ((death_check = 1 AND isdate(hc_close_for_death_date) = TRUE) OR (death_check <> 1 AND hc_close_for_death_date = ""))
       If datepart("d", dateadd("d", 1, closure_date)) <> 1 then MsgBox "Please use the last date of eligibility, which for an open case, should be the last day of the month. If this is a denial, use the denial script."
@@ -144,7 +144,7 @@ call write_editbox_in_case_note("Reason for closure", reason_for_closure, 6)
 If verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
 If updated_MMIS_check = 1 then call write_new_line_in_case_note("* Updated MMIS.")
 If WCOM_check = 1 then call write_new_line_in_case_note("* Added WCOM to notice.")
-If CSR_check = 1 then call write_editbox_in_case_note("Case is at CSR", "client has an additional month to turn in the CSR and any required proofs.", 6)
+If CSR_check = 1 then call write_editbox_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.", 6)
 If HC_ER_check = 1 then call write_new_line_in_case_note("* Case is at HC ER.")
 If case_noting_intake_dates = True then
 	call write_new_line_in_case_note("---")

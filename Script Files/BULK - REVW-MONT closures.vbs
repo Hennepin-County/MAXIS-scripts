@@ -8,18 +8,32 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
+'USER DETERMINATION-------------------------------------------------
+'Getting network ID info for use by the next part of the script.
+Set objNet = CreateObject("WScript.NetWork") 
 
-'----------------------IT NEEDS TO CALCULATE SOME DATES AND DATE INFO
-'current_date = "07/27/2013" 'This setting should be commented out unless testing.
-current_date = date         'This should be the default setting for production.
+'Determines user to enable debugging features. Add individuals to this if...then to include them with developer mode.
+If ucase(objNet.UserName) = "PWVKC45" or _
+  ucase(objNet.UserName) = "VKCARY" or _
+  ucase(objNet.UserName) = "RAKALB" or _
+  ucase(objNet.UserName) = "CDPOTTER" or _
+  ucase(objNet.UserName) = "VKC" then 
+	inquiry_testing = MsgBox("Developer " & ucase(objNet.UserName) & " detected. Enable inquiry testing and bypass date restrictions?", vbYesNoCancel)
+End if
 
-If datepart("m", dateadd("d", 8, current_date)) = datepart("m", current_date) then script_end_procedure("This script cannot be run until the last week of the month.")
+'If cancelled...
+If inquiry_testing = vbCancel then stopscript
 
+'There's a date restriction on this script: it should only run the last week of the month.
+'If inquiry_testing = vbYes, it should bypass this restriction. Otherwise, it should filter through.
+'Because of that, I've included "if inquiry_testing <> vbYes" at the beginning of my date restriction.
+If inquiry_testing <> vbYes and datepart("m", dateadd("d", 8, date)) = datepart("m", date) then script_end_procedure("This script cannot be run until the last week of the month.")
+
+'Date calculations
 footer_month = datepart("m", dateadd("m", 1, date))
 if len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = datepart("yyyy", dateadd("m", 1, date))
 footer_year = footer_year - 2000
-
 
 '----------------------THIS IS THE DIALOG FOR THE SCRIPT
 BeginDialog REVW_MONT_closures_dialog, 0, 0, 256, 110, "REVW/MONT closures"
@@ -35,19 +49,16 @@ BeginDialog REVW_MONT_closures_dialog, 0, 0, 256, 110, "REVW/MONT closures"
   GroupBox 5, 60, 150, 45, "Case note closing/incomplete cases from:"
 EndDialog
 
-
-
-
 '----------------------CONNECTING TO BLUEZONE, RUNNING THE DIALOG, AND NAVIGATING TO REPT/REVW
 EMConnect ""
 Do
-  Do
-    Dialog REVW_MONT_closures_dialog
-    If ButtonPressed = 0 then StopScript 'Cancel button
-    If worker_number <> "" then worker_number = ucase(worker_number)
-    If len(worker_number) <> 3 then MsgBox "You must enter the last three digits of your " & county_worker_code & "# (and just the last three digits)."
-  Loop until len(worker_number) = 3
-  If worker_signature = "" then MsgBox "You must sign your case note."
+	Do
+		Dialog REVW_MONT_closures_dialog
+		If ButtonPressed = 0 then StopScript 'Cancel button
+		If worker_number <> "" then worker_number = ucase(worker_number)
+		If len(worker_number) <> 3 then MsgBox "You must enter the last three digits of your " & county_worker_code & "# (and just the last three digits)."
+	Loop until len(worker_number) = 3
+	If worker_signature = "" then MsgBox "You must sign your case note."
 Loop until worker_signature <> ""
 
 transmit 'It transmits to check for MAXIS.
@@ -55,131 +66,172 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found. You may be passworded out. Try it again.")
 
 'THIS PART DOES THE REPT REVW----------------------------------------------------------------------------------------------------
-If revw_check = 1 then 
-  call navigate_to_screen("rept", "revw")
-  EMReadScreen default_worker_number, 3, 21, 10
-  If worker_number <> default_worker_number then
-    EMWriteScreen worker_county_code & worker_number, 21, 6
-    transmit
-  End if
-  EMReadScreen current_footer_month, 2, 20, 55
-  EMReadScreen current_footer_year, 2, 20, 58
-  If (current_footer_month <> footer_month) or (current_footer_year <> footer_year) then
-    EMWriteScreen footer_month, 20, 55
-    EMWriteScreen footer_year, 20, 58
-    transmit
-  End if
-  row = 7
-  Do
-    EMReadScreen case_number, 8, row, 6
-    EMReadScreen program_status, 21, row, 35
-    are_programs_closing = instr(program_status, "N") <> 0 or instr(program_status, "I") <> 0
-    If are_programs_closing = True then case_number_array = trim(case_number_array & " " & trim(case_number))
-    row = row + 1
-    If row = 19 then
-      PF8
-      EMReadScreen last_check, 4, 24, 14
-      row = 7
-    End if
-  Loop until trim(case_number) = "" or last_check = "LAST"
+If revw_check = checked then 
+	call navigate_to_screen("rept", "revw")
+	EMReadScreen default_worker_number, 3, 21, 10
+	If worker_number <> default_worker_number then
+		EMWriteScreen worker_county_code & worker_number, 21, 6
+		transmit
+	End if
+	EMReadScreen current_footer_month, 2, 20, 55
+	EMReadScreen current_footer_year, 2, 20, 58
+	If (current_footer_month <> footer_month) or (current_footer_year <> footer_year) then
+		EMWriteScreen footer_month, 20, 55
+		EMWriteScreen footer_year, 20, 58
+		transmit
+	End if
+	row = 7
+	Do
+		EMReadScreen case_number, 8, row, 6																'Gets case number
+		EMReadScreen cash_status, 1, row, 35															'Checks for cash status
+		If cash_status = "N" or cash_status = "I" then are_programs_closing = True						'If "N" or "I", adds to the array
+		EMReadScreen FS_status, 1, row, 45																'Checks for FS status
+		If FS_status = "N" or FS_status = "I" then are_programs_closing = True							'If "N" or "I", adds to the array
+		EMReadScreen HC_status, 1, row, 49																'Checks for FS status
+		If HC_status = "N" or HC_status = "I" then 														'If "N" or "I", checks additional info before adding to the array
+			EMReadScreen exempt_IR_check, 1, row, 51													'Checks for exempt IRs (starred IRs)
+			If exempt_IR_check <> "*" then are_programs_closing = True									'Only adds cases to array if they are not exempt from an IR
+		End if
+				
+		'If the above found the case is closing, it adds to the array.
+		If are_programs_closing = True then case_number_array = trim(case_number_array & " " & trim(case_number))
+		are_programs_closing = ""		'Clears out variable
+		
+		row = row + 1
+		If row = 19 then
+			PF8
+			EMReadScreen last_check, 4, 24, 14
+			row = 7
+		End if
+	Loop until trim(case_number) = "" or last_check = "LAST"
 
 
-  case_number_array = split(case_number_array)
-  
-  
-  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
-  For each case_number in case_number_array
-    call navigate_to_screen("stat", "revw")
-    EMReadScreen ERRR_check, 4, 2, 52
-    If ERRR_check = "ERRR" then call navigate_to_screen("stat", "revw") 'In case of error prone cases
-    EMReadScreen cash_review_code, 1, 7, 40
-    EMReadScreen WB_review_code, 1, 7, 50
-    EMReadScreen FS_review_code, 1, 7, 60
-    EMReadScreen HC_review_code, 1, 7, 73
-    If cash_review_code = "N" then cash_review_status = "closing for no renewal CAF."
-    If cash_review_code = "I" then cash_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-    If WB_review_code = "N" then WB_review_status = "closing for no renewal."
-    If WB_review_code = "I" then WB_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-    If FS_review_code = "N" then 
-      EMWriteScreen "x", 5, 58
-      transmit
-      EMReadScreen recertification_date, 8, 9, 64
-      recertification_date = cdate(replace(recertification_date, " ", "/"))
-      If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
-        FS_review_document = "renewal CAF"
-      Else
-        FS_review_document = "CSR"
-      End if
-      FS_review_status = "closing for no " & FS_review_document & "."
-      transmit
-    End if
-    If FS_review_code = "I" then FS_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-    If HC_review_code = "N" then 
-      EMWriteScreen "x", 5, 71
-      transmit
-      EMReadScreen recertification_date, 8, 9, 27
-      recertification_date = cdate(replace(recertification_date, " ", "/"))
-      If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
-        If FS_review_code = "_" and cash_review_code = "_" then
-          HC_review_document = "renewal HC ER"
-        Else
-          HC_review_document = "renewal CAF"
-        End If
-      Else
-        HC_review_document = "CSR"
-      End if
-      HC_review_status = "closing for no " & HC_review_document & "."
-      transmit
-    End if
-    If HC_review_code = "I" then HC_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-  
-  '---------------THIS SECTION FIGURES OUT WHEN PROGRAMS CAN TURN IN NEW RENEWALS AND WHEN THEY BECOME INTAKES AGAIN
-    If cash_review_status <> "" or WB_review_status <> "" or FS_review_status <> "" or HC_review_status <> "" then
-      EMReadScreen first_of_working_month, 5, 20, 55
-      first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))
-      last_day_to_turn_in_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-      intake_date = dateadd("m", 1, first_of_working_month)
-    End If
+	case_number_array = split(case_number_array)
+	  
+	  
+	  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
+	For each case_number in case_number_array
+		call navigate_to_screen("stat", "revw")
+		EMReadScreen ERRR_check, 4, 2, 52
+		If ERRR_check = "ERRR" then call navigate_to_screen("stat", "revw") 'In case of error prone cases
+		EMReadScreen cash_review_code, 1, 7, 40
+		EMReadScreen FS_review_code, 1, 7, 60
+		EMReadScreen HC_review_code, 1, 7, 73
+		If cash_review_code = "N" then cash_review_status = "closing for no renewal CAF."
+		If cash_review_code = "I" then cash_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
+		If FS_review_code = "N" then 
+			EMWriteScreen "x", 5, 58
+			transmit
+			EMReadScreen recertification_date, 8, 9, 64
+			recertification_date = cdate(replace(recertification_date, " ", "/"))
+			If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
+				FS_review_document = "renewal CAF"
+			Else
+				FS_review_document = "CSR"
+			End if
+			FS_review_status = "closing for no " & FS_review_document & "."
+			transmit
+		End if
+		If FS_review_code = "I" then FS_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
+		If HC_review_code = "N" then 
+			EMWriteScreen "x", 5, 71
+			transmit
+			EMReadScreen recertification_date, 8, 9, 27
+			recertification_date = cdate(replace(recertification_date, " ", "/"))
+			If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
+				HC_review_document = "renewal document"
+			Else
+				HC_review_document = "CSR"
+			End if
+			HC_review_status = "closing for no " & HC_review_document & "."
+			transmit
+		End if
+		If HC_review_code = "I" then HC_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
+		  
+		'---------------THIS SECTION FIGURES OUT WHEN PROGRAMS CAN TURN IN NEW RENEWALS AND WHEN THEY BECOME INTAKES AGAIN
+			EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
+			first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
+			
+			If HC_review_status <> "" then		
+				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+				HC_intake_date = dateadd("m", 1, first_of_working_month)
+			End If
+			If FS_review_status <> "" then
+				If FS_review_code = "I" or FS_review_document = "CSR" then
+					last_day_to_turn_in_SNAP_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+					SNAP_intake_date = dateadd("m", 1, first_of_working_month)
+				Else
+					last_day_to_turn_in_SNAP_docs = dateadd("d", -1, first_of_working_month)
+					SNAP_intake_date = first_of_working_month
+				End if
+			End if
+			If cash_review_status <> "" then
+				last_day_to_turn_in_cash_docs = dateadd("d", -1, first_of_working_month)
+				cash_intake_date = first_of_working_month
+			End if
 
-  '---------------NOW IT CASE NOTES
-    PF4
-    PF9
-  
-    If HC_review_code = "I" or FS_review_code = "I" or WB_review_code = "I" or cash_review_code = "I" then
-      call write_new_line_in_case_note("---Programs closing for incomplete review---")
-    Else
-      call write_new_line_in_case_note("---Programs closing for no review---")
-    End if
-    If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
-    If WB_review_status <> "" then call write_editbox_in_case_note("WB", WB_review_status, 5)
-    If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
-    If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
-    If last_day_to_turn_in_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_docs & " to turn in review doc and/or proofs.")
-    If intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply after " & intake_date & ".")
-    call write_new_line_in_case_note("---")
-    call write_new_line_in_case_note(worker_signature & ", via automated script.")
+		'---------------NOW IT CASE NOTES
+		If inquiry_testing <> vbYes then
+			
+			PF4
+			PF9
+		  
+			If HC_review_code = "I" or FS_review_code = "I" or cash_review_code = "I" then
+				call write_new_line_in_case_note("---Programs closing for incomplete review---")
+			Else
+				call write_new_line_in_case_note("---Programs closing for no review---")
+			End if
+			If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
+			If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
+			If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
+			If last_day_to_turn_in_cash_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
+			If last_day_to_turn_in_SNAP_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
+			If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs.")
+			If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for cash on " & cash_intake_date & ".")
+			If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for SNAP on " & SNAP_intake_date & ".")
+			If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for HC after " & HC_intake_date & ".")
+			
+			call write_new_line_in_case_note("---")
+			call write_new_line_in_case_note(worker_signature & ", via automated script.")
+			
+		Else	'special handling for inquiry_testing (developers testing scenarios)
+			string_for_msgbox = 	"Cash: " & cash_review_status & chr(10) & _
+									"SNAP: " & FS_review_status & chr(10) & _
+									"HC: " & HC_review_status & chr(10) & _
+									"Last CASH doc date: " & last_day_to_turn_in_cash_docs & chr(10) & _
+									"CASH intake date: " & cash_intake_date & chr(10) & _
+									"Last SNAP doc date: " & last_day_to_turn_in_SNAP_docs & chr(10) & _
+									"SNAP intake date: " & SNAP_intake_date & chr(10) & _
+									"Last HC doc date: " & last_day_to_turn_in_HC_docs & chr(10) & _
+									"HC intake date: " & HC_intake_date
+			debugging_MsgBox = MsgBox(string_for_msgbox, vbOKCancel)
+			If debugging_MsgBox = vbCancel then stopscript
+		End if
+			
 
-  '----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
-    cash_review_code = ""
-    WB_review_code = ""
-    FS_review_code = ""
-    HC_review_code = ""
-    cash_review_status = ""
-    WB_review_status = ""
-    FS_review_status = ""
-    HC_review_status = ""
-    first_of_working_month = ""
-    last_day_to_turn_in_docs = ""
-    intake_date = ""
-  
-  Next
-  
-  call navigate_to_screen("rept", "revw")
-  EMReadScreen default_worker_number, 3, 21, 10
-  If worker_number <> default_worker_number then
-    EMWriteScreen worker_county_code & worker_number, 21, 6
-    transmit
-  End if
+		'----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
+		first_of_working_month = ""
+		cash_review_code = ""
+		FS_review_code = ""
+		HC_review_code = ""
+		cash_review_status = ""
+		FS_review_status = ""	
+		HC_review_status = ""
+		last_day_to_turn_in_cash_docs = ""
+		last_day_to_turn_in_SNAP_docs = ""
+		last_day_to_turn_in_HC_docs = ""
+		cash_intake_date = ""
+		SNAP_intake_date = ""
+		HC_intake_date = ""
+		  
+	Next
+	  
+	call navigate_to_screen("rept", "revw")
+	EMReadScreen default_worker_number, 3, 21, 10
+	If worker_number <> default_worker_number then
+		EMWriteScreen worker_county_code & worker_number, 21, 6
+		transmit
+	End if
 End If  
 
 'Resetting the case number array
