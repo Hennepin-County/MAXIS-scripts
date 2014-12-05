@@ -469,6 +469,11 @@ IF MAXIS_A_check <> "RUNNING" then
 	End if
 End if
 
+'Header for the MMIS discrepancies section of the doc
+objselection.typetext "Case numbers with MMIS discrepancies: "
+objselection.TypeParagraph()
+objselection.TypeParagraph()
+
 'This do...loop updates case notes for all of the cases that don't have DAIL messages or cases still open in MMIS
 For x = 0 to total_cases
 
@@ -477,7 +482,12 @@ For x = 0 to total_cases
 	DAILS_out = INAC_scrubber_primary_array(x, 4)
 	MMIS_status = INAC_scrubber_primary_array(x, 5)
 	privileged_status = INAC_scrubber_primary_array(x, 7)
-		
+		'Adds the case number to word doc if MMIS is active
+	If MMIS_status = true Then
+		objselection.typetext case_number
+		objselection.TypeParagraph()
+	End If
+
 	back_to_self
 	'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
 	If privileged_status <> True and DAILS_out = False and MMIS_status = False then
