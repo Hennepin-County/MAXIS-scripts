@@ -47,6 +47,8 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add() 
 objExcel.DisplayAlerts = True
 
+'Changes name of Excel sheet to "Case information"
+ObjExcel.ActiveSheet.Name = "Case information"
 
 'Setting the first 4 col as worker, case number, name, and APPL date
 ObjExcel.Cells(1, 1).Value = "WORKER"
@@ -268,6 +270,45 @@ End if
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
+
+'Provides additional statistics for SNAP cases
+If SNAP_check = checked then
+
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Sheets("Sheet2").Activate
+	ObjExcel.ActiveSheet.Name = "Worker stats"
+	
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "SNAP"
+	ObjExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "PENDING <= 30 DAYS"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "TOTAL PENDING"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "% PENDING <= 30 DAYS"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+	
+	
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For x = 0 to ubound(worker_array)
+		ObjExcel.Cells(x + 3, 1) = worker_array(x)
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!F:F, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!F:F, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	Next
+	
+	'Autofitting columns
+	For col_to_autofit = 1 to 20
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+End if
 
 'Logging usage stats
 script_end_procedure("")
