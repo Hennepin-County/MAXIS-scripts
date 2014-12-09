@@ -227,8 +227,10 @@ If collect_COLA_stats = True then
 		'Will navigate to each one and read the income type. If the income type is one of the COLA-specific incomes, it will add to a variable to be dumped in spreadsheet
 		For each HH_member in HH_member_array
 			Do
-				EMWriteScreen HH_member, 20, 76	'Writing member number
-				transmit					'Transmitting to panel
+				If HH_member <> "01" Then 'This prevents skipping the first unea panel for memb01.
+					EMWriteScreen HH_member, 20, 76	'Writing member number
+					transmit					'Transmitting to panel
+				End if
 				EMReadScreen income_type, 2, 5, 37	'Reading income type
 				If income_type = "06" or income_type = "11" or income_type = "12" or income_type = "13" or income_type = "83" or _
 				income_type = "17" or income_type = "18" or income_type = "29" or income_type = "08" or income_type = "35" then	'Only runs for certain income types
