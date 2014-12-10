@@ -458,10 +458,10 @@ call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 'Runs denied progs if selected
-If closed_progs_check = 1 then run_another_script("Q:\Blue Zone Scripts\Public assistance script files\Script Files\NOTE - closed progs.vbs")
+If closed_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - closed progs.vbs")
 
 'Runs denied progs if selected
-If denied_progs_check = 1 then run_another_script("Q:\Blue Zone Scripts\Public assistance script files\Script Files\NOTE - denied progs.vbs")
+If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
 
 script_end_procedure("")
 
