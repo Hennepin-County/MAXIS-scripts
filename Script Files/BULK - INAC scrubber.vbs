@@ -9,7 +9,11 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
+'THE FOLLOWING VARIABLE IS DYNAMICALLY DETERMINED BY THE PRESENCE OF DATA IN CLS_x1_number. IT WILL BE ADDED DYNAMICALLY TO THE DIALOG BELOW.
+If CLS_x1_number <> "" then CLS_dialog_string = "**This script will XFER cases in REPT/INAC to " & CLS_x1_number & ".**"
+
 'DIALOGS----------------------------------------------------------------------------------------------------
+'NOTE: this dialog uses a dynamic CLS_dialog_string variable. As such, it can't be directly edited in dialog editor.
 BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
   EditBox 80, 80, 80, 15, worker_signature
   EditBox 100, 100, 60, 15, worker_number
@@ -18,8 +22,8 @@ BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
   ButtonGroup ButtonPressed
     OkButton 45, 140, 50, 15
     CancelButton 110, 140, 50, 15
-  Text 5, 5, 200, 10, "This script will transfer the cases in your REPT/INAC to CLS."
-  Text 5, 25, 195, 20, "It will check MMIS for each household member, STAT/ABPS for Good Cause status, and CCOL/CLIC for claims."
+  Text 5, 5, 200, 10, CLS_dialog_string
+  Text 5, 25, 195, 20, "Script will check MMIS for each household memb, ABPS for Good Cause status, and CCOL/CLIC for claims."
   Text 5, 55, 195, 20, "Write the information in the boxes below and click ''OK'' to begin. Click ''Cancel'' to exit."
   Text 5, 85, 75, 10, "Sign your case notes:"
   Text 5, 105, 90, 10, "Write your worker number:"
@@ -241,7 +245,7 @@ For x = 0 to total_cases
 	transmit
 	EMReadScreen claims_due, 10, 19, 58
 	INAC_scrubber_primary_array(x, 3) = claims_due
-	If developer_mode = true then ObjExcel.Cells(x + 2, 4).Value = claims_due
+	If developer_mode = True then ObjExcel.Cells(x + 2, 4).Value = claims_due
 Next
 
 'Entering claims into the Word doc
@@ -324,7 +328,7 @@ For x = 0 to total_cases
 		call navigate_to_screen("STAT", "ABPS")
 		EMReadScreen good_cause_check, 1, 5, 47
 		If good_cause_check = "P" then
-			objselection.typetext ObjExcel.Cells(excel_row, 1).Value & ", " & client_name
+			objselection.typetext case_number & ", " & client_name
 			objselection.TypeParagraph()
 		End if
 	End if
@@ -350,8 +354,6 @@ IF MMIS_A_check <> "RUNNING" then
 	attn
 	EMReadScreen MMIS_B_check, 7, MMIS_MDHS_row, 15
 	If MMIS_B_check <> "RUNNING" then 
-		objExcel.Workbooks.Close
-		objExcel.quit
 		script_end_procedure("MMIS does not appear to be running. This script will now stop.")
 	End if
 	If MMIS_B_check = "RUNNING" then 
@@ -467,6 +469,11 @@ IF MAXIS_A_check <> "RUNNING" then
 	End if
 End if
 
+'Header for the MMIS discrepancies section of the doc
+objselection.typetext "Case numbers with MMIS discrepancies: "
+objselection.TypeParagraph()
+objselection.TypeParagraph()
+
 'This do...loop updates case notes for all of the cases that don't have DAIL messages or cases still open in MMIS
 For x = 0 to total_cases
 
@@ -475,7 +482,12 @@ For x = 0 to total_cases
 	DAILS_out = INAC_scrubber_primary_array(x, 4)
 	MMIS_status = INAC_scrubber_primary_array(x, 5)
 	privileged_status = INAC_scrubber_primary_array(x, 7)
-		
+		'Adds the case number to word doc if MMIS is active
+	If MMIS_status = true Then
+		objselection.typetext case_number
+		objselection.TypeParagraph()
+	End If
+
 	back_to_self
 	'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
 	If privileged_status <> True and DAILS_out = False and MMIS_status = False then
