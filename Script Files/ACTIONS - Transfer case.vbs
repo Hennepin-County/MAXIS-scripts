@@ -1,3 +1,7 @@
+'GATHERING STATS----------------------------------------------------------------------------------------------------
+name_of_script = "ACTIONS - Transfer case"
+start_time = timer
+
 'LOADING ROUTINE FUNCTIONS
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
@@ -221,27 +225,27 @@ IF XFERRadioGroup = 0 THEN
 		back_to_SELF
 
 		'----------This converts the dates into a format that can be entered into SPEC/XFER/XCTY----------
-		cl_move_dt = cdate(cl_move_date)
-		cl_move_dt = replace(cl_move_dt, "/", "")
-			cl_move_month = left(cl_move_dt, 2)
-			cl_move_day = right(left(cl_move_dt, 4), 2)
-			cl_move_year = right(cl_move_dt, 2)
-
-		IF crf_sent_check = checked THEN
-			crf_sent_month = datepart("M", date)
-				IF len(crf_sent_month) = 1 THEN crf_sent_month = "0" & crf_sent_month
-			crf_sent_day = datepart("D", date)
-				IF len(crf_sent_day) = 1 THEN crf_sent_day = "0" & crf_sent_day
-			crf_sent_year = right(datepart("YYYY", date), 2)
-		END IF
-
-		IF excluded_time = "Yes" THEN
-			excl_dt = cdate(excl_date)
-			excl_dt = replace(excl_dt, "/", "")
-			excl_month = left(excl_dt, 2)
-			excl_day = right(left(excl_dt, 4), 2)
-			excl_year = right(excl_dt, 2)
-		END IF
+		'cl_move_dt = cdate(cl_move_date)
+		'cl_move_dt = replace(cl_move_dt, "/", "")
+		'	cl_move_month = left(cl_move_dt, 2)
+		'	cl_move_day = right(left(cl_move_dt, 4), 2)
+		'	cl_move_year = right(cl_move_dt, 2)
+        '
+		'IF crf_sent_check = checked THEN
+		'	crf_sent_month = datepart("M", date)
+		'		IF len(crf_sent_month) = 1 THEN crf_sent_month = "0" & crf_sent_month
+		'	crf_sent_day = datepart("D", date)
+		'		IF len(crf_sent_day) = 1 THEN crf_sent_day = "0" & crf_sent_day
+		'	crf_sent_year = right(datepart("YYYY", date), 2)
+		'END IF
+        '
+		'IF excluded_time = "Yes" THEN
+		'	excl_dt = cdate(excl_date)
+		'	excl_dt = replace(excl_dt, "/", "")
+		'	excl_month = left(excl_dt, 2)
+		'	excl_day = right(left(excl_dt, 4), 2)
+		'	excl_year = right(excl_dt, 2)
+		'END IF
 
 		call navigate_to_screen("CASE", "NOTE")
 		PF9
@@ -315,7 +319,10 @@ IF XFERRadioGroup = 0 THEN
 	IF pend_programs <> "" THEN call write_editbox_in_case_note("Pending Programs", (left(pend_programs, (len(pend_programs) - 1))), 6)
 	IF mnsure_pend_check = checked THEN call write_new_line_in_case_note("* CL has pending HC application through MNSure")
 	call write_editbox_in_case_note("CL Move Date", cl_move_date, 6)
-	IF crf_sent_check = checked THEN call write_editbox_in_case_note("Change Report Sent", crf_sent_date, 6)
+	IF crf_sent_check = checked THEN 
+		crf_sent_date = date
+		call write_editbox_in_case_note("Change Report Sent", crf_sent_date, 6)
+	END IF
 	IF excluded_time = "Yes" THEN
 		excluded_time = excluded_time & ", Begins " & excl_date
 		call write_editbox_in_case_note("Excluded Time" , excluded_time, 6)
@@ -346,29 +353,49 @@ IF XFERRadioGroup = 0 THEN
 	EMWriteScreen "X", 9, 16
 	transmit
 	PF9
+	
+	'Writing client move date
+	call create_MAXIS_friendly_date(cl_move_date, 0, 4, 28)
+	
 
-	EMWriteScreen cl_move_month, 4, 28
-	EMWriteScreen cl_move_day, 4, 31
-	EMWriteScreen cl_move_year, 4, 34
-	IF crf_sent_check = checked THEN
-		EMWriteScreen crf_sent_month, 4, 61
-		EMWriteScreen crf_sent_day, 4, 64
-		EMWriteScreen crf_sent_year, 4, 67
-	END IF
+	'EMWriteScreen cl_move_month, 4, 28
+	'EMWriteScreen cl_move_day, 4, 31
+	'EMWriteScreen cl_move_year, 4, 34
+	
+	'Writing CRF date, if CRF check is checked
+	IF crf_sent_check = checked THEN call create_MAXIS_friendly_date(crf_sent_date, 0, 4, 61)
+	
+	
+	'IF crf_sent_check = checked THEN
+	'	EMWriteScreen crf_sent_month, 4, 61
+	'	EMWriteScreen crf_sent_day, 4, 64
+	'	EMWriteScreen crf_sent_year, 4, 67
+	'END IF
+	
+	'Writes the excluded time info. Only need the left character (it's a dropdown)
 	EMWriteScreen left(excluded_time, 1), 5, 28
-	IF excluded_time = "Yes" THEN
-		EMWriteScreen excl_month, 6, 28
-		EMWriteScreen excl_day, 6, 31
-		EMWriteScreen excl_year, 6, 34
+	
+	'If there's excluded time, need to write the info
+	
+	IF excluded_time = "Yes" THEN 
+		call create_MAXIS_friendly_date(excl_date, 0, 6, 28)
 		EMWriteScreen right(worker_county_code, 2), 15, 39
-	ELSEIF excluded_time = "" THEN
-		EMWriteScreen "N", 5, 28
 	END IF
+	
+	'IF excluded_time = "Yes" THEN
+	'	call create_MAXIS_friendly_date(excl_date, 0, 6, 28)
+	'	EMWriteScreen excl_month, 6, 28
+	'	EMWriteScreen excl_day, 6, 31
+	'	EMWriteScreen excl_year, 6, 34
+	'	EMWriteScreen right(worker_county_code, 2), 15, 39
+	'ELSEIF excluded_time = "" THEN
+	'	EMWriteScreen "N", 5, 28
+	'END IF
 
 	IF hc_status = "ACTV" THEN
 		EMWriteScreen right(worker_county_code, 2), 14, 39
 		EMWriteScreen cfr_change_month, 14, 53
-		EMWriteScreen cfr_change_year, 14, 59
+		EMWriteScreen right(cfr_change_year, 2), 14, 59
 	END IF
 
 	IF cash_one_status = "ACTV" THEN

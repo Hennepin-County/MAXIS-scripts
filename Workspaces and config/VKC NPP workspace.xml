@@ -11,12 +11,14 @@
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - send SVES.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - spousal allocation FIATer.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - Transfer Case.vbs" />
+            <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - Update Worker Signature.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\ACTIONS - view INFC.vbs" />
         </Folder>
         <Folder name="BULK scripts">
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - BULK TIKLer.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - Case Note from Excel List.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - CEI premium.vbs" />
+            <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - INAC scrubber.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - LTC-GRH list generator.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - pull data into Excel.vbs" />
             <File name="C:\DHS-MAXIS-Scripts\Script Files\BULK - REPT-ACTV list.vbs" />
