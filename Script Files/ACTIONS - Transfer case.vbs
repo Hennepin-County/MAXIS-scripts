@@ -319,7 +319,10 @@ IF XFERRadioGroup = 0 THEN
 	IF pend_programs <> "" THEN call write_editbox_in_case_note("Pending Programs", (left(pend_programs, (len(pend_programs) - 1))), 6)
 	IF mnsure_pend_check = checked THEN call write_new_line_in_case_note("* CL has pending HC application through MNSure")
 	call write_editbox_in_case_note("CL Move Date", cl_move_date, 6)
-	IF crf_sent_check = checked THEN call write_editbox_in_case_note("Change Report Sent", crf_sent_date, 6)
+	IF crf_sent_check = checked THEN 
+		crf_sent_date = date
+		call write_editbox_in_case_note("Change Report Sent", crf_sent_date, 6)
+	END IF
 	IF excluded_time = "Yes" THEN
 		excluded_time = excluded_time & ", Begins " & excl_date
 		call write_editbox_in_case_note("Excluded Time" , excluded_time, 6)
