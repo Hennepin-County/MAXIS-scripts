@@ -96,7 +96,6 @@ if ButtonPressed = 0 then stopscript
 'Navigates back to the SELF menu
 back_to_self
 
-
 'Enters into STAT for the client
 EMWriteScreen "stat", 16, 43
 EMWriteScreen "________", 18, 43
@@ -106,7 +105,7 @@ EMWriteScreen footer_month, 20, 43
 EMWriteScreen footer_year, 20, 46
 transmit
 
-	'Checks to see we're past SELF. If not past SELF (due to error) the script will stop
+'Checks to see we're past SELF. If not past SELF (due to error) the script will stop
 EMReadScreen SELF_check, 4, 2, 50
 If SELF_check = "SELF" then script_end_procedure("You don't appear to have gone past SELF. This case might be in background. Wait for it to come out of background and try again.")
 ERRR_screen_check
@@ -468,10 +467,3 @@ For amt_of_months_to_do = 1 to budget_months
 next
 
 script_end_procedure("")
-
-
-
-
-
-
-
