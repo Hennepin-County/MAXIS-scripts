@@ -108,6 +108,8 @@ transmit
 'Checks to see we're past SELF. If not past SELF (due to error) the script will stop
 EMReadScreen SELF_check, 4, 2, 50
 If SELF_check = "SELF" then script_end_procedure("You don't appear to have gone past SELF. This case might be in background. Wait for it to come out of background and try again.")
+ERRR_screen_check
+	
 
 'Checks for which HH member is the spouse. The spouse is coded as "02" on STAT/MEMB.
 Do
@@ -465,9 +467,3 @@ For amt_of_months_to_do = 1 to budget_months
 next
 
 script_end_procedure("")
-
-
-
-
-
-
