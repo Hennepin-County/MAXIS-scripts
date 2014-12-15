@@ -165,8 +165,11 @@ IF XFERRadioGroup = 0 THEN
 	DO
 		DO
 			DO
-				DIALOG out_of_county_dlg
-					IF ButtonPressed = 0 THEN stopscript
+				DO
+					DIALOG out_of_county_dlg
+						IF ButtonPressed = 0 THEN stopscript	
+						last_chance = MsgBox("Do you want to continue? NOTE: This will transfer the case out of county.", vbYesNo)
+				LOOP UNTIL last_chance = vbYes
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
 				call navigate_to_screen("STAT", "PROG")
