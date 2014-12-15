@@ -1,26 +1,3 @@
-'---------------------------------------------------------------------------------------------------
-'HOW THIS SCRIPT WORKS:
-'
-'This script contains functions and variables that the other BlueZone scripts use very commonly. The other BlueZone scripts contain a few lines of code that run this 
-'script and get the functions. This saves time in writing and copy/pasting the same functions in many different places. Only add functions to this script if they've 
-'been tested in other scripts first. This document is actively used by live scripts, so it needs to be functionally complete at all times. THAT MEANS THAT IF YOU BREAK
-'THIS SCRIPT, ALL OTHER SCRIPTS WILL NOT WORK! MODIFY WITH CARE! :)
-'
-'Here's the code to add, including stats gathering pieces (without comments of course):
-'
-'GATHERING STATS----------------------------------------------------------------------------------------------------
-'name_of_script = "<INSERT SCRIPT NAME FOR ACCESS DATABASE HERE>"
-'start_time = timer
-'
-''LOADING ROUTINE FUNCTIONS
-'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-'Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\FUNCTIONS FILE.vbs")
-'text_from_the_other_script = fso_command.ReadAll
-'fso_command.Close
-'Execute text_from_the_other_script
-
-'----------------------------------------------------------------------------------------------------
-
 'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
 'The following variables are dynamically added via the installer. They can be modified manually to make changes without re-running the installer, but doing so should not be undertaken lightly.
 
