@@ -67,16 +67,16 @@ If buttonpressed = cancel then stopscript
 'Connecting to BlueZone
 EMConnect ""
 
-If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "ACTIONS - BILS UPDATER.vbs")
-If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "ACTIONS - COPY PANELS TO WORD.vbs")
-If buttonpressed = LTC_SPOUSAL_ALLOCATION_FIATER_button then call run_from_GitHub(script_repository & "ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs")
-If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "ACTIONS - MA-EPD EI FIATER.vbs")
-If buttonpressed = NEW_JOB_REPORTED_button then call run_from_GitHub(script_repository & "ACTIONS - NEW JOB REPORTED.vbs")
-If buttonpressed = PA_VERIF_REQUEST_button then call run_from_GitHub(script_repository & "ACTIONS - PA VERIF REQUEST.vbs")
-If buttonpressed = PAYSTUBS_RECEIVED_button then call run_from_GitHub(script_repository & "ACTIONS - PAYSTUBS RECEIVED.vbs")
-If buttonpressed = SEND_SVES_button then call run_from_GitHub(script_repository & "ACTIONS - SEND SVES.vbs")
-If buttonpressed = TRANSFER_CASE_button then call run_from_GitHub(script_repository & "ACTIONS - TRANSFER CASE.vbs")
-If ButtonPressed = UPDATE_WORKER_SIGNATURE_button then call run_from_GitHub(script_repository & "ACTIONS - UPDATE WORKER SIGNATURE.vbs")
+If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - BILS UPDATER.vbs")
+If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - COPY PANELS TO WORD.vbs")
+If buttonpressed = LTC_SPOUSAL_ALLOCATION_FIATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs")
+If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - MA-EPD EI FIATER.vbs")
+If buttonpressed = NEW_JOB_REPORTED_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - NEW JOB REPORTED.vbs")
+If buttonpressed = PA_VERIF_REQUEST_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - PA VERIF REQUEST.vbs")
+If buttonpressed = PAYSTUBS_RECEIVED_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - PAYSTUBS RECEIVED.vbs")
+If buttonpressed = SEND_SVES_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - SEND SVES.vbs")
+If buttonpressed = TRANSFER_CASE_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - TRANSFER CASE.vbs")
+If ButtonPressed = UPDATE_WORKER_SIGNATURE_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - UPDATE WORKER SIGNATURE.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
