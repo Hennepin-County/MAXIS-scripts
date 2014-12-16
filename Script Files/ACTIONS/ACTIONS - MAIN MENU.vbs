@@ -1,5 +1,5 @@
 'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/Master Functions Library.vbs"
+url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER FUNCTIONS LIBRARY.vbs"
 Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, False									'Attempts to open the URL
 req.send													'Sends request
