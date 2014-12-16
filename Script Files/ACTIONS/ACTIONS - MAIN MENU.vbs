@@ -47,7 +47,7 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts m
   Text 70, 80, 380, 20, "--- Creates a JOBS panel, a CASE/NOTE, and a TIKL, when client reports a new job. For new HIRE messages on the DAIL, use the DAIL scrubber instead."
   Text 70, 105, 320, 10, "--- Creates a Word document with PA benefit totals for other agencies to determine client benefits."
   Text 80, 120, 370, 20, "--- Enter in paystubs on one dialog, and it puts that information on JOBS (both retrospective and prospective if applicable), as well as the PIC and HC pop-up, and it'll case note the income as well."
-  Text 55, 145, 80, 10, "--- Sends a SVES/QURY."
+  Text 55, 145, 90, 10, "--- Sends a SVES/QURY."
   Text 65, 160, 380, 20, "--- SPEC/XFERs a case, and can send a memo to the new client. For in-agency as well as between agencies (out-of-county XFERs)."
   Text 95, 185, 185, 10, "--- Updates the default worker signature on your scripts."
 EndDialog
