@@ -81,7 +81,7 @@ END WITH
 result = filter(script_developer_array, ucase(windows_user_ID))
 If ubound(result) >= 0 then
 	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files/"
-If beta_agency = True then
+ElseIf beta_agency = True then
 	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/BETA/Script Files/"
 Else
 	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
