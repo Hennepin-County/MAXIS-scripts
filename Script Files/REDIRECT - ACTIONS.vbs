@@ -8,7 +8,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'LOADING SCRIPT
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/Sample BULK dialog.vbs"
+url = script_repository & "ACTIONS/ACTIONS - MAIN MENU.vbs"
 Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, False									'Attempts to open the URL
 req.send													'Sends request
