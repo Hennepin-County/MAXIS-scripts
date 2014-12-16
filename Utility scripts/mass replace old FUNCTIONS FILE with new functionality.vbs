@@ -108,7 +108,7 @@ For Each oFile In oFSO.GetFolder(sFolder).Files
 				"			""Veronica will work with your IT department to try and solve this issue, if needed."" & vbCr &_ ", _
 				"			vbCr &_", _
 				"			""URL: "" & url", _
-				"			StopScript", _
+				"			script_end_procedure(""Script ended due to error connecting to GitHub."")", _
 				"END IF")
 			
 			'Creates a redirect script if the script is a NAV script. Stole some of the code from @RobertFewins-Kalb.
