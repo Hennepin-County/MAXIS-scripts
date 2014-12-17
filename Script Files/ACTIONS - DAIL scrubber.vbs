@@ -77,8 +77,8 @@ EMReadScreen HIRE_check, 15, 6, 20
 If HIRE_check = "NEW JOB DETAILS" then run_DAIL_scrubber_script("C:\DHS-MAXIS-Scripts\Script Files\DAIL - new hire.vbs")
 
 'Remedial care messages. May only happen at COLA.
-EMReadScreen remedial_care_check, 34, 6, 20
-If remedial_care_check = "PERSON HAS REMEDIAL CARE DEDUCTION" then run_DAIL_scrubber_script("C:\DHS-MAXIS-Scripts\Script Files\DAIL - LTC remedial care.vbs")
+EMReadScreen remedial_care_check, 41, 6, 20
+If remedial_care_check = "REF 01 PERSON HAS REMEDIAL CARE DEDUCTION" then run_DAIL_scrubber_script("C:\DHS-MAXIS-Scripts\Script Files\DAIL - LTC remedial care.vbs")
 
 'Student income is ending.
 EMReadScreen SCHL_check, 58, 6, 20
