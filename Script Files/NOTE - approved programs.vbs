@@ -96,7 +96,7 @@ Do
       If case_number = "" then MsgBox "You must have a case number to continue!"
 	If worker_signature = "" then Msgbox "Please sign your case note"
 
-	IF autofill_cash_check = checked AND cash_approved_check = 1 THEN
+	IF autofill_cash_check = 1 AND cash_approved_check = 1 THEN
 		'Calculates the number of benefit months the worker is trying to case note.
 		cash_start = cdate(cash_start_mo & "/01/" & cash_start_yr)
 		cash_end = cdate(cash_end_mo & "/01/" & cash_end_yr)
@@ -213,19 +213,23 @@ IF autofill_cash_check = checked THEN
 
 		IF dwp_elig_summ <> " " THEN 
 			EMReadScreen date_of_last_DWP_version, 8, 7, 48
-			IF cdate(date_of_last_DWP_version) = date THEN prog_to_check_array = prog_to_check_array & "DW" & cash_month & cash_year & "/"
+'			IF cdate(date_of_last_DWP_version) = date THEN 
+			prog_to_check_array = prog_to_check_array & "DW" & cash_month & cash_year & "/"
 		END IF
 		IF mfip_elig_summ <> " " THEN
 			EMReadScreen date_of_last_MFIP_version, 8, 8, 48
-			IF date_of_last_MFIP_version = "11/06/14" THEN prog_to_check_array = prog_to_check_array & "MF" & cash_month & cash_year & "/"
+'			IF date_of_last_MFIP_version = "11/06/14" THEN
+			prog_to_check_array = prog_to_check_array & "MF" & cash_month & cash_year & "/"
 		END IF
 		IF msa_elig_summ <> " " THEN
 			EMReadScreen date_of_last_MSA_version, 8, 11, 48
-			IF cdate(date_of_last_MSA_version) = date THEN prog_to_check_array = prog_to_check_array & "MS" & cash_month & cash_year & "/"
+'			IF cdate(date_of_last_MSA_version) = date THEN
+			prog_to_check_array = prog_to_check_array & "MS" & cash_month & cash_year & "/"
 		END IF
 		IF ga_elig_summ <> " " THEN 
 			EMReadScreen date_of_last_GA_version, 8, 12, 48
-			IF cdate(date_of_last_GA_version) = date THEN prog_to_check_array = prog_to_check_array & "GA" & cash_month & cash_year & "/"
+'			IF cdate(date_of_last_GA_version) = date THEN
+			prog_to_check_array = prog_to_check_array & "GA" & cash_month & cash_year & "/"
 		END IF
 		IF dwp_elig_summ = " " AND mfip_elig_summ = " " AND msa_elig_summ = " " AND ga_elig_summ = " " THEN prog_to_check_array = prog_to_check_array & "NO" & cash_month & cash_year & "/"
 		
@@ -242,7 +246,6 @@ IF autofill_cash_check = checked THEN
 
 
 		FOR EACH prog_to_check IN prog_to_check_array
-			msgbox prog_to_check
 
 			IF left(prog_to_check, 2) = "NO" THEN
 				MsgBox "There are no CASH result found."
@@ -255,12 +258,14 @@ IF autofill_cash_check = checked THEN
 				EMWRiteScreen "MFSM", 20, 71
 				transmit
 				EMReadScreen cash_approved_version, 8, 3, 3
+				msgbox cash_approved_version
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
-						EMReadScreen mfip_bene_cash_amt, 4, 15, 74
-						EMReadScreen mfip_bene_food_amt, 4, 16, 74
+					IF cdate(cash_approval_date) = date THEN
+						EMReadScreen mfip_bene_cash_amt, 5, 15, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, ",", "")
+						EMReadScreen mfip_bene_food_amt, 5, 16, 73
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, ",", "")
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
 						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
@@ -275,10 +280,11 @@ IF autofill_cash_check = checked THEN
 					EMWriteScreen cash_approval_to_check, 20, 79
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
-						EMReadScreen mfip_bene_cash_amt, 4, 15, 74
-						EMReadScreen mfip_bene_food_amt, 4, 16, 74
+					IF cdate(cash_approval_date) = date THEN
+						EMReadScreen mfip_bene_cash_amt, 5, 15, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, ",", "")
+						EMReadScreen mfip_bene_food_amt, 5, 16, 73
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, ",", "")
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
 						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
@@ -296,15 +302,12 @@ IF autofill_cash_check = checked THEN
 				EMReadScreen cash_approved_version, 8, 3, 3
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 15
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
+					IF cdate(cash_approval_date) = date THEN
 						EMReadScreen GA_bene_cash_amt, 4, 14, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						GA_bene_cash_amt = replace(GA_bene_cash_amt, " ", "0")
 						cash_approval_array = cash_approval_array & "GA__" & GA_bene_cash_amt & current_cash_bene_mo & current_cash_bene_yr & " "
-					'ELSE
-					'	MsgBox "Your most recent CASH approval for the benefit month chosen is not from today. The script cannot autofill this result."
 					END IF
 				ELSE
 					EMReadScreen cash_approval_versions, 1, 2, 18
@@ -314,15 +317,12 @@ IF autofill_cash_check = checked THEN
 					EMWriteScreen cash_approval_to_check, 20, 79
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 15
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
+					IF cdate(cash_approval_date) = date THEN
 						EMReadScreen GA_bene_cash_amt, 4, 14, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						GA_bene_cash_amt = replace(GA_bene_cash_amt, " ", "0")
 						cash_approval_array = cash_approval_array & "GA__" & GA_bene_cash_amt & current_cash_bene_mo & current_cash_bene_yr & " "
-					'ELSE
-					'	MsgBox "Your most recent CASH approval for the benefit month chosen is not from today. The script cannot autofill this result."
 					END IF
 				END IF
 		
@@ -336,15 +336,12 @@ IF autofill_cash_check = checked THEN
 				EMReadScreen cash_approved_version, 8, 3, 3
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
+					IF cdate(cash_approval_date) = date THEN
 						EMReadScreen MSA_bene_cash_amt, 4, 17, 74
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						MSA_bene_cash_amt = replace(MSA_bene_cash_amt, " ", "0")
 						cash_approval_array = cash_approval_array & "MSA_" & MSA_bene_cash_amt & current_cash_bene_mo & current_cash_bene_yr & " "
-					'ELSE
-					'	MsgBox "Your most recent CASH approval for the benefit month chosen is not from today. The script cannot autofill this result."
 					END IF
 				ELSE
 					EMReadScreen cash_approval_versions, 1, 2, 18
@@ -354,15 +351,12 @@ IF autofill_cash_check = checked THEN
 					EMWriteScreen cash_approval_to_check, 20, 79
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
+					IF cdate(cash_approval_date) = date THEN
 						EMReadScreen MSA_bene_cash_amt, 4, 17, 74
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						MSA_bene_cash_amt = replace(MSA_bene_cash_amt, " ", "0")
 						cash_approval_array = cash_approval_array & "MSA_" & MSA_bene_cash_amt & current_cash_bene_mo & current_cash_bene_yr & " "
-					'ELSE
-					'	MsgBox "Your most recent CASH approval for the benefit month chosen is not from today. The script cannot autofill this result."
 					END IF
 				END IF
 			ELSEIF left(prog_to_check, 2) = "DW" THEN
@@ -375,8 +369,7 @@ IF autofill_cash_check = checked THEN
 				EMReadScreen cash_approved_version, 8, 3, 3
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
+					IF cdate(cash_approval_date) = date THEN
 						EMReadScreen DWP_bene_shel_amt, 4, 13, 74
 						EMReadScreen DWP_bene_pers_amt, 4, 14, 74
 						EMReadScreen current_cash_bene_mo, 2, 20, 56
@@ -384,8 +377,6 @@ IF autofill_cash_check = checked THEN
 						DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
 						DWP_bene_pers_amt = replace(DWP_bene_pers_amt, " ", "0")
 						cash_approval_array = cash_approval_array & "DWP_" & DWP_bene_shel_amt & DWP_bene_pers_amt & current_cash_bene_mo & current_cash_bene_yr & " "
-					'ELSE
-					'	MsgBox "Your most recent CASH approval for the benefit month chosen is not from today. The script cannot autofill this result."
 					END IF
 				ELSE
 					EMReadScreen cash_approval_versions, 1, 2, 18
@@ -395,8 +386,7 @@ IF autofill_cash_check = checked THEN
 					EMWriteScreen cash_approval_to_check, 20, 79
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
-					cash_approval_date = cdate(cash_approval_date)
-					IF cash_approval_date = date THEN
+					IF cdate(cash_approval_date) = date THEN
 						EMReadScreen DWP_bene_shel_amt, 4, 13, 74
 						EMReadScreen DWP_bene_pers_amt, 4, 14, 74
 						EMReadScreen current_cash_bene_mo, 2, 20, 56
@@ -404,8 +394,6 @@ IF autofill_cash_check = checked THEN
 						DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
 						DWP_bene_pers_amt = replace(DWP_bene_pers_amt, " ", "0")
 						cash_approval_array = cash_approval_array & "DWP_" & DWP_bene_shel_amt & DWP_bene_pers_amt & current_cash_bene_mo & current_cash_bene_yr & " "
-					'ELSE
-					'	MsgBox "Your most recent CASH approval for the benefit month chosen is not from today. The script cannot autofill this result."
 					END IF
 				END IF
 			END IF
@@ -413,6 +401,7 @@ IF autofill_cash_check = checked THEN
 
 
 END IF
+
 
 cash_approval_array = trim(cash_approval_array)
 cash_approval_array = split(cash_approval_array)
@@ -437,7 +426,6 @@ IF autofill_snap_check = checked THEN
 END IF
 IF autofill_cash_check = checked THEN
 	FOR EACH cash_approval_result IN cash_approval_array
-
 		IF left(cash_approval_result, 4) = "MFIP" THEN
 			mfip_cash_amt = right(left(cash_approval_result, 8), 4)
 			mfip_food_amt = left(right(cash_approval_result, 8), 4)
@@ -476,3 +464,4 @@ If closed_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script F
 If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
 
 script_end_procedure("")
+
