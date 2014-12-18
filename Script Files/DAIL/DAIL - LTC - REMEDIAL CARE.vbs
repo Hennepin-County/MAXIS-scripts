@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "DAIL - LTC REMEDIAL CARE.vbs"
+name_of_script = "DAIL - LTC - REMEDIAL CARE.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
