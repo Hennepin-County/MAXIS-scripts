@@ -220,20 +220,6 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
 EndDialog
 
 
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
@@ -422,8 +408,8 @@ Do
         Do
           Dialog CAF_dialog_01
           If ButtonPressed = 0 then 
-            dialog cancel_dialog
-            If ButtonPressed = yes_cancel_button then stopscript
+            cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
+            If cancel_confirm = vbYes then stopscript
           End if
         Loop until ButtonPressed <> no_cancel_button
         EMReadScreen STAT_check, 4, 20, 21
@@ -439,9 +425,9 @@ Do
         Do
           Do
             Dialog CAF_dialog_02
-            If ButtonPressed = 0 then 
-              dialog cancel_dialog
-              If ButtonPressed = yes_cancel_button then stopscript
+	            If ButtonPressed = 0 then 
+      	      cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
+            If cancel_confirm = vbYes then stopscript
             End if
           Loop until ButtonPressed <> no_cancel_button
           EMReadScreen STAT_check, 4, 20, 21
@@ -458,8 +444,8 @@ Do
           Do
             Dialog CAF_dialog_03
             If ButtonPressed = 0 then 
-              dialog cancel_dialog
-              If ButtonPressed = yes_cancel_button then stopscript
+	            cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
+      	      If cancel_confirm = vbYes then stopscript
             End if
           Loop until ButtonPressed <> no_cancel_button
           EMReadScreen STAT_check, 4, 20, 21
@@ -475,8 +461,8 @@ Do
     If ButtonPressed = previous_to_page_01_button then exit do 'In case the script skipped the third page as a result of hitting "previous page" on part 2
     If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN MsgBox "You need to:" & chr(13) & chr(13) & "-Fill in the datestamp, and/or" & chr(13) & "-Actions taken sections, and/or" & chr(13) & "-HCAPP Status, and/or" & chr(13) & "-Sign your case note." & chr(13) & chr(13) & "Check these items after pressing ''OK''."
   Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
+  If ButtonPressed = -1 then case_note_confirm = MsgBox("Do you want to case note? Press YES to confirm. Press NO to return to the script.", vbYesNo)
+  If case_note_confirm = vbYes then
     If client_delay_check = 1 and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
       call navigate_to_screen("rept", "pnd2")
       EMGetCursor PND2_row, PND2_col
