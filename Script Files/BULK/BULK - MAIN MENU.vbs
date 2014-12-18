@@ -77,40 +77,21 @@ If buttonpressed = cancel then stopscript
 'Connecting to BlueZone
 EMConnect ""
 
-If buttonpressed = ACTV_LIST_button then call run_from_GitHub(script_repository & "BULK - REPT-ACTV list.vbs")
-If buttonpressed = ARST_LIST_button then call run_from_GitHub(script_repository & "BULK - REPT-ARST list.vbs")
-If buttonpressed = EOMC_LIST_button then call run_from_GitHub(script_repository & "BULK - REPT-EOMC list.vbs")
-If buttonpressed = PND2_LIST_button then call run_from_GitHub(script_repository & "BULK - REPT-PND2 list.vbs")
-If buttonpressed = REVS_LIST_button then call run_from_GitHub(script_repository & "BULK - REPT-REVS list.vbs")
-If buttonpressed = REVW_LIST_button then call run_from_GitHub(script_repository & "BULK - REPT-REVW list.vbs")
-If buttonpressed = MFCM_LIST_button then call run_from_GitHub(script_repository & "BULK - REPT-MFCM list.vbs")
-If buttonpressed = LTC_GRH_LIST_GENERATOR_button then call run_from_GitHub(script_repository & "BULK - LTC-GRH list generator.vbs")
-If buttonpressed = SWKR_LIST_GENERATOR_button then call run_from_GitHub(script_repository & "BULK - SWKR list generator.vbs")
-If ButtonPressed = BULK_TIKLER_button then call run_from_GitHub(script_repository & "BULK - BULK TIKLER.vbs")
-If ButtonPressed = CASE_NOTE_FROM_EXCEL_LIST_button then call run_from_GitHub(script_repository & "BULK - CASE NOTE FROM EXCEL LIST.vbs")
-If ButtonPressed = CEI_PREMIUM_NOTER_button then call run_from_GitHub(script_repository & "BULK - CEI PREMIUM NOTER.vbs")
-If ButtonPressed = INAC_SCRUBBER_button then call run_from_GitHub(script_repository & "BULK - INAC SCRUBBER.vbs")
-If ButtonPressed = RETURNED_MAIL_button then call run_from_GitHub(script_repository & "BULK - RETURNED MAIL.vbs")
-If ButtonPressed = REVW_MONT_CLOSURES_button then call run_from_GitHub(script_repository & "BULK - REVW-MONT CLOSURES.vbs")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+If buttonpressed = ACTV_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-ACTV list.vbs")
+If buttonpressed = ARST_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-ARST list.vbs")
+If buttonpressed = EOMC_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-EOMC list.vbs")
+If buttonpressed = PND2_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-PND2 list.vbs")
+If buttonpressed = REVS_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-REVS list.vbs")
+If buttonpressed = REVW_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-REVW list.vbs")
+If buttonpressed = MFCM_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-MFCM list.vbs")
+If buttonpressed = LTC_GRH_LIST_GENERATOR_button then call run_from_GitHub(script_repository & "BULK/BULK - LTC-GRH list generator.vbs")
+If buttonpressed = SWKR_LIST_GENERATOR_button then call run_from_GitHub(script_repository & "BULK/BULK - SWKR list generator.vbs")
+If ButtonPressed = BULK_TIKLER_button then call run_from_GitHub(script_repository & "BULK/BULK - BULK TIKLER.vbs")
+If ButtonPressed = CASE_NOTE_FROM_EXCEL_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - CASE NOTE FROM EXCEL LIST.vbs")
+If ButtonPressed = CEI_PREMIUM_NOTER_button then call run_from_GitHub(script_repository & "BULK/BULK - CEI PREMIUM NOTER.vbs")
+If ButtonPressed = INAC_SCRUBBER_button then call run_from_GitHub(script_repository & "BULK/BULK - INAC SCRUBBER.vbs")
+If ButtonPressed = RETURNED_MAIL_button then call run_from_GitHub(script_repository & "BULK/BULK - RETURNED MAIL.vbs")
+If ButtonPressed = REVW_MONT_CLOSURES_button then call run_from_GitHub(script_repository & "BULK/BULK - REVW-MONT CLOSURES.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
