@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - LTC ASSET TRANSFER.vbs"
+name_of_script = "MEMOS - LTC - ASSET TRANSFER.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
