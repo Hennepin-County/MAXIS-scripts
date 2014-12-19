@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - CIT-ID.vbs"
+name_of_script = "NOTES - CITIZENSHIP-IDENTITY VERIFIED.vbs"
 start_time = timer
 
 
