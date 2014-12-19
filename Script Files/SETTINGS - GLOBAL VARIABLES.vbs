@@ -117,6 +117,3 @@ ElseIf beta_agency = True then
 Else
 	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
 End if
-
-'<<<<<<<<<<<<<TEMPORARY WORKAROUND
-script_repository = "https://raw.githubusercontent.com/theVKC/VKC-Script-Changes/master/Script%20Files/"
