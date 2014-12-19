@@ -28,15 +28,33 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
-'DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
-  EditBox 95, 0, 60, 15, case_number
+'DIALOGS-----------------------------------------------------------------------------------
+BeginDialog worker_dialog, 0, 0, 171, 45, "Worker dialog"
+  Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"
+  EditBox 135, 5, 30, 15, worker_number
   ButtonGroup ButtonPressed
-    OkButton 25, 20, 50, 15
-    CancelButton 85, 20, 50, 15
-  Text 5, 5, 85, 10, "Enter your case number:"
+    OkButton 30, 25, 50, 15
+    CancelButton 90, 25, 50, 15
 EndDialog
+
+'THE SCRIPT------------------------------------------------------------------------------------------------------
+
+'Determines if user needs the "select-a-worker" version of this nav script, based on the global variables file.
+result = filter(users_using_select_a_user, ucase(windows_user_ID))
+IF ubound(result) >= 0 OR all_users_select_a_worker = TRUE THEN
+	select_a_worker = TRUE
+ELSE
+	select_a_worker = FALSE
+END IF
+
+'If we have to select a worker, it shows the dialog for it.
+IF select_a_worker = TRUE THEN
+	Dialog worker_dialog
+	IF ButtonPressed = cancel THEN StopScript
+END IF
+
+'Determines the county code (a custom function involving multicounty agencies being given a proxy access as a specific county).
+call worker_county_code_determination(worker_county_code, two_digit_county_code)
 
 'FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -49,6 +67,11 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
 
 call navigate_to_screen("rept", "mont")
+
+IF worker_number <> "" THEN
+	EMWriteScreen worker_county_code & worker_number, 21, 6
+	transmit
+END IF
 
 script_end_procedure("")
 

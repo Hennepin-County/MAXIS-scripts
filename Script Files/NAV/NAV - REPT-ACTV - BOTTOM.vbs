@@ -28,30 +28,53 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
+'DIALOGS-----------------------------------------------------------------------------------
+BeginDialog worker_dialog, 0, 0, 171, 45, "Worker dialog"
+  Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"
+  EditBox 135, 5, 30, 15, worker_number
+  ButtonGroup ButtonPressed
+    OkButton 30, 25, 50, 15
+    CancelButton 90, 25, 50, 15
+EndDialog
+
+'THE SCRIPT------------------------------------------------------------------------------------------------------
+
+'Determines if user needs the "select-a-worker" version of this nav script, based on the global variables file.
+result = filter(users_using_select_a_user, ucase(windows_user_ID))
+IF ubound(result) >= 0 OR all_users_select_a_worker = TRUE THEN
+	select_a_worker = TRUE
+ELSE
+	select_a_worker = FALSE
+END IF
+
+'If we have to select a worker, it shows the dialog for it.
+IF select_a_worker = TRUE THEN
+	Dialog worker_dialog
+	IF ButtonPressed = cancel THEN StopScript
+END IF
+
+'Determines the county code (a custom function involving multicounty agencies being given a proxy access as a specific county).
+call worker_county_code_determination(worker_county_code, two_digit_county_code)
+
+'Connects to BlueZone
 EMConnect ""
 
-'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-transmit
+'Now it checks to make sure MAXIS is running on this screen.
+MAXIS_check_function
 
-'Now it checks to make sure MAXIS production (or training) is running on this screen. If both are running the script will stop.
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check = "MAXIS" and MAXIS_check = "AXIS " then script_end_procedure("MAXIS not found. Are you passworded out? Navigate to MAXIS and try again.")
-
-'This Do...loop gets back to SELF
-do
-  PF3
-  EMReadScreen SELF_check, 27, 2, 28
-loop until SELF_check = "Select Function Menu (SELF)"
-
-'Enter keys for REPT/ACTV and transmit
-EMSendKey "<home>" & "rept" & "<eraseeof>" & "<newline>" & "<newline>" & "actv" & "<enter>"
-EMWaitReady 0, 0
+'Navigates to REPT/ACTV
+CALL navigate_to_screen("REPT", "ACTV")
 
 'Presses "PF8" until the last page is found
-do
-  PF8
-  EMReadScreen test, 21, 24, 2
-loop until test = "THIS IS THE LAST PAGE"
+DO
+	PF8
+	EMReadScreen test, 21, 24, 2
+LOOP UNTIL test = "THIS IS THE LAST PAGE"
+
+IF worker_number <> "" THEN
+	EMWriteScreen worker_county_code & worker_number, 21, 13
+	transmit
+END IF
 
 script_end_procedure("")
 
