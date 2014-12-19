@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - CLIENT CONTACT (CALL CENTER).vbs"
+name_of_script = "NOTES - CLIENT CONTACT (CALL CENTER VERSION).vbs"
 start_time = timer
 
 'FUNCTIONS----------------------------------------------------------------------------------------------------
