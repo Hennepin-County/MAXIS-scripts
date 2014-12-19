@@ -35,7 +35,7 @@ BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 456, 145, "Memos scripts main 
     PushButton 10, 80, 60, 10, "MFIP orientation", MFIP_ORIENTATION_button
     PushButton 10, 95, 55, 10, "MNsure memo", MNSURE_MEMO_button
     PushButton 10, 110, 25, 10, "NOMI", NOMI_button
-  Text 5, 5, 235, 10, "MEMOS scripts main menu: select the script to run from the choices below."
+  Text 5, 5, 235, 10, "Memos scripts main menu: select the script to run from the choices below."
   Text 80, 25, 370, 20, "--- Sends a MEMO to the client reminding them of their reporting responsibilities (required for SNAP 2-year certification periods, per POLI/TEMP TE02.08.165)."
   Text 80, 50, 300, 10, "--- Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
   Text 85, 65, 200, 10, "--- Sends a MEMO to a LTC client regarding asset transfers."
