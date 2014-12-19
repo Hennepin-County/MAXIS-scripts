@@ -37,9 +37,9 @@ BeginDialog docs_received_dialog, 0, 0, 466, 140, "Docs received"
   EditBox 75, 45, 390, 15, verif_notes
   EditBox 60, 65, 405, 15, actions_taken
   EditBox 70, 85, 110, 15, worker_signature
-  CheckBox 195, 85, 205, 10, "Check here to start the approved programs script after this.", approved_progs_check
-  CheckBox 195, 95, 200, 10, "Check here to start the closed programs script after this. ", closed_progs_check
-  CheckBox 195, 105, 195, 10, "Check here to start the denied programs script after this.", denied_progs_check
+  'CheckBox 195, 85, 205, 10, "Check here to start the approved programs script after this.", approved_progs_check
+  'CheckBox 195, 95, 200, 10, "Check here to start the closed programs script after this. ", closed_progs_check
+  'CheckBox 195, 105, 195, 10, "Check here to start the denied programs script after this.", denied_progs_check
   EditBox 115, 120, 350, 15, docs_needed
   ButtonGroup ButtonPressed
     OkButton 355, 5, 50, 15
