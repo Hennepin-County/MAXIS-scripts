@@ -75,7 +75,7 @@ is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Shows report scanning dialog, which asks user which report to generate.
-dialog NOTES_0_G_scripts_main_menu_dialog
+Dialog NOTES_0_G_scripts_main_menu_dialog
 IF ButtonPressed = cancel THEN StopScript
 
 'Connecting to BlueZone
