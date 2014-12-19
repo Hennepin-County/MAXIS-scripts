@@ -1,6 +1,6 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-'name_of_script = "NOTE - COLA summary"
-'start_time = timer
+name_of_script = "NOTE - LTC - COLA SUMMARY 2015.vbs"
+start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
 url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -27,7 +27,6 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			"URL: " & url
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\script files\FUNCTIONS FILE.vbs")
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
