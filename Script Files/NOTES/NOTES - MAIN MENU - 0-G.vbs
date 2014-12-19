@@ -43,7 +43,7 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 456, 305, "Notes (0-G) scr
     PushButton 10, 220, 75, 10, "Documents received", DOCUMENTS_RECEIVED_button
     PushButton 10, 245, 45, 10, "Emergency", EMERGENCY_button
     PushButton 10, 260, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-    PushButton 10, 275, 40, 10, "GRH - HRF", GRH_HRF_button
+    PushButton 10, 275, 45, 10, "GRH - HRF", GRH_HRF_button
   Text 5, 5, 245, 10, "Notes scripts main menu: select the script to run from the choices below."
   Text 120, 25, 330, 10, "--- A case note template for documenting details about an ApplyMN application recevied."
   Text 80, 40, 370, 20, "--- A case note template for when you approve a clients programs. Can autofill some data about the approval (like benefit totals) from MAXIS."
@@ -59,8 +59,9 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 456, 305, "Notes (0-G) scr
   Text 90, 220, 355, 20, "--- A case note template to clearly indicate what documents you've received for a case (shelter form, AREP verification, etc.)."
   Text 60, 245, 240, 10, "--- A case note template for emergency assistance applications (EA/EGA)."
   Text 90, 260, 220, 10, "--- A case note template for screening a client for expedited status."
-  Text 55, 275, 210, 10, "--- A case note template for GRH HRFs. Case must be post-pay."
+  Text 60, 275, 210, 10, "--- A case note template for GRH HRFs. Case must be post-pay."
 EndDialog
+
 
 
 
@@ -84,8 +85,8 @@ IF ButtonPressed = APPLYMN_APPLICATION_RECEIVED_button			THEN CALL run_from_GitH
 IF ButtonPressed = APPROVED_PROGRAMS_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - APPROVED PROGRAMS.vbs")					
 IF ButtonPressed = BURIAL_ASSETS_button							THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - BURIAL ASSETS.vbs")						
 IF ButtonPressed = CAF_button									THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - CAF.vbs")								
-IF ButtonPressed = CITIZENSHIP_IDENTITY_VERIFIED_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - CITIZENSHIP IDENTITY VERIFIED.vbs")		
-IF ButtonPressed = CLIENT_CONTACT_CALL_CENTER_VERSION_button	THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - CLIENT CONTACT CALL CENTER VERSION.vbs")
+IF ButtonPressed = CITIZENSHIP_IDENTITY_VERIFIED_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - CITIZENSHIP-IDENTITY VERIFIED.vbs")		
+IF ButtonPressed = CLIENT_CONTACT_CALL_CENTER_VERSION_button	THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - CLIENT CONTACT (CALL CENTER VERSION).vbs")
 IF ButtonPressed = CLIENT_CONTACT_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - CLIENT CONTACT.vbs")					
 IF ButtonPressed = CLOSED_PROGRAMS_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - CLOSED PROGRAMS.vbs")					
 IF ButtonPressed = COMBINED_AR_button							THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - COMBINED AR.vbs")						
@@ -94,7 +95,7 @@ IF ButtonPressed = DENIED_PROGRAMS_button						THEN CALL run_from_GitHub(script_
 IF ButtonPressed = DOCUMENTS_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - DOCUMENTS RECEIVED.vbs")				
 IF ButtonPressed = EMERGENCY_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - EMERGENCY.vbs")							
 IF ButtonPressed = EXPEDITED_SCREENING_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - EXPEDITED SCREENING.vbs")				
-IF ButtonPressed = GRH_HRF_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - GRH HRF.vbs")							
+IF ButtonPressed = GRH_HRF_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - GRH - HRF.vbs")							
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
