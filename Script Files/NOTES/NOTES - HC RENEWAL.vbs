@@ -1,5 +1,5 @@
 'GRABBING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - HC ER.vbs"
+name_of_script = "NOTES - HC RENEWAL.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
