@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - APPLYMN RECEIVED.vbs"
+name_of_script = "NOTES - APPLYMN APPLICATION RECEIVED.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
