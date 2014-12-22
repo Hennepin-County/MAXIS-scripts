@@ -2,7 +2,7 @@
 'As such, it might not work if ran separately from that.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - REPT-PND2 list"
+name_of_script = "BULK - REPT-PND2 LIST.vbs"
 start_time = timer
 
 'DIALOG-----------------------------------------------------------------------------------------
