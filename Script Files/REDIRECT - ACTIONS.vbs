@@ -1,8 +1,6 @@
-'Try having it run the script from GitHub, but replace the text of FUNCTIONS FILE loading with nothing. That way, it doesn't try and find that file path.???
-
 'LOADING GLOBAL VARIABLES
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\SETTINGS - Global variables.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
