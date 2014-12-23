@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - SWKR list gen"
+name_of_script = "BULK - SWKR LIST GENERATOR.vbs"
 start_time = timer
 
 'CONNECTS TO MAXIS
