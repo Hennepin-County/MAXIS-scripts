@@ -29,13 +29,6 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 END IF
 
 'SECTION 01 -- Dialogs
-BeginDialog cancel_dialog, 0, 0, 126, 61, "Cancel dialog"
-  ButtonGroup ButtonPressed
-   PushButton 15, 20, 100, 15, "yes, cancel this case note", yes
-   PushButton 10, 40, 110, 15, "no, do not cancel this case note", no
-  Text 10, 5, 110, 10, "Are you sure you want to cancel?"
-EndDialog
-
 BeginDialog opening_dialog_01, 0, 0, 311, 425, "LTC Burial Assets"
   EditBox 80, 20, 70, 15, case_number
   EditBox 70, 40, 80, 15, hh_member
@@ -295,9 +288,9 @@ DO
             DO
               Dialog opening_dialog_01
 		    IF ButtonPressed = 0 THEN
-		      Dialog cancel_dialog
-		      IF ButtonPressed = yes THEN stopscript
-		      IF ButtonPressed = no THEN EXIT DO
+			  confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
+		      IF confirm_cancel = vbYes THEN stopscript
+		      IF confirm_cancel = vbNo THEN EXIT DO
 		    END IF
 		  IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN 
 		    counted_value_designated = "INVALID"
@@ -323,33 +316,33 @@ Do
       Dialog burial_assets_dialog_01
       IF buttonpressed = previous THEN EXIT DO
       If buttonpressed = 0 then 
-        Dialog cancel_dialog
-        If buttonpressed = yes then stopscript
-        If buttonpressed = no then exit do
+		confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
+		IF confirm_cancel = vbYes THEN stopscript
+		IF confirm_cancel = vbNo THEN EXIT DO
       End if
     Do
       Dialog burial_assets_dialog_02
       If buttonpressed = 0 then 
-        Dialog cancel_dialog
-        If buttonpressed = yes then stopscript
-        If buttonpressed = no then exit do
+        confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
+		IF confirm_cancel = vbYes THEN stopscript
+		IF confirm_cancel = vbNo THEN EXIT DO
       End if
       If buttonpressed = previous_button then exit do
       Do
         Dialog burial_assets_dialog_03
         If buttonpressed = previous_button then exit do
         If buttonpressed = 0 then 
-          Dialog cancel_dialog
-          If buttonpressed = yes then stopscript
-          If buttonpressed = no then exit do
+			confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
+		    IF confirm_cancel = vbYes THEN stopscript
+		    IF confirm_cancel = vbNo THEN EXIT DO
         End if
         Do
           Dialog burial_assets_dialog_04
           If buttonpressed = previous_button then exit do
           If buttonpressed = 0 then 
-            Dialog cancel_dialog
-            If buttonpressed = yes then stopscript
-            If buttonpressed = no then exit do
+			  confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
+		      IF confirm_cancel = vbYes THEN stopscript
+		      IF confirm_cancel = vbNo THEN EXIT DO
           End if
           transmit
           EMReadScreen MAXIS_check, 5, 1, 39
