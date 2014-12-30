@@ -28,8 +28,20 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
-worker_signature = InputBox("Please enter what you would like for your default worker signature (NOTE: this will create the signature that is auto-filled as worker signature in scripts)")
-IF worker_signature = "" THEN stopscript
+'----------DIALOGS----------
+BeginDialog worker_sig_dlg, 0, 0, 191, 105, "Update Worker Signature"
+  EditBox 10, 60, 175, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 45, 85, 50, 15
+    CancelButton 95, 85, 50, 15
+  Text 10, 10, 175, 10, "Enter what you would like for your default signature."
+  Text 10, 25, 170, 25, "NOTE: This will be pre-loaded in every script. Once the script has started, you can still modify your signature in the appropriate editbox."
+EndDialog
+
+'----------THE SCRIPT----------
+DIALOG worker_sig_dlg
+	IF ButtonPressed = 0 THEN stopscript
+	IF worker_signature = "" THEN stopscript
 
 Set objNet = CreateObject("WScript.NetWork") 
 windows_user_ID = objNet.UserName
