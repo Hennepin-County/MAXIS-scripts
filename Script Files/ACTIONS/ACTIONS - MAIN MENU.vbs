@@ -70,7 +70,7 @@ EMConnect ""
 If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - BILS UPDATER.vbs")
 If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - COPY PANELS TO WORD.vbs")
 If buttonpressed = LTC_SPOUSAL_ALLOCATION_FIATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs")
-If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - MA-EPD EI FIATER.vbs")
+If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - MA-EPD EI FIAT.vbs")
 If buttonpressed = NEW_JOB_REPORTED_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - NEW JOB REPORTED.vbs")
 If buttonpressed = PA_VERIF_REQUEST_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - PA VERIF REQUEST.vbs")
 If buttonpressed = PAYSTUBS_RECEIVED_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - PAYSTUBS RECEIVED.vbs")
