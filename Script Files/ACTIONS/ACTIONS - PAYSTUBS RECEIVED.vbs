@@ -28,6 +28,76 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
+'CUSTOM FUNCTIONS
+
+Function PIC_paystubs_info_adder(pay_date, gross_amt, hours)
+  If isdate(pay_date) = True then
+    If len(datepart("m", pay_date)) = 2 then
+      EMWriteScreen datepart("m", pay_date), PIC_row, 13
+    Else
+      EMWriteScreen "0" & datepart("m", pay_date), PIC_row, 13
+    End if
+    If len(datepart("d", pay_date)) = 2 then
+      EMWriteScreen datepart("d", pay_date), PIC_row, 16
+    Else
+      EMWriteScreen "0" & datepart("d", pay_date), PIC_row, 16
+    End if
+    EMWriteScreen right(datepart("yyyy", pay_date), 2), PIC_row, 19
+    EMWriteScreen gross_amt, PIC_row, 25
+    EMWriteScreen hours, PIC_row, 35
+    PIC_row = PIC_row + 1
+  End If
+End function
+
+Function prospective_averager(pay_date, gross_amt, hours) 'Creates variables for total_prospective_pay and total_prospective_hours
+  If isdate(pay_date) = True then
+    total_prospective_pay = total_prospective_pay + abs(gross_amt)
+    total_prospective_hours = total_prospective_hours + abs(hours)
+    paystubs_received = paystubs_received + 1
+  Else
+    pay_date = "01/01/2000"
+  End if
+End function
+
+Function prospective_pay_analyzer(pay_date, gross_amt)
+  If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 0 then
+    If len(datepart("m", pay_date)) = 2 then
+      EMWriteScreen datepart("m", pay_date), MAXIS_row, 54
+    Else
+      EMWriteScreen "0" & datepart("m", pay_date), MAXIS_row, 54
+    End if
+    If len(datepart("d", pay_date)) = 2 then
+      EMWriteScreen datepart("d", pay_date), MAXIS_row, 57
+    Else
+      EMWriteScreen "0" & datepart("d", pay_date), MAXIS_row, 57
+    End if
+    EMWriteScreen right(datepart("yyyy", pay_date), 2), MAXIS_row, 60
+    EMWriteScreen gross_amt, MAXIS_row, 67
+    MAXIS_row = MAXIS_row + 1
+  End if
+End function
+
+Function retro_paystubs_info_adder(pay_date, gross_amt, hours)
+  If isdate(pay_date) = True then
+    If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 2 then 
+      If len(datepart("m", pay_date)) = 2 then
+        EMWriteScreen datepart("m", pay_date), MAXIS_row, 25
+      Else
+        EMWriteScreen "0" & datepart("m", pay_date), MAXIS_row, 25
+      End if
+      If len(datepart("d", pay_date)) = 2 then
+        EMWriteScreen datepart("d", pay_date), MAXIS_row, 28
+      Else
+        EMWriteScreen "0" & datepart("d", pay_date), MAXIS_row, 28
+      End if
+      EMWriteScreen right(datepart("yyyy", pay_date), 2), MAXIS_row, 31
+      EMWriteScreen gross_amt, MAXIS_row, 38
+      retro_hours = abs(retro_hours + abs(hours))
+      MAXIS_row = MAXIS_row + 1
+    End if
+  End if
+End function
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog paystubs_received_dialog, 0, 0, 256, 235, "Paystubs Received Dialog"
   DropListBox 100, 5, 100, 15, "(select one)"+chr(9)+"One Time Per Month"+chr(9)+"Two Times Per Month"+chr(9)+"Every Other Week"+chr(9)+"Every Week", pay_frequency
