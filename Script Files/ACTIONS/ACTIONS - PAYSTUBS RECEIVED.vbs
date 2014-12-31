@@ -49,7 +49,7 @@ Function PIC_paystubs_info_adder(pay_date, gross_amt, hours)
   End If
 End function
 
-Function prospective_averager(pay_date, gross_amt, hours) 'Creates variables for total_prospective_pay and total_prospective_hours
+Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, total_prospective_pay, total_prospective_hours) 'Creates variables for total_prospective_pay and total_prospective_hours
   If isdate(pay_date) = True then
     total_prospective_pay = total_prospective_pay + abs(gross_amt)
     total_prospective_hours = total_prospective_hours + abs(hours)
@@ -77,7 +77,7 @@ Function prospective_pay_analyzer(pay_date, gross_amt)
   End if
 End function
 
-Function retro_paystubs_info_adder(pay_date, gross_amt, hours)
+Function retro_paystubs_info_adder(pay_date, gross_amt, hours, retro_hours)
   If isdate(pay_date) = True then
     If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 2 then 
       If len(datepart("m", pay_date)) = 2 then
@@ -301,17 +301,19 @@ call fix_case(employer_name, 3)				'and using custom fix_case function to set ca
 'Turns on edit mode
 PF9
 
-'Totals the prospective amounts, inserts "01/01/2000" for dates that were left blank, using function.
-Call prospective_averager(pay_date_01, gross_amt_01, hours_01)
-Call prospective_averager(pay_date_02, gross_amt_02, hours_02)
-Call prospective_averager(pay_date_03, gross_amt_03, hours_03)
-Call prospective_averager(pay_date_04, gross_amt_04, hours_04)
-Call prospective_averager(pay_date_05, gross_amt_05, hours_05)
-
-'Creates averages
+'Declares variables it'll need for the next part
 dim paystubs_received
 dim total_prospective_pay 
 dim total_prospective_hours
+
+'Totals the prospective amounts, inserts "01/01/2000" for dates that were left blank, using function.
+Call prospective_averager(pay_date_01, gross_amt_01, hours_01, paystubs_received, total_prospective_pay, total_prospective_hours)
+Call prospective_averager(pay_date_02, gross_amt_02, hours_02, paystubs_received, total_prospective_pay, total_prospective_hours)
+Call prospective_averager(pay_date_03, gross_amt_03, hours_03, paystubs_received, total_prospective_pay, total_prospective_hours)
+Call prospective_averager(pay_date_04, gross_amt_04, hours_04, paystubs_received, total_prospective_pay, total_prospective_hours)
+Call prospective_averager(pay_date_05, gross_amt_05, hours_05, paystubs_received, total_prospective_pay, total_prospective_hours)
+
+'Creates averages
 average_pay_per_paystub = formatnumber(total_prospective_pay / paystubs_received, 2, 0, 0, 0)
 average_hours_per_paystub = abs(total_prospective_hours / paystubs_received)
 
@@ -371,11 +373,11 @@ Do
   'Updates for retrospective income by checking each pay date's month against the footer month using a function. If the footer month is two months ahead of the pay month it will add to JOBS and keep a tally of hours.
   MAXIS_row = 12 'Needs this for the following functions
   Dim retro_hours
-  call retro_paystubs_info_adder(pay_date_01, gross_amt_01, hours_01)
-  call retro_paystubs_info_adder(pay_date_02, gross_amt_02, hours_02)
-  call retro_paystubs_info_adder(pay_date_03, gross_amt_03, hours_03)
-  call retro_paystubs_info_adder(pay_date_04, gross_amt_04, hours_04)
-  call retro_paystubs_info_adder(pay_date_05, gross_amt_05, hours_05)
+  call retro_paystubs_info_adder(pay_date_01, gross_amt_01, hours_01, retro_hours)
+  call retro_paystubs_info_adder(pay_date_02, gross_amt_02, hours_02, retro_hours)
+  call retro_paystubs_info_adder(pay_date_03, gross_amt_03, hours_03, retro_hours)
+  call retro_paystubs_info_adder(pay_date_04, gross_amt_04, hours_04, retro_hours)
+  call retro_paystubs_info_adder(pay_date_05, gross_amt_05, hours_05, retro_hours)
   
   'Must convert retro hours into an integer for MAXIS
   retro_hours = retro_hours + .00000000000001 'This will force rounding to go half-up, as the CINT function rounds half down, which goes against procedure.
