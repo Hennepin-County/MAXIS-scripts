@@ -31,35 +31,36 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 'NOTE: this dialog contains a special modification to allow dynamic creation of the county office list. You cannot edit it in
 '	Dialog Editor without modifying the commented line.
-BeginDialog appointment_letter_dialog, 0, 0, 156, 335, "Appointment letter"
+BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
   EditBox 75, 5, 50, 15, case_number
   DropListBox 50, 25, 95, 15, "new application"+chr(9)+"recertification", app_type
-  EditBox 50, 45, 95, 15, CAF_date
-  CheckBox 10, 65, 130, 10, "Check here if this is a recert and the", no_CAF_check
-  DropListBox 70, 90, 75, 15, "phone"+county_office_list, interview_location		'This line dynamically creates itself based on the information in the FUNCTIONS FILE.
-  EditBox 70, 110, 75, 15, interview_date
-  EditBox 70, 130, 75, 15, interview_time
-  EditBox 80, 150, 65, 15, client_phone
-  CheckBox 10, 190, 95, 10, "Client appears expedited", expedited_check
-  CheckBox 10, 205, 135, 10, "Same day interview offered/declined", same_day_declined_check
-  EditBox 10, 240, 135, 15, expedited_explanation
-  CheckBox 10, 270, 135, 10, "Check here if you left V/M with client", voicemail_check
-  EditBox 85, 295, 60, 15, worker_signature
+  CheckBox 10, 43, 150, 10, "Check here if this is a reschedule.", reschedule_check
+  EditBox 50, 55, 95, 15, CAF_date
+  CheckBox 10, 75, 130, 10, "Check here if this is a recert and the", no_CAF_check
+  DropListBox 70, 100, 75, 15, "phone"+county_office_list, interview_location		'This line dynamically creates itself based on the information in the FUNCTIONS FILE.
+  EditBox 70, 120, 75, 15, interview_date
+  EditBox 70, 140, 75, 15, interview_time
+  EditBox 80, 160, 65, 15, client_phone
+  CheckBox 10, 200, 95, 10, "Client appears expedited", expedited_check
+  CheckBox 10, 215, 135, 10, "Same day interview offered/declined", same_day_declined_check
+  EditBox 10, 250, 135, 15, expedited_explanation
+  CheckBox 10, 280, 135, 10, "Check here if you left V/M with client", voicemail_check
+  EditBox 85, 305, 60, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 25, 315, 50, 15
-    CancelButton 85, 315, 50, 15
+    OkButton 25, 325, 50, 15
+    CancelButton 85, 325, 50, 15
   Text 25, 10, 50, 10, "Case number:"
   Text 15, 30, 30, 10, "App type:"
-  Text 15, 50, 35, 10, "CAF date:"
-  Text 30, 75, 105, 10, "CAF hasn't been received yet."
-  Text 15, 95, 55, 10, "Int'vw location:"
-  Text 15, 115, 50, 10, "Interview date: "
-  Text 15, 135, 50, 10, "Interview time:"
-  Text 15, 150, 60, 20, "Client phone (if phone interview):"
-  GroupBox 5, 175, 145, 85, "Expedited questions"
-  Text 10, 220, 135, 20, "If expedited interview date is not within six days of the application, explain:"
-  Text 45, 280, 75, 10, "requesting a call back."
-  Text 15, 300, 65, 10, "Worker signature:"
+  Text 15, 60, 35, 10, "CAF date:"
+  Text 30, 85, 105, 10, "CAF hasn't been received yet."
+  Text 15, 105, 55, 10, "Int'vw location:"
+  Text 15, 125, 50, 10, "Interview date: "
+  Text 15, 145, 50, 10, "Interview time:"
+  Text 15, 160, 60, 20, "Client phone (if phone interview):"
+  GroupBox 5, 185, 145, 85, "Expedited questions"
+  Text 10, 230, 135, 20, "If expedited interview date is not within six days of the application, explain:"
+  Text 45, 290, 75, 10, "requesting a call back."
+  Text 15, 310, 65, 10, "Worker signature:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -124,6 +125,7 @@ If app_type = "recertification" then
   last_contact_day = dateadd("d", -1, next_month & "/01/" & next_month_year)
 End if
 If app_type = "new application" then last_contact_day = CAF_date + 31
+If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date 
 
 'Navigating to SPEC/MEMO
 call navigate_to_screen("SPEC", "MEMO")
@@ -136,7 +138,31 @@ If SELF_check = "Select Function Menu (SELF)" then StopScript
 PF5
 EMReadScreen memo_display_check, 12, 2, 33
 If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+'Checking for AREP 
+row = 4
+col = 1
+EMSearch "ALTREP", row, col
+IF row > 4 THEN
+	arep_row = row
+	call navigate_to_screen("STAT", "AREP")
+	EMReadscreen forms_to_arep, 1, 10, 45
+	call navigate_to_screen("SPEC", "MEMO")
+	PF5
+END IF
+'Checking for SWKR
+row = 4
+col = 1
+EMSearch "SOCWKR", row, col 
+IF row > 4 THEN
+	swkr_row = row
+	call navigate_to_screen("STAT", "SWKR")
+	EMReadscreen forms_to_swkr, 1, 15, 63
+	call navigate_to_screen("SPEC", "MEMO")
+	PF5
+END IF
 EMWriteScreen "x", 5, 10
+IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10
+IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10
 transmit
 
 'Writes the MEMO.
@@ -182,9 +208,10 @@ call navigate_to_screen("case", "note")
 PF9
 
 'Writes the case note
-If app_type = "new application" then EMSendKey "**New CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
+If reschedule_check = checked then EMSendKey "*Client requested rescheduled appointment, appt letter sent in MEMO.*"
+If app_type = "new application" and reschedule_check = unchecked then EMSendKey "**New CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
 If same_day_declined_check = checked then EMSendKey "* Same day interview offered and declined." & "<newline>"
-If app_type = "recertification" and no_CAF_check = unchecked then EMSendKey "**Recert CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
+If app_type = "recertification" and no_CAF_check = unchecked and reschedule_check = unchecked then EMSendKey "**Recert CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
 If app_type = "recertification" and no_CAF_check = checked then EMSendKey "**Client requested recert appointment, letter sent in MEMO**" & "<newline>"
 EMSendKey "* Appointment is " & interview_date & " at " & interview_time & "." & "<newline>" 
 If expedited_explanation <> "" then call write_editbox_in_case_note("Why interview is more than six days from now", expedited_explanation, 5)
@@ -192,6 +219,8 @@ call write_editbox_in_case_note("Appointment location", interview_location, 5)
 If client_phone <> "" then call write_editbox_in_case_note("Client phone", client_phone, 5)
 call write_new_line_in_case_note("* Client must complete interview by " & last_contact_day & ".")
 If voicemail_check = checked then call write_new_line_in_case_note("* Left client a voicemail requesting a call back.")
+If forms_to_arep = "Y" then call write_new_line_in_case_note("* Copy of notice sent to AREP.")
+If forms_to_swkr = "Y" then call write_new_line_in_case_note("* Copy of notice sent to Social Worker.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
