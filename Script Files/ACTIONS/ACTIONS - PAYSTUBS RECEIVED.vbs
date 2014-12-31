@@ -307,6 +307,7 @@ dim total_prospective_pay
 dim total_prospective_hours
 
 'Totals the prospective amounts, inserts "01/01/2000" for dates that were left blank, using function.
+
 Call prospective_averager(pay_date_01, gross_amt_01, hours_01, paystubs_received, total_prospective_pay, total_prospective_hours)
 Call prospective_averager(pay_date_02, gross_amt_02, hours_02, paystubs_received, total_prospective_pay, total_prospective_hours)
 Call prospective_averager(pay_date_03, gross_amt_03, hours_03, paystubs_received, total_prospective_pay, total_prospective_hours)
