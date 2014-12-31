@@ -301,6 +301,11 @@ call fix_case(employer_name, 3)				'and using custom fix_case function to set ca
 'Turns on edit mode
 PF9
 
+'Declares variables it'll need for the next part
+dim paystubs_received
+dim total_prospective_pay 
+dim total_prospective_hours
+
 'Totals the prospective amounts, inserts "01/01/2000" for dates that were left blank, using function.
 Call prospective_averager(pay_date_01, gross_amt_01, hours_01)
 Call prospective_averager(pay_date_02, gross_amt_02, hours_02)
@@ -309,9 +314,6 @@ Call prospective_averager(pay_date_04, gross_amt_04, hours_04)
 Call prospective_averager(pay_date_05, gross_amt_05, hours_05)
 
 'Creates averages
-dim paystubs_received
-dim total_prospective_pay 
-dim total_prospective_hours
 average_pay_per_paystub = formatnumber(total_prospective_pay / paystubs_received, 2, 0, 0, 0)
 average_hours_per_paystub = abs(total_prospective_hours / paystubs_received)
 
