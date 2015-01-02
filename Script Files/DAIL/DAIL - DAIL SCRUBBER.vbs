@@ -84,8 +84,8 @@ EMReadScreen FMED_check, 59, 6, 20
 If FMED_check = "MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION" then call run_from_GitHub(script_repository & "DAIL/DAIL - FMED DEDUCTION.vbs")
 
 'Remedial care messages. May only happen at COLA (loads LTC - REMEDIAL CARE)
-EMReadScreen remedial_care_check, 34, 6, 20
-If remedial_care_check = "PERSON HAS REMEDIAL CARE DEDUCTION" then call run_from_GitHub(script_repository & "DAIL/DAIL - LTC - REMEDIAL CARE.vbs")
+EMReadScreen remedial_care_check, 41, 6, 20
+If remedial_care_check = "REF 01 PERSON HAS REMEDIAL CARE DEDUCTION" then call run_from_GitHub(script_repository & "DAIL/DAIL - LTC - REMEDIAL CARE.vbs")
 
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 15, 6, 20
