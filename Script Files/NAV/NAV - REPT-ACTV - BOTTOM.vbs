@@ -65,16 +65,17 @@ MAXIS_check_function
 'Navigates to REPT/ACTV
 CALL navigate_to_screen("REPT", "ACTV")
 
+IF worker_number <> "" THEN
+	EMWriteScreen worker_county_code & worker_number, 21, 13
+	transmit
+END IF
+
 'Presses "PF8" until the last page is found
 DO
 	PF8
 	EMReadScreen test, 21, 24, 2
 LOOP UNTIL test = "THIS IS THE LAST PAGE"
 
-IF worker_number <> "" THEN
-	EMWriteScreen worker_county_code & worker_number, 21, 13
-	transmit
-END IF
 
 script_end_procedure("")
 
