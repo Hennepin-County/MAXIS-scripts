@@ -31,7 +31,7 @@ END IF
 
 EMConnect ""
 
-BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 82, "LTC asset tranfer dialog"
+BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 82, "LTC asset transfer dialog"
   EditBox 35, 0, 85, 15, client
   EditBox 35, 20, 85, 15, spouse
   EditBox 70, 40, 50, 15, renewal_footer_month_year
