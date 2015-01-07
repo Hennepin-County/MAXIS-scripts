@@ -1,17 +1,8 @@
-'<<<<<<<<<<<THIS SHOULD BE ON THE REDIRECT
-'LOADING GLOBAL VARIABLES
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-'<<<<<<<<<<HERE'S THE ACTUAL SCRIPT
-
 EMConnect ""
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 	'------------------ THIS IS THE ONLY THING THAT SHOULD BE CHANGED PER COUNTY ------------
-objStartFolder = "C:\DHS-MAXIS-Scripts\Script Files\AGENCY CUSTOMIZED\"
+objStartFolder = default_directory & "\AGENCY CUSTOMIZED\"
 	'----------------------------------------------------------------------------------------
 	
 Set objFolder = objFSO.GetFolder(objStartFolder)
