@@ -2,7 +2,7 @@ EMConnect ""
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 	'------------------ THIS IS THE ONLY THING THAT SHOULD BE CHANGED PER COUNTY ------------
-objStartFolder = default_directory & "\AGENCY CUSTOMIZED\"
+objStartFolder = default_directory & "AGENCY CUSTOMIZED\"
 	'----------------------------------------------------------------------------------------
 	
 Set objFolder = objFSO.GetFolder(objStartFolder)
