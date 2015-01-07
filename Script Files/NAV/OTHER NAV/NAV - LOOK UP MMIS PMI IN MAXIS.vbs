@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - MMIS TO MAXIS.vbs"
+name_of_script = "NAV - LOOK UP MMIS PMI IN MAXIS.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
