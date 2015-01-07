@@ -184,8 +184,6 @@ HRF_computer_friendly_month = footer_month & "/01/" & footer_year
 retro_month_name = monthname(datepart("m", (dateadd("m", -2, HRF_computer_friendly_month))))
 pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = retro_month_name & "/" & pro_month_name
-earned_income = trim(earned_income)
-if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
 
 'The case note dialog, complete with panel navigation, reading the ELIG/MFIP screen, and navigation to case note, as well as logic for certain sections to be required.
 Do

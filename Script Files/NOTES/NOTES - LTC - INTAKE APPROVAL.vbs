@@ -480,33 +480,6 @@ If BBUD_check = "BBUD" then
   End if
 End if
 
-'IT HAS TO CLEAN UP EDIT BOXES--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-'CLEANS UP THE INCOME EDITBOX
-income = trim(income)
-if right(income, 1) = ";" then income = left(income, len(income) - 1)
-income = replace(income, "/)", ")")
-income = replace(income, "$________/non-monthly", "amt unknown")
-income = replace(income, "$________/monthly", "amt unknown")
-income = replace(income, "$________/weekly", "amt unknown")
-income = replace(income, "$________/biweekly", "amt unknown")
-income = replace(income, "$________/semimonthly", "amt unknown")
-
-'CLEANS UP THE ASSETS EDITBOX
-assets = trim(assets)
-if right(assets, 1) = ";" then assets = left(assets, len(assets) - 1)
-
-'CLEANS UP THE FACI EDITBOX
-FACI = trim(FACI)
-if right(FACI, 1) = ";" then FACI = left(FACI, len(FACI) - 1)
-
-'CLEANS UP THE MEDI_INSA EDITBOX
-MEDI_INSA = trim(MEDI_INSA)
-if right(MEDI_INSA, 1) = ";" then MEDI_INSA = left(MEDI_INSA, len(MEDI_INSA) - 1)
-
-'SETS TOTAL_COUNTABLE_ASSETS TO BE AN INPUTBOX FRIENDLY VARIABLE
-If total_countable_assets <> "" then total_countable_assets = "$" & total_countable_assets
-
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Do
