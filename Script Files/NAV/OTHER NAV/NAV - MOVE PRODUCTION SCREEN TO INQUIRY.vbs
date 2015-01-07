@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - PRODUCTION TO INQUIRY.vbs"
+name_of_script = "NAV - MOVE PRODUCTION SCREEN TO INQUIRY.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
