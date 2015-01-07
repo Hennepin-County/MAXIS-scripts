@@ -26,31 +26,22 @@ END IF
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts main menu dialog"
+BeginDialog OTHER_NAV_scripts_main_menu_dialog, 0, 0, 456, 110, "Other NAV scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 400, 195, 50, 15
-    PushButton 5, 20, 50, 10, "BILS updater", BILS_UPDATER_button
-    PushButton 5, 35, 75, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
-    PushButton 5, 50, 105, 10, "LTC-Spousal Allocation FIATer", LTC_SPOUSAL_ALLOCATION_FIATER_button
-    PushButton 5, 65, 105, 10, "MA-EPD earned income FIATer", MA_EPD_EI_FIAT_button
-    PushButton 5, 80, 60, 10, "New job reported", NEW_JOB_REPORTED_button
-    PushButton 5, 105, 60, 10, "PA verif request", PA_VERIF_REQUEST_button
-    PushButton 5, 120, 70, 10, "Paystubs Received", PAYSTUBS_RECEIVED_button
-    PushButton 5, 145, 45, 10, "Send SVES", SEND_SVES_button
-    PushButton 5, 160, 55, 10, "Transfer case", TRANSFER_CASE_button
-    PushButton 5, 185, 85, 10, "Update worker signature", UPDATE_WORKER_SIGNATURE_button
-  Text 5, 5, 245, 10, "Action scripts main menu: select the script to run from the choices below."
-  Text 60, 20, 215, 10, "--- Updates a BILS panel with reoccurring or actual BILS received."
-  Text 85, 35, 180, 10, "--- Copies MAXIS panels to Word en masse for a case."
-  Text 115, 50, 175, 10, "--- FIATs a spousal allocation across a budget period."
-  Text 115, 65, 295, 10, "--- FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
-  Text 70, 80, 380, 20, "--- Creates a JOBS panel, a CASE/NOTE, and a TIKL, when client reports a new job. For new HIRE messages on the DAIL, use the DAIL scrubber instead."
-  Text 70, 105, 320, 10, "--- Creates a Word document with PA benefit totals for other agencies to determine client benefits."
-  Text 80, 120, 370, 20, "--- Enter in paystubs on one dialog, and it puts that information on JOBS (both retrospective and prospective if applicable), as well as the PIC and HC pop-up, and it'll case note the income as well."
-  Text 55, 145, 90, 10, "--- Sends a SVES/QURY."
-  Text 65, 160, 380, 20, "--- SPEC/XFERs a case, and can send a memo to the new client. For in-agency as well as between agencies (out-of-county XFERs)."
-  Text 95, 185, 185, 10, "--- Updates the default worker signature on your scripts."
+    CancelButton 400, 90, 50, 15
+    PushButton 5, 20, 100, 10, "Look up MAXIS case in MMIS", 			LOOK_UP_MAXIS_CASE_IN_MMIS_button
+    PushButton 5, 35, 100, 10, "Look up MMIS PMI in MAXIS", 			LOOK_UP_MMIS_PMI_IN_MAXIS_button
+    PushButton 5, 50, 120, 10, "Move production screen to inquiry", 	MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button
+    PushButton 5, 65, 50, 10, "REPT search", 							REPT_SEARCH_button
+    PushButton 5, 80, 40, 10, "View INFC", 								VIEW_INFC_button
+  Text 5, 5, 245, 10, "Other nav scripts main menu: select the script to run from the choices below."
+  Text 110, 20, 250, 10, "--- Navigates to RELG in MMIS for a selected case. Navigates to person 01."
+  Text 110, 35, 140, 10, "--- Jumps from MMIS to MAXIS for a case."
+  Text 130, 50, 195, 10, "--- Moves a screen from MAXIS production to MAXIS inquiry."
+  Text 60, 65, 190, 10, "--- Searches for a specific case on multiple REPT screens."
+  Text 50, 80, 115, 10, "--- Views an INFC panel for a case."
 EndDialog
+
 
 'VARIABLES TO DECLARE
 all_case_numbers_array = " "					'Creating blank variable for the future array
@@ -61,22 +52,17 @@ is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Shows report scanning dialog, which asks user which report to generate.
-dialog ACTIONS_scripts_main_menu_dialog
+dialog OTHER_NAV_scripts_main_menu_dialog
 If buttonpressed = cancel then stopscript
 
 'Connecting to BlueZone
 EMConnect ""
 
-If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - BILS UPDATER.vbs")
-If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - COPY PANELS TO WORD.vbs")
-If buttonpressed = LTC_SPOUSAL_ALLOCATION_FIATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs")
-If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - MA-EPD EI FIATER.vbs")
-If buttonpressed = NEW_JOB_REPORTED_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - NEW JOB REPORTED.vbs")
-If buttonpressed = PA_VERIF_REQUEST_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - PA VERIF REQUEST.vbs")
-If buttonpressed = PAYSTUBS_RECEIVED_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - PAYSTUBS RECEIVED.vbs")
-If buttonpressed = SEND_SVES_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - SEND SVES.vbs")
-If buttonpressed = TRANSFER_CASE_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - TRANSFER CASE.vbs")
-If ButtonPressed = UPDATE_WORKER_SIGNATURE_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - UPDATE WORKER SIGNATURE.vbs")
+If buttonpressed = LOOK_UP_MAXIS_CASE_IN_MMIS_button						then call run_from_GitHub(script_repository & "NAV/OTHER NAV/NAV - LOOK UP MAXIS CASE IN MMIS.vbs")
+If buttonpressed = LOOK_UP_MMIS_PMI_IN_MAXIS_button							then call run_from_GitHub(script_repository & "NAV/OTHER NAV/NAV - LOOK UP MMIS PMI IN MAXIS.vbs")
+If buttonpressed = MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button					then call run_from_GitHub(script_repository & "NAV/OTHER NAV/NAV - MOVE PRODUCTION SCREEN TO INQUIRY.vbs")
+If buttonpressed = REPT_SEARCH_button										then call run_from_GitHub(script_repository & "NAV/OTHER NAV/NAV - REPT SEARCH.vbs")
+If buttonpressed = VIEW_INFC_button											then call run_from_GitHub(script_repository & "NAV/OTHER NAV/NAV - VIEW INFC.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
