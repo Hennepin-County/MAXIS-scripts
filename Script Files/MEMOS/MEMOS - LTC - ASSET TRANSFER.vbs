@@ -35,7 +35,7 @@ BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 82, "LTC asset transfer dialog
   EditBox 35, 0, 85, 15, client
   EditBox 35, 20, 85, 15, spouse
   EditBox 70, 40, 50, 15, renewal_footer_month_year
-  ButtonGroup LTC_asset_tranfer_dialog_ButtonPressed
+  ButtonGroup LTC_asset_transfer_dialog_ButtonPressed
     OkButton 10, 60, 50, 15
     CancelButton 65, 60, 50, 15
   Text 5, 5, 30, 10, "Client:"
@@ -46,7 +46,7 @@ EndDialog
 
 Do
   Dialog LTC_asset_transfer_dialog
-  If LTC_asset_tranfer_dialog_ButtonPressed = 0 then stopscript
+  If LTC_asset_transfer_dialog_ButtonPressed = 0 then stopscript
   EMSendKey "<enter>"
   EMWaitReady 1, 1
   EMReadScreen WCOM_input_check, 27, 2, 28
