@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - MAXIS TO MMIS.vbs"
+name_of_script = "NAV - LOOK UP MAXIS CASE IN MMIS.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------

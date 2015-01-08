@@ -2,7 +2,9 @@
 'The following variables are dynamically added via the installer. They can be modified manually to make changes without re-running the 
 '	installer, but doing so should not be undertaken lightly.
 
-
+'Default directory: used by the script to determine if we're scriptwriters or not (scriptwriters use a default directory traditionally).
+'	This is modified by the installer, which will determine if this is a scriptwriter or a production user.
+default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
 
 '========================================================================================================================================
 
@@ -69,11 +71,6 @@ stats_database_path = "C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 'This is a variable which signifies the agency is beta (affects script URL)
 beta_agency = True
 
-'An array of script developer usernames who should be accessing the master versions of the scripts (instead of the beta or release branches). Usernames should be ALL CAPS.
-script_developer_array = array("PWVKC45", "VKCARY", "VKC", "RAKALB", "CDPOTTER", "MLDIETZ")
-
-
-
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
 
@@ -109,11 +106,12 @@ With (CreateObject("Scripting.FileSystemObject"))
 END WITH
 
 'This is the URL of our script repository, and should only change if the agency is beta or standard, or if there's a scriptwriter in the group.
-result = filter(script_developer_array, ucase(windows_user_ID))
-If ubound(result) >= 0 then
+IF default_directory <> "C:\DHS-MAXIS-Scripts\Script Files\" THEN	'For folks who did NOT install from GitHub, which uses this path...
+	IF beta_agency = TRUE THEN		'Beta agencies use the beta branch
+		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/BETA/Script Files/"
+	ELSE							'Everyone else (who isn't a scriptwriter) uses the release branch
+		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
+	END IF
+ELSE	'Scriptwriters use the master branch
 	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files/"
-ElseIf beta_agency = True then
-	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/BETA/Script Files/"
-Else
-	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
-End if
+END IF
