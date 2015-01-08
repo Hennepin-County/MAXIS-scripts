@@ -28,8 +28,6 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
-
-
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 
 next_month = dateadd("m", + 1, date)
@@ -203,48 +201,43 @@ call HH_member_custom_dialog(HH_member_array)
 
 'Grabbing SHEL/HEST first, and putting them in this special order that everyone seems to like
 call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
+'If SHEL_HEST <> "" then SHEL_HEST = SHEL_HEST & "; "		'this is a temporary fix to resolve issues where a variable is "autofilled" by multiple functions in the same script
 call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 
-'Autofilling the rest
+'Autofilling HH comp
+call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+
+'Autofilling assets
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
+
+'Autofill DCEX/COEX
 call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
+
+'Autofill EI
+call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
-call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
+
+'Autofill datestamp and UI
 call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CSR_datestamp)
-call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
-
-
-
-'Cleaning up the case note
-CSR_month = footer_month & "/" & footer_year
-earned_income = trim(earned_income)
-if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
-earned_income = replace(earned_income, "$________/non-monthly", "amt unknown")
-unearned_income = trim(unearned_income)
-if right(unearned_income, 1) = ";" then unearned_income = left(unearned_income, len(unearned_income) - 1)
-unearned_income = replace(unearned_income, "$________/non-monthly", "amt unknown")
-assets = trim(assets)
-if right(assets, 1) = ";" then assets = left(assets, len(assets) - 1)
-SHEL_HEST = trim(SHEL_HEST)
-if right(SHEL_HEST, 1) = ";" then SHEL_HEST = left(SHEL_HEST, len(SHEL_HEST) - 1)
-COEX_DCEX = trim(COEX_DCEX)
-if right(COEX_DCEX, 1) = ";" then COEX_DCEX = left(COEX_DCEX, len(COEX_DCEX) - 1)
+'-----------------Creating text for case note
+'Programs recertifying case noting info into variable
 If cash_check = 1 then programs_recertifying = programs_recertifying & "cash, "
 If HC_check = 1 then programs_recertifying = programs_recertifying & "HC, "
 If SNAP_check = 1 then programs_recertifying = programs_recertifying & "SNAP, "
 programs_recertifying = trim(programs_recertifying)
 if right(programs_recertifying, 1) = "," then programs_recertifying = left(programs_recertifying, len(programs_recertifying) - 1)
 
-
+'Determining the CSR month for header
+CSR_month = footer_month & "/" & footer_year
 
 'Showing the case note dialog
 Do
