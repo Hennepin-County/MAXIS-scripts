@@ -277,14 +277,11 @@ IF autofill_cash_check = checked THEN
 				EMWRiteScreen "MFSM", 20, 71
 				transmit
 				EMReadScreen cash_approved_version, 8, 3, 3
-				msgbox cash_approved_version
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 5, 15, 73
-							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, ",", "")
-						EMReadScreen mfip_bene_food_amt, 5, 16, 73
-							mfip_bene_food_amt = replace(mfip_bene_food_amt, ",", "")
+						EMReadScreen mfip_bene_cash_amt, 8, 15, 73
+						EMReadScreen mfip_bene_food_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
 						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
@@ -300,10 +297,8 @@ IF autofill_cash_check = checked THEN
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 5, 15, 73
-							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, ",", "")
-						EMReadScreen mfip_bene_food_amt, 5, 16, 73
-							mfip_bene_food_amt = replace(mfip_bene_food_amt, ",", "")
+						EMReadScreen mfip_bene_cash_amt, 8, 15, 73
+						EMReadScreen mfip_bene_food_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
 						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
@@ -322,7 +317,7 @@ IF autofill_cash_check = checked THEN
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 15
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen GA_bene_cash_amt, 4, 14, 73
+						EMReadScreen GA_bene_cash_amt, 8, 14, 72
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						GA_bene_cash_amt = replace(GA_bene_cash_amt, " ", "0")
@@ -337,7 +332,7 @@ IF autofill_cash_check = checked THEN
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 15
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen GA_bene_cash_amt, 4, 14, 73
+						EMReadScreen GA_bene_cash_amt, 8, 14, 72
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						GA_bene_cash_amt = replace(GA_bene_cash_amt, " ", "0")
@@ -356,7 +351,7 @@ IF autofill_cash_check = checked THEN
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen MSA_bene_cash_amt, 4, 17, 74
+						EMReadScreen MSA_bene_cash_amt, 8, 17, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						MSA_bene_cash_amt = replace(MSA_bene_cash_amt, " ", "0")
@@ -371,7 +366,7 @@ IF autofill_cash_check = checked THEN
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen MSA_bene_cash_amt, 4, 17, 74
+						EMReadScreen MSA_bene_cash_amt, 8, 17, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 54
 						EMReadScreen current_cash_bene_yr, 2, 20, 57
 						MSA_bene_cash_amt = replace(MSA_bene_cash_amt, " ", "0")
@@ -389,8 +384,8 @@ IF autofill_cash_check = checked THEN
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen DWP_bene_shel_amt, 4, 13, 74
-						EMReadScreen DWP_bene_pers_amt, 4, 14, 74
+						EMReadScreen DWP_bene_shel_amt, 8, 13, 73
+						EMReadScreen DWP_bene_pers_amt, 8, 14, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 56
 						EMReadScreen current_cash_bene_yr, 2, 20, 59
 						DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
@@ -406,8 +401,8 @@ IF autofill_cash_check = checked THEN
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen DWP_bene_shel_amt, 4, 13, 74
-						EMReadScreen DWP_bene_pers_amt, 4, 14, 74
+						EMReadScreen DWP_bene_shel_amt, 8, 13, 73
+						EMReadScreen DWP_bene_pers_amt, 8, 14, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 56
 						EMReadScreen current_cash_bene_yr, 2, 20, 59
 						DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
@@ -446,15 +441,15 @@ END IF
 IF autofill_cash_check = checked THEN
 	FOR EACH cash_approval_result IN cash_approval_array
 		IF left(cash_approval_result, 4) = "MFIP" THEN
-			mfip_cash_amt = right(left(cash_approval_result, 8), 4)
-			mfip_food_amt = left(right(cash_approval_result, 8), 4)
+			mfip_cash_amt = right(left(cash_approval_result, 12), 8)
+			mfip_food_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
 			call write_editbox_in_case_note(("MFIP Cash Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt), 6)
 			call write_editbox_in_case_note(("MFIP Food Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt), 6)
 		ELSEIF left(cash_approval_result, 4) = "DWP_" THEN
-			dwp_shel_amt = right(left(cash_approval_result, 8), 4)
-			dwp_pers_amt = left(right(cash_approval_result, 8), 4)
+			dwp_shel_amt = right(left(cash_approval_result, 12), 8)
+			dwp_pers_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
 			call write_editbox_in_case_note(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt), 6)
@@ -462,7 +457,7 @@ IF autofill_cash_check = checked THEN
 		ELSE
 			cash_program = left(cash_approval_result, 4)
 			cash_program = replace(cash_program, "_", "")
-			cash_bene_amt = right(left(cash_approval_result, 8), 4)
+			cash_bene_amt = right(left(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
 			cash_header = (cash_program & " Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr)
@@ -483,4 +478,3 @@ If closed_progs_check = checked then run_another_script("C:\DHS-MAXIS-Scripts\Sc
 If denied_progs_check = checked then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
 
 script_end_procedure("")
-
