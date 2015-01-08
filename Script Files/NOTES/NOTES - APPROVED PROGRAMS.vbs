@@ -472,9 +472,9 @@ call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 'Runs denied progs if selected
-If closed_progs_check = checked then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - closed progs.vbs")
+If closed_progs_check = checked then run_from_github("https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script%20Files/NOTES/NOTES%20-%20CLOSED%20PROGRAMS.vbs")
 
 'Runs denied progs if selected
-If denied_progs_check = checked then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
+If denied_progs_check = checked then run_script("https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script%20Files/NOTES/NOTES%20-%20DENIED%20PROGRAMS.vbs")
 
 script_end_procedure("")
