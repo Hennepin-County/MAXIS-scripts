@@ -208,7 +208,7 @@ call navigate_to_screen("case", "note")
 PF9
 
 'Writes the case note
-If reschedule_check = checked then EMSendKey "*Client requested rescheduled appointment, appt letter sent in MEMO.*"
+If reschedule_check = checked then EMSendKey "**Client requested rescheduled appointment, appt letter sent in MEMO.**" & "<newline>"
 If app_type = "new application" and reschedule_check = unchecked then EMSendKey "**New CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
 If same_day_declined_check = checked then EMSendKey "* Same day interview offered and declined." & "<newline>"
 If app_type = "recertification" and no_CAF_check = unchecked and reschedule_check = unchecked then EMSendKey "**Recert CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
