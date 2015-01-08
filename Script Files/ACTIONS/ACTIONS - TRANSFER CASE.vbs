@@ -246,29 +246,6 @@ IF XFERRadioGroup = 0 THEN
 
 		back_to_SELF
 
-		'----------This converts the dates into a format that can be entered into SPEC/XFER/XCTY----------
-		'cl_move_dt = cdate(cl_move_date)
-		'cl_move_dt = replace(cl_move_dt, "/", "")
-		'	cl_move_month = left(cl_move_dt, 2)
-		'	cl_move_day = right(left(cl_move_dt, 4), 2)
-		'	cl_move_year = right(cl_move_dt, 2)
-        '
-		'IF crf_sent_check = checked THEN
-		'	crf_sent_month = datepart("M", date)
-		'		IF len(crf_sent_month) = 1 THEN crf_sent_month = "0" & crf_sent_month
-		'	crf_sent_day = datepart("D", date)
-		'		IF len(crf_sent_day) = 1 THEN crf_sent_day = "0" & crf_sent_day
-		'	crf_sent_year = right(datepart("YYYY", date), 2)
-		'END IF
-        '
-		'IF excluded_time = "Yes" THEN
-		'	excl_dt = cdate(excl_date)
-		'	excl_dt = replace(excl_dt, "/", "")
-		'	excl_month = left(excl_dt, 2)
-		'	excl_day = right(left(excl_dt, 4), 2)
-		'	excl_year = right(excl_dt, 2)
-		'END IF
-
 		call navigate_to_screen("CASE", "NOTE")
 		PF9
 		EMReadScreen write_access, 9, 24, 12
@@ -379,20 +356,8 @@ IF XFERRadioGroup = 0 THEN
 	'Writing client move date
 	call create_MAXIS_friendly_date(cl_move_date, 0, 4, 28)
 	
-
-	'EMWriteScreen cl_move_month, 4, 28
-	'EMWriteScreen cl_move_day, 4, 31
-	'EMWriteScreen cl_move_year, 4, 34
-	
 	'Writing CRF date, if CRF check is checked
 	IF crf_sent_check = checked THEN call create_MAXIS_friendly_date(crf_sent_date, 0, 4, 61)
-	
-	
-	'IF crf_sent_check = checked THEN
-	'	EMWriteScreen crf_sent_month, 4, 61
-	'	EMWriteScreen crf_sent_day, 4, 64
-	'	EMWriteScreen crf_sent_year, 4, 67
-	'END IF
 	
 	'Writes the excluded time info. Only need the left character (it's a dropdown)
 	EMWriteScreen left(excluded_time, 1), 5, 28
@@ -404,15 +369,11 @@ IF XFERRadioGroup = 0 THEN
 		EMWriteScreen right(worker_county_code, 2), 15, 39
 	END IF
 	
-	'IF excluded_time = "Yes" THEN
-	'	call create_MAXIS_friendly_date(excl_date, 0, 6, 28)
-	'	EMWriteScreen excl_month, 6, 28
-	'	EMWriteScreen excl_day, 6, 31
-	'	EMWriteScreen excl_year, 6, 34
-	'	EMWriteScreen right(worker_county_code, 2), 15, 39
-	'ELSEIF excluded_time = "" THEN
-	'	EMWriteScreen "N", 5, 28
-	'END IF
+	IF excl_date = "" AND excluded_time = "No" THEN
+		EMWriteScreen "__", 6, 28
+		EMWriteScreen "__", 6, 31
+		EMWriteScreen "__", 6, 34
+	END IF
 
 	IF hc_status = "ACTV" THEN
 		EMWriteScreen right(worker_county_code, 2), 14, 39

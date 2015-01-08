@@ -36,7 +36,7 @@ footer_year = datepart("yyyy", next_month)
 footer_year = "" & footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 181, 185, "Case number dialog"
+BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
@@ -45,17 +45,16 @@ BeginDialog case_number_dialog, 0, 0, 181, 185, "Case number dialog"
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_check
   CheckBox 135, 60, 35, 10, "EMER", EMER_check
   DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program", CAF_type
-  CheckBox 5, 100, 160, 10, "Disable semicolons?", disable_semicolon_check
   ButtonGroup ButtonPressed
-    OkButton 35, 165, 50, 15
-    CancelButton 95, 165, 50, 15
+    OkButton 35, 100, 50, 15
+    CancelButton 95, 100, 50, 15
   Text 25, 10, 50, 10, "Case number:"
   Text 10, 30, 50, 10, "Footer month:"
   Text 110, 30, 25, 10, "Year:"
   GroupBox 5, 45, 170, 30, "Programs applied for"
   Text 30, 85, 35, 10, "CAF type:"
-  Text 15, 110, 160, 50, "(Disabling semicolons will cause your ''income'', ''asset'', and other sections to enter with word wrap, instead of each panel getting it's own line. This can be useful in households with many members, and could help keep case notes from exceeding four pages.)"
 EndDialog
+
 
 BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
@@ -295,6 +294,9 @@ End if
 If HC_check = 1 and CAF_type <> "Recertification" then call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)     'Grabbing retro info for HC cases that aren't recertifying
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)                                                                        'Grabbing HH comp info from MEMB.
 If SNAP_check = 1 then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", HH_comp)                                                 'Grabbing EATS info for SNAP cases, puts on HH_comp variable
+'Removing semicolons from HH_comp variable, it is not needed.
+HH_comp = replace(HH_comp, "; ", "")
+
 
 'I put these sections in here, just because SHEL should come before HEST, it just looks cleaner.
 call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST) 
@@ -332,86 +334,13 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
 
 'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
-earned_income = trim(earned_income)
-if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
-earned_income = replace(earned_income, "$________/non-monthly", "amt unknown")
-earned_income = replace(earned_income, "$________/monthly", "amt unknown")
-earned_income = replace(earned_income, "$________/weekly", "amt unknown")
-earned_income = replace(earned_income, "$________/biweekly", "amt unknown")
-earned_income = replace(earned_income, "$________/semimonthly", "amt unknown")
-earned_income = replace(earned_income, "$/non-monthly", "amt unknown")
-earned_income = replace(earned_income, "$/monthly", "amt unknown")
-earned_income = replace(earned_income, "$/weekly", "amt unknown")
-earned_income = replace(earned_income, "$/biweekly", "amt unknown")
-earned_income = replace(earned_income, "$/semimonthly", "amt unknown")
-unearned_income = trim(unearned_income)
-if right(unearned_income, 1) = ";" then unearned_income = left(unearned_income, len(unearned_income) - 1)
-unearned_income = replace(unearned_income, "$________/non-monthly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/monthly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/weekly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/biweekly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/semimonthly", "amt unknown")
-unearned_income = replace(unearned_income, "$/non-monthly", "amt unknown")
-unearned_income = replace(unearned_income, "$/monthly", "amt unknown")
-unearned_income = replace(unearned_income, "$/weekly", "amt unknown")
-unearned_income = replace(unearned_income, "$/biweekly", "amt unknown")
-unearned_income = replace(unearned_income, "$/semimonthly", "amt unknown")
-other_assets = trim(other_assets)
-if right(other_assets, 1) = ";" then other_assets = left(other_assets, len(other_assets) - 1)
-CASH_ACCTs = trim(CASH_ACCTs)
-if right(CASH_ACCTs, 1) = ";" then CASH_ACCTs = left(CASH_ACCTs, len(CASH_ACCTs) - 1)
-COEX_DCEX = trim(COEX_DCEX)
-if right(COEX_DCEX, 1) = ";" then COEX_DCEX = left(COEX_DCEX, len(COEX_DCEX) - 1)
-SHEL_HEST = trim(SHEL_HEST)
-if right(SHEL_HEST, 1) = ";" then SHEL_HEST = left(SHEL_HEST, len(SHEL_HEST) - 1)
-PREG = trim(PREG)
-if right(PREG, 1) = ";" then PREG = left(PREG, len(PREG) - 1)
-SCHL = trim(SCHL)
-if right(SCHL, 1) = ";" then SCHL = left(SCHL, len(SCHL) - 1)
-DISA = trim(DISA)
-if right(DISA, 1) = ";" then DISA = left(DISA, len(DISA) - 1)
-FACI = trim(FACI)
-if right(FACI, 1) = ";" then FACI = left(FACI, len(FACI) - 1)
-INSA = trim(INSA)
-if right(INSA, 1) = ";" then INSA = left(INSA, len(INSA) - 1)
-ACCI = trim(ACCI)
-if right(ACCI, 1) = ";" then ACCI = left(ACCI, len(ACCI) - 1)
-DIET = trim(DIET)
-if right(DIET, 1) = ";" then DIET = left(DIET, len(DIET) - 1)
-FMED = trim(FMED)
-if right(FMED, 1) = ";" then FMED = left(FMED, len(FMED) - 1)
-ABPS = trim(ABPS)
-if right(ABPS, 1) = ";" then ABPS = left(ABPS, len(ABPS) - 1)
-cit_ID = trim(cit_ID)
-if right(cit_ID, 1) = ";" then cit_ID = left(cit_ID, len(cit_ID) - 1)
 If cash_check = 1 then programs_applied_for = programs_applied_for & "cash, "
 If HC_check = 1 then programs_applied_for = programs_applied_for & "HC, "
 If SNAP_check = 1 then programs_applied_for = programs_applied_for & "SNAP, "
 If EMER_check = 1 then programs_applied_for = programs_applied_for & "emergency, "
 programs_applied_for = trim(programs_applied_for)
 if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
-income_changes = trim(income_changes)
-if right(income_changes, 1) = ";" then income_changes= left(income_changes, len(income_changes) - 1)
-IMIG = trim(IMIG)
-if right(IMIG, 1) = ";" then IMIG = left(IMIG, len(IMIG) - 1)
 
-'The following shuts down the semicolons if selected in the first dialog.
-If disable_semicolon_check = 1 then
-  earned_income = replace(earned_income, ";", "")
-  unearned_income = replace(unearned_income, ";", "")
-  CASH_ACCTs = replace(CASH_ACCTs, ";", "")
-  other_assets = replace(other_assets, ";", "")
-  schl = replace(schl, ";", "")
-  disa = replace(disa, ";", "")
-  faci = replace(faci, ";", "")
-  insa = replace(insa, ";", "")
-  acci = replace(acci, ";", "")
-  diet = replace(diet, ";", "")
-  fmed = replace(fmed, ";", "")
-  abps = replace(abps, ";", "")
-  preg = replace(preg, ";", "")
-  cit_ID = replace(cit_ID, ";", ".") 'I put a period in here because the cit_ID variable does not store a comma or period normally. This should probably be fleshed out at some point.
-End if
 
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type <> "Recertification" then TIKL_check = 1

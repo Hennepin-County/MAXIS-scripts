@@ -190,12 +190,8 @@ call autofill_editbox_from_MAXIS(HH_member_array, "REVW", recert_datestamp)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 
-'Cleaning up info
+'Determines recert month
 recert_month = footer_month & "/" & footer_year
-income = trim(income)
-if right(income, 1) = ";" then income = left(income, len(income) - 1)
-assets = trim(assets)
-if right(assets, 1) = ";" then assets = left(assets, len(assets) - 1)
 
 
 'Showing the case note dialog
