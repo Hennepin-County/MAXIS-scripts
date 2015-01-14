@@ -45,7 +45,7 @@ EndDialog
 
 
 Do
-  Dialog LTC_asset_transfer_dialog
+  Dialog LTC_asset_tranfer_dialog
   If LTC_asset_tranfer_dialog_ButtonPressed = 0 then stopscript
   EMSendKey "<enter>"
   EMWaitReady 1, 1
