@@ -62,9 +62,6 @@ footer_month = datepart("M", date)
 	IF Len(footer_month) <> 2 THEN footer_month = "0" & footer_month 
 footer_year = right(datepart("YYYY", date), 2)
 
-'error proofs for 1 digit member numbers
-IF LEN(memb_number) <> 2 THEN memb_number = "0" & memb_number
-
 'Error proof functions
 Maxis_check_function
 MAXIS_background_check
