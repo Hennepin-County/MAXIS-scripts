@@ -191,18 +191,8 @@ call autofill_editbox_from_MAXIS(HH_member_array, "REVW", recert_datestamp)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
-'Cleaning up info
+'Creating variable for recert_month
 recert_month = footer_month & "/" & footer_year
-earned_income = trim(earned_income)
-if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
-earned_income = replace(earned_income, "$________/non-monthly", "amt unknown")
-unearned_income = trim(unearned_income)
-if right(unearned_income, 1) = ";" then unearned_income = left(unearned_income, len(unearned_income) - 1)
-unearned_income = replace(unearned_income, "$________/non-monthly", "amt unknown")
-assets = trim(assets)
-if right(assets, 1) = ";" then assets = left(assets, len(assets) - 1)
-COEX_DCEX = trim(COEX_DCEX)
-if right(COEX_DCEX, 1) = ";" then COEX_DCEX = left(COEX_DCEX, len(COEX_DCEX) - 1)
 
 'Showing case note dialog, with navigation and required answers logic, and it navigates to the case note
 Do
