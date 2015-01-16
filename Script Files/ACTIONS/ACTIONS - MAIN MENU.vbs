@@ -52,12 +52,6 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts m
   Text 95, 185, 185, 10, "--- Updates the default worker signature on your scripts."
 EndDialog
 
-'VARIABLES TO DECLARE
-all_case_numbers_array = " "					'Creating blank variable for the future array
-call worker_county_code_determination(worker_county_code, two_digit_county_code)	'Determines worker county code
-is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'This is the string required to tell excel to ignore blank cells in a COUNTIFS function
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Shows report scanning dialog, which asks user which report to generate.
