@@ -26,9 +26,9 @@ END IF
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 456, 250, "Notes (H-Z) scripts main menu dialog"
+BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 456, 280, "Notes (H-Z) scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 400, 230, 50, 15
+    CancelButton 400, 260, 50, 15
     PushButton 10, 25, 50, 10, "HC Renewal", HC_RENEWAL_button
     PushButton 10, 40, 30, 10, "HCAPP", HCAPP_button
     PushButton 10, 55, 25, 10, "HRF", HRF_button
@@ -41,8 +41,11 @@ BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 456, 250, "Notes (H-Z) scr
     PushButton 10, 160, 75, 10, "LTC - Intake approval", LTC_INTAKE_APPROVAL_button
     PushButton 10, 175, 65, 10, "LTC - MA approval", LTC_MA_APPROVAL_button
     PushButton 10, 190, 55, 10, "LTC - Renewal", LTC_RENEWAL_button
-    PushButton 10, 205, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
-    PushButton 10, 220, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
+    PushButton 10, 205, 125, 10, "MFIP sanction/DWP disqualification", MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button
+    PushButton 10, 220, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
+    PushButton 10, 235, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
+    PushButton 10, 250, 50, 10, "Overpayment", OVERPAYMENT_button
+    PushButton 10, 265, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
   Text 5, 5, 245, 10, "Notes scripts main menu: select the script to run from the choices below."
   Text 65, 25, 140, 10, "--- A case note template for HC renewals."
   Text 45, 40, 120, 10, "--- A case note template for HCAPPs."
@@ -56,9 +59,13 @@ BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 456, 250, "Notes (H-Z) scr
   Text 90, 160, 205, 10, "--- A case note template for use when approving a LTC intake."
   Text 80, 175, 355, 10, "--- A case note template for approving LTC MA (can be used for changes, initial application, or recertification)."
   Text 70, 190, 140, 10, "--- A case note template for LTC renewals."
-  Text 125, 205, 250, 10, "--- A case note template for when MNsure documents have been requested."
-  Text 90, 220, 300, 10, "--- A case note template for when verifications are needed (enters each verification clearly)."
+  Text 140, 205, 290, 10, "--- A case note template for MFIP sanctions and DWP disqualifications, both CS and ES."
+  Text 125, 220, 260, 10, "--- A case note template for actions taken on medical mileage reimbursements."
+  Text 125, 235, 250, 10, "--- A case note template for when MNsure documents have been requested."
+  Text 65, 250, 240, 10, "--- A case note template for noting basic information about overpayments."
+  Text 90, 265, 300, 10, "--- A case note template for when verifications are needed (enters each verification clearly)."
 EndDialog
+
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -70,20 +77,23 @@ IF ButtonPressed = cancel THEN StopScript
 'Connecting to BlueZone
 EMConnect ""
 
-IF ButtonPressed = 	HC_RENEWAL_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HC RENEWAL.vbs")
-IF ButtonPressed = 	HCAPP_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HCAPP.vbs")
-IF ButtonPressed = 	HRF_button							THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HRF.vbs")
-IF ButtonPressed = 	LEP_SAVE_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LEP - SAVE.vbs")
-IF ButtonPressed = 	LEP_SPONSOR_INCOME_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
-IF ButtonPressed = 	LTC_1503_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - 1503.vbs")
-IF ButtonPressed = 	LTC_APPLICATION_RECEIVED_button		THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - APPLICATION RECEIVED.vbs")
-IF ButtonPressed = 	LTC_ASSET_ASSESSMENT_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - ASSET ASSESSMENT.vbs")
-IF ButtonPressed = 	LTC_COLA_SUMMARY_2015_button		THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - COLA SUMMARY 2015.vbs")
-IF ButtonPressed = 	LTC_INTAKE_APPROVAL_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - INTAKE APPROVAL.vbs")
-IF ButtonPressed = 	LTC_MA_APPROVAL_button				THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - MA APPROVAL.vbs")
-IF ButtonPressed = 	LTC_RENEWAL_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - RENEWAL.vbs")
-IF ButtonPressed = 	MNSURE_DOCUMENTS_REQUESTED_button	THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
-IF ButtonPressed = 	VERIFICATIONS_NEEDED_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
+IF ButtonPressed = 	HC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HC RENEWAL.vbs")
+IF ButtonPressed = 	HCAPP_button									THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HCAPP.vbs")
+IF ButtonPressed = 	HRF_button										THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HRF.vbs")
+IF ButtonPressed = 	LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LEP - SAVE.vbs")
+IF ButtonPressed = 	LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
+IF ButtonPressed = 	LTC_1503_button									THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - 1503.vbs")
+IF ButtonPressed = 	LTC_APPLICATION_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - APPLICATION RECEIVED.vbs")
+IF ButtonPressed = 	LTC_ASSET_ASSESSMENT_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - ASSET ASSESSMENT.vbs")
+IF ButtonPressed = 	LTC_COLA_SUMMARY_2015_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - COLA SUMMARY 2015.vbs")
+IF ButtonPressed = 	LTC_INTAKE_APPROVAL_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - INTAKE APPROVAL.vbs")
+IF ButtonPressed = 	LTC_MA_APPROVAL_button							THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - MA APPROVAL.vbs")
+IF ButtonPressed = 	LTC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - RENEWAL.vbs")
+IF ButtonPressed = 	MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
+IF ButtonPressed = 	MILEAGE_REIMBURSEMENT_REQUEST_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs")
+IF ButtonPressed = 	MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
+IF ButtonPressed = 	OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - OVERPAYMENT.vbs")
+IF ButtonPressed = 	VERIFICATIONS_NEEDED_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
 
 
 'Logging usage stats

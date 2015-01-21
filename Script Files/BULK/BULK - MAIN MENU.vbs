@@ -30,10 +30,10 @@ BeginDialog BULK_scripts_main_menu_dialog, 0, 0, 456, 325, "Bulk scripts main me
     CancelButton 400, 305, 50, 15
     PushButton 10, 50, 25, 10, "ACTV", ACTV_LIST_button
     PushButton 35, 50, 25, 10, "EOMC", EOMC_LIST_button
-    PushButton 60, 50, 25, 10, "PND2", PND2_LIST_button
-    PushButton 85, 50, 25, 10, "REVS", REVS_LIST_button
-    PushButton 110, 50, 25, 10, "REVW", REVW_LIST_button
-    PushButton 135, 50, 25, 10, "MFCM", MFCM_LIST_button
+    PushButton 85, 50, 25, 10, "PND2", PND2_LIST_button
+    PushButton 110, 50, 25, 10, "REVS", REVS_LIST_button
+    PushButton 135, 50, 25, 10, "REVW", REVW_LIST_button
+    PushButton 160, 50, 25, 10, "MFCM", MFCM_LIST_button
     PushButton 10, 80, 25, 10, "ARST", ARST_LIST_button
     PushButton 10, 95, 80, 10, "LTC-GRH list generator", LTC_GRH_LIST_GENERATOR_button
     PushButton 10, 120, 75, 10, "SWKR list generator", SWKR_LIST_GENERATOR_button
@@ -57,7 +57,10 @@ BeginDialog BULK_scripts_main_menu_dialog, 0, 0, 456, 325, "Bulk scripts main me
   Text 70, 210, 375, 35, "--- Checks all cases on REPT/INAC (in the month before the current footer month, or prior) for MMIS discrepancies, active claims, DAIL messages, and ABPS panels in need of update (for Good Cause status), and adds them to a Word document. After that, it case notes all of the cases without DAIL messages or MMIS discrepancies. If your agency uses a closed-file worker number, it will SPEC/XFER the cases from your number into that number."
   Text 70, 250, 375, 20, "--- Case notes that returned mail (without a forwarding address) was received for up to 60 cases simultaneously, and TIKLs for 10-day return of proofs."
   Text 95, 275, 350, 20, "--- Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER. Case notes ''last day of REIN'' as well as ''date case becomes an intake.''"
+  ButtonGroup ButtonPressed
+    PushButton 60, 50, 25, 10, "PND1", PND1_LIST_button
 EndDialog
+
 
 
 
@@ -79,6 +82,7 @@ EMConnect ""
 If buttonpressed = ACTV_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-ACTV LIST.vbs")
 If buttonpressed = ARST_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-ARST LIST.vbs")
 If buttonpressed = EOMC_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-EOMC LIST.vbs")
+If buttonpressed = PND1_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-PND1 LIST.vbs")
 If buttonpressed = PND2_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-PND2 LIST.vbs")
 If buttonpressed = REVS_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-REVS LIST.vbs")
 If buttonpressed = REVW_LIST_button then call run_from_GitHub(script_repository & "BULK/BULK - REPT-REVW LIST.vbs")
