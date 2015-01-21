@@ -28,56 +28,61 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-EMConnect ""
-
-BeginDialog SVES_dialog, 0, 0, 166, 132, "SVES"
-  EditBox 95, 5, 60, 15, case_number
-  EditBox 130, 25, 25, 15, member_number
+'DIALOGS-----------------------------------------------------------------
+BeginDialog send_SVES_dialog, 0, 0, 271, 85, "Send SVES Dialog"
+  EditBox 90, 5, 60, 15, case_number
+  EditBox 125, 25, 25, 15, member_number
+  CheckBox 5, 50, 165, 10, "Check here to case note that a QURY was sent.", case_note_checkbox
+  EditBox 80, 65, 70, 15, worker_signature
   OptionGroup RadioGroup1
-    RadioButton 40, 60, 60, 15, "SSN? (default)", SSN_radio
-    RadioButton 40, 75, 75, 15, "Claim # on UNEA?", UNEA_radio
-    RadioButton 40, 90, 75, 15, "Claim # on BNDX?", BNDX_radio
+    RadioButton 190, 15, 60, 15, "SSN? (default)", SSN_radiobutton
+    RadioButton 190, 30, 75, 15, "Claim # on UNEA?", UNEA_radiobutton
+    RadioButton 190, 45, 75, 15, "Claim # on BNDX?", BNDX_radiobutton
   ButtonGroup ButtonPressed
-    OkButton 25, 110, 50, 15
-    CancelButton 90, 110, 50, 15
-  Text 10, 10, 80, 10, "Enter your case number:"
-  Text 10, 30, 120, 10, "Enter your member number (ex: 01): "
-  GroupBox 15, 50, 135, 55, "What number to use for SVES/QURY?"
+    OkButton 160, 65, 50, 15
+    CancelButton 215, 65, 50, 15
+  Text 5, 10, 80, 10, "Enter your case number:"
+  Text 5, 30, 120, 10, "Enter your member number (ex: 01): "
+  Text 5, 70, 70, 10, "Sign your case note:"
+  GroupBox 185, 5, 80, 55, "Number to use?"
 EndDialog
 
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 
+'Connects to BlueZone
+EMConnect ""
 
-call find_variable("Case Nbr: ", case_number, 8) 'x is string, y is variable, z is length of new variable
-case_number = trim(replace(case_number, "_", ""))
+'Grabs case number
+call MAXIS_case_number_finder(case_number)
 
-Dialog SVES_dialog
-If ButtonPressed = 0 then StopScript 'Cancels if the cancel button is pressed.
+'Shows dialog
+Dialog send_SVES_dialog
+If ButtonPressed = cancel then StopScript 
 
-
+'Defaults member number to 01
 If member_number = "" then member_number = "01"
 
-'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" then script_end_procedure("MAXIS is not found on this screen. Navigate to MAXIS and try again.")
+'Makes sure we're in MAXIS
+call check_for_MAXIS(True)
 
+'Goes to MEMB to get info
 call navigate_to_screen("stat", "memb")
 
-EMWriteScreen "memb", 20, 71 'It does this to move past error prone cases
+'Goes to the right HH member
 EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
 transmit 'This transmits to STAT/MEMB for the client indicated.
 
-EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
-If no_MEMB = "Arrival Date:" then script_end_procedure("This HH member does not exist.")
+'If this member does not exist, this will stop the script from continuing.
+EMReadScreen no_MEMB, 13, 8, 22 
+If no_MEMB = "Arrival Date:" then script_end_procedure("Error! This HH member does not exist.")
 
+'Reads the SSN pieces and the PMI
 EMReadScreen SSN1, 3, 7, 42
 EMReadScreen SSN2, 2, 7, 46
 EMReadScreen SSN3, 4, 7, 49
 EMReadScreen PMI, 8, 4, 46
 
-If SSN_radio = 1 then
+If SSN_radiobutton = 1 then
   call navigate_to_screen("infc", "sves")
   EMWriteScreen SSN1,  4, 68
   EMWriteScreen SSN2,  4, 71
@@ -85,9 +90,7 @@ If SSN_radio = 1 then
   EMWriteScreen PMI,  5, 68
   EMWriteScreen "qury",  20, 70
   transmit 'Now we will enter the QURY screen to type the case number.
-End if
-
-If UNEA_radio = 1 then
+ElseIf UNEA_radiobutton = 1 then
   call navigate_to_screen("stat", "unea")
 
   EMWriteScreen "unea", 20, 71 'It does this to move past error prone cases
@@ -133,24 +136,24 @@ If UNEA_radio = 1 then
         CancelButton 185, 30, 50, 15
       Text 10, 5, 105, 10, "UNEA types to look at:"
       OptionGroup RadioGroup1
-      If UNEA_type_01 <> "" then RadioButton 10, 20, 160, 10, "Type " & UNEA_type_01 & ", claim number " & UNEA_claim_number_01, UNEA_type_01_check
-      If UNEA_type_02 <> "" then RadioButton 10, 35, 160, 10, "Type " & UNEA_type_02 & ", claim number " & UNEA_claim_number_02, UNEA_type_02_check
-      If UNEA_type_03 <> "" then RadioButton 10, 50, 160, 10, "Type " & UNEA_type_03 & ", claim number " & UNEA_claim_number_03, UNEA_type_03_check
-      If UNEA_type_04 <> "" then RadioButton 10, 65, 160, 10, "Type " & UNEA_type_04 & ", claim number " & UNEA_claim_number_04, UNEA_type_04_check
-      If UNEA_type_05 <> "" then RadioButton 10, 80, 160, 10, "Type " & UNEA_type_05 & ", claim number " & UNEA_claim_number_05, UNEA_type_05_check
+      If UNEA_type_01 <> "" then RadioButton 10, 20, 160, 10, "Type " & UNEA_type_01 & ", claim number " & UNEA_claim_number_01, UNEA_type_01_radiobutton
+      If UNEA_type_02 <> "" then RadioButton 10, 35, 160, 10, "Type " & UNEA_type_02 & ", claim number " & UNEA_claim_number_02, UNEA_type_02_radiobutton
+      If UNEA_type_03 <> "" then RadioButton 10, 50, 160, 10, "Type " & UNEA_type_03 & ", claim number " & UNEA_claim_number_03, UNEA_type_03_radiobutton
+      If UNEA_type_04 <> "" then RadioButton 10, 65, 160, 10, "Type " & UNEA_type_04 & ", claim number " & UNEA_claim_number_04, UNEA_type_04_radiobutton
+      If UNEA_type_05 <> "" then RadioButton 10, 80, 160, 10, "Type " & UNEA_type_05 & ", claim number " & UNEA_claim_number_05, UNEA_type_05_radiobutton
     EndDialog
   
     Dialog UNEA_claim_dialog
     If ButtonPressed = 0 then stopscript
-    If UNEA_type_01_check = 1 then
+    If UNEA_type_01_radiobutton = 1 then
       claim_number = UNEA_claim_number_01
-    ElseIf UNEA_type_02_check = 1 then
+    ElseIf UNEA_type_02_radiobutton = 1 then
       claim_number = UNEA_claim_number_02
-    ElseIf UNEA_type_03_check = 1 then
+    ElseIf UNEA_type_03_radiobutton = 1 then
       claim_number = UNEA_claim_number_03
-    ElseIf UNEA_type_04_check = 1 then
+    ElseIf UNEA_type_04_radiobutton = 1 then
       claim_number = UNEA_claim_number_04
-    ElseIf UNEA_type_05_check = 1 then
+    ElseIf UNEA_type_05_radiobutton = 1 then
       claim_number = UNEA_claim_number_05
     End if
   Else  
@@ -163,9 +166,7 @@ If UNEA_radio = 1 then
   transmit 'Now we will enter the QURY screen to type the claim number.
 
   EMWriteScreen claim_number, 7, 38
-End if
-
-If BNDX_radio = 1 then
+ElseIf BNDX_radiobutton = 1 then
   call navigate_to_screen ("infc", "____")
   EMWriteScreen SSN1,  4, 63
   EMWriteScreen SSN2,  4, 66
@@ -182,24 +183,25 @@ If BNDX_radio = 1 then
   If BNDX_claim_number_02 = "             " and BNDX_claim_number_03 = "             " then 
     claim_number = replace(BNDX_claim_number_01, " ", "")
   Else
+
     BeginDialog BNDX_claim_dialog, 0, 0, 240, 70, "BNDX claim dialog"
       ButtonGroup ButtonPressed
         OkButton 185, 10, 50, 15
         CancelButton 185, 30, 50, 15
       Text 10, 5, 105, 10, "BNDX claims to look at:"
       OptionGroup RadioGroup1
-      If BNDX_claim_number_01 <> "" then RadioButton 10, 20, 160, 10, BNDX_claim_number_01, BNDX_claim_number_01_radio
-      If BNDX_claim_number_02 <> "" then RadioButton 10, 35, 160, 10, BNDX_claim_number_02, BNDX_claim_number_02_radio
-      If BNDX_claim_number_03 <> "" then RadioButton 10, 50, 160, 10, BNDX_claim_number_03, BNDX_claim_number_03_radio
+      If BNDX_claim_number_01 <> "" then RadioButton 10, 20, 160, 10, BNDX_claim_number_01, BNDX_claim_number_01_radiobutton
+      If BNDX_claim_number_02 <> "" then RadioButton 10, 35, 160, 10, BNDX_claim_number_02, BNDX_claim_number_02_radiobutton
+      If BNDX_claim_number_03 <> "" then RadioButton 10, 50, 160, 10, BNDX_claim_number_03, BNDX_claim_number_03_radiobutton
     EndDialog
   
     Dialog BNDX_claim_dialog
     If ButtonPressed = 0 then stopscript
-    If BNDX_claim_number_01_radio = 1 then
+    If BNDX_claim_number_01_radiobutton = 1 then
       claim_number = replace(BNDX_claim_number_01, " ", "")
-    ElseIf BNDX_claim_number_02_radio = 1 then
+    ElseIf BNDX_claim_number_02_radiobutton = 1 then
       claim_number = replace(BNDX_claim_number_02, " ", "")
-    ElseIf BNDX_claim_number_03_radio = 1 then
+    ElseIf BNDX_claim_number_03_radiobutton = 1 then
       claim_number = replace(BNDX_claim_number_03, " ", "")
     End if
   End if
@@ -217,6 +219,29 @@ End if
 
 EMWriteScreen case_number, 11, 38
 EMWriteScreen "y", 14, 38
+
+'Shuts down here if the user does not want to case note
+If case_note_checkbox = unchecked then script_end_procedure("")
+
+'Now it sends the SVES.
+transmit
+
+
+
+'Now it case notes
+call navigate_to_screen("CASE", "NOTE")
+PF9
+call write_variable_in_case_note("~~~SVES/QURY sent for MEMB " & member_number & "~~~")
+If SSN_radiobutton = 1 then
+	call write_variable_in_case_note("* Used SSN for QURY.")
+ElseIf UNEA_radiobutton = 1 then
+	call write_variable_in_case_note("* Used claim number on UNEA for QURY.")
+ElseIf BNDX_radiobutton = 1 then
+	call write_variable_in_case_note("* Used claim number on BNDX for QURY.")
+End If
+call write_variable_in_case_note("* QURY sent using script.")
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
 
