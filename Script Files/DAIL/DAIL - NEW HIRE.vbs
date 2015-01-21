@@ -33,27 +33,26 @@ END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 291, 115, "New HIRE dialog"
+BeginDialog new_HIRE_dialog, 0, 0, 291, 130, "New HIRE dialog"
   EditBox 80, 10, 25, 15, HH_memb
-  CheckBox 5, 30, 160, 10, "Check here if this job is known to the agency.", job_known_check
+  CheckBox 5, 30, 160, 10, "Check here if this job is known to the agency.", job_known_checkbox
   EditBox 95, 45, 190, 15, employer
-  CheckBox 5, 65, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_check
-  CheckBox 5, 80, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_check
-  EditBox 70, 95, 80, 15, worker_signature
+  CheckBox 5, 65, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_checkbox
+  CheckBox 5, 80, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_checkbox
+  CheckBox 5, 95, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  EditBox 70, 110, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 95, 50, 15
-    CancelButton 235, 95, 50, 15
+    OkButton 180, 110, 50, 15
+    CancelButton 235, 110, 50, 15
     PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 175, 25, 45, 10, "next panel", next_panel_button
     PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 235, 25, 45, 10, "next memb", next_memb_button
-  GroupBox 170, 5, 115, 35, "STAT-based navigation"
   Text 5, 15, 70, 10, "HH member number:"
   Text 5, 50, 85, 10, "Job on DAIL is listed as:"
-  Text 5, 100, 60, 10, "Worker signature:"
+  Text 5, 115, 60, 10, "Worker signature:"
+  GroupBox 170, 5, 115, 35, "STAT-based navigation"
 EndDialog
-
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
 
@@ -141,10 +140,10 @@ EMWriteScreen HH_memb, 20, 76
 transmit
 
 'MFIP cases need to manually add the JOBS panel for ES purposes.
-If MFIP_case = False then create_JOBS_check = checked 
+If MFIP_case = False then create_JOBS_checkbox = checked 
 
 'Defaulting the "set TIKL" variable to checked
-TIKL_check = checked
+TIKL_checkbox = checked
 
 'Setting the variable for the following do...loop
 HH_memb_row = 5 
@@ -164,26 +163,26 @@ Do
 Loop until ButtonPressed = OK
 
 'If new job is known, script ends.
-If job_known_check = checked then script_end_procedure("The script will stop as this job is known.")
+If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
 
 'Now it will create a new JOBS panel for this case.
-If create_JOBS_check = checked then
-	EMWriteScreen "nn", 20, 79			'Creates new panel
-	transmit						'Transmits
-	EMWriteScreen "w", 5, 38			'Wage income is the type
-	EMWriteScreen "n", 6, 38			'No proof has been provided
+If create_JOBS_checkbox = checked then
+	EMWriteScreen "nn", 20, 79				'Creates new panel
+	transmit								'Transmits
+	EMWriteScreen "w", 5, 38				'Wage income is the type
+	EMWriteScreen "n", 6, 38				'No proof has been provided
 	EMWriteScreen employer, 7, 42			'Adds employer info
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
-	EMWriteScreen day_hired, 9, 38		'Adds day hired
-	EMWriteScreen year_hired, 9, 41		'Adds year hired
+	EMWriteScreen day_hired, 9, 38			'Adds day hired
+	EMWriteScreen year_hired, 9, 41			'Adds year hired
 	EMReadScreen footer_month, 2, 20, 55	'Reads footer month for updating the panel
 	EMReadScreen footer_year, 2, 20, 58		'Reads footer year
 	EMWriteScreen footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
 	EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
 	EMWriteScreen footer_year, 12, 60		'Puts footer year in on prospective side
-	EMWriteScreen "0", 12, 67			'Puts $0 in as the received income amt
-	EMWriteScreen "0", 18, 72			'Puts 0 hours in as the worked hours
-	If FS_case = True then 				'If case is SNAP, it creates a PIC
+	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
+	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
+	If FS_case = True then 					'If case is SNAP, it creates a PIC
 		EMWriteScreen "x", 19, 38			
 		transmit						
 		EMWriteScreen current_month, 5, 34		
@@ -218,17 +217,18 @@ transmit
 EMSendKey replace(new_hire_first_line, new_HIRE_SSN, "XXX-XX-XXXX") & "<newline>" & new_hire_second_line & "<newline>" & new_hire_third_line + "<newline>" & new_hire_fourth_line & "<newline>" & "---" & "<newline>"
 
 'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-call write_new_line_in_case_note("* Job unreported to the agency.")
-call write_new_line_in_case_note("* Sent employment verification and DHS-2919B (Verification Request Form - B).")
-If create_JOBS_check = checked then call write_new_line_in_case_note("* JOBS updated with new hire info from DAIL.")
-If TIKL_check = checked then call write_new_line_in_case_note("* TIKLed for 10-day return.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature & ", using automated script.")
+call write_variable_in_case_note("* Job unreported to the agency.")
+call write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verification Request Form - B).")
+If create_JOBS_checkbox = checked then call write_variable_in_case_note("* JOBS updated with new hire info from DAIL.")
+If TIKL_checkbox = checked then call write_variable_in_case_note("* TIKLed for 10-day return.")
+If requested_CEI_OHI_docs_checkbox = checked then call write_variable_in_case_note("* Requested CEI/OHI docs.")
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature & ", using automated script.")
 PF3
 PF3
 
-'If TIKL_check is unchecked, it needs to end here.
-If TIKL_check = unchecked then
+'If TIKL_checkbox is unchecked, it needs to end here.
+If TIKL_checkbox = unchecked then
 	MsgBox "Success! MAXIS updated for new HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & "."
 	script_end_procedure("")
 End if
@@ -244,7 +244,7 @@ call create_MAXIS_friendly_date(date, 10, 5, 18)
 EMSetCursor 9, 3
 
 'Sending TIKL text.
-EMSendKey "Verification of NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." + "<enter>"
+call write_variable_in_TIKL("Verification of NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script).")
 
 'Submits TIKL
 transmit
