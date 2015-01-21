@@ -1,8 +1,8 @@
-Enter file contents here'PLEASE NOTE: this script was designed to run off of the BULK - pull data into Excel script.
+'PLEASE NOTE: this script was designed to run off of the BULK - pull data into Excel script.
 'As such, it might not work if ran separately from that.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - REPT-PND1 list"
+name_of_script = "BULK - REPT-PND1 LIST.vbs"
 start_time = timer
 
 'DIALOGS-------------------------------------------------------------------------------------------------------------
@@ -94,10 +94,10 @@ For each worker in worker_array
 			'Set variable for next do...loop
 			MAXIS_row = 7
 			Do			
-				EMReadScreen case_number, 4, MAXIS_row, 7			'Reading case number
+				EMReadScreen case_number, 8, MAXIS_row, 3			'Reading case number
 				EMReadScreen client_name, 25, MAXIS_row, 13		'Reading client name
 				EMReadScreen appl_date, 8, MAXIS_row, 41		      'Reading application date
-				EMReadScreen nbr_days_pending, 2, MAXIS_row, 55		'Reading nbr days pending
+				EMReadScreen nbr_days_pending, 4, MAXIS_row, 54		'Reading nbr days pending
 				EMReadScreen stop_autodeny, 1, MAXIS_row, 65		'Reading stop autodeny
 				EMReadScreen autodeny_date, 8, MAXIS_row, 72		'Reading autodeny date
 
@@ -106,6 +106,14 @@ For each worker in worker_array
 				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
 
 				If case_number = "        " then exit do			'Exits do if we reach the end
+				
+				ObjExcel.Cells(excel_row, 1).Value = worker
+				ObjExcel.Cells(excel_row, 2).Value = case_number
+				ObjExcel.Cells(excel_row, 3).Value = client_name
+				ObjExcel.Cells(excel_row, 4).Value = replace(APPL_date, " ", "/")
+				ObjExcel.Cells(excel_row, 5).Value = abs(nbr_days_pending)
+				ObjExcel.Cells(excel_row, 6).Value = stop_autodeny
+				ObjExcel.Cells(excel_row, 7).Value = replace(autodeny_date, " ", "/")
 
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
@@ -113,15 +121,14 @@ For each worker in worker_array
 				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
+			EMReadScreen last_page_check, 21, 24, 2
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
 
-'logging usage state
-script_end_procedure("")
+'col_to_use is normally used for setting a variable amount of columns. PND1, however, always uses the same amount. I'm setting it as a firm variable here, but this could just as easily include a "col_to_use = col_to_use + 2", like in the PND2 script. -VKC, 01/12/2015
 
-col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
-row_to_use = 3			'For the individual program-breakdown of info
+col_to_use = 10
 
 'Query date/time/runtime info
 objExcel.Cells(1, col_to_use - 1).Font.Bold = TRUE
@@ -135,3 +142,6 @@ ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
+
+'logging usage stats
+script_end_procedure("")
