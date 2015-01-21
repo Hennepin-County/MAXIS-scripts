@@ -30,27 +30,30 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts m
   ButtonGroup ButtonPressed
     CancelButton 400, 195, 50, 15
     PushButton 5, 20, 50, 10, "BILS updater", BILS_UPDATER_button
-    PushButton 5, 35, 75, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
-    PushButton 5, 50, 105, 10, "LTC-Spousal Allocation FIATer", LTC_SPOUSAL_ALLOCATION_FIATER_button
-    PushButton 5, 65, 105, 10, "MA-EPD earned income FIATer", MA_EPD_EI_FIAT_button
-    PushButton 5, 80, 60, 10, "New job reported", NEW_JOB_REPORTED_button
-    PushButton 5, 105, 60, 10, "PA verif request", PA_VERIF_REQUEST_button
-    PushButton 5, 120, 70, 10, "Paystubs Received", PAYSTUBS_RECEIVED_button
-    PushButton 5, 145, 45, 10, "Send SVES", SEND_SVES_button
-    PushButton 5, 160, 55, 10, "Transfer case", TRANSFER_CASE_button
-    PushButton 5, 185, 85, 10, "Update worker signature", UPDATE_WORKER_SIGNATURE_button
+    PushButton 5, 35, 50, 10, "Check EDRS", CHECK_EDRS_button
+    PushButton 5, 50, 75, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
+    PushButton 5, 65, 105, 10, "LTC-Spousal Allocation FIATer", LTC_SPOUSAL_ALLOCATION_FIATER_button
+    PushButton 5, 80, 105, 10, "MA-EPD earned income FIATer", MA_EPD_EI_FIAT_button
+    PushButton 5, 95, 60, 10, "New job reported", NEW_JOB_REPORTED_button
+    PushButton 5, 120, 60, 10, "PA verif request", PA_VERIF_REQUEST_button
+    PushButton 5, 135, 70, 10, "Paystubs Received", PAYSTUBS_RECEIVED_button
+    PushButton 5, 160, 45, 10, "Send SVES", SEND_SVES_button
+    PushButton 5, 175, 55, 10, "Transfer case", TRANSFER_CASE_button
+    PushButton 5, 200, 85, 10, "Update worker signature", UPDATE_WORKER_SIGNATURE_button
   Text 5, 5, 245, 10, "Action scripts main menu: select the script to run from the choices below."
   Text 60, 20, 215, 10, "--- Updates a BILS panel with reoccurring or actual BILS received."
-  Text 85, 35, 180, 10, "--- Copies MAXIS panels to Word en masse for a case."
-  Text 115, 50, 175, 10, "--- FIATs a spousal allocation across a budget period."
-  Text 115, 65, 295, 10, "--- FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
-  Text 70, 80, 380, 20, "--- Creates a JOBS panel, a CASE/NOTE, and a TIKL, when client reports a new job. For new HIRE messages on the DAIL, use the DAIL scrubber instead."
-  Text 70, 105, 320, 10, "--- Creates a Word document with PA benefit totals for other agencies to determine client benefits."
-  Text 80, 120, 370, 20, "--- Enter in paystubs on one dialog, and it puts that information on JOBS (both retrospective and prospective if applicable), as well as the PIC and HC pop-up, and it'll case note the income as well."
-  Text 55, 145, 90, 10, "--- Sends a SVES/QURY."
-  Text 65, 160, 380, 20, "--- SPEC/XFERs a case, and can send a memo to the new client. For in-agency as well as between agencies (out-of-county XFERs)."
-  Text 95, 185, 185, 10, "--- Updates the default worker signature on your scripts."
+  Text 60, 35, 185, 10, "--- sends an EDRS request for a HH member on a case."
+  Text 85, 50, 180, 10, "--- Copies MAXIS panels to Word en masse for a case."
+  Text 115, 65, 175, 10, "--- FIATs a spousal allocation across a budget period."
+  Text 115, 80, 295, 10, "--- FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
+  Text 70, 95, 380, 20, "--- Creates a JOBS panel, a CASE/NOTE, and a TIKL, when client reports a new job. For new HIRE messages on the DAIL, use the DAIL scrubber instead."
+  Text 70, 120, 320, 10, "--- Creates a Word document with PA benefit totals for other agencies to determine client benefits."
+  Text 80, 135, 370, 20, "--- Enter in paystubs on one dialog, and it puts that information on JOBS (both retrospective and prospective if applicable), as well as the PIC and HC pop-up, and it'll case note the income as well."
+  Text 55, 160, 90, 10, "--- Sends a SVES/QURY."
+  Text 65, 175, 380, 20, "--- SPEC/XFERs a case, and can send a memo to the new client. For in-agency as well as between agencies (out-of-county XFERs)."
+  Text 95, 200, 185, 10, "--- Updates the default worker signature on your scripts."
 EndDialog
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
@@ -62,6 +65,7 @@ If buttonpressed = cancel then stopscript
 EMConnect ""
 
 If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - BILS UPDATER.vbs")
+If buttonpressed = CHECK_EDRS_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - CHECK EDRS.vbs")
 If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - COPY PANELS TO WORD.vbs")
 If buttonpressed = LTC_SPOUSAL_ALLOCATION_FIATER_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs")
 If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "ACTIONS/ACTIONS - MA-EPD EI FIAT.vbs")
