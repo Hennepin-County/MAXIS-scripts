@@ -44,10 +44,9 @@ BeginDialog case_number_dialog, 0, 0, 181, 115, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
-  CheckBox 10, 60, 35, 10, "SNAP", SNAP_check
-  CheckBox 55, 60, 35, 10, "WB", WB_check
-  CheckBox 95, 60, 30, 10, "HC", HC_check
-  CheckBox 10, 80, 100, 10, "Is this an exempt (*) IR?", paperless_check
+  CheckBox 10, 60, 35, 10, "SNAP", SNAP_checkbox
+  CheckBox 95, 60, 30, 10, "HC", HC_checkbox
+  CheckBox 10, 80, 100, 10, "Is this an exempt (*) IR?", paperless_checkbox
   ButtonGroup ButtonPressed
     OkButton 35, 95, 50, 15
     CancelButton 95, 95, 50, 15
@@ -57,9 +56,9 @@ BeginDialog case_number_dialog, 0, 0, 181, 115, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
-BeginDialog CSR_dialog, 0, 0, 451, 325, "CSR dialog"
+BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   EditBox 65, 15, 50, 15, CSR_datestamp
-  DropListBox 170, 15, 75, 15, "complete"+chr(9)+"incomplete", CSR_status
+  DropListBox 170, 15, 75, 15, "select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
   EditBox 40, 35, 280, 15, HH_comp
   EditBox 65, 55, 380, 15, earned_income
   EditBox 70, 75, 375, 15, unearned_income
@@ -72,16 +71,16 @@ BeginDialog CSR_dialog, 0, 0, 451, 325, "CSR dialog"
   EditBox 60, 195, 385, 15, verifs_needed
   EditBox 60, 215, 385, 15, actions_taken
   EditBox 380, 235, 65, 15, worker_signature
-  CheckBox 165, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_check
-  CheckBox 165, 295, 210, 15, "Check here if CSR and cash supplement were used as a HRF.", HRF_check
+  CheckBox 165, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
+  CheckBox 165, 295, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
+  CheckBox 165, 310, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
   EditBox 60, 290, 90, 15, MAEPD_premium
-  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_check
+  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_checkbox
   ButtonGroup ButtonPressed
     OkButton 340, 255, 50, 15
     CancelButton 395, 255, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
-    PushButton 300, 15, 20, 10, "WB", ELIG_WB_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
@@ -105,7 +104,7 @@ BeginDialog CSR_dialog, 0, 0, 451, 325, "CSR dialog"
     PushButton 215, 250, 25, 10, "MEMI", MEMI_button
     PushButton 240, 250, 25, 10, "REVW", REVW_button
     PushButton 80, 310, 65, 10, "SIR mail", SIR_mail_button
-  GroupBox 255, 5, 70, 25, "ELIG panels:"
+  GroupBox 255, 5, 50, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation:"
   Text 5, 20, 55, 10, "CSR datestamp:"
   Text 125, 20, 40, 10, "CSR status:"
@@ -124,6 +123,7 @@ BeginDialog CSR_dialog, 0, 0, 451, 325, "CSR dialog"
   GroupBox 5, 280, 150, 45, "If MA-EPD..."
   Text 10, 295, 50, 10, "New premium:"
 EndDialog
+
 
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
@@ -160,16 +160,16 @@ If IsNumeric(case_number) = False then case_number = ""
 'Searching for the footer month
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
+	footer_month = MAXIS_footer_month
+	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+	If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
 'Showing the case number dialog
 Do
-  Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+	Dialog case_number_dialog
+	If ButtonPressed = 0 then stopscript
+	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
@@ -178,23 +178,20 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
 'If "paperless" was checked, the script will put a simple case note in and end.
-If paperless_check = 1 then
-  call navigate_to_screen("case", "note")
-  PF9
-  EMWriteScreen "***Cleared paperless IR for " & footer_month & "/" & footer_year & "***", 4, 3
-  EMWriteScreen "---", 5, 3
-  worker_signature = InputBox ("Sign your case note:", "worker signature")
-  EMWriteScreen worker_signature, 6, 3
-  call script_end_procedure("")
+If paperless_checkbox = 1 then
+	call navigate_to_screen("case", "note")
+	PF9
+	EMWriteScreen "***Cleared paperless IR for " & footer_month & "/" & footer_year & "***", 4, 3
+	EMWriteScreen "---", 5, 3
+	worker_signature = InputBox ("Sign your case note:", "worker signature")
+	EMWriteScreen worker_signature, 6, 3
+	call script_end_procedure("")
 End if
 
 'Navigating to STAT/REVW, checking for error prone cases
 call navigate_to_screen("stat", "revw")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then call script_end_procedure("Can't get into STAT. This case may be in background. Wait a few seconds and try again. If this case is not in background email your script administrator the case number and footer month.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
-
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -230,9 +227,9 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 '-----------------Creating text for case note
 'Programs recertifying case noting info into variable
-If cash_check = 1 then programs_recertifying = programs_recertifying & "cash, "
-If HC_check = 1 then programs_recertifying = programs_recertifying & "HC, "
-If SNAP_check = 1 then programs_recertifying = programs_recertifying & "SNAP, "
+If cash_checkbox = 1 then programs_recertifying = programs_recertifying & "cash, "
+If HC_checkbox = 1 then programs_recertifying = programs_recertifying & "HC, "
+If SNAP_checkbox = 1 then programs_recertifying = programs_recertifying & "SNAP, "
 programs_recertifying = trim(programs_recertifying)
 if right(programs_recertifying, 1) = "," then programs_recertifying = left(programs_recertifying, len(programs_recertifying) - 1)
 
@@ -241,101 +238,102 @@ CSR_month = footer_month & "/" & footer_year
 
 'Showing the case note dialog
 Do
-  Do
-    Do
-      Do
-        Do
-          Dialog CSR_dialog
-          If ButtonPressed = 0 then 
-            dialog cancel_dialog
-            If ButtonPressed = yes_cancel_button then stopscript
-          End if
-          If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
-        Loop until ButtonPressed <> no_cancel_button
-        EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then call panel_navigation_prev
-          If ButtonPressed = next_panel_button then call panel_navigation_next
-          If ButtonPressed = prev_memb_button then call memb_navigation_prev
-          If ButtonPressed = next_memb_button then call memb_navigation_next
-        End if
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
-      If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
-      If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
-      If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-      If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
-      If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
-      If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
-      If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
-      If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
-      If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
-      If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
-      If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
-      If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
-      If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
-      If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
-      If ButtonPressed = SHEL_button then call navigate_to_screen("stat", "SHEL")
-      If ButtonPressed = HEST_button then call navigate_to_screen("stat", "HEST")
-      If ButtonPressed = DCEX_button then call navigate_to_screen("stat", "DCEX")
-      If ButtonPressed = COEX_button then call navigate_to_screen("stat", "COEX")
-      If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-      If ButtonPressed = ELIG_FS_button then call navigate_to_screen("elig", "FS__")
-      If ButtonPressed = ELIG_WB_button then call navigate_to_screen("elig", "WB__")
-    Loop until ButtonPressed = -1
-    If (earned_income = "" and unearned_income = "") or actions_taken = "" or CSR_datestamp = "" or worker_signature = "" or CSR_status = " " then MsgBox "You need to fill in the datestamp, income, CSR status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-  Loop until (earned_income <> "" or unearned_income <> "") and actions_taken <> "" and CSR_datestamp <> "" and worker_signature <> "" and CSR_status <> " "
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
-    If grab_FS_info_check = 1 then
-      call navigate_to_screen("elig", "fs")
-      EMReadScreen FSPR_check, 4, 3, 48
-      If FSPR_check <> "FSPR" then
-        MsgBox "The script couldn't find ELIG/FS. It will now jump to case note."
-      Else
-        EMWriteScreen "FSSM", 19, 70
-        transmit
-        EMReadScreen FSSM_line_01, 37, 13, 44
-        EMReadScreen FSSM_line_02, 37, 8, 3
-        EMReadScreen FSSM_line_03, 37, 10, 3
-      End if
-    End if
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
+	Do
+		Do
+			Do
+				Do
+					Dialog CSR_dialog
+					If ButtonPressed = 0 then 
+						dialog cancel_dialog
+						If ButtonPressed = yes_cancel_button then stopscript
+					End if
+					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
+				Loop until ButtonPressed <> no_cancel_button
+				EMReadScreen STAT_check, 4, 20, 21
+				If STAT_check = "STAT" then
+					If ButtonPressed = prev_panel_button then call panel_navigation_prev
+					If ButtonPressed = next_panel_button then call panel_navigation_next
+					If ButtonPressed = prev_memb_button then call memb_navigation_prev
+					If ButtonPressed = next_memb_button then call memb_navigation_next
+				End if
+				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
+				EMReadScreen MAXIS_check, 5, 1, 39
+				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+			If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
+			If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
+			If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
+			If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
+			If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
+			If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
+			If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
+			If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
+			If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
+			If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
+			If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
+			If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
+			If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
+			If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
+			If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
+			If ButtonPressed = SHEL_button then call navigate_to_screen("stat", "SHEL")
+			If ButtonPressed = HEST_button then call navigate_to_screen("stat", "HEST")
+			If ButtonPressed = DCEX_button then call navigate_to_screen("stat", "DCEX")
+			If ButtonPressed = COEX_button then call navigate_to_screen("stat", "COEX")
+			If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
+			If ButtonPressed = ELIG_FS_button then call navigate_to_screen("elig", "FS__")
+			If ButtonPressed = ELIG_WB_button then call navigate_to_screen("elig", "WB__")
+		Loop until ButtonPressed = -1
+		If (earned_income = "" and unearned_income = "") or actions_taken = "" or CSR_datestamp = "" or worker_signature = "" or CSR_status = "select one..." then MsgBox "You need to fill in the datestamp, income, CSR status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
+	Loop until (earned_income <> "" or unearned_income <> "") and actions_taken <> "" and CSR_datestamp <> "" and worker_signature <> "" and CSR_status <> "select one..."
+	If ButtonPressed = -1 then dialog case_note_dialog
+	If buttonpressed = yes_case_note_button then
+		If grab_FS_info_checkbox = 1 then
+			call navigate_to_screen("elig", "fs")
+			EMReadScreen FSPR_check, 4, 3, 48
+			If FSPR_check <> "FSPR" then
+				MsgBox "The script couldn't find ELIG/FS. It will now jump to case note."
+			Else
+				EMWriteScreen "FSSM", 19, 70
+				transmit
+				EMReadScreen FSSM_line_01, 37, 13, 44
+				EMReadScreen FSSM_line_02, 37, 8, 3
+				EMReadScreen FSSM_line_03, 37, 10, 3
+			End if
+		End if
+		call navigate_to_screen("case", "note")
+		PF9
+		EMReadScreen case_note_check, 17, 2, 33
+		EMReadScreen mode_check, 1, 20, 09
+		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
+	End if
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'Writing the case note to MAXIS
-EMSendKey "<home>" & "***" & CSR_month & " CSR received " & CSR_datestamp & ": " & CSR_status & "***" & "<newline>"
-call write_editbox_in_case_note("Programs recertifying", programs_recertifying, 6)
-call write_editbox_in_case_note("HH comp", HH_comp, 6)
-If earned_income <> "" then call write_editbox_in_case_note("Earned income", earned_income, 6)
-If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
-If assets <> "" then call write_editbox_in_case_note("Assets", assets, 6)
-If SHEL_HEST <> "" then call write_editbox_in_case_note("SHEL/HEST", SHEL_HEST, 6)
-If COEX_DCEX <> "" then call write_editbox_in_case_note("COEX/DCEX", COEX_DCEX, 6)
-if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
-if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-If changes <> "" then call write_editbox_in_case_note("Changes", changes, 6)
-If HRF_check = 1 then call write_new_line_in_case_note("* CSR and cash supplement used as HRF.")
-if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-If MAEPD_premium <> "" then call write_editbox_in_case_note("MA-EPD premium", MAEPD_premium, 6)
-If MADE_check = checked then call write_new_line_in_case_note("* Emailed MADE through DHS-SIR.")
-call write_new_line_in_case_note("---")
+call write_variable_in_case_note("***" & CSR_month & " CSR received " & CSR_datestamp & ": " & CSR_status & "***")
+call write_bullet_and_variable_in_case_note("Programs recertifying", programs_recertifying)
+call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
+If earned_income <> "" then call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+If unearned_income <> "" then call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+If assets <> "" then call write_bullet_and_variable_in_case_note("Assets", assets)
+If SHEL_HEST <> "" then call write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL_HEST)
+If COEX_DCEX <> "" then call write_bullet_and_variable_in_case_note("COEX/DCEX", COEX_DCEX)
+if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+If changes <> "" then call write_bullet_and_variable_in_case_note("Changes", changes)
+If HRF_checkbox = checked then call write_variable_in_case_note("* CSR and cash supplement used as HRF.")
+If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
+if verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+If MAEPD_premium <> "" then call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
+If MADE_checkbox = checked then call write_variable_in_case_note("* Emailed MADE through DHS-SIR.")
+call write_variable_in_case_note("---")
 If FSPR_check = "FSPR" then
-  call write_new_line_in_case_note("   " & FSSM_line_01)
-  call write_new_line_in_case_note("   " & FSSM_line_02)
-  call write_new_line_in_case_note("   " & FSSM_line_03)
-  call write_new_line_in_case_note("---")
+	call write_variable_in_case_note("   " & FSSM_line_01)
+	call write_variable_in_case_note("   " & FSSM_line_02)
+	call write_variable_in_case_note("   " & FSSM_line_03)
+	call write_variable_in_case_note("---")
 End if
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_case_note(worker_signature)
 
 call script_end_procedure("")
 
