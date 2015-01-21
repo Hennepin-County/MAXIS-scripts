@@ -40,10 +40,10 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
-  CheckBox 10, 60, 30, 10, "cash", cash_check
-  CheckBox 50, 60, 30, 10, "HC", HC_check
-  CheckBox 90, 60, 35, 10, "SNAP", SNAP_check
-  CheckBox 135, 60, 35, 10, "EMER", EMER_check
+  CheckBox 10, 60, 30, 10, "cash", cash_checkbox
+  CheckBox 50, 60, 30, 10, "HC", HC_checkbox
+  CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
+  CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
   DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program", CAF_type
   ButtonGroup ButtonPressed
     OkButton 35, 100, 50, 15
@@ -174,38 +174,39 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   Text 5, 280, 50, 10, "Verifs needed:"
 EndDialog
 
-
-BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
+'CAF_status needs to have the " "+chr(9)+ manually added each time.
+BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   EditBox 60, 45, 385, 15, INSA
   EditBox 35, 65, 410, 15, ACCI
   EditBox 35, 85, 175, 15, DIET
   EditBox 245, 85, 200, 15, BILS
   EditBox 35, 105, 285, 15, FMED
   EditBox 390, 105, 55, 15, retro_request
-  EditBox 180, 135, 265, 15, reason_expedited_wasnt_processed
-  EditBox 100, 155, 345, 15, FIAT_reasons
-  CheckBox 10, 180, 80, 10, "Application signed?", application_signed_check
-  CheckBox 95, 180, 50, 10, "Expedited?", expedited_check
-  CheckBox 150, 180, 65, 10, "Appt letter sent?", appt_letter_sent_check
-  CheckBox 220, 180, 65, 10, "R/R explained?", R_R_check
-  CheckBox 290, 180, 80, 10, "Intake packet given?", intake_packet_check
-  CheckBox 375, 180, 70, 10, "EBT referral sent?", EBT_referral_check
-  CheckBox 10, 195, 95, 10, "Workforce referral made?", WF1_check
-  CheckBox 120, 195, 70, 10, "IAAs/OMB given?", IAA_check
-  CheckBox 205, 195, 65, 10, "Updated MMIS?", updated_MMIS_check
-  CheckBox 280, 195, 105, 10, "Managed care packet sent?", managed_care_packet_check
-  CheckBox 10, 210, 115, 10, "Managed care referral made?", managed_care_referral_check
-  CheckBox 135, 210, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
-  CheckBox 10, 225, 250, 10, "Check here to have the script create a TIKL to deny at the 30/45 day mark.", TIKL_check
-  CheckBox 10, 240, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_check
-  EditBox 55, 255, 230, 15, other_notes
-  ComboBox 330, 255, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-  EditBox 55, 275, 390, 15, verifs_needed
-  EditBox 55, 295, 390, 15, actions_taken
-  EditBox 395, 315, 50, 15, worker_signature
+  EditBox 180, 130, 265, 15, reason_expedited_wasnt_processed
+  EditBox 100, 150, 345, 15, FIAT_reasons
+  CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
+  CheckBox 100, 190, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
+  CheckBox 175, 190, 70, 10, "EBT referral sent?", EBT_referral_checkbox
+  CheckBox 255, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
+  CheckBox 315, 190, 50, 10, "Expedited?", expedited_checkbox
+  CheckBox 375, 190, 70, 10, "IAAs/OMB given?", IAA_checkbox
+  CheckBox 15, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
+  CheckBox 100, 205, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
+  CheckBox 210, 205, 110, 10, "Managed care referral made?", managed_care_referral_checkbox
+  CheckBox 330, 205, 65, 10, "R/R explained?", R_R_checkbox
+  CheckBox 15, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
+  CheckBox 90, 220, 95, 10, "Workforce referral made?", WF1_checkbox
+  EditBox 55, 240, 230, 15, other_notes
+  ComboBox 330, 240, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
+  EditBox 55, 260, 390, 15, verifs_needed
+  EditBox 55, 280, 390, 15, actions_taken
+  CheckBox 15, 315, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
+  CheckBox 15, 330, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
+  CheckBox 15, 345, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
+  EditBox 395, 325, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 335, 50, 15
-    CancelButton 395, 335, 50, 15
+    OkButton 340, 345, 50, 15
+    CancelButton 395, 345, 50, 15
     PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
     PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
     PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
@@ -224,24 +225,27 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 355, "CAF dialog part 3"
     PushButton 215, 90, 25, 10, "BILS:", BILS_button
     PushButton 5, 110, 25, 10, "FMED:", FMED_button
     PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-    PushButton 265, 340, 60, 10, "previous page", previous_to_page_02_button
+    PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
   GroupBox 5, 5, 130, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  Text 5, 140, 170, 10, "Reason expedited wasn't processed (if applicable):"
-  Text 5, 160, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 260, 50, 10, "Other notes:"
-  Text 290, 260, 40, 10, "CAF status:"
-  Text 5, 280, 50, 10, "Verifs needed:"
-  Text 5, 300, 50, 10, "Actions taken:"
-  Text 330, 320, 60, 10, "Worker signature:"
+  Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
+  Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
+  GroupBox 5, 175, 440, 60, "Common elements workers should case note:"
+  Text 5, 245, 50, 10, "Other notes:"
+  Text 290, 245, 40, 10, "CAF status:"
+  Text 5, 265, 50, 10, "Verifs needed:"
+  Text 5, 285, 50, 10, "Actions taken:"
+  GroupBox 5, 300, 280, 60, "Actions the script can do:"
+  Text 330, 330, 60, 10, "Worker signature:"
 EndDialog
+
 
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
 Dim col
-application_signed_check = 1 'The script should default to having the application signed.
+application_signed_checkbox = checked 'The script should default to having the application signed.
 
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
@@ -269,16 +273,13 @@ Do
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+call check_for_MAXIS(True)
 
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
 
 
 'Creating a custom dialog for determining who the HH members are
@@ -291,9 +292,9 @@ If CAF_type = "Recertification" then                                            
 Else
   call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
 End if
-If HC_check = 1 and CAF_type <> "Recertification" then call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)     'Grabbing retro info for HC cases that aren't recertifying
+If HC_checkbox = checked and CAF_type <> "Recertification" then call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)     'Grabbing retro info for HC cases that aren't recertifying
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)                                                                        'Grabbing HH comp info from MEMB.
-If SNAP_check = 1 then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", HH_comp)                                                 'Grabbing EATS info for SNAP cases, puts on HH_comp variable
+If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", HH_comp)                                                 'Grabbing EATS info for SNAP cases, puts on HH_comp variable
 'Removing semicolons from HH_comp variable, it is not needed.
 HH_comp = replace(HH_comp, "; ", "")
 
@@ -334,16 +335,16 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
 
 'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
-If cash_check = 1 then programs_applied_for = programs_applied_for & "cash, "
-If HC_check = 1 then programs_applied_for = programs_applied_for & "HC, "
-If SNAP_check = 1 then programs_applied_for = programs_applied_for & "SNAP, "
-If EMER_check = 1 then programs_applied_for = programs_applied_for & "emergency, "
+If cash_checkbox = checked then programs_applied_for = programs_applied_for & "cash, "
+If HC_checkbox = checked then programs_applied_for = programs_applied_for & "HC, "
+If SNAP_checkbox = checked then programs_applied_for = programs_applied_for & "SNAP, "
+If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "emergency, "
 programs_applied_for = trim(programs_applied_for)
 if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 
 
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
-If CAF_type <> "Recertification" then TIKL_check = 1
+If CAF_type <> "Recertification" then TIKL_checkbox = checked
 
 
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -410,7 +411,7 @@ Do
   Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""
   If ButtonPressed = -1 then case_note_confirm = MsgBox("Do you want to case note? Press YES to confirm. Press NO to return to the script.", vbYesNo)
   If case_note_confirm = vbYes then
-    If client_delay_check = 1 and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
+    If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
       call navigate_to_screen("rept", "pnd2")
       EMGetCursor PND2_row, PND2_col
       for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
@@ -437,22 +438,22 @@ Do
       If PND2_check = "PND2" then
         MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
         PF10
-        client_delay_check = 0
+        client_delay_checkbox = unchecked
       End if
     End if
-    If TIKL_check = 1 and CAF_type <> "Recertification" then
-      If cash_check = 1 or EMER_check = 1 or SNAP_check = 1 then
+    If TIKL_checkbox = checked and CAF_type <> "Recertification" then
+      If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
         call navigate_to_screen("dail", "writ")
         call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
         EMSetCursor 9, 3
-        If cash_check = 1 then EMSendKey "cash/"
-        If SNAP_check = 1 then EMSendKey "SNAP/"
-        If EMER_check = 1 then EMSendKey "EMER/"
+        If cash_checkbox = checked then EMSendKey "cash/"
+        If SNAP_checkbox = checked then EMSendKey "SNAP/"
+        If EMER_checkbox = checked then EMSendKey "EMER/"
         EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
         transmit
         PF3
       End if
-      If HC_check = 1 then
+      If HC_checkbox = checked then
         call navigate_to_screen("dail", "writ")
         call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
         EMSetCursor 9, 3
@@ -461,7 +462,7 @@ Do
         PF3
       End if
     End if
-    If client_delay_TIKL_check = checked then
+    If client_delay_TIKL_checkbox = checked then
       call navigate_to_screen("dail", "writ")
       call create_MAXIS_friendly_date(date, 10, 5, 18) 
       EMSetCursor 9, 3
@@ -488,58 +489,59 @@ If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
-If move_verifs_needed = True and verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
-call write_editbox_in_case_note("CAF datestamp", CAF_datestamp, 6)
-If interview_type <> "" and interview_type <> " " then call write_editbox_in_case_note("Interview type", interview_type, 6)
-If interview_date <> "" then call write_editbox_in_case_note("Interview date", interview_date, 6)
-If HC_document_received <> "" and HC_document_received <> " " then call write_editbox_in_case_note("HC document received", HC_document_received, 6)
-If HC_datestamp <> "" then call write_editbox_in_case_note("HC datestamp", HC_datestamp, 6)
-call write_editbox_in_case_note("Programs applied for", programs_applied_for, 6)
-if how_app_was_received <> "" or how_app_was_received <> " " then call write_editbox_in_case_note("How CAF was received", how_app_was_received, 6)	'This one also uses " " as option, because that is the default
-If HH_comp <> "" then call write_editbox_in_case_note("HH comp/EATS", HH_comp, 6)
-If cit_id <> "" then call write_editbox_in_case_note("Cit/ID", cit_id, 6)
-If IMIG <> "" then call write_editbox_in_case_note("IMIG", IMIG, 6)
-If AREP <> "" then call write_editbox_in_case_note("AREP", AREP, 6)
-If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
-If SCHL <> "" then call write_editbox_in_case_note("SCHL/STIN/STEC", SCHL, 6)
-If DISA <> "" then call write_editbox_in_case_note("DISA", DISA, 6)
-If PREG <> "" then call write_editbox_in_case_note("PREG", PREG, 6)
-If ABPS <> "" then call write_editbox_in_case_note("ABPS", ABPS, 6)
-If earned_income <> "" then call write_editbox_in_case_note("Earned income", earned_income, 6)
-If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
-If income_changes <> "" then call write_editbox_in_case_note("STWK/inc. changes", income_changes, 6)
-IF notes_on_abawd <> "" then call write_editbox_in_case_note("ABAWD Notes", notes_on_abawd, 6)
-If notes_on_income <> "" then call write_editbox_in_case_note("Notes on income and budget", notes_on_income, 6)
-If is_any_work_temporary <> "" then call write_editbox_in_case_note("Is any work temporary", is_any_work_temporary, 6)
-If SHEL_HEST <> "" then call write_editbox_in_case_note("SHEL/HEST", SHEL_HEST, 6)
-If COEX_DCEX <> "" then call write_editbox_in_case_note("COEX/DCEX", COEX_DCEX, 6)
-If CASH_ACCTs <> "" then call write_editbox_in_case_note("CASH/ACCTs", CASH_ACCTs, 6)
-If other_assets <> "" then call write_editbox_in_case_note("Other assets", other_assets, 6)
-If INSA <> "" then call write_editbox_in_case_note("INSA", INSA, 6)
-If ACCI <> "" then call write_editbox_in_case_note("ACCI", ACCI, 6)
-If DIET <> "" then call write_editbox_in_case_note("DIET", DIET, 6)
-If BILS <> "" then call write_editbox_in_case_note("BILS", BILS, 6)
-If FMED <> "" then call write_editbox_in_case_note("FMED", FMED, 6)
-If retro_request <> "" then call write_editbox_in_case_note("Retro Request (if applicable)", retro_request, 6)
-If application_signed_check = 1 then call write_new_line_in_case_note("* Application was signed.")
-If application_signed_check = 0 then call write_new_line_in_case_note("* Application was not signed.")
-If expedited_check = 1 then call write_new_line_in_case_note("* Expedited SNAP.")
-If appt_letter_sent_check = 1 then call write_new_line_in_case_note("* Appointment letter was sent before interview.")
-If reason_expedited_wasnt_processed <> "" then call write_editbox_in_case_note("Reason expedited wasn't processed", reason_expedited_wasnt_processed, 6)
-If R_R_check = 1 then call write_new_line_in_case_note("* R/R explained to client.")
-If intake_packet_check = 1 then call write_new_line_in_case_note("* Client received intake packet.")
-If EBT_referral_check = 1 then call write_new_line_in_case_note("* EBT referral made for client.")
-If WF1_check = 1 then call write_new_line_in_case_note("* Workforce referral made.")
-If IAA_check = 1 then call write_new_line_in_case_note("* IAAs/OMB given to client.")
-If updated_MMIS_check = 1 then call write_new_line_in_case_note("* Updated MMIS.")
-If managed_care_packet_check = 1 then call write_new_line_in_case_note("* Client received managed care packet.")
-If managed_care_referral_check = 1 then call write_new_line_in_case_note("* Managed care referral made.")
-If client_delay_check = 1 then call write_new_line_in_case_note("* PND2 updated to show client delay.")
-if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
-if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-If move_verifs_needed = False and verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)		'If global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
-call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+If move_verifs_needed = True and verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+call write_bullet_and_variable_in_case_note("CAF datestamp", CAF_datestamp)
+If interview_type <> "" and interview_type <> " " then call write_bullet_and_variable_in_case_note("Interview type", interview_type)
+If interview_date <> "" then call write_bullet_and_variable_in_case_note("Interview date", interview_date)
+If HC_document_received <> "" and HC_document_received <> " " then call write_bullet_and_variable_in_case_note("HC document received", HC_document_received)
+If HC_datestamp <> "" then call write_bullet_and_variable_in_case_note("HC datestamp", HC_datestamp)
+call write_bullet_and_variable_in_case_note("Programs applied for", programs_applied_for)
+if how_app_was_received <> "" or how_app_was_received <> " " then call write_bullet_and_variable_in_case_note("How CAF was received", how_app_was_received)	'This one also uses " " as option, because that is the default
+If HH_comp <> "" then call write_bullet_and_variable_in_case_note("HH comp/EATS", HH_comp)
+If cit_id <> "" then call write_bullet_and_variable_in_case_note("Cit/ID", cit_id)
+If IMIG <> "" then call write_bullet_and_variable_in_case_note("IMIG", IMIG)
+If AREP <> "" then call write_bullet_and_variable_in_case_note("AREP", AREP)
+If FACI <> "" then call write_bullet_and_variable_in_case_note("FACI", FACI)
+If SCHL <> "" then call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+If DISA <> "" then call write_bullet_and_variable_in_case_note("DISA", DISA)
+If PREG <> "" then call write_bullet_and_variable_in_case_note("PREG", PREG)
+If ABPS <> "" then call write_bullet_and_variable_in_case_note("ABPS", ABPS)
+If earned_income <> "" then call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+If unearned_income <> "" then call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+If income_changes <> "" then call write_bullet_and_variable_in_case_note("STWK/inc. changes", income_changes)
+IF notes_on_abawd <> "" then call write_bullet_and_variable_in_case_note("ABAWD Notes", notes_on_abawd)
+If notes_on_income <> "" then call write_bullet_and_variable_in_case_note("Notes on income and budget", notes_on_income)
+If is_any_work_temporary <> "" then call write_bullet_and_variable_in_case_note("Is any work temporary", is_any_work_temporary)
+If SHEL_HEST <> "" then call write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL_HEST)
+If COEX_DCEX <> "" then call write_bullet_and_variable_in_case_note("COEX/DCEX", COEX_DCEX)
+If CASH_ACCTs <> "" then call write_bullet_and_variable_in_case_note("CASH/ACCTs", CASH_ACCTs)
+If other_assets <> "" then call write_bullet_and_variable_in_case_note("Other assets", other_assets)
+If INSA <> "" then call write_bullet_and_variable_in_case_note("INSA", INSA)
+If ACCI <> "" then call write_bullet_and_variable_in_case_note("ACCI", ACCI)
+If DIET <> "" then call write_bullet_and_variable_in_case_note("DIET", DIET)
+If BILS <> "" then call write_bullet_and_variable_in_case_note("BILS", BILS)
+If FMED <> "" then call write_bullet_and_variable_in_case_note("FMED", FMED)
+If retro_request <> "" then call write_bullet_and_variable_in_case_note("Retro Request (if applicable)", retro_request)
+If application_signed_checkbox = checked then call write_variable_in_case_note("* Application was signed.")
+If application_signed_checkbox = unchecked then call write_variable_in_case_note("* Application was not signed.")
+If appt_letter_sent_checkbox = checked then call write_variable_in_case_note("* Appointment letter was sent before interview.")
+If EBT_referral_checkbox = checked then call write_variable_in_case_note("* EBT referral made for client.")
+If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
+If expedited_checkbox = checked then call write_variable_in_case_note("* Expedited SNAP.")
+If reason_expedited_wasnt_processed <> "" then call write_bullet_and_variable_in_case_note("Reason expedited wasn't processed", reason_expedited_wasnt_processed)	'This is strategically placed next to expedited checkbox entry.
+If IAA_checkbox = checked then call write_variable_in_case_note("* IAAs/OMB given to client.")
+If intake_packet_checkbox = checked then call write_variable_in_case_note("* Client received intake packet.")
+If managed_care_packet_checkbox = checked then call write_variable_in_case_note("* Client received managed care packet.")
+If managed_care_referral_checkbox = checked then call write_variable_in_case_note("* Managed care referral made.")
+If R_R_checkbox = checked then call write_variable_in_case_note("* R/R explained to client.")
+If updated_MMIS_checkbox = checked then call write_variable_in_case_note("* Updated MMIS.")
+If WF1_checkbox = checked then call write_variable_in_case_note("* Workforce referral made.")
+If client_delay_checkbox = checked then call write_variable_in_case_note("* PND2 updated to show client delay.")
+if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+If move_verifs_needed = False and verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")

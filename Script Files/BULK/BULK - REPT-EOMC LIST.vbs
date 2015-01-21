@@ -1,9 +1,32 @@
-'PLEASE NOTE: this script was designed to run off of the BULK - pull data into Excel script.
-'As such, it might not work if ran separately from that.
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - REPT-EOMC LIST.vbs"
 start_time = timer
+
+'LOADING ROUTINE FUNCTIONS---------------------------------------------------------------
+url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER FUNCTIONS LIBRARY.vbs"
+SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
+req.open "GET", url, FALSE									'Attempts to open the URL
+req.send													'Sends request
+IF req.Status = 200 THEN									'200 means great success
+	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+	Execute req.responseText								'Executes the script code
+ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			vbCr & _
+			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+			vbCr & _
+			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+			vbTab & "- The name of the script you are running." & vbCr &_
+			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+			vbTab & vbTab & "responsible for network issues." & vbCr &_
+			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+			vbCr & _
+			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+			vbCr &_
+			"URL: " & url
+			script_end_procedure("Script ended due to error connecting to GitHub.")
+END IF
 
 'DIALOGS-------------------------------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
@@ -23,6 +46,11 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data in
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
   Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
 EndDialog
+
+'VARIABLES TO DECLARE------------------------------------------------------------------------------------------------------------------
+all_case_numbers_array = " "					'Creating blank variable for the future array
+call worker_county_code_determination(worker_county_code, two_digit_county_code)	'Determines worker county code
+is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'This is the string required to tell excel to ignore blank cells in a COUNTIFS function
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
 
@@ -196,7 +224,7 @@ If SNAP_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & SNAP_letter_col & ":" & SNAP_letter_col & ") - 1"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of SNAP cases autoclosing:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(D:D, " & chr(34) & "*FS*" & chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & ") - 1)/(COUNTA(" & SNAP_letter_col & ":" & SNAP_letter_col & ") - 1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(D:D, " & chr(34) & "*FS*" & chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTA(" & SNAP_letter_col & ":" & SNAP_letter_col & ") - 1)" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the SNAP stat takes up two rows
 End if
@@ -208,7 +236,7 @@ If HC_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & HC_letter_col & ":" & HC_letter_col & ") - 1"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of HC cases autoclosing:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(D:D, " & chr(34) & "*HC*" & chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ") - 1)/(COUNTA(" & HC_letter_col & ":" & HC_letter_col & ") - 1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(D:D, " & chr(34) & "*HC*" & chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTA(" & HC_letter_col & ":" & HC_letter_col & ") - 1)" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the HC stat takes up two rows
 End if
@@ -220,7 +248,7 @@ If GRH_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & GRH_letter_col & ":" & GRH_letter_col & ") - 1"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of GRH cases autoclosing:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(D:D, " & chr(34) & "*GR*" & chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ") - 1)/(COUNTA(" & GRH_letter_col & ":" & GRH_letter_col & ") - 1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(D:D, " & chr(34) & "*GR*" & chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTA(" & GRH_letter_col & ":" & GRH_letter_col & ") - 1)" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the GRH stat takes up two rows
 End if

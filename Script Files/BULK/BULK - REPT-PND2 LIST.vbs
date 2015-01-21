@@ -5,6 +5,32 @@
 name_of_script = "BULK - REPT-PND2 LIST.vbs"
 start_time = timer
 
+'LOADING ROUTINE FUNCTIONS---------------------------------------------------------------
+url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER FUNCTIONS LIBRARY.vbs"
+SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
+req.open "GET", url, FALSE									'Attempts to open the URL
+req.send													'Sends request
+IF req.Status = 200 THEN									'200 means great success
+	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+	Execute req.responseText								'Executes the script code
+ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			vbCr & _
+			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+			vbCr & _
+			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+			vbTab & "- The name of the script you are running." & vbCr &_
+			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+			vbTab & vbTab & "responsible for network issues." & vbCr &_
+			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+			vbCr & _
+			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+			vbCr &_
+			"URL: " & url
+			script_end_procedure("Script ended due to error connecting to GitHub.")
+END IF
+
 'DIALOG-----------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
   EditBox 150, 20, 130, 15, worker_number
@@ -232,7 +258,7 @@ End if
 
 'HC info
 If HC_check = checked then	
-	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "HC cases pending over 30 days:"	'Row header
+	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "HC cases pending over 45 days:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">45" & Chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of HC cases pending over 45 days:"	'Row header
@@ -275,11 +301,10 @@ Next
 If SNAP_check = checked then
 
 	'Going to another sheet, to enter worker-specific statistics
-	ObjExcel.Sheets("Sheet2").Activate
-	ObjExcel.ActiveSheet.Name = "Worker stats"
+	ObjExcel.Worksheets.Add().Name = "SNAP stats by worker"
 	
 	'Headers
-	ObjExcel.Cells(1, 2).Value = "SNAP"
+	ObjExcel.Cells(1, 2).Value = "SNAP STATS BY WORKER"
 	ObjExcel.Cells(1, 2).Font.Bold = TRUE
 	ObjExcel.Cells(2, 1).Value = "WORKER"
 	objExcel.Cells(2, 1).Font.Bold = TRUE
@@ -296,13 +321,195 @@ If SNAP_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!F:F, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!F:F, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
 		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 	Next
+	
+	'Merging header cell.
+	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+	
+	'Centering the cell
+	objExcel.Cells(1, 2).HorizontalAlignment = -4108
+	
+	'Autofitting columns
+	For col_to_autofit = 1 to 20
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+End if
+
+'Provides additional statistics for cash cases
+If cash_check = checked then
+
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Worksheets.Add().Name = "cash stats by worker"
+	
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "CASH STATS BY WORKER"
+	ObjExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "PENDING <= 30 DAYS"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "TOTAL PENDING"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "% PENDING <= 30 DAYS"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+	
+	
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For x = 0 to ubound(worker_array)
+		ObjExcel.Cells(x + 3, 1) = worker_array(x)
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & cash_letter_col & ":" & cash_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & cash_letter_col & ":" & cash_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	Next
+	
+	'Merging header cell.
+	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+	
+	'Centering the cell
+	objExcel.Cells(1, 2).HorizontalAlignment = -4108
+	
+	'Autofitting columns
+	For col_to_autofit = 1 to 20
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+End if
+
+'Provides additional statistics for HC cases
+If HC_check = checked then
+
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Worksheets.Add().Name = "HC stats by worker"
+	
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "HC STATS BY WORKER"
+	ObjExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "PENDING <= 45 DAYS"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "TOTAL PENDING"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "% PENDING <= 45 DAYS"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+	
+	
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For x = 0 to ubound(worker_array)
+		ObjExcel.Cells(x + 3, 1) = worker_array(x)
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & HC_letter_col & ":" & HC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=45" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & HC_letter_col & ":" & HC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	Next
+	
+	'Merging header cell.
+	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+	
+	'Centering the cell
+	objExcel.Cells(1, 2).HorizontalAlignment = -4108
+	
+	'Autofitting columns
+	For col_to_autofit = 1 to 20
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+End if
+
+'Provides additional statistics for EA cases
+If EA_check = checked then
+
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Worksheets.Add().Name = "EA stats by worker"
+	
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "EA STATS BY WORKER"
+	ObjExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "PENDING <= 30 DAYS"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "TOTAL PENDING"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "% PENDING <= 30 DAYS"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+	
+	
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For x = 0 to ubound(worker_array)
+		ObjExcel.Cells(x + 3, 1) = worker_array(x)
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & EA_letter_col & ":" & EA_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & EA_letter_col & ":" & EA_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	Next
+	
+	'Merging header cell.
+	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+	
+	'Centering the cell
+	objExcel.Cells(1, 2).HorizontalAlignment = -4108
+	
+	'Autofitting columns
+	For col_to_autofit = 1 to 20
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+End if
+
+'Provides additional statistics for GRH cases
+If GRH_check = checked then
+
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Worksheets.Add().Name = "GRH stats by worker"
+	
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "GRH STATS BY WORKER"
+	ObjExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "PENDING <= 30 DAYS"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "TOTAL PENDING"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "% PENDING <= 30 DAYS"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+	
+	
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For x = 0 to ubound(worker_array)
+		ObjExcel.Cells(x + 3, 1) = worker_array(x)
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	Next
+	
+	'Merging header cell.
+	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+	
+	'Centering the cell
+	objExcel.Cells(1, 2).HorizontalAlignment = -4108
 	
 	'Autofitting columns
 	For col_to_autofit = 1 to 20
