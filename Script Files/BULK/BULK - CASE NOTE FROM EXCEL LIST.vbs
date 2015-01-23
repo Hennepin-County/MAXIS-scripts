@@ -29,7 +29,8 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 END IF
 
 '----------FUNCTIONS----------
-FUNCTION convert_letter_to_number(excel_col)
+'-----This function needs to be added to the FUNCTIONS FILE-----
+FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	excel_col = ucase(excel_col)
 	IF len(excel_col) = 1 THEN 
@@ -75,13 +76,17 @@ DO
 			IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
 				MsgBox "Please use a valid Column indicator. " & excel_col & " contains BOTH a letter and a number."
 			ELSE
-				IF isnumeric(excel_col) = FALSE THEN call convert_letter_to_number(excel_col)
+				IF isnumeric(excel_col) = FALSE THEN call convert_excel_letter_to_excel_number(excel_col)
 				IF isnumeric(excel_row) = false or isnumeric(end_row) = false THEN MSGBox "Please enter the Excel rows as numeric characters."
 				IF end_row = "" THEN MSGBox "Please enter an end to the search. The script needs to know when to stop searching."
 				IF worker_sig = "" THEN MSGBox "Please sign your case note."
 			END IF
 		END IF
 LOOP UNTIL (isnumeric(excel_col) = true) and excel_col <> "" and isnumeric(excel_row) = true and isnumeric(end_row) = true and end_row <> "" AND worker_sig <> ""
+
+message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_sig & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
+message_array = split(message_array, "~%~")
+
 
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -90,12 +95,13 @@ objExcel.DisplayAlerts = True
 
 end_row = end_row * 1
 excel_col = excel_col * 1
-excel_row = excel_row - 1
 DO
-	excel_row = excel_row + 1
 	case_number = ObjExcel.Cells(excel_row, excel_col).Value
-	case_number_array = case_number_array & case_number & " "
-LOOP UNTIL excel_row = end_row
+	IF case_number <> "" THEN 
+		excel_row = excel_row + 1
+		case_number_array = case_number_array & case_number & " "
+	END IF
+LOOP UNTIL excel_row = (end_row + 1)
 
 case_number_array = trim(case_number_array)
 case_number_array = split(case_number_array)
@@ -108,20 +114,26 @@ FOR EACH case_number IN case_number_array
 	call navigate_to_screen("CASE", "NOTE")
 	EMReadScreen invalid_case, 7, 24, 2
 	EMReadScreen primary_county, 4, 21, 14
+	EMReadScreen user_county, 4, 21, 73
 	EMReadScreen privileged_case, 10, 24, 14
 	IF invalid_case <> "INVALID" THEN
 		IF privileged_case = "PRIVILEGED" THEN
 			privileged_array = privileged_array & case_number & " "
 			privileged_count = privileged_count + 1
 		ELSE
-			IF ucase(primary_county) = ucase(worker_county_code) THEN
+			IF ucase(primary_county) = ucase(user_county) THEN
 				PF9
-				call write_new_line_in_case_note(case_note_header)
-				call write_new_line_in_case_note(case_note_body)
-				call write_new_line_in_case_note("---")
-				call write_new_line_in_case_note(worker_sig)
-				call write_new_line_in_case_note("---")
-				call write_new_line_in_case_note("**Processed in bulk script**")
+			'-----Added because the script was only case noting the header, footer and worker_sig on the first case.
+				FOR EACH message_part IN message_array
+					CALL write_new_line_in_case_note(message_part)
+				NEXT
+			'-----Commented out because this has, for whatever reason, stopped working. The script would case note the header and body ONLY on the first case.
+'				call write_new_line_in_case_note(case_note_header)
+'				call write_new_line_in_case_note(case_note_body)
+'				call write_new_line_in_case_note("---")
+'				call write_new_line_in_case_note(worker_sig)
+'				call write_new_line_in_case_note("---")
+'				call write_new_line_in_case_note("**Processed in bulk script**")
 			ELSE
 				out_of_county_array = out_of_county_array & case_number & " "
 				out_of_county_count = out_of_county_count + 1
@@ -138,6 +150,9 @@ privileged_array = split(privileged_array)
 
 out_of_county_array = trim(out_of_county_array)
 out_of_county_array = split(out_of_county_array)
+
+invalid_array = trim(invalid_array)
+invalid_array = split(invalid_array)
 
 IF privileged_count > 0 or out_of_county_count > 0 or invalid_case_count > 0 THEN
 	Set objExcel = CreateObject("Excel.Application")
