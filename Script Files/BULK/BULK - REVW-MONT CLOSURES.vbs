@@ -1,6 +1,7 @@
 name_of_script = "BULK - REVW-MONT CLOSURES.vbs"
 start_time = timer
 
+
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
 url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
@@ -130,6 +131,8 @@ If revw_check = checked then
 	  
 	  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
 	For each case_number in case_number_array
+		CALL navigate_to_screen("rept", "revw")  'Reads MAGI code for each case. 
+		EMREADSCREEN MAGI_code, 4, 7, 54    
 		call navigate_to_screen("stat", "revw")
 		EMReadScreen ERRR_check, 4, 2, 52
 		If ERRR_check = "ERRR" then call navigate_to_screen("stat", "revw") 'In case of error prone cases
@@ -171,8 +174,14 @@ If revw_check = checked then
 			EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
 			first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
 			
-			If HC_review_status <> "" then		
-				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+			MAGI_HC_extension = ""   'This clears out the MAGI extension variable before each run through for each case. 
+			If HC_review_status <> "" then		'Added additional logic as currently MAGI clients get an additonal 4 months to turn in renewal paperwork.
+				IF MAGI_code = "NONE" THEN last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+				IF MAGI_code = "ALL " THEN last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
+				IF MAGI_code = "MIXE" THEN           'MIXED HHs also get same extension for the MAGI client only, though if MAGI is reinstated they can add a person but it is technically not a reinstate.
+					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+					MAGI_HC_extension = "HH member may be eligible for MAGI renewal extension. Please refer to worker to see what documents are needed."	
+				END IF
 				HC_intake_date = dateadd("m", 1, first_of_working_month)
 			End If
 			If FS_review_status <> "" then
@@ -205,7 +214,7 @@ If revw_check = checked then
 			If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
 			If last_day_to_turn_in_cash_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
 			If last_day_to_turn_in_SNAP_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
-			If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs.")
+			If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
 			If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for cash on " & cash_intake_date & ".")
 			If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for SNAP on " & SNAP_intake_date & ".")
 			If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for HC after " & HC_intake_date & ".")
@@ -221,7 +230,7 @@ If revw_check = checked then
 									"CASH intake date: " & cash_intake_date & chr(10) & _
 									"Last SNAP doc date: " & last_day_to_turn_in_SNAP_docs & chr(10) & _
 									"SNAP intake date: " & SNAP_intake_date & chr(10) & _
-									"Last HC doc date: " & last_day_to_turn_in_HC_docs & chr(10) & _
+									"Last HC doc date: " & last_day_to_turn_in_HC_docs & chr(10) & MAGI_HC_extension & _
 									"HC intake date: " & HC_intake_date
 			debugging_MsgBox = MsgBox(string_for_msgbox, vbOKCancel)
 			If debugging_MsgBox = vbCancel then stopscript
