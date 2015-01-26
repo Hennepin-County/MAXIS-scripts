@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - CHECK EDRS"
+name_of_script = "ACTIONS - CHECK EDRS.vbs"
 start_time = timer
 
 ''LOADING ROUTINE FUNCTIONS
