@@ -43,7 +43,7 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
 EndDialog
 
 
-BeginDialog new_job_reported_dialog, 0, 0, 286, 265, "New job reported dialog"
+BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
   EditBox 80, 5, 25, 15, HH_memb
   DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIA (JTPA)"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income", income_type_dropdown
   DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
@@ -53,14 +53,15 @@ BeginDialog new_job_reported_dialog, 0, 0, 286, 265, "New job reported dialog"
   EditBox 90, 125, 100, 15, who_reported_job
   ComboBox 100, 145, 90, 15, "phone call"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
   EditBox 30, 165, 210, 15, notes
-  CheckBox 5, 185, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_check
-  CheckBox 5, 200, 190, 10, "Check here if you sent a status update to CCA.", CCA_check
-  CheckBox 5, 215, 190, 10, "Check here if you sent a status update to ES.", ES_check
-  CheckBox 5, 230, 190, 10, "Check here if you sent a Work Number request.", work_number_check
-  EditBox 70, 245, 80, 15, worker_signature
+  CheckBox 5, 185, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_checkbox
+  CheckBox 5, 200, 190, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
+  CheckBox 5, 215, 190, 10, "Check here if you sent a status update to ES.", ES_checkbox
+  CheckBox 5, 230, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
+  CheckBox 5, 245, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  EditBox 70, 260, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 245, 50, 15
-    CancelButton 230, 245, 50, 15
+    OkButton 175, 260, 50, 15
+    CancelButton 230, 260, 50, 15
     PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 175, 25, 45, 10, "next panel", next_panel_button
     PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
@@ -75,9 +76,8 @@ BeginDialog new_job_reported_dialog, 0, 0, 286, 265, "New job reported dialog"
   Text 5, 130, 80, 10, "Who reported the job?:"
   Text 5, 150, 90, 10, "How was the job reported?:"
   Text 5, 170, 25, 10, "Notes:"
-  Text 5, 250, 60, 10, "Worker signature:"
+  Text 5, 265, 60, 10, "Worker signature:"
 EndDialog
-
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 footer_month = datepart("m", dateadd("m", 1, date))
@@ -117,11 +117,9 @@ End if
 call navigate_to_screen("stat", "jobs")
 EMReadScreen SELF_check, 27, 2, 28
 If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to navigate past the SELF menu. Is your case in background? Wait a few seconds and try again.")
-EMReadScreen JOBS_check, 4, 2, 45
-If JOBS_check <> "JOBS" then transmit
 
 'Declaring some variables to create defaults for the new_job_reported_dialog.
-create_JOBS_check = 1
+create_JOBS_checkbox = 1
 HH_memb = "01"
 HH_memb_row = 5 'This helps the navigation buttons work!
 
@@ -176,7 +174,7 @@ Do
 Loop until worker_signature <> ""
 
 'Creates a new JOBS panel if that was selected.
-If create_JOBS_check = checked then
+If create_JOBS_checkbox = checked then
 	EMWriteScreen HH_memb, 20, 76
 	EMWriteScreen "nn", 20, 79
 	transmit
@@ -215,18 +213,19 @@ If edit_mode_check = "D" then script_end_procedure("Unable to create a new case 
 
 'Now the script will case note what's happened.
 EMSendKey ">>>New job for MEMB " & HH_memb & " reported by " & who_reported_job & " via " & job_report_type & "<<<" & "<newline>" 
-call write_editbox_in_case_note("Employer", employer, 6)
-call write_editbox_in_case_note("Income type", income_type_dropdown, 6)
-If subsidized_income_type_dropdown <> "not applicable" then call write_editbox_in_case_note("Subsidized income type", subsidized_income_type_dropdown, 6)
-if income_start_date <> "" then call write_editbox_in_case_note("Income start date", income_start_date, 6)
-if contract_through_date <> "" then call write_editbox_in_case_note("Contract through date", contract_through_date, 6)
-if CCA_check = 1 then call write_new_line_in_case_note("* Sent status update to CCA.")
-if ES_check = 1 then call write_new_line_in_case_note("* Sent status update to ES.")
-if work_number_check = 1 then call write_new_line_in_case_note("* Sent Work Number request.")
-if notes <> "" then call write_editbox_in_case_note("Notes", notes, 6)
-call write_new_line_in_case_note("* Sending employment verification. TIKLed for 10-day return.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_bullet_and_variable_in_case_note("Employer", employer)
+call write_bullet_and_variable_in_case_note("Income type", income_type_dropdown)
+If subsidized_income_type_dropdown <> "not applicable" then call write_bullet_and_variable_in_case_note("Subsidized income type", subsidized_income_type_dropdown)
+if income_start_date <> "" then call write_bullet_and_variable_in_case_note("Income start date", income_start_date)
+if contract_through_date <> "" then call write_bullet_and_variable_in_case_note("Contract through date", contract_through_date)
+if CCA_checkbox = 1 then call write_variable_in_case_note("* Sent status update to CCA.")
+if ES_checkbox = 1 then call write_variable_in_case_note("* Sent status update to ES.")
+if work_number_checkbox = 1 then call write_variable_in_case_note("* Sent Work Number request.")
+If requested_CEI_OHI_docs_checkbox = checked then call write_variable_in_case_note("* Requested CEI/OHI docs.")
+if notes <> "" then call write_bullet_and_variable_in_case_note("Notes", notes)
+call write_variable_in_case_note("* Sending employment verification. TIKLed for 10-day return.")
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
 call navigate_to_screen("dail", "writ")
@@ -235,8 +234,8 @@ call navigate_to_screen("dail", "writ")
 call create_MAXIS_friendly_date(date, 10, 5, 18)
 
 'Writing in the rest of the TIKL.
-EMSetCursor 9, 3
-EMSendKey "Verification of job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." 
+call write_variable_in_TIKL("Verification of job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
+
 transmit
 PF3
 MsgBox "Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."
