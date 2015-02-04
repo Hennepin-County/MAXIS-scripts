@@ -1,0 +1,20 @@
+02 - Anoka County
+04 - Beltrami County
+05 - Benton County
+18 - Crow Wing County
+19 - Dakota County
+23 - Fillmore County
+25 - Goodhue County
+27 - Hennepin County
+50 - Mower County
+55 - Olmsted County
+57 - Pennington County
+60 - Polk County
+69 - St. Louis County
+73 - Stearns County
+79 - Wabasha County
+86 - Wright County
+MP - MNPrairie County Alliance
+PT - Pine Tech
+SW - Southwest HHS
+DHS

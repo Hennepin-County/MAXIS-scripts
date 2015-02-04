@@ -1,3 +1,0 @@
-9/15/14
-Im hoping this can serve as a sort of comm log so that we can get these hammered out together. For anyone looking the function is called mnsure_fail_person_test.
--L.Shanley
