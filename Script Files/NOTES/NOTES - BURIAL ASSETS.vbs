@@ -518,13 +518,12 @@ IF insurance_policy_number <> "none" THEN
 	call write_editbox_in_case_note("Info on BFE", insurance_BFE_steps_info, 3)
 END IF
 IF type_of_burial_agreement <> "None" THEN
-	If applied_BFE_check = 1 then EMSendKey "* Applied $1500 of burial services to BFE." & "<newline>"
-	EMSendKey "* Type: " & type_of_burial_agreement & ". Purchase date: " & purchase_date & "." & "<newline>"
-	EMSendKey "* Issuer: " & issuer_name & ". Policy #: " & policy_number & "." & "<newline>"
-	EMSendKey "* Face value: " & face_value & "<newline>"
-	EMSendKey "* Funeral home: " & funeral_home & "<newline>"
-	EMSendKey "--------------SERVICE--------------------AMOUNT----------STATUS--------------" & "<newline>"
-	new_page_check
+	If applied_BFE_check = 1 then CALL write_variable_in_case_note("* Applied $1500 of burial services to BFE.")
+	CALL write_variable_in_case_note("* Type: " & type_of_burial_agreement & ". Purchase date: " & purchase_date & ".")
+	CALL write_variable_in_case_note("* Issuer: " & issuer_name & ". Policy #: " & policy_number & ".")
+	CALL write_editbox_in_case_note("Face value", face_value, 3)
+	CALL write_editbox_in_case_note("Funeral home", funeral_home, 3)
+	CALL write_variable_in_case_note("--------------SERVICE--------------------AMOUNT----------STATUS------------")
 	case_note_page_four
 	If basic_service_funeral_director_check = 1 then 
 	  new_service_heading
@@ -640,8 +639,7 @@ IF type_of_burial_agreement <> "None" THEN
 	End if
 	new_page_check
 	case_note_page_four
-	EMSendKey "--------BURIAL SPACE/ITEMS---------------AMOUNT----------STATUS--------------" & "<newline>"
-	new_page_check
+	CALL write_variable_in_case_note("--------BURIAL SPACE/ITEMS---------------AMOUNT----------STATUS------------")
 	case_note_page_four
 	If markers_headstone_check = 1 then 
 	  new_BS_BSI_heading
@@ -722,8 +720,7 @@ IF type_of_burial_agreement <> "None" THEN
 	End if
 	new_page_check
 	case_note_page_four
-	EMSendKey "--------CASH ADVANCE ITEMS---------------AMOUNT----------STATUS--------------" & "<newline>"
-	new_page_check
+	CALL write_variable_in_case_note("--------CASH ADVANCE ITEMS---------------AMOUNT----------STATUS------------")
 	case_note_page_four
 	If certified_death_certificate_check = 1 then 
 	  new_CAI_heading
@@ -797,7 +794,7 @@ IF type_of_burial_agreement <> "None" THEN
 	End if
 	new_page_check
 	case_note_page_four
-	EMSendKey "-----------------------------------------------------------------------------" & "<newline>"
+	EMSendKey "---------------------------------------------------------------------------" & "<newline>"
 	new_page_check
 	case_note_page_four
 	EMSendKey "* Total service amount: $" & total_service_amount & "<newline>"
@@ -811,7 +808,7 @@ END IF
 
 new_page_check
 case_note_page_four	
-EMSendKey "-----------------------------------------------------------------------------" & "<newline>"
+EMSendKey "---------------------------------------------------------------------------" & "<newline>"
 new_page_check
 case_note_page_four
 EMSendKey "* Total counted amount: $" & total_counted_amount & "<newline>"
@@ -826,7 +823,6 @@ case_note_page_four
 EMSendKey worker_sig & "<newline>"
 
 script_end_procedure("")
-
 
 
 
