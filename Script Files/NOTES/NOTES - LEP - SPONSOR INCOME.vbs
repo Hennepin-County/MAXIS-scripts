@@ -93,15 +93,15 @@ Do
 Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
 
 'Determines the income limits
-If sponsor_HH_size = 1 then income_limit = 1245
-If sponsor_HH_size = 2 then income_limit = 1681
-If sponsor_HH_size = 3 then income_limit = 2116
-If sponsor_HH_size = 4 then income_limit = 2552
-If sponsor_HH_size = 5 then income_limit = 2987
-If sponsor_HH_size = 6 then income_limit = 3423
-If sponsor_HH_size = 7 then income_limit = 3858
-If sponsor_HH_size = 8 then income_limit = 4294
-If sponsor_HH_size > 8 then income_limit = 4294 + (436 * (sponsor_HH_size - 8))
+If sponsor_HH_size = 1 then income_limit = 1265
+If sponsor_HH_size = 2 then income_limit = 1705
+If sponsor_HH_size = 3 then income_limit = 2144
+If sponsor_HH_size = 4 then income_limit = 2584
+If sponsor_HH_size = 5 then income_limit = 3024
+If sponsor_HH_size = 6 then income_limit = 3464
+If sponsor_HH_size = 7 then income_limit = 3904
+If sponsor_HH_size = 8 then income_limit = 4344
+If sponsor_HH_size > 8 then income_limit = 4344 + (440 * (sponsor_HH_size - 8))
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
 If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0
