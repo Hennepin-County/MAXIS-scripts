@@ -2,14 +2,6 @@
 name_of_script = "ACTIONS - TRANSFER CASE.vbs"
 start_time = timer
 
-'LOADING GLOBAL VARIABLES--------------------------------------------------------------------
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("Q:\Blue Zone Scripts\Public assistance script files\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
-
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
 url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
