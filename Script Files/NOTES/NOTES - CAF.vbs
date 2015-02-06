@@ -29,11 +29,9 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 END IF
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
+footer_month = datepart("m", date)
 If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
