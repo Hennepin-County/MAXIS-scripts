@@ -258,15 +258,25 @@ IF XFERRadioGroup = 0 THEN
 
 		IF ucase(transfer_to) = "X120ICT" OR ucase(transfer_to) = "X181ICT" THEN transfer_to = "X174ICT"
 	
-		IF manual_cfr_cash_check = 0 THEN
+		IF manual_cfr_cash_check = 0 AND cash_cfr_no_change_check = 0 THEN
 			cash_cfr = right(worker_county_code, 2)
-			cash_cfr_month = cfr_change_month
-			cash_cfr_year = right(cfr_change_year, 2)
+			cash_cfr_date = dateadd("M", 1, date)
+			cash_cfr_date = datepart("M", cash_cfr_date) & "/01/" & datepart("YYYY", cash_cfr_date)
+			cash_cfr_date = dateadd("M", 2, cash_cfr_date)
+			cash_cfr_month = datepart("M", cash_cfr_date)
+			IF len(cash_cfr_month) <> 2 THEN cash_cfr_month = "0" & cash_cfr_month
+			cash_cfr_year = datepart("YYYY", cash_cfr_date)
+			cash_cfr_year = right(cash_cfr_year, 2)
 		END IF
-		IF manual_cfr_hc_check = 0 THEN
+		IF manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 0 THEN
 			hc_cfr = right(worker_county_code, 2)
-			hc_cfr_month = cfr_change_month
-			hc_cfr_year = right(cfr_change_year, 2)
+			hc_cfr_date = dateadd("M", 1, date)
+			hc_cfr_date = datepart("M", hc_cfr_date) & "/01/" & datepart("YYYY", hc_cfr_date)
+			hc_cfr_date = dateadd("M", 2, hc_cfr_date)
+			hc_cfr_month = datepart("M", hc_cfr_date)
+			IF len(hc_cfr_month) <> 2 THEN hc_cfr_month = "0" & hc_cfr_month
+			hc_cfr_year = datepart("YYYY", hc_cfr_date)
+			hc_cfr_year = right(hc_cfr_year, 2)
 		END IF
 
 		EMWriteScreen "X", 7, 3
