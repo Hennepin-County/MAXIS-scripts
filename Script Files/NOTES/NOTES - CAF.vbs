@@ -31,7 +31,7 @@ END IF
 'LOOKING FOR DEVELOPERS, WILL KICK IN DEV MODE IF CERTAIN USERS ARE FOUND
 Set objNet = CreateObject("WScript.NetWork") 
 windows_user_ID = ucase(objNet.UserName)
-If windows_user_ID = "PWVKC5" OR _
+If windows_user_ID = "PWVKC45" OR _
    windows_user_ID = "RAKALB" OR _
    windows_user_ID = "CDPOTTER" OR _
    windows_user_ID = "MLDIETZ" OR _
