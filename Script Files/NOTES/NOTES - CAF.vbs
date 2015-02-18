@@ -28,6 +28,124 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
+'LOOKING FOR DEVELOPERS, WILL KICK IN DEV MODE IF CERTAIN USERS ARE FOUND
+Set objNet = CreateObject("WScript.NetWork") 
+windows_user_ID = ucase(objNet.UserName)
+If windows_user_ID = "PWVKC5" OR _
+   windows_user_ID = "RAKALB" OR _
+   windows_user_ID = "CDPOTTER" OR _
+   windows_user_ID = "MLDIETZ" OR _
+   windows_user_ID = "LVANSTONE" THEN dev_mode_box = MsgBox("User " & windows_user_ID & " detected. Enable developer mode?", vbYesNo)
+
+'<<<<<<<<<<<<<<<<<Temporary function to test. If this works, push to beta group ASAP.
+Function new_function(bullet, variable)
+
+	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+	noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+	'The following figures out if we need a new page, or if we need a new case note entirely as well.
+	Do
+		EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+		If character_test <> " " or noting_row >= 18 then 
+			noting_row = noting_row + 1
+			
+			'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
+			If noting_row >= 18 then 
+				EMSendKey "<PF8>"
+				EMWaitReady 0, 0
+				
+				'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+				EMReadScreen end_of_case_note_check, 1, 24, 2
+				If end_of_case_note_check = "A" then
+					EMSendKey "<PF3>"												'PF3s
+					EMWaitReady 0, 0
+					EMSendKey "<PF9>"												'PF9s (opens new note)
+					EMWaitReady 0, 0
+					EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+					EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+					noting_row = 5													'Resets this variable to work in the new locale
+				Else
+					noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+				End if
+			End if
+		End if
+	Loop until character_test = " "
+
+	'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 30.
+	If len(bullet) >= 26 then
+		indent_length = 30	'It's four more than the bullet text to account for the asterisk, the colon, and the spaces.
+	Else
+		indent_length = len(bullet) + 4 'It's four more for the reason explained above.
+	End if
+
+	'Writes the bullet
+	EMWriteScreen "* " & bullet & ": ", noting_row, noting_col
+
+	'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
+	noting_col = noting_col + (len(bullet) + 4)
+
+	'Splits the contents of the variable into an array of words
+	variable_array = split(variable, " ")
+
+	For each word in variable_array
+	'<<<<<DEBUGGING
+	'	x = MsgBox (noting_row & "|" & noting_col, vbOKCancel)
+	'	If x = vbCancel then stopscript
+
+		'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+		If len(word) + noting_col > 80 then 
+			noting_row = noting_row + 1
+			noting_col = 3
+		End if
+		
+		'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
+		If noting_row >= 18 then
+			EMSendKey "<PF8>"
+			EMWaitReady 0, 0
+			
+			'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+			EMReadScreen end_of_case_note_check, 1, 24, 2
+			If end_of_case_note_check = "A" then
+				EMSendKey "<PF3>"												'PF3s
+				EMWaitReady 0, 0
+				EMSendKey "<PF9>"												'PF9s (opens new note)
+				EMWaitReady 0, 0
+				EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+				EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+				noting_row = 5													'Resets this variable to work in the new locale
+			Else
+				noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+			End if
+		End if
+		
+		'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
+		If noting_col = 3 then 
+			EMWriteScreen space(indent_length), noting_row, noting_col	
+			noting_col = noting_col + indent_length
+		End if
+
+		'Writes the word and a space using EMWriteScreen
+		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+		
+		'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
+		If right(word, 1) = ";" then
+			noting_row = noting_row + 1
+			noting_col = 3
+			EMWriteScreen space(indent_length), noting_row, noting_col	
+			noting_col = noting_col + indent_length
+		End if
+		
+		'Increases noting_col the length of the word + 1 (for the space)
+		noting_col = noting_col + (len(word) + 1)
+	Next 
+
+	'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+	EMSetCursor noting_row + 1, 3
+
+End function
+'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 footer_month = datepart("m", next_month)
@@ -485,9 +603,77 @@ If CAF_status <> "" then CAF_status = ": " & CAF_status
 'Adding footer month to the recertification case notes
 If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year & " recert"
 
+'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DEV FOLKS GET THIS DIFFERENT VERSION
+If dev_mode_box = vbYes then
+	EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
+	If move_verifs_needed = True and verifs_needed <> "" then call new_function("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+	call new_function("CAF datestamp", CAF_datestamp)
+	If interview_type <> "" and interview_type <> " " then call new_function("Interview type", interview_type)
+	If interview_date <> "" then call new_function("Interview date", interview_date)
+	If HC_document_received <> "" and HC_document_received <> " " then call new_function("HC document received", HC_document_received)
+	If HC_datestamp <> "" then call new_function("HC datestamp", HC_datestamp)
+	call new_function("Programs applied for", programs_applied_for)
+	if how_app_was_received <> "" or how_app_was_received <> " " then call new_function("How CAF was received", how_app_was_received)	'This one also uses " " as option, because that is the default
+	If HH_comp <> "" then call new_function("HH comp/EATS", HH_comp)
+	If cit_id <> "" then call new_function("Cit/ID", cit_id)
+	If IMIG <> "" then call new_function("IMIG", IMIG)
+	If AREP <> "" then call new_function("AREP", AREP)
+	If FACI <> "" then call new_function("FACI", FACI)
+	If SCHL <> "" then call new_function("SCHL/STIN/STEC", SCHL)
+	If DISA <> "" then call new_function("DISA", DISA)
+	If PREG <> "" then call new_function("PREG", PREG)
+	If ABPS <> "" then call new_function("ABPS", ABPS)
+	If earned_income <> "" then call new_function("Earned income", earned_income)
+	If unearned_income <> "" then call new_function("Unearned income", unearned_income)
+	If income_changes <> "" then call new_function("STWK/inc. changes", income_changes)
+	IF notes_on_abawd <> "" then call new_function("ABAWD Notes", notes_on_abawd)
+	If notes_on_income <> "" then call new_function("Notes on income and budget", notes_on_income)
+	If is_any_work_temporary <> "" then call new_function("Is any work temporary", is_any_work_temporary)
+	If SHEL_HEST <> "" then call new_function("SHEL/HEST", SHEL_HEST)
+	If COEX_DCEX <> "" then call new_function("COEX/DCEX", COEX_DCEX)
+	If CASH_ACCTs <> "" then call new_function("CASH/ACCTs", CASH_ACCTs)
+	If other_assets <> "" then call new_function("Other assets", other_assets)
+	If INSA <> "" then call new_function("INSA", INSA)
+	If ACCI <> "" then call new_function("ACCI", ACCI)
+	If DIET <> "" then call new_function("DIET", DIET)
+	If BILS <> "" then call new_function("BILS", BILS)
+	If FMED <> "" then call new_function("FMED", FMED)
+	If retro_request <> "" then call new_function("Retro Request (if applicable)", retro_request)
+	If application_signed_checkbox = checked then call write_variable_in_case_note("* Application was signed.")
+	If application_signed_checkbox = unchecked then call write_variable_in_case_note("* Application was not signed.")
+	If appt_letter_sent_checkbox = checked then call write_variable_in_case_note("* Appointment letter was sent before interview.")
+	If EBT_referral_checkbox = checked then call write_variable_in_case_note("* EBT referral made for client.")
+	If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
+	If expedited_checkbox = checked then call write_variable_in_case_note("* Expedited SNAP.")
+	If reason_expedited_wasnt_processed <> "" then call new_function("Reason expedited wasn't processed", reason_expedited_wasnt_processed)	'This is strategically placed next to expedited checkbox entry.
+	If IAA_checkbox = checked then call write_variable_in_case_note("* IAAs/OMB given to client.")
+	If intake_packet_checkbox = checked then call write_variable_in_case_note("* Client received intake packet.")
+	If managed_care_packet_checkbox = checked then call write_variable_in_case_note("* Client received managed care packet.")
+	If managed_care_referral_checkbox = checked then call write_variable_in_case_note("* Managed care referral made.")
+	If R_R_checkbox = checked then call write_variable_in_case_note("* R/R explained to client.")
+	If updated_MMIS_checkbox = checked then call write_variable_in_case_note("* Updated MMIS.")
+	If WF1_checkbox = checked then call write_variable_in_case_note("* Workforce referral made.")
+	If client_delay_checkbox = checked then call write_variable_in_case_note("* PND2 updated to show client delay.")
+	if FIAT_reasons <> "" then call new_function("FIAT reasons", FIAT_reasons)
+	if other_notes <> "" then call new_function("Other notes", other_notes)
+	If move_verifs_needed = False and verifs_needed <> "" then call new_function("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
+	call new_function("Actions taken", actions_taken)
+	call write_variable_in_case_note("---")
+	call write_variable_in_case_note(worker_signature)
+
+	script_end_procedure("")
+END IF
+'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+
+
+
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
 If move_verifs_needed = True and verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 call write_bullet_and_variable_in_case_note("CAF datestamp", CAF_datestamp)
