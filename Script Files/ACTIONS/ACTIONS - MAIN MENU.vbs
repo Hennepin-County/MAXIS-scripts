@@ -59,8 +59,15 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Shows dialog, which asks user which script to run.
-dialog ACTIONS_scripts_main_menu_dialog
-If buttonpressed = cancel then stopscript
+Do
+	dialog ACTIONS_scripts_main_menu_dialog
+	If buttonpressed = cancel then stopscript
+	If buttonpressed = SIR_instructions_button then 
+		'run "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Actions%20scripts.aspx"
+	End if
+Loop until buttonpressed <> SIR_instructions_button
+
+
 
 'Connecting to BlueZone
 EMConnect ""
