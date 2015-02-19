@@ -29,6 +29,7 @@ END IF
 BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 456, 145, "Memos scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 125, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 10, 25, 65, 10, "12 month contact", TWELVE_MONTH_CONTACT_button
     PushButton 10, 50, 65, 10, "Appointment letter", APPOINTMENT_LETTER_button
     PushButton 10, 65, 70, 10, "LTC - Asset transfer", LTC_ASSET_TRANSFER_button

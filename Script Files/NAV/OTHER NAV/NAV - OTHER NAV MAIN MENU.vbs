@@ -29,6 +29,7 @@ END IF
 BeginDialog OTHER_NAV_scripts_main_menu_dialog, 0, 0, 456, 110, "Other NAV scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 90, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 20, 100, 10, "Look up MAXIS case in MMIS", 			LOOK_UP_MAXIS_CASE_IN_MMIS_button
     PushButton 5, 35, 100, 10, "Look up MMIS PMI in MAXIS", 			LOOK_UP_MMIS_PMI_IN_MAXIS_button
     PushButton 5, 50, 120, 10, "Move production screen to inquiry", 	MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button

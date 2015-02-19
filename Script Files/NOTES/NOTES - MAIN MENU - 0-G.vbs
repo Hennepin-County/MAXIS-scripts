@@ -29,6 +29,7 @@ END IF
 BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 456, 305, "Notes (0-G) scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 285, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 10, 25, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
     PushButton 10, 40, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
     PushButton 10, 65, 50, 10, "Burial assets", BURIAL_ASSETS_button

@@ -29,6 +29,7 @@ END IF
 BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 456, 280, "Notes (H-Z) scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 260, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 10, 25, 50, 10, "HC Renewal", HC_RENEWAL_button
     PushButton 10, 40, 30, 10, "HCAPP", HCAPP_button
     PushButton 10, 55, 25, 10, "HRF", HRF_button

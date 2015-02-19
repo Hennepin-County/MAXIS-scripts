@@ -29,6 +29,7 @@ END IF
 BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 195, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 20, 50, 10, "BILS updater", BILS_UPDATER_button
     PushButton 5, 35, 50, 10, "Check EDRS", CHECK_EDRS_button
     PushButton 5, 50, 75, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
@@ -57,7 +58,7 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'Shows report scanning dialog, which asks user which report to generate.
+'Shows dialog, which asks user which script to run.
 dialog ACTIONS_scripts_main_menu_dialog
 If buttonpressed = cancel then stopscript
 

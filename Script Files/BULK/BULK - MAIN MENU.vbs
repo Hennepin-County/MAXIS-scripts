@@ -28,6 +28,7 @@ END IF
 BeginDialog BULK_scripts_main_menu_dialog, 0, 0, 456, 325, "Bulk scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 305, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 10, 50, 25, 10, "ACTV", ACTV_LIST_button
     PushButton 35, 50, 25, 10, "EOMC", EOMC_LIST_button
     PushButton 85, 50, 25, 10, "PND2", PND2_LIST_button
