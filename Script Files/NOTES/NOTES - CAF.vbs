@@ -35,6 +35,7 @@ If windows_user_ID = "PWVKC45" OR _
    windows_user_ID = "RAKALB" OR _
    windows_user_ID = "CDPOTTER" OR _
    windows_user_ID = "MLDIETZ" OR _
+   windows_user_ID = "KCORDES" OR _
    windows_user_ID = "LVANSTONE" THEN dev_mode_box = MsgBox("User " & windows_user_ID & " detected. Enable developer mode?", vbYesNo)
 
 '<<<<<<<<<<<<<<<<<Temporary functions to test. If this works, push to beta group ASAP.
