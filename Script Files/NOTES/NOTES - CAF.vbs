@@ -37,7 +37,7 @@ If windows_user_ID = "PWVKC45" OR _
    windows_user_ID = "MLDIETZ" OR _
    windows_user_ID = "LVANSTONE" THEN dev_mode_box = MsgBox("User " & windows_user_ID & " detected. Enable developer mode?", vbYesNo)
 
-'<<<<<<<<<<<<<<<<<Temporary function to test. If this works, push to beta group ASAP.
+'<<<<<<<<<<<<<<<<<Temporary functions to test. If this works, push to beta group ASAP.
 Function new_function(bullet, variable)
 
 	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
@@ -142,6 +142,86 @@ Function new_function(bullet, variable)
 	EMSetCursor noting_row + 1, 3
 
 End function
+
+Function new_function_two(variable)
+
+	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+	noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+	'The following figures out if we need a new page, or if we need a new case note entirely as well.
+	Do
+		EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+		If character_test <> " " or noting_row >= 18 then 
+			noting_row = noting_row + 1
+			
+			'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
+			If noting_row >= 18 then 
+				EMSendKey "<PF8>"
+				EMWaitReady 0, 0
+				
+				'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+				EMReadScreen end_of_case_note_check, 1, 24, 2
+				If end_of_case_note_check = "A" then
+					EMSendKey "<PF3>"												'PF3s
+					EMWaitReady 0, 0
+					EMSendKey "<PF9>"												'PF9s (opens new note)
+					EMWaitReady 0, 0
+					EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+					EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+					noting_row = 5													'Resets this variable to work in the new locale
+				Else
+					noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+				End if
+			End if
+		End if
+	Loop until character_test = " "
+
+	'Splits the contents of the variable into an array of words
+	variable_array = split(variable, " ")
+
+	For each word in variable_array
+	'<<<<<DEBUGGING
+	'	x = MsgBox (noting_row & "|" & noting_col, vbOKCancel)
+	'	If x = vbCancel then stopscript
+
+		'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+		If len(word) + noting_col > 80 then 
+			noting_row = noting_row + 1
+			noting_col = 3
+		End if
+		
+		'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
+		If noting_row >= 18 then
+			EMSendKey "<PF8>"
+			EMWaitReady 0, 0
+			
+			'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+			EMReadScreen end_of_case_note_check, 1, 24, 2
+			If end_of_case_note_check = "A" then
+				EMSendKey "<PF3>"												'PF3s
+				EMWaitReady 0, 0
+				EMSendKey "<PF9>"												'PF9s (opens new note)
+				EMWaitReady 0, 0
+				EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+				EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+				noting_row = 5													'Resets this variable to work in the new locale
+			Else
+				noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+			End if
+		End if
+
+		'Writes the word and a space using EMWriteScreen
+		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+		
+		'Increases noting_col the length of the word + 1 (for the space)
+		noting_col = noting_col + (len(word) + 1)
+	Next 
+
+	'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+	EMSetCursor noting_row + 1, 3
+
+End function
+
+
 '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -637,27 +717,27 @@ If dev_mode_box = vbYes then
 	If BILS <> "" then call new_function("BILS", BILS)
 	If FMED <> "" then call new_function("FMED", FMED)
 	If retro_request <> "" then call new_function("Retro Request (if applicable)", retro_request)
-	If application_signed_checkbox = checked then call write_variable_in_case_note("* Application was signed.")
-	If application_signed_checkbox = unchecked then call write_variable_in_case_note("* Application was not signed.")
-	If appt_letter_sent_checkbox = checked then call write_variable_in_case_note("* Appointment letter was sent before interview.")
-	If EBT_referral_checkbox = checked then call write_variable_in_case_note("* EBT referral made for client.")
-	If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
-	If expedited_checkbox = checked then call write_variable_in_case_note("* Expedited SNAP.")
+	If application_signed_checkbox = checked then call new_function_two("* Application was signed.")
+	If application_signed_checkbox = unchecked then call new_function_two("* Application was not signed.")
+	If appt_letter_sent_checkbox = checked then call new_function_two("* Appointment letter was sent before interview.")
+	If EBT_referral_checkbox = checked then call new_function_two("* EBT referral made for client.")
+	If eDRS_sent_checkbox = checked then call new_function_two("* eDRS sent.")
+	If expedited_checkbox = checked then call new_function_two("* Expedited SNAP.")
 	If reason_expedited_wasnt_processed <> "" then call new_function("Reason expedited wasn't processed", reason_expedited_wasnt_processed)	'This is strategically placed next to expedited checkbox entry.
-	If IAA_checkbox = checked then call write_variable_in_case_note("* IAAs/OMB given to client.")
-	If intake_packet_checkbox = checked then call write_variable_in_case_note("* Client received intake packet.")
-	If managed_care_packet_checkbox = checked then call write_variable_in_case_note("* Client received managed care packet.")
-	If managed_care_referral_checkbox = checked then call write_variable_in_case_note("* Managed care referral made.")
-	If R_R_checkbox = checked then call write_variable_in_case_note("* R/R explained to client.")
-	If updated_MMIS_checkbox = checked then call write_variable_in_case_note("* Updated MMIS.")
-	If WF1_checkbox = checked then call write_variable_in_case_note("* Workforce referral made.")
-	If client_delay_checkbox = checked then call write_variable_in_case_note("* PND2 updated to show client delay.")
+	If IAA_checkbox = checked then call new_function_two("* IAAs/OMB given to client.")
+	If intake_packet_checkbox = checked then call new_function_two("* Client received intake packet.")
+	If managed_care_packet_checkbox = checked then call new_function_two("* Client received managed care packet.")
+	If managed_care_referral_checkbox = checked then call new_function_two("* Managed care referral made.")
+	If R_R_checkbox = checked then call new_function_two("* R/R explained to client.")
+	If updated_MMIS_checkbox = checked then call new_function_two("* Updated MMIS.")
+	If WF1_checkbox = checked then call new_function_two("* Workforce referral made.")
+	If client_delay_checkbox = checked then call new_function_two("* PND2 updated to show client delay.")
 	if FIAT_reasons <> "" then call new_function("FIAT reasons", FIAT_reasons)
 	if other_notes <> "" then call new_function("Other notes", other_notes)
 	If move_verifs_needed = False and verifs_needed <> "" then call new_function("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 	call new_function("Actions taken", actions_taken)
-	call write_variable_in_case_note("---")
-	call write_variable_in_case_note(worker_signature)
+	call new_function_two("---")
+	call new_function_two(worker_signature)
 
 	script_end_procedure("")
 END IF
