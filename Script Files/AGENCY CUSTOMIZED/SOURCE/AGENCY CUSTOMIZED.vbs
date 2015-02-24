@@ -5,7 +5,8 @@ Set objFSO = CreateObject("Scripting.FileSystemObject")
 	objStartFolder = default_directory & "AGENCY CUSTOMIZED\"
 	'----------------------------------------------------------------------------------------
 
-Public folder_array(100), dir, objCount, objFolders, objScripts, script_number, checked_scripts(100), script_names(100), checked_folders(100), i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
+Dim folder_array(100), checked_scripts(100), script_names(100), checked_folders(100)
+Public dir, objCount, objFolders, objScripts, script_number, i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
 Public horza_offset, on_item, offset, on_button, buttonpressed, folder_level, file_count
 
 dir = objStartFolder
@@ -100,20 +101,20 @@ sub main_dialog
 		'List Folders
 		ButtonGroup folderselected
 		on_button = 10
-		For Each folder in folder_list
-			PushButton 3 + horza_offset, offset, 25, 10, "Select", on_button
-			Text 30 + horza_offset, 1 + offset, 120, 10, folder.name
-			offset = offset + 13
-			on_item = on_item + 1
-			on_button = on_button + 1
-			if on_item = 25 then 
-				horza_offset = 153
-				offset = 3
-			elseif on_item = 50 then
-				horza_offset = 306
-				offset = 3
-			end if
-		Next
+		'For Each folder in folder_list
+		'	PushButton 3 + horza_offset, offset, 25, 10, "Select", on_button
+		'	Text 30 + horza_offset, 1 + offset, 120, 10, folder.name
+		'	offset = offset + 13
+		'	on_item = on_item + 1
+		'	on_button = on_button + 1
+		'	if on_item = 25 then 
+		'		horza_offset = 153
+		'		offset = 3
+		'	elseif on_item = 50 then
+		'		horza_offset = 306
+		'		offset = 3
+		'	end if
+		'Next
 			
 		on_item = 0
 			OptionGroup RadioGroup1
