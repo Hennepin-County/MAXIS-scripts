@@ -167,6 +167,7 @@ if buttonpressed = -1 then
 			count_specific_script = fso_command_crs.ReadAll
 			fso_command_crs.Close
 			Execute count_specific_script
+			stopscript
 		end if
 	Next
 end if
