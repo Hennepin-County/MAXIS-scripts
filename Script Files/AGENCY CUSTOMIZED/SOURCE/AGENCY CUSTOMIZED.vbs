@@ -1,5 +1,3 @@
-On Error Resume Next
-
 EMConnect ""
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
@@ -7,8 +5,8 @@ Set objFSO = CreateObject("Scripting.FileSystemObject")
 	objStartFolder = default_directory & "AGENCY CUSTOMIZED\"
 	'----------------------------------------------------------------------------------------
 
-Public folder_array(100), dir, objCount, objFolders, objScripts, script_number, checked_scripts(100), script_names(100), checked_folders(100), i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
-Public horza_offset, on_item, offset, on_button, buttonpressed, folder_level, file_count
+ReDim folder_array(0), checked_scripts(0), script_names(0)
+Public dir, objCount, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift, horza_offset, on_item, offset, on_button, buttonpressed, folder_level, file_count
 
 dir = objStartFolder
 folder_level = 0
@@ -42,7 +40,7 @@ function dir_nav(change)
 end function
 
 'Sets the dimensions of the dialog box
-function reset_dialog()
+sub reset_dialog
 	vert_shift = 13
 	'Sets the height based on the number of objects counted
 	If objCount > 1 AND objCount < 25 then
@@ -54,8 +52,12 @@ function reset_dialog()
 		'Sets the width based on the number of objects counted
 	dia_width = 0
 	If objCount > 24 then dia_width = 153
-	If objCount > 49 then dia_width = 306	
-End Function
+	If objCount > 49 then dia_width = 306
+		
+		'Fully erase the dialog window
+	BeginDialog county_script_library, 0, 0, 218 + dia_width, 27 + vert_shift, "County Custom Scripts"
+	EndDialog
+End sub
 
 Function folder_contents(dir)
 	objCount = 0
@@ -63,34 +65,32 @@ Function folder_contents(dir)
 	Dim main_folder, folder, folder_name
 	set main_folder = objFSO.GetFolder(dir)
 	set folder_list = main_folder.SubFolders
-	Erase checked_folders
-	folder_name = 0
+	ReDim folder_array(0)
 	For Each folder in folder_list
-		folder_array(folder_name) = folder.name
-		folder_name = folder_name + 1
+		If folder_array(0) <> "" then ReDim Preserve folder_array(UBound(folder_array)+1) 
+		folder_array(UBound(folder_array)) = folder.name
 		objCount = objCount + 1
 	Next
 	
 	'List files in dir
 	Set colFiles = main_folder.Files
-	objScripts = 0
 		'Cleans the arrays
-	Erase	checked_scripts
-	Erase	script_names
-	script_number = 0	
+	ReDim checked_scripts(0)
+	ReDim script_names(0)
 	file_count = 0
 	For Each objFile in colFiles
 		if right(objFile.Name,4) = ".vbs" then
-			checked_scripts(script_number) = objFile.Name
-			script_names(script_number) = objFile.Name
-			script_number = script_number + 1
-			objCount = objCount + 1
+			If checked_scripts(0) <> "" then ReDim Preserve checked_scripts(UBound(checked_scripts)+1)
+			If script_names(0) <> "" then ReDim Preserve script_names(UBound(script_names)+1)
+			checked_scripts(file_count) = objFile.Name
+			script_names(file_count) = objFile.Name
 			file_count = file_count + 1
+			objCount = objCount + 1
 		end if
 	Next
 End Function
 
-Function main_dialog()
+sub main_dialog
 	BeginDialog county_script_library, 0, 0, 218 + dia_width, 27 + vert_shift, "County Custom Scripts"
 		offset = 3
 		on_item = 0
@@ -141,12 +141,12 @@ Function main_dialog()
 			CancelButton 166 + horza_offset, 13 + vert_shift, 28, 12
 			If folder_level <> 0 then PushButton 118 + horza_offset, 13 + vert_shift, 45, 12, "Back Folder", -10
 	EndDialog
-End Function
+End sub
 
 Do 
 	call folder_contents(dir)
-	call reset_dialog()
-	call main_dialog
+	reset_dialog
+	main_dialog
 	dialog county_script_library
 		if buttonpressed = 0 then stopscript
 		'use checked_scripts array to scan 
@@ -158,27 +158,17 @@ Do
 	next
 Loop until buttonpressed = -1
 
-check_script = 0
-number_selected = 0
-
 if buttonpressed = -1 then
-	For i = 1 to file_count
-			if checked_scripts(check_script) = 1 then
-					number_selected = number_selected + 1				
-			end if
-			check_script = check_script + 1
-	Next	
-	check_script = 0
-	For i = 1 to file_count
-		if checked_scripts(check_script) = 1 then
+	For i = 0 to file_count
+		if checked_scripts(i) = 1 then
 			Set county_script_run = CreateObject("Scripting.FileSystemObject")
-				if Right(dir,1) <> "\" then dir = dir & "\"
-			Set fso_command_crs = county_script_run.OpenTextFile(dir&script_names(check_script))
+			if Right(dir,1) <> "\" then dir = dir & "\"
+			Set fso_command_crs = county_script_run.OpenTextFile(dir&script_names(i))
 			count_specific_script = fso_command_crs.ReadAll
 			fso_command_crs.Close
 			Execute count_specific_script
+			stopscript
 		end if
-		check_script = check_script + 1
 	Next
 end if
 
