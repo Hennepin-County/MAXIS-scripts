@@ -7,8 +7,8 @@ Set objFSO = CreateObject("Scripting.FileSystemObject")
 	objStartFolder = default_directory & "AGENCY CUSTOMIZED\"
 	'----------------------------------------------------------------------------------------
 
-Dim folder_array(1000), dir, objCount, objFolders, objScripts, script_number, checked_scripts(1000), script_names(1000), checked_folders(1000), i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
-Dim horza_offset, on_item, offset, on_button, buttonpressed, folder_level, file_count
+Public folder_array(1000), dir, objCount, objFolders, objScripts, script_number, checked_scripts(1000), script_names(1000), checked_folders(1000), i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
+Public horza_offset, on_item, offset, on_button, buttonpressed, folder_level, file_count
 
 dir = objStartFolder
 folder_level = 0
@@ -42,7 +42,7 @@ function dir_nav(change)
 end function
 
 'Sets the dimensions of the dialog box
-function reset_dialog()
+sub reset_dialog
 	vert_shift = 13
 	'Sets the height based on the number of objects counted
 	If objCount > 1 AND objCount < 25 then
@@ -54,8 +54,12 @@ function reset_dialog()
 		'Sets the width based on the number of objects counted
 	dia_width = 0
 	If objCount > 24 then dia_width = 153
-	If objCount > 49 then dia_width = 306	
-End Function
+	If objCount > 49 then dia_width = 306
+		
+		'Fully erase the dialog window
+	BeginDialog county_script_library, 0, 0, 218 + dia_width, 27 + vert_shift, "County Custom Scripts"
+	EndDialog
+End sub
 
 Function folder_contents(dir)
 	objCount = 0
@@ -90,12 +94,12 @@ Function folder_contents(dir)
 	Next
 End Function
 
-Function main_dialog()
+sub main_dialog
 	BeginDialog county_script_library, 0, 0, 218 + dia_width, 27 + vert_shift, "County Custom Scripts"
 		offset = 3
 		on_item = 0
 		horza_offset = 0
-		'List Folders
+		List Folders
 		ButtonGroup folderselected
 		on_button = 10
 		For Each folder in folder_list
@@ -141,12 +145,12 @@ Function main_dialog()
 			CancelButton 166 + horza_offset, 13 + vert_shift, 28, 12
 			If folder_level <> 0 then PushButton 118 + horza_offset, 13 + vert_shift, 45, 12, "Back Folder", -10
 	EndDialog
-End Function
+End sub
 
 Do 
 	call folder_contents(dir)
-	call reset_dialog()
-	call main_dialog
+	reset_dialog
+	main_dialog
 	dialog county_script_library
 		if buttonpressed = 0 then stopscript
 		'use checked_scripts array to scan 
