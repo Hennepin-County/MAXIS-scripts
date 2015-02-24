@@ -53,10 +53,6 @@ sub reset_dialog
 	dia_width = 0
 	If objCount > 24 then dia_width = 153
 	If objCount > 49 then dia_width = 306
-		
-		'Fully erase the dialog window
-	BeginDialog county_script_library, 0, 0, 218 + dia_width, 27 + vert_shift, "County Custom Scripts"
-	EndDialog
 End sub
 
 Function folder_contents(dir)
