@@ -2,8 +2,7 @@ EMConnect ""
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 	'------------------ THIS IS THE ONLY THING THAT SHOULD BE CHANGED PER COUNTY ------------
-	'objStartFolder = default_directory & "AGENCY CUSTOMIZED\"
-	objStartFolder = "U:\PHHS\BlueZoneScripts\Script Files\AGENCY CUSTOMIZED\"
+	objStartFolder = default_directory & "AGENCY CUSTOMIZED\"
 	'----------------------------------------------------------------------------------------
 
 Public folder_array(100), dir, objCount, objFolders, objScripts, script_number, checked_scripts(100), script_names(100), checked_folders(100), i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
