@@ -116,29 +116,29 @@ sub main_dialog
 		'	end if
 		'Next
 			
-		on_item = 0
-			OptionGroup RadioGroup1
-		'Script Pages Here
-		For Each objFile in colFiles
-				'Only Lists .vbs files
-			if right(objFile.Name,4) = ".vbs" then
-					'Removes .vbs from the title to clean up the naming
-				file_type_remo = len(objFile.Name) - 4
-				script_title = left(objFile.Name,file_type_remo)
-					'Creates Radio Buttons for script files
-					RadioButton 3 + horza_offset, offset, 150, 10, script_title, checked_scripts(on_item)
-					'Changes Radio Button offset for next script
-				offset = offset + 13
-				on_item = on_item + 1
-				if on_item = 25 then 
-					horza_offset = 153
-					offset = 3
-				elseif on_item = 50 then
-					horza_offset = 306
-					offset = 3
-				end if
-			end if
-		next		
+		'on_item = 0
+		'	OptionGroup RadioGroup1
+		''Script Pages Here
+		'For Each objFile in colFiles
+		'		'Only Lists .vbs files
+		'	if right(objFile.Name,4) = ".vbs" then
+		'			'Removes .vbs from the title to clean up the naming
+		'		file_type_remo = len(objFile.Name) - 4
+		'		script_title = left(objFile.Name,file_type_remo)
+		'			'Creates Radio Buttons for script files
+		'			RadioButton 3 + horza_offset, offset, 150, 10, script_title, checked_scripts(on_item)
+		'			'Changes Radio Button offset for next script
+		'		offset = offset + 13
+		'		on_item = on_item + 1
+		'		if on_item = 25 then 
+		'			horza_offset = 153
+		'			offset = 3
+		'		elseif on_item = 50 then
+		'			horza_offset = 306
+		'			offset = 3
+		'		end if
+		'	end if
+		'next		
 		ButtonGroup ButtonPressed
 			OkButton 197 + horza_offset, 13 + vert_shift, 19, 12
 			CancelButton 166 + horza_offset, 13 + vert_shift, 28, 12
