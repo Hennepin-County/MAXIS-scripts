@@ -7,8 +7,8 @@ Set objFSO = CreateObject("Scripting.FileSystemObject")
 	objStartFolder = default_directory & "AGENCY CUSTOMIZED\"
 	'----------------------------------------------------------------------------------------
 
-Public folder_array(100), dir, objCount, objFolders, objScripts, script_number, checked_scripts(100), script_names(100), checked_folders(100), i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
-Public horza_offset, on_item, offset, on_button, buttonpressed, folder_level, file_count
+Dim folder_array(1000), dir, objCount, objFolders, objScripts, script_number, checked_scripts(1000), script_names(1000), checked_folders(1000), i, objFile, main_folder, folder_list, colFiles, dia_width, vert_shift
+Dim horza_offset, on_item, offset, on_button, buttonpressed, folder_level, file_count
 
 dir = objStartFolder
 folder_level = 0
