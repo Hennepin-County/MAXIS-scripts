@@ -1,3 +1,5 @@
+On Error Resume Next
+
 EMConnect ""
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
