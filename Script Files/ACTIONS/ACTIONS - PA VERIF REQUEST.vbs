@@ -247,12 +247,12 @@ call navigate_to_screen("case", "curr")
 		call approved_version
 		EMWriteScreen version, 20, 78
 		transmit
-		EMWriteScreen "GAB2", 20, 70
+		EMWriteScreen "GASM", 20, 70
 		transmit
 		EMReadScreen GA_grant, 7, 9, 73
 	    EMReadScreen ga_members, 1, 13, 32 'Reading file unit type to determine members on cash grant
-		If ga_members = 1 then cash_members = 1
-		If ga_members = 6 then cash_members = 2
+		If ga_members = "1" then cash_members = "1"
+		If ga_members = "6" then cash_members = "2"
 		call navigate_to_screen ("case", "curr")
 	End If
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
