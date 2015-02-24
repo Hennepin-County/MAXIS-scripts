@@ -1,3 +1,7 @@
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "NOTES - MAIN MENU (0-G).vbs"
+start_time = timer
+
 'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
 url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER FUNCTIONS LIBRARY.vbs"
 Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
