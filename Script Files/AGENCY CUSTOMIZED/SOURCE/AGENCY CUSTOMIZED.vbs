@@ -26,21 +26,14 @@ Next
 
 vert_shift = 13
 
-If file_count > 1 AND file_count < 25 then
+If file_count > 1 then
 	vert_shift = (file_count * 13)
-elseif file_count > 24 then
-	vert_shift = 325
 end If
-
-dia_width = 0
-If file_count > 24 then dia_width = 153
-If file_count > 49 then dia_width = 306
 
 offset = 3
 on_script = 0
-horza_offset = 0
 
-BeginDialog county_script_library, 0, 0, 218 + dia_width, 27 + vert_shift, "County Custom Scripts"
+BeginDialog county_script_library, 0, 0, 218, 27 + vert_shift, "County Custom Scripts"
   	OptionGroup RadioGroup1
 	'Script Pages Here
 	For Each objFile in colFiles
@@ -51,22 +44,15 @@ BeginDialog county_script_library, 0, 0, 218 + dia_width, 27 + vert_shift, "Coun
 			script_title = left(objFile.Name,file_type_remo)
 				'Creates checkbox
 			
-				RadioButton 3 + horza_offset, offset, 150, 10, script_title, checked_scripts(on_script)
+				RadioButton 3, offset, 150, 10, script_title, checked_scripts(on_script)
 				'Changes Checkbox offset for next script
 			offset = offset + 13
 			on_script = on_script + 1
-			if on_script = 25 then 
-				horza_offset = 153
-				offset = 3
-			elseif on_script = 50 then
-				horza_offset = 306
-				offset = 3
-			end if
 		end if
 	next		
 	ButtonGroup ButtonPressed
-    OkButton 197 + horza_offset, 13 + vert_shift, 19, 12
-    CancelButton 166 + horza_offset, 13 + vert_shift, 28, 12
+    OkButton 197, 13 + vert_shift, 19, 12
+    CancelButton 166, 13 + vert_shift, 28, 12
 EndDialog
 
 dialog county_script_library
@@ -98,4 +84,4 @@ if buttonpressed = -1 then
 	Next
 end if
 
-stopscript
+stopscript 
