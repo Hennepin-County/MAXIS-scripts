@@ -3,7 +3,11 @@ name_of_script = "NOTES - CAF.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+If beta_agency = "" or beta_agency = True then
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+Else
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+End if
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, FALSE									'Attempts to open the URL
 req.send													'Sends request
@@ -27,6 +31,7 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			"URL: " & url
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
+
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 footer_month = datepart("m", date)
@@ -483,9 +488,7 @@ If CAF_status <> "" then CAF_status = ": " & CAF_status
 'Adding footer month to the recertification case notes
 If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year & " recert"
 
-
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
 If move_verifs_needed = True and verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 call write_bullet_and_variable_in_case_note("CAF datestamp", CAF_datestamp)

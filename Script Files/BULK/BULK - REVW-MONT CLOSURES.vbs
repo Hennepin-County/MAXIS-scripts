@@ -174,16 +174,23 @@ If revw_check = checked then
 			EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
 			first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
 			
-			MAGI_HC_extension = ""   'This clears out the MAGI extension variable before each run through for each case. 
-			If HC_review_status <> "" then		'Added additional logic as currently MAGI clients get an additonal 4 months to turn in renewal paperwork.
-				IF MAGI_code = "NONE" THEN last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-				IF MAGI_code = "ALL " THEN last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
-				IF MAGI_code = "MIXE" THEN           'MIXED HHs also get same extension for the MAGI client only, though if MAGI is reinstated they can add a person but it is technically not a reinstate.
-					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-					MAGI_HC_extension = "HH member may be eligible for MAGI renewal extension. Please refer to worker to see what documents are needed."	
-				END IF
-				HC_intake_date = dateadd("m", 1, first_of_working_month)
-			End If
+		MAGI_HC_extension = "" 'This clears out the MAGI extension variable before each run through for each case.
+		If HC_review_status <> "" then	'Added additional logic as currently MAGI clients get an additonal 4 months to turn in renewal paperwork.
+			IF MAGI_code = "NONE" THEN 
+				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+				HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
+			END IF
+			IF MAGI_code = "ALL " THEN 
+				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
+				HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
+			END IF
+			IF MAGI_code = "MIXE" THEN 'MIXED HHs also get same extension for the MAGI client only, though if MAGI is reinstated they can add a person but it is technically not a reinstate.
+				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+				MAGI_HC_extension = "HH member may be eligible for MAGI renewal extension. Please refer to worker to see what documents are needed."
+				HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)	
+			END IF
+			IF HC_intake_date = "" THEN HC_intake_date = dateadd("m", 1, first_of_working_month)
+		End If
 			If FS_review_status <> "" then
 				If FS_review_code = "I" or FS_review_document = "CSR" then
 					last_day_to_turn_in_SNAP_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
