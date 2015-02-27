@@ -66,9 +66,7 @@ EndDialog
 Do
 	dialog ACTIONS_scripts_main_menu_dialog
 	If buttonpressed = cancel then stopscript
-	If buttonpressed = SIR_instructions_button then 
-		'run "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Actions%20scripts.aspx"
-	End if
+	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Actions%20scripts.aspx")
 Loop until buttonpressed <> SIR_instructions_button
 
 
