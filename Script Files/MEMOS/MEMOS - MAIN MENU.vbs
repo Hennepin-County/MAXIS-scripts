@@ -52,9 +52,13 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'Shows report scanning dialog, which asks user which report to generate.
-dialog MEMOS_scripts_main_menu_dialog
-If buttonpressed = cancel then stopscript
+'Shows main menu dialog, which asks user which memo to generate. Loops until a button other than the SIR instructions button is clicked.
+Do
+	dialog MEMOS_scripts_main_menu_dialog
+	If buttonpressed = cancel then stopscript
+	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Memos%20scripts.aspx")
+Loop until buttonpressed <> SIR_instructions_button
+
 
 'Connecting to BlueZone
 EMConnect ""
