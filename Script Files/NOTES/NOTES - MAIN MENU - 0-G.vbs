@@ -1,3 +1,7 @@
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "NOTES - MAIN MENU (0-G).vbs"
+start_time = timer
+
 'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
 url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER FUNCTIONS LIBRARY.vbs"
 Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
@@ -29,6 +33,7 @@ END IF
 BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 456, 305, "Notes (0-G) scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 285, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 10, 25, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
     PushButton 10, 40, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
     PushButton 10, 65, 50, 10, "Burial assets", BURIAL_ASSETS_button
@@ -66,9 +71,12 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'Shows report scanning dialog, which asks user which report to generate.
-Dialog NOTES_0_G_scripts_main_menu_dialog
-IF ButtonPressed = cancel THEN StopScript
+'Shows main menu dialog, which asks user which script to run. Loops until a button other than the SIR instructions button is clicked.
+Do
+	Dialog NOTES_0_G_scripts_main_menu_dialog
+	IF ButtonPressed = cancel THEN StopScript
+	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Notes%20scripts.aspx")
+Loop until buttonpressed <> SIR_instructions_button
 
 'Connecting to BlueZone
 EMConnect ""
