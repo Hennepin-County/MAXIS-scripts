@@ -149,38 +149,41 @@ If cash_check = 1 then
   cash_followup_text = ", after which a new CAF is required."
 End if
 
+'Removing the last character of the progs_closed variable, as it is always a trailing slash
+progs_closed = left(progs_closed, len(progs_closed) - 1)
+
 'The dialog navigated to CASE/NOTE. This will write the info into the case note.
 IF death_check = 1 THEN
-	case_note_header = "---Closed " & progs_closed & "<backspace>" & " due to client death---"
+	case_note_header = "---Closed " & progs_closed & " due to client death---"
 ELSE
-	case_note_header = "---Closed " & progs_closed & "<backspace>" & " " & closure_date & "---"
+	case_note_header = "---Closed " & progs_closed & " " & closure_date & "---"
 END IF
-call write_new_line_in_case_note(case_note_header)
-IF death_check = 1 AND HC_check = 1 THEN call write_editbox_in_case_note("HC Closure Date", hc_close_for_death_date, 6)
-IF death_check = 1 AND snap_check = 1 THEN call write_editbox_in_case_note("SNAP Closure Date", closure_date, 6)
-IF death_check = 1 AND cash_check = 1 THEN call write_editbox_in_case_note("CASH Closure Date", closure_date, 6)
-call write_editbox_in_case_note("Reason for closure", reason_for_closure, 6)
-If verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-If updated_MMIS_check = 1 then call write_new_line_in_case_note("* Updated MMIS.")
-If WCOM_check = 1 then call write_new_line_in_case_note("* Added WCOM to notice.")
-If CSR_check = 1 then call write_editbox_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.", 6)
-If HC_ER_check = 1 then call write_new_line_in_case_note("* Case is at HC ER.")
+call write_variable_in_case_note(case_note_header)
+IF death_check = 1 AND HC_check = 1 THEN call write_bullet_and_variable_in_case_note("HC Closure Date", hc_close_for_death_date)
+IF death_check = 1 AND snap_check = 1 THEN call write_bullet_and_variable_in_case_note("SNAP Closure Date", closure_date)
+IF death_check = 1 AND cash_check = 1 THEN call write_bullet_and_variable_in_case_note("CASH Closure Date", closure_date)
+call write_bullet_and_variable_in_case_note("Reason for closure", reason_for_closure)
+If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
+If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
+If CSR_check = 1 then call write_bullet_and_variable_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.")
+If HC_ER_check = 1 then call write_variable_in_case_note("* Case is at HC ER.")
 If case_noting_intake_dates = True then
-	call write_new_line_in_case_note("---")
-	IF death_check <> 1 and HC_check = 1 then call write_editbox_in_case_note("Last HC REIN date", HC_last_REIN_date & HC_followup_text, 6)
-	If death_check <> 1 and SNAP_check = 1 then call write_editbox_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text, 6)
-	If death_check <> 1 and cash_check = 1 then call write_editbox_in_case_note("Last cash REIN date", cash_last_REIN_date & cash_followup_text, 6)
+	call write_variable_in_case_note("---")
+	IF death_check <> 1 and HC_check = 1 then call write_bullet_and_variable_in_case_note("Last HC REIN date", HC_last_REIN_date & HC_followup_text)
+	If death_check <> 1 and SNAP_check = 1 then call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
+	If death_check <> 1 and cash_check = 1 then call write_bullet_and_variable_in_case_note("Last cash REIN date", cash_last_REIN_date & cash_followup_text)
 	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then
-		call write_editbox_in_case_note("Open programs", open_progs, 6)
+		call write_bullet_and_variable_in_case_note("Open programs", open_progs)
 	Else
-		IF death_check = 1 THEN call write_new_line_in_case_note("* All programs closed.")
-		IF death_check <> 1 THEN call write_new_line_in_case_note("* All programs closed. Case becomes intake again on " & intake_date & ".")
+		IF death_check = 1 THEN call write_variable_in_case_note("* All programs closed.")
+		IF death_check <> 1 THEN call write_variable_in_case_note("* All programs closed. Case becomes intake again on " & intake_date & ".")
 	End if
 Else
-	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then call write_editbox_in_case_note("Open programs", open_progs, 6)
+	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
 End if
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 'Runs denied progs if selected
 If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
