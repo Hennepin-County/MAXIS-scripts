@@ -89,7 +89,7 @@ If revw_check = checked then
 	call navigate_to_screen("rept", "revw")
 	EMReadScreen default_worker_number, 3, 21, 10
 	If worker_number <> default_worker_number then
-		EMWriteScreen worker_county_code & worker_number, 21, 10
+		EMWriteScreen worker_county_code & worker_number, 21, 6
 		transmit
 	End if
 	EMReadScreen current_footer_month, 2, 20, 55
