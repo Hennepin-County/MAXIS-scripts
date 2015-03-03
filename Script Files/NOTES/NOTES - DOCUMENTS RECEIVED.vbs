@@ -87,13 +87,13 @@ Do
 Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
 
 'Case notes
-call write_new_line_in_case_note("Docs Rec'd: " & docs_received)
-If document_datestamp <> "" then call write_editbox_in_case_note("Document datestamp", document_datestamp, 6)
-If verif_notes <> "" then call write_editbox_in_case_note("Notes", verif_notes, 6) 
-call write_editbox_in_case_note("Actions taken", actions_taken, 6) 
-If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_needed, 6) 
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_case_note("Docs Rec'd: " & docs_received)
+If document_datestamp <> "" then call write_bullet_and_variable_in_case_note("Document datestamp", document_datestamp)
+If verif_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", verif_notes) 
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken) 
+If docs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", docs_needed) 
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 'Runs approved  progs if selected
 If approved_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - Approved Programs.vbs")
