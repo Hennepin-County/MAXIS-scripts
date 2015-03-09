@@ -196,6 +196,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   CheckBox 330, 205, 65, 10, "R/R explained?", R_R_checkbox
   CheckBox 15, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
   CheckBox 90, 220, 95, 10, "Workforce referral made?", WF1_checkbox
+  CheckBox 190, 220, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
   EditBox 55, 240, 230, 15, other_notes
   ComboBox 330, 240, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
   EditBox 55, 260, 390, 15, verifs_needed
@@ -238,6 +239,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   GroupBox 5, 300, 280, 60, "Actions the script can do:"
   Text 330, 330, 60, 10, "Worker signature:"
 EndDialog
+
 
 
 
@@ -536,6 +538,7 @@ If managed_care_referral_checkbox = checked then call write_variable_in_case_not
 If R_R_checkbox = checked then call write_variable_in_case_note("* R/R explained to client.")
 If updated_MMIS_checkbox = checked then call write_variable_in_case_note("* Updated MMIS.")
 If WF1_checkbox = checked then call write_variable_in_case_note("* Workforce referral made.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 If client_delay_checkbox = checked then call write_variable_in_case_note("* PND2 updated to show client delay.")
 if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
 if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)

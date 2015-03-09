@@ -66,6 +66,7 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 305, "Combined AR dialog"
   EditBox 55, 225, 380, 15, actions_taken
   EditBox 50, 245, 385, 15, other_notes
   CheckBox 5, 270, 65, 10, "R/R explained?", R_R_explained
+  CheckBox 5, 285, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
   DropListBox 135, 265, 60, 15, " "+chr(9)+"complete"+chr(9)+"incomplete", review_status
   EditBox 275, 265, 65, 15, worker_sig
   ButtonGroup ButtonPressed
@@ -113,6 +114,7 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 305, "Combined AR dialog"
   Text 80, 270, 50, 10, "Review status:"
   Text 210, 270, 65, 10, "Sign the case note:"
 EndDialog
+
 
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
@@ -263,6 +265,7 @@ if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_
 If verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
 If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 If R_R_explained = 1 then call write_new_line_in_case_note("* R/R explained.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 If other_notes <> "" then call write_editbox_in_case_note("Notes", other_notes, 6)
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_sig)

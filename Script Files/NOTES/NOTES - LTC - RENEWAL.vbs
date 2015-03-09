@@ -56,7 +56,7 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
     CancelButton 135, 55, 50, 15
 EndDialog
 
-BeginDialog LTC_recert_dialog, 5, 5, 431, 247, "LTC recert dialog"
+BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   EditBox 75, 45, 40, 15, recert_month
   EditBox 170, 45, 215, 15, US_citizen
   EditBox 65, 65, 50, 15, MA_type
@@ -70,11 +70,12 @@ BeginDialog LTC_recert_dialog, 5, 5, 431, 247, "LTC recert dialog"
   EditBox 60, 165, 365, 15, recipient_amt
   EditBox 50, 185, 375, 15, deductions
   EditBox 50, 205, 375, 15, other_notes
-  DropListBox 60, 225, 75, 15, "complete"+chr(9)+"incomplete", review_status
-  EditBox 215, 225, 65, 15, worker_sig
+  CheckBox 5, 225, 100, 10, "Sent forms to AREP?", sent_arep_checkbox
+  DropListBox 60, 240, 75, 15, "complete"+chr(9)+"incomplete", review_status
+  EditBox 215, 240, 65, 15, worker_sig
   ButtonGroup ButtonPressed
-    OkButton 320, 225, 50, 15
-    CancelButton 375, 225, 50, 15
+    OkButton 320, 240, 50, 15
+    CancelButton 375, 240, 50, 15
   GroupBox 20, 5, 60, 35, "Income panels"
   ButtonGroup ButtonPressed
     PushButton 25, 15, 25, 10, "BUSI", BUSI_button
@@ -116,8 +117,8 @@ BeginDialog LTC_recert_dialog, 5, 5, 431, 247, "LTC recert dialog"
   Text 5, 170, 50, 10, "Recipient amt:"
   Text 5, 190, 40, 10, "Deductions:"
   Text 5, 210, 40, 10, "Other notes:"
-  Text 5, 230, 55, 10, "Review status:"
-  Text 145, 230, 65, 10, "Sign the case note:"
+  Text 5, 245, 55, 10, "Review status:"
+  Text 145, 245, 65, 10, "Sign the case note:"
 EndDialog
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
@@ -419,6 +420,7 @@ call write_editbox_in_case_note("Assets", assets, 6)
 call write_editbox_in_case_note("Recipient amt", recipient_amt, 6)
 call write_editbox_in_case_note("Deducts", deductions, 6)
 If other_notes <> "" then call write_editbox_in_case_note("Notes", other_notes, 6)
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_sig)
 

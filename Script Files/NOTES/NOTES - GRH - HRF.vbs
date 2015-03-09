@@ -64,6 +64,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 240, "HRF dialog"
   EditBox 170, 85, 275, 15, changes
   EditBox 100, 105, 345, 15, FIAT_reasons
   EditBox 50, 125, 395, 15, other_notes
+  CheckBox 240, 145, 150, 10, "Sent forms to AREP?", sent_arep_checkbox
   EditBox 240, 160, 205, 15, verifs_needed
   EditBox 235, 180, 210, 15, actions_taken
   CheckBox 125, 205, 180, 10, "Check here to case note grant info from ELIG/GRH.", grab_GRH_info_check
@@ -111,6 +112,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 240, "HRF dialog"
   Text 315, 205, 65, 10, "Worker signature:"
   Text 70, 225, 160, 10, "If post-pay check sent to facility, enter date sent:"
 EndDialog
+
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
@@ -249,6 +251,7 @@ If YTD <> "" then call write_editbox_in_case_note("YTD", YTD, 6)
 If changes <> "" then call write_editbox_in_case_note("Changes", changes, 6)
 if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
 if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
 call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 If date_check_sent_to_facility <> "" then call write_editbox_in_case_note("Date check sent to facility", date_check_sent_to_facility, 6)

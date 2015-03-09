@@ -110,7 +110,7 @@ BeginDialog HCAPP_dialog_01, 0, 0, 446, 300, "HCAPP dialog part 1"
   GroupBox 120, 275, 85, 25, "other STAT panels:"
 EndDialog
 
-BeginDialog HCAPP_dialog_02, 0, 0, 451, 310, "HCAPP dialog part 2"
+BeginDialog HCAPP_dialog_02, 0, 0, 451, 325, "HCAPP dialog part 2"
   EditBox 35, 50, 410, 15, assets
   EditBox 60, 80, 385, 15, INSA
   EditBox 35, 100, 410, 15, ACCI
@@ -118,17 +118,18 @@ BeginDialog HCAPP_dialog_02, 0, 0, 451, 310, "HCAPP dialog part 2"
   EditBox 125, 140, 125, 15, FACI
   CheckBox 255, 145, 80, 10, "Application signed?", application_signed_check
   CheckBox 350, 145, 65, 10, "MMIS updated?", MMIS_updated_check
-  CheckBox 20, 160, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
-  CheckBox 20, 175, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
-  EditBox 100, 190, 345, 15, FIAT_reasons
-  EditBox 55, 210, 215, 15, other_notes
-  ComboBox 330, 210, 115, 15, ""+chr(9)+"incomplete"+chr(9)+"approved", HCAPP_status
-  EditBox 55, 230, 390, 15, verifs_needed
-  EditBox 55, 250, 390, 15, actions_taken
-  EditBox 395, 270, 50, 15, worker_signature
+  CheckBox 20, 160, 115, 10, "Sent forms to AREP?", sent_arep_checkbox
+  CheckBox 20, 175, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
+  CheckBox 20, 190, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
+  EditBox 100, 205, 345, 15, FIAT_reasons
+  EditBox 55, 225, 215, 15, other_notes
+  ComboBox 330, 225, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", HCAPP_status
+  EditBox 55, 245, 390, 15, verifs_needed
+  EditBox 55, 265, 390, 15, actions_taken
+  EditBox 395, 285, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 290, 50, 15
-    CancelButton 395, 290, 50, 15
+    OkButton 340, 305, 50, 15
+    CancelButton 395, 305, 50, 15
     PushButton 10, 15, 25, 10, "ACCT", ACCT_button
     PushButton 35, 15, 25, 10, "CARS", CARS_button
     PushButton 60, 15, 25, 10, "CASH", CASH_button
@@ -145,23 +146,24 @@ BeginDialog HCAPP_dialog_02, 0, 0, 451, 310, "HCAPP dialog part 2"
     PushButton 5, 105, 25, 10, "ACCI:", ACCI_button
     PushButton 5, 125, 25, 10, "BILS:", BILS_button
     PushButton 5, 145, 25, 10, "FACI/", FACI_button
-    PushButton 10, 280, 25, 10, "MEMB", MEMB_button
-    PushButton 35, 280, 25, 10, "MEMI", MEMI_button
-    PushButton 60, 280, 25, 10, "REVW", REVW_button
-    PushButton 95, 280, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 225, 295, 75, 10, "previous page", previous_page_button
+    PushButton 10, 295, 25, 10, "MEMB", MEMB_button
+    PushButton 35, 295, 25, 10, "MEMI", MEMI_button
+    PushButton 60, 295, 25, 10, "REVW", REVW_button
+    PushButton 95, 295, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 225, 310, 75, 10, "previous page", previous_page_button
   GroupBox 5, 5, 110, 35, "Asset panels"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 55, 30, 10, "Assets:"
   Text 35, 145, 90, 10, "residency/miscellaneous:"
-  Text 5, 195, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 215, 45, 10, "Other notes:"
-  Text 280, 215, 50, 10, "HCAPP status:"
-  Text 5, 235, 50, 10, "Verifs needed:"
-  Text 5, 255, 50, 10, "Actions taken:"
-  GroupBox 5, 270, 85, 25, "other STAT panels:"
-  Text 330, 275, 65, 10, "Worker signature:"
+  Text 5, 210, 95, 10, "FIAT reasons (if applicable):"
+  Text 5, 230, 45, 10, "Other notes:"
+  Text 280, 230, 50, 10, "HCAPP status:"
+  Text 5, 250, 50, 10, "Verifs needed:"
+  Text 5, 270, 50, 10, "Actions taken:"
+  GroupBox 5, 285, 85, 25, "other STAT panels:"
+  Text 330, 290, 65, 10, "Worker signature:"
 EndDialog
+
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
@@ -410,6 +412,7 @@ If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
 If application_signed_check = 1 then call write_new_line_in_case_note("* Application was signed.")
 If application_signed_check = 0 then call write_new_line_in_case_note("* Application was not signed.")
 If client_delay_check = 1 then call write_new_line_in_case_note("* PND2 updated to show client delay.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
 if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
 if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)

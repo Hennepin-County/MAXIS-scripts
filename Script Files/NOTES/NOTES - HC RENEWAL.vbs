@@ -110,8 +110,10 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   Text 5, 235, 50, 10, "Actions taken:"
   GroupBox 5, 250, 150, 45, "If MA-EPD..."
   Text 10, 265, 50, 10, "New premium:"
+  CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
   Text 335, 255, 65, 10, "Worker signature:"
 EndDialog
+
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
@@ -264,6 +266,7 @@ call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 call write_new_line_in_case_note("---")
 If MAEPD_premium <> "" then call write_editbox_in_case_note("MA-EPD premium", MAEPD_premium, 6)
 If MADE_check = 1 then call write_new_line_in_case_note("* Emailed MADE.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 If MAEPD_premium <> "" or MADE_check = 1 then call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
