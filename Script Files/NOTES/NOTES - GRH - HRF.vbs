@@ -112,6 +112,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 240, "HRF dialog"
   Text 70, 225, 160, 10, "If post-pay check sent to facility, enter date sent:"
 EndDialog
 
+
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
     PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
@@ -231,6 +232,7 @@ Do
 				EMReadScreen GRSM_line_02, 69, 11, 3
 				EMReadScreen GRSM_line_03, 69, 12, 3
 				EMReadScreen GRSM_line_04, 69, 13, 3
+				EMReadScreen GRSM_Obligation, 9, 18, 31
 			End if		
 		End if
 		call navigate_to_screen("case", "note")
@@ -258,6 +260,7 @@ If GRPR_check = "GRPR" then
 	call write_new_line_in_case_note("   " & GRSM_line_02)
 	call write_new_line_in_case_note("   " & GRSM_line_03)
 	call write_new_line_in_case_note("   " & GRSM_line_04)
+	CALL write_new_line_in_case_note("Client Obligation: $" & GRSM_Obligation)
 	call write_new_line_in_case_note("---")
 End if
 call write_new_line_in_case_note(worker_signature)
