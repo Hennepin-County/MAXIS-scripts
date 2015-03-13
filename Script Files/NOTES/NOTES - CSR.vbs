@@ -336,3 +336,4 @@ End if
 call write_variable_in_case_note(worker_signature)
 
 call script_end_procedure("")
+
