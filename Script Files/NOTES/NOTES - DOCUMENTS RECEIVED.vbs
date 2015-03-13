@@ -3,7 +3,11 @@ name_of_script = "NOTES - DOCUMENTS RECEIVED.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+If beta_agency = "" or beta_agency = True then
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+Else
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+End if
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, FALSE									'Attempts to open the URL
 req.send													'Sends request
@@ -83,14 +87,13 @@ Do
 Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
 
 'Case notes
-EMSendKey "Docs rec'd: "
-call write_new_line_in_case_note(docs_received)
-If document_datestamp <> "" then call write_editbox_in_case_note("Document datestamp", document_datestamp, 6)
-If verif_notes <> "" then call write_editbox_in_case_note("Notes", verif_notes, 6) 
-call write_editbox_in_case_note("Actions taken", actions_taken, 6) 
-If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_needed, 6) 
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_case_note("Docs Rec'd: " & docs_received)
+If document_datestamp <> "" then call write_bullet_and_variable_in_case_note("Document datestamp", document_datestamp)
+If verif_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", verif_notes) 
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken) 
+If docs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", docs_needed) 
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 'Runs approved  progs if selected
 If approved_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - Approved Programs.vbs")

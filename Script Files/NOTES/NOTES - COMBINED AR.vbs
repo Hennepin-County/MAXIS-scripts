@@ -3,7 +3,11 @@ name_of_script = "NOTES - COMBINED AR.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+If beta_agency = "" or beta_agency = True then
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+Else
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+End if
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, FALSE									'Attempts to open the URL
 req.send													'Sends request
@@ -53,24 +57,26 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   GroupBox 5, 65, 170, 30, "Programs recertifying"
 EndDialog
 
-BeginDialog Combined_AR_dialog, 0, 0, 441, 305, "Combined AR dialog"
-  EditBox 75, 35, 50, 15, recert_datestamp
-  EditBox 225, 35, 40, 15, recert_month
-  EditBox 45, 55, 165, 15, HH_comp
-  EditBox 265, 55, 170, 15, US_citizen
-  EditBox 35, 75, 210, 15, AREP
-  EditBox 40, 135, 395, 15, income
-  EditBox 35, 155, 400, 15, assets
-  EditBox 100, 185, 335, 15, FIAT_reasons
-  EditBox 60, 205, 375, 15, verifs_needed
-  EditBox 55, 225, 380, 15, actions_taken
-  EditBox 50, 245, 385, 15, other_notes
-  CheckBox 5, 270, 65, 10, "R/R explained?", R_R_explained
-  DropListBox 135, 265, 60, 15, " "+chr(9)+"complete"+chr(9)+"incomplete", review_status
-  EditBox 275, 265, 65, 15, worker_sig
+BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
+  EditBox 70, 35, 50, 15, recert_datestamp
+  EditBox 230, 35, 40, 15, recert_month
+  EditBox 60, 55, 50, 15, interview_date
+  EditBox 45, 75, 165, 15, HH_comp
+  EditBox 265, 75, 170, 15, US_citizen
+  EditBox 35, 95, 210, 15, AREP
+  EditBox 40, 155, 395, 15, income
+  EditBox 35, 175, 400, 15, assets
+  EditBox 65, 195, 370, 15, SHEL
+  EditBox 100, 215, 335, 15, FIAT_reasons
+  EditBox 60, 235, 375, 15, verifs_needed
+  EditBox 55, 255, 380, 15, actions_taken
+  EditBox 50, 275, 385, 15, other_notes
+  CheckBox 5, 300, 65, 10, "R/R explained?", R_R_explained
+  DropListBox 135, 295, 60, 15, ""+chr(9)+"complete"+chr(9)+"incomplete", review_status
+  EditBox 275, 295, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 330, 285, 50, 15
-    CancelButton 385, 285, 50, 15
+    OkButton 335, 315, 50, 15
+    CancelButton 385, 315, 50, 15
     PushButton 20, 15, 25, 10, "HCRE", HCRE_button
     PushButton 45, 15, 25, 10, "MEMB", MEMB_button
     PushButton 70, 15, 25, 10, "MEMI", MEMI_button
@@ -83,35 +89,38 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 305, "Combined AR dialog"
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 390, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 390, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 80, 25, 10, "AREP:", AREP_button
-    PushButton 10, 110, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 110, 25, 10, "JOBS", JOBS_button
-    PushButton 60, 110, 25, 10, "RBIC", RBIC_button
-    PushButton 85, 110, 25, 10, "UNEA", UNEA_button
-    PushButton 125, 110, 25, 10, "ACCT", ACCT_button
-    PushButton 150, 110, 25, 10, "CARS", CARS_button
-    PushButton 175, 110, 25, 10, "CASH", CASH_button
-    PushButton 200, 110, 25, 10, "OTHR", OTHR_button
-    PushButton 225, 110, 25, 10, "REST", REST_button
-    PushButton 250, 110, 25, 10, "SECU", SECU_button
-    PushButton 275, 110, 25, 10, "TRAN", TRAN_button
-  GroupBox 15, 5, 110, 25, "STAT panels:"
-  GroupBox 180, 5, 90, 25, "ELIG panels:"
-  GroupBox 330, 5, 110, 35, "STAT-based navigation"
+    PushButton 5, 100, 25, 10, "AREP:", AREP_button
+    PushButton 10, 130, 25, 10, "BUSI", BUSI_button
+    PushButton 35, 130, 25, 10, "JOBS", JOBS_button
+    PushButton 60, 130, 25, 10, "RBIC", RBIC_button
+    PushButton 85, 130, 25, 10, "UNEA", UNEA_button
+    PushButton 125, 130, 25, 10, "ACCT", ACCT_button
+    PushButton 150, 130, 25, 10, "CARS", CARS_button
+    PushButton 175, 130, 25, 10, "CASH", CASH_button
+    PushButton 200, 130, 25, 10, "OTHR", OTHR_button
+    PushButton 225, 130, 25, 10, "REST", REST_button
+    PushButton 250, 130, 25, 10, "SECU", SECU_button
+    PushButton 275, 130, 25, 10, "TRAN", TRAN_button
+    PushButton 5, 200, 25, 10, "SHEL/", SHEL_button
+    PushButton 30, 200, 25, 10, "HEST", HEST_button
   Text 5, 40, 65, 10, "Recert datestamp:"
-  Text 155, 40, 70, 10, "Recert footer month:"
-  Text 5, 60, 40, 10, "HH Comp:"
-  Text 220, 60, 40, 10, "US citizen?:"
-  GroupBox 5, 100, 110, 25, "Income panels"
-  GroupBox 120, 100, 185, 25, "Asset panels"
-  Text 5, 140, 30, 10, "Income:"
-  Text 5, 160, 25, 10, "Assets:"
-  Text 5, 190, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 210, 50, 10, "Verifs needed:"
-  Text 5, 230, 50, 10, "Actions taken:"
-  Text 5, 250, 40, 10, "Other notes:"
-  Text 80, 270, 50, 10, "Review status:"
-  Text 210, 270, 65, 10, "Sign the case note:"
+  Text 160, 40, 70, 10, "Recert footer month:"
+  Text 5, 80, 40, 10, "HH Comp:"
+  Text 220, 80, 40, 10, "US citizen?:"
+  GroupBox 5, 120, 110, 25, "Income panels"
+  GroupBox 120, 120, 185, 25, "Asset panels"
+  Text 5, 160, 30, 10, "Income:"
+  Text 5, 180, 25, 10, "Assets:"
+  Text 5, 220, 95, 10, "FIAT reasons (if applicable):"
+  Text 5, 240, 50, 10, "Verifs needed:"
+  Text 5, 260, 50, 10, "Actions taken:"
+  Text 5, 280, 40, 10, "Other notes:"
+  Text 80, 300, 50, 10, "Review status:"
+  Text 210, 300, 65, 10, "Sign the case note:"
+  GroupBox 180, 5, 90, 25, "ELIG panels:"
+  GroupBox 15, 5, 110, 25, "STAT panels:"
+  GroupBox 330, 5, 110, 35, "STAT-based navigation"
+  Text 5, 60, 55, 10, "Interview Date:"
 EndDialog
 
 
@@ -189,6 +198,8 @@ call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "REVW", recert_datestamp)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL)
 
 'Determines recert month
 recert_month = footer_month & "/" & footer_year
@@ -234,13 +245,15 @@ Do
       If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
       If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
       If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
+	  IF ButtonPressed = SHEL_button THEN CALL navigate_to_screen("STAT", "SHEL")
+	  IF ButtonPressed = HEST_button THEN CALL navigate_to_screen("STAT", "HEST")
       If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
       If ButtonPressed = ELIG_FS_button then call navigate_to_screen("elig", "FS__")
       If ButtonPressed = ELIG_GA_button then call navigate_to_screen("elig", "GA__")
       If ButtonPressed = ELIG_MSA_button then call navigate_to_screen("elig", "MSA_")
     Loop until ButtonPressed = -1
-    If worker_sig = "" or review_status = " " or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
-  Loop until worker_sig <> "" and review_status <> " " and actions_taken <> "" and recert_datestamp <> ""
+    If worker_signature = "" or review_status = " " or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
+  Loop until worker_signature <> "" and review_status <> " " and actions_taken <> "" and recert_datestamp <> ""
   If ButtonPressed = -1 then dialog case_note_dialog
   If buttonpressed = yes_case_note_button then
     call navigate_to_screen("case", "note")
@@ -252,20 +265,22 @@ Do
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'The case note
-EMSendKey "<home>" & "***Combined AR received " & recert_datestamp & " for " & recert_month & ": " & review_status & "***" & "<newline>"
-If HH_comp <> "" then call write_editbox_in_case_note("HH comp", HH_comp, 6)
-If US_citizen <> "" then call write_editbox_in_case_note("Citizenship", US_citizen, 6)
-If AREP <> "" then call write_editbox_in_case_note("AREP", AREP, 6)
-If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
-If income <> "" then call write_editbox_in_case_note("Income", income, 6)
-If assets <> "" then call write_editbox_in_case_note("Assets", assets, 6)
-if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
-If verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-If R_R_explained = 1 then call write_new_line_in_case_note("* R/R explained.")
-If other_notes <> "" then call write_editbox_in_case_note("Notes", other_notes, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_sig)
+CALL write_variable_in_case_note("***Combined AR received " & recert_datestamp & " for " & recert_month & ": " & review_status & "***")
+CALL write_bullet_and_variable_in_case_note("Interview Date", interview_date)
+If HH_comp <> "" then call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
+If US_citizen <> "" then call write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
+If AREP <> "" then call write_bullet_and_variable_in_case_note("AREP", AREP)
+If FACI <> "" then call write_bullet_and_variable_in_case_note("FACI", FACI)
+If income <> "" then call write_bullet_and_variable_in_case_note("Income", income)
+If assets <> "" then call write_bullet_and_variable_in_case_note("Assets", assets)
+IF SHEL <> "" THEN CALL write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL)
+if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+If actions_taken <> "" then call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+If R_R_explained = 1 then call write_variable_in_case_note("* R/R explained.")
+If other_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", other_notes)
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 call script_end_procedure("")
 
