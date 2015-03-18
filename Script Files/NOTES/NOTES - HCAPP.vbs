@@ -122,7 +122,7 @@ BeginDialog HCAPP_dialog_02, 0, 0, 451, 310, "HCAPP dialog part 2"
   CheckBox 20, 175, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
   EditBox 100, 190, 345, 15, FIAT_reasons
   EditBox 55, 210, 215, 15, other_notes
-  ComboBox 330, 210, 115, 15, ""+chr(9)+"incomplete"+chr(9)+"approved", HCAPP_status
+  DropListBox 330, 210, 115, 15, "Select one..."+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+"denied", HCAPP_status
   EditBox 55, 230, 390, 15, verifs_needed
   EditBox 55, 250, 390, 15, actions_taken
   EditBox 395, 270, 50, 15, worker_signature
@@ -337,8 +337,8 @@ Do
       If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
     Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
     If ButtonPressed = previous_page_button then exit do
-    If actions_taken = "" or HCAPP_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-  Loop until actions_taken <> "" and HCAPP_datestamp <> "" and worker_signature <> "" 
+    If actions_taken = "" or HCAPP_datestamp = "" or worker_signature = "" or HCAPP_status = "Select one..." then MsgBox "You need to fill in the datestamp and actions taken sections, and the HCAPP status, as well as sign your case note. Check these items after pressing ''OK''."
+  Loop until actions_taken <> "" and HCAPP_datestamp <> "" and HCAPP_status <> "Select one..." and worker_signature <> "" 
   If ButtonPressed = -1 then dialog case_note_dialog
   If buttonpressed = yes_case_note_button then
     If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
@@ -382,12 +382,9 @@ Do
   End if
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
-'Adding a colon to the beginning of the HCAPP status variable if it isn't blank (simplifies writing the header of the case note)
-If HCAPP_status <> "" then HCAPP_status = ": " & HCAPP_status
-
 'SECTION 08: THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-EMSendKey "<home>" & "***HCAPP received " & HCAPP_datestamp & HCAPP_status & "***" & "<newline>"
+EMSendKey "<home>" & "***HCAPP received " & HCAPP_datestamp & ": " & HCAPP_status & "***" & "<newline>"
 If HH_comp <> "" then call write_editbox_in_case_note("HH comp", HH_comp, 6)
 If cit_id <> "" then call write_editbox_in_case_note("Cit/ID", cit_id, 6)
 If AREP <> "" then call write_editbox_in_case_note("AREP", AREP, 6)
@@ -419,9 +416,3 @@ call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
 call script_end_procedure("")
-
-
-
-
-
-
