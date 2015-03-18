@@ -76,7 +76,9 @@ If IsNumeric(case_number) = False then case_number = ""
       If buttonpressed = 0 then stopscript
       If case_number = "" then MsgBox "You must have a case number to continue!"
 	If worker_signature = "" then MsgBox "You must sign your case note!"
-    Loop until case_number <> "" & worker_signature <> ""
+	If father_in_household = "Select One" then MsgBox "You must select 'yes' or 'no' regarding whether or not the father is in the household."
+	If other_health_insurance = "Select One" then MsgBox "You must select 'yes' or 'no' to availability of other health insurance." 
+    Loop until case_number <> "" and worker_signature <> "" and father_in_household <> "Select One" and other_health_insurance <> "Select One"
     call check_for_MAXIS(True)
   call navigate_to_screen("case", "note")
   PF9
@@ -100,3 +102,4 @@ call write_variable_in_CASE_NOTE(worker_signature)
 
 
 script_end_procedure("")
+
