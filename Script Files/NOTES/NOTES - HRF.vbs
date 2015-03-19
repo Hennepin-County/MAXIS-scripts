@@ -64,6 +64,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
   EditBox 50, 130, 395, 15, other_notes
   CheckBox 190, 150, 60, 10, "10% sanction?", ten_percent_sanction_check
   CheckBox 265, 150, 60, 10, "30% sanction?", thirty_percent_sanction_check
+  CheckBox 330, 150, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
   EditBox 240, 165, 205, 15, verifs_needed
   EditBox 235, 185, 210, 15, actions_taken
   CheckBox 125, 210, 180, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
@@ -246,6 +247,7 @@ if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_
 if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
 If ten_percent_sanction_check = 1 then call write_new_line_in_case_note("* 10% sanction.")
 If thirty_percent_sanction_check = 1 then call write_new_line_in_case_note("* 30% sanction.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
 call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 call write_new_line_in_case_note("---")
