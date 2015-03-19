@@ -1,9 +1,9 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - Medical Opinion Form Received.vbs"
+name_of_script = "NOTES - MEDICAL OPINION FORM RECEIVED.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, FALSE									'Attempts to open the URL
 req.send													'Sends request
@@ -32,7 +32,7 @@ END IF
 'Dialog---------------------------------------------------------------------------------------------------------------------------
 
 BeginDialog MOF_recd, 0, 0, 186, 220, "Medical Opinion Form Received"
-  EditBox 55, 5, 100, 15, Edit8
+  EditBox 55, 5, 100, 15, case_number
   EditBox 55, 25, 95, 15, date_recd
   CheckBox 5, 45, 90, 10, "Client signed release?", client_release
   EditBox 90, 60, 85, 15, doctor_date
@@ -93,18 +93,17 @@ LOOP until mode_check = "Mode: A" OR mode_check = "Mode: E"
 CALL write_variable_in_CASE_NOTE("***Medical Opinion Form Rec'd " & date_recd & "***")
 IF client_release = checked THEN CALL write_variable_in_CASE_NOTE ("* Client signed release on MOF.")
 CALL write_bullet_and_variable_in_CASE_NOTE("Diagnosis", diagnosis)
-CALL write_bullet_and_variable_in_CASE_NOTE("Condition will last: ", condition_will_last)
-CALL write_bullet_and_variable_in_CASE_NOTE("Ability to work: ", ability_to_work)
-CALL write_bullet_and_variable_in_CASE_NOTE("Doctor signed form: ", doctor_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("Other notes: ", other_notes)
-CALL write_bullet_and_variable_in_CASE_NOTE("Action taken: ", action_taken)
+CALL write_bullet_and_variable_in_CASE_NOTE("Condition will last", condition_will_last)
+CALL write_bullet_and_variable_in_CASE_NOTE("Ability to work", ability_to_work)
+CALL write_bullet_and_variable_in_CASE_NOTE("Doctor signed form", doctor_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", action_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 Script_end_procedure("")
 
 	
-
 
 
 
