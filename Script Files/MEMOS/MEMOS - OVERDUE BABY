@@ -1,10 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - NOMI.vbs"
+name_of_script = "MEMOS - OVERDUE BABY.vbs"
 start_time = timer
 
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, FALSE									'Attempts to open the URL
 req.send													'Sends request
@@ -98,8 +98,9 @@ PF9
 
 'Writes the case note
 call write_variable_in_CASE_NOTE("***Overdue Baby***")
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE("SPEC/MEMO sent this date informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close.")
+call write_variable_in_CASE_NOTE("* SPEC/MEMO sent this date informing client that they need to report ")
+call write_variable_in_CASE_NOTE("      information regarding the birth of their child, and/or pregnancy end ")
+call write_variable_in_CASE_NOTE("      date, within 10 days or their case may close.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -110,20 +111,8 @@ If tikl_for_ten_day_follow_up_checkbox = checked then
 	call navigate_to_screen("DAIL", "WRIT")
 	call create_MAXIS_friendly_date(date, 10, 5, 18)
 	call write_variable_in_TIKL("Has information on new baby/end of pregnancy been received? If not, consider case closure/take appropriate action.")
-
-
+	transmit
+	PF3
 End If
 
-
-
-
-script_end_procedure("")
-
-
-
-
-
-
-
-
-
+script_end_procedure("Success! The script has case noted the overdue baby info, sent a SPEC/MEMO to the client, and TIKLed for 10-day return of information.")
