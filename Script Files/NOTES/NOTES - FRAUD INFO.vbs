@@ -3,7 +3,7 @@ name_of_script = "NOTES - FRAUD INFO.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, FALSE									'Attempts to open the URL
 req.send													'Sends request
@@ -65,10 +65,7 @@ EndDialog
 EMConnect ""
 
 'Finds the case number
-CALL find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-IF IsNumeric(case_number) = False then case_number = ""
+CALL MAXIS_case_number_finder(case_number)
 
 CALL check_for_MAXIS(True)
 
@@ -83,7 +80,7 @@ DO
 		IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
 	LOOP until case_number <> "" and worker_signature <> "" and (overpayment_yn = "Yes" or overpayment_yn ="No")
 	CALL check_for_MAXIS(TRUE)
-	CALL navigate_to_screen("case", "note")
+	CALL navigate_to_MAXIS_screen("case", "note")
 	PF9
 	EMReadscreen mode_check, 7, 20, 3
 	IF mode_check <> "Mode: A" AND mode_check <> "Mode: E" THEN MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
@@ -95,18 +92,17 @@ IF overpayment_yn = "Yes" THEN overpayment_yn = " Yes. See overpayment case note
 
 'The case note---------------------------------------------------------------------------------------------------------------------
 CALL write_variable_in_CASE_NOTE("***Fraud Referral Info***")
-CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date: ", referral_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("Referral Reason: ", referral_reason)
-CALL write_bullet_and_variable_in_CASE_NOTE("Findings: ", fraud_findings)
-CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken: ", actions_taken)
-CALL write_bullet_and_variable_in_CASE_NOTE("Overpayment? ", overpayment_yn)
+CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", referral_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Referral Reason", referral_reason)
+CALL write_bullet_and_variable_in_CASE_NOTE("Findings", fraud_findings)
+CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
+CALL write_bullet_and_variable_in_CASE_NOTE("Overpayment?", overpayment_yn)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 Script_end_procedure("")
 
 	
-
 
 
 
