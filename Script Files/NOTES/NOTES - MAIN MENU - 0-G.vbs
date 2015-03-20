@@ -34,9 +34,9 @@ END IF
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 546, 335, "Notes (0-G) scripts main menu dialog"
+BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 546, 350, "Notes (0-G) scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 490, 315, 50, 15
+    CancelButton 490, 330, 50, 15
     PushButton 475, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 10, 25, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
     PushButton 10, 40, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
@@ -57,7 +57,8 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 546, 335, "Notes (0-G) scr
     PushButton 10, 275, 45, 10, "Emergency", EMERGENCY_button
     PushButton 10, 290, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
     PushButton 10, 305, 40, 10, "Fraud info", FRAUD_INFO_button
-    PushButton 10, 320, 45, 10, "GRH - HRF", GRH_HRF_button
+    PushButton 10, 320, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
+    PushButton 10, 335, 45, 10, "GRH - HRF", GRH_HRF_button
   Text 5, 5, 245, 10, "Notes scripts main menu: select the script to run from the choices below."
   Text 120, 25, 330, 10, "--- A case note template for documenting details about an ApplyMN application recevied."
   Text 85, 40, 455, 10, "--- A case note template for when you approve a clients programs. Can autofill some data about the approval (like benefit totals) from MAXIS."
@@ -78,13 +79,9 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 546, 335, "Notes (0-G) scr
   Text 60, 275, 240, 10, "--- A case note template for emergency assistance applications (EA/EGA)."
   Text 90, 290, 220, 10, "--- A case note template for screening a client for expedited status."
   Text 55, 305, 200, 10, "--- NEW 04/2015!!! A case note template for noting fraud info."
-  Text 60, 320, 210, 10, "--- A case note template for GRH HRFs. Case must be post-pay."
+  Text 80, 320, 450, 10, "--- NEW 04/2015!!! A case note template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
+  Text 60, 335, 210, 10, "--- A case note template for GRH HRFs. Case must be post-pay."
 EndDialog
-
-
-
-
-
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -118,6 +115,7 @@ IF ButtonPressed = DWP_BUDGET_button							THEN CALL run_from_GitHub(script_repo
 IF ButtonPressed = EMERGENCY_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - EMERGENCY.vbs")							
 IF ButtonPressed = EXPEDITED_SCREENING_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - EXPEDITED SCREENING.vbs")				
 IF ButtonPressed = FRAUD_INFO_button							THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - FRAUD INFO.vbs")
+IF ButtonPressed = GAS_CARDS_ISSUED_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - GAS CARDS ISSUED.vbs")
 IF ButtonPressed = GRH_HRF_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - GRH - HRF.vbs")							
 
 'Logging usage stats
