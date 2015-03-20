@@ -43,7 +43,8 @@ BeginDialog contact_dialog, 0, 0, 386, 280, "Client contact"
   EditBox 125, 155, 250, 15, cl_instructions
   EditBox 65, 175, 310, 15, case_status
   CheckBox 5, 200, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-  CheckBox 5, 220, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+  CheckBox 5, 215, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+  CheckBox 5, 225, 135, 15, "Check here if you sent forms to AREP", Sent_arep_checkbox
   EditBox 310, 240, 70, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 270, 260, 50, 15
@@ -62,6 +63,7 @@ BeginDialog contact_dialog, 0, 0, 386, 280, "Client contact"
   Text 15, 180, 45, 10, "Case status: "
   Text 240, 245, 70, 10, "Sign your case note: "
 EndDialog
+
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 
@@ -134,6 +136,7 @@ If isnumeric(case_number) = True then
 	If cl_instructions <> "" then Call write_editbox_in_case_note("Instructions/Message for CL", cl_instructions, 6)
 	If case_status <> "" then Call write_editbox_in_case_note("Case status", case_status, 6)
       If caf_1_check = 1 then write_new_line_in_case_note ("* Reminded client about importance of submitting the CAF 1.")
+	IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 	Call write_new_line_in_case_note("---")
 	Call write_new_line_in_case_note(worker_signature)
       

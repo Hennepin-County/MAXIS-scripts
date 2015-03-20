@@ -29,7 +29,7 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 END IF
 
 'DIALOGS--------------------------------------------------------------------------------------------------
-BeginDialog verifs_needed_dialog, 0, 0, 351, 325, "Verifs needed"
+BeginDialog verifs_needed_dialog, 0, 0, 351, 330, "Verifs needed"
   EditBox 55, 5, 70, 15, case_number
   EditBox 250, 5, 60, 15, verif_due_date
   EditBox 30, 35, 315, 15, ADDR
@@ -45,8 +45,9 @@ BeginDialog verifs_needed_dialog, 0, 0, 351, 325, "Verifs needed"
   EditBox 50, 235, 295, 15, other_proofs
   CheckBox 5, 255, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
   CheckBox 5, 270, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
-  CheckBox 5, 285, 95, 10, "Signature page needed?", signature_page_needed_check
-  CheckBox 5, 300, 130, 10, "Check here to TIKL out for this case.", TIKL_check
+  CheckBox 5, 285, 175, 10, "Sent form to AREP?", sent_arep_checkbox
+  CheckBox 5, 300, 95, 10, "Signature page needed?", signature_page_needed_check
+  CheckBox 5, 315, 130, 10, "Check here to TIKL out for this case.", TIKL_check
   EditBox 285, 285, 60, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 240, 305, 50, 15
@@ -69,7 +70,7 @@ BeginDialog verifs_needed_dialog, 0, 0, 351, 325, "Verifs needed"
   Text 215, 290, 70, 10, "Sign your case note:"
 EndDialog
 
-BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 405, "Verifs needed (LTC) dialog"
+BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 415, "Verifs needed (LTC) dialog"
   EditBox 55, 5, 70, 15, case_number
   EditBox 250, 5, 60, 15, verif_due_date
   EditBox 30, 40, 315, 15, FACI
@@ -90,8 +91,9 @@ BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 405, "Verifs needed (LTC) dialo
   EditBox 50, 320, 295, 15, other_proofs
   CheckBox 5, 340, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
   CheckBox 5, 355, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
-  CheckBox 5, 370, 95, 10, "Signature page needed?", signature_page_needed_check
-  CheckBox 5, 385, 130, 10, "Check here to TIKL out for this case.", TIKL_check
+  CheckBox 5, 370, 165, 10, "Sent form to AREP?", sent_arep_checkbox
+  CheckBox 5, 385, 95, 10, "Signature page needed?", signature_page_needed_check
+  CheckBox 5, 400, 130, 10, "Check here to TIKL out for this case.", TIKL_check
   EditBox 285, 365, 60, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 240, 385, 50, 15
@@ -118,6 +120,7 @@ BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 405, "Verifs needed (LTC) dialo
   Text 5, 325, 45, 10, "Other proofs:"
   Text 205, 370, 70, 10, "Sign your case note:"
 EndDialog
+
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
@@ -183,6 +186,7 @@ If other_proofs <> "" then call write_editbox_in_case_note("Other proofs", other
 If signature_page_needed_check = checked then call write_new_line_in_case_note("* Signature page is needed.")
 If verif_A_check = checked then call write_new_line_in_case_note("* DHS-2919A (Verification Request Form - A) sent to client.")
 If verif_B_check = checked then call write_new_line_in_case_note("* DHS-2919B (Verification Request Form - B) sent to client.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
