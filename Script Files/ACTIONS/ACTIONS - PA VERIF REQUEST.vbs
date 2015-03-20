@@ -48,10 +48,10 @@ BeginDialog case_number_dialog, 0, 0, 191, 75, "PA Verification Request"
   Text 30, 30, 60, 15, "Footer Month"
 EndDialog
 
-BeginDialog PA_verif_dialog, 0, 0, 190, 230, "PA Verif Dialog"
+BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   ButtonGroup ButtonPressed
-    OkButton 85, 210, 50, 15
-    CancelButton 140, 210, 50, 15
+    OkButton 85, 230, 50, 15
+    CancelButton 140, 230, 50, 15
  
   EditBox 50, 15, 25, 15, snap_grant
   EditBox 125, 15, 25, 15, MFIP_food
@@ -64,9 +64,10 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 230, "PA Verif Dialog"
   CheckBox 50, 120, 35, 10, "Yes", subsidy_check
   EditBox 50, 140, 20, 15, cash_members
   EditBox 150, 140, 20, 15, household_members
-  EditBox 40, 170, 55, 15, completed_by
-  EditBox 140, 170, 45, 15, worker_phone
-  EditBox 120, 190, 65, 15, worker_signature
+  CheckBox 10, 170, 200, 10, "Include screenshot of last 3 months' benefits", inqd_check
+  EditBox 40, 190, 55, 15, completed_by
+  EditBox 140, 190, 45, 15, worker_phone
+  EditBox 120, 210, 65, 15, worker_signature
   
   Text 5, 15, 40, 15, "SNAP:"
   Text 100, 55, 20, 15, "DWP:"
@@ -80,9 +81,9 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 230, "PA Verif Dialog"
   Text 90, 140, 55, 25, "Total members in household:"
   Text 130, 5, 25, 10, "Food:"
   Text 160, 5, 25, 10, "Cash:"
-  Text 110, 170, 25, 20, "Worker Phone:"
-  Text 5, 170, 35, 20, "Completed by:"
-  Text 20, 190, 90, 15, "Worker Signature (For case note):"
+  Text 110, 190, 25, 20, "Worker Phone:"
+  Text 5, 190, 35, 20, "Completed by:"
+  Text 20, 210, 90, 15, "Worker Signature (For case note):"
  
 EndDialog
 
@@ -92,6 +93,8 @@ BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
     PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
     PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
 EndDialog
+
+
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -143,8 +146,14 @@ call HH_member_custom_dialog(HH_member_array)
 call navigate_to_screen("stat", "addr") 
 EMReadScreen addr_line1, 21, 6, 43
 EMReadScreen addr_line2, 21, 7, 43
-hh_address = addr_line1 & " " & addr_line2 'Finding and Formatting household address (
-hh_address = replace(hh_address, "_", "")
+EMReadScreen addr_city, 14, 8, 43
+EMReadScreen addr_state, 2, 8, 66
+EMReadScreen addr_zip, 5, 9, 43
+hh_address = addr_line1 & " " & addr_line2 'Finding and Formatting household address 
+hh_address_line2 = addr_city & " " & addr_state & " " & addr_zip
+hh_address = replace(hh_address, "_", "") & vbCrLf & replace(hh_address_line2, "_", "")
+
+
 household_members = UBound(HH_member_array) + 1 'Total members in household
 household_members = cStr(household_members)
 
@@ -247,12 +256,12 @@ call navigate_to_screen("case", "curr")
 		call approved_version
 		EMWriteScreen version, 20, 78
 		transmit
-		EMWriteScreen "GAB2", 20, 70
+		EMWriteScreen "GASM", 20, 70
 		transmit
 		EMReadScreen GA_grant, 7, 9, 73
 	    EMReadScreen ga_members, 1, 13, 32 'Reading file unit type to determine members on cash grant
-		If ga_members = 1 then cash_members = 1
-		If ga_members = 6 then cash_members = 2
+		If ga_members = "1" then cash_members = "1"
+		If ga_members = "6" then cash_members = "2"
 		call navigate_to_screen ("case", "curr")
 	End If
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
@@ -284,6 +293,9 @@ Do
 	If completed_by = "" then MsgBox "Please fill out the completed by field."
 	If worker_phone = "" then MsgBox "Please fill out the worker phone field."
 Loop until worker_signature <> "" and completed_by <> "" and worker_phone <> ""
+
+
+
   
   '****writing the word document
 Set objWord = CreateObject("Word.Application")
@@ -342,6 +354,30 @@ objSelection.TypeParagraph()
 ObjSelection.TypeText "Other Notes: "
 objSelection.TypeText other_notes
 objSelection.TypeParagraph()
+
+'Writing INQD to the doc if selected
+IF inqd_check = checked THEN
+	objSelection.TypeText "Benefits Issued for last 3 months:"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "Issue Date	    Benefit               Amount                            Benefit Period"
+	objSelection.TypeParagraph()
+	call navigate_to_screen("MONY", "INQD")
+	output_array = "" 'resetting array
+	Dim screenarray(12)	'12 line array (leaves out the header and function info)
+	row = 6
+	For each line in screenarray
+		EMReadScreen reading_line, 80, row, 1
+		output_array = output_array & reading_line & "UUDDLRLRBA"
+		row = row + 1
+	Next
+	output_array = split(output_array, "UUDDLRLRBA")
+	FOR EACH line in output_array
+		IF line <> "                                                                                " THEN
+			objSelection.TypeText line & Chr(11)
+		END IF
+	NEXT
+END IF
+		
 objSelection.TypeText "Completed By: "
 objSelection.TypeText completed_by
 objSelection.TypeParagraph()
@@ -363,15 +399,6 @@ call write_new_line_in_case_note(worker_signature)
 
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show
-
-
-
-
-
-
-
-
-
 
 
 

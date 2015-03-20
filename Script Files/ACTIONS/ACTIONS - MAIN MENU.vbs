@@ -1,5 +1,13 @@
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "ACTIONS - MAIN MENU.vbs"
+start_time = timer
+
 'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER FUNCTIONS LIBRARY.vbs"
+If beta_agency = "" or beta_agency = True then
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+Else
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+End if
 Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, False									'Attempts to open the URL
 req.send													'Sends request
@@ -29,6 +37,7 @@ END IF
 BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 195, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 20, 50, 10, "BILS updater", BILS_UPDATER_button
     PushButton 5, 35, 50, 10, "Check EDRS", CHECK_EDRS_button
     PushButton 5, 50, 75, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
@@ -57,9 +66,14 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'Shows report scanning dialog, which asks user which report to generate.
-dialog ACTIONS_scripts_main_menu_dialog
-If buttonpressed = cancel then stopscript
+'Shows dialog, which asks user which script to run.
+Do
+	dialog ACTIONS_scripts_main_menu_dialog
+	If buttonpressed = cancel then stopscript
+	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Actions%20scripts.aspx")
+Loop until buttonpressed <> SIR_instructions_button
+
+
 
 'Connecting to BlueZone
 EMConnect ""

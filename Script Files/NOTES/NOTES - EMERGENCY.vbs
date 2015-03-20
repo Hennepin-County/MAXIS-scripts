@@ -53,7 +53,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 97, "Case number dialog"
 EndDialog
 
 'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
-BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
+BeginDialog emergency_dialog, 0, 0, 321, 395, "Emergency Dialog"
   EditBox 60, 45, 65, 15, interview_date
   EditBox 170, 45, 150, 15, HH_comp
   CheckBox 25, 75, 40, 10, "Eviction", eviction_check
@@ -71,10 +71,11 @@ BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
   EditBox 80, 300, 240, 15, discussion_of_crisis
   EditBox 60, 320, 260, 15, actions_taken
   EditBox 50, 340, 270, 15, referrals
-  EditBox 75, 360, 90, 15, worker_signature
+  CheckBox 5, 360, 90, 10, "Sent forms to AREP?", sent_arep_checkbox
+  EditBox 75, 375, 90, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 195, 360, 50, 15
-    CancelButton 255, 360, 50, 15
+    OkButton 195, 375, 50, 15
+    CancelButton 255, 375, 50, 15
     PushButton 10, 15, 25, 10, "ADDR", ADDR_button
     PushButton 35, 15, 25, 10, "MEMB", MEMB_button
     PushButton 60, 15, 25, 10, "MEMI", MEMI_button
@@ -114,7 +115,7 @@ BeginDialog emergency_dialog, 0, 0, 321, 380, "Emergency Dialog"
   Text 5, 305, 75, 10, "Discussion of Crisis:"
   Text 5, 325, 50, 10, "Actions taken:"
   Text 5, 345, 40, 10, "Referrals:"
-  Text 5, 365, 65, 10, "Worker signature:"
+  Text 5, 380, 65, 10, "Worker signature:"
 EndDialog
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
@@ -280,6 +281,7 @@ If crisis_resolvable <> "" then call write_editbox_in_case_note("Crisis resolvab
 If discussion_of_crisis <> "" then call write_editbox_in_case_note("Discussion of crisis", discussion_of_crisis, 6)
 If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 If referrals <> "" then call write_editbox_in_case_note("Referrals", referrals, 6)
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 

@@ -1,5 +1,13 @@
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "NAV - OTHER NOTES MAIN MENU.vbs"
+start_time = timer
+
 'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER FUNCTIONS LIBRARY.vbs"
+If beta_agency = "" or beta_agency = True then
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+Else
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+End if
 Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, False									'Attempts to open the URL
 req.send													'Sends request
@@ -29,6 +37,7 @@ END IF
 BeginDialog OTHER_NAV_scripts_main_menu_dialog, 0, 0, 456, 110, "Other NAV scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 400, 90, 50, 15
+	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 20, 100, 10, "Look up MAXIS case in MMIS", 			LOOK_UP_MAXIS_CASE_IN_MMIS_button
     PushButton 5, 35, 100, 10, "Look up MMIS PMI in MAXIS", 			LOOK_UP_MMIS_PMI_IN_MAXIS_button
     PushButton 5, 50, 120, 10, "Move production screen to inquiry", 	MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button
@@ -45,9 +54,12 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'Shows report scanning dialog, which asks user which report to generate.
-dialog OTHER_NAV_scripts_main_menu_dialog
-If buttonpressed = cancel then stopscript
+'Shows main menu dialog, which asks user which script to run. Loops until a button other than the SIR instructions button is clicked.
+Do
+	dialog OTHER_NAV_scripts_main_menu_dialog
+	If buttonpressed = cancel then stopscript
+	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Navigation%20scripts.aspx")
+Loop until buttonpressed <> SIR_instructions_button
 
 'Connecting to BlueZone
 EMConnect ""

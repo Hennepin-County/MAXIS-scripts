@@ -33,26 +33,29 @@ END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 291, 130, "New HIRE dialog"
+BeginDialog new_HIRE_dialog, 0, 0, 301, 150, "New HIRE dialog"
   EditBox 80, 10, 25, 15, HH_memb
   CheckBox 5, 30, 160, 10, "Check here if this job is known to the agency.", job_known_checkbox
   EditBox 95, 45, 190, 15, employer
   CheckBox 5, 65, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_checkbox
   CheckBox 5, 80, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_checkbox
   CheckBox 5, 95, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  EditBox 70, 110, 80, 15, worker_signature
+  EditBox 50, 110, 230, 15, other_notes
+  EditBox 70, 130, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 110, 50, 15
-    CancelButton 235, 110, 50, 15
+    OkButton 180, 130, 50, 15
+    CancelButton 235, 130, 50, 15
     PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 175, 25, 45, 10, "next panel", next_panel_button
     PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 175, 25, 45, 10, "next panel", next_panel_button
     PushButton 235, 25, 45, 10, "next memb", next_memb_button
   Text 5, 15, 70, 10, "HH member number:"
   Text 5, 50, 85, 10, "Job on DAIL is listed as:"
-  Text 5, 115, 60, 10, "Worker signature:"
+  Text 5, 110, 40, 15, "Other notes:"
+  Text 5, 135, 60, 10, "Worker signature:"
   GroupBox 170, 5, 115, 35, "STAT-based navigation"
 EndDialog
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
 
@@ -222,6 +225,7 @@ call write_variable_in_case_note("* Sent employment verification and DHS-2919B (
 If create_JOBS_checkbox = checked then call write_variable_in_case_note("* JOBS updated with new hire info from DAIL.")
 If TIKL_checkbox = checked then call write_variable_in_case_note("* TIKLed for 10-day return.")
 If requested_CEI_OHI_docs_checkbox = checked then call write_variable_in_case_note("* Requested CEI/OHI docs.")
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature & ", using automated script.")
 PF3
@@ -257,3 +261,4 @@ MsgBox "Success! MAXIS updated for new HIRE message, a case note made, and a TIK
 
 'Exits script and logs stats if appropriate
 script_end_procedure("")
+

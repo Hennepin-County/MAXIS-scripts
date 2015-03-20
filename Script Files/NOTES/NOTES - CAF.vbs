@@ -3,7 +3,11 @@ name_of_script = "NOTES - CAF.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+If beta_agency = "" or beta_agency = True then
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+Else
+	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+End if
 SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
 req.open "GET", url, FALSE									'Attempts to open the URL
 req.send													'Sends request
@@ -28,12 +32,11 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
+footer_month = datepart("m", date)
 If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
@@ -196,6 +199,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   CheckBox 330, 205, 65, 10, "R/R explained?", R_R_checkbox
   CheckBox 15, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
   CheckBox 90, 220, 95, 10, "Workforce referral made?", WF1_checkbox
+  CheckBox 190, 220, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
   EditBox 55, 240, 230, 15, other_notes
   ComboBox 330, 240, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
   EditBox 55, 260, 390, 15, verifs_needed
@@ -238,6 +242,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   GroupBox 5, 300, 280, 60, "Actions the script can do:"
   Text 330, 330, 60, 10, "Worker signature:"
 EndDialog
+
 
 
 
@@ -485,9 +490,7 @@ If CAF_status <> "" then CAF_status = ": " & CAF_status
 'Adding footer month to the recertification case notes
 If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year & " recert"
 
-
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
 If move_verifs_needed = True and verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 call write_bullet_and_variable_in_case_note("CAF datestamp", CAF_datestamp)
@@ -536,6 +539,7 @@ If managed_care_referral_checkbox = checked then call write_variable_in_case_not
 If R_R_checkbox = checked then call write_variable_in_case_note("* R/R explained to client.")
 If updated_MMIS_checkbox = checked then call write_variable_in_case_note("* Updated MMIS.")
 If WF1_checkbox = checked then call write_variable_in_case_note("* Workforce referral made.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 If client_delay_checkbox = checked then call write_variable_in_case_note("* PND2 updated to show client delay.")
 if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
 if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
