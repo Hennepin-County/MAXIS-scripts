@@ -56,6 +56,8 @@ BeginDialog case_number_dialog, 0, 0, 181, 115, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
+
+
 BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   EditBox 65, 15, 50, 15, CSR_datestamp
   DropListBox 170, 15, 75, 15, "select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
@@ -66,36 +68,36 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   EditBox 60, 115, 95, 15, SHEL_HEST
   EditBox 220, 115, 95, 15, COEX_DCEX
   EditBox 100, 135, 345, 15, FIAT_reasons
-  EditBox 50, 155, 395, 15, other_notes
+  EditBox 50, 155, 395, 15, other_notes '10
   EditBox 45, 175, 400, 15, changes
   EditBox 60, 195, 385, 15, verifs_needed
   EditBox 60, 215, 385, 15, actions_taken
   EditBox 380, 235, 65, 15, worker_signature
-  CheckBox 165, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
-  CheckBox 165, 295, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
-  CheckBox 165, 310, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
+  CheckBox 190, 265, 110, 10, "Send forms to AREP?", sent_arep_checkbox
+  CheckBox 190, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
+  CheckBox 190, 295, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
+  CheckBox 190, 310, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
   EditBox 60, 290, 90, 15, MAEPD_premium
-  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_checkbox
+  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_checkbox '20
   ButtonGroup ButtonPressed
     OkButton 340, 255, 50, 15
     CancelButton 395, 255, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
-    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button 
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 120, 25, 10, "SHEL/", SHEL_button
+    PushButton 5, 120, 25, 10, "SHEL/", SHEL_button '30
     PushButton 30, 120, 25, 10, "HEST:", HEST_button
     PushButton 165, 120, 25, 10, "COEX/", COEX_button
     PushButton 190, 120, 25, 10, "DCEX:", DCEX_button
     PushButton 10, 250, 25, 10, "BUSI", BUSI_button
     PushButton 35, 250, 25, 10, "JOBS", JOBS_button
-    PushButton 10, 260, 25, 10, "RBIC", RBIC_button
     PushButton 35, 260, 25, 10, "UNEA", UNEA_button
     PushButton 75, 250, 25, 10, "ACCT", ACCT_button
     PushButton 100, 250, 25, 10, "CARS", CARS_button
-    PushButton 125, 250, 25, 10, "CASH", CASH_button
+    PushButton 125, 250, 25, 10, "CASH", CASH_button '40
     PushButton 150, 250, 25, 10, "OTHR", OTHR_button
     PushButton 75, 260, 25, 10, "REST", REST_button
     PushButton 100, 260, 25, 10, "SECU", SECU_button
@@ -105,7 +107,7 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
     PushButton 240, 250, 25, 10, "REVW", REVW_button
     PushButton 80, 310, 65, 10, "SIR mail", SIR_mail_button
   GroupBox 255, 5, 50, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation:"  '50
   Text 5, 20, 55, 10, "CSR datestamp:"
   Text 125, 20, 40, 10, "CSR status:"
   Text 5, 40, 35, 10, "HH comp:"
@@ -114,8 +116,8 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   Text 5, 100, 30, 10, "Assets:"
   Text 5, 140, 95, 10, "FIAT reasons (if applicable):"
   Text 5, 160, 40, 10, "Other notes:"
-  Text 5, 180, 35, 10, "Changes?:"
-  Text 5, 200, 50, 10, "Verifs needed:"
+  Text 5, 180, 35, 10, "Changes?:" 
+  Text 5, 200, 50, 10, "Verifs needed:" '60
   Text 5, 220, 50, 10, "Actions taken:"
   GroupBox 5, 240, 175, 35, "Income and asset panels"
   GroupBox 185, 240, 85, 25, "other STAT panels:"
@@ -322,6 +324,7 @@ if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other not
 If changes <> "" then call write_bullet_and_variable_in_case_note("Changes", changes)
 If HRF_checkbox = checked then call write_variable_in_case_note("* CSR and cash supplement used as HRF.")
 If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 if verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 If MAEPD_premium <> "" then call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)

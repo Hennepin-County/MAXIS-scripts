@@ -76,7 +76,7 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   EditBox 130, 130, 225, 15, verifs_needed
   CheckBox 15, 155, 50, 10, "Sent 3050?", sent_3050_check
   CheckBox 165, 155, 105, 10, "Sent verif req? If so, to who:", sent_verif_request_check
-  ComboBox 275, 150, 80, 15, "client"+chr(9)+"AREP", sent_request_to
+  ComboBox 275, 150, 80, 15, "client"+chr(9)+"AREP"+chr(9)+"Client & AREP", sent_request_to
   Text 5, 185, 25, 10, "Notes:"
   EditBox 30, 180, 330, 15, notes
   Text 5, 205, 75, 10, "Sign your case note:"
@@ -88,6 +88,7 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
     OkButton 200, 210, 50, 15
     CancelButton 260, 210, 50, 15
 EndDialog
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
