@@ -1,7 +1,5 @@
-
-
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - LTC TRANSFER PENALTY.vbs"
+name_of_script = "NOTE - LTC - TRANSFER PENALTY.vbs"
 start_time = timer
 'Reference source: http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=dhs16_150210	
 
