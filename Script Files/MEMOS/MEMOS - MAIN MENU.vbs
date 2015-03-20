@@ -52,7 +52,7 @@ BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 456, 175, "Memos scripts main 
   Text 75, 80, 185, 10, "--- Sends a MEMO to a client regarding MFIP orientation."
   Text 70, 95, 160, 10, "--- Sends a MEMO to a client regarding MNsure."
   Text 40, 110, 375, 10, "--- Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
-  Text 70, 125, 365, 20, "--- Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
+  Text 70, 125, 365, 20, "--- NEW 04/2015!!! Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
 EndDialog
 
 
