@@ -111,3 +111,5 @@ IF UA_results <> "select one..." THEN CALL write_bullet_and_variable_in_case_not
 CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
+
+CALL script_end_procedure("")
