@@ -208,7 +208,7 @@ IF XFERRadioGroup = 0 THEN
 								transmit
 							END IF
 					LOOP UNTIL ButtonPressed = -1	
-						last_chance = MsgBox("Do you want to continue? NOTE: This will transfer the case out of county.", vbYesNo)
+						last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEX/XFER before transmitting to transfer.", vbYesNo)
 				LOOP UNTIL last_chance = vbYes
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
@@ -257,10 +257,11 @@ IF XFERRadioGroup = 0 THEN
 		END IF
 
 		IF ucase(transfer_to) = "X120ICT" OR ucase(transfer_to) = "X181ICT" THEN transfer_to = "X174ICT"
-	
+
+		'Using move date to determine CRF change date.
 		IF manual_cfr_cash_check = 0 AND cash_cfr_no_change_check = 0 THEN
 			cash_cfr = right(worker_county_code, 2)
-			cash_cfr_date = dateadd("M", 1, date)
+			cash_cfr_date = dateadd("M", 1, cl_move_date)
 			cash_cfr_date = datepart("M", cash_cfr_date) & "/01/" & datepart("YYYY", cash_cfr_date)
 			cash_cfr_date = dateadd("M", 2, cash_cfr_date)
 			cash_cfr_month = datepart("M", cash_cfr_date)
@@ -270,7 +271,7 @@ IF XFERRadioGroup = 0 THEN
 		END IF
 		IF manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 0 THEN
 			hc_cfr = right(worker_county_code, 2)
-			hc_cfr_date = dateadd("M", 1, date)
+			hc_cfr_date = dateadd("M", 1, cl_move_date)
 			hc_cfr_date = datepart("M", hc_cfr_date) & "/01/" & datepart("YYYY", hc_cfr_date)
 			hc_cfr_date = dateadd("M", 2, hc_cfr_date)
 			hc_cfr_month = datepart("M", hc_cfr_date)
@@ -453,9 +454,6 @@ IF XFERRadioGroup = 0 THEN
 	EMWriteScreen primary_worker, 18, 28
 	EMWriteScreen transfer_to, 18, 61
 
-	transmit
-	IF crf_sent_check = unchecked THEN transmit
-
-	script_end_procedure("")
+	script_end_procedure("The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER and transfer the case.")
 	
 END IF
