@@ -1,7 +1,7 @@
 'Option Explicit
 
 'DIMMING VARIABLES
-DIM url, req, fso, crf_received_dialog, case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
+'DIM url, req, fso, crf_received_dialog, case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
 
 
 'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
