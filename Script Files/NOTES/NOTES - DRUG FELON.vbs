@@ -1,7 +1,7 @@
 'Option Explicit
 
-DIM beta_agency
-DIM url, req, fso
+'DIM beta_agency
+'DIM url, req, fso
 
 'LOADING ROUTINE FUNCTIONS---------------------------------------------------------------
 If beta_agency = "" or beta_agency = True then
@@ -36,7 +36,7 @@ END IF
 
 
 'DIMMING VARIABLES
-DIM case_number, conviction_date, probation_officer, authorization_on_file_check, complied_with_UA_check, UA_date, date_of_1st_offense, date_of_2nd_offense, worker_signature, ButtonPressed,drug_felon_dialog, UA_results, Maxis_drug_function, po_officer, Authorization_on_file, Complying_with_PO, actions_taken
+'DIM case_number, conviction_date, probation_officer, authorization_on_file_check, complied_with_UA_check, UA_date, date_of_1st_offense, date_of_2nd_offense, worker_signature, ButtonPressed,drug_felon_dialog, UA_results, Maxis_drug_function, po_officer, Authorization_on_file, Complying_with_PO, actions_taken
 
 
 'DIALOGS-------------------------------------------------------------------------------------------------------------------------------

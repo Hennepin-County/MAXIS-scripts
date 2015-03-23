@@ -3,10 +3,10 @@ name_of_script = "NOTE - LTC - TRANSFER PENALTY.vbs"
 start_time = timer
 'Reference source: http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=dhs16_150210	
 
-DIM beta_agency
+'DIM beta_agency
 
 'LOADING ROUTINE FUNCTIONS---------------------------------------------------------------
-DIM url, req, fso
+'DIM url, req, fso
 If beta_agency = "" or beta_agency = True then
 	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 Else
@@ -36,36 +36,36 @@ ELSE															'Error message, tells user to try to reach github.com, otherw
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
-DIM name_of_script
-DIM start_time
-DIM case_number
-DIM ButtonPressed
-DIM case_number_dialogbox
-DIM LTC_transfer_penalty_dialog
-DIM type_of_transfer_list
-DIM transfer_date
-DIM transfer_amount
-DIM date_of_application
-DIM baseline_date
-DIM date_client_was_otherwise_eligible
-DIM period_begins
-DIM last_full_month_of_period
-DIM partial_penalty_amount
-DIM other_information
-DIM harship_waiver_requested_check
-DIM hardship_waiver_approved_check
-DIM harship_waiver_details
-DIM case_action
-DIM worker_signature
-DIM lookback_period
-DIM end_of_lookback
-DIM row_1
-DIM row_3
-DIM row_4
-DIM row_5
-DIM row_6
-DIM row_8
-DIM row_9
+'DIM name_of_script
+'DIM start_time
+'DIM case_number
+'DIM ButtonPressed
+'DIM case_number_dialogbox
+'DIM LTC_transfer_penalty_dialog
+'DIM type_of_transfer_list
+'DIM transfer_date
+'DIM transfer_amount
+'DIM date_of_application
+'DIM baseline_date
+'DIM date_client_was_otherwise_eligible
+'DIM period_begins
+'DIM last_full_month_of_period
+'DIM partial_penalty_amount
+'DIM other_information
+'DIM harship_waiver_requested_check
+'DIM hardship_waiver_approved_check
+'DIM harship_waiver_details
+'DIM case_action
+'DIM worker_signature
+'DIM lookback_period
+'DIM end_of_lookback
+'DIM row_1
+'DIM row_3
+'DIM row_4
+'DIM row_5
+'DIM row_6
+'DIM row_8
+'DIM row_9
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialogbox, 0, 0, 191, 80, "Dialog"		'dialog box where worker enters the case number (and at some point applicable month & year)
