@@ -93,7 +93,7 @@ call write_variable_in_SPEC_MEMO("Thank you,")
 PF4
 
 'Navigates to blank case note
-call navigate_to_MAXIS_screen("CASE", "NOTE")
+call navigate_to_screen("CASE", "NOTE")
 PF9
 
 'Writes the case note

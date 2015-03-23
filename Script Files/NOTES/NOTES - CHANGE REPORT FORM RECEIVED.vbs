@@ -1,7 +1,7 @@
-Option Explicit
+'Option Explicit
 
 'DIMMING VARIABLES
- DIM url, req, fso, crf_received_dialog, case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
+'DIM url, req, fso, crf_received_dialog, case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
 
 
 'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ LOOP UNTIL changes_continue <> "Select One..."
 
 
 'Checks Maxis for password prompt
-MAXIS_check_function
+CALL check_for_MAXIS(True)
 
 
 'Navigates to case note
@@ -111,23 +111,22 @@ CALL navigate_to_screen("CASE", "NOTE")
 PF9
 
 'Writes the case note
-CALL write_new_line_in_case_note ("***Change Report Form Received***")
-IF date_received <> "" THEN CALL write_editbox_in_case_note("Date Form Received", date_received, 6)
-IF address_notes <> "" THEN CALL write_editbox_in_case_note("Address", address_notes, 6)
-IF household_notes <> "" THEN CALL write_editbox_in_case_note("Household Members", household_notes, 6)
-IF savings_notes <> "" THEN CALL write_editbox_in_case_note("Savings", savings_notes, 6)
-IF property_notes <> "" THEN CALL write_editbox_in_case_note("Property", property_notes, 6)
-IF vehicles_notes <> "" THEN CALL write_editbox_in_case_note("Vehicles", vehicles_notes, 6)
-IF income_notes <> "" THEN CALL write_editbox_in_case_note("Income", income_notes, 6)
-IF shelter_notes <> "" THEN CALL write_editbox_in_case_note("Shelter", shelter_notes, 6)
-IF other <> "" THEN CALL write_editbox_in_case_note("Other", other, 6)
-IF actions_taken <> "" THEN CALL write_editbox_in_case_note("Action Taken", actions_taken, 6)
-IF other_notes <> "" THEN CALL write_editbox_in_case_note("Other Notes", other_notes, 6)
-IF verifs_requested <> "" THEN CALL write_editbox_in_case_note("Verifs Requested", verifs_requested, 6)
-IF changes_continue <> "select one..." THEN CALL write_editbox_in_case_note("The Changes client reports", changes_continue, 6)
-IF tikl_nav_check = 1 THEN CALL write_new_line_in_case_note("* Created a TIKL for 10 days out.")
-CALL write_new_line_in_case_note("---")
-CALL write_new_line_in_case_note(worker_signature)
+CALL write_variable_in_case_note ("***Change Report Form Received***")
+CALL write_bullet_and_variable_in_case_note("Date Form Received", date_received)
+CALL write_bullet_and_variable_in_case_note("Address", address_notes)
+CALL write_bullet_and_variable_in_case_note("Household Members", household_notes)
+CALL write_bullet_and_variable_in_case_note("Savings", savings_notes)
+CALL write_bullet_and_variable_in_case_note("Property", property_notes)
+CALL write_bullet_and_variable_in_case_note("Vehicles", vehicles_notes)
+CALL write_bullet_and_variable_in_case_note("Income", income_notes)
+CALL write_bullet_and_variable_in_case_note("Shelter", shelter_notes)
+CALL write_bullet_and_variable_in_case_note("Other", other)
+CALL write_bullet_and_variable_in_case_note("Action Taken", actions_taken)
+CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+CALL write_bullet_and_variable_in_case_note("Verifs Requested", verifs_requested)
+IF changes_continue <> "select one..." THEN CALL write_bullet_and_variable_in_case_note("The changes client reports", changes_continue)
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 
 
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
@@ -135,5 +134,6 @@ IF tikl_nav_check = 1 THEN
 	CALL navigate_to_screen("DAIL", "WRIT")
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
-
 END IF
+
+CALL script_end_procedure("")
