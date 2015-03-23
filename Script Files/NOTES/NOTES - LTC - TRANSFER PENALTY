@@ -135,7 +135,7 @@ Call check_for_MAXIS(true)											'ensures that worker has not "passworded" o
 
 Dialog LTC_transfer_penalty_dialog
 
-Call navigate_to_MAXIS_screen ("elig", "HC__")
+Call navigate_to_screen ("elig", "HC__")
 EMWriteScreen "x", 8, 26 
 transmit
 
@@ -154,7 +154,7 @@ EMReadScreen row_8, 71, 12, 6
 EMReadScreen row_9, 71, 13, 6 
 
 
-Call navigate_to_MAXIS_screen ("case", "note")						'function to navigate user to case note
+Call navigate_to_screen ("case", "note")						'function to navigate user to case note
 PF9																	'brings case note into edit mode
 
 'Autofill for the application_date variable, then determines lookback period based on the info

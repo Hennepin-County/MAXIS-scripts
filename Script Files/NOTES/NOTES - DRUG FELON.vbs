@@ -91,7 +91,7 @@ LOOP UNTIL UA_results <> "select one..."
 'Checks MAXIS for password prompt
 
 'Navigate to case note
-CALL navigate_to_MAXIS_screen("CASE", "NOTE")
+CALL navigate_to_screen("CASE", "NOTE")
 
 
 
