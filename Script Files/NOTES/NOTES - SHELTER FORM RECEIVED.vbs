@@ -137,7 +137,7 @@ LOOP UNTIL utilities_paid_by_resident_listbox <> "(Select one...)"
 
 Call check_for_MAXIS(true)																										 'ensures that worker has not "passworded" out of MAXIS
 
-Call navigate_to_MAXIS_screen ("case", "note")								'function to navigate user to case note
+Call navigate_to_screen ("case", "note")								'function to navigate user to case note
 PF9																																																			'brings case note into edit mode
 
 'Dollar bill symbol will be added to numeric variables 

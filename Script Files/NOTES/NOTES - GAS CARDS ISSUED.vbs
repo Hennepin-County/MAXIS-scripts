@@ -1,6 +1,6 @@
-Option Explicit
+'Option Explicit
 
-DIM date, card_amt, amt_given_yr_to_date, check, worker_signature, url, req, fso, gas_card_dialog, client_signed_stmt_check, ButtonPressed, case_number, client_signed_stmt, beta_agency, date_cards_given, case_number_finder, maxis_case_number, thirty_days_from_now
+'DIM card_amt, amt_given_yr_to_date, check, worker_signature, url, req, fso, gas_card_dialog, client_signed_stmt_check, ButtonPressed, case_number, client_signed_stmt, beta_agency, date_cards_given, case_number_finder, thirty_days_from_now
 
 
 'LOADING ROUTINE FUNCTIONS---------------------------------------------------------------
@@ -40,7 +40,7 @@ END IF
 
 BeginDialog gas_card_dialog, 0, 0, 286, 110, "Gas Card Dialog"
   EditBox 50, 5, 70, 15, case_number
-  EditBox 220, 5, 50, 15, date
+  EditBox 220, 5, 50, 15, date_cards_given
   DropListBox 100, 25, 65, 15, "Select One..."+chr(9)+"10"+chr(9)+"20"+chr(9)+"30"+chr(9)+"40", card_amt
   EditBox 155, 45, 45, 15, amt_given_yr_to_date
   CheckBox 5, 65, 145, 10, "Client Signed Fuel Card Acknowledgement", client_signed_stmt_check
@@ -72,14 +72,14 @@ DO
 			IF ButtonPressed = 0 THEN StopScript
 			IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 		LOOP UNTIL worker_signature <> ""
-		IF IsNumeric(maxis_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-	LOOP UNTIL IsNumeric(maxis_case_number) = TRUE
+		IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+	LOOP UNTIL IsNumeric(case_number) = TRUE
 	IF card_amt = "Select One..." THEN MsgBox "You must select 'Amount of Gas Cards Given'"
 LOOP UNTIL card_amt <> "Select One..."
 
 
 'Checks Maxis for password prompt
-MAXIS_check_function
+CALL check_for_MAXIS(True)
 
 
 'Navigates to case note
@@ -93,16 +93,18 @@ card_amt = "$" & card_amt
 
 
 'Writes the case note
-CALL write_new_line_in_case_note ("*$$*GAS CARDS ISSUED*$$*")                                                                                          'Writes title in Case note
-IF date_cards_given <> "" THEN CALL write_bullet_and_variable_in_case_note("Gas Cards issued on")                                                      'Writes date cards were issued on next line
-CALL write_bullet_and_variable_in_case_note("Amount of Fuel Cards Given", card_amt)                                                                    'Write the amt given this
-IF amt_given_yr_to_date <> "" THEN CALL write_bullet_and_variable_in_case_note("Total Amount Given This Year Including Today", amt_given_yr_to_date)   'Writes amt given year to date
-IF client_signed_stmt_check = 1 THEN CALL write_new_line_in_CASE_NOTE("* Client signed Fuel Card Acknowledgement Form")                                'Writes if the client signed stmt if that box was checked
+CALL write_variable_in_case_note ("*$$*GAS CARDS ISSUED*$$*")                                                                           'Writes title in Case note
+CALL write_bullet_and_variable_in_case_note("Gas Cards issued on", date_cards_given)                                                    'Writes date cards were issued on next line
+CALL write_bullet_and_variable_in_case_note("Amount of Fuel Cards Given", card_amt)                                                     'Write the amt given this
+CALL write_bullet_and_variable_in_case_note("Total Amount Given This Year Including Today", amt_given_yr_to_date)   					'Writes amt given year to date
+IF client_signed_stmt_check = 1 THEN CALL write_variable_in_CASE_NOTE("* Client signed Fuel Card Acknowledgement Form")                 'Writes if the client signed stmt if that box was checked
 
 IF card_amt >= 40 THEN
 	thirty_days_from_now = DateAdd ("d", 30, date)
 	CALL write_bullet_and_variable_in_case_note("Next Gas Card Can be Given On", thirty_days_from_now)                  'If $40 is selected, then will write a line telling FW when the next cards can be issued
 END IF
 
-CALL write_new_line_in_case_note ("---")   
-IF worker_signature <> "" THEN CALL write_variable_in_CASE_NOTE(worker_signature)    'Writes worker signature in note
+CALL write_variable_in_case_note ("---")   
+CALL write_variable_in_CASE_NOTE(worker_signature)    'Writes worker signature in note
+
+CALL script_end_procedure("")
