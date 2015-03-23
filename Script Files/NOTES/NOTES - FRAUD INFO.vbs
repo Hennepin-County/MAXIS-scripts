@@ -80,7 +80,7 @@ DO
 		IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
 	LOOP until case_number <> "" and worker_signature <> "" and (overpayment_yn = "Yes" or overpayment_yn ="No")
 	CALL check_for_MAXIS(TRUE)
-	CALL navigate_to_MAXIS_screen("case", "note")
+	CALL navigate_to_screen("case", "note")
 	PF9
 	EMReadscreen mode_check, 7, 20, 3
 	IF mode_check <> "Mode: A" AND mode_check <> "Mode: E" THEN MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."

@@ -1,9 +1,9 @@
-Option Explicit
+'Option Explicit
 
-DIM beta_agency
+'DIM beta_agency
 
 'LOADING ROUTINE FUNCTIONS---------------------------------------------------------------
-DIM url, req, fso
+'DIM url, req, fso
 If beta_agency = "" or beta_agency = True then
 	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 Else
@@ -34,27 +34,27 @@ ELSE																																																					   'Error message, tell
 END IF
 
 
-DIM shelter_form_received_dialog		'declaring variables that are being used in the rest of the script
-DIM date_moved_in_editbox
-DIM ButtonPressed
-DIM new_address_editbox
-DIM cost_per_person_editbox
-DIM how_many_residents_editbox
-DIM total_cost_editbox
-DIM other_notes_editbox
-DIM worker_signature
-DIM utilities_paid_by_resident_listbox
-DIM phonenumber_editbox
-DIM subsidized_amount_editbox
-DIM garage_amount_checkbox
-DIM garage_amount_editbox
-DIM signed_by_LLMgr_checkbox
-DIM signed_by_client_checkbox
-DIM case_number
-DIM month_editbox
-DIM year_editbox
-DIM case_number_dialogbox
-DIM subsidized_amount_checkbox
+'DIM shelter_form_received_dialog		'declaring variables that are being used in the rest of the script
+'DIM date_moved_in_editbox
+'DIM ButtonPressed
+'DIM new_address_editbox
+'DIM cost_per_person_editbox
+'DIM how_many_residents_editbox
+'DIM total_cost_editbox
+'DIM other_notes_editbox
+'DIM worker_signature
+'DIM utilities_paid_by_resident_listbox
+'DIM phonenumber_editbox
+'DIM subsidized_amount_editbox
+'DIM garage_amount_checkbox
+'DIM garage_amount_editbox
+'DIM signed_by_LLMgr_checkbox
+'DIM signed_by_client_checkbox
+'DIM case_number
+'DIM month_editbox
+'DIM year_editbox
+'DIM case_number_dialogbox
+'DIM subsidized_amount_checkbox
 
 
 BeginDialog case_number_dialogbox, 0, 0, 191, 80, "Dialog"						   'dialog box where worker enters the case number (and at some point applicable month & year)
@@ -137,7 +137,7 @@ LOOP UNTIL utilities_paid_by_resident_listbox <> "(Select one...)"
 
 Call check_for_MAXIS(true)																										 'ensures that worker has not "passworded" out of MAXIS
 
-Call navigate_to_MAXIS_screen ("case", "note")								'function to navigate user to case note
+Call navigate_to_screen ("case", "note")								'function to navigate user to case note
 PF9																																																			'brings case note into edit mode
 
 'Dollar bill symbol will be added to numeric variables 
