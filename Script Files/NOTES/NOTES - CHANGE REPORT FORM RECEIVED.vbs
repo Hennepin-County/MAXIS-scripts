@@ -131,7 +131,7 @@ CALL write_variable_in_case_note(worker_signature)
 
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 IF tikl_nav_check = 1 THEN
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	CALL navigate_to_screen("DAIL", "WRIT")
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
 END IF
