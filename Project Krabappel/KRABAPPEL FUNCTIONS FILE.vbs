@@ -281,6 +281,174 @@ FUNCTION write_panel_to_MAXIS_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electr
 	transmit
 end function
 
+'---This function writes the information for BILS.
+FUNCTION write_panel_to_MAXIS_BILS(bils_1_ref_num, bils_1_serv_date, bils_1_serv_type, bils_1_gross_amt, bils_1_third_party, bils_1_verif, bils_1_bils_type, bils_2_ref_num, bils_2_serv_date, bils_2_serv_type, bils_2_gross_amt, bils_2_third_party, bils_2_verif, bils_2_bils_type, bils_3_ref_num, bils_3_serv_date, bils_3_serv_type, bils_3_gross_amt, bils_3_third_party, bils_3_verif, bils_3_bils_type, bils_4_ref_num, bils_4_serv_date, bils_4_serv_type, bils_4_gross_amt, bils_4_third_party, bils_4_verif, bils_4_bils_type, bils_5_ref_num, bils_5_serv_date, bils_5_serv_type, bils_5_gross_amt, bils_5_third_party, bils_5_verif, bils_5_bils_type, bils_6_ref_num, bils_6_serv_date, bils_6_serv_type, bils_6_gross_amt, bils_6_third_party, bils_6_verif, bils_6_bils_type, bils_7_ref_num, bils_7_serv_date, bils_7_serv_type, bils_7_gross_amt, bils_7_third_party, bils_7_verif, bils_7_bils_type, bils_8_ref_num, bils_8_serv_date, bils_8_serv_type, bils_8_gross_amt, bils_8_third_party, bils_8_verif, bils_8_bils_type, bils_9_ref_num, bils_9_serv_date, bils_9_serv_type, bils_9_gross_amt, bils_9_third_party, bils_9_verif, bils_9_bils_type)
+	CALL navigate_to_screen("STAT", "BILS")
+	ERRR_screen_check
+	EMReadScreen num_of_BILS, 1, 2, 78
+	IF num_of_BILS = "0" THEN
+		EMWriteScreen "NN", 20, 79
+	ELSE
+		PF9
+	END IF
+	
+	'---MAXIS will not allow BILS to be updated if HC is inactive. Exiting the function if HC is inactive.
+	EMReadScreen hc_inactive, 21, 24, 2
+	IF hc_inactive = "HC STATUS IS INACTIVE" THEN Exit FUNCTION
+	
+	BILS_row = 6
+	DO
+		EMReadScreen available_row, 2, BILS_row, 26
+		IF available_row <> "__" THEN BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	LOOP UNTIL available_row = "__"
+	
+	IF bils_1_ref_num <> "" THEN 
+		IF len(bils_1_ref_num) = 1 THEN bils_1_ref_num = "0" & bils_1_ref_num
+		EMWriteScreen bils_1_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_1_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_1_serv_type, BILS_row, 40
+		EMWriteScreen bils_1_gross_amt, BILS_row, 45
+		EMWriteScreen bils_1_third_party, BILS_row, 57
+		IF bils_1_verif = "03" AND bils_1_serv_type <> "22" THEN bils_1_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_1_verif, BILS_row, 67
+		EMWriteScreen bils_1_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_2_ref_num <> "" THEN 
+		IF len(bils_2_ref_num) = 1 THEN bils_2_ref_num = "0" & bils_2_ref_num
+		EMWriteScreen bils_2_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_2_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_2_serv_type, BILS_row, 40
+		EMWriteScreen bils_2_gross_amt, BILS_row, 45
+		EMWriteScreen bils_2_third_party, BILS_row, 57
+		IF bils_2_verif = "03" AND bils_2_serv_type <> "22" THEN bils_2_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_2_verif, BILS_row, 67
+		EMWriteScreen bils_2_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_3_ref_num <> "" THEN 
+		IF len(bils_3_ref_num) = 1 THEN bils_3_ref_num = "0" & bils_3_ref_num
+		EMWriteScreen bils_3_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_3_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_3_serv_type, BILS_row, 40
+		EMWriteScreen bils_3_gross_amt, BILS_row, 45
+		EMWriteScreen bils_3_third_party, BILS_row, 57
+		IF bils_3_verif = "03" AND bils_3_serv_type <> "22" THEN bils_3_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_3_verif, BILS_row, 67
+		EMWriteScreen bils_3_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_4_ref_num <> "" THEN
+		IF len(bils_4_ref_num) = 1 THEN bils_4_ref_num = "0" & bils_4_ref_num
+		EMWriteScreen bils_4_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_4_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_4_serv_type, BILS_row, 40
+		EMWriteScreen bils_4_gross_amt, BILS_row, 45
+		EMWriteScreen bils_4_third_party, BILS_row, 57
+		IF bils_4_verif = "03" AND bils_4_serv_type <> "22" THEN bils_4_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_4_verif, BILS_row, 67
+		EMWriteScreen bils_4_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_5_ref_num <> "" THEN 
+		IF len(bils_5_ref_num) = 1 THEN bils_5_ref_num = "0" & bils_5_ref_num
+		EMWriteScreen bils_5_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_5_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_5_serv_type, BILS_row, 40
+		EMWriteScreen bils_5_gross_amt, BILS_row, 45
+		EMWriteScreen bils_5_third_party, BILS_row, 57
+		IF bils_5_verif = "03" AND bils_5_serv_type <> "22" THEN bils_5_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_5_verif, BILS_row, 67
+		EMWriteScreen bils_5_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_6_ref_num <> "" THEN 
+		IF len(bils_6_ref_num) = 1 THEN bils_6_ref_num = "0" & bils_6_ref_num
+		EMWriteScreen bils_6_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_6_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_6_serv_type, BILS_row, 40
+		EMWriteScreen bils_6_gross_amt, BILS_row, 45
+		EMWriteScreen bils_6_third_party, BILS_row, 57
+		IF bils_6_verif = "03" AND bils_6_serv_type <> "22" THEN bils_6_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_6_verif, BILS_row, 67
+		EMWriteScreen bils_6_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_7_ref_num <> "" THEN 
+		IF len(bils_7_ref_num) = 1 THEN bils_7_ref_num = "0" & bils_7_ref_num
+		EMWriteScreen bils_7_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_7_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_7_serv_type, BILS_row, 40
+		EMWriteScreen bils_7_gross_amt, BILS_row, 45
+		EMWriteScreen bils_7_third_party, BILS_row, 57
+		IF bils_7_verif = "03" AND bils_7_serv_type <> "22" THEN bils_7_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_7_verif, BILS_row, 67
+		EMWriteScreen bils_7_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_8_ref_num <> "" THEN 
+		IF len(bils_8_ref_num) = 1 THEN bils_8_ref_num = "0" & bils_8_ref_num
+		EMWriteScreen bils_8_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_8_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_8_serv_type, BILS_row, 40
+		EMWriteScreen bils_8_gross_amt, BILS_row, 45
+		EMWriteScreen bils_8_third_party, BILS_row, 57
+		IF bils_8_verif = "03" AND bils_8_serv_type <> "22" THEN bils_8_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_8_verif, BILS_row, 67
+		EMWriteScreen bils_8_bils_type, BILS_row, 71
+		BILS_row = BILS_row + 1
+		IF BILS_row = 18 THEN 
+			PF20
+			BILS_row = 6
+		END IF
+	END IF
+	IF bils_9_ref_num <> "" THEN 
+		IF len(bils_9_ref_num) = 1 THEN bils_9_ref_num = "0" & bils_9_ref_num
+		EMWriteScreen bils_9_ref_num, BILS_row, 26
+		CALL create_MAXIS_friendly_date(bils_9_serv_date, 0, BILS_row, 30)
+		EMWriteScreen bils_9_serv_type, BILS_row, 40
+		EMWriteScreen bils_9_gross_amt, BILS_row, 45
+		EMWriteScreen bils_9_third_party, BILS_row, 57
+		IF bils_9_verif = "03" AND bils_9_serv_type <> "22" THEN bils_9_verif = "06"	'Because CL Stmt is only acceptable for Medical transportation
+		EMWriteScreen bils_9_verif, BILS_row, 67
+		EMWriteScreen bils_9_bils_type, BILS_row, 71
+	END IF
+	transmit
+END FUNCTION
+
+
 '---This function writes using the variables read off of the specialized excel template to the busi panel in MAXIS
 Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
 	Call navigate_to_screen("STAT", "BUSI")  'navigates to the stat panel
@@ -368,6 +536,47 @@ Function write_panel_to_MAXIS_CASH(cash_amount)
 	call create_panel_if_nonexistent
 	Emwritescreen cash_amount, 8, 39
 End Function
+
+'---This function writes using the variables read off of the specialized excel template to the COEX panel in MAXIS.
+FUNCTION write_panel_to_MAXIS_COEX(retro_support, prosp_support, support_verif, retro_alimony, prosp_alimony, alimony_verif, retro_tax_dep, prosp_tax_dep, tax_dep_verif, retro_other, prosp_other, other_verif, change_in_circum, hc_exp_support, hc_exp_alimony, hc_exp_tax_dep, hc_exp_other)
+	CALL navigate_to_MAXIS_screen("STAT", "COEX")
+	ERRR_screen_check
+	CALL create_panel_if_nonexistent
+	
+	EMWriteScreen support_verif, 10, 36
+	EMWriteScreen retro_support, 10, 45
+	EMWriteScreen prosp_support, 10, 63
+	EMWriteScreen alimony_verif, 11, 36
+	EMWriteScreen retro_alimony, 11, 45
+	EMWriteScreen prosp_alimony, 11, 63
+	EMWriteScreen tax_dep_verif, 12, 36
+	EMWriteScreen retro_tax_dep, 12, 45
+	EMWriteScreen prosp_tax_dep, 12, 63
+	EMWriteScreen other_verif, 13, 36
+	EMWriteScreen retro_other, 13, 45
+	EMWriteScreen prosp_other, 13, 63
+	EMWriteScreen change_in_circum, 17, 61
+	
+	'Opening the HC Expenses Sub-menu
+	EMWriteScreen "X", 18, 44
+	transmit
+		
+	DO
+		EMReadScreen hc_expense_est, 14, 4, 30
+	LOOP UNTIL hc_expense_est = "HC Expense Est"
+	
+	EMReadScreen current_month_plus_one, 17, 13, 51
+	IF current_month_plus_one <> "CURRENT MONTH + 1" THEN
+		EMWriteScreen hc_exp_support, 6, 38
+		EMWriteScreen hc_exp_alimony, 7, 38
+		EMWriteScreen hc_exp_tax_dep, 8, 38
+		EMWriteScreen hc_exp_other, 9, 38
+		transmit
+	END IF
+	PF3
+	transmit
+END FUNCTION
+
 
 FUNCTION write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
 	call navigate_to_screen("STAT", "DCEX") 
@@ -541,6 +750,165 @@ Function write_panel_to_MAXIS_FACI(FACI_vendor_number, FACI_name, FACI_type, FAC
 	transmit
 End function
 
+'---The custom function to pull FMED information from the Excel file. This function can handle up to 4 FMED rows per client.
+FUNCTION write_panel_to_MAXIS_FMED(FMED_medical_mileage, FMED_1_type, FMED_1_verif, FMED_1_ref_num, FMED_1_category, FMED_1_begin, FMED_1_end, FMED_1_amount, FMED_2_type, FMED_2_verif, FMED_2_ref_num, FMED_2_category, FMED_2_begin, FMED_2_end, FMED_2_amount, FMED_3_type, FMED_3_verif, FMED_3_ref_num, FMED_3_category, FMED_3_begin, FMED_3_end, FMED_3_amount, FMED_4_type, FMED_4_verif, FMED_4_ref_num, FMED_4_category, FMED_4_begin, FMED_4_end, FMED_4_amount)
+	CALL navigate_to_MAXIS_screen("STAT", "FMED")
+	ERRR_screen_check
+	EMReadScreen num_of_FMED, 1, 2, 78
+	IF num_of_FMED = "0" THEN 
+		EMWriteScreen "NN", 20, 79
+		transmit
+	ELSE
+		PF9
+	END IF
+	
+	'Determining where to start writing...
+	FMED_row = 9
+	DO
+		EMReadScreen FMED_available, 2, FMED_row, 25
+		IF FMED_available <> "__" THEN FMED_row = FMED_row + 1
+		IF FMED_row = 15 THEN 
+			PF20
+			FMED_row = 9
+		END IF
+	LOOP UNTIL FMED_available = "__"
+	
+	IF FMED_1_type <> "" THEN 
+		EMWriteScreen FMED_1_type, FMED_row, 25
+			IF FMED_1_type = "12" THEN 
+				EMReadScreen current_miles, 4, 17, 34
+				current_miles = trim(replace(current_miles, "_", " "))
+				IF current_miles = "" THEN current_miles = 0
+				total_miles = current_miles + FMED_medical_mileage
+				EMWriteScreen "    ", 17, 34
+				EMWriteScreen total_miles, 17, 34
+				FMED_1_verif = "CL"		'Edit: MEDICAL EXPENCE VERIFICATION FOR THIS TYPE CAN ONLY BE CL
+				FMED_1_amount = ""		'An FMED amount is not allowed when using Type 12
+			END IF
+		EMWriteScreen FMED_1_verif, FMED_row, 32
+		EMWriteScreen FMED_1_ref_num, FMED_row, 38
+		EMWriteScreen FMED_1_category, FMED_row, 44
+			FMED_month = DatePart("M", FMED_1_begin)			'Turning the value in FMED_1_begin and FMED_1_end into values the FMED panel can handle.
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+		EMWriteScreen FMED_month, FMED_row, 50
+		EMWriteScreen right(DatePart("YYYY", FMED_1_begin), 2), FMED_row, 53
+		IF FMED_1_end <> "" THEN 
+			FMED_month = DatePart("M", FMED_1_end)
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+			EMWriteScreen FMED_month, FMED_row, 60
+			EMWriteScreen right(DatePart("YYYY", FMED_1_end), 2), FMED_row, 63
+		END IF
+		EMWriteScreen FMED_1_amount, FMED_row, 70
+		
+		'Next line or new page
+		FMED_row = FMED_row + 1
+		IF FMED_row = 15 THEN
+			PF20
+			FMED_row = 9
+		END IF
+	END IF
+	
+	IF FMED_2_type <> "" THEN 
+		EMWriteScreen FMED_2_type, FMED_row, 25
+			IF FMED_2_type = "12" THEN 
+				EMReadScreen current_miles, 4, 17, 34
+				current_miles = trim(replace(current_miles, "_", " "))
+				IF current_miles = "" THEN current_miles = 0			
+				total_miles = current_miles + FMED_medical_mileage
+				EMWriteScreen "    ", 17, 34
+				EMWriteScreen total_miles, 17, 34
+				FMED_2_verif = "CL"		'Edit: MEDICAL EXPENCE VERIFICATION FOR THIS TYPE CAN ONLY BE CL
+				FMED_2_amount = ""		'An FMED amount is not allowed when using Type 12
+			END IF
+		EMWriteScreen FMED_2_verif, FMED_row, 32
+		EMWriteScreen FMED_2_ref_num, FMED_row, 38
+		EMWriteScreen FMED_2_category, FMED_row, 44
+			FMED_month = DatePart("M", FMED_2_begin)			'Turning the value in FMED_2_begin and FMED_2_end into values the FMED panel can handle.
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+		EMWriteScreen FMED_month, FMED_row, 50
+		EMWriteScreen right(DatePart("YYYY", FMED_2_begin), 2), FMED_row, 53
+		IF FMED_2_end <> "" THEN 
+			FMED_month = DatePart("M", FMED_2_end)
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+			EMWriteScreen FMED_month, FMED_row, 60
+			EMWriteScreen right(DatePart("YYYY", FMED_2_end), 2), FMED_row, 63
+		END IF
+		EMWriteScreen FMED_2_amount, FMED_row, 70
+		
+		'Next line or new page
+		FMED_row = FMED_row + 1
+		IF FMED_row = 15 THEN
+			PF20
+			FMED_row = 9
+		END IF
+	END IF
+	
+	IF FMED_3_type <> "" THEN 
+		EMWriteScreen FMED_3_type, FMED_row, 25
+			IF FMED_3_type = "12" THEN 
+				EMReadScreen current_miles, 4, 17, 34
+				current_miles = trim(replace(current_miles, "_", " "))
+				IF current_miles = "" THEN current_miles = 0			
+				total_miles = current_miles + FMED_medical_mileage
+				EMWriteScreen "    ", 17, 34
+				EMWriteScreen total_miles, 17, 34
+				FMED_3_verif = "CL"		'Edit: MEDICAL EXPENCE VERIFICATION FOR THIS TYPE CAN ONLY BE CL
+				FMED_3_amount = ""		'An FMED amount is not allowed when using Type 12
+			END IF
+		EMWriteScreen FMED_3_verif, FMED_row, 32
+		EMWriteScreen FMED_3_ref_num, FMED_row, 38
+		EMWriteScreen FMED_3_category, FMED_row, 44
+			FMED_month = DatePart("M", FMED_3_begin)			'Turning the value in FMED_3_begin and FMED_3_end into values the FMED panel can handle.
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+		EMWriteScreen FMED_month, FMED_row, 50
+		EMWriteScreen right(DatePart("YYYY", FMED_3_begin), 2), FMED_row, 53
+		IF FMED_3_end <> "" THEN 
+			FMED_month = DatePart("M", FMED_3_end)
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+			EMWriteScreen FMED_month, FMED_row, 60
+			EMWriteScreen right(DatePart("YYYY", FMED_3_end), 2), FMED_row, 63
+		END IF
+		EMWriteScreen FMED_3_amount, FMED_row, 70
+		
+		'Next line or new page
+		FMED_row = FMED_row + 1
+		IF FMED_row = 15 THEN
+			PF20
+			FMED_row = 9
+		END IF
+	END IF
+	
+	IF FMED_4_type <> "" THEN 
+		EMWriteScreen FMED_4_type, FMED_row, 25
+			IF FMED_4_type = "12" THEN 
+				EMReadScreen current_miles, 4, 17, 34
+				current_miles = trim(replace(current_miles, "_", " "))
+				IF current_miles = "" THEN current_miles = 0			
+				total_miles = current_miles + FMED_medical_mileage
+				EMWriteScreen "    ", 17, 34
+				EMWriteScreen total_miles, 17, 34
+				FMED_4_verif = "CL"		'Edit: MEDICAL EXPENCE VERIFICATION FOR THIS TYPE CAN ONLY BE CL
+				FMED_4_amount = ""		'An FMED amount is not allowed when using Type 12
+			END IF
+		EMWriteScreen FMED_4_verif, FMED_row, 32
+		EMWriteScreen FMED_4_ref_num, FMED_row, 38
+		EMWriteScreen FMED_4_category, FMED_row, 44
+			FMED_month = DatePart("M", FMED_4_begin)			'Turning the value in FMED_4_begin and FMED_4_end into values the FMED panel can handle.
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+		EMWriteScreen FMED_month, FMED_row, 50
+		EMWriteScreen right(DatePart("YYYY", FMED_4_begin), 2), FMED_row, 53
+		IF FMED_4_end <> "" THEN 
+			FMED_month = DatePart("M", FMED_4_end)
+			IF len(FMED_month) <> 2 THEN FMED_month = "0" & FMED_month
+			EMWriteScreen FMED_month, FMED_row, 60
+			EMWriteScreen right(DatePart("YYYY", FMED_4_end), 2), FMED_row, 63
+		END IF
+		EMWriteScreen FMED_4_amount, FMED_row, 70
+	END IF
+	
+	transmit
+END FUNCTION
+
 Function write_panel_to_MAXIS_HCRE(hcre_appl_addnd_date_input,hcre_retro_months_input,hcre_recvd_by_service_date_input)
 	call navigate_to_screen("STAT","HCRE")
 	call create_panel_if_nonexistent
@@ -699,12 +1067,20 @@ Function write_panel_to_MAXIS_INSA(insa_pers_coop_ohi,insa_good_cause_status,ins
 
 End Function
 
-FUNCTION write_panel_to_MAXIS_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_name, jobs_inc_start, jobs_wkly_hrs, jobs_hrly_wage, jobs_pay_freq)
+FUNCTION write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, jobs_employer_name, jobs_inc_start, jobs_wkly_hrs, jobs_hrly_wage, jobs_pay_freq)
 	call navigate_to_screen("STAT", "JOBS")
 	EMWriteScreen reference_number, 20, 76
-	EMWriteScreen "NN", 20, 79
+	EMWriteScreen jobs_number, 20, 79
 	transmit
-
+	
+	EMReadScreen does_not_exist, 14, 24, 13
+	IF does_not_exist = "DOES NOT EXIST" THEN
+		EMWriteScreen "NN", 20, 79
+		transmit
+	ELSE
+		PF9
+	END IF
+	
 	EMWriteScreen jobs_inc_type, 5, 38
 	EMWriteScreen jobs_inc_verif, 6, 38
 	EMWriteScreen jobs_employer_name, 7, 42
@@ -717,17 +1093,22 @@ FUNCTION write_panel_to_MAXIS_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_
 	DO
 		EMReadScreen at_snap_pic, 12, 3, 22
 	LOOP UNTIL at_snap_pic = "Food Support"
-	call create_MAXIS_friendly_date(date, 0, 5, 34)
-	EMWriteScreen jobs_pay_freq, 5, 64
-	EMWriteScreen jobs_wkly_hrs, 8, 64
-	EMWriteScreen jobs_hrly_wage, 9, 66
-	transmit
-	transmit
-	EMReadScreen jobs_pic_hrs_per_pp, 6, 16, 51
 	EMReadScreen jobs_pic_wages_per_pp, 7, 17, 57
+	EMReadScreen pic_info_exists, 8, 18, 57
+	pic_info_exists = trim(pic_info_exists)
+	IF pic_info_exists = "" THEN 
+		call create_MAXIS_friendly_date(date, 0, 5, 34)
+		EMWriteScreen jobs_pay_freq, 5, 64
+		EMWriteScreen jobs_wkly_hrs, 8, 64
+		EMWriteScreen jobs_hrly_wage, 9, 66
+		transmit
+		transmit
+		EMReadScreen jobs_pic_hrs_per_pp, 6, 16, 51
+		EMReadScreen jobs_pic_wages_per_pp, 7, 17, 57
+	END IF
 	transmit		'<=====navigates out of the PIC
-
-		'=====the following bit is for the retrospective & prospective pay dates=====
+		
+	'=====the following bit is for the retrospective & prospective pay dates=====
 	EMReadScreen bene_month, 2, 20, 55
 	EMReadScreen bene_year, 2, 20, 58
 	retro_month = bene_month - 2
@@ -737,67 +1118,80 @@ FUNCTION write_panel_to_MAXIS_JOBS(jobs_inc_type, jobs_inc_verif, jobs_employer_
 			retro_year = bene_year - 1
 		END IF
 
+	IF len(retro_month) <> 2 THEN retro_month = "0" & retro_month
+		
 	EMWriteScreen retro_month, 12, 25
-	EMWriteScreen "05", 12, 28
 	EMWriteScreen retro_year, 12, 31
-	EMWriteScreen "________", 12, 38
-	EMWriteScreen jobs_pic_wages_per_pp, 12, 38
 	EMWriteScreen bene_month, 12, 54
-	EMWriteScreen "05", 12, 57
 	EMWriteScreen bene_year, 12, 60
-	EMWriteScreen "________", 12, 67
-	EMWriteScreen jobs_pic_wages_per_pp, 12, 67
 	
-	IF jobs_pay_freq = "2" OR jobs_pay_freq = "3" THEN
+	IF pic_info_exists = "" THEN 		'---If the PIC is blank, the information needs to be added to the main JOBS panel as well.
+		EMWriteScreen "05", 12, 28
+		EMWriteScreen jobs_pic_wages_per_pp, 12, 38
+		EMWriteScreen "05", 12, 57
+		EMWriteScreen jobs_pic_wages_per_pp, 12, 67
+		EMWriteScreen Int(jobs_pic_hrs_per_pp), 18, 43
+		EMWriteScreen Int(jobs_pic_hrs_per_pp), 18, 72
+	END IF
+		
+	IF jobs_pay_freq = 2 OR jobs_pay_freq = 3 THEN
 		EMWriteScreen retro_month, 13, 25
-		EMWriteScreen "19", 13, 28
 		EMWriteScreen retro_year, 13, 31
-		EMWriteScreen "________", 13, 38
-		EMWriteScreen jobs_pic_wages_per_pp, 13, 38
 		EMWriteScreen bene_month, 13, 54
-		EMWriteScreen "19", 13, 57
 		EMWriteScreen bene_year, 13, 60
-		EMWriteScreen "________", 13, 67
-		EMWriteScreen jobs_pic_wages_per_pp, 13, 67
-	ELSEIF pay_freq = "4" THEN
+		
+		IF pic_info_exists = "" THEN 
+			EMWriteScreen "19", 13, 28
+			EMWriteScreen jobs_pic_wages_per_pp, 13, 38
+			EMWriteScreen "19", 13, 57
+			EMWriteScreen jobs_pic_wages_per_pp, 13, 67
+			EMWriteScreen Int(2 * jobs_pic_hrs_per_pp), 18, 43
+			EMWriteScreen Int(2 * jobs_pic_hrs_per_pp), 18, 72
+		END IF
+	ELSEIF jobs_pay_freq = 4 THEN
 		EMWriteScreen retro_month, 13, 25
-		EMWriteScreen "12", 13, 28
 		EMWriteScreen retro_year, 13, 31
-		EMWriteScreen "________", 13, 38
-		EMWriteScreen jobs_pic_wages_per_pp, 13, 38
 		EMWriteScreen retro_month, 14, 25
-		EMWriteScreen "19", 14, 28
 		EMWriteScreen retro_year, 14, 31
-		EMWriteScreen "________", 14, 38
-		EMWriteScreen jobs_pic_wages_per_pp, 14, 38
 		EMWriteScreen retro_month, 15, 25
-		EMWriteScreen "26", 15, 28
 		EMWriteScreen retro_year, 15, 31
-		EMWriteScreen "________", 15, 38
-		EMWriteScreen jobs_pic_wages_per_pp, 15, 38
 		EMWriteScreen bene_month, 13, 54
-		EMWriteScreen "12", 13, 57
 		EMWriteScreen bene_year, 13, 60
-		EMWriteScreen "________", 13, 67
-		EMWriteScreen jobs_pic_wages_per_pp, 13, 67
 		EMWriteScreen bene_month, 14, 54 
-		EMWriteScreen "19", 14, 57 
 		EMWriteScreen bene_year, 14, 60 
-		EMWriteScreen "________", 14, 67 
-		EMWriteScreen jobs_pic_wages_per_pp, 14, 67
 		EMWriteScreen bene_month, 15, 54
-		EMWriteScreen "26", 15, 57
 		EMWriteScreen bene_year, 15, 60
-		EMWriteScreen "________", 15, 67
-		EMWriteScreen jobs_pic_wages_per_pp, 15, 67
+		
+		IF pic_info_exists = "" THEN 
+			EMWriteScreen "12", 13, 28
+			EMWriteScreen jobs_pic_wages_per_pp, 13, 38
+			EMWriteScreen "19", 14, 28
+			EMWriteScreen jobs_pic_wages_per_pp, 14, 38
+			EMWriteScreen "26", 15, 28
+			EMWriteScreen jobs_pic_wages_per_pp, 15, 38
+			EMWriteScreen "12", 13, 57
+			EMWriteScreen jobs_pic_wages_per_pp, 13, 67
+			EMWriteScreen "19", 14, 57 
+			EMWriteScreen jobs_pic_wages_per_pp, 14, 67
+			EMWriteScreen "26", 15, 57
+			EMWriteScreen jobs_pic_wages_per_pp, 15, 67
+			EMWriteScreen Int(4 * jobs_pic_hrs_per_pp), 18, 43
+			EMWriteScreen Int(4 * jobs_pic_hrs_per_pp), 18, 72
+		END IF
 	END IF
 
 	'=====determines if the benefit month is current month + 1 and dumps information into the HC income estimator
-	IF (bene_month * 1) = (datepart("M", DATE) + 1) THEN		'<===== "bene_month * 1" is needed to convert bene_month from a string to a useable number
+	IF (bene_month * 1) = (datepart("M", DATE) + 1) THEN		'<===== "bene_month * 1" is needed to convert bene_month from a string to numeric.
 		EMWriteScreen "X", 19, 54
 		transmit
-		EMWriteScreen "________", 9, 65
+		
+		DO
+			EMReadScreen hc_inc_est, 9, 9, 43
+			MsgBox hc_inc_est
+		LOOP UNTIL hc_inc_est = "HC Income"
+		
 		EMWriteScreen jobs_pic_wages_per_pp, 11, 63
+		MsgBox jobs_pic_wages_per_pp							'NEEDS TO BE DELETED -- FOR DEVELOPMENT
 		transmit
 		transmit
 	END IF
@@ -876,9 +1270,18 @@ Function write_panel_to_MAXIS_OTHR(othr_type, othr_cash_value, othr_cash_value_v
 	Emwritescreen right(othr_share_ratio, 1), 15, 54  'enters the ratio of ownership using the right 1 digit of what is entered into the file
 End Function
 
-FUNCTION write_panel_to_MAXIS_PARE(PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+FUNCTION write_panel_to_MAXIS_PARE(appl_date, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
 	Call navigate_to_screen("STAT", "PARE") 
 	call create_panel_if_nonexistent
+	CALL create_MAXIS_friendly_date(appl_date, 0, 5, 37)
+	EMWriteScreen DatePart("YYYY", appl_date), 5, 43
+	
+	IF len(PARE_child_1) = 1 THEN PARE_child_1 = "0" & PARE_child_1
+	IF len(PARE_child_2) = 1 THEN PARE_child_1 = "0" & PARE_child_2
+	IF len(PARE_child_3) = 1 THEN PARE_child_1 = "0" & PARE_child_3
+	IF len(PARE_child_4) = 1 THEN PARE_child_1 = "0" & PARE_child_4
+	IF len(PARE_child_5) = 1 THEN PARE_child_1 = "0" & PARE_child_5
+	IF len(PARE_child_6) = 1 THEN PARE_child_1 = "0" & PARE_child_6
 	EMWritescreen PARE_child_1, 8, 24
 	EMWritescreen PARE_child_1_relation, 8, 53
 	EMWritescreen PARE_child_1_verif, 8, 71
@@ -1492,11 +1895,26 @@ FUNCTION write_panel_to_MAXIS_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn
 	END IF
 END FUNCTION
 
-FUNCTION write_panel_to_MAXIS_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
+FUNCTION write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
 	call navigate_to_screen("STAT", "UNEA")
 	EMWriteScreen reference_number, 20, 76
-	EMWriteScreen "NN", 20, 79
-	transmit
+	
+	'Determining whether to PF9 or create a new panel.
+	EMReadScreen num_of_unea_panels, 1, 2, 78
+	IF num_of_unea_panels = 0 THEN 
+		EMWriteScreen "NN", 20, 79
+		transmit
+	ELSE
+		EMWriteScreen unea_number, 20, 79
+		transmit
+		EMReadScreen does_not_exist, 14, 24, 13
+		IF does_not_exist = "DOES NOT EXIST" THEN
+			EMWriteScreen "NN", 20, 79
+			transmit
+		ELSE
+			PF9
+		END IF
+	END IF
 
 	EMWriteScreen unea_inc_type, 5, 37
 	EMWriteScreen unea_inc_verif, 5, 65
@@ -1596,6 +2014,84 @@ FUNCTION write_panel_to_MAXIS_UNEA(unea_inc_type, unea_inc_verif, unea_claim_suf
 		transmit
 	END IF
 
+END FUNCTION
+
+FUNCTION write_panel_to_MAXIS_WKEX(program, fed_tax_retro, fed_tax_prosp, fed_tax_verif, state_tax_retro, state_tax_prosp, state_tax_verif, fica_retro, fica_prosp, fica_verif, tran_retro, tran_prosp, tran_verif, tran_imp_rel, meals_retro, meals_prosp, meals_verif, meals_imp_rel, uniforms_retro, uniforms_prosp, uniforms_verif, uniforms_imp_rel, tools_retro, tools_prosp, tools_verif, tools_imp_rel, dues_retro, dues_prosp, dues_verif, dues_imp_rel, othr_retro, othr_prosp, othr_verif, othr_imp_rel, HC_Exp_Fed_Tax, HC_Exp_State_Tax, HC_Exp_FICA, HC_Exp_Tran, HC_Exp_Tran_imp_rel, HC_Exp_Meals, HC_Exp_Meals_Imp_Rel, HC_Exp_Uniforms, HC_Exp_Uniforms_Imp_Rel, HC_Exp_Tools, HC_Exp_Tools_Imp_Rel, HC_Exp_Dues, HC_Exp_Dues_Imp_Rel, HC_Exp_Othr, HC_Exp_Othr_Imp_Rel)
+	CALL navigate_to_MAXIS_screen("STAT", "WKEX")
+	ERRR_screen_check
+	
+	'Determining the number of WKEX panels so the script knows how to handle the incoming information.
+	EMReadScreen num_of_WKEX_panels, 1, 2, 78
+	IF num_of_WKEX_panels = "5" THEN		'If there are already 5 WKEX panels, the script will not create a new panel.
+		MsgBox "WARNING: Panel limit reached for WKEX. No additional WKEX panels can be created for this person." & vbCr & "Skipping script process."
+		EXIT FUNCTION 
+	ELSE		
+		EMWriteScreen "NN", 20, 79
+		transmit
+	END IF
+
+	EMWriteScreen program, 5, 33
+	EMWriteScreen fed_tax_retro, 7, 43
+	EMWriteScreen fed_tax_prosp, 7, 57
+	EMWriteScreen fed_tax_verif, 7, 69
+	EMWriteScreen state_tax_retro, 8, 43
+	EMWriteScreen state_tax_prosp, 8, 57
+	EMWriteScreen state_tax_verif, 8, 69
+	EMWriteScreen fica_retro, 9, 43
+	EMWriteScreen fica_prosp, 9, 57
+	EMWriteScreen fica_verif, 9, 69
+	EMWriteScreen tran_retro, 10, 43
+	EMWriteScreen tran_prosp, 10, 57
+	EMWriteScreen tran_verif, 10, 69
+	EMWriteScreen tran_imp_rel, 10, 75
+	EMWriteScreen meals_retro, 11, 43
+	EMWriteScreen meals_prosp, 11, 57
+	EMWriteScreen meals_verif, 11, 69
+	EMWriteScreen meals_imp_rel, 11, 75
+	EMWriteScreen uniforms_retro, 12, 43
+	EMWriteScreen uniforms_prosp, 12, 57
+	EMWriteScreen uniforms_verif, 12, 69
+	EMWriteScreen uniforms_imp_rel, 12, 75
+	EMWriteScreen tools_retro, 13, 43
+	EMWriteScreen tools_prosp, 13, 57
+	EMWriteScreen tools_verif, 13, 69
+	EMWriteScreen tools_imp_rel, 13, 75
+	EMWriteScreen dues_retro, 14, 43
+	EMWriteScreen dues_prosp, 14, 57
+	EMWriteScreen dues_verif, 14, 69
+	EMWriteScreen dues_imp_rel, 14, 75
+	EMWriteScreen othr_retro, 15, 43
+	EMWriteScreen othr_prosp, 15, 57
+	EMWriteScreen othr_verif, 15, 69
+	EMWriteScreen othr_imp_rel, 15, 75
+	
+	'---Adding to the HC Expenses
+	EMWriteScreen "X", 18, 57
+	transmit
+	
+	EMReadScreen current_month, 17, 20, 51
+	IF current_month = "CURRENT MONTH + 1" THEN 
+		PF3
+	ELSE
+		EMWriteScreen HC_Exp_Fed_Tax, 8, 36
+		EMWriteScreen HC_Exp_State_Tax, 9, 36
+		EMWriteScreen HC_Exp_FICA, 10, 36
+		EMWriteScreen HC_Exp_Tran, 11, 36
+		EMWriteScreen HC_Exp_Tran_imp_rel, 11, 51
+		EMWriteScreen HC_Exp_Meals, 12, 36
+		EMWriteScreen HC_Exp_Meals_Imp_Rel, 12, 51
+		EMWriteScreen HC_Exp_Uniforms, 13, 36
+		EMWriteScreen HC_Exp_Uniforms_Imp_Rel, 13, 51
+		EMWriteScreen HC_Exp_Tools, 14, 36
+		EMWriteScreen HC_Exp_Tools_Imp_Rel, 14, 51
+		EMWriteScreen HC_Exp_Dues, 15, 36
+		EMWriteScreen HC_Exp_Dues_Imp_Rel, 15, 51
+		EMWriteScreen HC_Exp_Othr, 16, 36
+		EMWriteScreen HC_Exp_Othr_Imp_Rel, 16, 51
+		transmit
+		PF3
+	END IF
+	transmit
 END FUNCTION
 
 FUNCTION write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis)
