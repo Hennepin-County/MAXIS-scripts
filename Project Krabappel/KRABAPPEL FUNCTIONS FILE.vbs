@@ -456,22 +456,24 @@ Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 	transmit
 	
 	EMReadScreen num_of_BUSI, 1, 2, 78
-	IF num_of_BUSI <> "0" THEN 
+	IF num_of_BUSI = "0" THEN 
 		EMWriteScreen "__", 20, 76
 		EMWriteScreen "NN", 20, 79
 		transmit
-	ELSEIF num_of_BUSI = "0" THEN
-		PF9
-	END IF
 		
-	Emwritescreen busi_type, 5, 37  'enters self employment type
-	call create_MAXIS_friendly_date(busi_start_date, 0, 5, 54)  'enters self employment start date in MAXIS friendly format mm/dd/yy
-	call create_MAXIS_friendly_date(busi_end_date, 0, 5, 71)  'enters self employment start date in MAXIS friendly format mm/dd/yy
-	Emwritescreen "x", 7, 26  'this enters into the gross income calculator
-	Transmit
-	Do
-		Emreadscreen busi_gross_income_check, 12, 06, 35  'This checks to see if the gross income calculator has actually opened. 
-		If busi_gross_income_check = "Gross Income" then  'If it has opened then it will enter the information, if not it will loop until it has then enter.
+		'Reading the footer month, converting to an actual date, we'll need this for determining if the panel is 02/15 or later (there was a change in 02/15 which moved stuff)
+		EMReadScreen BUSI_footer_month, 5, 20, 55
+		BUSI_footer_month = replace(BUSI_footer_month, " ", "/01/")
+		'Treats panels older than 02/15 with the old logic, because the panel was changed in 02/15. We'll remove this in August if all goes well.
+		If datediff("d", "02/01/2015", BUSI_footer_month) < 0 then 
+			Emwritescreen busi_type, 5, 37  'enters self employment type
+			call create_MAXIS_friendly_date(busi_start_date, 0, 5, 54)  'enters self employment start date in MAXIS friendly format mm/dd/yy
+			IF busi_end_date <> "" THEN call create_MAXIS_friendly_date(busi_end_date, 0, 5, 71)  'enters self employment start date in MAXIS friendly format mm/dd/yy
+			Emwritescreen "x", 7, 26  'this enters into the gross income calculator
+			Transmit
+			Do
+				Emreadscreen busi_gross_income_check, 12, 06, 35  'This checks to see if the gross income calculator has actually opened. 
+			LOOP UNTIL busi_gross_income_check = "Gross Income"
 			Emwritescreen busi_cash_total_retro, 9, 43  'enters the cash total income retrospective number
 			Emwritescreen busi_cash_total_prosp, 9, 59  'enters the cash total income prospective number
 			Emwritescreen busi_cash_total_ver, 9, 73    'enters the cash total income verification code
@@ -493,31 +495,86 @@ Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 			Emwritescreen busi_snap_exp_prosp, 17, 59   'enters the snap expenses prospective number
 			Emwritescreen busi_snap_exp_ver, 17, 73     'enters the snap expenses verif code
 			Emwritescreen busi_hc_exp_prosp_a, 18, 59   'enters the hc expenses prospective number for method a
-			Emwritescreen busi_hc_exp_ver, a, 18, 73    'enters the hc expenses verification code for method a
+			Emwritescreen busi_hc_exp_ver_a, 18, 73    'enters the hc expenses verification code for method a
 			Emwritescreen busi_hc_exp_prosp_b, 19, 59   'enters the hc expenses prospective number for method b
 			Emwritescreen busi_hc_exp_ver_b, 19, 73	  'enters the hc expenses verification code for method b
-		End IF
-	Loop until busi_gross_income_check = "Gross Income"
-	pf3
-	Emwritescreen busi_retro_hours, 14, 59  'enters the retrospective hours
-	Emwritescreen busi_prosp_hours, 14, 73  'enters the prospective hours
-	'determine if benefit month is month +1. Bene_month needs to be multiplied by one because it is saved as a string. Converts it to a number.
-	Emreadscreen bene_month, 20, 55  
-	IF (bene_month * 1 = (datepart("M", date)+1)) THEN 'if the month is current month + 1 then information can be entered on the hc income estimator
-		Emwritescreen "x", 17, 29
-		transmit
-		Do
-			Emreadscreen busi_hc_income_estimate_check, 18, 04, 42
-			If busi_hc_income_estimate_check = "HC Income Estimate" then  'if the income estimator is open it will enter the data.
+			transmit
+			PF3
+			Emwritescreen busi_retro_hours, 14, 59  'enters the retrospective hours
+			Emwritescreen busi_prosp_hours, 14, 73  'enters the prospective hours
+		
+		ELSE				'This is the NEW logic for all months after 02/2015
+			Emwritescreen busi_type, 5, 37  'enters self employment type
+			call create_MAXIS_friendly_date(busi_start_date, 0, 5, 55)  'enters self employment start date in MAXIS friendly format mm/dd/yy
+			IF busi_end_date <> "" THEN call create_MAXIS_friendly_date(busi_end_date, 0, 5, 72)  'enters self employment start date in MAXIS friendly format mm/dd/yy
+			Emwritescreen "x", 6, 26  'this enters into the gross income calculator
+			Transmit		
+			Do
+				Emreadscreen busi_gross_income_check, 12, 06, 35  'This checks to see if the gross income calculator has actually opened. 
+			LOOP UNTIL busi_gross_income_check = "Gross Income"		
+			Emwritescreen busi_cash_total_retro, 9, 43  'enters the cash total income retrospective number
+			Emwritescreen busi_cash_total_prosp, 9, 59  'enters the cash total income prospective number
+			Emwritescreen busi_cash_total_ver, 9, 73    'enters the cash total income verification code
+			Emwritescreen busi_IV_total_prosp, 10, 59   'enters the IV total income prospective number
+			Emwritescreen busi_IV_total_ver, 10, 73     'enters the IV total income verification code
+			Emwritescreen busi_snap_total_retro, 11, 43 'enters the snap total income retro number
+			Emwritescreen busi_snap_total_prosp, 11, 59 'enters the snap total income prosp number
+			Emwritescreen busi_snap_total_ver, 11, 73   'enters the snap total verification code
+			Emwritescreen busi_hc_total_prosp_a, 12, 59 'enters the HC total income prospective number for method a
+			Emwritescreen busi_hc_total_ver_a, 12, 73   'enters the HC total income verification code for method a
+			Emwritescreen busi_hc_total_prosp_b, 13, 59 'enters the HC total income prospective number for method b
+			Emwritescreen busi_hc_total_ver_b, 13, 73   'enters the HC total income verification code for method b
+			Emwritescreen busi_cash_exp_retro, 15, 43   'enters the cash expenses retrospective number
+			Emwritescreen busi_cash_exp_prosp, 15, 59   'enters the cash expenses prospective number
+			Emwritescreen busi_cash_exp_ver, 15, 73     'enters the cash expenses verification code
+			Emwritescreen busi_IV_exp_prosp, 16, 59     'enters the IV expenses retro number
+			Emwritescreen busi_IV_exp_ver, 9, 73        'enters the IV expenses verification code
+			Emwritescreen busi_snap_exp_retro, 17, 43   'enters the snap expenses retro number
+			Emwritescreen busi_snap_exp_prosp, 17, 59   'enters the snap expenses prospective number
+			Emwritescreen busi_snap_exp_ver, 17, 73     'enters the snap expenses verif code
+			Emwritescreen busi_hc_exp_prosp_a, 18, 59   'enters the hc expenses prospective number for method a
+			Emwritescreen busi_hc_exp_ver_a, 18, 73    'enters the hc expenses verification code for method a
+			Emwritescreen busi_hc_exp_prosp_b, 19, 59   'enters the hc expenses prospective number for method b
+			Emwritescreen busi_hc_exp_ver_b, 19, 73	  'enters the hc expenses verification code for method b
+			transmit
+			PF3
+			Emwritescreen busi_retro_hours, 13, 60  'enters the retrospective hours
+			Emwritescreen busi_prosp_hours, 13, 74  'enters the prospective hours
+			'---Adding Self-Employment Method -- Hard-Coded for now.
+			EMWriteScreen "01", 16, 53
+			CALL create_MAXIS_friendly_date(#02/01/2015#, 0, 16, 63)
+			MsgBox "Did it work?"
+		END IF
+	ELSEIF num_of_BUSI <> "0" THEN
+		PF9
+		'Reading the footer month, converting to an actual date, we'll need this for determining if the panel is 02/15 or later (there was a change in 02/15 which moved stuff)
+		EMReadScreen BUSI_footer_month, 5, 20, 55
+		BUSI_footer_month = replace(BUSI_footer_month, " ", "/01/")
+		'Treats panels older than 02/15 with the old logic, because the panel was changed in 02/15. We'll remove this in August if all goes well.
+		If datediff("d", "02/01/2015", BUSI_footer_month) >= 0 then 
+			'---Adding Self-Employment Method -- Hard-Coded for now.
+			EMWriteScreen "01", 16, 53
+			CALL create_MAXIS_friendly_date(#02/01/2015#, 0, 16, 63)
+			'---Going into the HC Income Estimate
+			EMWriteScreen "X", 17, 27
+			transmit
+			DO
+				EMReadScreen hc_income, 9, 4, 42
+			LOOP UNTIL hc_income = "HC Income"
+			EMReadScreen current_month_plus_one, 17, 21, 59
+			IF current_month_plus_one = "CURRENT MONTH + 1" THEN 
+				PF3
+			ELSE
 				Emwritescreen busi_hc_total_est_a, 7, 54                'enters hc total income estimation for method A
 				Emwritescreen busi_hc_total_est_b, 8, 54                'enters hc total income estimation for method B
 				Emwritescreen busi_hc_exp_est_a, 11, 54                 'enters hc expense estimation for method A
 				Emwritescreen busi_hc_exp_est_b, 12, 54                 'enters hc expense estimation for method B
 				Emwritescreen busi_hc_hours_est, 18, 58                 'enters hc hours estimation
-				pf3									  'exits hc income estimator pop-up
-			End If
-		Loop until busi_hc_income_estimate_check = "HC Income Estimate"  'looks until hc income estimator actually opens.
-	End IF
+				transmit
+				PF3
+			END IF
+		END IF
+	END IF
 end function
 
 Function write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_owed_as_of, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio)
@@ -646,7 +703,7 @@ FUNCTION write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCE
 		transmit
 		
 		DO			'---Waiting to make sure the HC Expense Est window has opened.
-			EMReadScreen hc_expense_est, 11, 4, 41
+			EMReadScreen hc_expense_est, 10, 4, 41
 		LOOP UNTIL hc_expense_est = "HC Expense"
 			
 		EMReadScreen hc_month, 17, 18, 62
@@ -2161,7 +2218,7 @@ FUNCTION write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs,
 	EMWriteScreen wreg_fs_pwe, 6, 68
 	EMWriteScreen wreg_fset_status, 8, 50
 	EMWriteScreen wreg_defer_fs, 8, 80
-	call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
+	IF wreg_fset_orientation_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
 	IF wreg_fset_sanction_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 10, 50)
 	IF wreg_num_sanctions <> "" THEN EMWriteScreen wreg_num_sanctions, 11, 50
 	EMWriteScreen wreg_abawd_status, 13, 50
