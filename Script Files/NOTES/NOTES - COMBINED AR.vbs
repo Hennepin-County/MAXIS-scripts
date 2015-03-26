@@ -49,8 +49,8 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   CheckBox 95, 80, 35, 10, "SNAP", SNAP_check
   CheckBox 145, 80, 30, 10, "HC", HC_check
   ButtonGroup ButtonPressed
-    OkButton 35, 100, 50, 15
-    CancelButton 95, 100, 50, 15
+	OkButton 35, 100, 50, 15
+	CancelButton 95, 100, 50, 15
   Text 25, 10, 50, 10, "Case number:"
   Text 10, 30, 50, 10, "Footer month:"
   Text 110, 30, 25, 10, "Year:"
@@ -59,12 +59,12 @@ EndDialog
 
 BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 70, 35, 50, 15, recert_datestamp
-  EditBox 230, 35, 40, 15, recert_month
+  EditBox 200, 35, 40, 15, recert_month
   EditBox 60, 55, 50, 15, interview_date
-  EditBox 45, 75, 165, 15, HH_comp
-  EditBox 265, 75, 170, 15, US_citizen
-  EditBox 35, 95, 210, 15, AREP
-  EditBox 40, 155, 395, 15, income
+  EditBox 155, 55, 275, 15, HH_comp
+  EditBox 50, 75, 380, 15, US_citizen
+  EditBox 35, 100, 210, 15, AREP
+  EditBox 35, 155, 400, 15, income
   EditBox 35, 175, 400, 15, assets
   EditBox 65, 195, 370, 15, SHEL
   EditBox 100, 215, 335, 15, FIAT_reasons
@@ -72,10 +72,11 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 55, 255, 380, 15, actions_taken
   EditBox 50, 275, 385, 15, other_notes
   CheckBox 5, 300, 65, 10, "R/R explained?", R_R_explained
-  DropListBox 135, 295, 60, 15, ""+chr(9)+"complete"+chr(9)+"incomplete", review_status
-  EditBox 275, 295, 65, 15, worker_signature
+  CheckBox 80, 300, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  DropListBox 230, 295, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete"+chr(9)+"closed", review_status
+  EditBox 370, 295, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 335, 315, 50, 15
+    OkButton 330, 315, 50, 15
     CancelButton 385, 315, 50, 15
     PushButton 20, 15, 25, 10, "HCRE", HCRE_button
     PushButton 45, 15, 25, 10, "MEMB", MEMB_button
@@ -102,11 +103,11 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
     PushButton 250, 130, 25, 10, "SECU", SECU_button
     PushButton 275, 130, 25, 10, "TRAN", TRAN_button
     PushButton 5, 200, 25, 10, "SHEL/", SHEL_button
-    PushButton 30, 200, 25, 10, "HEST", HEST_button
+    PushButton 30, 200, 25, 10, "HEST:", HEST_button
   Text 5, 40, 65, 10, "Recert datestamp:"
-  Text 160, 40, 70, 10, "Recert footer month:"
-  Text 5, 80, 40, 10, "HH Comp:"
-  Text 220, 80, 40, 10, "US citizen?:"
+  Text 130, 40, 70, 10, "Recert footer month:"
+  Text 115, 60, 40, 10, "HH Comp:"
+  Text 5, 80, 40, 10, "US citizen?:"
   GroupBox 5, 120, 110, 25, "Income panels"
   GroupBox 120, 120, 185, 25, "Asset panels"
   Text 5, 160, 30, 10, "Income:"
@@ -115,27 +116,26 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   Text 5, 240, 50, 10, "Verifs needed:"
   Text 5, 260, 50, 10, "Actions taken:"
   Text 5, 280, 40, 10, "Other notes:"
-  Text 80, 300, 50, 10, "Review status:"
-  Text 210, 300, 65, 10, "Sign the case note:"
+  Text 175, 300, 50, 10, "Review status:"
+  Text 305, 300, 65, 10, "Sign the case note:"
   GroupBox 180, 5, 90, 25, "ELIG panels:"
   GroupBox 15, 5, 110, 25, "STAT panels:"
   GroupBox 330, 5, 110, 35, "STAT-based navigation"
   Text 5, 60, 55, 10, "Interview Date:"
 EndDialog
 
-
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
+	PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
+	PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
 
 BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
   Text 5, 5, 135, 10, "Are you sure you want to end this script?"
   ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
+	PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
+	PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -149,24 +149,21 @@ Dim col
 EMConnect ""
 
 'Grabbing the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 'Grabbing the footer month/year
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
+	footer_month = MAXIS_footer_month
+	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+	If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
 'Shows case number dialog
 Do
-  Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+	Dialog case_number_dialog
+	If ButtonPressed = 0 then stopscript
+	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checks for MAXIS
@@ -207,82 +204,83 @@ recert_month = footer_month & "/" & footer_year
 
 'Showing the case note dialog
 Do
-  Do
-    Do
-      Do
-        Do
-          Dialog combined_AR_dialog
-            If ButtonPressed = 0 then 
-              dialog cancel_dialog
-              If ButtonPressed = yes_cancel_button then stopscript
-            End if
-          Loop until ButtonPressed <> no_cancel_button
-        EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then call prev_panel_navigation
-          If ButtonPressed = next_panel_button then call next_panel_navigation
-          If ButtonPressed = prev_memb_button then call prev_memb_navigation
-          If ButtonPressed = next_memb_button then call next_memb_navigation
-        End if
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If ButtonPressed = AREP_button then call navigate_to_screen("stat", "arep")
-      If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
-      If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
-      If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
-      If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
-      If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-      If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
-      If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
-      If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
-      If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
-      If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
-      If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
-      If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
-      If ButtonPressed = HCRE_button then call navigate_to_screen("stat", "HCRE")
-      If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
-      If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
-      If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
-	  IF ButtonPressed = SHEL_button THEN CALL navigate_to_screen("STAT", "SHEL")
-	  IF ButtonPressed = HEST_button THEN CALL navigate_to_screen("STAT", "HEST")
-      If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-      If ButtonPressed = ELIG_FS_button then call navigate_to_screen("elig", "FS__")
-      If ButtonPressed = ELIG_GA_button then call navigate_to_screen("elig", "GA__")
-      If ButtonPressed = ELIG_MSA_button then call navigate_to_screen("elig", "MSA_")
-    Loop until ButtonPressed = -1
-    If worker_signature = "" or review_status = " " or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
-  Loop until worker_signature <> "" and review_status <> " " and actions_taken <> "" and recert_datestamp <> ""
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
+	Do
+		Do
+			Do
+				Do
+					Dialog combined_AR_dialog
+					If ButtonPressed = 0 then 
+						dialog cancel_dialog
+						If ButtonPressed = yes_cancel_button then stopscript
+					End if
+				Loop until ButtonPressed <> no_cancel_button
+				EMReadScreen STAT_check, 4, 20, 21
+				If STAT_check = "STAT" then
+					If ButtonPressed = prev_panel_button then call prev_panel_navigation
+					If ButtonPressed = next_panel_button then call next_panel_navigation
+					If ButtonPressed = prev_memb_button then call prev_memb_navigation
+					If ButtonPressed = next_memb_button then call next_memb_navigation
+				End if
+				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
+				EMReadScreen MAXIS_check, 5, 1, 39
+				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+			If ButtonPressed = AREP_button then call navigate_to_screen("stat", "arep")
+			If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
+			If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
+			If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
+			If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
+			If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
+			If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
+			If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
+			If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
+			If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
+			If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
+			If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
+			If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
+			If ButtonPressed = HCRE_button then call navigate_to_screen("stat", "HCRE")
+			If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
+			If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
+			If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
+			IF ButtonPressed = SHEL_button THEN CALL navigate_to_screen("STAT", "SHEL")
+			IF ButtonPressed = HEST_button THEN CALL navigate_to_screen("STAT", "HEST")
+			If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
+			If ButtonPressed = ELIG_FS_button then call navigate_to_screen("elig", "FS__")
+			If ButtonPressed = ELIG_GA_button then call navigate_to_screen("elig", "GA__")
+			If ButtonPressed = ELIG_MSA_button then call navigate_to_screen("elig", "MSA_")
+		Loop until ButtonPressed = -1
+		If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
+	Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""
+	If ButtonPressed = -1 then dialog case_note_dialog
+	If buttonpressed = yes_case_note_button then
+		call navigate_to_screen("case", "note")
+		PF9
+		EMReadScreen case_note_check, 17, 2, 33
+		EMReadScreen mode_check, 1, 20, 09
+		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
+	End if
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'The case note
 CALL write_variable_in_case_note("***Combined AR received " & recert_datestamp & " for " & recert_month & ": " & review_status & "***")
 CALL write_bullet_and_variable_in_case_note("Interview Date", interview_date)
-If HH_comp <> "" then call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
-If US_citizen <> "" then call write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
-If AREP <> "" then call write_bullet_and_variable_in_case_note("AREP", AREP)
-If FACI <> "" then call write_bullet_and_variable_in_case_note("FACI", FACI)
-If income <> "" then call write_bullet_and_variable_in_case_note("Income", income)
-If assets <> "" then call write_bullet_and_variable_in_case_note("Assets", assets)
-IF SHEL <> "" THEN CALL write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL)
-if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
-If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
-If actions_taken <> "" then call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-If R_R_explained = 1 then call write_variable_in_case_note("* R/R explained.")
-If other_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", other_notes)
-call write_variable_in_case_note("---")
-call write_variable_in_case_note(worker_signature)
+CALL write_bullet_and_variable_in_case_note("HH comp", HH_comp)
+CALL write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
+CALL write_bullet_and_variable_in_case_note("AREP", AREP)
+CALL write_bullet_and_variable_in_case_note("FACI", FACI)
+CALL write_bullet_and_variable_in_case_note("Income", income)
+CALL write_bullet_and_variable_in_case_note("Assets", assets)
+CALL write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL)
+CALL write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+CALL write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+IF R_R_explained = checked THEN CALL write_variable_in_case_note("* R/R explained.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+CALL write_bullet_and_variable_in_case_note("Notes", other_notes)
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 
-call script_end_procedure("")
+CALL script_end_procedure("")
 
 
 

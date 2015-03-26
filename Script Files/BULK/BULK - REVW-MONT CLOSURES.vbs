@@ -1,7 +1,6 @@
 name_of_script = "BULK - REVW-MONT CLOSURES.vbs"
 start_time = timer
 
-
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
 If beta_agency = "" or beta_agency = True then
 	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -173,7 +172,37 @@ If revw_check = checked then
 			transmit
 		End if
 		If HC_review_code = "I" then HC_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-		  
+
+		'Checking for the active CASH program. If the case is GRH, MSA, GA, MFIP, or DWP, the client is eligible for an additional 30 day reinstatement period.
+		'If the case is RCA, the client is not eligible for an additional 30 day reinstatement period for no-or-incomplete review.
+		'For policy on the matter, see Bulletin #14-69-05 (http://www.dhs.state.mn.us/main/groups/publications/documents/pub/dhs16_185044.pdf)
+		IF cash_review_code = "N" OR cash_review_code = "I" THEN
+			EMWriteScreen "PROG", 20, 71
+			transmit
+			
+			EMReadScreen cash_status, 4, 9, 74
+			IF cash_status = "ACTV" THEN 
+				cash_prog = "GR"
+			ELSE
+				EMReadScreen cash_status, 4, 6, 74
+				IF cash_status = "ACTV" THEN
+					EMReadScreen cash_prog, 2, 6, 67
+				ELSE
+					EMReadScreen cash_status, 4, 7, 74
+					EMReadScreen cash_prog, 2, 7, 67
+				END IF
+			END IF
+			
+			IF cash_prog = "GR" OR cash_prog = "GA" OR cash_prog = "MS" OR cash_prog = "DW" OR cash_prog = "MF" THEN
+				elig_for_cash_rein = True
+			ELSEIF cash_prog = "RC" THEN
+				elig_for_cash_rein = False
+			END IF
+			
+			EMWriteScreen "REVW", 20, 71
+			transmit
+		END IF
+		
 		'---------------THIS SECTION FIGURES OUT WHEN PROGRAMS CAN TURN IN NEW RENEWALS AND WHEN THEY BECOME INTAKES AGAIN
 			EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
 			first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
@@ -205,8 +234,13 @@ If revw_check = checked then
 				End if
 			End if
 			If cash_review_status <> "" then
-				last_day_to_turn_in_cash_docs = dateadd("d", -1, first_of_working_month)
-				cash_intake_date = first_of_working_month
+				IF elig_for_cash_rein = True THEN
+					last_day_to_turn_in_cash_docs = dateadd("d", -1, dateadd("M", 1, first_of_working_month))
+					cash_intake_date = dateadd("M", 1, first_of_working_month)
+				ELSEIF elig_for_cash_rein = False THEN
+					last_day_to_turn_in_cash_docs = dateadd("d", -1, first_of_working_month)
+					cash_intake_date = first_of_working_month
+				END IF
 			End if
 
 		'---------------NOW IT CASE NOTES
@@ -262,6 +296,7 @@ If revw_check = checked then
 		cash_intake_date = ""
 		SNAP_intake_date = ""
 		HC_intake_date = ""
+		cash_prog = ""
 		  
 	Next
 	  
@@ -336,8 +371,6 @@ If mont_check = 1 then
     PF4
     PF9
 
-
-  
     If HC_review_code = "I" or FS_review_code = "I" or GRH_review_code = "I" or cash_review_code = "I" then
       call write_new_line_in_case_note("---Incomplete HRF---")
     Else
