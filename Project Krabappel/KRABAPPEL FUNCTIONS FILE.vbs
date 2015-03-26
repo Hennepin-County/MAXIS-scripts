@@ -543,7 +543,6 @@ Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 			'---Adding Self-Employment Method -- Hard-Coded for now.
 			EMWriteScreen "01", 16, 53
 			CALL create_MAXIS_friendly_date(#02/01/2015#, 0, 16, 63)
-			MsgBox "Did it work?"
 		END IF
 	ELSEIF num_of_BUSI <> "0" THEN
 		PF9
@@ -2021,14 +2020,15 @@ FUNCTION write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, u
 	IF does_not_exist = "DOES NOT EXIST" THEN
 		EMWriteScreen "NN", 20, 79
 		transmit
+		
+		'Putting this part in with the NN because otherwise the script will update it in later months and change claim number information.
+		EMWriteScreen unea_inc_type, 5, 37
+		EMWriteScreen unea_inc_verif, 5, 65
+		EMWriteScreen (ssn_first & ssn_mid & ssn_last & unea_claim_suffix), 6, 37
+		call create_MAXIS_friendly_date(unea_start_date, 0, 7, 37)
 	ELSE
 		PF9
 	END IF
-
-	EMWriteScreen unea_inc_type, 5, 37
-	EMWriteScreen unea_inc_verif, 5, 65
-	EMWriteScreen (ssn_first & ssn_mid & ssn_last & unea_claim_suffix), 6, 37
-	call create_MAXIS_friendly_date(unea_start_date, 0, 7, 37)
 
 	'=====Navigates to the PIC for UNEA=====
 	EMWriteScreen "X", 10, 26
