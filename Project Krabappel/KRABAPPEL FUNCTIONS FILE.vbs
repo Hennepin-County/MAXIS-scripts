@@ -452,7 +452,18 @@ END FUNCTION
 '---This function writes using the variables read off of the specialized excel template to the busi panel in MAXIS
 Function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
 	Call navigate_to_screen("STAT", "BUSI")  'navigates to the stat panel
-	call create_panel_if_nonexistent
+	Emwritescreen reference_number, 20, 76
+	transmit
+	
+	EMReadScreen num_of_BUSI, 1, 2, 78
+	IF num_of_BUSI <> "0" THEN 
+		EMWriteScreen "__", 20, 76
+		EMWriteScreen "NN", 20, 79
+		transmit
+	ELSEIF num_of_BUSI = "0" THEN
+		PF9
+	END IF
+		
 	Emwritescreen busi_type, 5, 37  'enters self employment type
 	call create_MAXIS_friendly_date(busi_start_date, 0, 5, 54)  'enters self employment start date in MAXIS friendly format mm/dd/yy
 	call create_MAXIS_friendly_date(busi_end_date, 0, 5, 71)  'enters self employment start date in MAXIS friendly format mm/dd/yy
@@ -541,73 +552,123 @@ End Function
 FUNCTION write_panel_to_MAXIS_COEX(retro_support, prosp_support, support_verif, retro_alimony, prosp_alimony, alimony_verif, retro_tax_dep, prosp_tax_dep, tax_dep_verif, retro_other, prosp_other, other_verif, change_in_circum, hc_exp_support, hc_exp_alimony, hc_exp_tax_dep, hc_exp_other)
 	CALL navigate_to_MAXIS_screen("STAT", "COEX")
 	ERRR_screen_check
-	CALL create_panel_if_nonexistent
-	
-	EMWriteScreen support_verif, 10, 36
-	EMWriteScreen retro_support, 10, 45
-	EMWriteScreen prosp_support, 10, 63
-	EMWriteScreen alimony_verif, 11, 36
-	EMWriteScreen retro_alimony, 11, 45
-	EMWriteScreen prosp_alimony, 11, 63
-	EMWriteScreen tax_dep_verif, 12, 36
-	EMWriteScreen retro_tax_dep, 12, 45
-	EMWriteScreen prosp_tax_dep, 12, 63
-	EMWriteScreen other_verif, 13, 36
-	EMWriteScreen retro_other, 13, 45
-	EMWriteScreen prosp_other, 13, 63
-	EMWriteScreen change_in_circum, 17, 61
-	
-	'Opening the HC Expenses Sub-menu
-	EMWriteScreen "X", 18, 44
+	EMWriteScreen reference_number, 20, 76
 	transmit
-		
-	DO
-		EMReadScreen hc_expense_est, 14, 4, 30
-	LOOP UNTIL hc_expense_est = "HC Expense Est"
 	
-	EMReadScreen current_month_plus_one, 17, 13, 51
-	IF current_month_plus_one <> "CURRENT MONTH + 1" THEN
-		EMWriteScreen hc_exp_support, 6, 38
-		EMWriteScreen hc_exp_alimony, 7, 38
-		EMWriteScreen hc_exp_tax_dep, 8, 38
-		EMWriteScreen hc_exp_other, 9, 38
+	EMReadScreen num_of_COEX, 1, 2, 78
+	IF num_of_COEX = "0" THEN 
+		EMWriteScreen "__", 20, 76
+		EMWriteScreen "NN", 20, 79
 		transmit
+		'---If the script is creating a new COEX panel, it will enter this information...
+		EMWriteScreen support_verif, 10, 36
+		EMWriteScreen retro_support, 10, 45
+		EMWriteScreen prosp_support, 10, 63
+		EMWriteScreen alimony_verif, 11, 36
+		EMWriteScreen retro_alimony, 11, 45
+		EMWriteScreen prosp_alimony, 11, 63
+		EMWriteScreen tax_dep_verif, 12, 36
+		EMWriteScreen retro_tax_dep, 12, 45
+		EMWriteScreen prosp_tax_dep, 12, 63
+		EMWriteScreen other_verif, 13, 36
+		EMWriteScreen retro_other, 13, 45
+		EMWriteScreen prosp_other, 13, 63
+		EMWriteScreen change_in_circum, 17, 61
+	ELSEIF num_of_COEX <> "0" THEN
+		PF9
+		'---...if the script is PF9'ing, it is doing so to enter information into the HC Expense sub-menu
+		'Opening the HC Expenses Sub-menu
+		EMWriteScreen "X", 18, 44
+		transmit
+			
+		DO
+			EMReadScreen hc_expense_est, 14, 4, 30
+		LOOP UNTIL hc_expense_est = "HC Expense Est"
+		
+		EMReadScreen current_month_plus_one, 17, 13, 51
+		IF current_month_plus_one <> "CURRENT MONTH + 1" THEN
+			EMWriteScreen hc_exp_support, 6, 38
+			EMWriteScreen hc_exp_alimony, 7, 38
+			EMWriteScreen hc_exp_tax_dep, 8, 38
+			EMWriteScreen hc_exp_other, 9, 38
+			transmit
+		END IF
+		PF3
 	END IF
-	PF3
 	transmit
 END FUNCTION
 
 
 FUNCTION write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
 	call navigate_to_screen("STAT", "DCEX") 
-	call create_panel_if_nonexistent
-	EMWritescreen DCEX_provider, 6, 47
-	EMWritescreen DCEX_reason, 7, 44
-	EMWritescreen DCEX_subsidy, 8, 44
-	EMWritescreen DCEX_child_number1, 11, 29
-	EMWritescreen DCEX_child_number2, 12, 29
-	EMWritescreen DCEX_child_number3, 13, 29
-	EMWritescreen DCEX_child_number4, 14, 29
-	EMWritescreen DCEX_child_number5, 15, 29
-	EMWritescreen DCEX_child_number6, 16, 29
-	EMWritescreen DCEX_child_number1_ver, 11, 41
-	EMWritescreen DCEX_child_number2_ver, 12, 41
-	EMWritescreen DCEX_child_number3_ver, 13, 41
-	EMWritescreen DCEX_child_number4_ver, 14, 41
-	EMWritescreen DCEX_child_number5_ver, 15, 41
-	EMWritescreen DCEX_child_number6_ver, 16, 41
-	EMWritescreen DCEX_child_number1_retro, 11, 48
-	EMWritescreen DCEX_child_number2_retro, 12, 48
-	EMWritescreen DCEX_child_number3_retro, 13, 48
-	EMWritescreen DCEX_child_number4_retro, 14, 48
-	EMWritescreen DCEX_child_number5_retro, 15, 48
-	EMWritescreen DCEX_child_number6_retro, 16, 48
-	EMWritescreen DCEX_child_number1_pro, 11, 63
-	EMWritescreen DCEX_child_number2_pro, 11, 63
-	EMWritescreen DCEX_child_number3_pro, 11, 63
-	EMWritescreen DCEX_child_number4_pro, 11, 63
-	EMWritescreen DCEX_child_number5_pro, 11, 63
-	EMWritescreen DCEX_child_number6_pro, 11, 63
+	EMWriteScreen reference_number, 20, 76
+	transmit
+	
+	EMReadScreen num_of_DCEX, 1, 2, 78
+	IF num_of_DCEX = "0" THEN 
+		EMWriteScreen "__", 20, 76
+		Emwritescreen "NN", 20, 79
+		transmit
+		
+		'---If the script is creating a new DCEX panel, it is going to enter this information into the DCEX main screen...
+		EMWritescreen DCEX_provider, 6, 47
+		EMWritescreen DCEX_reason, 7, 44
+		EMWritescreen DCEX_subsidy, 8, 44
+		EMWritescreen DCEX_child_number1, 11, 29
+		EMWritescreen DCEX_child_number2, 12, 29
+		EMWritescreen DCEX_child_number3, 13, 29
+		EMWritescreen DCEX_child_number4, 14, 29
+		EMWritescreen DCEX_child_number5, 15, 29
+		EMWritescreen DCEX_child_number6, 16, 29
+		EMWritescreen DCEX_child_number1_ver, 11, 41
+		EMWritescreen DCEX_child_number2_ver, 12, 41
+		EMWritescreen DCEX_child_number3_ver, 13, 41
+		EMWritescreen DCEX_child_number4_ver, 14, 41
+		EMWritescreen DCEX_child_number5_ver, 15, 41
+		EMWritescreen DCEX_child_number6_ver, 16, 41
+		EMWritescreen DCEX_child_number1_retro, 11, 48
+		EMWritescreen DCEX_child_number2_retro, 12, 48
+		EMWritescreen DCEX_child_number3_retro, 13, 48
+		EMWritescreen DCEX_child_number4_retro, 14, 48
+		EMWritescreen DCEX_child_number5_retro, 15, 48
+		EMWritescreen DCEX_child_number6_retro, 16, 48
+		EMWritescreen DCEX_child_number1_pro, 11, 63
+		EMWritescreen DCEX_child_number2_pro, 11, 63
+		EMWritescreen DCEX_child_number3_pro, 11, 63
+		EMWritescreen DCEX_child_number4_pro, 11, 63
+		EMWritescreen DCEX_child_number5_pro, 11, 63
+		EMWritescreen DCEX_child_number6_pro, 11, 63
+	ELSE
+		PF9
+		'---...if the script is PF9'ing, it is ONLY because it is going to enter information in the HC Expense sub-menu.
+		'---Writing in the HC Expenses Est
+		EMWriteScreen "X", 17, 55
+		transmit
+		
+		DO			'---Waiting to make sure the HC Expense Est window has opened.
+			EMReadScreen hc_expense_est, 11, 4, 41
+		LOOP UNTIL hc_expense_est = "HC Expense"
+			
+		EMReadScreen hc_month, 17, 18, 62
+		IF hc_month = "CURRENT MONTH + 1" THEN
+			PF3
+		ELSE
+			EMWritescreen DCEX_child_number1, 8, 39
+			EMWritescreen DCEX_child_number2, 9, 39
+			EMWritescreen DCEX_child_number3, 10, 39
+			EMWritescreen DCEX_child_number4, 11, 39
+			EMWritescreen DCEX_child_number5, 12, 39
+			EMWritescreen DCEX_child_number6, 13, 39
+			EMWritescreen DCEX_child_number1_pro, 8, 49
+			EMWritescreen DCEX_child_number2_pro, 9, 49
+			EMWritescreen DCEX_child_number3_pro, 10, 49
+			EMWritescreen DCEX_child_number4_pro, 11, 49
+			EMWritescreen DCEX_child_number5_pro, 12, 49
+			EMWritescreen DCEX_child_number6_pro, 13, 49
+			transmit
+			PF3
+		END IF
+	END IF	
 	transmit
 End function
 
@@ -1187,11 +1248,9 @@ FUNCTION write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 		
 		DO
 			EMReadScreen hc_inc_est, 9, 9, 43
-			MsgBox hc_inc_est
 		LOOP UNTIL hc_inc_est = "HC Income"
 		
 		EMWriteScreen jobs_pic_wages_per_pp, 11, 63
-		MsgBox jobs_pic_wages_per_pp							'NEEDS TO BE DELETED -- FOR DEVELOPMENT
 		transmit
 		transmit
 	END IF
@@ -1898,22 +1957,15 @@ END FUNCTION
 FUNCTION write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
 	call navigate_to_screen("STAT", "UNEA")
 	EMWriteScreen reference_number, 20, 76
+	EMWriteScreen unea_number, 20, 79
+	transmit
 	
-	'Determining whether to PF9 or create a new panel.
-	EMReadScreen num_of_unea_panels, 1, 2, 78
-	IF num_of_unea_panels = 0 THEN 
+	EMReadScreen does_not_exist, 14, 24, 13
+	IF does_not_exist = "DOES NOT EXIST" THEN
 		EMWriteScreen "NN", 20, 79
 		transmit
 	ELSE
-		EMWriteScreen unea_number, 20, 79
-		transmit
-		EMReadScreen does_not_exist, 14, 24, 13
-		IF does_not_exist = "DOES NOT EXIST" THEN
-			EMWriteScreen "NN", 20, 79
-			transmit
-		ELSE
-			PF9
-		END IF
+		PF9
 	END IF
 
 	EMWriteScreen unea_inc_type, 5, 37
@@ -1924,83 +1976,86 @@ FUNCTION write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, u
 	'=====Navigates to the PIC for UNEA=====
 	EMWriteScreen "X", 10, 26
 	transmit
-	EMWriteScreen unea_pay_freq, 5, 64
-	EMWriteScreen unea_inc_amount, 8, 66
-	calc_month = datepart("M", date)
-		IF len(calc_month) = 1 THEN calc_month = "0" & calc_month
-	calc_day = datepart("D", date)
-		IF len(calc_day) = 1 THEN calc_day = "0" & calc_day
-	calc_year = datepart("YYYY", date)
-	EMWriteScreen calc_month, 5, 34
-	EMWriteScreen calc_day, 5, 37
-	EMWriteScreen calc_year, 5, 40
-	transmit
-	transmit
-	transmit		'<=====navigates out of the PIC
+	EMReadScreen pic_info_exists, 6, 18, 58		'---Deteremining if PIC info exists. If it does, the script will just back out.
+	pic_info_exists = trim(pic_info_exists)
+	IF pic_info_exists = "" THEN
+		EMWriteScreen unea_pay_freq, 5, 64
+		EMWriteScreen unea_inc_amount, 8, 66
+		calc_month = datepart("M", date)
+			IF len(calc_month) = 1 THEN calc_month = "0" & calc_month
+		calc_day = datepart("D", date)
+			IF len(calc_day) = 1 THEN calc_day = "0" & calc_day
+		calc_year = datepart("YYYY", date)
+		EMWriteScreen calc_month, 5, 34
+		EMWriteScreen calc_day, 5, 37
+		EMWriteScreen calc_year, 5, 40
+		transmit
+		transmit
+		transmit		'<=====navigates out of the PIC
+	ELSE
+		PF3
+	END IF
 
 	'=====the following bit is for the retrospective & prospective pay dates=====
 	EMReadScreen bene_month, 2, 20, 55
 	EMReadScreen bene_year, 2, 20, 58
-	retro_month = bene_month - 2
-	retro_year = bene_year
-		IF retro_month < 1 THEN
-			retro_month = bene_month + 10
-			retro_year = bene_year - 1
-		END IF
-
+	current_bene_month = bene_month & "/01/" & bene_year
+	retro_month = datepart("M", DateAdd("M", -2, current_bene_month))
+	IF len(retro_month) <> 2 THEN retro_month = "0" & retro_month
+	retro_year = right(datepart("YYYY", DateAdd("M", -2, current_bene_month)), 2)
+	
 	EMWriteScreen retro_month, 13, 25
-	EMWriteScreen "05", 13, 28
 	EMWriteScreen retro_year, 13, 31
-	EMWriteScreen "________", 13, 39
-	EMWriteScreen unea_inc_amount, 13, 39
 	EMWriteScreen bene_month, 13, 54
-	EMWriteScreen "05", 13, 57
 	EMWriteScreen bene_year, 13, 60
-	EMWriteScreen "________", 13, 68
-	EMWriteScreen unea_inc_amount, 13, 68
+	
+	IF pic_info_exists = "" THEN 	'---Meaning, the case has PIC info...which is to say that this is a PF9 and not a NN
+		EMWriteScreen "05", 13, 28
+		EMWriteScreen unea_inc_amount, 13, 39
+		EMWriteScreen "05", 13, 57
+		EMWriteScreen unea_inc_amount, 13, 68	
+	END IF
 	
 	IF unea_pay_freq = "2" OR unea_pay_freq = "3" THEN
 		EMWriteScreen retro_month, 14, 25
-		EMWriteScreen "19", 14, 28
 		EMWriteScreen retro_year, 14, 31
-		EMWriteScreen "________", 14, 39
-		EMWriteScreen unea_inc_amount, 14, 39
 		EMWriteScreen bene_month, 14, 54
-		EMWriteScreen "19", 14, 57
 		EMWriteScreen bene_year, 14, 60
-		EMWriteScreen "________", 14, 68
-		EMWriteScreen unea_inc_amount, 14, 68
+				
+		IF pic_info_exists = "" THEN 
+			EMWriteScreen "19", 14, 28
+			EMWriteScreen "19", 14, 57
+			EMWriteScreen unea_inc_amount, 14, 39
+			EMWriteScreen unea_inc_amount, 14, 68
+		END IF
 	ELSEIF unea_pay_freq = "4" THEN
 		EMWriteScreen retro_month, 14, 25
-		EMWriteScreen "12", 14, 28
 		EMWriteScreen retro_year, 14, 31
-		EMWriteScreen "________", 14, 39
-		EMWriteScreen unea_inc_amount, 14, 39
 		EMWriteScreen retro_month, 15, 25
-		EMWriteScreen "19", 15, 28
 		EMWriteScreen retro_year, 15, 31
-		EMWriteScreen "________", 15, 39
-		EMWriteScreen unea_inc_amount, 15, 39
 		EMWriteScreen retro_month, 16, 25
-		EMWriteScreen "26", 16, 28
 		EMWriteScreen retro_year, 16, 31
-		EMWriteScreen "________", 16, 39
-		EMWriteScreen unea_inc_amount, 16, 39
 		EMWriteScreen bene_month, 14, 54
-		EMWriteScreen "12", 14, 57
 		EMWriteScreen bene_year, 14, 60
-		EMWriteScreen "________", 14, 68
-		EMWriteScreen unea_inc_amount, 14, 68
 		EMWriteScreen bene_month, 15, 54 
-		EMWriteScreen "19", 15, 57 
 		EMWriteScreen bene_year, 15, 60 
-		EMWriteScreen "________", 15, 68 
-		EMWriteScreen unea_inc_amount, 15, 68 
 		EMWriteScreen bene_month, 16, 54
-		EMWriteScreen "26", 16, 57
 		EMWriteScreen bene_year, 16, 60
-		EMWriteScreen "________", 16, 68
-		EMWriteScreen unea_inc_amount, 16, 68
+		
+		IF pic_info_exists = "" THEN 
+			EMWriteScreen "12", 14, 28
+			EMWriteScreen unea_inc_amount, 14, 39
+			EMWriteScreen "19", 15, 28
+			EMWriteScreen unea_inc_amount, 15, 39
+			EMWriteScreen "26", 16, 28
+			EMWriteScreen unea_inc_amount, 16, 39
+			EMWriteScreen "12", 14, 57
+			EMWriteScreen unea_inc_amount, 14, 68
+			EMWriteScreen "19", 15, 57 
+			EMWriteScreen unea_inc_amount, 15, 68 
+			EMWriteScreen "26", 16, 57
+			EMWriteScreen unea_inc_amount, 16, 68
+		END IF
 	END IF
 
 	'=====determines if the benefit month is current month + 1 and dumps information into the HC income estimator
@@ -2013,83 +2068,88 @@ FUNCTION write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, u
 		transmit
 		transmit
 	END IF
-
 END FUNCTION
 
 FUNCTION write_panel_to_MAXIS_WKEX(program, fed_tax_retro, fed_tax_prosp, fed_tax_verif, state_tax_retro, state_tax_prosp, state_tax_verif, fica_retro, fica_prosp, fica_verif, tran_retro, tran_prosp, tran_verif, tran_imp_rel, meals_retro, meals_prosp, meals_verif, meals_imp_rel, uniforms_retro, uniforms_prosp, uniforms_verif, uniforms_imp_rel, tools_retro, tools_prosp, tools_verif, tools_imp_rel, dues_retro, dues_prosp, dues_verif, dues_imp_rel, othr_retro, othr_prosp, othr_verif, othr_imp_rel, HC_Exp_Fed_Tax, HC_Exp_State_Tax, HC_Exp_FICA, HC_Exp_Tran, HC_Exp_Tran_imp_rel, HC_Exp_Meals, HC_Exp_Meals_Imp_Rel, HC_Exp_Uniforms, HC_Exp_Uniforms_Imp_Rel, HC_Exp_Tools, HC_Exp_Tools_Imp_Rel, HC_Exp_Dues, HC_Exp_Dues_Imp_Rel, HC_Exp_Othr, HC_Exp_Othr_Imp_Rel)
 	CALL navigate_to_MAXIS_screen("STAT", "WKEX")
 	ERRR_screen_check
 	
+	EMWriteScreen reference_number, 20, 76
+	transmit
+	
 	'Determining the number of WKEX panels so the script knows how to handle the incoming information.
 	EMReadScreen num_of_WKEX_panels, 1, 2, 78
 	IF num_of_WKEX_panels = "5" THEN		'If there are already 5 WKEX panels, the script will not create a new panel.
-		MsgBox "WARNING: Panel limit reached for WKEX. No additional WKEX panels can be created for this person." & vbCr & "Skipping script process."
 		EXIT FUNCTION 
-	ELSE		
+	ELSEIF num_of_WKEX_panels = "0" THEN		
+		EMWriteScreen "__", 20, 76
 		EMWriteScreen "NN", 20, 79
 		transmit
-	END IF
-
-	EMWriteScreen program, 5, 33
-	EMWriteScreen fed_tax_retro, 7, 43
-	EMWriteScreen fed_tax_prosp, 7, 57
-	EMWriteScreen fed_tax_verif, 7, 69
-	EMWriteScreen state_tax_retro, 8, 43
-	EMWriteScreen state_tax_prosp, 8, 57
-	EMWriteScreen state_tax_verif, 8, 69
-	EMWriteScreen fica_retro, 9, 43
-	EMWriteScreen fica_prosp, 9, 57
-	EMWriteScreen fica_verif, 9, 69
-	EMWriteScreen tran_retro, 10, 43
-	EMWriteScreen tran_prosp, 10, 57
-	EMWriteScreen tran_verif, 10, 69
-	EMWriteScreen tran_imp_rel, 10, 75
-	EMWriteScreen meals_retro, 11, 43
-	EMWriteScreen meals_prosp, 11, 57
-	EMWriteScreen meals_verif, 11, 69
-	EMWriteScreen meals_imp_rel, 11, 75
-	EMWriteScreen uniforms_retro, 12, 43
-	EMWriteScreen uniforms_prosp, 12, 57
-	EMWriteScreen uniforms_verif, 12, 69
-	EMWriteScreen uniforms_imp_rel, 12, 75
-	EMWriteScreen tools_retro, 13, 43
-	EMWriteScreen tools_prosp, 13, 57
-	EMWriteScreen tools_verif, 13, 69
-	EMWriteScreen tools_imp_rel, 13, 75
-	EMWriteScreen dues_retro, 14, 43
-	EMWriteScreen dues_prosp, 14, 57
-	EMWriteScreen dues_verif, 14, 69
-	EMWriteScreen dues_imp_rel, 14, 75
-	EMWriteScreen othr_retro, 15, 43
-	EMWriteScreen othr_prosp, 15, 57
-	EMWriteScreen othr_verif, 15, 69
-	EMWriteScreen othr_imp_rel, 15, 75
-	
-	'---Adding to the HC Expenses
-	EMWriteScreen "X", 18, 57
-	transmit
-	
-	EMReadScreen current_month, 17, 20, 51
-	IF current_month = "CURRENT MONTH + 1" THEN 
-		PF3
+		
+		'---When the script needs to generate a new WKEX, it will enter the information for that panel...
+		EMWriteScreen program, 5, 33
+		EMWriteScreen fed_tax_retro, 7, 43
+		EMWriteScreen fed_tax_prosp, 7, 57
+		EMWriteScreen fed_tax_verif, 7, 69
+		EMWriteScreen state_tax_retro, 8, 43
+		EMWriteScreen state_tax_prosp, 8, 57
+		EMWriteScreen state_tax_verif, 8, 69
+		EMWriteScreen fica_retro, 9, 43
+		EMWriteScreen fica_prosp, 9, 57
+		EMWriteScreen fica_verif, 9, 69
+		EMWriteScreen tran_retro, 10, 43
+		EMWriteScreen tran_prosp, 10, 57
+		EMWriteScreen tran_verif, 10, 69
+		EMWriteScreen tran_imp_rel, 10, 75
+		EMWriteScreen meals_retro, 11, 43
+		EMWriteScreen meals_prosp, 11, 57
+		EMWriteScreen meals_verif, 11, 69
+		EMWriteScreen meals_imp_rel, 11, 75
+		EMWriteScreen uniforms_retro, 12, 43
+		EMWriteScreen uniforms_prosp, 12, 57
+		EMWriteScreen uniforms_verif, 12, 69
+		EMWriteScreen uniforms_imp_rel, 12, 75
+		EMWriteScreen tools_retro, 13, 43
+		EMWriteScreen tools_prosp, 13, 57
+		EMWriteScreen tools_verif, 13, 69
+		EMWriteScreen tools_imp_rel, 13, 75
+		EMWriteScreen dues_retro, 14, 43
+		EMWriteScreen dues_prosp, 14, 57
+		EMWriteScreen dues_verif, 14, 69
+		EMWriteScreen dues_imp_rel, 14, 75
+		EMWriteScreen othr_retro, 15, 43
+		EMWriteScreen othr_prosp, 15, 57
+		EMWriteScreen othr_verif, 15, 69
+		EMWriteScreen othr_imp_rel, 15, 75
 	ELSE
-		EMWriteScreen HC_Exp_Fed_Tax, 8, 36
-		EMWriteScreen HC_Exp_State_Tax, 9, 36
-		EMWriteScreen HC_Exp_FICA, 10, 36
-		EMWriteScreen HC_Exp_Tran, 11, 36
-		EMWriteScreen HC_Exp_Tran_imp_rel, 11, 51
-		EMWriteScreen HC_Exp_Meals, 12, 36
-		EMWriteScreen HC_Exp_Meals_Imp_Rel, 12, 51
-		EMWriteScreen HC_Exp_Uniforms, 13, 36
-		EMWriteScreen HC_Exp_Uniforms_Imp_Rel, 13, 51
-		EMWriteScreen HC_Exp_Tools, 14, 36
-		EMWriteScreen HC_Exp_Tools_Imp_Rel, 14, 51
-		EMWriteScreen HC_Exp_Dues, 15, 36
-		EMWriteScreen HC_Exp_Dues_Imp_Rel, 15, 51
-		EMWriteScreen HC_Exp_Othr, 16, 36
-		EMWriteScreen HC_Exp_Othr_Imp_Rel, 16, 51
+		PF9
+		'---If the script is editing an existing WKEX page, it would be doing so ONLY to update the HC Expense sub-menu.
+		'---Adding to the HC Expenses
+		EMWriteScreen "X", 18, 57
 		transmit
-		PF3
+		
+		EMReadScreen current_month, 17, 20, 51
+		IF current_month = "CURRENT MONTH + 1" THEN 
+			PF3
+		ELSE
+			EMWriteScreen HC_Exp_Fed_Tax, 8, 36
+			EMWriteScreen HC_Exp_State_Tax, 9, 36
+			EMWriteScreen HC_Exp_FICA, 10, 36
+			EMWriteScreen HC_Exp_Tran, 11, 36
+			EMWriteScreen HC_Exp_Tran_imp_rel, 11, 51
+			EMWriteScreen HC_Exp_Meals, 12, 36
+			EMWriteScreen HC_Exp_Meals_Imp_Rel, 12, 51
+			EMWriteScreen HC_Exp_Uniforms, 13, 36
+			EMWriteScreen HC_Exp_Uniforms_Imp_Rel, 13, 51
+			EMWriteScreen HC_Exp_Tools, 14, 36
+			EMWriteScreen HC_Exp_Tools_Imp_Rel, 14, 51
+			EMWriteScreen HC_Exp_Dues, 15, 36
+			EMWriteScreen HC_Exp_Dues_Imp_Rel, 15, 51
+			EMWriteScreen HC_Exp_Othr, 16, 36
+			EMWriteScreen HC_Exp_Othr_Imp_Rel, 16, 51
+			transmit
+			PF3
+		END IF
 	END IF
 	transmit
 END FUNCTION

@@ -237,8 +237,6 @@ Loop until final_check_before_running = vbYes
 	'DIALOG SHOULD ASK IF EACH PIECE NEEDS TO HAPPEN (SO, PROVIDE EARLY TERMINATION FOR INSTANCES WHERE WE JUST WANT TO LEAVE A CASE IN PND1 OR PND2 STATUS)
 	'DIALOG SHOULD POP UP A MSGBOX CONFIRMING DETAILS AND WARNING THAT THIS COULD TAKE A WHILE
 
-	MsgBox "1"
-
 'Activates worksheet based on user selection
 objExcel.worksheets(scenario_dropdown).Activate
 
@@ -246,7 +244,6 @@ objExcel.worksheets(scenario_dropdown).Activate
 excel_col = 3																		'Col 3 is always the primary applicant's col
 Do																					'Loops through each col looking for more HH members. If found, it adds one to the counter.
 	If ObjExcel.Cells(2, excel_col).Value <> "" then excel_col = excel_col + 1		'Adds one so that the loop will check again
-	msgbox excel_col
 Loop until ObjExcel.Cells(2, excel_col).Value = ""									'Exits loop when we have no number in the MEMB col
 total_membs = excel_col - 3															'minus 3 because we started on column 3
 
@@ -279,8 +276,6 @@ For cases_to_make = 1 to how_many_cases_to_make
 	EMWriteScreen footer_month, 20, 43
 	EMWriteScreen footer_year, 20, 46
 	transmit
-
-	MsgBox "Right here"
 
 	'Goes to APPL function
 	call navigate_to_screen("APPL", "____")
@@ -654,63 +649,63 @@ For each case_number in case_number_array
 		BILS_starting_excel_row = 78
 		BILS_bill_1_ref_num = objExcel.Cells(BILS_starting_excel_row, current_excel_col).Value
 		BILS_bill_1_serv_date = objExcel.Cells(BILS_starting_excel_row + 1, current_excel_col).Value
-		BILS_bill_1_serv_type = objExcel.Cells(BILS_starting_excel_row + 2, current_excel_col).Value
+		BILS_bill_1_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 2, current_excel_col).Value, 2)
 		BILS_bill_1_gross_amt = objExcel.Cells(BILS_starting_excel_row + 3, current_excel_col).Value
 		BILS_bill_1_third_party = objExcel.Cells(BILS_starting_excel_row + 4, current_excel_col).Value
 		BILS_bill_1_verif = objExcel.Cells(BILS_starting_excel_row + 5, current_excel_col).Value
 		BILS_bill_1_BILS_type = objExcel.Cells(BILS_starting_excel_row + 6, current_excel_col).Value
 		BILS_bill_2_ref_num = objExcel.Cells(BILS_starting_excel_row + 7, current_excel_col).Value
 		BILS_bill_2_serv_date = objExcel.Cells(BILS_starting_excel_row + 8, current_excel_col).Value
-		BILS_bill_2_serv_type = objExcel.Cells(BILS_starting_excel_row + 9, current_excel_col).Value
+		BILS_bill_2_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 9, current_excel_col).Value, 2)
 		BILS_bill_2_gross_amt = objExcel.Cells(BILS_starting_excel_row + 10, current_excel_col).Value
 		BILS_bill_2_third_party = objExcel.Cells(BILS_starting_excel_row + 11, current_excel_col).Value
 		BILS_bill_2_verif = objExcel.Cells(BILS_starting_excel_row + 12, current_excel_col).Value
 		BILS_bill_2_BILS_type = objExcel.Cells(BILS_starting_excel_row + 13, current_excel_col).Value
 		BILS_bill_3_ref_num = objExcel.Cells(BILS_starting_excel_row + 14, current_excel_col).Value
 		BILS_bill_3_serv_date = objExcel.Cells(BILS_starting_excel_row + 15, current_excel_col).Value
-		BILS_bill_3_serv_type = objExcel.Cells(BILS_starting_excel_row + 16, current_excel_col).Value
+		BILS_bill_3_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 16, current_excel_col).Value, 2)
 		BILS_bill_3_gross_amt = objExcel.Cells(BILS_starting_excel_row + 17, current_excel_col).Value
 		BILS_bill_3_third_party = objExcel.Cells(BILS_starting_excel_row + 18, current_excel_col).Value
 		BILS_bill_3_verif = objExcel.Cells(BILS_starting_excel_row + 19, current_excel_col).Value
 		BILS_bill_3_BILS_type = objExcel.Cells(BILS_starting_excel_row + 20, current_excel_col).Value
 		BILS_bill_4_ref_num = objExcel.Cells(BILS_starting_excel_row + 21, current_excel_col).Value
 		BILS_bill_4_serv_date = objExcel.Cells(BILS_starting_excel_row + 22, current_excel_col).Value
-		BILS_bill_4_serv_type = objExcel.Cells(BILS_starting_excel_row + 23, current_excel_col).Value
+		BILS_bill_4_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 23, current_excel_col).Value, 2)
 		BILS_bill_4_gross_amt = objExcel.Cells(BILS_starting_excel_row + 24, current_excel_col).Value
 		BILS_bill_4_third_party = objExcel.Cells(BILS_starting_excel_row + 25, current_excel_col).Value
 		BILS_bill_4_verif = objExcel.Cells(BILS_starting_excel_row + 26, current_excel_col).Value
 		BILS_bill_4_BILS_type = objExcel.Cells(BILS_starting_excel_row + 27, current_excel_col).Value
 		BILS_bill_5_ref_num = objExcel.Cells(BILS_starting_excel_row + 28, current_excel_col).Value
 		BILS_bill_5_serv_date = objExcel.Cells(BILS_starting_excel_row + 29, current_excel_col).Value
-		BILS_bill_5_serv_type = objExcel.Cells(BILS_starting_excel_row + 30, current_excel_col).Value
+		BILS_bill_5_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 30, current_excel_col).Value, 2)
 		BILS_bill_5_gross_amt = objExcel.Cells(BILS_starting_excel_row + 31, current_excel_col).Value
 		BILS_bill_5_third_party = objExcel.Cells(BILS_starting_excel_row + 32, current_excel_col).Value
 		BILS_bill_5_verif = objExcel.Cells(BILS_starting_excel_row + 33, current_excel_col).Value
 		BILS_bill_5_BILS_type = objExcel.Cells(BILS_starting_excel_row + 34, current_excel_col).Value
 		BILS_bill_6_ref_num = objExcel.Cells(BILS_starting_excel_row + 35, current_excel_col).Value
 		BILS_bill_6_serv_date = objExcel.Cells(BILS_starting_excel_row + 36, current_excel_col).Value
-		BILS_bill_6_serv_type = objExcel.Cells(BILS_starting_excel_row + 37, current_excel_col).Value
+		BILS_bill_6_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 37, current_excel_col).Value, 2)
 		BILS_bill_6_gross_amt = objExcel.Cells(BILS_starting_excel_row + 38, current_excel_col).Value
 		BILS_bill_6_third_party = objExcel.Cells(BILS_starting_excel_row + 39, current_excel_col).Value
 		BILS_bill_6_verif = objExcel.Cells(BILS_starting_excel_row + 40, current_excel_col).Value
 		BILS_bill_6_BILS_type = objExcel.Cells(BILS_starting_excel_row + 41, current_excel_col).Value
 		BILS_bill_7_ref_num = objExcel.Cells(BILS_starting_excel_row + 42, current_excel_col).Value
 		BILS_bill_7_serv_date = objExcel.Cells(BILS_starting_excel_row + 43, current_excel_col).Value
-		BILS_bill_7_serv_type = objExcel.Cells(BILS_starting_excel_row + 44, current_excel_col).Value
+		BILS_bill_7_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 44, current_excel_col).Value, 2)
 		BILS_bill_7_gross_amt = objExcel.Cells(BILS_starting_excel_row + 45, current_excel_col).Value
 		BILS_bill_7_third_party = objExcel.Cells(BILS_starting_excel_row + 46, current_excel_col).Value
 		BILS_bill_7_verif = objExcel.Cells(BILS_starting_excel_row + 47, current_excel_col).Value
 		BILS_bill_7_BILS_type = objExcel.Cells(BILS_starting_excel_row + 48, current_excel_col).Value
 		BILS_bill_8_ref_num = objExcel.Cells(BILS_starting_excel_row + 49, current_excel_col).Value
 		BILS_bill_8_serv_date = objExcel.Cells(BILS_starting_excel_row + 50, current_excel_col).Value
-		BILS_bill_8_serv_type = objExcel.Cells(BILS_starting_excel_row + 51, current_excel_col).Value
+		BILS_bill_8_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 51, current_excel_col).Value, 2)
 		BILS_bill_8_gross_amt = objExcel.Cells(BILS_starting_excel_row + 52, current_excel_col).Value
 		BILS_bill_8_third_party = objExcel.Cells(BILS_starting_excel_row + 53, current_excel_col).Value
 		BILS_bill_8_verif = objExcel.Cells(BILS_starting_excel_row + 54, current_excel_col).Value
 		BILS_bill_8_BILS_type = objExcel.Cells(BILS_starting_excel_row + 55, current_excel_col).Value
 		BILS_bill_9_ref_num = objExcel.Cells(BILS_starting_excel_row + 56, current_excel_col).Value
 		BILS_bill_9_serv_date = objExcel.Cells(BILS_starting_excel_row + 57, current_excel_col).Value
-		BILS_bill_9_serv_type = objExcel.Cells(BILS_starting_excel_row + 58, current_excel_col).Value
+		BILS_bill_9_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 58, current_excel_col).Value, 2)
 		BILS_bill_9_gross_amt = objExcel.Cells(BILS_starting_excel_row + 59, current_excel_col).Value
 		BILS_bill_9_third_party = objExcel.Cells(BILS_starting_excel_row + 60, current_excel_col).Value
 		BILS_bill_9_verif = objExcel.Cells(BILS_starting_excel_row + 61, current_excel_col).Value
@@ -776,17 +771,17 @@ For each case_number in case_number_array
 		COEX_starting_excel_row = 191
 		COEX_support_retro = ObjExcel.Cells(COEX_starting_excel_row, current_excel_col).Value
 		COEX_support_prosp = ObjExcel.Cells(COEX_starting_excel_row + 1, current_excel_col).Value
-		COEX_support_verif = ObjExcel.Cells(COEX_starting_excel_row + 2, current_excel_col).Value
+		COEX_support_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 2, current_excel_col).Value, 1)
 		COEX_alimony_retro = ObjExcel.Cells(COEX_starting_excel_row + 3, current_excel_col).Value
 		COEX_alimony_prosp = ObjExcel.Cells(COEX_starting_excel_row + 4, current_excel_col).Value
-		COEX_alimony_verif = ObjExcel.Cells(COEX_starting_excel_row + 5, current_excel_col).Value
+		COEX_alimony_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 5, current_excel_col).Value, 1)
 		COEX_tax_dep_retro = ObjExcel.Cells(COEX_starting_excel_row + 6, current_excel_col).Value
 		COEX_tax_dep_prosp = ObjExcel.Cells(COEX_starting_excel_row + 7, current_excel_col).Value
-		COEX_tax_dep_verif = ObjExcel.Cells(COEX_starting_excel_row + 8, current_excel_col).Value
+		COEX_tax_dep_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 8, current_excel_col).Value, 1)
 		COEX_other_retro = ObjExcel.Cells(COEX_starting_excel_row + 9, current_excel_col).Value
 		COEX_other_prosp = ObjExcel.Cells(COEX_starting_excel_row + 10, current_excel_col).Value
-		COEX_other_verif = ObjExcel.Cells(COEX_starting_excel_row + 11, current_excel_col).Value
-		COEX_change_in_circumstances = ObjExcel.Cells(COEX_starting_excel_row + 12, current_excel_col).Value
+		COEX_other_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 11, current_excel_col).Value, 1)
+		COEX_change_in_circumstances = left(ObjExcel.Cells(COEX_starting_excel_row + 12, current_excel_col).Value, 1)
 		COEX_HC_expense_support = ObjExcel.Cells(COEX_starting_excel_row + 13, current_excel_col).Value
 		COEX_HC_expense_alimony = ObjExcel.Cells(COEX_starting_excel_row + 14, current_excel_col).Value
 		COEX_HC_expense_tax_dep = ObjExcel.Cells(COEX_starting_excel_row + 15, current_excel_col).Value
@@ -794,32 +789,32 @@ For each case_number in case_number_array
 		
 		DCEX_starting_excel_row = 208
 		DCEX_provider = ObjExcel.Cells(DCEX_starting_excel_row, current_excel_col).Value
-		DCEX_reason = ObjExcel.Cells(DCEX_starting_excel_row + 1, current_excel_col).Value
-		DCEX_subsidy = ObjExcel.Cells(DCEX_starting_excel_row + 2, current_excel_col).Value
+		DCEX_reason = left(ObjExcel.Cells(DCEX_starting_excel_row + 1, current_excel_col).Value, 1)
+		DCEX_subsidy = left(ObjExcel.Cells(DCEX_starting_excel_row + 2, current_excel_col).Value, 1)
 		DCEX_child_number1 = ObjExcel.Cells(DCEX_starting_excel_row + 3, current_excel_col).Value
 		DCEX_child_number1_retro = ObjExcel.Cells(DCEX_starting_excel_row + 4, current_excel_col).Value
 		DCEX_child_number1_pro = ObjExcel.Cells(DCEX_starting_excel_row + 5, current_excel_col).Value
-		DCEX_child_number1_ver = ObjExcel.Cells(DCEX_starting_excel_row + 6, current_excel_col).Value
+		DCEX_child_number1_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 6, current_excel_col).Value, 1)
 		DCEX_child_number2 = ObjExcel.Cells(DCEX_starting_excel_row + 7, current_excel_col).Value
 		DCEX_child_number2_retro = ObjExcel.Cells(DCEX_starting_excel_row + 8, current_excel_col).Value
 		DCEX_child_number2_pro = ObjExcel.Cells(DCEX_starting_excel_row + 9, current_excel_col).Value
-		DCEX_child_number2_ver = ObjExcel.Cells(DCEX_starting_excel_row + 10, current_excel_col).Value
+		DCEX_child_number2_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 10, current_excel_col).Value, 1)
 		DCEX_child_number3 = ObjExcel.Cells(DCEX_starting_excel_row + 11, current_excel_col).Value
 		DCEX_child_number3_retro = ObjExcel.Cells(DCEX_starting_excel_row + 12, current_excel_col).Value
 		DCEX_child_number3_pro = ObjExcel.Cells(DCEX_starting_excel_row + 13, current_excel_col).Value
-		DCEX_child_number3_ver = ObjExcel.Cells(DCEX_starting_excel_row + 14, current_excel_col).Value
+		DCEX_child_number3_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 14, current_excel_col).Value, 1)
 		DCEX_child_number4 = ObjExcel.Cells(DCEX_starting_excel_row + 15, current_excel_col).Value
 		DCEX_child_number4_retro = ObjExcel.Cells(DCEX_starting_excel_row + 16, current_excel_col).Value
 		DCEX_child_number4_pro = ObjExcel.Cells(DCEX_starting_excel_row + 17, current_excel_col).Value
-		DCEX_child_number4_ver = ObjExcel.Cells(DCEX_starting_excel_row + 18, current_excel_col).Value
+		DCEX_child_number4_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 18, current_excel_col).Value, 1)
 		DCEX_child_number5 = ObjExcel.Cells(DCEX_starting_excel_row + 19, current_excel_col).Value
 		DCEX_child_number5_retro = ObjExcel.Cells(DCEX_starting_excel_row + 20, current_excel_col).Value
 		DCEX_child_number5_pro = ObjExcel.Cells(DCEX_starting_excel_row + 21, current_excel_col).Value
-		DCEX_child_number5_ver = ObjExcel.Cells(DCEX_starting_excel_row + 22, current_excel_col).Value
+		DCEX_child_number5_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 22, current_excel_col).Value, 1)
 		DCEX_child_number6 = ObjExcel.Cells(DCEX_starting_excel_row + 23, current_excel_col).Value
 		DCEX_child_number6_retro = ObjExcel.Cells(DCEX_starting_excel_row + 24, current_excel_col).Value
 		DCEX_child_number6_pro = ObjExcel.Cells(DCEX_starting_excel_row + 25, current_excel_col).Value
-		DCEX_child_number6_ver = ObjExcel.Cells(DCEX_starting_excel_row + 26, current_excel_col).Value
+		DCEX_child_number6_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 26, current_excel_col).Value, 1)
 
 		DIET_starting_excel_row = 235
 		DIET_mfip_1 = ObjExcel.Cells(DIET_starting_excel_row, current_excel_col).Value
@@ -959,26 +954,26 @@ For each case_number in case_number_array
 		INSA_prescrip_end_date = ObjExcel.Cells(INSA_starting_excel_row + 7, current_excel_col).Value
 
 		JOBS_1_starting_excel_row = 352
-		JOBS_1_inc_type = ObjExcel.Cells(JOBS_1_starting_excel_row, current_excel_col).Value
-		JOBS_1_inc_verif = ObjExcel.Cells(JOBS_1_starting_excel_row + 1, current_excel_col).Value
+		JOBS_1_inc_type = left(ObjExcel.Cells(JOBS_1_starting_excel_row, current_excel_col).Value, 1)
+		JOBS_1_inc_verif = left(ObjExcel.Cells(JOBS_1_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_1_employer_name = ObjExcel.Cells(JOBS_1_starting_excel_row + 2, current_excel_col).Value
 		JOBS_1_inc_start = ObjExcel.Cells(JOBS_1_starting_excel_row + 3, current_excel_col).Value
 		JOBS_1_pay_freq = ObjExcel.Cells(JOBS_1_starting_excel_row + 4, current_excel_col).Value
 		JOBS_1_wkly_hrs = ObjExcel.Cells(JOBS_1_starting_excel_row + 5, current_excel_col).Value
 		JOBS_1_hrly_wage = ObjExcel.Cells(JOBS_1_starting_excel_row + 6, current_excel_col).Value
-
+	    
 		JOBS_2_starting_excel_row = 359
-		JOBS_2_inc_type = ObjExcel.Cells(JOBS_2_starting_excel_row, current_excel_col).Value
-		JOBS_2_inc_verif = ObjExcel.Cells(JOBS_2_starting_excel_row + 1, current_excel_col).Value
+		JOBS_2_inc_type = left(ObjExcel.Cells(JOBS_2_starting_excel_row, current_excel_col).Value, 1)
+		JOBS_2_inc_verif = left(ObjExcel.Cells(JOBS_2_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_2_employer_name = ObjExcel.Cells(JOBS_2_starting_excel_row + 2, current_excel_col).Value
 		JOBS_2_inc_start = ObjExcel.Cells(JOBS_2_starting_excel_row + 3, current_excel_col).Value
 		JOBS_2_pay_freq = ObjExcel.Cells(JOBS_2_starting_excel_row + 4, current_excel_col).Value
 		JOBS_2_wkly_hrs = ObjExcel.Cells(JOBS_2_starting_excel_row + 5, current_excel_col).Value
 		JOBS_2_hrly_wage = ObjExcel.Cells(JOBS_2_starting_excel_row + 6, current_excel_col).Value
-
+	    
 		JOBS_3_starting_excel_row = 366
-		JOBS_3_inc_type = ObjExcel.Cells(JOBS_3_starting_excel_row, current_excel_col).Value
-		JOBS_3_inc_verif = ObjExcel.Cells(JOBS_3_starting_excel_row + 1, current_excel_col).Value
+		JOBS_3_inc_type = left(ObjExcel.Cells(JOBS_3_starting_excel_row, current_excel_col).Value, 1)
+		JOBS_3_inc_verif = left(ObjExcel.Cells(JOBS_3_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_3_employer_name = ObjExcel.Cells(JOBS_3_starting_excel_row + 2, current_excel_col).Value
 		JOBS_3_inc_start = ObjExcel.Cells(JOBS_3_starting_excel_row + 3, current_excel_col).Value
 		JOBS_3_pay_freq = ObjExcel.Cells(JOBS_3_starting_excel_row + 4, current_excel_col).Value
@@ -1240,24 +1235,24 @@ For each case_number in case_number_array
 		STWK_maepd_ext = ObjExcel.Cells(STWK_starting_excel_row + 11, current_excel_col).Value
 
 		UNEA_1_starting_excel_row = 587
-		UNEA_1_inc_type = ObjExcel.Cells(UNEA_1_starting_excel_row, current_excel_col).Value
-		UNEA_1_inc_verif = ObjExcel.Cells(UNEA_1_starting_excel_row + 1, current_excel_col).Value
+		UNEA_1_inc_type = left(ObjExcel.Cells(UNEA_1_starting_excel_row, current_excel_col).Value, 2)
+		UNEA_1_inc_verif = left(ObjExcel.Cells(UNEA_1_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_1_claim_suffix = ObjExcel.Cells(UNEA_1_starting_excel_row + 2, current_excel_col).Value
 		UNEA_1_start_date = ObjExcel.Cells(UNEA_1_starting_excel_row + 3, current_excel_col).Value
 		UNEA_1_pay_freq = ObjExcel.Cells(UNEA_1_starting_excel_row + 4, current_excel_col).Value
 		UNEA_1_inc_amount = ObjExcel.Cells(UNEA_1_starting_excel_row + 5, current_excel_col).Value
-
+	    
 		UNEA_2_starting_excel_row = 593
-		UNEA_2_inc_type = ObjExcel.Cells(UNEA_2_starting_excel_row, current_excel_col).Value
-		UNEA_2_inc_verif = ObjExcel.Cells(UNEA_2_starting_excel_row + 1, current_excel_col).Value
+		UNEA_2_inc_type = left(ObjExcel.Cells(UNEA_2_starting_excel_row, current_excel_col).Value, 2)
+		UNEA_2_inc_verif = left(ObjExcel.Cells(UNEA_2_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_2_claim_suffix = ObjExcel.Cells(UNEA_2_starting_excel_row + 2, current_excel_col).Value
 		UNEA_2_start_date = ObjExcel.Cells(UNEA_2_starting_excel_row + 3, current_excel_col).Value
 		UNEA_2_pay_freq = ObjExcel.Cells(UNEA_2_starting_excel_row + 4, current_excel_col).Value
 		UNEA_2_inc_amount = ObjExcel.Cells(UNEA_2_starting_excel_row + 5, current_excel_col).Value
-
+	    
 		UNEA_3_starting_excel_row = 599
-		UNEA_3_inc_type = ObjExcel.Cells(UNEA_3_starting_excel_row, current_excel_col).Value
-		UNEA_3_inc_verif = ObjExcel.Cells(UNEA_3_starting_excel_row + 1, current_excel_col).Value
+		UNEA_3_inc_type = left(ObjExcel.Cells(UNEA_3_starting_excel_row, current_excel_col).Value, 2)
+		UNEA_3_inc_verif = left(ObjExcel.Cells(UNEA_3_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_3_claim_suffix = ObjExcel.Cells(UNEA_3_starting_excel_row + 2, current_excel_col).Value
 		UNEA_3_start_date = ObjExcel.Cells(UNEA_3_starting_excel_row + 3, current_excel_col).Value
 		UNEA_3_pay_freq = ObjExcel.Cells(UNEA_3_starting_excel_row + 4, current_excel_col).Value
@@ -1353,23 +1348,23 @@ For each case_number in case_number_array
 		If CASH_amount <> "" then call write_panel_to_MAXIS_CASH(cash_amount)
 		
 		'COEX
-		IF COEX_support_retro <> "" AND _
-			COEX_support_prosp <> "" AND _
-			COEX_support_verif <> "" AND _
-			COEX_alimony_retro <> "" AND _
-			COEX_alimony_prosp <> "" AND _
-			COEX_alimony_verif <> "" AND _
-			COEX_tax_dep_retro <> "" AND _
-			COEX_tax_dep_prosp <> "" AND _
-			COEX_tax_dep_verif <> "" AND _
-			COEX_other_retro <> "" AND _
-			COEX_other_prosp <> "" AND _
-			COEX_other_verif <> "" AND _
-			COEX_change_in_circumstances <> "" AND _
-			COEX_HC_expense_support <> "" AND _
-			COEX_HC_expense_alimony <> "" AND _
-			COEX_HC_expense_tax_dep <> "" AND _
-			COEX_HC_expense_other <> "" THEN CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif)
+		IF COEX_support_retro <> "" OR _
+			COEX_support_prosp <> "" OR _
+			COEX_support_verif <> "" OR _
+			COEX_alimony_retro <> "" OR _
+			COEX_alimony_prosp <> "" OR _
+			COEX_alimony_verif <> "" OR _
+			COEX_tax_dep_retro <> "" OR _
+			COEX_tax_dep_prosp <> "" OR _
+			COEX_tax_dep_verif <> "" OR _
+			COEX_other_retro <> "" OR _
+			COEX_other_prosp <> "" OR _
+			COEX_other_verif <> "" OR _
+			COEX_change_in_circumstances <> "" OR _
+			COEX_HC_expense_support <> "" OR _
+			COEX_HC_expense_alimony <> "" OR _
+			COEX_HC_expense_tax_dep <> "" OR _
+			COEX_HC_expense_other <> "" THEN CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif, COEX_change_in_circumstances, COEX_HC_expense_support, COEX_HC_expense_alimony, COEX_HC_expense_tax_dep, COEX_HC_expense_other)
 		
 		'DCEX
 		If DCEX_provider <> "" then call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
@@ -1496,34 +1491,243 @@ For each case_number in case_number_array
 	
 		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
 		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
-	
-'	THE CODE BELOW HAS BEEN COMMENTED OUT. WHILE IT WORKS FOR MEMB 01, IT HAS BEEN ENDING THE SCRIPT AFTER FINISHING WITH MEMB 01.
-'		DO			
-'			'The script will now go through and update all JOBS and UNEA panels for this individual. 
-'			'The reason the script will do it this way rather than updating every HH member at once is to retain pay frequency information for each individual.
-'			IF JOBS_1_inc_type <> "" OR JOBS_2_inc_type <> "" OR JOBS_3_inc_type <> "" OR UNEA_1_inc_type <> "" OR UNEA_2_inc_type <> "" OR UNEA_3_inc_type <> "" THEN
-'				PF3			'Backing out to STAT/WRAP
-'				EMReadScreen benefit_month, 2, 20, 55			'Determining if the current benefit month is the current month plus 1.
-'				future_month = DatePart("M", DateAdd("M", 1, date))
-'				IF len(future_month) <> 2 THEN future_month = "0" & future_month
-'				IF benefit_month <> future_month THEN
-'					MsgBox ("Benefit Month: " & benefit_month & vbCr & "Future Month: " & future_month & vbCr & "MATCH")
-'					EMWriteScreen "Y", 16, 54
-'					transmit
-'				ELSE
-'					MsgBox ("Benefit Month: " & benefit_month & vbCr & "Future Month: " & future_month & vbCr & "NO MATCH")
-'				END IF
-'				'---Below are all the panels that need to be updated for each benefit month.
-'				IF JOBS_1_inc_type <> "" THEN call write_panel_to_MAXIS_JOBS("01", JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
-'				If JOBS_2_inc_type <> "" then call write_panel_to_MAXIS_JOBS("02", JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
-'				If JOBS_3_inc_type <> "" then call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
-'				If UNEA_1_inc_type <> "" then call write_panel_to_MAXIS_UNEA("01", UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
-'				If UNEA_2_inc_type <> "" then call write_panel_to_MAXIS_UNEA("02", UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
-'				If UNEA_3_inc_type <> "" then call write_panel_to_MAXIS_UNEA("03", UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
-'			END IF
-'		LOOP UNTIL benefit_month = future_month
 	Next
+
+	DO			'---
+		PF3		'---Navigates to STAT/WRAP
+		EMReadScreen benefit_month, 2, 20, 55
+		future_month = DatePart("M", DateAdd("M", 1, date))
+		IF len(future_month) <> 2 THEN future_month = "0" & future_month
+		IF benefit_month <> future_month THEN
+			EMWriteScreen "Y", 16, 54
+			transmit
+		ELSE
+			EXIT DO
+		END IF
 		
+		'---Now the script will update BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for future months.
+		For current_memb = 1 to total_membs
+			current_excel_col = current_memb + 2							'There's two columns before the first HH member, so we have to add 2 to get the current excel col
+			reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
+				
+			'Rereading the values for BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for that person so the script can update the HC Expenses and Income. 
+			BUSI_starting_excel_row = 141
+			BUSI_type = left(ObjExcel.Cells(BUSI_starting_excel_row, current_excel_col).Value, 2)
+			BUSI_start_date = ObjExcel.Cells(BUSI_starting_excel_row + 1, current_excel_col).Value
+			BUSI_end_date = ObjExcel.Cells(BUSI_starting_excel_row + 2, current_excel_col).Value
+			BUSI_cash_total_retro = ObjExcel.Cells(BUSI_starting_excel_row + 3, current_excel_col).Value
+			BUSI_cash_total_prosp = ObjExcel.Cells(BUSI_starting_excel_row + 4, current_excel_col).Value
+			BUSI_cash_total_ver = ObjExcel.Cells(BUSI_starting_excel_row + 5, current_excel_col).Value
+			BUSI_IV_total_prosp = ObjExcel.Cells(BUSI_starting_excel_row + 6, current_excel_col).Value
+			BUSI_IV_total_ver = ObjExcel.Cells(BUSI_starting_excel_row + 7, current_excel_col).Value
+			BUSI_snap_total_retro = ObjExcel.Cells(BUSI_starting_excel_row + 8, current_excel_col).Value
+			BUSI_snap_total_prosp = ObjExcel.Cells(BUSI_starting_excel_row + 9, current_excel_col).Value
+			BUSI_snap_total_ver = ObjExcel.Cells(BUSI_starting_excel_row + 10, current_excel_col).Value
+			BUSI_hc_total_prosp_a = ObjExcel.Cells(BUSI_starting_excel_row + 11, current_excel_col).Value
+			BUSI_hc_total_ver_a = ObjExcel.Cells(BUSI_starting_excel_row + 12, current_excel_col).Value
+			BUSI_hc_total_prosp_b = ObjExcel.Cells(BUSI_starting_excel_row + 13, current_excel_col).Value
+			BUSI_hc_total_ver_b = ObjExcel.Cells(BUSI_starting_excel_row + 14, current_excel_col).Value
+			BUSI_cash_exp_retro = ObjExcel.Cells(BUSI_starting_excel_row + 15, current_excel_col).Value
+			BUSI_cash_exp_prosp = ObjExcel.Cells(BUSI_starting_excel_row + 16, current_excel_col).Value
+			BUSI_cash_exp_ver = ObjExcel.Cells(BUSI_starting_excel_row + 17, current_excel_col).Value
+			BUSI_IV_exp_prosp = ObjExcel.Cells(BUSI_starting_excel_row + 18, current_excel_col).Value
+			BUSI_IV_exp_ver = ObjExcel.Cells(BUSI_starting_excel_row + 19, current_excel_col).Value
+			BUSI_snap_exp_retro = ObjExcel.Cells(BUSI_starting_excel_row + 20, current_excel_col).Value
+			BUSI_snap_exp_prosp = ObjExcel.Cells(BUSI_starting_excel_row + 21, current_excel_col).Value
+			BUSI_snap_exp_ver = ObjExcel.Cells(BUSI_starting_excel_row + 22, current_excel_col).Value
+			BUSI_hc_exp_prosp_a = ObjExcel.Cells(BUSI_starting_excel_row + 23, current_excel_col).Value
+			BUSI_hc_exp_ver_a = ObjExcel.Cells(BUSI_starting_excel_row + 24, current_excel_col).Value
+			BUSI_hc_exp_prosp_b = ObjExcel.Cells(BUSI_starting_excel_row + 25, current_excel_col).Value
+			BUSI_hc_exp_ver_b = ObjExcel.Cells(BUSI_starting_excel_row + 26, current_excel_col).Value
+			BUSI_retro_hours = ObjExcel.Cells(BUSI_starting_excel_row + 27, current_excel_col).Value
+			BUSI_prosp_hours = ObjExcel.Cells(BUSI_starting_excel_row + 28, current_excel_col).Value
+			BUSI_hc_total_est_a = ObjExcel.Cells(BUSI_starting_excel_row + 29, current_excel_col).Value
+			BUSI_hc_total_est_b = ObjExcel.Cells(BUSI_starting_excel_row + 30, current_excel_col).Value
+			BUSI_hc_exp_est_a = ObjExcel.Cells(BUSI_starting_excel_row + 31, current_excel_col).Value
+			BUSI_hc_exp_est_b = ObjExcel.Cells(BUSI_starting_excel_row + 32, current_excel_col).Value
+			BUSI_hc_hours_est = ObjExcel.Cells(BUSI_starting_excel_row + 33, current_excel_col).Value
+			
+			COEX_starting_excel_row = 191
+			COEX_support_retro = ObjExcel.Cells(COEX_starting_excel_row, current_excel_col).Value
+			COEX_support_prosp = ObjExcel.Cells(COEX_starting_excel_row + 1, current_excel_col).Value
+			COEX_support_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 2, current_excel_col).Value, 1)
+			COEX_alimony_retro = ObjExcel.Cells(COEX_starting_excel_row + 3, current_excel_col).Value
+			COEX_alimony_prosp = ObjExcel.Cells(COEX_starting_excel_row + 4, current_excel_col).Value
+			COEX_alimony_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 5, current_excel_col).Value, 1)
+			COEX_tax_dep_retro = ObjExcel.Cells(COEX_starting_excel_row + 6, current_excel_col).Value
+			COEX_tax_dep_prosp = ObjExcel.Cells(COEX_starting_excel_row + 7, current_excel_col).Value
+			COEX_tax_dep_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 8, current_excel_col).Value, 1)
+			COEX_other_retro = ObjExcel.Cells(COEX_starting_excel_row + 9, current_excel_col).Value
+			COEX_other_prosp = ObjExcel.Cells(COEX_starting_excel_row + 10, current_excel_col).Value
+			COEX_other_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 11, current_excel_col).Value, 1)
+			COEX_change_in_circumstances = left(ObjExcel.Cells(COEX_starting_excel_row + 12, current_excel_col).Value, 1)
+			COEX_HC_expense_support = ObjExcel.Cells(COEX_starting_excel_row + 13, current_excel_col).Value
+			COEX_HC_expense_alimony = ObjExcel.Cells(COEX_starting_excel_row + 14, current_excel_col).Value
+			COEX_HC_expense_tax_dep = ObjExcel.Cells(COEX_starting_excel_row + 15, current_excel_col).Value
+			COEX_HC_expense_other = ObjExcel.Cells(COEX_starting_excel_row + 16, current_excel_col).Value
+			
+			DCEX_starting_excel_row = 208
+			DCEX_provider = ObjExcel.Cells(DCEX_starting_excel_row, current_excel_col).Value
+			DCEX_reason = left(ObjExcel.Cells(DCEX_starting_excel_row + 1, current_excel_col).Value, 1)
+			DCEX_subsidy = left(ObjExcel.Cells(DCEX_starting_excel_row + 2, current_excel_col).Value, 1)
+			DCEX_child_number1 = ObjExcel.Cells(DCEX_starting_excel_row + 3, current_excel_col).Value
+			DCEX_child_number1_retro = ObjExcel.Cells(DCEX_starting_excel_row + 4, current_excel_col).Value
+			DCEX_child_number1_pro = ObjExcel.Cells(DCEX_starting_excel_row + 5, current_excel_col).Value
+			DCEX_child_number1_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 6, current_excel_col).Value, 1)
+			DCEX_child_number2 = ObjExcel.Cells(DCEX_starting_excel_row + 7, current_excel_col).Value
+			DCEX_child_number2_retro = ObjExcel.Cells(DCEX_starting_excel_row + 8, current_excel_col).Value
+			DCEX_child_number2_pro = ObjExcel.Cells(DCEX_starting_excel_row + 9, current_excel_col).Value
+			DCEX_child_number2_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 10, current_excel_col).Value, 1)
+			DCEX_child_number3 = ObjExcel.Cells(DCEX_starting_excel_row + 11, current_excel_col).Value
+			DCEX_child_number3_retro = ObjExcel.Cells(DCEX_starting_excel_row + 12, current_excel_col).Value
+			DCEX_child_number3_pro = ObjExcel.Cells(DCEX_starting_excel_row + 13, current_excel_col).Value
+			DCEX_child_number3_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 14, current_excel_col).Value, 1)
+			DCEX_child_number4 = ObjExcel.Cells(DCEX_starting_excel_row + 15, current_excel_col).Value
+			DCEX_child_number4_retro = ObjExcel.Cells(DCEX_starting_excel_row + 16, current_excel_col).Value
+			DCEX_child_number4_pro = ObjExcel.Cells(DCEX_starting_excel_row + 17, current_excel_col).Value
+			DCEX_child_number4_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 18, current_excel_col).Value, 1)
+			DCEX_child_number5 = ObjExcel.Cells(DCEX_starting_excel_row + 19, current_excel_col).Value
+			DCEX_child_number5_retro = ObjExcel.Cells(DCEX_starting_excel_row + 20, current_excel_col).Value
+			DCEX_child_number5_pro = ObjExcel.Cells(DCEX_starting_excel_row + 21, current_excel_col).Value
+			DCEX_child_number5_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 22, current_excel_col).Value, 1)
+			DCEX_child_number6 = ObjExcel.Cells(DCEX_starting_excel_row + 23, current_excel_col).Value
+			DCEX_child_number6_retro = ObjExcel.Cells(DCEX_starting_excel_row + 24, current_excel_col).Value
+			DCEX_child_number6_pro = ObjExcel.Cells(DCEX_starting_excel_row + 25, current_excel_col).Value
+			DCEX_child_number6_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 26, current_excel_col).Value, 1)
+			
+			JOBS_1_starting_excel_row = 352
+			JOBS_1_inc_type = left(ObjExcel.Cells(JOBS_1_starting_excel_row, current_excel_col).Value, 1)
+			JOBS_1_inc_verif = left(ObjExcel.Cells(JOBS_1_starting_excel_row + 1, current_excel_col).Value, 1)
+			JOBS_1_employer_name = ObjExcel.Cells(JOBS_1_starting_excel_row + 2, current_excel_col).Value
+			JOBS_1_inc_start = ObjExcel.Cells(JOBS_1_starting_excel_row + 3, current_excel_col).Value
+			JOBS_1_pay_freq = ObjExcel.Cells(JOBS_1_starting_excel_row + 4, current_excel_col).Value
+			JOBS_1_wkly_hrs = ObjExcel.Cells(JOBS_1_starting_excel_row + 5, current_excel_col).Value
+			JOBS_1_hrly_wage = ObjExcel.Cells(JOBS_1_starting_excel_row + 6, current_excel_col).Value
+	
+			JOBS_2_starting_excel_row = 359
+			JOBS_2_inc_type = left(ObjExcel.Cells(JOBS_2_starting_excel_row, current_excel_col).Value, 1)
+			JOBS_2_inc_verif = left(ObjExcel.Cells(JOBS_2_starting_excel_row + 1, current_excel_col).Value, 1)
+			JOBS_2_employer_name = ObjExcel.Cells(JOBS_2_starting_excel_row + 2, current_excel_col).Value
+			JOBS_2_inc_start = ObjExcel.Cells(JOBS_2_starting_excel_row + 3, current_excel_col).Value
+			JOBS_2_pay_freq = ObjExcel.Cells(JOBS_2_starting_excel_row + 4, current_excel_col).Value
+			JOBS_2_wkly_hrs = ObjExcel.Cells(JOBS_2_starting_excel_row + 5, current_excel_col).Value
+			JOBS_2_hrly_wage = ObjExcel.Cells(JOBS_2_starting_excel_row + 6, current_excel_col).Value
+	
+			JOBS_3_starting_excel_row = 366
+			JOBS_3_inc_type = left(ObjExcel.Cells(JOBS_3_starting_excel_row, current_excel_col).Value, 1)
+			JOBS_3_inc_verif = left(ObjExcel.Cells(JOBS_3_starting_excel_row + 1, current_excel_col).Value, 1)
+			JOBS_3_employer_name = ObjExcel.Cells(JOBS_3_starting_excel_row + 2, current_excel_col).Value
+			JOBS_3_inc_start = ObjExcel.Cells(JOBS_3_starting_excel_row + 3, current_excel_col).Value
+			JOBS_3_pay_freq = ObjExcel.Cells(JOBS_3_starting_excel_row + 4, current_excel_col).Value
+			JOBS_3_wkly_hrs = ObjExcel.Cells(JOBS_3_starting_excel_row + 5, current_excel_col).Value
+			JOBS_3_hrly_wage = ObjExcel.Cells(JOBS_3_starting_excel_row + 6, current_excel_col).Value
+			
+			UNEA_1_starting_excel_row = 587
+			UNEA_1_inc_type = left(ObjExcel.Cells(UNEA_1_starting_excel_row, current_excel_col).Value, 2)
+			UNEA_1_inc_verif = left(ObjExcel.Cells(UNEA_1_starting_excel_row + 1, current_excel_col).Value, 1)
+			UNEA_1_claim_suffix = ObjExcel.Cells(UNEA_1_starting_excel_row + 2, current_excel_col).Value
+			UNEA_1_start_date = ObjExcel.Cells(UNEA_1_starting_excel_row + 3, current_excel_col).Value
+			UNEA_1_pay_freq = ObjExcel.Cells(UNEA_1_starting_excel_row + 4, current_excel_col).Value
+			UNEA_1_inc_amount = ObjExcel.Cells(UNEA_1_starting_excel_row + 5, current_excel_col).Value
+	
+			UNEA_2_starting_excel_row = 593
+			UNEA_2_inc_type = left(ObjExcel.Cells(UNEA_2_starting_excel_row, current_excel_col).Value, 2)
+			UNEA_2_inc_verif = left(ObjExcel.Cells(UNEA_2_starting_excel_row + 1, current_excel_col).Value, 1)
+			UNEA_2_claim_suffix = ObjExcel.Cells(UNEA_2_starting_excel_row + 2, current_excel_col).Value
+			UNEA_2_start_date = ObjExcel.Cells(UNEA_2_starting_excel_row + 3, current_excel_col).Value
+			UNEA_2_pay_freq = ObjExcel.Cells(UNEA_2_starting_excel_row + 4, current_excel_col).Value
+			UNEA_2_inc_amount = ObjExcel.Cells(UNEA_2_starting_excel_row + 5, current_excel_col).Value
+	
+			UNEA_3_starting_excel_row = 599
+			UNEA_3_inc_type = left(ObjExcel.Cells(UNEA_3_starting_excel_row, current_excel_col).Value, 2)
+			UNEA_3_inc_verif = left(ObjExcel.Cells(UNEA_3_starting_excel_row + 1, current_excel_col).Value, 1)
+			UNEA_3_claim_suffix = ObjExcel.Cells(UNEA_3_starting_excel_row + 2, current_excel_col).Value
+			UNEA_3_start_date = ObjExcel.Cells(UNEA_3_starting_excel_row + 3, current_excel_col).Value
+			UNEA_3_pay_freq = ObjExcel.Cells(UNEA_3_starting_excel_row + 4, current_excel_col).Value
+			UNEA_3_inc_amount = ObjExcel.Cells(UNEA_3_starting_excel_row + 5, current_excel_col).Value
+			
+			WKEX_starting_excel_row = 605
+			WKEX_program = objExcel.Cells(WKEX_starting_excel_row, current_excel_col).Value
+			WKEX_fed_tax_retro = objExcel.Cells(WKEX_starting_excel_row + 1, current_excel_col).Value
+			WKEX_fed_tax_prosp = objExcel.Cells(WKEX_starting_excel_row + 2, current_excel_col).Value
+			WKEX_fed_tax_verif = left(objExcel.Cells(WKEX_starting_excel_row + 3, current_excel_col).Value, 1)
+			WKEX_state_tax_retro = objExcel.Cells(WKEX_starting_excel_row + 4, current_excel_col).Value
+			WKEX_state_tax_prosp = objExcel.Cells(WKEX_starting_excel_row + 5, current_excel_col).Value
+			WKEX_state_tax_verif = left(objExcel.Cells(WKEX_starting_excel_row + 6, current_excel_col).Value, 1)
+			WKEX_fica_retro = objExcel.Cells(WKEX_starting_excel_row + 7, current_excel_col).Value
+			WKEX_fica_prosp = objExcel.Cells(WKEX_starting_excel_row + 8, current_excel_col).Value
+			WKEX_fica_verif = left(objExcel.Cells(WKEX_starting_excel_row + 9, current_excel_col).Value, 1)
+			WKEX_tran_retro = objExcel.Cells(WKEX_starting_excel_row + 10, current_excel_col).Value
+			WKEX_tran_prosp = objExcel.Cells(WKEX_starting_excel_row + 11, current_excel_col).Value
+			WKEX_tran_verif = left(objExcel.Cells(WKEX_starting_excel_row + 12, current_excel_col).Value, 1)
+			WKEX_tran_imp_rel = objExcel.Cells(WKEX_starting_excel_row + 13, current_excel_col).Value
+			WKEX_meals_retro = objExcel.Cells(WKEX_starting_excel_row + 14, current_excel_col).Value
+			WKEX_meals_prosp = objExcel.Cells(WKEX_starting_excel_row + 15, current_excel_col).Value
+			WKEX_meals_verif = left(objExcel.Cells(WKEX_starting_excel_row + 16, current_excel_col).Value, 1)
+			WKEX_meals_imp_rel = objExcel.Cells(WKEX_starting_excel_row + 17, current_excel_col).Value
+			WKEX_uniforms_retro = objExcel.Cells(WKEX_starting_excel_row + 18, current_excel_col).Value
+			WKEX_uniforms_prosp = objExcel.Cells(WKEX_starting_excel_row + 19, current_excel_col).Value
+			WKEX_uniforms_verif = left(objExcel.Cells(WKEX_starting_excel_row + 20, current_excel_col).Value, 1)
+			WKEX_uniforms_imp_rel = objExcel.Cells(WKEX_starting_excel_row + 21, current_excel_col).Value
+			WKEX_tools_retro = objExcel.Cells(WKEX_starting_excel_row + 22, current_excel_col).Value
+			WKEX_tools_prosp = objExcel.Cells(WKEX_starting_excel_row + 23, current_excel_col).Value
+			WKEX_tools_verif = left(objExcel.Cells(WKEX_starting_excel_row + 24, current_excel_col).Value, 1)
+			WKEX_tools_imp_rel = objExcel.Cells(WKEX_starting_excel_row + 25, current_excel_col).Value
+			WKEX_dues_retro = objExcel.Cells(WKEX_starting_excel_row + 26, current_excel_col).Value
+			WKEX_dues_prosp = objExcel.Cells(WKEX_starting_excel_row + 27, current_excel_col).Value
+			WKEX_dues_verif = left(objExcel.Cells(WKEX_starting_excel_row + 28, current_excel_col).Value, 1)
+			WKEX_dues_imp_rel = objExcel.Cells(WKEX_starting_excel_row + 29, current_excel_col).Value
+			WKEX_othr_retro = objExcel.Cells(WKEX_starting_excel_row + 30, current_excel_col).Value
+			WKEX_othr_prosp = objExcel.Cells(WKEX_starting_excel_row + 31, current_excel_col).Value
+			WKEX_othr_verif = left(objExcel.Cells(WKEX_starting_excel_row + 32, current_excel_col).Value, 1)
+			WKEX_othr_imp_rel = objExcel.Cells(WKEX_starting_excel_row + 33, current_excel_col).Value
+			WKEX_HC_Exp_Fed_Tax = objExcel.Cells(WKEX_starting_excel_row + 34, current_excel_col).Value
+			WKEX_HC_Exp_State_Tax = objExcel.Cells(WKEX_starting_excel_row + 35, current_excel_col).Value
+			WKEX_HC_Exp_FICA = objExcel.Cells(WKEX_starting_excel_row + 36, current_excel_col).Value
+			WKEX_HC_Exp_Tran = objExcel.Cells(WKEX_starting_excel_row + 37, current_excel_col).Value
+			WKEX_HC_Exp_Tran_imp_rel = objExcel.Cells(WKEX_starting_excel_row + 38, current_excel_col).Value
+			WKEX_HC_Exp_Meals = objExcel.Cells(WKEX_starting_excel_row + 39, current_excel_col).Value
+			WKEX_HC_Exp_Meals_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 40, current_excel_col).Value
+			WKEX_HC_Exp_Uniforms = objExcel.Cells(WKEX_starting_excel_row + 41, current_excel_col).Value
+			WKEX_HC_Exp_Uniforms_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 42, current_excel_col).Value
+			WKEX_HC_Exp_Tools = objExcel.Cells(WKEX_starting_excel_row + 43, current_excel_col).Value
+			WKEX_HC_Exp_Tools_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 44, current_excel_col).Value
+			WKEX_HC_Exp_Dues = objExcel.Cells(WKEX_starting_excel_row + 45, current_excel_col).Value
+			WKEX_HC_Exp_Dues_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 46, current_excel_col).Value
+			WKEX_HC_Exp_Othr = objExcel.Cells(WKEX_starting_excel_row + 47, current_excel_col).Value
+			WKEX_HC_Exp_Othr_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 48, current_excel_col).Value
+		
+			'---Below are all the panels that need to be updated for each benefit month.
+			If BUSI_type <> "" then call write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
+			IF COEX_support_retro <> "" AND _
+				COEX_support_prosp <> "" AND _
+				COEX_support_verif <> "" AND _
+				COEX_alimony_retro <> "" AND _
+				COEX_alimony_prosp <> "" AND _
+				COEX_alimony_verif <> "" AND _
+				COEX_tax_dep_retro <> "" AND _
+				COEX_tax_dep_prosp <> "" AND _
+				COEX_tax_dep_verif <> "" AND _
+				COEX_other_retro <> "" AND _
+				COEX_other_prosp <> "" AND _
+				COEX_other_verif <> "" AND _
+				COEX_change_in_circumstances <> "" AND _
+				COEX_HC_expense_support <> "" AND _
+				COEX_HC_expense_alimony <> "" AND _
+				COEX_HC_expense_tax_dep <> "" AND _
+				COEX_HC_expense_other <> "" THEN CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif, COEX_change_in_circumstances, COEX_HC_expense_support, COEX_HC_expense_alimony, COEX_HC_expense_tax_dep, COEX_HC_expense_other)
+			If DCEX_provider <> "" then call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
+			IF JOBS_1_inc_type <> "" THEN call write_panel_to_MAXIS_JOBS("01", JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
+			If JOBS_2_inc_type <> "" then call write_panel_to_MAXIS_JOBS("02", JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
+			If JOBS_3_inc_type <> "" then call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
+			If UNEA_1_inc_type <> "" then call write_panel_to_MAXIS_UNEA("01", UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
+			If UNEA_2_inc_type <> "" then call write_panel_to_MAXIS_UNEA("02", UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
+			If UNEA_3_inc_type <> "" then call write_panel_to_MAXIS_UNEA("03", UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
+			IF WKEX_program <> "" THEN CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
+		NEXT		
+	LOOP UNTIL benefit_month = future_month
+	
+	
 	'Gets back to self
 	back_to_self
 
@@ -1536,9 +1740,13 @@ If approve_case_dropdown = "no, but enter all STAT panels needed to approve" the
 End if
 	
 '========================================================================APPROVAL========================================================================
-
-
 FOR EACH case_number IN case_number_array
+	back_to_SELF
+	EMWriteScreen footer_month, 20, 43
+	EMWriteScreen footer_year, 20, 46
+	transmit
+	msgbox "ok"
+
 	If cash_application = True then 
 		'=====DETERMINING CASH PROGRAM =========
 		'This scans CASE CURR to find what type of cash program to approve.
@@ -1823,7 +2031,6 @@ FOR EACH case_number IN case_number_array
 			
 		END IF
 	End if
-	stopscript
 	'The script needs to FIAT GA into SNAP budget.
 	
 	If SNAP_application = True then 
@@ -2010,7 +2217,29 @@ FOR EACH case_number IN case_number_array
 								IF cbud = "CBUD" OR abud = "ABUD" THEN transmit		'======Getting out of the budget window for that month.
 							END IF
 						LOOP UNTIL back_to_bsum = "BSUM"
-
+						'---Now the script needs to determine if the case passes income test for cert period
+						EMWriteScreen "X", 18, 34
+						transmit		'---Opens the Cert Period Amount sub-menu
+						DO
+							EMReadScreen at_cert_period_screen, 13, 5, 13
+						LOOP UNTIL at_cert_period_screen = "Certification"
+						EMReadScreen excess_income, 5, 9, 39
+						PF3
+						IF excess_income = " 0.00" THEN
+							'---The script will go into the MAPT for all appropriate months and pass Income - Budget Period.
+							EMWriteScreen "X", 7, 17
+							EMWriteScreen "X", 7, 28
+							EMWriteScreen "X", 7, 39
+							EMWriteScreen "X", 7, 50
+							EMWriteScreen "X", 7, 61
+							EMWriteScreen "X", 7, 72
+							transmit
+							DO
+								EMWriteScreen "PASSED", 6, 46
+								transmit
+								EMReadScreen back_to_BSUM, 4, 3, 57
+							LOOP UNTIL back_to_BSUM = "BSUM"
+						END IF
 					END IF
 
 					EMReadScreen cannot_fiat, 10, 24, 6
