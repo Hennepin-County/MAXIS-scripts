@@ -50,71 +50,74 @@ BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
   Text 110, 30, 25, 10, "Year:"
 EndDialog
 
-BeginDialog intake_approval_dialog, 0, 0, 381, 372, "Intake Approval Dialog"
-  EditBox 65, 10, 45, 15, application_date
-  DropListBox 45, 30, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
-  DropListBox 135, 30, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
-  EditBox 305, 30, 70, 15, recipient_amt
-  CheckBox 5, 50, 140, 15, "LTCC? If so, check here and enter date:", LTCC_check
-  EditBox 145, 50, 45, 15, LTCC_date
-  CheckBox 210, 50, 75, 15, "DHS-5181 on file?", DHS_5181_on_file_check
-  CheckBox 305, 50, 75, 15, "DHS-1503 on file?", DHS_1503_on_file_check
-  EditBox 55, 70, 45, 15, retro_months
-  EditBox 185, 70, 45, 15, month_MA_starts
-  EditBox 330, 70, 45, 15, month_MA_LTC_starts
-  CheckBox 5, 90, 155, 15, "Check here if this client is in the community.", community_check
-  EditBox 250, 90, 125, 15, AREP_SWKR
-  EditBox 75, 110, 205, 15, FACI
-  EditBox 320, 110, 55, 15, CFR
-  EditBox 60, 130, 315, 15, income
-  EditBox 40, 150, 335, 15, assets
-  EditBox 90, 170, 65, 15, total_countable_assets
-  EditBox 235, 170, 140, 15, other_asset_notes
-  EditBox 60, 190, 150, 15, MEDI_INSA
-  CheckBox 235, 190, 140, 15, "Check here if INSA was loaded into TPL.", INSA_loaded_into_TPL_check
-  CheckBox 5, 210, 230, 10, "LTC partnership? If so, check here and enter a separate case note.", LTC_partnership_check
-  EditBox 315, 210, 60, 15, lookback_period
-  EditBox 70, 230, 305, 15, annuity_LTC_PRB
-  DropListBox 70, 250, 75, 15, "N/A"+chr(9)+"Within limit"+chr(9)+"Beyond limit", home_equity_limit
-  EditBox 190, 250, 185, 15, transfer
-  EditBox 70, 270, 305, 15, deductions
-  EditBox 50, 290, 325, 15, other_notes
-  EditBox 55, 310, 320, 15, actions_taken
-  CheckBox 5, 330, 90, 15, "Sent DHS-3050/1503?", DHS_3050_1503_check
-  CheckBox 100, 330, 95, 15, "Sent DHS-3203/lien doc?", DHS_3203_lien_doc_check
-  CheckBox 200, 330, 100, 15, "Asset transfer letter sent?", asset_transfer_letter_sent_check
-  CheckBox 5, 350, 105, 15, "Managed care referral sent?", managed_care_referral_sent_check
-  EditBox 195, 350, 65, 15, worker_signature
+BeginDialog intake_approval_dialog, 0, 0, 386, 435, "Intake Approval Dialog"
+  EditBox 65, 5, 45, 15, application_date
+  CheckBox 140, 5, 155, 15, "Check here if this client is in the community.", community_check
+  DropListBox 45, 25, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
+  DropListBox 135, 25, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
+  EditBox 305, 25, 70, 15, recipient_amt
+  CheckBox 5, 45, 140, 15, "LTCC? If so, check here and enter date:", LTCC_check
+  EditBox 145, 45, 45, 15, LTCC_date
+  CheckBox 210, 45, 75, 15, "DHS-5181 on file?", DHS_5181_on_file_check
+  CheckBox 305, 45, 75, 15, "DHS-1503 on file?", DHS_1503_on_file_check
+  EditBox 55, 65, 45, 15, retro_months
+  EditBox 185, 65, 45, 15, month_MA_starts
+  EditBox 330, 65, 45, 15, month_MA_LTC_starts
+  EditBox 65, 85, 60, 15, baseline_date
+  EditBox 250, 85, 125, 15, AREP_SWKR
+  EditBox 75, 105, 205, 15, FACI
+  EditBox 320, 105, 55, 15, CFR
+  EditBox 60, 125, 315, 15, income
+  EditBox 40, 145, 335, 15, assets
+  EditBox 90, 165, 65, 15, total_countable_assets
+  EditBox 235, 165, 140, 15, other_asset_notes
+  EditBox 60, 185, 150, 15, MEDI_INSA
+  CheckBox 235, 185, 140, 15, "Check here if INSA was loaded into TPL.", INSA_loaded_into_TPL_check
+  CheckBox 5, 205, 230, 10, "LTC partnership? If so, check here and enter a separate case note.", LTC_partnership_check
+  CheckBox 235, 205, 105, 15, "Managed care referral sent?", managed_care_referral_sent_check
+  EditBox 70, 225, 305, 15, annuity_LTC_PRB
+  DropListBox 70, 245, 75, 15, "N/A"+chr(9)+"Within limit"+chr(9)+"Beyond limit", home_equity_limit
+  EditBox 190, 245, 185, 15, transfer
+  EditBox 70, 265, 305, 15, deductions
+  EditBox 50, 285, 325, 15, other_notes
+  EditBox 55, 305, 320, 15, actions_taken
+  CheckBox 10, 325, 85, 15, "Sent DHS-3050/1503?", DHS_3050_1503_check
+  CheckBox 135, 325, 95, 15, "Sent DHS-3203/lien doc?", DHS_3203_lien_doc_check
+  CheckBox 275, 325, 95, 15, "Asset transfer memo sent?", asset_transfer_letter_sent_check
+  EditBox 195, 400, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 270, 350, 50, 15
-    CancelButton 325, 350, 50, 15
-    PushButton 340, 10, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 190, 90, 25, 10, "AREP/", AREP_button
-    PushButton 215, 90, 30, 10, "SWKR:", SWKR_button
-    PushButton 5, 110, 65, 10, "FACI (if applicable):", FACI_button
-    PushButton 5, 130, 50, 10, "UNEA/income:", UNEA_button
-    PushButton 5, 190, 25, 10, "MEDI/", MEDI_button
-    PushButton 30, 190, 25, 10, "INSA:", INSA_button
-    PushButton 5, 270, 60, 10, "BILS/deductions:", BILS_button
-  Text 5, 10, 55, 15, "Application date:"
-  Text 5, 30, 35, 15, "Elig type:"
-  Text 85, 30, 45, 15, "Budget type:"
-  Text 195, 30, 110, 15, "Waiver obilgation/recipient amt:"
-  Text 5, 70, 50, 15, "Retro months?:"
-  Text 125, 70, 55, 15, "Month MA starts:"
-  Text 255, 70, 75, 15, "Month MA-LTC starts:"
-  Text 300, 110, 20, 15, "CFR:"
-  Text 5, 150, 30, 15, "Assets:"
-  Text 5, 170, 80, 15, "Total countable assets:"
-  Text 165, 170, 65, 15, "Other asset notes:"
-  Text 255, 210, 60, 15, "Lookback period:"
-  Text 5, 230, 65, 15, "Annuity (LTC) PRB:"
-  Text 5, 250, 60, 15, "Home equity limit:"
-  Text 155, 250, 35, 15, "Transfer:"
-  Text 5, 290, 45, 15, "Other notes:"
-  Text 5, 310, 50, 15, "Actions taken:"
-  Text 130, 350, 60, 15, "Worker signature:"
+    OkButton 270, 400, 50, 15
+    CancelButton 325, 400, 50, 15
+    PushButton 340, 5, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 190, 85, 25, 10, "AREP/", AREP_button
+    PushButton 215, 85, 30, 10, "SWKR:", SWKR_button
+    PushButton 5, 105, 65, 10, "FACI (if applicable):", FACI_button
+    PushButton 5, 125, 50, 10, "UNEA/income:", UNEA_button
+    PushButton 5, 185, 25, 10, "MEDI/", MEDI_button
+    PushButton 30, 185, 25, 10, "INSA:", INSA_button
+    PushButton 5, 265, 60, 10, "BILS/deductions:", BILS_button
+  Text 5, 5, 55, 15, "Application date:"
+  Text 5, 25, 35, 15, "Elig type:"
+  Text 85, 25, 45, 15, "Budget type:"
+  Text 195, 25, 110, 15, "Waiver obilgation/recipient amt:"
+  Text 5, 65, 50, 15, "Retro months?:"
+  Text 125, 65, 55, 15, "Month MA starts:"
+  Text 255, 65, 75, 15, "Month MA-LTC starts:"
+  Text 300, 105, 20, 15, "CFR:"
+  Text 5, 145, 30, 15, "Assets:"
+  Text 5, 165, 80, 15, "Total countable assets:"
+  Text 165, 165, 65, 15, "Other asset notes:"
+  Text 5, 85, 60, 15, "Baseline date: "
+  Text 5, 225, 65, 15, "Annuity (LTC) PRB:"
+  Text 5, 245, 60, 15, "Home equity limit:"
+  Text 155, 245, 35, 15, "Transfer:"
+  Text 5, 285, 40, 15, "Other notes:"
+  Text 5, 305, 50, 15, "Actions taken:"
+  Text 130, 400, 60, 15, "Worker signature:"
+  Text 15, 350, 345, 40, "Per HCPM 19.40.15: The baseline date is the date in which both of the following conditions are met:  1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND 2. The person’s initial request month for MA payment of LTC services."
+  GroupBox 5, 340, 365, 55, ""
 EndDialog
+
 
 BeginDialog type_std_dialog, 0, 0, 206, 172, "Type-Std dialog"
   EditBox 10, 25, 50, 15, elig_date_01
@@ -203,7 +206,7 @@ call HH_member_custom_dialog(HH_member_array)
 call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", application_date)
 If application_date <> "" then lookback_period = dateadd("d", -1, dateadd("m", -60, cdate(application_date))) & ""
 
-'Autofilling the rest of the STAT stuff
+'Autofilling the rest of the STAT stuff----------------------------------------------------------------------------------------------------
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP_SWKR)
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", income)
@@ -487,13 +490,17 @@ Do
     Do
       Do
         Do
+		  Do
+			
           Dialog intake_approval_dialog
           If ButtonPressed = 0 then 
             CancelDialog = MsgBox ("Are you sure you want to end this script?" & chr(13) & chr(13) & "Press ''YES'' to end the script. Press ''NO'' to return to the script.", vbYesNo)
             If CancelDialog = vbYes then stopscript
           End if
         Loop until CancelDialog <> vbNo
-        EMReadScreen STAT_check, 4, 20, 21
+			IF len(baseline_date) < 6 THEN MsgBox "You must enter a date in format MM/DD/YYYY"
+		LOOP until len(baseline_date) >= 6
+		EMReadScreen STAT_check, 4, 20, 21
         If STAT_check = "STAT" then
           If ButtonPressed = prev_panel_button then call panel_navigation_prev
           If ButtonPressed = next_panel_button then call panel_navigation_next
@@ -532,6 +539,13 @@ Else
   header_date = month_MA_LTC_starts
 End if
 
+'Autofill for the application_date variable, then determines lookback period based on the info
+'& "" is added to have variable listed in the dialog
+If baseline_date <> "" then
+	lookback_period = dateadd("m", -60, cdate(baseline_date)) & ""
+	end_of_lookback = dateadd("d", -1, cdate(baseline_date)) & ""
+End if
+
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 EMSendKey "***MA effective " & header_date & "***" & "<newline>"
@@ -554,6 +568,8 @@ If DHS_1503_on_file_check = 1 then call write_new_line_in_case_note("* DHS-1503 
 If retro_months <> "" then call write_editbox_in_case_note("Retro request", retro_months, 6)
 If month_MA_starts <> "" then call write_editbox_in_case_note("Month MA starts", month_MA_starts, 6)
 If month_MA_LTC_starts <> "" then call write_editbox_in_case_note("Month MA-LTC starts", month_MA_LTC_starts, 6)
+Call write_bullet_and_variable_in_case_note ("Baseline Date", baseline_date) 
+Call write_bullet_and_variable_in_case_note ("Lookback period", lookback_period & "-" & end_of_lookback)
 If community_check = 1 then call write_new_line_in_case_note("* Client is in the community.")
 If AREP_SWKR <> "" then call write_editbox_in_case_note("AREP/SWKR", AREP_SWKR, 6)
 If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
