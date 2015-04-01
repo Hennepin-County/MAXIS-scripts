@@ -1,3 +1,10 @@
+FUNCTION cancel_confirmation
+	If ButtonPressed = 0 then 
+		cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
+		If cancel_confirm = vbYes then stopscript
+	End if
+END FUNCTION
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - CAF.vbs"
 start_time = timer
@@ -360,10 +367,7 @@ Do
       Do
         Do
           Dialog CAF_dialog_01
-          If ButtonPressed = 0 then 
-            cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
-            If cancel_confirm = vbYes then stopscript
-          End if
+          cancel_confirmation
         Loop until ButtonPressed <> no_cancel_button
         EMReadScreen STAT_check, 4, 20, 21
         If STAT_check = "STAT" then call stat_navigation
@@ -378,10 +382,7 @@ Do
         Do
           Do
             Dialog CAF_dialog_02
-	            If ButtonPressed = 0 then 
-      	      cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
-            If cancel_confirm = vbYes then stopscript
-            End if
+	        cancel_confirmation
           Loop until ButtonPressed <> no_cancel_button
           EMReadScreen STAT_check, 4, 20, 21
           If STAT_check = "STAT" then call stat_navigation
@@ -396,10 +397,7 @@ Do
         Do
           Do
             Dialog CAF_dialog_03
-            If ButtonPressed = 0 then 
-	            cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
-      	      If cancel_confirm = vbYes then stopscript
-            End if
+            cancel_confirmation
           Loop until ButtonPressed <> no_cancel_button
           EMReadScreen STAT_check, 4, 20, 21
           If STAT_check = "STAT" then call stat_navigation
