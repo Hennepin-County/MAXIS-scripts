@@ -5,6 +5,15 @@ FUNCTION cancel_confirmation
 	End if
 END FUNCTION
 
+FUNCTION proceed_confirmation(result)		'Result returns TRUE if Yes is pressed, and FALSE if No is pressed.
+	If ButtonPressed = -1 then 
+		proceed_confirm = MsgBox("Are you sure you want to proceed? Press Yes to continue, No to return to the previous screen, and Cancel to end the script.", vbYesNoCancel)
+		If proceed_confirm = vbCancel then stopscript
+		If proceed_confirm = vbYes then result = TRUE
+		If proceed_confirm = vbNo then result = FALSE
+	End if
+END FUNCTION
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - CAF.vbs"
 start_time = timer
@@ -56,8 +65,8 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
   DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program", CAF_type
   ButtonGroup ButtonPressed
-    OkButton 35, 100, 50, 15
-    CancelButton 95, 100, 50, 15
+	OkButton 35, 100, 50, 15
+	CancelButton 95, 100, 50, 15
   Text 25, 10, 50, 10, "Case number:"
   Text 10, 30, 50, 10, "Footer month:"
   Text 110, 30, 25, 10, "Year:"
@@ -84,37 +93,37 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 35, 180, 410, 15, ABPS
   EditBox 55, 210, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-    PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
-    CancelButton 395, 240, 50, 15
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
-    PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
-    PushButton 5, 115, 25, 10, "AREP/", AREP_button
-    PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
-    PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
-    PushButton 215, 115, 25, 10, "STIN/", STIN_button
-    PushButton 240, 115, 25, 10, "STEC:", STEC_button
-    PushButton 5, 135, 25, 10, "DISA/", DISA_button
-    PushButton 30, 135, 25, 10, "PDED:", PDED_button
-    PushButton 280, 135, 25, 10, "FACI:", FACI_button
-    PushButton 5, 165, 25, 10, "PREG:", PREG_button
-    PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
-    PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
-    PushButton 150, 240, 25, 10, "ADDR", ADDR_button
-    PushButton 175, 240, 25, 10, "MEMB", MEMB_button
-    PushButton 200, 240, 25, 10, "MEMI", MEMI_button
-    PushButton 225, 240, 25, 10, "PROG", PROG_button
-    PushButton 250, 240, 25, 10, "REVW", REVW_button
-    PushButton 275, 240, 25, 10, "TYPE", TYPE_button
+	PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
+	CancelButton 395, 240, 50, 15
+	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+	PushButton 335, 25, 45, 10, "next panel", next_panel_button
+	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+	PushButton 395, 25, 45, 10, "next memb", next_memb_button
+	PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
+	PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
+	PushButton 5, 115, 25, 10, "AREP/", AREP_button
+	PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
+	PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
+	PushButton 215, 115, 25, 10, "STIN/", STIN_button
+	PushButton 240, 115, 25, 10, "STEC:", STEC_button
+	PushButton 5, 135, 25, 10, "DISA/", DISA_button
+	PushButton 30, 135, 25, 10, "PDED:", PDED_button
+	PushButton 280, 135, 25, 10, "FACI:", FACI_button
+	PushButton 5, 165, 25, 10, "PREG:", PREG_button
+	PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
+	PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
+	PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
+	PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
+	PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
+	PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
+	PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
+	PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
+	PushButton 150, 240, 25, 10, "ADDR", ADDR_button
+	PushButton 175, 240, 25, 10, "MEMB", MEMB_button
+	PushButton 200, 240, 25, 10, "MEMI", MEMI_button
+	PushButton 225, 240, 25, 10, "PROG", PROG_button
+	PushButton 250, 240, 25, 10, "REVW", REVW_button
+	PushButton 275, 240, 25, 10, "TYPE", TYPE_button
   Text 5, 10, 55, 10, "CAF datestamp:"
   Text 120, 10, 50, 10, "Interview type:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
@@ -142,37 +151,37 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 155, 245, 290, 15, other_assets
   EditBox 55, 275, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-    PushButton 340, 295, 50, 15, "NEXT", next_to_page_03_button
-    CancelButton 395, 295, 50, 15
-    PushButton 275, 300, 60, 10, "previous page", previous_to_page_01_button
-    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-    PushButton 150, 15, 25, 10, "BUSI", BUSI_button
-    PushButton 175, 15, 25, 10, "JOBS", JOBS_button
-    PushButton 200, 15, 25, 10, "PBEN", PBEN_button
-    PushButton 225, 15, 25, 10, "RBIC", RBIC_button
-    PushButton 250, 15, 25, 10, "UNEA", UNEA_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 90, 75, 10, "STWK/inc. changes:", STWK_button
-    PushButton 5, 180, 25, 10, "SHEL/", SHEL_button
-    PushButton 30, 180, 25, 10, "HEST:", HEST_button
-    PushButton 5, 200, 25, 10, "COEX/", COEX_button
-    PushButton 30, 200, 25, 10, "DCEX:", DCEX_button
-    PushButton 5, 230, 25, 10, "CASH/", CASH_button
-    PushButton 30, 230, 30, 10, "ACCTs:", ACCT_button
-    PushButton 5, 250, 25, 10, "CARS/", CARS_button
-    PushButton 30, 250, 25, 10, "REST/", REST_button
-    PushButton 55, 250, 25, 10, "SECU/", SECU_button
-    PushButton 80, 250, 25, 10, "TRAN/", TRAN_button
-    PushButton 105, 250, 45, 10, "other assets:", OTHR_button
+	PushButton 340, 295, 50, 15, "NEXT", next_to_page_03_button
+	CancelButton 395, 295, 50, 15
+	PushButton 275, 300, 60, 10, "previous page", previous_to_page_01_button
+	PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+	PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+	PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+	PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+	PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+	PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+	PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+	PushButton 150, 15, 25, 10, "BUSI", BUSI_button
+	PushButton 175, 15, 25, 10, "JOBS", JOBS_button
+	PushButton 200, 15, 25, 10, "PBEN", PBEN_button
+	PushButton 225, 15, 25, 10, "RBIC", RBIC_button
+	PushButton 250, 15, 25, 10, "UNEA", UNEA_button
+	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+	PushButton 335, 25, 45, 10, "next panel", next_panel_button
+	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+	PushButton 395, 25, 45, 10, "next memb", next_memb_button
+	PushButton 5, 90, 75, 10, "STWK/inc. changes:", STWK_button
+	PushButton 5, 180, 25, 10, "SHEL/", SHEL_button
+	PushButton 30, 180, 25, 10, "HEST:", HEST_button
+	PushButton 5, 200, 25, 10, "COEX/", COEX_button
+	PushButton 30, 200, 25, 10, "DCEX:", DCEX_button
+	PushButton 5, 230, 25, 10, "CASH/", CASH_button
+	PushButton 30, 230, 30, 10, "ACCTs:", ACCT_button
+	PushButton 5, 250, 25, 10, "CARS/", CARS_button
+	PushButton 30, 250, 25, 10, "REST/", REST_button
+	PushButton 55, 250, 25, 10, "SECU/", SECU_button
+	PushButton 80, 250, 25, 10, "TRAN/", TRAN_button
+	PushButton 105, 250, 45, 10, "other assets:", OTHR_button
   GroupBox 5, 5, 130, 25, "ELIG panels:"
   GroupBox 145, 5, 135, 25, "Income panels"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
@@ -216,27 +225,27 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   CheckBox 15, 345, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
   EditBox 395, 325, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 345, 50, 15
-    CancelButton 395, 345, 50, 15
-    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 50, 25, 10, "INSA/", INSA_button
-    PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
-    PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
-    PushButton 5, 90, 25, 10, "DIET:", DIET_button
-    PushButton 215, 90, 25, 10, "BILS:", BILS_button
-    PushButton 5, 110, 25, 10, "FMED:", FMED_button
-    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-    PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
+	OkButton 340, 345, 50, 15
+	CancelButton 395, 345, 50, 15
+	PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+	PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+	PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+	PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+	PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+	PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+	PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+	PushButton 335, 25, 45, 10, "next panel", next_panel_button
+	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+	PushButton 395, 25, 45, 10, "next memb", next_memb_button
+	PushButton 5, 50, 25, 10, "INSA/", INSA_button
+	PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
+	PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
+	PushButton 5, 90, 25, 10, "DIET:", DIET_button
+	PushButton 215, 90, 25, 10, "BILS:", BILS_button
+	PushButton 5, 110, 25, 10, "FMED:", FMED_button
+	PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
+	PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
   GroupBox 5, 5, 130, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
@@ -362,123 +371,135 @@ If CAF_type <> "Recertification" then TIKL_checkbox = checked
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Do
-  Do
-    Do
-      Do
-        Do
-          Dialog CAF_dialog_01
-          cancel_confirmation
-        Loop until ButtonPressed <> no_cancel_button
-        EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then call stat_navigation
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If ButtonPressed <> next_to_page_02_button then call navigation_buttons
-    Loop until ButtonPressed = next_to_page_02_button
-    Do
-      Do
-        Do
-          Do
-            Dialog CAF_dialog_02
-	        cancel_confirmation
-          Loop until ButtonPressed <> no_cancel_button
-          EMReadScreen STAT_check, 4, 20, 21
-          If STAT_check = "STAT" then call stat_navigation
-          transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-          EMReadScreen MAXIS_check, 5, 1, 39
-          If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-        Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-        If ButtonPressed <> next_to_page_03_button then call navigation_buttons
-      Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
-      If ButtonPressed = previous_to_page_01_button then exit do
-      Do
-        Do
-          Do
-            Dialog CAF_dialog_03
-            cancel_confirmation
-          Loop until ButtonPressed <> no_cancel_button
-          EMReadScreen STAT_check, 4, 20, 21
-          If STAT_check = "STAT" then call stat_navigation
-          transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-          EMReadScreen MAXIS_check, 5, 1, 39
-          If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-        Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-        If ButtonPressed <> -1 then call navigation_buttons
-        If ButtonPressed = previous_to_page_02_button then exit do
-      Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
-    Loop until ButtonPressed = -1
-    If ButtonPressed = previous_to_page_01_button then exit do 'In case the script skipped the third page as a result of hitting "previous page" on part 2
-    If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN MsgBox "You need to:" & chr(13) & chr(13) & "-Fill in the datestamp, and/or" & chr(13) & "-Actions taken sections, and/or" & chr(13) & "-HCAPP Status, and/or" & chr(13) & "-Sign your case note." & chr(13) & chr(13) & "Check these items after pressing ''OK''."
-  Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""
-  If ButtonPressed = -1 then case_note_confirm = MsgBox("Do you want to case note? Press YES to confirm. Press NO to return to the script.", vbYesNo)
-  If case_note_confirm = vbYes then
-    If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
-      call navigate_to_screen("rept", "pnd2")
-      EMGetCursor PND2_row, PND2_col
-      for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
-        EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
-        If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
-        EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
-        If PND2_HC_status_check = "P" then
-          EMWriteScreen "x", PND2_row, 3
-          transmit
-          person_delay_row = 7
-          Do
-            EMReadScreen person_delay_check, 1, person_delay_row, 39
-            If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
-            person_delay_row = person_delay_row + 2
-          Loop until person_delay_check = " " or person_delay_row > 20
-          PF3
-        End if
-        EMReadScreen additional_app_check, 14, PND2_row + 1, 17
-        If additional_app_check <> "ADDITIONAL APP" then exit for
-        PND2_row = PND2_row + 1
-      next
-      PF3
-      EMReadScreen PND2_check, 4, 2, 52
-      If PND2_check = "PND2" then
-        MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
-        PF10
-        client_delay_checkbox = unchecked
-      End if
-    End if
-    If TIKL_checkbox = checked and CAF_type <> "Recertification" then
-      If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-        call navigate_to_screen("dail", "writ")
-        call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
-        EMSetCursor 9, 3
-        If cash_checkbox = checked then EMSendKey "cash/"
-        If SNAP_checkbox = checked then EMSendKey "SNAP/"
-        If EMER_checkbox = checked then EMSendKey "EMER/"
-        EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
-        transmit
-        PF3
-      End if
-      If HC_checkbox = checked then
-        call navigate_to_screen("dail", "writ")
-        call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
-        EMSetCursor 9, 3
-        EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-        transmit
-        PF3
-      End if
-    End if
-    If client_delay_TIKL_checkbox = checked then
-      call navigate_to_screen("dail", "writ")
-      call create_MAXIS_friendly_date(date, 10, 5, 18) 
-      EMSetCursor 9, 3
-      EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
-      transmit
-      PF3
-    End if
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
+	Do
+		Do
+			Do
+				Do
+					Dialog CAF_dialog_01							'Displays the dialog
+					cancel_confirmation								'Asks if you're sure you want to cancel
+				Loop until ButtonPressed <> no_cancel_button		'Probably totally arbitrary and should be changed to ButtonPressed = NEXT_button
+				EMReadScreen STAT_check, 4, 20, 21					'Checks to make sure we're in STAT. Only does the STAT_navigation if we're in STAT. That's a custom function.
+				If STAT_check = "STAT" then call stat_navigation	'If we're in STAT, it does the stat_navigation. We the above line is included in the stat_navigation function so is useless.
+				transmit 											'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt. Probably useless as this part doesn't enter any data.
+				EMReadScreen MAXIS_check, 5, 1, 39					'There's a custom function for this now, so this is really stupid. It also doesn't belong here as we aren't writing to MAXIS here.
+				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."		'----DUMB
+			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 	'Again, dumb. We have a custom function for this.
+			If ButtonPressed <> next_to_page_02_button then call navigation_buttons			'If we work the navigation_buttons function into the stat_navigation function (or vice versa) we can probably consolidate. I think we should, and we should call it MAXIS_dialog_navigation. -VKC
+		Loop until ButtonPressed = next_to_page_02_button			'Probably could have done this part a long time ago.
+		Do
+			Do
+				Do
+					Do
+						Dialog CAF_dialog_02								'Finally showing the next dialog
+						cancel_confirmation									'I made a custom function and it helps
+					Loop until ButtonPressed <> no_cancel_button			'Again, probably totally arbitrary and should be changed to ButtonPressed = NEXT_button
+					EMReadScreen STAT_check, 4, 20, 21						'Again, useless
+					If STAT_check = "STAT" then call stat_navigation		'Boring (as discussed above, we should make a new function and use it here)
+					transmit 												'Checking for MAXIS for some reason
+					EMReadScreen MAXIS_check, 5, 1, 39						'Why?
+					If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."		'---DUMB DUMB DUMB
+				Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 	'Really shouldn't be here. We aren't editing data so this is pointless.
+				If ButtonPressed <> next_to_page_03_button then call navigation_buttons		'<<<<<MERGE WITH ABOVE INTO NEW FUNCTION. AAAAAAH SMASH!
+			Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
+			If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 somehow
+			Do
+				Do
+					Do
+						Dialog CAF_dialog_03							'There's a third dialog
+						cancel_confirmation								'Best code I've written all week
+					Loop until ButtonPressed <> no_cancel_button		'Dumb and probably pointless
+					EMReadScreen STAT_check, 4, 20, 21					'Dumb and probably pointless
+					If STAT_check = "STAT" then call stat_navigation	'MERGE THIS ALREADY
+					transmit 											'Let's check for MAXIS here even though we totally still have a crazy amount of stuff to do before we get to CASE/NOTE. Sure.
+					EMReadScreen MAXIS_check, 5, 1, 39					'Ugh. I built a better function for this.
+					If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."		'---LAMESAUCE
+				Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 		'Stupid
+				If ButtonPressed <> -1 then call navigation_buttons		'MERGE THIS!!!!!!!!!!!
+				If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here for a reason not yet known
+			Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
+		Loop until ButtonPressed = -1	'!!!!!!!!!!!I SEE! Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
+		If ButtonPressed = previous_to_page_01_button then exit do 'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
+		If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN 'Tells the worker what's what in a MsgBox.
+			MsgBox "You need to:" & chr(13) & chr(13) & _
+			  "-Fill in the datestamp, and/or" & chr(13) & _
+			  "-Actions taken sections, and/or" & chr(13) & _
+			  "-HCAPP Status, and/or" & chr(13) & _
+			  "-Sign your case note." & chr(13) & chr(13) & _
+			  "Check these items after pressing ''OK''."	
+		End if
+	Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
+	proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+	'--------------THE DIALOG DO LOOPING SHOULD END HERE, AND THE SCRIPT SHOULD CHECK FOR MAXIS AT THIS POINT!!!!!!!!!!!!!!!!!!!!!!!!!
+	If case_note_confirm = TRUE then				'Only does all this if the case_note_confirm variable is made TRUE by the proceed_confirmation function
+		If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED, MAKE THIS A NEW FUNCTION!!!!!!!!!!!!!!!!!!!
+			call navigate_to_screen("rept", "pnd2")
+			EMGetCursor PND2_row, PND2_col
+			for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
+				EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
+				If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
+				EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
+				If PND2_HC_status_check = "P" then
+					EMWriteScreen "x", PND2_row, 3
+					transmit
+					person_delay_row = 7
+					Do
+						EMReadScreen person_delay_check, 1, person_delay_row, 39
+						If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+						person_delay_row = person_delay_row + 2
+					Loop until person_delay_check = " " or person_delay_row > 20
+					PF3
+				End if
+				EMReadScreen additional_app_check, 14, PND2_row + 1, 17
+				If additional_app_check <> "ADDITIONAL APP" then exit for
+				PND2_row = PND2_row + 1
+			next
+			PF3
+			EMReadScreen PND2_check, 4, 2, 52
+			If PND2_check = "PND2" then
+				MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
+				PF10
+				client_delay_checkbox = unchecked		'Probably unnecessary except that it changes the case note parameters
+			End if
+		End if
+		'--------------------END OF CLIENT DELAY BUSINESS
+		'Going to TIKL, there's a custom function for this. Evaluate using it.
+		If TIKL_checkbox = checked and CAF_type <> "Recertification" then
+			If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
+				call navigate_to_screen("dail", "writ")
+				call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
+				EMSetCursor 9, 3
+				If cash_checkbox = checked then EMSendKey "cash/"
+				If SNAP_checkbox = checked then EMSendKey "SNAP/"
+				If EMER_checkbox = checked then EMSendKey "EMER/"
+				EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
+				transmit
+				PF3
+			End if
+			If HC_checkbox = checked then
+				call navigate_to_screen("dail", "writ")
+				call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
+				EMSetCursor 9, 3
+				EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
+				transmit
+				PF3
+			End if
+		End if
+		If client_delay_TIKL_checkbox = checked then
+			call navigate_to_screen("dail", "writ")
+			call create_MAXIS_friendly_date(date, 10, 5, 18) 
+			EMSetCursor 9, 3
+			EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
+			transmit
+			PF3
+		End if
+		'--------------------END OF TIKL BUSINESS
+		'NAVIGATING TO CASE NOTE, THIS SHOULD NOT TAKE PLACE IN THE DIALOG!!!!!!!!!!!!!!!!
+		call navigate_to_screen("case", "note")
+		PF9
+		EMReadScreen case_note_check, 17, 2, 33
+		EMReadScreen mode_check, 1, 20, 09
+		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
+	End if		'This is all about that "IF case_note_confirm" business and is unnecessary in all likelihood
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 
