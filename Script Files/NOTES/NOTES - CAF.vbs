@@ -14,6 +14,14 @@ FUNCTION proceed_confirmation(result_of_msgbox)		'Result returns TRUE if Yes is 
 	End if
 END FUNCTION
 
+FUNCTION start_a_blank_CASE_NOTE
+	call navigate_to_screen("case", "note")
+	PF9
+	EMReadScreen case_note_check, 17, 2, 33
+	EMReadScreen mode_check, 1, 20, 09
+	If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then script_end_procedure("The script can't open a case note. Are you in inquiry? Check MAXIS and try again. The script will now stop.")
+END FUNCTION
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - CAF.vbs"
 start_time = timer
@@ -429,78 +437,75 @@ Do
 		End if
 	Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-	'--------------THE DIALOG DO LOOPING SHOULD END HERE, AND THE SCRIPT SHOULD CHECK FOR MAXIS AT THIS POINT!!!!!!!!!!!!!!!!!!!!!!!!!
-	If case_note_confirm = TRUE then				'Only does all this if the case_note_confirm variable is made TRUE by the proceed_confirmation function
-		If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED, MAKE THIS A NEW FUNCTION!!!!!!!!!!!!!!!!!!!
-			call navigate_to_screen("rept", "pnd2")
-			EMGetCursor PND2_row, PND2_col
-			for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
-				EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
-				If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
-				EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
-				If PND2_HC_status_check = "P" then
-					EMWriteScreen "x", PND2_row, 3
-					transmit
-					person_delay_row = 7
-					Do
-						EMReadScreen person_delay_check, 1, person_delay_row, 39
-						If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
-						person_delay_row = person_delay_row + 2
-					Loop until person_delay_check = " " or person_delay_row > 20
-					PF3
-				End if
-				EMReadScreen additional_app_check, 14, PND2_row + 1, 17
-				If additional_app_check <> "ADDITIONAL APP" then exit for
-				PND2_row = PND2_row + 1
-			next
-			PF3
-			EMReadScreen PND2_check, 4, 2, 52
-			If PND2_check = "PND2" then
-				MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
-				PF10
-				client_delay_checkbox = unchecked		'Probably unnecessary except that it changes the case note parameters
-			End if
-		End if
-		'--------------------END OF CLIENT DELAY BUSINESS
-		'Going to TIKL, there's a custom function for this. Evaluate using it.
-		If TIKL_checkbox = checked and CAF_type <> "Recertification" then
-			If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-				call navigate_to_screen("dail", "writ")
-				call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
-				EMSetCursor 9, 3
-				If cash_checkbox = checked then EMSendKey "cash/"
-				If SNAP_checkbox = checked then EMSendKey "SNAP/"
-				If EMER_checkbox = checked then EMSendKey "EMER/"
-				EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
-				transmit
-				PF3
-			End if
-			If HC_checkbox = checked then
-				call navigate_to_screen("dail", "writ")
-				call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
-				EMSetCursor 9, 3
-				EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-				transmit
-				PF3
-			End if
-		End if
-		If client_delay_TIKL_checkbox = checked then
-			call navigate_to_screen("dail", "writ")
-			call create_MAXIS_friendly_date(date, 10, 5, 18) 
-			EMSetCursor 9, 3
-			EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
+Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+
+'Now, the client_delay_checkbox business
+	
+If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED, MAKE THIS A NEW FUNCTION!!!!!!!!!!!!!!!!!!!
+	call navigate_to_screen("rept", "pnd2")
+	EMGetCursor PND2_row, PND2_col
+	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
+		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
+		If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
+		EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
+		If PND2_HC_status_check = "P" then
+			EMWriteScreen "x", PND2_row, 3
 			transmit
+			person_delay_row = 7
+			Do
+				EMReadScreen person_delay_check, 1, person_delay_row, 39
+				If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+				person_delay_row = person_delay_row + 2
+			Loop until person_delay_check = " " or person_delay_row > 20
 			PF3
 		End if
-		'--------------------END OF TIKL BUSINESS
-		'NAVIGATING TO CASE NOTE, THIS SHOULD NOT TAKE PLACE IN THE DIALOG!!!!!!!!!!!!!!!!
-		call navigate_to_screen("case", "note")
-		PF9
-		EMReadScreen case_note_check, 17, 2, 33
-		EMReadScreen mode_check, 1, 20, 09
-		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-	End if		'This is all about that "IF case_note_confirm" business and is unnecessary in all likelihood
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+		EMReadScreen additional_app_check, 14, PND2_row + 1, 17
+		If additional_app_check <> "ADDITIONAL APP" then exit for
+		PND2_row = PND2_row + 1
+	next
+	PF3
+	EMReadScreen PND2_check, 4, 2, 52
+	If PND2_check = "PND2" then
+		MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
+		PF10
+		client_delay_checkbox = unchecked		'Probably unnecessary except that it changes the case note parameters
+	End if
+End if
+'--------------------END OF CLIENT DELAY BUSINESS
+'Going to TIKL, there's a custom function for this. Evaluate using it.
+If TIKL_checkbox = checked and CAF_type <> "Recertification" then
+	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
+		call navigate_to_screen("dail", "writ")
+		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
+		EMSetCursor 9, 3
+		If cash_checkbox = checked then EMSendKey "cash/"
+		If SNAP_checkbox = checked then EMSendKey "SNAP/"
+		If EMER_checkbox = checked then EMSendKey "EMER/"
+		EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
+		transmit
+		PF3
+	End if
+	If HC_checkbox = checked then
+		call navigate_to_screen("dail", "writ")
+		call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
+		EMSetCursor 9, 3
+		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
+		transmit
+		PF3
+	End if
+End if
+If client_delay_TIKL_checkbox = checked then
+	call navigate_to_screen("dail", "writ")
+	call create_MAXIS_friendly_date(date, 10, 5, 18) 
+	EMSetCursor 9, 3
+	EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
+	transmit
+	PF3
+End if
+'--------------------END OF TIKL BUSINESS
+
+'Navigates to case note, and checks to make sure we aren't in inquiry.
+start_a_blank_CASE_NOTE
 
 
 'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
@@ -510,7 +515,7 @@ If CAF_status <> "" then CAF_status = ": " & CAF_status
 If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year & " recert"
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-EMSendKey "<home>" & "***" & CAF_type & CAF_status & "***" & "<newline>"
+call write_variable_in_case_note("***" & CAF_type & CAF_status & "***")
 If move_verifs_needed = True and verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)		'If global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 call write_bullet_and_variable_in_case_note("CAF datestamp", CAF_datestamp)
 If interview_type <> "" and interview_type <> " " then call write_bullet_and_variable_in_case_note("Interview type", interview_type)
