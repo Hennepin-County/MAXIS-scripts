@@ -476,53 +476,26 @@ If CAF_type <> "Recertification" then TIKL_checkbox = checked
 Do
 	Do
 		Do
-			Do
-				Do
-					Dialog CAF_dialog_01							'Displays the dialog
-					cancel_confirmation								'Asks if you're sure you want to cancel
-				Loop until ButtonPressed <> no_cancel_button		'Probably totally arbitrary and should be changed to ButtonPressed = NEXT_button
-				EMReadScreen STAT_check, 4, 20, 21					'Checks to make sure we're in STAT. Only does the STAT_navigation if we're in STAT. That's a custom function.
-				If STAT_check = "STAT" then call stat_navigation	'If we're in STAT, it does the stat_navigation. We the above line is included in the stat_navigation function so is useless.
-				transmit 											'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt. Probably useless as this part doesn't enter any data.
-				EMReadScreen MAXIS_check, 5, 1, 39					'There's a custom function for this now, so this is really stupid. It also doesn't belong here as we aren't writing to MAXIS here.
-				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."		'----DUMB
-			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 	'Again, dumb. We have a custom function for this.
-			If ButtonPressed <> next_to_page_02_button then call navigation_buttons			'If we work the navigation_buttons function into the stat_navigation function (or vice versa) we can probably consolidate. I think we should, and we should call it MAXIS_dialog_navigation. -VKC
-		Loop until ButtonPressed = next_to_page_02_button			'Probably could have done this part a long time ago.
+			Dialog CAF_dialog_01			'Displays the first dialog
+			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
+			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+		Loop until ButtonPressed = next_to_page_02_button
 		Do
 			Do
-				Do
-					Do
-						Dialog CAF_dialog_02								'Finally showing the next dialog
-						cancel_confirmation									'I made a custom function and it helps
-					Loop until ButtonPressed <> no_cancel_button			'Again, probably totally arbitrary and should be changed to ButtonPressed = NEXT_button
-					EMReadScreen STAT_check, 4, 20, 21						'Again, useless
-					If STAT_check = "STAT" then call stat_navigation		'Boring (as discussed above, we should make a new function and use it here)
-					transmit 												'Checking for MAXIS for some reason
-					EMReadScreen MAXIS_check, 5, 1, 39						'Why?
-					If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."		'---DUMB DUMB DUMB
-				Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 	'Really shouldn't be here. We aren't editing data so this is pointless.
-				If ButtonPressed <> next_to_page_03_button then call navigation_buttons		'<<<<<MERGE WITH ABOVE INTO NEW FUNCTION. AAAAAAH SMASH!
+				Dialog CAF_dialog_02			'Displays the second dialog
+				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
-			If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 somehow
+			If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
 			Do
-				Do
-					Do
-						Dialog CAF_dialog_03							'There's a third dialog
-						cancel_confirmation								'Best code I've written all week
-					Loop until ButtonPressed <> no_cancel_button		'Dumb and probably pointless
-					EMReadScreen STAT_check, 4, 20, 21					'Dumb and probably pointless
-					If STAT_check = "STAT" then call stat_navigation	'MERGE THIS ALREADY
-					transmit 											'Let's check for MAXIS here even though we totally still have a crazy amount of stuff to do before we get to CASE/NOTE. Sure.
-					EMReadScreen MAXIS_check, 5, 1, 39					'Ugh. I built a better function for this.
-					If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."		'---LAMESAUCE
-				Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 		'Stupid
-				If ButtonPressed <> -1 then call navigation_buttons		'MERGE THIS!!!!!!!!!!!
-				If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here for a reason not yet known
+				Dialog CAF_dialog_03			'Displays the third dialog
+				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
 			Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
-		Loop until ButtonPressed = -1	'!!!!!!!!!!!I SEE! Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
-		If ButtonPressed = previous_to_page_01_button then exit do 'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
-		If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN 'Tells the worker what's what in a MsgBox.
+		Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
+		If ButtonPressed = previous_to_page_01_button then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
+		If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN 'Tells the worker what's required in a MsgBox.
 			MsgBox "You need to:" & chr(13) & chr(13) & _
 			  "-Fill in the datestamp, and/or" & chr(13) & _
 			  "-Actions taken sections, and/or" & chr(13) & _
@@ -534,9 +507,8 @@ Do
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 
-'Now, the client_delay_checkbox business
-	
-If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED, MAKE THIS A NEW FUNCTION!!!!!!!!!!!!!!!!!!!
+'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
+If client_delay_checkbox = checked and CAF_type <> "Recertification" then 
 	call navigate_to_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
@@ -566,7 +538,7 @@ If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDAT
 		client_delay_checkbox = unchecked		'Probably unnecessary except that it changes the case note parameters
 	End if
 End if
-'--------------------END OF CLIENT DELAY BUSINESS
+
 'Going to TIKL, there's a custom function for this. Evaluate using it.
 If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
