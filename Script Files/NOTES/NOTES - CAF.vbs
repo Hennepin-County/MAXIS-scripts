@@ -5,6 +5,101 @@ FUNCTION cancel_confirmation
 	End if
 END FUNCTION
 
+FUNCTION MAXIS_dialog_navigation
+	'This part works with the prev/next buttons on several of our dialogs. You need to name your buttons prev_panel_button, next_panel_button, prev_memb_button, and next_memb_button in order to use them.
+	EMReadScreen STAT_check, 4, 20, 21
+	If STAT_check = "STAT" then
+		If ButtonPressed = prev_panel_button then 
+			EMReadScreen current_panel, 1, 2, 73
+			EMReadScreen amount_of_panels, 1, 2, 78
+			If current_panel = 1 then new_panel = current_panel
+			If current_panel > 1 then new_panel = current_panel - 1
+			If amount_of_panels > 1 then EMWriteScreen "0" & new_panel, 20, 79
+			transmit
+		ELSEIF ButtonPressed = next_panel_button then 
+			EMReadScreen current_panel, 1, 2, 73
+			EMReadScreen amount_of_panels, 1, 2, 78
+			If current_panel < amount_of_panels then new_panel = current_panel + 1
+			If current_panel = amount_of_panels then new_panel = current_panel
+			If amount_of_panels > 1 then EMWriteScreen "0" & new_panel, 20, 79
+			transmit
+		ELSEIF ButtonPressed = prev_memb_button then 
+			HH_memb_row = HH_memb_row - 1
+			EMReadScreen prev_HH_memb, 2, HH_memb_row, 3
+			If isnumeric(prev_HH_memb) = False then
+				HH_memb_row = HH_memb_row + 1
+			Else
+				EMWriteScreen prev_HH_memb, 20, 76
+				EMWriteScreen "01", 20, 79
+			End if
+			transmit
+		ELSEIF ButtonPressed = next_memb_button then 
+			HH_memb_row = HH_memb_row + 1
+			EMReadScreen next_HH_memb, 2, HH_memb_row, 3
+			If isnumeric(next_HH_memb) = False then
+				HH_memb_row = HH_memb_row + 1
+			Else
+				EMWriteScreen next_HH_memb, 20, 76
+				EMWriteScreen "01", 20, 79
+			End if
+			transmit
+		End if
+	End if
+	
+	'This part takes care of remaining navigation buttons, designed to go to a single panel.
+	If ButtonPressed = ABPS_button then call navigate_to_screen("stat", "ABPS")
+	If ButtonPressed = ACCI_button then call navigate_to_screen("stat", "ACCI")
+	If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
+	If ButtonPressed = ADDR_button then call navigate_to_screen("stat", "ADDR")
+	If ButtonPressed = ALTP_button then call navigate_to_screen("stat", "ALTP")
+	If ButtonPressed = AREP_button then call navigate_to_screen("stat", "AREP")
+	If ButtonPressed = BILS_button then call navigate_to_screen("stat", "BILS")
+	If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
+	If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
+	If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
+	If ButtonPressed = COEX_button then call navigate_to_screen("stat", "COEX")
+	If ButtonPressed = DCEX_button then call navigate_to_screen("stat", "DCEX")
+	If ButtonPressed = DIET_button then call navigate_to_screen("stat", "DIET")
+	If ButtonPressed = DISA_button then call navigate_to_screen("stat", "DISA")
+	If ButtonPressed = EATS_button then call navigate_to_screen("stat", "EATS")
+	If ButtonPressed = ELIG_DWP_button then call navigate_to_screen("elig", "DWP_")
+	If ButtonPressed = ELIG_FS_button then call navigate_to_screen("elig", "FS__")
+	If ButtonPressed = ELIG_GA_button then call navigate_to_screen("elig", "GA__")
+	If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
+	If ButtonPressed = ELIG_MFIP_button then call navigate_to_screen("elig", "MFIP")
+	If ButtonPressed = ELIG_MSA_button then call navigate_to_screen("elig", "MSA_")
+	If ButtonPressed = ELIG_WB_button then call navigate_to_screen("elig", "WB__")
+	If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
+	If ButtonPressed = FMED_button then call navigate_to_screen("stat", "FMED")
+	If ButtonPressed = HCRE_button then call navigate_to_screen("stat", "HCRE")
+	If ButtonPressed = HEST_button then call navigate_to_screen("stat", "HEST")
+	If ButtonPressed = IMIG_button then call navigate_to_screen("stat", "IMIG")
+	If ButtonPressed = INSA_button then call navigate_to_screen("stat", "INSA")
+	If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
+	If ButtonPressed = MEDI_button then call navigate_to_screen("stat", "MEDI")
+	If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
+	If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
+	If ButtonPressed = MONT_button then call navigate_to_screen("stat", "MONT")
+	If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
+	If ButtonPressed = PBEN_button then call navigate_to_screen("stat", "PBEN")
+	If ButtonPressed = PDED_button then call navigate_to_screen("stat", "PDED")
+	If ButtonPressed = PREG_button then call navigate_to_screen("stat", "PREG")
+	If ButtonPressed = PROG_button then call navigate_to_screen("stat", "PROG")
+	If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
+	If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
+	If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
+	If ButtonPressed = SCHL_button then call navigate_to_screen("stat", "SCHL")
+	If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
+	If ButtonPressed = STIN_button then call navigate_to_screen("stat", "STIN")
+	If ButtonPressed = STEC_button then call navigate_to_screen("stat", "STEC")
+	If ButtonPressed = STWK_button then call navigate_to_screen("stat", "STWK")
+	If ButtonPressed = SHEL_button then call navigate_to_screen("stat", "SHEL")
+	If ButtonPressed = SWKR_button then call navigate_to_screen("stat", "SWKR")
+	If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
+	If ButtonPressed = TYPE_button then call navigate_to_screen("stat", "TYPE")
+	If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
+END FUNCTION
+
 FUNCTION proceed_confirmation(result_of_msgbox)		'Result returns TRUE if Yes is pressed, and FALSE if No is pressed.
 	If ButtonPressed = -1 then 
 		proceed_confirm = MsgBox("Are you sure you want to proceed? Press Yes to continue, No to return to the previous screen, and Cancel to end the script.", vbYesNoCancel)
