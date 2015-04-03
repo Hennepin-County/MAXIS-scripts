@@ -5,12 +5,12 @@ FUNCTION cancel_confirmation
 	End if
 END FUNCTION
 
-FUNCTION proceed_confirmation(result)		'Result returns TRUE if Yes is pressed, and FALSE if No is pressed.
+FUNCTION proceed_confirmation(result_of_msgbox)		'Result returns TRUE if Yes is pressed, and FALSE if No is pressed.
 	If ButtonPressed = -1 then 
 		proceed_confirm = MsgBox("Are you sure you want to proceed? Press Yes to continue, No to return to the previous screen, and Cancel to end the script.", vbYesNoCancel)
 		If proceed_confirm = vbCancel then stopscript
-		If proceed_confirm = vbYes then result = TRUE
-		If proceed_confirm = vbNo then result = FALSE
+		If proceed_confirm = vbYes then result_of_msgbox = TRUE
+		If proceed_confirm = vbNo then result_of_msgbox = FALSE
 	End if
 END FUNCTION
 
@@ -309,9 +309,9 @@ call HH_member_custom_dialog(HH_member_array)
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
-  call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
+	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
 Else
-  call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
+	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
 End if
 If HC_checkbox = checked and CAF_type <> "Recertification" then call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)     'Grabbing retro info for HC cases that aren't recertifying
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)                                                                        'Grabbing HH comp info from MEMB.
@@ -428,7 +428,7 @@ Do
 			  "Check these items after pressing ''OK''."	
 		End if
 	Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
-	proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 	'--------------THE DIALOG DO LOOPING SHOULD END HERE, AND THE SCRIPT SHOULD CHECK FOR MAXIS AT THIS POINT!!!!!!!!!!!!!!!!!!!!!!!!!
 	If case_note_confirm = TRUE then				'Only does all this if the case_note_confirm variable is made TRUE by the proceed_confirmation function
 		If client_delay_checkbox = checked and CAF_type <> "Recertification" then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED, MAKE THIS A NEW FUNCTION!!!!!!!!!!!!!!!!!!!
