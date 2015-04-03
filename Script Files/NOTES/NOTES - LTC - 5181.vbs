@@ -146,6 +146,13 @@ If len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = datepart("yyyy", next_month)
 footer_year = "" & footer_year - 2000
 
+'FUNCTION----------------------------------------------------------------------------------------------------
+FUNCTION cancel_confirmation 
+	If ButtonPressed = 0 then  
+		cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo) 
+		If cancel_confirm = vbYes then stopscript 
+	End if 
+END FUNCTION 
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -347,13 +354,40 @@ call check_for_MAXIS(True)
 'function to navigate user to case note
 Call navigate_to_screen ("case", "note")						
 PF9	
-'********
+
+Do
+	Do
+		Do
+			Dialog DHS_5181_dialog_1			'Displays the first dialog
+			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
+			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+		Loop until ButtonPressed = next_to_page_02_button
+		Do
+			Do
+				Dialog DHS_5181_dialog_2			'Displays the second dialog
+				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+			Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
+			If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
+			Do
+				Dialog DHS_5181_Dialog_3			'Displays the third dialog
+				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
+			Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
+		Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
+		If ButtonPressed = previous_to_page_01_button then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
+		If case_action_editbox = "" or worker_signature = "" THEN 'Tells the worker what's required in a MsgBox.
+			MsgBox "You need to:" & chr(13) & chr(13) & _
+			  "-Case actions section, and/or" & chr(13) & _
+			  "-Sign your case note." & chr(13) & chr(13) & _
+			  "Check these items after pressing ''OK''."	
+		End if
+	Loop until case_action_editbox <> ""  and worker_signature <> ""	'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
+	
+	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 									  
-'	IF buttonpressed = cancel THEN StopScript
-'	IF worker_signature = "" THEN MsgBox "You must sign your case note"
-'	LOOP UNTIL worker_signature <> ""
-'IF case_action_editbox = "" THEN MsgBox "You must enter your case action"
-'LOOP UNTIL date_moved_in_editbox <> ""
 
 'Dollar bill symbol will be added to numeric variables 
 IF estimated_monthly_waiver_costs_editbox <> "" THEN estimated_monthly_waiver_costs_editbox = "$" & estimated_monthly_waiver_costs_editbox
