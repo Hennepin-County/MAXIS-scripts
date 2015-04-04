@@ -126,14 +126,20 @@ EMConnect ""		'Connecting to Bluezone
 call MAXIS_case_number_finder(case_number)							'function autofills case number that worker already has on MAXIS screen
 
 DO
-	Dialog case_number_dialogbox									'calls up dialog for worker to enter case number and applicable month and year.  Script will 'loop' 
-	IF buttonpressed = cancel THEN StopScript						'and verbally request the worker to enter a case number until the worker enters a case number.
-	IF case_number = "" THEN MsgBox "You must enter a case number"
-LOOP UNTIL case_number <> ""
-
+		Dialog case_number_dialogbox									'calls up dialog for worker to enter case number and applicable month and year.  Script will 'loop' 
+		IF buttonpressed = cancel THEN StopScript						'and verbally request the worker to enter a case number until the worker enters a case number.
+		IF case_number = "" THEN MsgBox "You must enter a case number"
+	LOOP UNTIL case_number <> ""
+	
 Call check_for_MAXIS(true)											'ensures that worker has not "passworded" out of MAXIS
 
-Dialog LTC_transfer_penalty_dialog
+DO
+	DO
+		Dialog LTC_transfer_penalty_dialog
+		IF len(baseline_date) < 6 THEN MsgBox "You must enter a date in format MM/DD/YYYY"
+	LOOP until len(baseline_date) >= 6
+	IF worker_signature = "" THEN MsgBox "You must sign your case note!"
+LOOP UNTIL worker_signature <> ""
 
 Call navigate_to_screen ("elig", "HC__")
 EMWriteScreen "x", 8, 26 
