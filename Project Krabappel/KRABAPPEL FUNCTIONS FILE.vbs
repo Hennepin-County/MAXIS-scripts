@@ -216,7 +216,7 @@ Function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 				row = 15
 			End If		
 		next
-		call MAXIS_dater(date, abps_act_date, "Actual Date")
+		IF abps_act_date <> "" call MAXIS_dater(date, abps_act_date, "Actual Date")
 		EMWriteScreen left(abps_act_date,2)			, 18, 38
 		EMWriteScreen mid(abps_act_date,4,2)		, 18, 41
 		EMWriteScreen "20" & right(abps_act_date,2)	, 18, 44
@@ -241,7 +241,7 @@ Function write_panel_to_MAXIS_ACCT(acct_type, acct_numb, acct_location, acct_bal
 	Emwritescreen acct_location, 8, 44  'enters the account location
 	Emwritescreen acct_balance, 10, 46  'enters the balance
 	Emwritescreen acct_bal_ver, 10, 63  'enters the balance verification
-	call create_MAXIS_friendly_date(acct_date, 0, 11, 44)  'enters the account balance date in a MAXIS friendly format. mm/dd/yy
+	IF acct_date <> "" THEN call create_MAXIS_friendly_date(acct_date, 0, 11, 44)  'enters the account balance date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen acct_withdraw, 12, 46  'enters the withdrawl penalty
 	Emwritescreen acct_cash_count, 14, 50  'enters y/n if counted for cash
 	Emwritescreen acct_snap_count, 14, 57  'enters y/n if counted for snap
@@ -589,7 +589,7 @@ Function write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, 
 	Emwritescreen cars_ownership_ver, 10, 60  'enters the ownership verification code
 	Emwritescreen cars_amount_owed, 12, 45  'enters the amount owed on vehicle
 	Emwritescreen cars_amount_owed_ver, 12, 60  'enters the amount owed verification code
-	call create_MAXIS_friendly_date(cars_date, 0, 13, 43)  'enters the amouted owed as of date in a MAXIS friendly format. mm/dd/yy
+	IF cars_date <> "" THEN call create_MAXIS_friendly_date(cars_date, 0, 13, 43)  'enters the amouted owed as of date in a MAXIS friendly format. mm/dd/yy
 	Emwritescreen cars_use, 15, 43  'enters the use code for the vehicle
 	Emwritescreen cars_HC_benefit, 15, 76  'enters if the vehicle is for client benefit
 	Emwritescreen cars_joint_owner, 16, 43  'enters if it is a jointly owned car
@@ -753,14 +753,38 @@ END FUNCTION
 Function write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
 	Call navigate_to_screen("STAT", "DISA")  'navigates to the stat panel
 	call create_panel_if_nonexistent
-	call create_MAXIS_friendly_date(disa_begin_date, 0, 6, 47)  'enters the disability begin date in a MAXIS friendly format. mm/dd/yy
-	call create_MAXIS_friendly_date(disa_end_date, 0, 6, 69)  'enters the disability end date in a MAXIS friendly format. mm/dd/yy
-	call create_MAXIS_friendly_date(disa_cert_begin, 0, 7, 47)  'enters the disability certification begin date in a MAXIS friendly format. mm/dd/yy
-	call create_MAXIS_friendly_date(disa_cert_end, 0, 7, 69)  'enters the disability certification end date in a MAXIS friendly format. mm/dd/yy
-	call create_MAXIS_friendly_date(disa_wavr_begin, 0, 8, 47)  'enters the disability waiver begin date in a MAXIS friendly format. mm/dd/yy
-	call create_MAXIS_friendly_date(disa_wavr_end, 0, 8, 69)  'enters the disability waiver end date in a MAXIS friendly format. mm/dd/yy
-	call create_MAXIS_friendly_date(disa_ghr_begin, 0, 9, 47)  'enters the disability ghr begin date in a MAXIS friendly format. mm/dd/yy
-	call create_MAXIS_friendly_date(disa_ghr_end, 0, 9, 69)  'enters the disability ghr end date in a MAXIS friendly format. mm/dd/yy
+	IF disa_begin_date <> "" THEN 
+		call create_MAXIS_friendly_date(disa_begin_date, 0, 6, 47)  'enters the disability begin date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_begin_date), 6, 53
+	END IF
+	IF disa_end_date <> "" THEN 
+		call create_MAXIS_friendly_date(disa_end_date, 0, 6, 69)  'enters the disability end date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_end_date), 6, 75
+	END IF
+	IF disa_cert_begin <> "" THEN
+		call create_MAXIS_friendly_date(disa_cert_begin, 0, 7, 47)  'enters the disability certification begin date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_cert_begin), 7, 53
+	END IF
+	IF disa_cert_end <> "" THEN
+		call create_MAXIS_friendly_date(disa_cert_end, 0, 7, 69)  'enters the disability certification end date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_cert_end), 7, 75
+	END IF
+	IF disa_wavr_begin <> "" THEN
+		call create_MAXIS_friendly_date(disa_wavr_begin, 0, 8, 47)  'enters the disability waiver begin date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_wavr_begin), 8, 53
+	END IF
+	IF disa_wavr_end <> "" THEN 
+		call create_MAXIS_friendly_date(disa_wavr_end, 0, 8, 69)  'enters the disability waiver end date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_wavr_end), 8, 75
+	END IF
+	IF disa_grh_begin <> "" THEN 
+		call create_MAXIS_friendly_date(disa_grh_begin, 0, 9, 47)  'enters the disability grh begin date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_grh_begin), 9, 53
+	END IF
+	IF disa_grh_end <> "" THEN 
+		call create_MAXIS_friendly_date(disa_grh_end, 0, 9, 69)  'enters the disability grh end date in a MAXIS friendly format. mm/dd/yy
+		EMWriteScreen DatePart("YYYY", disa_grh_end), 9, 75
+	END IF
 	Emwritescreen disa_cash_status, 11, 59  'enters status code for cash disa status
 	Emwritescreen disa_cash_status_ver, 11, 69  'enters verification code for cash disa status
 	Emwritescreen disa_snap_status, 12, 59  'enters status code for snap disa status
@@ -777,7 +801,7 @@ Function write_panel_to_MAXIS_DSTT(DSTT_ongoing_income, DSTT_HH_income_stop_date
 	call ERRR_screen_check
 	call create_panel_if_nonexistent
 	EMWriteScreen DSTT_ongoing_income, 6, 69
-	call create_MAXIS_friendly_date(HH_income_stop_date, 0, 9, 69)
+	IF HH_income_stop_date <> "" THEN call create_MAXIS_friendly_date(HH_income_stop_date, 0, 9, 69)
 	EMWriteScreen income_expected_amt, 12, 71
 End function
 
@@ -827,7 +851,7 @@ Function write_panel_to_MAXIS_EMMA(EMMA_medical_emergency, EMMA_health_consequen
 	EMWriteScreen EMMA_health_consequence, 8, 46
 	EMWriteScreen EMMA_verification, 10, 46
 	call create_MAXIS_friendly_date(EMMA_begin_date, 0, 12, 46)
-	call create_MAXIS_friendly_date(EMMA_end_date, 0, 14, 46)
+	IF EMMA_end_date <> "" THEN call create_MAXIS_friendly_date(EMMA_end_date, 0, 14, 46)
 End function
 
 FUNCTION write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_attended, EMPS_good_cause, EMPS_sanc_begin, EMPS_sanc_end, EMPS_memb_at_home, EMPS_care_family, EMPS_crisis, EMPS_hard_employ, EMPS_under1, EMPS_DWP_date)
@@ -1090,10 +1114,14 @@ Function write_panel_to_MAXIS_IMIG(IMIG_imigration_status, IMIG_entry_date, IMIG
 	call create_MAXIS_friendly_date(date, 0, 5, 45)						'Writes actual date, needs to add 2000 as this is weirdly a 4 digit year
 	EMWriteScreen datepart("yyyy", date), 5, 51
 	EMWriteScreen IMIG_imigration_status, 6, 45							'Writes imig status
-	call create_MAXIS_friendly_date(IMIG_entry_date, 0, 7, 45)			'Enters year as a 2 digit number, so have to modify manually
-	EMWriteScreen datepart("yyyy", IMIG_entry_date), 7, 51
-	call create_MAXIS_friendly_date(IMIG_status_date, 0, 7, 71)			'Enters year as a 2 digit number, so have to modify manually
-	EMWriteScreen datepart("yyyy", IMIG_status_date), 7, 77
+	IF IMIG_entry_date <> "" THEN
+		call create_MAXIS_friendly_date(IMIG_entry_date, 0, 7, 45)			'Enters year as a 2 digit number, so have to modify manually
+		EMWriteScreen datepart("yyyy", IMIG_entry_date), 7, 51
+	END IF
+	IF IMIG_status_date <> "" THEN
+		call create_MAXIS_friendly_date(IMIG_status_date, 0, 7, 71)			'Enters year as a 2 digit number, so have to modify manually
+		EMWriteScreen datepart("yyyy", IMIG_status_date), 7, 77
+	END IF
 	EMWriteScreen IMIG_status_ver, 8, 45								'Enters status ver
 	EMWriteScreen IMIG_status_LPR_adj_from, 9, 45						'Enters status LPR adj from
 	EMWriteScreen IMIG_nationality, 10, 45								'Enters nationality
@@ -1580,7 +1608,7 @@ Function write_panel_to_MAXIS_RBIC(rbic_type, rbic_start_date, rbic_end_date, rb
 	call create_panel_if_nonexistent
 	EMwritescreen rbic_type, 5, 44  'enters rbic type code
 	call create_MAXIS_friendly_date(rbic_start_date, 0, 6, 44)  'creates and enters a MAXIS friend date in the format mm/dd/yy for rbic start date
-	call create_MAXIS_friendly_date(rbic_end_date, 6, 68)  'creates and enters a MAXIS friend date in the format mm/dd/yy for rbic end date
+	IF rbic_end_date <> "" THEN call create_MAXIS_friendly_date(rbic_end_date, 6, 68)  'creates and enters a MAXIS friend date in the format mm/dd/yy for rbic end date
 	rbic_group_1 = replace(rbic_group_1, " ", "")  'this will replace any spaces in the array with nothing removing the spaces.
 	rbic_group_1 = split(rbic_group_1, ",")  'this will split up the reference numbers in the array based on commas
 	rbic_col = 25                            'this will set the starting column to enter rbic reference numbers
@@ -1638,7 +1666,7 @@ Function write_panel_to_MAXIS_REST(rest_type, rest_type_ver, rest_market, rest_m
 	Emwritescreen rest_joint, 13, 54  'enters if it is a jointly owned home
 	Emwritescreen left(rest_share_ratio, 1), 14, 54  'enters the ratio of ownership using the left 1 digit of what is entered into the file
 	Emwritescreen right(rest_share_ratio, 1), 14, 58  'enters the ratio of ownership using the right 1 digit of what is entered into the file
-	call create_MAXIS_friendly_date(rest_agreement_date, 0, 16, 62)
+	IF rest_agreement_date <> "" THEN call create_MAXIS_friendly_date(rest_agreement_date, 0, 16, 62)
 End Function
 
 Function write_panel_to_MAXIS_SCHL(SCHL_status, SCHL_ver, SCHL_type, SCHL_district_nbr, SCHL_kindergarten_start_date, SCHL_grad_date, SCHL_grad_date_ver, SCHL_primary_secondary_funding, SCHL_FS_eligibility_status, SCHL_higher_ed)
@@ -1835,24 +1863,15 @@ Function write_panel_to_MAXIS_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_
 	End If 
 	
 	'Work Stop Date and Verif
-	If stwk_wrk_stop_date <> "" then
-		call MAXIS_dater(stwk_wrk_stop_date, stwk_wrk_stop_date_output, "Good Cause Claim Date")
-		EMWriteScreen left(stwk_wrk_stop_date_output,2)	, 7, 46	
-		EMWriteScreen mid(stwk_wrk_stop_date_output,4,2), 7, 49	
-		EMWriteScreen right(stwk_wrk_stop_date_output,2), 7, 52
-	End If
+	If stwk_wrk_stop_date <> "" then CALL create_MAXIS_friendly_date(stwk_wrk_stop_date, 0, 7, 46)
+	
 	If stwk_wrk_stop_date_verif <> "" then
 		EMWriteScreen stwk_wrk_stop_date_verif, 7, 63
 	End If
 	
 	'Income Stop Date 
-	If stwk_inc_stop_date <> "" then
-		call MAXIS_dater(stwk_inc_stop_date, stwk_inc_stop_date_output, "Good Cause Claim Date")
-		EMWriteScreen left(stwk_inc_stop_date_output,2)	, 8, 46	
-		EMWriteScreen mid(stwk_inc_stop_date_output,4,2), 8, 49	
-		EMWriteScreen right(stwk_inc_stop_date_output,2), 8, 52
-	End If
-	
+	IF stwk_inc_stop_date <> "" THEN CALL create_MAXIS_friendly_date(stwk_inc_stop_date, 0, 8, 46)
+		
 	'Refused Empl
 	If stwk_refused_empl_yn <> "" then
 		stwk_refused_empl_yn = ucase(stwk_empl_yn)
@@ -1868,12 +1887,7 @@ Function write_panel_to_MAXIS_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_
 	End If
 	
 	'Refused Empl Date
-	If stwk_ref_empl_date <> "" then
-		call MAXIS_dater(stwk_ref_empl_date, stwk_ref_empl_date_output, "Good Cause Claim Date")
-		EMWriteScreen left(stwk_ref_empl_date_output,2)	, 10, 72	
-		EMWriteScreen mid(stwk_ref_empl_date_output,4,2), 10, 75	
-		EMWriteScreen right(stwk_ref_empl_date_output,2), 10, 78
-	End If
+	If stwk_ref_empl_date <> "" then CALL create_MAXIS_friendly_date(stwk_ref_empl_date, 0, 10, 72)
 	
 	'Good Cause cash, grh, fs
 	If stwk_gc_cash <> "" then
