@@ -30,26 +30,28 @@ END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 'Must modify county_office_list manually each time to force recognition of variable from functions file. In other words, remove it from quotes.
-BeginDialog MFIP_orientation_dialog, 0, 0, 366, 125, "MFIP orientation letter"
+BeginDialog MFIP_orientation_dialog, 0, 0, 366, 155, "MFIP orientation letter"
   EditBox 60, 5, 55, 15, case_number
   EditBox 185, 5, 55, 15, orientation_date
   EditBox 310, 5, 55, 15, orientation_time
-  DropListBox 245, 25, 60, 15, county_office_list, interview_location
-  EditBox 80, 45, 270, 15, MFIP_address_line_01
-  EditBox 80, 65, 270, 15, MFIP_address_line_02
-  EditBox 65, 85, 55, 15, worker_signature
+  EditBox 205, 25, 55, 15, member_list
+  DropListBox 245, 40, 60, 15, county_office_list, interview_location
+  EditBox 80, 60, 270, 15, MFIP_address_line_01
+  EditBox 80, 75, 270, 15, MFIP_address_line_02
+  EditBox 65, 95, 55, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 255, 85, 50, 15
-    CancelButton 310, 85, 50, 15
-    PushButton 315, 25, 50, 15, "refresh", refresh_button
+    OkButton 255, 135, 50, 15
+    CancelButton 310, 135, 50, 15
+    PushButton 315, 40, 50, 15, "refresh", refresh_button
   Text 5, 10, 50, 10, "Case Number:"
   Text 125, 10, 60, 10, "Orientation Date:"
   Text 250, 10, 60, 10, "Orientation Time:"
-  Text 5, 30, 235, 10, "Location (select from dropdown and click ''refresh'', or fill in manually):"
-  Text 20, 50, 55, 10, "Address line 01:"
-  Text 20, 70, 55, 10, "Address line 02:"
-  Text 5, 90, 60, 10, "Worker Signature:"
-  Text 15, 105, 340, 20, "Please note: the dropdown above automatically fills in from your agency office/intake locations. It may not match your MFIP orientation locations. Please double check the address before pressing OK."
+  Text 5, 25, 195, 10, "Enter HH member numbers to attend, separated by commas:"
+  Text 5, 40, 235, 10, "Location (select from dropdown and click ''refresh'', or fill in manually):"
+  Text 20, 60, 55, 10, "Address line 01:"
+  Text 20, 75, 55, 10, "Address line 02:"
+  Text 5, 95, 60, 10, "Worker Signature:"
+  Text 15, 115, 340, 20, "Please note: the dropdown above automatically fills in from your agency office/intake locations. It may not match your MFIP orientation locations. Please double check the address before pressing OK."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -64,26 +66,29 @@ call MAXIS_case_number_finder(case_number)
 Do
 	Do
 		Do 
-			Do 
-				Do
+			Do
+				Do 
 					Do
 						Do
-							Dialog MFIP_orientation_dialog
-							If ButtonPressed = cancel then stopscript
-							If buttonPressed = refresh_button then
-								IF interview_location <> "" then 
-									call assign_county_address_variables(county_address_line_01, county_address_line_02)
-									MFIP_address_line_01 = county_address_line_01
-									MFIP_address_line_02 = county_address_line_02
+							Do
+								Dialog MFIP_orientation_dialog
+								If ButtonPressed = cancel then stopscript
+								If buttonPressed = refresh_button then
+									IF interview_location <> "" then 
+										call assign_county_address_variables(county_address_line_01, county_address_line_02)
+										MFIP_address_line_01 = county_address_line_01
+										MFIP_address_line_02 = county_address_line_02
+									End if
 								End if
-							End if
-						Loop until ButtonPressed = OK
-						If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-					Loop until isnumeric(case_number) = True and len(case_number) <= 8
-					If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
-				Loop until isdate(orientation_date) = True 
-				If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
-			Loop until orientation_time <> ""
+							Loop until ButtonPressed = OK
+							If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+						Loop until isnumeric(case_number) = True and len(case_number) <= 8
+						If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
+					Loop until isdate(orientation_date) = True 
+					If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
+				Loop until orientation_time <> ""
+				If member_list = "" then MsgBox "You must enter at least one household member to attend the interview."
+			Loop until member_list <> ""
 			If worker_signature = "" then MsgBox "You must provide a signature for your case note."
 		Loop until worker_signature <> ""
 		If MFIP_address_line_01 = "" or MFIP_address_line_02 = "" then MsgBox "You must enter an orientation address. Select one from the list, or enter one manually. Please note that the list fills in from intake locations, and may not be accurate in all agencies."
@@ -93,7 +98,21 @@ Do
 	IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
 Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
 
-'Using custom function to assign addresses to the selected office
+'Creating an array from the member number list to get names for notice
+member_array = split(member_list, ",") 
+	for each member in member_array
+		call navigate_to_screen("STAT", "MEMB")
+		member = replace(member, " ", "")
+		if len(member) = 1 then member = "0" & member
+		EMWriteScreen member, 20, 76
+		transmit
+		EMReadScreen name_long, 44, 6, 30
+		member_name = replace(name_long, "_", "")
+		member_name = replace(member_name, " First:", ",")
+		if members_to_attend <> "" then members_to_attend = members_to_attend & "; " & member_name
+		if members_to_attend = "" then members_to_attend = member_name
+	next
+
 
 
 'Navigating to SPEC/MEMO
@@ -110,40 +129,32 @@ If memo_display_check = "Memo Display" then script_end_procedure("You are not ab
 EMWriteScreen "x", 5, 10
 transmit
 
-'Writes the MEMO.
+''Writes the MEMO.
+EMSetCursor 3, 15
+call write_variable_in_SPEC_MEMO("************************************************************")
+call write_variable_in_SPEC_MEMO("You are required to attend a Minnesota Family Investment Program financial orientation. The following members of your household need to attend this appointment: " & members_to_attend)
+call write_variable_in_SPEC_MEMO("Your orientation is scheduled on " & orientation_date & " at " & orientation_time & ".")
+call write_variable_in_SPEC_MEMO("Your orientation is scheduled at the " & interview_location & " office located at: ")
+call write_variable_in_SPEC_MEMO(county_address_line_01) 
+call write_variable_in_SPEC_MEMO(county_address_line_02) 
+call write_variable_in_SPEC_MEMO("If you cannot attend this orientation, please contact the agency office to reschedule.  Failure to attend an orientation will result in a sanction of your MFIP benefits.")
+call write_variable_in_SPEC_MEMO("************************************************************")
 
-EMWriteScreen "************************************************************", 3, 15
-EMSetCursor 4, 15	'Does this after the stars, because the stars shouldn't carry into the next line.
-call write_new_line_in_SPEC_MEMO("You are required to attend a Financial Orientation for MFIP. Your orientation is scheduled on " & orientation_date & " at " & orientation_time & ".")
-call write_new_line_in_SPEC_MEMO("")
-call write_new_line_in_SPEC_MEMO("Your orientation is scheduled at the " & interview_location & " office located at: ")
-call write_new_line_in_SPEC_MEMO("     " & MFIP_address_line_01)
-call write_new_line_in_SPEC_MEMO("     " & MFIP_address_line_02)
-call write_new_line_in_SPEC_MEMO("")
-call write_new_line_in_SPEC_MEMO("If you cannot attend this orientation, please contact the agency office to reschedule. Failure to attend an orientation will result in a sanction (reduction) of your MFIP benefits.")
-EMSendKey "************************************************************"
-
-stopscript
 'Exits the MEMO
 PF4
-
 
 'Navigates to CASE/NOTE
 call navigate_to_screen("case", "note")
 PF9
 
 'Writes the case note
-EMSendKey "<home>" & "***MFIP orientation scheduled***" & "<newline>"
-call write_new_line_in_case_note("* Appt letter sent via SPEC/MEMO.")
-call write_new_line_in_case_note("* Orientation is scheduled on " & orientation_date & " at " & orientation_time & ".")
-call write_editbox_in_case_note("Location", interview_location, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+
+call write_variable_in_case_note("* Financial Orientation letter sent via SPEC/MEMO. *")
+call write_variable_in_case_note("Orientation is scheduled on: " & orientation_date & " at " & orientation_time)
+call write_variable_in_case_note("Location: " & interview_location)
+call write_bullet_and_variable_in_case_note("Household members needing to attend: ", members_to_attend)
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 'Script ends
 script_end_procedure("")
-
-
-
-
-
