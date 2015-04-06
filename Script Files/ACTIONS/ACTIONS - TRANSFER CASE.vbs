@@ -208,7 +208,7 @@ IF XFERRadioGroup = 0 THEN
 								transmit
 							END IF
 					LOOP UNTIL ButtonPressed = -1	
-						last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEX/XFER before transmitting to transfer.", vbYesNo)
+						last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEC/XFER before transmitting to transfer.", vbYesNo)
 				LOOP UNTIL last_chance = vbYes
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
