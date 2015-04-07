@@ -266,116 +266,118 @@ BeginDialog DHS_5181_dialog_1, 0, 0, 361, 305, "5181 Dialog 1"
 EndDialog
 
 
-BeginDialog DHS_5181_dialog_2, 0, 0, 361, 340, "5181 Dialog 2"
-  EditBox 250, 20, 45, 15, waiver_assessment_date_editbox
-  CheckBox 5, 35, 315, 10, "Needs waiver services and meets LOC requirement", needs_waiver_check
-  EditBox 160, 50, 45, 15, estimated_effective_date_editbox
-  CheckBox 5, 65, 115, 15, "Estimated monthly waiver costs:", estimated_monthly_check
-  EditBox 125, 65, 45, 15, estimated_monthly_waiver_costs_editbox
-  CheckBox 5, 80, 170, 15, "Does not meet waiver services LOC requirement", does_not_meet_waiver_LOC_check
-  CheckBox 5, 95, 105, 15, "Ongoing case mgr assigned:", ongoing_waiver_case_manager_check
-  EditBox 110, 95, 60, 15, ongoing_waiver_case_manager_editbox
-  EditBox 210, 115, 45, 15, LTCF_assessment_date_editbox
-  CheckBox 5, 125, 100, 15, "Meets MA-LOC requirement", meets_MALOC_check
-  CheckBox 5, 145, 120, 15, "Ongoing case manager assigned:", ongoing_case_manager_check
-  EditBox 130, 145, 110, 15, ongoing_case_manager_editbox
-  CheckBox 5, 160, 135, 15, "Ongoing case manager not available", ongoing_case_manager_not_available_check
-  CheckBox 5, 175, 115, 15, "Does not meet LOC requirement", does_not_meet_MALTC_LOC_check
-  CheckBox 0, 210, 80, 15, "Client applied for MA", client_applied_MA_check
-  CheckBox 0, 225, 205, 15, "Client is an MA enrollee - Assessor provided DHS-3543 on:", client_MA_enrollee_3543_provided_check
-  EditBox 205, 230, 45, 15, Client_MA_enrollee_editbox
-  CheckBox 0, 240, 155, 15, "Completed DHS-3543 or DHS-3531 attached", completed_3543_3531_check
-  CheckBox 0, 255, 190, 15, "Completed DHS-3543 or DHS-3531 faxed to county on: ", completed_3543_3531_faxed_check
-  EditBox 190, 255, 45, 15, completed_3543_3531_faxed_editbox
-  CheckBox 0, 270, 180, 15, "Please send DHS-3543 to client (MA enrollee)", please_send_3543_check
-  CheckBox 0, 285, 185, 15, "Please send DHS-3531 to client (Not MA enrollee) at:", please_send_3531_check
-  EditBox 190, 285, 150, 15, please_send_3531_editbox
-  CheckBox 0, 300, 205, 15, "Please send DHS-3340 to client - Asset Assessment needed", please_send_3340_check
-  CheckBox 30, 325, 65, 10, "1503 requested?", requested_1503_check
-  CheckBox 105, 325, 55, 10, "1503 on file?", onfile_1503_check
+BeginDialog DHS_5181_dialog_2, 0, 0, 361, 415, "5181 Dialog 2"
+  EditBox 245, 25, 45, 15, waiver_assessment_date_editbox
+  CheckBox 0, 40, 315, 10, "Needs waiver services and meets LOC requirement", needs_waiver_checkbox
+  EditBox 155, 55, 45, 15, estimated_effective_date_editbox
+  CheckBox 0, 70, 115, 15, "Estimated monthly waiver costs:", estimated_monthly_check
+  EditBox 120, 70, 45, 15, estimated_monthly_waiver_costs_editbox
+  CheckBox 0, 85, 170, 15, "Does not meet waiver services LOC requirement", does_not_meet_waiver_LOC_check
+  CheckBox 0, 100, 105, 15, "Ongoing case mgr assigned:", ongoing_waiver_case_manager_check
+  EditBox 105, 100, 60, 15, ongoing_waiver_case_manager_editbox
+  EditBox 205, 120, 45, 15, LTCF_assessment_date_editbox
+  CheckBox 0, 130, 100, 15, "Meets MA-LOC requirement", meets_MALOC_check
+  CheckBox 0, 150, 120, 15, "Ongoing case manager assigned:", ongoing_case_manager_check
+  EditBox 125, 150, 110, 15, ongoing_case_manager_editbox
+  CheckBox 0, 165, 135, 15, "Ongoing case manager not available", ongoing_case_manager_not_available_check
+  CheckBox 0, 180, 115, 15, "Does not meet LOC requirement", does_not_meet_MALTC_LOC_check
+  CheckBox 0, 215, 80, 15, "Client applied for MA", client_applied_MA_check
+  CheckBox 0, 230, 205, 15, "Client is an MA enrollee - Assessor provided DHS-3543 on:", client_MA_enrollee_3543_provided_check
+  EditBox 205, 235, 45, 15, Client_MA_enrollee_editbox
+  CheckBox 0, 245, 155, 15, "Completed DHS-3543 or DHS-3531 attached", completed_3543_3531_check
+  CheckBox 0, 260, 190, 15, "Completed DHS-3543 or DHS-3531 faxed to county on: ", completed_3543_3531_faxed_check
+  EditBox 190, 260, 45, 15, completed_3543_3531_faxed_editbox
+  CheckBox 0, 275, 180, 15, "Please send DHS-3543 to client (MA enrollee)", please_send_3543_check
+  CheckBox 0, 290, 185, 15, "Please send DHS-3531 to client (Not MA enrollee) at:", please_send_3531_check
+  EditBox 190, 290, 150, 15, please_send_3531_editbox
+  CheckBox 0, 305, 205, 15, "Please send DHS-3340 to client - Asset Assessment needed", please_send_3340_check
+  CheckBox 150, 180, 65, 10, "1503 requested?", requested_1503_check
+  CheckBox 230, 180, 55, 10, "1503 on file?", onfile_1503_check
   ButtonGroup ButtonPressed
-    PushButton 195, 320, 50, 15, "Previous", previous_to_page_01_button
-    PushButton 250, 320, 50, 15, "Next", next_to_page_03_button
-    CancelButton 305, 320, 50, 15
-  Text 5, 195, 190, 15, "**MEDICAL ASSISTANCE REQUESTS/APPLICATIONS**"
-  Text 5, 0, 145, 15, "INITIAL REQUESTS (check all that apply):"
-  Text 5, 115, 135, 15, "**LTCF** Assessment determines client: "
-  Text 185, 20, 60, 15, "Assessment date:"
-  GroupBox 0, 15, 355, 95, ""
-  GroupBox 0, 110, 355, 80, ""
-  GroupBox 0, 190, 355, 125, ""
-  Text 5, 20, 165, 15, "**WAIVERS** Assessment date determine client:"
-  Text 145, 115, 60, 15, "Assessment date:"
-  Text 20, 50, 135, 15, "Anticipated effective date no sooner than:"
+    PushButton 190, 395, 50, 15, "Previous", previous_to_page_01_button
+    PushButton 245, 395, 50, 15, "Next", next_to_page_3_button
+    CancelButton 300, 395, 50, 15
+  Text 0, 200, 190, 15, "**MEDICAL ASSISTANCE REQUESTS/APPLICATIONS**"
+  Text 5, 5, 145, 15, "INITIAL REQUESTS (check all that apply):"
+  Text 0, 120, 135, 15, "**LTCF** Assessment determines client: "
+  Text 180, 25, 60, 15, "Assessment date:"
+  GroupBox -5, 20, 355, 95, ""
+  GroupBox -5, 115, 355, 80, ""
+  GroupBox -5, 195, 355, 125, ""
+  Text 0, 25, 165, 15, "**WAIVERS** Assessment date determine client:"
+  Text 140, 120, 60, 15, "Assessment date:"
+  Text 15, 55, 135, 15, "Anticipated effective date no sooner than:"
+  Text 5, 330, 160, 15, "**CHANGES COMPLETED BY THE ASSESSOR**"
+  CheckBox 5, 345, 240, 15, "Client no longer meets LOC - Effective date should be no sooner than:", client_no_longer_meets_LOC_check
+  CheckBox 5, 365, 90, 15, "Waiver program change:", waiver_program_change_by_assessor_check
+  EditBox 240, 345, 45, 15, client_no_longer_meets_LOC_efffective_date_editbox
+  Text 100, 365, 20, 15, "From:"
+  EditBox 120, 365, 45, 15, waiver_program_change_from_assessor_editbox
+  Text 170, 365, 15, 15, "To:"
+  EditBox 180, 365, 45, 15, waiver_program_change_to_assessor_editbox
+  EditBox 280, 365, 45, 15, waiver_program_change_effective_date_editbox
+  Text 230, 365, 50, 15, "Effective date:"
+  GroupBox 0, 325, 350, 65, ""
 EndDialog
 
 
-BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 415, "5181 Dialog 3"
-  CheckBox 0, 25, 235, 15, "Client no longer meets LOC - Effective date should be no sooner than: ", client_no_longer_meets_LOC_check
-  EditBox 240, 25, 45, 15, client_no_longer_meets_LOC_efffective_date_editbox
-  CheckBox 0, 45, 90, 10, "Waiver program change", waiver_program_change_by_assessor_check
-  EditBox 115, 45, 45, 15, waiver_program_change_from_assessor_editbox
-  EditBox 180, 45, 45, 15, waiver_program_change_to_assessor_editbox
-  EditBox 285, 45, 45, 15, waiver_program_change_effective_date_editbox
-  CheckBox 5, 90, 135, 15, "Exited waiver program- Effective date: ", exited_waiver_program_check
-  EditBox 140, 90, 40, 15, exit_waiver_end_date_editbox
-  CheckBox 5, 105, 65, 15, "Client's choice", client_choice_check
-  CheckBox 5, 120, 115, 15, "Client deceased.  Date of death:", client_deceased_check
-  EditBox 125, 120, 45, 15, date_of_death_editbox
-  CheckBox 5, 135, 95, 15, "Client moved to LTCF on:", client_moved_to_LTCF_check
-  EditBox 125, 135, 45, 15, client_moved_to_LTCF_editbox
-  CheckBox 185, 135, 120, 15, "Have script update ADDR panel", LTCF_update_ADDR_checkbox
-  EditBox 65, 155, 235, 15, LTCF_ADDR_line_01
-  EditBox 65, 170, 235, 15, LTCF_ADDR_line_02
-  EditBox 25, 190, 60, 15, LTCF_city
-  EditBox 115, 190, 45, 15, LTCF_state
-  EditBox 220, 190, 45, 15, LTCF_county_code
-  EditBox 305, 190, 45, 15, LTCF_zip_code
-  CheckBox 0, 215, 90, 15, "Waiver program change", waiver_program_change_check
-  EditBox 115, 215, 45, 15, waiver_program_change_from_editbox
-  EditBox 180, 215, 45, 15, waiver_program_change_to_editbox
-  CheckBox 0, 230, 175, 15, "Client disenrolled from health plan.  Effective date: ", client_disenrolled_health_plan_check
-  EditBox 180, 230, 45, 15, client_disenrolled_from_healthplan_editbox
-  CheckBox 0, 245, 105, 15, "New address-Effective date:", new_address_check
-  EditBox 110, 245, 45, 15, new_address_effective_date_editbox
-  EditBox 70, 265, 235, 15, change_ADDR_line_1
-  EditBox 70, 280, 235, 15, change_ADDR_line_2
-  EditBox 30, 300, 60, 15, change_city
-  EditBox 120, 300, 45, 15, change_state
-  EditBox 225, 300, 45, 15, change_county_code
-  EditBox 310, 300, 45, 15, change_zip_code
-  EditBox 55, 330, 285, 15, case_action_editbox
-  EditBox 55, 350, 285, 15, other_notes_editbox
-  CheckBox 65, 370, 120, 10, "Inform worker of 5181 via TIKL?", write_TIKL_for_worker_check
-  CheckBox 195, 370, 125, 10, "Sent 5181 back to Case Manager?", sent_5181_to_caseworker_check
-  EditBox 70, 390, 120, 15, worker_signature
+BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
+  CheckBox 5, 20, 135, 15, "Exited waiver program- Effective date: ", exited_waiver_program_check
+  EditBox 140, 20, 40, 15, exit_waiver_end_date_editbox
+  CheckBox 5, 35, 65, 15, "Client's choice", client_choice_check
+  CheckBox 5, 50, 115, 15, "Client deceased.  Date of death:", client_deceased_check
+  EditBox 135, 50, 45, 15, date_of_death_editbox
+  CheckBox 5, 65, 95, 15, "Client moved to LTCF on:", client_moved_to_LTCF_check
+  EditBox 135, 65, 45, 15, client_moved_to_LTCF_editbox
+  CheckBox 190, 65, 115, 15, "Have script update ADDR panel", LTCF_update_ADDR_checkbox
+  EditBox 65, 85, 235, 15, LTCF_ADDR_line_01
+  EditBox 65, 100, 235, 15, LTCF_ADDR_line_02
+  EditBox 25, 120, 55, 15, LTCF_city
+  EditBox 110, 120, 45, 15, LTCF_state
+  EditBox 210, 120, 45, 15, LTCF_county_code
+  EditBox 295, 120, 45, 15, LTCF_zip_code
+  CheckBox 5, 145, 90, 15, "Waiver program change", waiver_program_change_check
+  EditBox 115, 145, 45, 15, waiver_program_change_from_editbox
+  EditBox 180, 145, 45, 15, waiver_program_change_to_editbox
+  CheckBox 5, 160, 175, 15, "Client disenrolled from health plan.  Effective date: ", client_disenrolled_health_plan_check
+  EditBox 180, 160, 45, 15, client_disenrolled_from_healthplan_editbox
+  CheckBox 5, 175, 105, 15, "New address-Effective date:", new_address_check
+  EditBox 115, 175, 45, 15, new_address_effective_date_editbox
+  EditBox 70, 195, 235, 15, change_ADDR_line_1
+  EditBox 70, 210, 235, 15, change_ADDR_line_2
+  EditBox 25, 230, 60, 15, change_city
+  EditBox 115, 230, 45, 15, change_state
+  EditBox 215, 230, 45, 15, change_county_code
+  EditBox 300, 230, 45, 15, change_zip_code
+  EditBox 55, 260, 285, 15, case_action_editbox
+  EditBox 55, 280, 285, 15, other_notes_editbox
+  CheckBox 10, 300, 120, 10, "Inform worker of 5181 via TIKL?", write_TIKL_for_worker_check
+  CheckBox 135, 300, 125, 10, "Sent 5181 back to Case Manager?", sent_5181_to_caseworker_check
+  EditBox 70, 320, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 195, 390, 50, 15, "Previous", previous_to_page_02_button
-    OkButton 250, 390, 50, 15
-    CancelButton 305, 390, 50, 15
-  Text 5, 350, 45, 15, "Other notes:"
-  Text 0, 170, 55, 15, "Address line 2:"
-  Text 5, 10, 165, 15, "**CHANGES COMPLETED BY THE ASSESSOR**"
-  Text 5, 190, 20, 15, "City:"
-  Text 5, 390, 65, 15, "Worker signature:"
-  Text 90, 190, 25, 15, "State:"
-  Text 165, 215, 15, 15, "To: "
-  Text 170, 190, 45, 15, "County code:"
-  GroupBox 0, 0, 350, 70, ""
-  Text 270, 190, 35, 15, "Zip code:"
-  Text 5, 330, 45, 15, "Case Action:"
-  Text 0, 155, 60, 15, "Facility Address:"
-  Text 5, 265, 60, 15, "Address line 1:"
-  Text 165, 45, 15, 15, "To: "
-  Text 5, 280, 55, 15, "Address line 2:"
-  Text 235, 45, 50, 15, "Effective Date:"
-  Text 10, 300, 20, 15, "City:"
-  Text 95, 45, 20, 15, "From:"
-  Text 95, 300, 25, 15, "State:"
-  Text 5, 75, 125, 15, "**CHANGES** (check all that apply):"
-  Text 175, 300, 45, 15, "County code:"
-  Text 95, 215, 20, 15, "From:"
-  Text 275, 300, 35, 15, "Zip code:"
+    PushButton 195, 320, 50, 15, "Previous", previous_to_page_02_button
+    OkButton 250, 320, 50, 15
+    CancelButton 305, 320, 50, 15
+  Text 5, 280, 45, 15, "Other notes:"
+  Text 5, 100, 55, 15, "Address line 2:"
+  Text 5, 120, 20, 15, "City:"
+  Text 5, 320, 65, 15, "Worker signature:"
+  Text 85, 120, 25, 15, "State:"
+  Text 165, 145, 15, 15, "To: "
+  Text 160, 120, 45, 15, "County code:"
+  Text 260, 120, 35, 15, "Zip code:"
+  Text 5, 260, 45, 15, "Case Action:"
+  Text 5, 85, 60, 15, "Facility Address:"
+  Text 5, 195, 60, 15, "Address line 1:"
+  Text 5, 210, 55, 15, "Address line 2:"
+  Text 5, 230, 20, 15, "City:"
+  Text 90, 230, 25, 15, "State:"
+  Text 5, 5, 125, 15, "**CHANGES** (check all that apply):"
+  Text 165, 230, 45, 15, "County code:"
+  Text 95, 145, 20, 15, "From:"
+  Text 265, 230, 35, 15, "Zip code:"
+  CheckBox 190, 175, 115, 15, "Have script update ADDR panel", update_addr_new_ADDR_checkbox
+  GroupBox 0, 0, 355, 250, ""
 EndDialog
 
 
@@ -610,6 +612,44 @@ If update_SWKR_info_checkbox = 1 THEN
 	PF3
 END IF	
 
+'Updates SWKR panel with ongoing case manager assigned
+If ongoing_waiver_case_manager_check = 1 THEN
+	'Go to STAT/SWKR
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+
+	'Go into edit mode
+	PF9
+
+	'Blanks out the old info
+	EMWriteScreen "___________________________________", 6, 32
+	
+	'Writes in new case manager name
+	EMWriteScreen ongoing_waiver_case_manager_editbox, 6, 32
+	
+	transmit
+	transmit
+	PF3
+END IF
+	
+'Updates SWKR panel with ongoing case manager assigned
+If ongoing_case_manager_check = 1 THEN
+	'Go to STAT/SWKR
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+
+	'Go into edit mode
+	PF9
+
+	'Blanks out the old info
+	EMWriteScreen "___________________________________", 6, 32
+	
+	'Writes in new case manager name
+	EMWriteScreen ongoing_case_manager_editbox, 6, 32
+	
+	transmit
+	transmit
+	PF3
+END IF
+	
 'Checking to see that we're in MAXIS
 call check_for_MAXIS(True)
 
@@ -661,12 +701,12 @@ IF completed_3543_3531_faxed_check = 1 THEN Call write_bullet_and_variable_in_ca
 IF please_send_3543_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3543 be sent to the MA enrollee or AREP.")
 IF please_send_3531_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at:", please_send_3531_check)
 IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP")
-
-'Information from DHS 5181 Dialog 3
 IF client_no_longer_meets_LOC_check = 1 THEN Call write_variable_in_case_note ("* Client no longer meets LOC - Effective date should be no sooner than:", client_no_longer_meets_LOC_efffective_date_editbox)					 
 IF waiver_program_change_by_assessor_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:", waiver_program_change_from_assessor_editbox, "to", waiver_program_change_to_assessor_editbox)
 Call write_bullet_and_variable_in_case_note ("Effective date", waiver_program_change_effective_date_editbox)
 IF exited_waiver_program_check = 1 THEN Call write_variable_in_case_note("* Exited waiver program.  Effective date: ", exit_waiver_end_date_editbox)
+
+'Information from DHS 5181 Dialog 3
 IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program")
 IF client_deceased_check = 1 THEN Call write_variable_in_case_note ("* Client is deceased.  Date of death", date_of_death_editbox)
 IF client_moved_to_LTCF_check = 1 THEN Call write_variable_in_case_note ("* Client moved to LTCF on", client_moved_to_LTCF_editbox)
@@ -682,6 +722,5 @@ call write_variable_in_case_note (worker_signature)
 MsgBox "Make sure your DISA and FACI panel(s) are updated if they needed."
 
 script_end_procedure("")
-
 
 
