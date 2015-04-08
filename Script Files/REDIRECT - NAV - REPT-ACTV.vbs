@@ -6,10 +6,10 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'LOADING SCRIPT
-url = script_repository & "/NAV/NAV - REPT-ACTV.vbs"
+script_URL = script_repository & "/NAV/NAV - REPT-ACTV.vbs"
 IF run_locally = False THEN
-	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-	req.open "GET", url, FALSE									'Attempts to open the URL
+	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
+	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
 	req.send													'Sends request
 	IF req.Status = 200 THEN									'200 means great success
 		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
@@ -24,16 +24,16 @@ IF run_locally = False THEN
 				vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
 				vbTab & "- The name and email for an employee from your IT department," & vbCr & _
 				vbTab & vbTab & "responsible for network issues." & vbCr &_
-				vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+				vbTab & "- The script URL indicated below (a screenshot should suffice)." & vbCr &_
 				vbCr & _
 				"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
 				vbCr &_
-				"URL: " & url
+				"URL: " & script_URL
 				script_end_procedure("Script ended due to error connecting to GitHub.")
 	END IF
 ELSE
 	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-	Set fso_command = run_another_script_fso.OpenTextFile(url)
+	Set fso_command = run_another_script_fso.OpenTextFile(script_URL)
 	text_from_the_other_script = fso_command.ReadAll
 	fso_command.Close
 	Execute text_from_the_other_script
