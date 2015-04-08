@@ -2,9 +2,14 @@
 'The following variables are dynamically added via the installer. They can be modified manually to make changes without re-running the 
 '	installer, but doing so should not be undertaken lightly.
 
+'CONFIG FOR HOW SCRIPTS WORK===================
+
 'Default directory: used by the script to determine if we're scriptwriters or not (scriptwriters use a default directory traditionally).
 '	This is modified by the installer, which will determine if this is a scriptwriter or a production user.
 default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
+
+'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
+run_locally = True
 
 '========================================================================================================================================
 
@@ -115,3 +120,6 @@ IF default_directory <> "C:\DHS-MAXIS-Scripts\Script Files\" THEN	'For folks who
 ELSE	'Scriptwriters use the master branch
 	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files/"
 END IF
+
+'If run locally is set to "True", the scripts will totally bypass GitHub and run locally. 
+IF run_locally = TRUE THEN script_repository = "C:\DHS-MAXIS-Scripts\Script Files"
