@@ -2,35 +2,49 @@
 name_of_script = "NOTES - MAIN MENU (H-Z).vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS-------------------------------------------------------------------------------------------
-If beta_agency = "" or beta_agency = True then
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-Else
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-End if
-Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, False									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 Then									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
@@ -99,26 +113,26 @@ EMConnect ""
 
 
 
-IF ButtonPressed = 	HC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HC RENEWAL.vbs")
-IF ButtonPressed = 	HCAPP_button									THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HCAPP.vbs")
-IF ButtonPressed = 	HRF_button										THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - HRF.vbs")
-IF ButtonPressed = 	LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LEP - SAVE.vbs")
-IF ButtonPressed = 	LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
-IF ButtonPressed = 	LTC_1503_button									THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - 1503.vbs")
-IF ButtonPressed = 	LTC_APPLICATION_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - APPLICATION RECEIVED.vbs")
-IF ButtonPressed = 	LTC_ASSET_ASSESSMENT_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - ASSET ASSESSMENT.vbs")
-IF ButtonPressed = 	LTC_COLA_SUMMARY_2015_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - COLA SUMMARY 2015.vbs")
-IF ButtonPressed = 	LTC_INTAKE_APPROVAL_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - INTAKE APPROVAL.vbs")
-IF ButtonPressed = 	LTC_MA_APPROVAL_button							THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - MA APPROVAL.vbs")
-IF ButtonPressed = 	LTC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - RENEWAL.vbs")
-IF ButtonPressed = 	LTC_TRANSFER_PENALTY_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - LTC - TRANSFER PENALTY.vbs")
-IF ButtonPressed = 	MEDICAL_OPINION_FORM_RECEIVED_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
-IF ButtonPressed = 	MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
-IF ButtonPressed = 	MILEAGE_REIMBURSEMENT_REQUEST_button			THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs")
-IF ButtonPressed = 	MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
-IF ButtonPressed = 	OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - OVERPAYMENT.vbs")
-IF ButtonPressed = 	SHELTER_FORM_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - SHELTER FORM RECEIVED.vbs")
-IF ButtonPressed = 	VERIFICATIONS_NEEDED_button						THEN CALL run_from_GitHub(script_repository & "NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
+IF ButtonPressed = 	HC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HC RENEWAL.vbs")
+IF ButtonPressed = 	HCAPP_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HCAPP.vbs")
+IF ButtonPressed = 	HRF_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HRF.vbs")
+IF ButtonPressed = 	LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
+IF ButtonPressed = 	LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
+IF ButtonPressed = 	LTC_1503_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 1503.vbs")
+IF ButtonPressed = 	LTC_APPLICATION_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - APPLICATION RECEIVED.vbs")
+IF ButtonPressed = 	LTC_ASSET_ASSESSMENT_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - ASSET ASSESSMENT.vbs")
+IF ButtonPressed = 	LTC_COLA_SUMMARY_2015_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - COLA SUMMARY 2015.vbs")
+IF ButtonPressed = 	LTC_INTAKE_APPROVAL_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - INTAKE APPROVAL.vbs")
+IF ButtonPressed = 	LTC_MA_APPROVAL_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - MA APPROVAL.vbs")
+IF ButtonPressed = 	LTC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - RENEWAL.vbs")
+IF ButtonPressed = 	LTC_TRANSFER_PENALTY_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - TRANSFER PENALTY.vbs")
+IF ButtonPressed = 	MEDICAL_OPINION_FORM_RECEIVED_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
+IF ButtonPressed = 	MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
+IF ButtonPressed = 	MILEAGE_REIMBURSEMENT_REQUEST_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs")
+IF ButtonPressed = 	MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
+IF ButtonPressed = 	OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - OVERPAYMENT.vbs")
+IF ButtonPressed = 	SHELTER_FORM_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SHELTER FORM RECEIVED.vbs")
+IF ButtonPressed = 	VERIFICATIONS_NEEDED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
 
 
 'Logging usage stats
