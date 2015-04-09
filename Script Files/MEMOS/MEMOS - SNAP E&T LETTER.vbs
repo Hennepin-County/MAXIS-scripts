@@ -53,7 +53,7 @@ END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 
-BeginDialog SNAPE&T_dialog, 0, 0, 326, 210, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_dialog, 0, 0, 326, 210, "SNAP E&T Appointment Letter"
   ButtonGroup ButtonPressed
     OkButton 215, 195, 50, 15
     CancelButton 270, 195, 50, 15
@@ -110,7 +110,7 @@ DO
 								DO
 									DO
 										DO
-											Dialog SNAPE&T_dialog
+											Dialog SNAPET_dialog
 											IF ButtonPressed = 0 then stopscript
 											IF buttonPressed = refresh_button then
 												IF interview_location <> "" then 
