@@ -124,10 +124,9 @@ call find_variable("Month: " & footer_month & " ", footer_year, 2)
 spousal_allocation_footer_month = footer_month
 spousal_allocation_footer_year = footer_year
 
-'Dupli
-
 'Shows case number dialog
 dialog case_number_dialog
+cancel_confirmation
 if ButtonPressed = 0 then stopscript
 
 'Navigates back to the SELF menu
@@ -307,7 +306,8 @@ HH_memb_row = 6
 Do
   Do
     dialog spousal_maintenance_dialog
-    If ButtonPressed = 0 then stopscript
+    cancel_confirmation
+	If ButtonPressed = 0 then stopscript
     EMReadScreen STAT_check, 4, 20, 21
     If STAT_check = "STAT" then call stat_navigation
     transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
@@ -399,6 +399,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_01 <> "" then
     If gross_spousal_unearned_income_excluded_check_01 = 1 then EMWriteScreen "Y", 8, 58
     If gross_spousal_unearned_income_excluded_check_01 <> 1 then EMWriteScreen "N", 8, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 9, 8
   EMWriteScreen gross_spousal_unearned_income_type_02, 9, 8
@@ -408,6 +410,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_02 <> "" then
     If gross_spousal_unearned_income_excluded_check_02 = 1 then EMWriteScreen "Y", 9, 58
     If gross_spousal_unearned_income_excluded_check_02 <> 1 then EMWriteScreen "N", 9, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 10, 8
   EMWriteScreen gross_spousal_unearned_income_type_03, 10, 8
@@ -417,6 +421,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_03 <> "" then
     If gross_spousal_unearned_income_excluded_check_03 = 1 then EMWriteScreen "Y", 10, 58
     If gross_spousal_unearned_income_excluded_check_03 <> 1 then EMWriteScreen "N", 10, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 11, 8
   EMWriteScreen gross_spousal_unearned_income_type_04, 11, 8
@@ -426,6 +432,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_04 <> "" then
     If gross_spousal_unearned_income_excluded_check_04 = 1 then EMWriteScreen "Y", 11, 58
     If gross_spousal_unearned_income_excluded_check_04 <> 1 then EMWriteScreen "N", 11, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
 
   'Gets out of unearned and heads into earned income
@@ -442,6 +450,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_01 <> "" then
     If gross_spousal_earned_income_excluded_check_01 = 1 then EMWriteScreen "Y", 8, 59
     If gross_spousal_earned_income_excluded_check_01 <> 1 then EMWriteScreen "N", 8, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 9, 8
   EMWriteScreen gross_spousal_earned_income_type_02, 9, 8
@@ -451,6 +461,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_02 <> "" then
     If gross_spousal_earned_income_excluded_check_02 = 1 then EMWriteScreen "Y", 9, 59
     If gross_spousal_earned_income_excluded_check_02 <> 1 then EMWriteScreen "N", 9, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 10, 8
   EMWriteScreen gross_spousal_earned_income_type_03, 10, 8
@@ -460,6 +472,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_03 <> "" then
     If gross_spousal_earned_income_excluded_check_03 = 1 then EMWriteScreen "Y", 10, 59
     If gross_spousal_earned_income_excluded_check_03 <> 1 then EMWriteScreen "N", 10, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 11, 8
   EMWriteScreen gross_spousal_earned_income_type_04, 11, 8
@@ -469,6 +483,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_04 <> "" then
     If gross_spousal_earned_income_excluded_check_04 = 1 then EMWriteScreen "Y", 11, 59
     If gross_spousal_earned_income_excluded_check_04 <> 1 then EMWriteScreen "N", 11, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
 
   'Gets out of earned income
