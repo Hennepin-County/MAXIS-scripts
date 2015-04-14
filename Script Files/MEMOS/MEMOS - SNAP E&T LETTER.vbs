@@ -1,76 +1,98 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "MEMO - SNAP E&T LETTER"
+name_of_script = "MEMO - SNAP E&T LETTER.vbs"
 start_time = timer
 
 'Option Explicit
 
 DIM beta_agency
-DIM url, req, fso
+DIM FuncLib_URL, req, fso
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-If beta_agency = "" or beta_agency = True then
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-Else
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-End if
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Array listed above Dialog as below the dialog, the droplist appeared blank
+'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
+county_FSET_offices = array("Select one", "Century Plaza", "Sabathani Community Center")
+
+call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-
-BeginDialog SNAPE&T_dialog, 0, 0, 326, 210, "SNAP E&T Appointment Letter"
-  ButtonGroup ButtonPressed
-    OkButton 215, 195, 50, 15
-    CancelButton 270, 195, 50, 15
-	PushButton 290, 40, 35, 15, "refresh", refresh_button
+' FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work
+BeginDialog SNAPET_dialog, 0, 0, 326, 210, "SNAP E&T Appointment Letter"
   EditBox 85, 0, 55, 15, case_number
-  EditBox 235, 0, 20, 15, member_number
+  EditBox 230, 0, 20, 15, member_number
   EditBox 85, 20, 55, 15, appointment_date
-  EditBox 235, 20, 45, 15, appointment_time
-  DropListBox 240, 40, 45, 15, county_office_list, interview_location
+  EditBox 230, 20, 20, 15, appointment_time_prefix_editbox
+  DropListBox 230, 40, 95, 15, "county_office_list", interview_location
+  ButtonGroup ButtonPressed
+    PushButton 245, 60, 35, 15, "refresh", refresh_button
   EditBox 65, 60, 170, 15, SNAPET_name
   EditBox 65, 75, 170, 15, SNAPET_address_01
   EditBox 65, 90, 170, 15, SNAPET_address_02
-  EditBox 65, 105, 65, 15, SNAPET_contact
-  EditBox 210, 105, 60, 15, SNAPET_phone
+  EditBox 60, 110, 65, 15, SNAPET_contact
+  EditBox 210, 110, 60, 15, SNAPET_phone
   EditBox 65, 140, 65, 15, worker_signature
-  Text 10, 5, 50, 10, "Case Number:"
+  ButtonGroup ButtonPressed
+    OkButton 215, 195, 50, 15
+    CancelButton 270, 195, 50, 15
   Text 150, 5, 70, 10, "HH Member Number:"
   Text 10, 20, 65, 15, "Appointment Date:"
-  Text 160, 20, 75, 10, "Appointment Time:"
-  Text 5, 40, 230, 15, "Location (select from dropdown and click refresh, or fill in manually)"
+  Text 150, 20, 75, 10, "Appointment Time:"
+  Text 5, 40, 220, 15, "Location (select from dropdown and click refresh, or fill in manually)"
   Text 5, 60, 55, 10, "Provider Name:"
   Text 5, 75, 55, 10, "Address line 1:"
   Text 5, 90, 55, 10, "Address Line 2"
-  Text 5, 110, 55, 10, "Contact Name:"
-  Text 150, 110, 55, 10, "Contact Phone:"
+  Text 5, 115, 55, 10, "Contact Name:"
+  Text 150, 115, 55, 10, "Contact Phone:"
   Text 5, 145, 60, 10, "Worker Signature:"
   Text 5, 160, 315, 25, "Please note: the dropdown above automatically fills in from your agency office/intake locations.  It may not match your SNAP E&T orientation locations.  Please double check the address before pressing OK. "
+  Text 10, 5, 50, 10, "Case Number:"
+  EditBox 255, 20, 20, 15, appointment_time_post_editbox
+  Text 250, 25, 5, 15, ":"
+  DropListBox 280, 20, 45, 15, "Select one.."+chr(9)+"a.m."+chr(9)+"p.m.", AM_PM-droplist
 EndDialog
-
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -78,27 +100,13 @@ EndDialog
 'Connects to BlueZone default screen
 EMConnect ""
 
-'Grabbing the case number
-call MAXIS_case_number_finder(case_number)
-
-'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
-
-'Showing the case number
-Do
-	Dialog case_number_and_footer_month_dialog
-	If ButtonPressed = 0 then stopscript
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
-transmit
-
-'Checking to see that we're in MAXIS
-call check_for_MAXIS(True)
+'Searches for a case number
+row = 1
+col = 1
+EMSearch "Case Nbr: ", row, col
+EMReadScreen case_number, 8, row, col + 10
+case_number = trim(replace(case_number, "_", ""))
+If isnumeric(case_number) = False then case_number = ""
 
 'Shows dialog, checks for password prompt
 DO
@@ -112,50 +120,71 @@ DO
 								DO
 									DO
 										DO
-											Dialog SNAPE&T_dialog
-											IF ButtonPressed = 0 then stopscript
-											IF buttonPressed = refresh_button then
-												IF interview_location <> "" then 
-													call assign_county_address_variables(county_address_line_01, county_address_line_02)
-													SNAPET_address_01 = county_address_line_01
-													SNAPET_address_02 = county_address_line_02
+											DO
+												DO
+												Dialog SNAPET_dialog
+												cancel_confirmation 'asks if they really want to cancel script
+												IF ButtonPressed = 0 then stopscript	
+												IF buttonPressed = refresh_button then
+													IF interview_location <> "" then 
+														call assign_county_address_variables(county_address_line_01, county_address_line_02)
+														SNAPET_address_01 = county_address_line_01
+														SNAPET_address_02 = county_address_line_02
+													END IF
 												END IF
-											END IF
-										LOOP UNTIL ButtonPressed = OK
-									IF case_number = "" then MsgBox "You did not enter a case number. Please try again."
-									LOOP UNTIL case_number <> ""
-								If isdate(appointment_date) = FALSE then MsgBox "You did not enter a valid appointment date. Please try again."
-								LOOP UNTIL isdate(appointment_date) = True
-							IF member_number = "" then MsgBox "You did not specify a household member number.  Please try again."
-							LOOP UNTIL isnumeric(member_number) = true
-						IF SNAPET_name = "" then MsgBox "Please specify the agency name."
-						LOOP UNTIL SNAPET_name <> ""
-					IF SNAPET_address_01 = "" then MsgBox "Please enter the address for the SNAP ET agency."
-					LOOP UNTIL SNAPET_address_01 <> ""
-				IF appointment_time = "" then MsgBox "Please specify an appointment time."
-				LOOP UNTIL appointment_time <> ""
-			IF worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-			LOOP UNTIL worker_signature <> ""
-		IF SNAPET_contact = "" THEN MsgBox "You must specify the E&T contact name.  Please try again."
-		LOOP UNTIL SNAPET_contact <> ""
-	IF SNAPET_phone = "" THEN MsgBox "You must enter a contact phone number.  Please try again."
-	LOOP UNTIL SNAPET_phone <> ""	
-    transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+											LOOP UNTIL ButtonPressed = OK
+										IF case_number = "" then MsgBox "You did not enter a case number. Please try again."
+										LOOP UNTIL case_number <> ""
+									If isdate(appointment_date) = FALSE then MsgBox "You did not enter a valid appointment date. Please try again."
+									LOOP UNTIL isdate(appointment_date) = True
+								IF member_number = "" then MsgBox "You did not specify a household member number.  Please try again."
+								LOOP UNTIL isnumeric(member_number) = true
+							IF SNAPET_name = "" then MsgBox "Please specify the agency name."
+							LOOP UNTIL SNAPET_name <> ""
+						IF SNAPET_address_01 = "" then MsgBox "Please enter the address for the SNAP ET agency."
+						LOOP UNTIL SNAPET_address_01 <> ""
+					IF appointment_time_prefix_editbox = "" then MsgBox "Please specify an appointment time."
+					LOOP UNTIL appointment_time_prefix_editbox <> ""
+				IF appointment_time_post_editbox = "" then MsgBox "Please specify an appointment time."
+				LOOP UNTIL appointment_time_post_editbox <> ""	
+			IF AM_PM-droplist = "" then MsgBox "Please choose either a.m. or p.m."
+			If AM_PM-droplist = "Select One..." THEN MsgBox "Please choose either a.m. or p.m."
+			End IF
+			LOOP UNTIL AM_PM-droplist <> ""					
+		IF worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+		LOOP UNTIL worker_signature <> ""
+	IF SNAPET_contact = "" THEN MsgBox "You must specify the E&T contact name.  Please try again."
+	LOOP UNTIL SNAPET_contact <> ""
+IF SNAPET_phone = "" THEN MsgBox "You must enter a contact phone number.  Please try again."
+LOOP UNTIL SNAPET_phone <> ""	
 
+transmit
+Call maxis_check_function
+ 
+ 
+'Logic for Hennepin County addresses only (currently)
+county_FSET_offices = array("Select one", "Century Plaza", "Sabathani Community Center")
+IF interview_location = "Century Plaza" THEN 
+	SNAPET_name = "Century Plaza"
+	SNAPET_address_01 = "330 South 12th Street #3650"
+	SNAPET_address_02 = "Minneapolis, MN. 55404"
+ElseIf interview_location = "Sabathani Community Center" THEN 
+	SNAPET_name = "Sabathani Community Center"
+	SNAPET_address_01 = "310 East 38th Street #120"
+	SNAPET_address_02 = "Minneapolis, MN. 55409"
+END IF
+	
   'Pulls the member name.
- call navigate_to_screen("STAT", "MEMB")
+ call navigate_to_MAXIS_screen("STAT", "MEMB")
  EMWriteScreen member_number, 20, 76
  transmit
  EMReadScreen last_name, 24, 6, 30
  EMReadScreen first_name, 11, 6, 63
  last_name = trim(replace(last_name, "_", ""))
  first_name = trim(replace(first_name, "_", ""))
-  
+ 
  'Navigates into SPEC/LETR
-  call navigate_to_screen("SPEC", "LETR")
+  call navigate_to_MAXIS_screen("SPEC", "LETR")
   
   'Checks to make sure we're past the SELF menu
   EMReadScreen still_self, 27, 2, 28 
@@ -195,8 +224,10 @@ With (New RegExp)
 	.Pattern = "\D"
 	appointment_time_fix = .Replace(appointment_time, "") 'Removes all non-digits
 End With
-IF LEN(appointment_time_fix) = 3 then appointment_time_fix = "0" & appointment_time_fix
- 
+Do
+	IF LEN(appointment_time_fix) <= 3 then appointment_time_fix = "0" & appointment_time_fix
+ Loop until LEN(appointment_time_fix) >= 4 
+
 
   'Writes the info into the LETR. 
   EMWriteScreen first_name & " " & last_name, 4, 28
@@ -215,11 +246,12 @@ IF LEN(appointment_time_fix) = 3 then appointment_time_fix = "0" & appointment_t
   EMWriteScreen right(SNAPET_phone, 3), 13, 34
   EMWriteScreen SNAPET_phoneright, 13, 40
   EMWriteScreen SNAPET_contact, 16, 28
+  Stopscript
   PF4
   'check to make sure memo sent
       
  'Navigates to a blank case note
-  call navigate_to_screen("case", "note")
+  call navigate_to_MAXIS_screen("case", "note")
   PF9
     
  'Writes the case note
