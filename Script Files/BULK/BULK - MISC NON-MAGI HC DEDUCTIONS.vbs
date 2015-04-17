@@ -1,5 +1,5 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - SWKR LIST GENERATOR.vbs"
+'GATHERING STATS----------------------------------------------------------------------------------------------------
+name_of_script = "BULK - MISC NON-MAGI HC DEDUCTION.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -46,11 +46,22 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CUSTOM FUNCTIONS---------------------------------------------------------------------------------------------
+'This one creates a quasi-two-dimensional array of all cases, using "|" to split cases and "~" to split case info within cases.
+Function combine_CEI_data_to_array(info_array)
+	If case_number_01 <> "" then info_array = info_array & case_number_01 & "~" & CEI_amount_01 & "~" & Mo_Yr_01 & "~" & date_01 & "|"
+	If case_number_02 <> "" then info_array = info_array & case_number_02 & "~" & CEI_amount_02 & "~" & Mo_Yr_02 & "~" & date_02 & "|"
+	If case_number_03 <> "" then info_array = info_array & case_number_03 & "~" & CEI_amount_03 & "~" & Mo_Yr_03 & "~" & date_03 & "|"
+	If case_number_04 <> "" then info_array = info_array & case_number_04 & "~" & CEI_amount_04 & "~" & Mo_Yr_04 & "~" & date_04 & "|"
+	If case_number_05 <> "" then info_array = info_array & case_number_05 & "~" & CEI_amount_05 & "~" & Mo_Yr_05 & "~" & date_05 & "|"
+	If case_number_06 <> "" then info_array = info_array & case_number_06 & "~" & CEI_amount_06 & "~" & Mo_Yr_06 & "~" & date_06 & "|"
+End function
+
 'CONNECTS TO MAXIS
 EMConnect ""
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
-BeginDialog SWKR_list_generator_dialog, 0, 0, 156, 115, "SWKR list generator dialog"
+BeginDialog misc_non_magi_hcdeduction_list_generator_dialog, 0, 0, 156, 115, "MISC NON-MAGI HC DEDUCTION list generator dialog"
   DropListBox 65, 5, 85, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
   EditBox 55, 25, 20, 15, footer_month
   EditBox 130, 25, 20, 15, footer_year
@@ -65,19 +76,24 @@ BeginDialog SWKR_list_generator_dialog, 0, 0, 156, 115, "SWKR list generator dia
   Text 5, 65, 145, 25, "Enter last three digits of each, (ex: x100###). If entering multiple workers, separate each with a comma."
 EndDialog
 
-
-'DISPLAYS DIALOG
-Dialog SWKR_list_generator_dialog
-If buttonpressed = cancel then stopscript
+DO
+	'DISPLAYS DIALOG
+	Dialog misc_non_magi_hcdeduction_list_generator_dialog 
+		If buttonpressed = cancel then stopscript
+		IF footer_month = "" OR footer_year = "" THEN MsgBox "Please provide a footer month & year."
+		IF worker_number = "" THEN MsgBox "Please provide a worker number."
+LOOP UNTIL footer_month <> "" AND footer_year <> "" AND worker_number <> "" AND ButtonPressed = -1
 
 'CHECKS FOR PASSWORD PROMPT/MAXIS STATUS
 transmit
-MAXIS_check_function
+'EMReadScreen maxis, 5, 1, 39
+'MsgBox maxis
+CALL check_for_MAXIS(True)
 
 'NAVIGATES BACK TO SELF TO FORCE THE FOOTER MONTH, THEN NAVIGATES TO THE SELECTED SCREEN
 back_to_self
 EMWriteScreen "________", 18, 43
-call navigate_to_screen("rept", right(REPT_panel, 4))
+call navigate_to_MAXIS_screen("rept", right(REPT_panel, 4))
 If right(REPT_panel, 4) = "REVS" then
 	current_month_plus_one = datepart("m", dateadd("m", 1, date))
 	If len(current_month_plus_one) = 1 then current_month_plus_one = "0" & current_month_plus_one
@@ -114,12 +130,25 @@ objExcel.Cells(1, 2).ColumnWidth = 9
 ObjExcel.Cells(1, 3).Value = "Name"
 objExcel.Cells(1, 3).Font.Bold = TRUE
 objExcel.Cells(1, 3).ColumnWidth = 27
-ObjExcel.Cells(1, 4).Value = "SWKR name"
+ObjExcel.Cells(1, 4).Value = "Pickle Disregard"
 objExcel.Cells(1, 4).Font.Bold = TRUE
-objExcel.Cells(1, 4).ColumnWidth = 35
-ObjExcel.Cells(1, 5).Value = "Copy of Notice?"
+objExcel.Cells(1, 4).ColumnWidth = 15
+ObjExcel.Cells(1, 5).Value = "Disabled Widow Diregard"
 objExcel.Cells(1, 5).Font.Bold = TRUE
-objExcel.Cells(1, 5).ColumnWidth = 20
+objExcel.Cells(1, 5).ColumnWidth = 24
+ObjExcel.Cells(1, 6).Value = "Disabled Adult Child"
+objExcel.Cells(1, 6).Font.Bold = TRUE
+objExcel.Cells(1, 6).ColumnWidth = 20
+ObjExcel.Cells(1, 7).Value = "Widow/ers Disregard"
+objExcel.Cells(1, 7).Font.Bold = TRUE
+objExcel.Cells(1, 7).ColumnWidth = 20
+ObjExcel.Cells(1, 8).Value = "Other Unearned Income Disregard"
+objExcel.Cells(1, 8).Font.Bold = TRUE
+objExcel.Cells(1, 8).ColumnWidth = 31
+ObjExcel.Cells(1, 9).Value = "Other Earned Income Disregard"
+objExcel.Cells(1, 9).Font.Bold = TRUE
+objExcel.Cells(1, 9).ColumnWidth = 29
+
 
 'Splitting array for use by the for...next statement
 worker_number_array = split(worker_number, ",")
@@ -131,7 +160,7 @@ For each worker in worker_number_array
 	worker_ID = worker_county_code & trim(worker)
 	
 	If REPT_panel = "REPT/ACTV" then 'THE REPT PANEL HAS THE worker NUMBER IN DIFFERENT COLUMNS. THIS WILL DETERMINE THE CORRECT COLUMN FOR THE worker NUMBER TO GO
-		worker_ID_col = 13
+		worker_ID_col = 17
 	Else
 		worker_ID_col = 6
 	End if  
@@ -162,9 +191,11 @@ For each worker in worker_number_array
 				EMReadScreen case_number, 8, row, 6 'grabbing case number
 				EMReadScreen client_name, 15, row, 16 'grabbing client name
 			End if
-			ObjExcel.Cells(excel_row, 1).Value = worker_ID
-			ObjExcel.Cells(excel_row, 2).Value = trim(case_number)
-			ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
+			IF trim(case_number) <> "" THEN 
+				ObjExcel.Cells(excel_row, 1).Value = worker_ID
+				ObjExcel.Cells(excel_row, 2).Value = trim(case_number)
+				ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
+			END IF
 			excel_row = excel_row + 1
 			row = row + 1
 		Loop until row = 19 or trim(case_number) = ""
@@ -176,32 +207,60 @@ For each worker in worker_number_array
 
 Next
 
-'NOW THE SCRIPT IS CHECKING STAT/AREP FOR EACH CASE.----------------------------------------------------------------------------------------------------
+'NOW THE SCRIPT IS CHECKING STAT/PDED FOR EACH CASE.----------------------------------------------------------------------------------------------------
 
 excel_row = 2 'Resetting the case row to investigate.
 
 do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no more case numbers
-	SWKR_name = "" 'Resetting this variable in case a SWKR cannot be found.
 	case_number = ObjExcel.Cells(excel_row, 2).Value 
 	If case_number = "" then exit do
 	
 	'This Do...loop gets back to SELF
 	back_to_self
 	
-	'NAVIGATES TO STAT/SWKR
-	call navigate_to_screen("STAT", "SWKR")
+	'NAVIGATES TO STAT/PDED
+	call navigate_to_screen("STAT", "PDED")
 	
 	'CHECKS FOR ERROR PRONE CASES
 	ERRR_screen_check
 	
-	'NAVIGATES TO SWKR, READS THE NAME AND NOTICE Y/N, AND ADDS TO SPREADSHEET
-	EMReadScreen SWKR_name, 34, 6, 32
-	swkr_name = replace(swkr_name, "_", "")
-	ObjExcel.Cells(excel_row, 4).Value = swkr_name
-	EMReadScreen NOTC_Y_N, 1, 15, 63
-	If NOTC_Y_N = "_" then NOTC_Y_N = ""
-	ObjExcel.Cells(excel_row, 5).Value = NOTC_Y_N
+	'NAVIGATES TO PDED, LOOKS FOR CODED DISREGARDS, AND ADDS TO SPREADSHEET
+	EMReadScreen pickle_disregard, 1, 6, 60
+	If pickle_disregard = "_" then 
+		pickle_disregard = ""
+	ELSEIF pickle_disregard = "1" THEN 
+		pickle_disregard = "Pickle Elig"
+	ELSEIF pickle_disregard = "2" THEN
+		pickle_disregard = "Potentially Pickle Elig"
+	END IF
+	ObjExcel.Cells(excel_row, 4).Value = pickle_disregard
+	EMReadScreen disabled_widow_disregard, 1, 7, 60
+	If disabled_widow_disregard = "_" then disabled_widow_disregard = ""
+	ObjExcel.Cells(excel_row, 5).Value = diabled_widow_disregard
+	EMReadScreen disabled_adult_child_disregard, 1, 8, 60
+	If disabled_adult_child_disregard = "_" then disabled_adult_child_disregard = ""	
+	ObjExcel.Cells(excel_row, 6).Value = diabled_adult_child_disregard
+	EMReadScreen widowers_disregard, 1, 9, 60
+	If widowers_disregard = "_" then widowers_disregard = ""
+	ObjExcel.Cells(excel_row, 7).Value = widowers_disregard
+	EMReadScreen other_unearned_disregard, 8, 10, 62
+	other_unearned_disregard = replace(other_unearned_disregard, "_", "")
+	ObjExcel.Cells(excel_row, 8).Value = other_unearned_disregard
+	EMReadScreen other_earned_disregard, 8, 11, 62
+	other_earned_disregard = replace(other_earned_disregard, "_", "")
+	ObjExcel.Cells(excel_row, 9).Value = other_earned_disregard
 	
+	'Deleting blank rows
+	IF objExcel.Cells(excel_row, 4).Value = "" AND _
+	  objExcel.Cells(excel_row, 5).Value = "" AND _
+	  objExcel.Cells(excel_row, 6).Value = "" AND _
+	  objExcel.Cells(excel_row, 7).Value = "" AND _
+	  objExcel.Cells(excel_row, 8).Value = "" AND _
+	  objExcel.Cells(excel_row, 9).Value = "" THEN
+			SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+			objRange.Delete
+			excel_row = excel_row - 1
+	END IF
 	
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 loop
