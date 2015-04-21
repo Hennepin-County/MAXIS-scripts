@@ -2,31 +2,49 @@
 name_of_script = "NOTES - LTC - RENEWAL.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
@@ -56,7 +74,7 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
     CancelButton 135, 55, 50, 15
 EndDialog
 
-BeginDialog LTC_recert_dialog, 5, 5, 431, 247, "LTC recert dialog"
+BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   EditBox 75, 45, 40, 15, recert_month
   EditBox 170, 45, 215, 15, US_citizen
   EditBox 65, 65, 50, 15, MA_type
@@ -70,11 +88,12 @@ BeginDialog LTC_recert_dialog, 5, 5, 431, 247, "LTC recert dialog"
   EditBox 60, 165, 365, 15, recipient_amt
   EditBox 50, 185, 375, 15, deductions
   EditBox 50, 205, 375, 15, other_notes
-  DropListBox 60, 225, 75, 15, "complete"+chr(9)+"incomplete", review_status
-  EditBox 215, 225, 65, 15, worker_sig
+  CheckBox 5, 225, 100, 10, "Sent forms to AREP?", sent_arep_checkbox
+  DropListBox 60, 240, 75, 15, "complete"+chr(9)+"incomplete", review_status
+  EditBox 215, 240, 65, 15, worker_sig
   ButtonGroup ButtonPressed
-    OkButton 320, 225, 50, 15
-    CancelButton 375, 225, 50, 15
+    OkButton 320, 240, 50, 15
+    CancelButton 375, 240, 50, 15
   GroupBox 20, 5, 60, 35, "Income panels"
   ButtonGroup ButtonPressed
     PushButton 25, 15, 25, 10, "BUSI", BUSI_button
@@ -116,8 +135,8 @@ BeginDialog LTC_recert_dialog, 5, 5, 431, 247, "LTC recert dialog"
   Text 5, 170, 50, 10, "Recipient amt:"
   Text 5, 190, 40, 10, "Deductions:"
   Text 5, 210, 40, 10, "Other notes:"
-  Text 5, 230, 55, 10, "Review status:"
-  Text 145, 230, 65, 10, "Sign the case note:"
+  Text 5, 245, 55, 10, "Review status:"
+  Text 145, 245, 65, 10, "Sign the case note:"
 EndDialog
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
@@ -419,6 +438,7 @@ call write_editbox_in_case_note("Assets", assets, 6)
 call write_editbox_in_case_note("Recipient amt", recipient_amt, 6)
 call write_editbox_in_case_note("Deducts", deductions, 6)
 If other_notes <> "" then call write_editbox_in_case_note("Notes", other_notes, 6)
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_sig)
 
