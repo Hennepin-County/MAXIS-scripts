@@ -9,7 +9,7 @@
 default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = False
+run_locally = True
 
 '========================================================================================================================================
 
