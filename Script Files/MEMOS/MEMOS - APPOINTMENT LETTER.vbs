@@ -142,7 +142,7 @@ If app_type = "recertification" then
   next_month_year = datepart("yyyy", dateadd("m", 1, interview_date))
   last_contact_day = dateadd("d", -1, next_month & "/01/" & next_month_year)
 End if
-If app_type = "new application" then last_contact_day = CAF_date + 31
+If app_type = "new application" then last_contact_day = CAF_date + 30
 If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date 
 
 'Navigating to SPEC/MEMO
