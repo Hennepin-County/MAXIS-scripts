@@ -2,31 +2,49 @@
 name_of_script = "ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog spousal_maintenance_dialog, 0, 0, 256, 185, "Spousal Maintenance Dialog"
@@ -106,10 +124,9 @@ call find_variable("Month: " & footer_month & " ", footer_year, 2)
 spousal_allocation_footer_month = footer_month
 spousal_allocation_footer_year = footer_year
 
-'Dupli
-
 'Shows case number dialog
 dialog case_number_dialog
+cancel_confirmation
 if ButtonPressed = 0 then stopscript
 
 'Navigates back to the SELF menu
@@ -289,7 +306,8 @@ HH_memb_row = 6
 Do
   Do
     dialog spousal_maintenance_dialog
-    If ButtonPressed = 0 then stopscript
+    cancel_confirmation
+	If ButtonPressed = 0 then stopscript
     EMReadScreen STAT_check, 4, 20, 21
     If STAT_check = "STAT" then call stat_navigation
     transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
@@ -381,6 +399,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_01 <> "" then
     If gross_spousal_unearned_income_excluded_check_01 = 1 then EMWriteScreen "Y", 8, 58
     If gross_spousal_unearned_income_excluded_check_01 <> 1 then EMWriteScreen "N", 8, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 9, 8
   EMWriteScreen gross_spousal_unearned_income_type_02, 9, 8
@@ -390,6 +410,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_02 <> "" then
     If gross_spousal_unearned_income_excluded_check_02 = 1 then EMWriteScreen "Y", 9, 58
     If gross_spousal_unearned_income_excluded_check_02 <> 1 then EMWriteScreen "N", 9, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 10, 8
   EMWriteScreen gross_spousal_unearned_income_type_03, 10, 8
@@ -399,6 +421,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_03 <> "" then
     If gross_spousal_unearned_income_excluded_check_03 = 1 then EMWriteScreen "Y", 10, 58
     If gross_spousal_unearned_income_excluded_check_03 <> 1 then EMWriteScreen "N", 10, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 11, 8
   EMWriteScreen gross_spousal_unearned_income_type_04, 11, 8
@@ -408,6 +432,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_04 <> "" then
     If gross_spousal_unearned_income_excluded_check_04 = 1 then EMWriteScreen "Y", 11, 58
     If gross_spousal_unearned_income_excluded_check_04 <> 1 then EMWriteScreen "N", 11, 58
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
 
   'Gets out of unearned and heads into earned income
@@ -424,6 +450,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_01 <> "" then
     If gross_spousal_earned_income_excluded_check_01 = 1 then EMWriteScreen "Y", 8, 59
     If gross_spousal_earned_income_excluded_check_01 <> 1 then EMWriteScreen "N", 8, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 9, 8
   EMWriteScreen gross_spousal_earned_income_type_02, 9, 8
@@ -433,6 +461,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_02 <> "" then
     If gross_spousal_earned_income_excluded_check_02 = 1 then EMWriteScreen "Y", 9, 59
     If gross_spousal_earned_income_excluded_check_02 <> 1 then EMWriteScreen "N", 9, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 10, 8
   EMWriteScreen gross_spousal_earned_income_type_03, 10, 8
@@ -442,6 +472,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_03 <> "" then
     If gross_spousal_earned_income_excluded_check_03 = 1 then EMWriteScreen "Y", 10, 59
     If gross_spousal_earned_income_excluded_check_03 <> 1 then EMWriteScreen "N", 10, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 11, 8
   EMWriteScreen gross_spousal_earned_income_type_04, 11, 8
@@ -451,6 +483,8 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_04 <> "" then
     If gross_spousal_earned_income_excluded_check_04 = 1 then EMWriteScreen "Y", 11, 59
     If gross_spousal_earned_income_excluded_check_04 <> 1 then EMWriteScreen "N", 11, 59
+	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
+	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
 
   'Gets out of earned income
