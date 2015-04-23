@@ -184,17 +184,24 @@ FOR i = 0 TO num_of_rsdi
 		IF unea_type = "RSDI" THEN
 			EMReadScreen unea_claim_number, 11, 6, 37
 			bndx_array(i, 2) = unea_claim_number
-			IF right(bndx_array(i, 0), 1) = "A" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
+			IF (right(bndx_array(i, 0), 1) = "A" AND right(bndx_array(i, 0), 2) <> "HA") OR _
+				(right(bndx_array(i, 0), 1) = "B" AND right(bndx_array(i, 0), 2) <> "HB") OR _
+				right(bndx_array(i, 0), 1) = "D" OR _ 
+				right(bndx_array(i, 0), 1) = "E" OR _ 
+				right(bndx_array(i, 0), 1) = "G" OR _
+				right(bndx_array(i, 0), 1) = "M" OR _ 
+				right(bndx_array(i, 0), 1) = "T" OR _
+				right(bndx_array(i, 0), 1) = "W" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
 			IF bndx_array(i, 0) <> bndx_array(i, 2) THEN error_message = error_message & chr(13) & "Claim numbers do not match."
 			EMReadScreen unea_prospective_amt, 8, 18, 68
 			bndx_array(i, 3) = trim(unea_prospective_amt)
-			IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amounts are significantly different."
+			IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The prospective amount in UNEA is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 			IF fs_status = "ACTV" or fs_status = "PEND" THEN
 				EMWriteScreen "X", 10, 26
 				transmit
 				EMReadScreen unea_pic_amt, 8, 18, 56
 				bndx_array(i, 4) = trim(unea_pic_amt)
-				IF ((CDbl(bndx_array(i, 4)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 4)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the PIC is significantly different from BNDX."
+				IF ((CDbl(bndx_array(i, 4)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 4)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the PIC is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 				PF3
 			ELSE
 				bndx_array(i, 4) = ""
@@ -204,7 +211,7 @@ FOR i = 0 TO num_of_rsdi
 				transmit
 				EMReadScreen unea_hc_inc_amt, 8, 9, 65
 				bndx_array(i, 5) = trim(unea_hc_inc_amt)
-				IF ((CDbl(bndx_array(i, 5)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 5)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Income Estimator is significantly different from BNDX."
+				IF ((CDbl(bndx_array(i, 5)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 5)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Inc Est is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 				PF3
 			ELSE
 				bndx_array(i, 5) = ""
@@ -218,28 +225,35 @@ FOR i = 0 TO num_of_rsdi
 			IF unea_type <> "RSDI" THEN transmit
 			EMReadScreen end_of_unea, 15, 24, 2
 			end_of_unea = trim(end_of_unea)
-			IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There was an error when looking for BNDX claim number " & (i + 1) & "."
+			IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There is a discrepancy with BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 		LOOP UNTIL unea_type = "RSDI" or end_of_unea <> ""
 		IF end_of_unea = "" THEN 
 			DO
 				EMReadScreen unea_claim_number, 11, 6, 37
 				bndx_array(i, 2) = unea_claim_number
-				IF right(bndx_array(i, 0), 1) = "A" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
+				IF (right(bndx_array(i, 0), 1) = "A" AND right(bndx_array(i, 0), 2) <> "HA") OR _
+					(right(bndx_array(i, 0), 1) = "B" AND right(bndx_array(i, 0), 2) <> "HB") OR _
+					right(bndx_array(i, 0), 1) = "D" OR _ 
+					right(bndx_array(i, 0), 1) = "E" OR _ 
+					right(bndx_array(i, 0), 1) = "G" OR _
+					right(bndx_array(i, 0), 1) = "M" OR _ 
+					right(bndx_array(i, 0), 1) = "T" OR _
+					right(bndx_array(i, 0), 1) = "W" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
 				IF bndx_array(i, 0) <> bndx_array(i, 2) THEN transmit
 				EMReadScreen end_of_unea, 15, 24, 2
 				end_of_unea = trim(end_of_unea)
-				IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There was an error when looking for BNDX claim number " & (i + 1) & ", " & bndx_array(i, 0) & "."
+				IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There is a discrepancy with BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 			LOOP UNTIL bndx_array(i, 0) = bndx_array(i, 2) OR end_of_unea <> ""
 			IF end_of_unea = "" THEN 
 				EMReadScreen unea_prospective_amt, 8, 18, 68
 				bndx_array(i, 3) = trim(unea_prospective_amt)
-				IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amounts are significantly different."
+				IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The prospective amount in UNEA is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 				IF fs_status = "ACTV" or fs_status = "PEND" THEN
 					EMWriteScreen "X", 10, 26
 					transmit
 					EMReadScreen unea_pic_amt, 8, 18, 56
 					bndx_array(i, 4) = trim(unea_pic_amt)
-					IF ((CDbl(bndx_array(i, 4)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 4)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the PIC is significantly different from BNDX."
+					IF ((CDbl(bndx_array(i, 4)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 4)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the PIC is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 					PF3
 				ELSE
 					bndx_array(i, 4) = ""
@@ -249,7 +263,7 @@ FOR i = 0 TO num_of_rsdi
 					transmit
 					EMReadScreen unea_hc_inc_amt, 8, 9, 65
 					bndx_array(i, 5) = trim(unea_hc_inc_amt)
-					IF ((CDbl(bndx_array(i, 5)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDBl(bndx_array(i, 5)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Inc Est is significantly different from BNDX."
+					IF ((CDbl(bndx_array(i, 5)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDBl(bndx_array(i, 5)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Inc Est is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 					PF3
 				ELSE
 					bndx_array(i, 5) = ""
@@ -269,7 +283,7 @@ transmit
 IF error_message = "" THEN 
 	compare_message = "BNDX Conclusion" & vbCr & "============="
 	FOR i = 0 to num_of_rsdi
-		compare_message = compare_message & vbCr & "RSDI Claim #: " & bndx_array(i, 0)
+		compare_message = compare_message & vbCr & "BNDX Claim #: " & bndx_array(i, 0)
 		compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1) 
 		compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
 		IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
@@ -292,21 +306,19 @@ IF error_message = "" THEN
 					IF dail_read_row = 19 THEN PF8
 				LOOP UNTIL dail_read_row = 19
 			LOOP UNTIL double_check = original_bndx_dail
-		ELSE
-			script_end_procedure("Double check the case and try again. You may need to send an electronic SSA verif request.")
 		END IF
 ELSE
-	error_message = "*** NOTICE ***" & vbCr & "==========" & vbCr & vbCr & error_message & vbCr & vbCr & "Review case and request RSDI information if necessary."
+	error_message = "*** NOTICE ***" & vbCr & "==========" & vbCr & error_message & vbCr & vbCr & "Review case and request RSDI information if necessary."
 	MSGBox error_message
-	compare_message = "BNDX Conclusion" & vbCr & "============="
-	FOR i = 0 to num_of_rsdi
-		compare_message = compare_message & vbCr & "RSDI Claim #: " & bndx_array(i, 0)
-		compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1) 
-		compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
-		IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
-		IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)
-	NEXT
-	MSGBox compare_message
+	'compare_message = "BNDX Conclusion" & vbCr & "============="
+	'FOR i = 0 to num_of_rsdi
+	'	compare_message = compare_message & vbCr & "BNDX Claim #: " & bndx_array(i, 0)
+	'	compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1) 
+	'	compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
+	'	IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
+	'	IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)
+	'NEXT
+	'MSGBox compare_message
 END IF
 
-script_end_procedure("Success!")
+script_end_procedure("")
