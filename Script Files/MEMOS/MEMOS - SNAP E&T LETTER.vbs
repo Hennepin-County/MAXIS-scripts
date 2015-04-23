@@ -1,6 +1,3 @@
-'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<adding for testing purposes
-Worker_county_code = "x127"	 
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E&T LETTER.vbs"
 start_time = timer
@@ -59,7 +56,7 @@ END IF
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 
 county_FSET_offices = array("Select one", "Minnesota WorkForce Center Blaine",	"Rural MN CEP Detroit Lakes", "RMCEP", "Leach Lake New", "MCT", "Red Lake Oshkiimaajitahdah",	"Minnesota WorkForce Center: Blue Earth", "Minnesota Valley Action Council New Ulm", "Carlton County Human Services", "Chippewa County Workforce Center", "Rural MN CEP Brainerd", "Northern Service Center", "Burnsville Workforce Center", "Workforce Development Inc. (Kasson)", "Alexandria Workforce Center", "Fairmont Workforce Center Fairbault County", "Workforce Development Office", "Workforce Development Inc. (Redwing)", "Grant County Social Services", "Sabathani Community Center", "Century Plaza", "Workforce Development Inc.", "Cambridge MN Workforce Center", "AEOA – GR Workforce Center", "Kittson County Social Services", "Lace qui Parle Co. Family Services", "Rural MN CEP Lake of the Woods", "AEOA", "MVAC",	"Marshall WorkForce Center", "Mahnomen County Human Services",	"Marshall County Social Services", "Fairmont Workforce Center Martin County",	"Central MN Jobs and Training Services Hutchinson", "Central MN Jobs and Training Services Litchfield",	"Workforce Development Inc. (Austin)", "Marshall WorkForce Center", "Olmstead County Family Support & Assistance", "Rural MN CEP Fergus Falls", "Minnesota WorkForce Center: Theif River Falls", "Pine County Health & Human Services", "Pine Technical & Community College E&T Center", "Southwest MN Private Industry Council Inc. Pipestone", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston", "Minnesota Workforce Center: Red Lake",	"Southwest Health & Human Services", "Central MN Jobs and Training Services Olivia", "Southwest MN Private Industry Council Inc. Luverne.", "Roseau County Social Services", "Minnesota WorkForce Center: Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota WorkForce Center:  Hibbing", "Central MN Jobs and Training Services Monticello", "Steele County Employment Services", "Stevens County Human Services", "SW MN Private Industry Council", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples", "Rural MN CEP Wheaton", "Workforce Development Inc. (Wabasha)", "Rural MN CEP Wadena", " Minnesota Valley Action Council Waseca", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury", "Wilkin County Family Services", "Central MN Jobs and Training Services Monticello", "Yellow Medicine County Family Services")																																																																																													
-
+'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
 'IF worker_county_code = "x101" THEN county_FSET_offices = array("Select one",
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
@@ -235,8 +232,9 @@ DO
 							DO
 								DO
 									DO
-										DO
-											If worker_county_code = "x101" OR _ 
+										DO	
+											'Counties listed here (starting iwth x101 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)
+											If worker_county_code = "x101" OR _  	
 											  worker_county_code = "x105" OR _
 											  worker_county_code = "x106" OR _
 											  worker_county_code = "x110" OR _
@@ -267,6 +265,7 @@ DO
 												Dialog SNAPET_manual_address_dialog 
 											ELSE 
 												Dialog SNAPET_automated_adress_dialog
+												'next 5 lines are tricking the script to read <> "" since they are declared as "_"
 												SNAPET_name = "_"
 												SNAPET_address_01 = "_"
 												SNAPET_city = "_"
@@ -301,6 +300,7 @@ transmit
 Call maxis_check_function
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
+
 'CO #02 Anoka County address
 IF interview_location = "Minnesota WorkForce Center Blaine" THEN 
 	SNAPET_name = "Minnesota WorkForce Center Blaine"
@@ -325,24 +325,18 @@ IF interview_location = "RMCEP" THEN
 	SNAPET_address_01 = "616 America Ave NW Suite 210"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56601"
-END IF
-
 ElseIf interview_location = "MCT" THEN 
 	SNAPET_name = "MCT"
 	SNAPET_address_01 = "15542 State Hwy 371 NW"
 	SNAPET_city = "Cass Lake"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56633"
-END IF
-
 ElseIf interview_location = "Leach Lake New" THEN 
 	SNAPET_name = "Leach Lake New"
 	SNAPET_address_01 = "190 Sail Drive NW"
 	SNAPET_city = "Cass Lake"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56633"
-END IF
-
 ElseIf interview_location = "Red Lake Oshkiimaajitahdah" THEN 
 	SNAPET_name = "Red Lake Oshkiimaajitahdah"
 	SNAPET_address_01 = "MN-1"
@@ -387,27 +381,91 @@ IF interview_location = "Chippewa County Workforce Center" THEN
 	SNAPET_zip = "56265"
 END IF
 
-'CO #  COUNTY address
-IF interview_location =  THEN 
-	SNAPET_name = 
-	SNAPET_address_01 = 
-	SNAPET_city = 
+'CO #18 CROW WING COUNTY address
+IF interview_location =  "Rural MN CEP Brainerd" THEN 
+	SNAPET_name = "Rural MN CEP Brainerd"
+	SNAPET_address_01 = "204 Laurel Street Suite 21"
+	SNAPET_city = "Brainerd"
 	SNAPET_ST = "MN"
-	SNAPET_zip = 
+	SNAPET_zip = "56401"
 END IF
 
+'CO #19 DAKOTA COUNTY address
+IF interview_location = "Northern Service Center" THEN 
+	SNAPET_name = "Northern Service Center"
+	SNAPET_address_01 = "1 Mendota Road W Suite 170"
+	SNAPET_city = "West St. Paul"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "55118"
+ELSE IF interview_location = "Burnsville Workforce Center" THEN 
+	SNAPET_name = "Burnsville Workforce Center"
+	SNAPET_address_01 = "2800 W County Road 42"
+	SNAPET_city = "Burnsville"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "55337"
+END IF
 
+'CO #20 DODGE COUNTY address
+IF interview_location = "Workforce Development Inc. (Kasson)" THEN 
+	SNAPET_name = "Workforce Development Inc. (Kasson)"
+	SNAPET_address_01 = "504 S Mantorville Ave Suite 4"
+	SNAPET_city = "Kasson"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "55944"
+END IF
 
+'CO #21 DOUGLAS COUNTY address
+IF interview_location = "Alexandria Workforce Center" THEN 
+	SNAPET_name = "Alexandria Workforce Center"
+	SNAPET_address_01 = "303 22nd Avenue W Suite 197"
+	SNAPET_city = "Alexandria"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56308"
+END IF
 
+'CO #22 FAIRBAULT COUNTY address
+IF interview_location =  "Fairmont Workforce Center Fairbault County" THEN 
+	SNAPET_name = "Fairmont Workforce Center Fairbault County"
+	SNAPET_address_01 = "301 N. Main Street"
+	SNAPET_city = "Blue Earth"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56013"
+END IF
 
-'CO #27 Hennepin County addresses
+'CO #23 FILLMORE COUNTY address
+IF interview_location = "Workforce Development Office" THEN 
+	SNAPET_name = "Workforce Development Office"
+	SNAPET_address_01 = "100 South Main"
+	SNAPET_city = "Preston"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "55965"
+END IF
+
+'CO #25 GOODHUE COUNTY address
+IF interview_location = "Workforce Development Inc. (Redwing)" THEN 
+	SNAPET_name = "Workforce Development Inc. (Redwing)"
+	SNAPET_address_01 = "1606 West 3rd Street"
+	SNAPET_city = "Red Wing"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "55066"
+END IF
+
+'CO #26 GRANT COUNTY address
+IF interview_location = "Grant County Social Services" THEN 
+	SNAPET_name = "Grant County Social Services"
+	SNAPET_address_01 = "28 Central Avenue S"
+	SNAPET_city = "Elbow Lake"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56531"
+END IF
+
+'CO #27 HENNEPIN COUNTY addresses
 IF interview_location = "Century Plaza" THEN 
 	SNAPET_name = "Century Plaza"
 	SNAPET_address_01 = "330 South 12th Street #3650"
 	SNAPET_city = "Minneapolis"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "55404"
-END IF
 ElseIf interview_location = "Sabathani Community Center" THEN 
 	SNAPET_name = "Sabathani Community Center"
 	SNAPET_address_01 = "310 East 38th Street #120"
@@ -415,6 +473,442 @@ ElseIf interview_location = "Sabathani Community Center" THEN
 	SNAPET_ST = "MN"
 	SNAPET_zip = "55409"
 END IF
+
+'CO #28 HOUSTON COUNTY address
+IF interview_location  = "Workforce Development Inc." THEN
+    SNAPET_name = "Workforce Development Inc."
+    SNAPET_address_01 = "110 E Grove Street"
+    SNAPET_city = "Caledonia"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55921"
+END IF
+
+'CO #30 ISANTI COUNTY address
+IF interview_location  = "Cambridge MN Workforce Center" THEN
+    SNAPET_name = "Cambridge MN Workforce Center"
+    SNAPET_address_01 = "140 Buchanan Street Suite 152"
+    SNAPET_city = "Cambridge"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55008"
+END IF
+
+'CO #31 ITASCA COUNTY address
+IF interview_location  = "AEOA – GR Workforce Center" THEN
+    SNAPET_name = "AEOA – GR Workforce Center"
+    SNAPET_address_01 = "1215 SE 2nd Ave"
+    SNAPET_city = "Grand Rapids"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55744"
+END IF
+
+'CO #35 KITTSON COUNTY address
+IF interview_location  = "Kittson County Social Services" THEN
+    SNAPET_name = "Kittson County Social Services"
+    SNAPET_address_01 = "410 5th Street S #100"
+    SNAPET_city = "Hallock"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56728"
+END IF
+
+'CO #37 LAC QUI PARLE COUNTY address
+IF interview_location  = "Lace qui Parle Co. Family Services" THEN
+    SNAPET_name = "Lace qui Parle Co. Family Services"
+    SNAPET_address_01 = "930 1st Ave"
+    SNAPET_city = "Madison"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56256"
+END IF
+
+'CO #38 LAKE COUNTY address
+IF interview_location  = "AEOA" THEN
+    SNAPET_name = "AEOA "
+    SNAPET_address_01 = "2124 10th Street"
+    SNAPET_city = "Two Harbors"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55616"
+END IF
+
+'CO #39 LAKE OF THE WOODS COUNTY address
+IF interview_location  = "Rural MN CEP Lake of the Woods" THEN
+    SNAPET_name = "Rural MN CEP Lake of the Woods"
+    SNAPET_address_01 = "616 America Ave NW Suite 220"
+    SNAPET_city = "Bemedji"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55601"
+END IF
+
+'CO #40 LE SUEUR COUNTY address
+IF interview_location  = "MVAC" THEN
+    SNAPET_name = "MVAC"
+    SNAPET_address_01 = "125 E. Minnesota Street"
+    SNAPET_city = "Le Center"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56057"
+END IF
+
+'CO #41 LINCOLN COUNTY address
+IF interview_location  = "Marshall WorkForce Center" THEN
+    SNAPET_name = "Marshall WorkForce Center"
+    SNAPET_address_01 = "607 W. Main Street"
+    SNAPET_city = "Marshall"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56258"
+END IF
+
+'CO #42 LYON COUNTY address
+IF interview_location  = "Marshall WorkForce Center" THEN
+    SNAPET_name = "Marshall WorkForce Center"
+    SNAPET_address_01 = "607 W. Main Street"
+    SNAPET_city = "Marshall"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56258"
+END IF
+
+'CO #43 COUNTY address
+IF interview_location  = "Mahnomen County Human Services" THEN
+    SNAPET_name = "Mahnomen County Human Services"
+    SNAPET_address_01 = "311 N. Main Street"
+    SNAPET_city = " Mahnomen"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56557"
+END IF
+
+'CO #44 MARSHALL COUNTY address
+IF interview_location  = "Marshall County Social Services" THEN
+    SNAPET_name = "Marshall County Social Services"
+    SNAPET_address_01 = "208 E Colvin Street Suite 14"
+    SNAPET_city = "Warren"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56762"
+END IF
+
+'CO #45 MARTIN COUNTY address
+IF interview_location  = "Fairmont Workforce Center Martin County" THEN
+    SNAPET_name = "Fairmont Workforce Center Martin County"
+    SNAPET_address_01 = "412 S. State Street"
+    SNAPET_city = "412 S. State Street"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56013"
+END IF
+
+'CO #46 MCLEOD COUNTY address
+IF interview_location  = "Central MN Jobs and Training Services Hutchinson" THEN
+    SNAPET_name = "Central MN Jobs and Training Services Hutchinson"
+    SNAPET_address_01 = " 2 Century Avenue"
+    SNAPET_city = "Hutchinson"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55350"
+END IF
+
+'CO #47 MEEKER COUNTY address
+IF interview_location  = "Central MN Jobs and Training Services Litchfield" THEN
+    SNAPET_name = "Central MN Jobs and Training Services Litchfield"
+    SNAPET_address_01 = "114 N Holcombe Avenue Suite 170"
+    SNAPET_city = "Litchfield"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55355"
+END IF
+
+'CO #50 MOWER COUNTY address
+IF interview_location  = "Workforce Development Inc. (Austin)" THEN
+    SNAPET_name = "Workforce Development Inc. (Austin)"
+    SNAPET_address_01 = "1600 8th Avenue NW"
+    SNAPET_city = "Austin"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55912"
+END IF
+
+'CO #51 MURRAY COUNTY address
+IF interview_location  = "Marshall WorkForce Center                                                      " THEN
+    SNAPET_name = "Marshall WorkForce Center                                                       "
+    SNAPET_address_01 = "607 W. Main Street"
+    SNAPET_city = "Marshall"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56258"
+END IF
+
+'CO #55 OLMSTEAD COUNTY address
+IF interview_location  = "Olmstead County Family Support & Assistance" THEN
+    SNAPET_name = "Olmstead County Family Support & Assistance"
+    SNAPET_address_01 = "2117 Campus Drive SE Suite 100"
+    SNAPET_city = "Rochester"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55904"
+END IF
+
+'CO #56 OTTER TAIL COUNTY address
+IF interview_location  = "Rural MN CEP Fergus Falls" THEN
+    SNAPET_name = "Rural MN CEP Fergus Falls"
+    SNAPET_address_01 = "125 W Lincoln Avenue"
+    SNAPET_city = "Fergus Falls"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56537"
+END IF
+
+'CO #57 PENNINGTON COUNTY address
+IF interview_location  = "Minnesota WorkForce Center: Theif River Falls" THEN
+    SNAPET_name = "Minnesota WorkForce Center: Theif River Falls"
+    SNAPET_address_01 = "1301 State Hwy 1"
+    SNAPET_city = "Theif River Falls"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56701"
+END IF
+
+'CO #58 PINE COUNTY address
+IF interview_location  = "Pine County Health & Human Services" THEN
+    SNAPET_name = "Pine County Health & Human Services"
+    SNAPET_address_01 = "130 Oriole St E Ste 1"
+    SNAPET_city = "130 Oriole St E Ste 1"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55072"
+ELSEIF interview_location  = "Pine County Health & Human Services" THEN
+    SNAPET_name = "Pine County Health & Human Services"
+    SNAPET_address_01 = "130 Oriole St E Ste 1"
+    SNAPET_city = "130 Oriole St E Ste 1"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55072"
+END IF
+
+'CO #59 PIPESTONE COUNTY address
+IF interview_location  = "Southwest MN Private Industry Council Inc. Pipestone" THEN
+    SNAPET_name = "Southwest MN Private Industry Council Inc. Pipestone"
+    SNAPET_address_01 = "1091 N Hiawatha Avenue"
+    SNAPET_city = "Pipestone"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56164"
+END IF
+
+'CO #60 POLK COUNTY address
+IF interview_location  = "Polk County Social Services: Crookston" THEN
+    SNAPET_name = "Polk County Social Services: Crookston"
+    SNAPET_address_01 = "612 N Broadway Room 302"
+    SNAPET_city = "Crookston"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56716"
+ELSEIF interview_location  = "Polk County Social Services: East Grand Forks" THEN
+    SNAPET_name = "Polk County Social Services: East Grand Forks"
+    SNAPET_address_01 = "1424 Central Ave NE Suite 104"
+    SNAPET_city = "East Grand Forks"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56721"
+ELSEIF interview_location  = "Polk County Social Services: Fosston" THEN
+    SNAPET_name = "Polk County Social Services: Fosston"
+    SNAPET_address_01 = "104 Kaiser Ave"
+    SNAPET_city = "Fosston"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56542"
+END IF
+
+'CO #63 REDLAKE COUNTY address
+IF interview_location  = "Minnesota Workforce Center: Red Lake" THEN
+    SNAPET_name = "Minnesota Workforce Center: Red Lake"
+    SNAPET_address_01 = "1301 Highway 1 East"
+    SNAPET_city = "Theif River Falls"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56701"
+END IF
+
+'CO #64 REDWOOD COUNTY address
+IF interview_location  = "Southwest Health & Human Services" THEN
+    SNAPET_name = "Southwest Health & Human Services"
+    SNAPET_address_01 = "266 E. Bridge Street"
+    SNAPET_city = "Redwood Falls"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56283"
+END IF
+
+'CO #65 RENVILLE COUNTY address
+IF interview_location  = "Central MN Jobs and Training Services Olivia" THEN
+    SNAPET_name = "Central MN Jobs and Training Services Olivia"
+    SNAPET_address_01 = "1005 W. Elm Ave. Ste. 2"
+    SNAPET_city = "Olivia"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56277"
+END IF
+
+'CO #67 ROCK COUNTY address
+IF interview_location  = "Southwest MN Private Industry Council Inc. Luverne" THEN
+    SNAPET_name = "Southwest MN Private Industry Council Inc. Luverne"
+    SNAPET_address_01 = "2 Roundwind Road"
+    SNAPET_city = "Luverne"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56156"
+END IF
+
+'CO #68 ROSEAU COUNTY address
+IF interview_location  = "Roseau County Social Services" THEN
+    SNAPET_name = "Roseau County Social Services"
+    SNAPET_address_01 = "208 6th Street SW"
+    SNAPET_city = "Roseau"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56751"
+END IF
+
+'CO #69 SAINT LOUIS COUNTY address
+IF interview_location  = "Minnesota WorkForce Center: Duluth" THEN
+    SNAPET_name = "Minnesota WorkForce Center: Duluth"
+    SNAPET_address_01 = "402 W. 1st Street Room 119"
+    SNAPET_city = "Duluth"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55802"
+ELSEIF interview_location  = "Minnesota WorkForce Center: Hibbing" THEN
+    SNAPET_name = "Minnesota WorkForce Center:  Hibbing"
+    SNAPET_address_01 = "3920 13th Avenue E"
+    SNAPET_city = "Hibbing"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55746"
+ELSEIF
+IF interview_location  = "Minnesota WorkForce Center: Virginia" THEN
+    SNAPET_name = "Minnesota WorkForce Center: Virginia"
+    SNAPET_address_01 = "820 9th St"
+    SNAPET_city = "Virginia"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55792"
+END IF
+
+'CO #71 SHERBURNE COUNTY address
+IF interview_location  = "Central MN Jobs and Training Services Monticello" THEN
+    SNAPET_name = "Central MN Jobs and Training Services Monticello"
+    SNAPET_address_01 = "406 7th Street East"
+    SNAPET_city = "Monticello"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55362"
+END IF
+
+'CO #74 STEELE COUNTY address
+IF interview_location  = "Steele County Employment Services" THEN
+    SNAPET_name = "Steele County Employment Services "
+    SNAPET_address_01 = "630 Florence Avenue Suite 20"
+    SNAPET_city = "Owatonna"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55060"
+END IF
+
+'CO #75 STEVENS COUNTY address
+IF interview_location  = "Stevens County Human Services" THEN
+    SNAPET_name = "Stevens County Human Services"
+    SNAPET_address_01 = "400 Colorado Ave Suite 104"
+    SNAPET_city = "Morris"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56267"
+END IF
+
+'CO #76 SWIFT COUNTY address
+IF interview_location  = "SW MN Private Industry Council" THEN
+    SNAPET_name = "SW MN Private Industry Council"
+    SNAPET_address_01 = "129 W Nichols"
+    SNAPET_city = "Montevideo"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56265"
+END IF
+
+'CO #77 TODD COUNTY address
+IF interview_location  = "Todd County Health & Human Services: Long Prairie" THEN
+    SNAPET_name = "Todd County Health & Human Services: Long Prairie"
+    SNAPET_address_01 = "212 2nd Avenue S."
+    SNAPET_city = "Long Prairie"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56347"
+ELSEIF interview_location  = "Todd County Health & Human Services: Staples" THEN
+    SNAPET_name = "Todd County Health & Human Services: Staples"
+    SNAPET_address_01 = "200 1st St NE Suite #1"
+    SNAPET_city = "Staples"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56479"
+END IF
+
+
+'CO #78 TRAVERSE COUNTY address
+IF interview_location  = "Rural MN CEP Wheaton" THEN
+    SNAPET_name = "Rural MN CEP Wheaton"
+    SNAPET_address_01 = "202 8th Street N"
+    SNAPET_city = "Wheaton"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56296"
+END IF
+
+'CO #79 WABASHA COUNTY address
+IF interview_location  = "Workforce Development Inc. (Wabasha)" THEN
+    SNAPET_name = "Workforce Development Inc. (Wabasha)"
+    SNAPET_address_01 = "222 Main Street West"
+    SNAPET_city = "Wabasha"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55981"
+END IF
+
+'CO #80 WADENA COUNTY address
+IF interview_location  = "Rural MN CEP Wadena" THEN
+    SNAPET_name = "Rural MN CEP Wadena"
+    SNAPET_address_01 = "124 First Street SE"
+    SNAPET_city = "Wadena"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56482"
+END IF
+
+
+'CO #81 WASECA COUNTY address
+IF interview_location  = "Minnesota Valley Action Council Waseca" THEN
+    SNAPET_name = "Minnesota Valley Action Council Waseca"
+    SNAPET_address_01 = "108 10th Avenue SE"
+    SNAPET_city = "Waseca"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56093"
+END IF
+
+'CO #82 WASHINGTON COUNTY address
+IF interview_location  = "Washington County Community Services: Stillwater" THEN
+    SNAPET_name = "Washington County Community Services: Stillwater"
+    SNAPET_address_01 = "14949 62nd Street North"
+    SNAPET_city = "Stillwater"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55082"
+ElseIF interview_location  = "Washington County Community Services: Cottage Grove" THEN
+    SNAPET_name = "Washington County Community Services: Cottage Grove"
+    SNAPET_address_01 = "13000 Ravine Parkway South"
+    SNAPET_city = "Cottage Grove"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55016"
+ELSEIF interview_location  = "Washington County Community Services: Forest Lake" THEN
+    SNAPET_name = "Washington County Community Services: Forest Lake"
+    SNAPET_address_01 = "19955 Forest Road North"
+    SNAPET_city = "Forest Lake"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55025"
+ELSEIF interview_location  = "Washington County Community Services: Woodbury" THEN
+    SNAPET_name = "Washington County Community Services: Woodbury"
+    SNAPET_address_01 = "2150 Radio Drive"
+    SNAPET_city = "Woodbury"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55125"
+END IF
+
+'CO #84 WILKIN COUNTY address
+IF interview_location  = "Wilkin County Family Services" THEN
+    SNAPET_name = "Wilkin County Family Services"
+    SNAPET_address_01 = "300 South 5th Street"
+    SNAPET_city = "Breckenridge"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56520"
+END IF
+
+'CO #86 WRIGHT COUNTY address
+IF interview_location  = "Central MN Jobs and Training Services Monticello" THEN
+    SNAPET_name = "Central MN Jobs and Training Services Monticello"
+    SNAPET_address_01 = "406 E. 7th Street"
+    SNAPET_city = "Monticello"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "55362"
+END IF
+
+'CO #87 YELLOW MEDICINE COUNTY address
+IF interview_location  = "Yellow Medicine County Family Services" THEN
+    SNAPET_name = "Yellow Medicine County Family Services"
+    SNAPET_address_01 = "930 4th Street, Suite 4"
+    SNAPET_city = "Granite Falls"
+    SNAPET_ST = "MN"
+    SNAPET_zip = "56241"
+END IF
+
 
 'Pulls the member name.
 call navigate_to_MAXIS_screen("STAT", "MEMB")
