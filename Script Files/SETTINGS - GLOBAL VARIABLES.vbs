@@ -9,7 +9,7 @@
 default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = True
+run_locally = False
 
 '========================================================================================================================================
 
@@ -69,18 +69,12 @@ collecting_statistics = False
 'This is the file path for the statistics Access database.
 stats_database_path = "C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
+
+
 'BETA AGENCY CONFIGURATION=====================
 
 'This is a variable which signifies the agency is beta (affects script URL)
 beta_agency = True
-
-'REVS SCRUBBER CONFIGURATION===================
-
-'This variable turns the REVS scrubber on and off. Useful for counties who want to disable this script entirely.
-REVS_scrubber_allowed = True
-
-'This variable allows a user to specify that duplicate times (i.e. more than one worker doing interviews) are allowed. Will be useful in banking counties.
-REVS_scrubber_allow_duplicate_times = True
 
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
