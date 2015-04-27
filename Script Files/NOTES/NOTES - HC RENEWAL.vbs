@@ -76,7 +76,6 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   EditBox 70, 90, 380, 15, unearned_income
   EditBox 40, 110, 410, 15, assets
   EditBox 60, 130, 95, 15, COEX_DCEX
-  CheckBox 180, 135, 205, 10, "Check here if you used this HC ER as a SNAP CSR as well.", SNAP_CSR_check
   EditBox 100, 150, 350, 15, FIAT_reasons
   EditBox 50, 170, 400, 15, other_notes
   EditBox 45, 190, 405, 15, changes
