@@ -4,39 +4,58 @@ OPTION EXPLICIT
 name_of_script = "NOTE - 5181.vbs"
 start_time = timer
 
-'FUNCTIONS LIBRARY
-'LOADING ROUTINE FUNCTIONS---------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER FUNCTIONS LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+DIM beta_agency
+DIM FuncLib_URL, req, fso, run_locally, default_directory
+
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 
 'Declaring variables
 DIM start_time
 DIM name_of_script
 DIM url
-DIM req
-DIM fso
 DIM row
 DIM script_end_procedure
 DIM case_number_and_footer_month_dialog
@@ -78,19 +97,12 @@ DIM facility_city
 DIM facility_state
 DIM facility_county_code
 DIM facility_zip_code
-DIM AC_check
-DIM BI_check
-DIM CAC_check
-DIM CADI_check
-DIM DD_check
-DIM EW_check
-DIM diversion_check
-DIM conversion_check
+DIM waiver_type_droplist
 DIM essential_community_supports_check
 DIM next_to_page_02_button
 DIM DHS_5181_dialog_2
 DIM waiver_assessment_date_editbox
-DIM needs_waiver_check
+DIM needs_waiver_checkbox
 DIM estimated_effective_date_editbox
 DIM estimated_monthly_check
 DIM estimated_monthly_waiver_costs_editbox
@@ -116,7 +128,6 @@ DIM please_send_3340_check
 DIM previous_to_page_01_button
 DIM requested_1503_check
 DIM onfile_1503_check 
-DIM next_to_page_03_button
 DIM DHS_5181_Dialog_3
 DIM client_no_longer_meets_LOC_check
 DIM client_no_longer_meets_LOC_efffective_date_editbox
@@ -159,6 +170,11 @@ DIM change_state
 DIM change_county_code
 DIM change_zip_code
 DIM case_note_confirm
+DIM next_to_page_03_button
+DIM footer_month_as_date
+DIM difference_between_dates
+DIM move_on_to_case_note
+
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 
@@ -178,15 +194,15 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
   Text 95, 30, 20, 10, "Year:"
   EditBox 120, 25, 25, 15, footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 45, 50, 15
-    CancelButton 85, 45, 50, 15
+	OkButton 25, 45, 50, 15
+	CancelButton 85, 45, 50, 15
 EndDialog
 
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
+	PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
+	PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
 
@@ -194,8 +210,8 @@ EndDialog
 BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
   Text 5, 5, 135, 10, "Are you sure you want to end this script?"
   ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
+	PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
+	PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
 EndDialog
 
 
@@ -224,14 +240,7 @@ BeginDialog DHS_5181_dialog_1, 0, 0, 361, 305, "5181 Dialog 1"
   EditBox 140, 215, 40, 15, facility_state
   EditBox 230, 215, 45, 15, facility_county_code
   EditBox 310, 215, 45, 15, facility_zip_code
-  CheckBox 10, 250, 20, 10, "AC", AC_check
-  CheckBox 35, 250, 20, 10, "BI", BI_check
-  CheckBox 60, 250, 30, 10, "CAC", CAC_check
-  CheckBox 90, 250, 30, 10, "CADI", CADI_check
-  CheckBox 125, 250, 25, 10, "DD", DD_check
-  CheckBox 155, 250, 25, 10, "EW", EW_check
-  CheckBox 250, 250, 40, 10, "Diversion", diversion_check
-  CheckBox 300, 250, 50, 10, "Conversion", conversion_check
+  DropListBox 170, 250, 105, 15, "Select one..."+chr(9)+"No waiver"+chr(9)+"Alternative Care"+chr(9)+"BI diversion"+chr(9)+"BI conversion"+chr(9)+"CAC diversion"+chr(9)+"CAC conversion"+chr(9)+"CADI diversion"+chr(9)+"CADI conversion"+chr(9)+"DD diversion"+chr(9)+"DD conversion"+chr(9)+"EW diversion"+chr(9)+"EW conversion", waiver_type_droplist
   CheckBox 40, 265, 190, 10, "Essential Community Supports (DHS- 3876 is required)", essential_community_supports_check
   ButtonGroup ButtonPressed
     PushButton 250, 285, 55, 15, "Next", next_to_page_02_button
@@ -250,7 +259,7 @@ BeginDialog DHS_5181_dialog_1, 0, 0, 361, 305, "5181 Dialog 1"
   Text 5, 180, 60, 15, "Facility address:"
   Text 105, 30, 130, 15, "Lead Agency Assessor/Case Manager:"
   Text 115, 5, 55, 15, "Date Received:"
-  Text 195, 250, 45, 10, "Choose one:"
+  Text 25, 250, 140, 10, "Choose waiver type (or select 'no waiver'):"
   Text 125, 110, 15, 10, "Ext."
   Text 30, 235, 285, 15, "OR The client is currently requesting services/enrolled in the following waiver program:"
   Text 5, 195, 55, 15, "Address line 2:"
@@ -267,58 +276,57 @@ EndDialog
 
 
 BeginDialog DHS_5181_dialog_2, 0, 0, 361, 415, "5181 Dialog 2"
-  EditBox 245, 25, 45, 15, waiver_assessment_date_editbox
-  CheckBox 0, 40, 315, 10, "Needs waiver services and meets LOC requirement", needs_waiver_checkbox
-  EditBox 155, 55, 45, 15, estimated_effective_date_editbox
-  CheckBox 0, 70, 115, 15, "Estimated monthly waiver costs:", estimated_monthly_check
+  EditBox 75, 35, 45, 15, waiver_assessment_date_editbox
+  EditBox 270, 50, 45, 15, estimated_effective_date_editbox
   EditBox 120, 70, 45, 15, estimated_monthly_waiver_costs_editbox
-  CheckBox 0, 85, 170, 15, "Does not meet waiver services LOC requirement", does_not_meet_waiver_LOC_check
-  CheckBox 0, 100, 105, 15, "Ongoing case mgr assigned:", ongoing_waiver_case_manager_check
+  CheckBox 5, 85, 170, 15, "Does not meet waiver services LOC requirement", does_not_meet_waiver_LOC_check
   EditBox 105, 100, 60, 15, ongoing_waiver_case_manager_editbox
   EditBox 205, 120, 45, 15, LTCF_assessment_date_editbox
-  CheckBox 0, 130, 100, 15, "Meets MA-LOC requirement", meets_MALOC_check
-  CheckBox 0, 150, 120, 15, "Ongoing case manager assigned:", ongoing_case_manager_check
-  EditBox 125, 150, 110, 15, ongoing_case_manager_editbox
-  CheckBox 0, 165, 135, 15, "Ongoing case manager not available", ongoing_case_manager_not_available_check
-  CheckBox 0, 180, 115, 15, "Does not meet LOC requirement", does_not_meet_MALTC_LOC_check
-  CheckBox 0, 215, 80, 15, "Client applied for MA", client_applied_MA_check
-  CheckBox 0, 230, 205, 15, "Client is an MA enrollee - Assessor provided DHS-3543 on:", client_MA_enrollee_3543_provided_check
-  EditBox 205, 235, 45, 15, Client_MA_enrollee_editbox
-  CheckBox 0, 245, 155, 15, "Completed DHS-3543 or DHS-3531 attached", completed_3543_3531_check
-  CheckBox 0, 260, 190, 15, "Completed DHS-3543 or DHS-3531 faxed to county on: ", completed_3543_3531_faxed_check
-  EditBox 190, 260, 45, 15, completed_3543_3531_faxed_editbox
-  CheckBox 0, 275, 180, 15, "Please send DHS-3543 to client (MA enrollee)", please_send_3543_check
-  CheckBox 0, 290, 185, 15, "Please send DHS-3531 to client (Not MA enrollee) at:", please_send_3531_check
-  EditBox 190, 290, 150, 15, please_send_3531_editbox
-  CheckBox 0, 305, 205, 15, "Please send DHS-3340 to client - Asset Assessment needed", please_send_3340_check
-  CheckBox 150, 180, 65, 10, "1503 requested?", requested_1503_check
-  CheckBox 230, 180, 55, 10, "1503 on file?", onfile_1503_check
+  CheckBox 5, 135, 100, 10, "Meets MA-LOC requirement", meets_MALOC_check
+  EditBox 125, 145, 110, 15, ongoing_case_manager_editbox
+  CheckBox 5, 165, 135, 15, "Ongoing case manager not available", ongoing_case_manager_not_available_check
+  CheckBox 5, 180, 115, 15, "Does not meet LOC requirement", does_not_meet_MALTC_LOC_check
+  CheckBox 155, 180, 65, 10, "1503 requested?", requested_1503_check
+  CheckBox 235, 180, 55, 10, "1503 on file?", onfile_1503_check
+  CheckBox 5, 215, 80, 15, "Client applied for MA", client_applied_MA_check
+  EditBox 240, 230, 45, 15, Client_MA_enrollee_editbox
+  CheckBox 5, 245, 195, 15, "Completed DHS-3543 or DHS-3531 attached to DHS-5181", completed_3543_3531_check
+  EditBox 235, 260, 45, 15, completed_3543_3531_faxed_editbox
+  CheckBox 5, 275, 180, 15, "Please send DHS-3543 to client (MA enrollee)", please_send_3543_check
+  EditBox 180, 290, 150, 15, please_send_3531_editbox
+  CheckBox 5, 310, 205, 10, "Please send DHS-3340 to client - Asset Assessment needed", please_send_3340_check
+  EditBox 235, 345, 45, 15, client_no_longer_meets_LOC_efffective_date_editbox
+  EditBox 110, 370, 45, 15, waiver_program_change_from_assessor_editbox
+  EditBox 170, 370, 45, 15, waiver_program_change_to_assessor_editbox
+  EditBox 270, 370, 45, 15, waiver_program_change_effective_date_editbox
   ButtonGroup ButtonPressed
-    PushButton 190, 395, 50, 15, "Previous", previous_to_page_01_button
-    PushButton 245, 395, 50, 15, "Next", next_to_page_3_button
-    CancelButton 300, 395, 50, 15
-  Text 0, 200, 190, 15, "**MEDICAL ASSISTANCE REQUESTS/APPLICATIONS**"
-  Text 5, 5, 145, 15, "INITIAL REQUESTS (check all that apply):"
-  Text 0, 120, 135, 15, "**LTCF** Assessment determines client: "
-  Text 180, 25, 60, 15, "Assessment date:"
-  GroupBox -5, 20, 355, 95, ""
-  GroupBox -5, 115, 355, 80, ""
-  GroupBox -5, 195, 355, 125, ""
-  Text 0, 25, 165, 15, "**WAIVERS** Assessment date determine client:"
+    PushButton 190, 400, 50, 15, "Previous", previous_to_page_01_button
+    PushButton 245, 400, 50, 15, "Next", next_to_page_03_button
+    CancelButton 300, 400, 50, 15
+  GroupBox 0, 20, 355, 95, ""
+  GroupBox 0, 115, 355, 80, ""
+  GroupBox 0, 195, 355, 135, ""
+  Text 0, 25, 165, 10, "**WAIVERS** Assessment date determine client:"
   Text 140, 120, 60, 15, "Assessment date:"
-  Text 15, 55, 135, 15, "Anticipated effective date no sooner than:"
-  Text 5, 330, 160, 15, "**CHANGES COMPLETED BY THE ASSESSOR**"
-  CheckBox 5, 345, 240, 15, "Client no longer meets LOC - Effective date should be no sooner than:", client_no_longer_meets_LOC_check
-  CheckBox 5, 365, 90, 15, "Waiver program change:", waiver_program_change_by_assessor_check
-  EditBox 240, 345, 45, 15, client_no_longer_meets_LOC_efffective_date_editbox
-  Text 100, 365, 20, 15, "From:"
-  EditBox 120, 365, 45, 15, waiver_program_change_from_assessor_editbox
-  Text 170, 365, 15, 15, "To:"
-  EditBox 180, 365, 45, 15, waiver_program_change_to_assessor_editbox
-  EditBox 280, 365, 45, 15, waiver_program_change_effective_date_editbox
-  Text 230, 365, 50, 15, "Effective date:"
-  GroupBox 0, 325, 350, 65, ""
+  Text 5, 55, 265, 10, "Needs waiver services and meets LOC. Anticipated effective date no sooner than:"
+  Text 5, 335, 160, 15, "**CHANGES COMPLETED BY THE ASSESSOR**"
+  Text 5, 5, 145, 10, "INITIAL REQUESTS (check all that apply):"
+  Text 0, 120, 135, 15, "**LTCF** Assessment determines client: "
+  Text 160, 375, 15, 10, "To:"
+  Text 10, 40, 60, 10, "Assessment date:"
+  Text 0, 205, 190, 10, "**MEDICAL ASSISTANCE REQUESTS/APPLICATIONS**"
+  Text 220, 375, 50, 10, "Effective date:"
+  GroupBox 0, 325, 355, 65, ""
+  Text 10, 75, 110, 10, "Estimated monthly waiver costs:"
+  Text 10, 105, 95, 10, "Ongoing case mgr assigned:"
+  Text 10, 150, 110, 10, "Ongoing case manager assigned:"
+  Text 10, 235, 230, 10, "Client is an MA enrollee -  If assessor provided DHS-3543, enter date:"
+  Text 10, 265, 225, 10, "If completed DHS-3543 or DHS-3531 was faxed to county, enter date: "
+  Text 5, 295, 170, 10, "Please send DHS-3531 to client (Not MA enrollee) at:"
+  Text 5, 350, 225, 10, "Client no longer meets LOC - Effective date should be no sooner than:"
+  Text 10, 375, 100, 10, "Waiver program change from:"
 EndDialog
+
 
 
 BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
@@ -343,6 +351,7 @@ BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
   EditBox 180, 160, 45, 15, client_disenrolled_from_healthplan_editbox
   CheckBox 5, 175, 105, 15, "New address-Effective date:", new_address_check
   EditBox 115, 175, 45, 15, new_address_effective_date_editbox
+  CheckBox 190, 175, 115, 15, "Have script update ADDR panel", update_addr_new_ADDR_checkbox
   EditBox 70, 195, 235, 15, change_ADDR_line_1
   EditBox 70, 210, 235, 15, change_ADDR_line_2
   EditBox 25, 230, 60, 15, change_city
@@ -358,7 +367,6 @@ BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
     PushButton 195, 320, 50, 15, "Previous", previous_to_page_02_button
     OkButton 250, 320, 50, 15
     CancelButton 305, 320, 50, 15
-  Text 5, 280, 45, 15, "Other notes:"
   Text 5, 100, 55, 15, "Address line 2:"
   Text 5, 120, 20, 15, "City:"
   Text 5, 320, 65, 15, "Worker signature:"
@@ -376,9 +384,10 @@ BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
   Text 165, 230, 45, 15, "County code:"
   Text 95, 145, 20, 15, "From:"
   Text 265, 230, 35, 15, "Zip code:"
-  CheckBox 190, 175, 115, 15, "Have script update ADDR panel", update_addr_new_ADDR_checkbox
+  Text 5, 280, 45, 15, "Other notes:"
   GroupBox 0, 0, 355, 250, ""
 EndDialog
+
 
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
@@ -409,10 +418,13 @@ transmit
 Do
 	Do
 		Do
-			Dialog DHS_5181_dialog_1			'Displays the first dialog
-			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
-			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-		Loop until ButtonPressed = next_to_page_02_button
+			Do
+				Dialog DHS_5181_dialog_1			'Displays the first dialog
+				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+			Loop until ButtonPressed = next_to_page_02_button
+			IF waiver_type_droplist = "Select one..." THEN MsgBox "Choose waiver type (or select 'no waiver')."
+		Loop until waiver_type_droplist <> "Select one..."
 		Do
 			Do
 				Dialog DHS_5181_dialog_2			'Displays the second dialog
@@ -428,14 +440,21 @@ Do
 			Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
 		Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
 		If ButtonPressed = previous_to_page_01_button then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
-		If case_action_editbox = "" or worker_signature = "" THEN 'Tells the worker what's required in a MsgBox.
+		If case_action_editbox = "" or worker_signature = "" OR (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") OR _
+		  (client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
+		  (waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
+		  (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
+			move_on_to_case_note = False		'Created a dummy true/false variable to simplify the end of the do...loop
+'Tells the worker what's required in a MsgBox.
 			MsgBox "You need to:" & chr(13) & chr(13) & _
 			  "-Case actions section, and/or" & chr(13) & _
 			  "-Sign your case note." & chr(13) & chr(13) & _
 			  "Check these items after pressing ''OK''."	
+		ELSE
+			move_on_to_case_note = True			'If all of that stuff is fine, this will set to true and the loop can end.
 		End if
-	Loop until case_action_editbox <> ""  and worker_signature <> ""	'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
-	
+	'Loop until case_action_editbox <> ""  and worker_signature <> ""	'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
+	LOOP UNTIL move_on_to_case_note = True
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 									  
@@ -454,8 +473,7 @@ IF write_TIKL_for_worker_check = 1 THEN
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
 	
 	'Writes TIKL to worker
-	EMWriteScreen "A DHS 5181 has been received for this case.  Please review case and case note", 9, 3
-	
+	call write_variable_in_TIKL("A DHS 5181 has been received for this case.  Please review the case and case notes.")
 	transmit
 	PF3
 END If
@@ -463,20 +481,50 @@ END If
 'Updates STAT MEMB with client's date of death (client_deceased_check)
 IF client_deceased_check = 1 THEN 
 	'Go to STAT MEMB
+	
+	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+	footer_month_as_date = footer_month & "/01/" & footer_year
+	
+	'Calculates the difference between the two dates (date of death and footer month)
+	difference_between_dates = DateDiff("m", date_of_death_editbox, footer_month_as_date)
+
+	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
+	If difference_between_dates <> 0 THEN
+		back_to_SELF
+		Call convert_date_into_MAXIS_footer_month(date_of_death_editbox, footer_month, footer_year)
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
+		Transmit
+	END IF
+	
 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 	PF9
-	
+		
 	'Writes in DOD from the date_of_death_editbox
-	EMWriteScreen date_of_death_editbox, 19, 42	
-	
+	Call create_MAXIS_friendly_date_with_YYYY(date_of_death_editbox, 0, 19, 42)	
 	transmit
 	PF3
-	tranmit
-END If
+	transmit
+END IF
 
-
+'------ADDRESS UPDATES----------------------------------------------------------------------------------------------------
 'Updates ADDR if selected on DIALOG 1 "have script update ADDR panel"
 IF update_addr_checkbox = 1 THEN 
+	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+	footer_month_as_date = footer_month & "/01/" & footer_year
+
+	'Calculates the difference between the two dates (date of admission and footer month)
+	difference_between_dates = DateDiff("m", date_of_admission_editbox, footer_month_as_date)
+
+	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
+	If difference_between_dates <> 0 THEN
+		back_to_SELF
+		CALL convert_date_into_MAXIS_footer_month(date_of_admission_editbox, footer_month, footer_year)
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
+		Transmit
+	END IF
+	
 	'Go to STAT/ADDR
 	Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
@@ -493,7 +541,7 @@ IF update_addr_checkbox = 1 THEN
 	EMWriteScreen "_____", 9, 43
 	
 	'Writes in the new info
-	EMWriteScreen date_of_admission_editbox, 4, 43
+	Call Create_MAXIS_friendly_date(date_of_admission_editbox, 0, 4, 43)
 	EMWriteScreen facility_address_line_01, 6, 43
 	EMWriteScreen facility_address_line_02, 7, 43
 	EMWriteScreen facility_city, 8, 43
@@ -505,10 +553,25 @@ IF update_addr_checkbox = 1 THEN
 	transmit
 	transmit
 END If
-	
+
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for move to LTCF
 IF LTCF_update_ADDR_checkbox = 1 THEN 
+		'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+	footer_month_as_date = footer_month & "/01/" & footer_year
+
+	'Calculates the difference between the two dates (date of admission and footer month)
+	difference_between_dates = DateDiff("m", client_moved_to_LTCF_editbox, footer_month_as_date)
+
+	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
+	If difference_between_dates <> 0 THEN
+		back_to_SELF
+		CALL convert_date_into_MAXIS_footer_month(client_moved_to_LTCF_editbox, footer_month, footer_year)
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
+		Transmit
+	END IF
+	
 	'Go to STAT/ADDR
 	Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
@@ -525,7 +588,7 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 	EMWriteScreen "_____", 9, 43
 	
 	'Writes in the new info
-	EMWriteScreen client_moved_to_LTCF_editbox, 4, 43
+	Call Create_MAXIS_friendly_date(client_moved_to_LTCF_editbox, 0, 4, 43)
 	EMWriteScreen LTCF_ADDR_line_01, 6, 43
 	EMWriteScreen LTCF_ADDR_line_02, 7, 43
 	EMWriteScreen LTCF_city, 8, 43
@@ -541,6 +604,21 @@ END If
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
 IF update_addr_new_ADDR_checkbox = 1 THEN 
+	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+	footer_month_as_date = footer_month & "/01/" & footer_year
+
+	'Calculates the difference between the two dates (date of admission and footer month)
+	difference_between_dates = DateDiff("m", new_address_effective_date_editbox, footer_month_as_date)
+
+	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
+	If difference_between_dates <> 0 THEN
+		back_to_SELF
+		CALL convert_date_into_MAXIS_footer_month(new_address_effective_date_editbox, footer_month, footer_year)
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
+		Transmit
+	END IF
+	
 	'Go to STAT/ADDR
 	Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
@@ -557,7 +635,7 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 	EMWriteScreen "_____", 9, 43
 	
 	'Writes in the new info
-	EMWriteScreen new_address_effective_date_editbox, 4, 43
+	Call Create_MAXIS_friendly_date(new_address_effective_date_editbox, 0, 4, 43)
 	EMWriteScreen change_ADDR_line_1, 6, 43
 	EMWriteScreen change_ADDR_line_2, 7, 43
 	EMWriteScreen change_city, 8, 43
@@ -571,13 +649,13 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 END If
 
 
-'creates a new panel if one doesn't exist, and will needs new if there is not one
-call Create_panel_if_nonexistant	
-
-'Updates SWKR panel with Name, address and phone number if checked
+'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
 If update_SWKR_info_checkbox = 1 THEN
 	'Go to STAT/SWKR
 	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+
+	'creates a new panel if one doesn't exist, and will needs new if there is not one
+	Call Create_panel_if_nonexistent	
 
 	'Go into edit mode
 	PF9
@@ -653,9 +731,8 @@ END IF
 'Checking to see that we're in MAXIS
 call check_for_MAXIS(True)
 
-'function to navigate user to case note
-Call navigate_to_screen ("case", "note")						
-PF9	
+'function to navigate user to case note and make a new one
+Call start_a_blank_CASE_NOTE
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Information from DHS 5181 Dialog 1
@@ -664,63 +741,50 @@ Call write_bullet_and_variable_in_case_note ("Date of 5181", date_5181_editbox )
 Call write_bullet_and_variable_in_case_note ("Date received", date_received_editbox)			
 Call write_bullet_and_variable_in_case_note ("Lead Agency", lead_agency_editbox)
 Call write_bullet_and_variable_in_case_note ("Lead Agency Assessor/Case Manager",lead_agency_assessor_editbox)		  				 
-Call write_bullet_and_variable_in_case_note ("Address", casemgr_ADDR_line_01 & casemgr_ADDR_line_02 & casemgr_city & casemgr_state & casemgr_zip_code)					 
-Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & phone_prefix & phone_second_four & phone_extension)
+Call write_bullet_and_variable_in_case_note ("Address", casemgr_ADDR_line_01 & " " & casemgr_ADDR_line_02 & " " & casemgr_city & " " & casemgr_state & " " & casemgr_zip_code)					 
+Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & " " & phone_prefix & " " & phone_second_four & " " & phone_extension)
 Call write_bullet_and_variable_in_case_note ("Fax", fax_editbox)
 Call write_bullet_and_variable_in_case_note ("Name of Facility", name_of_facility_editbox)											
 Call write_bullet_and_variable_in_case_note ("Date of admission", date_of_admission_editbox)		
-Call write_bullet_and_variable_in_case_note ("Facility address", facility_address_line_01 & facility_address_line_02 & facility_city & facility_state & facility_zip_code)	
+Call write_bullet_and_variable_in_case_note ("Facility address", facility_address_line_01 & " " & facility_address_line_02 & " " & facility_city & " " & facility_state & " " & facility_zip_code)	
 'OR
-IF AC_check = 1 THEN Call write_variable_in_case_note ("* The client is currently requesting services/enrolled in the following waiver program: AC")		
-IF BI_check = 1 THEN Call write_variable_in_case_note ("* The client is currently requesting services/enrolled in the following waiver program: BI")	
-IF CAC_check = 1 THEN Call write_variable_in_case_note ("* The client is currently requesting services/enrolled in the following waiver program: CAC")	
-IF CADI_check = 1 THEN Call write_variable_in_case_note ("* The client is currently requesting services/enrolled in the following waiver program: CADI")	
-IF DD_check = 1 THEN Call write_variable_in_case_note ("* The client is currently requesting services/enrolled in the following waiver program: DD")	
-IF EW_check = 1 THEN Call write_variable_in_case_note ("* The client is currently requesting services/enrolled in the following waiver program: EW")	
-IF diversion_check = 1 THEN Call write_variable_in_case_note ("* Diversion waiver")	
-IF conversion_check = 1 THEN Call write_variable_in_case_note ("* Conversion waiver")	
+IF waiver_type_droplist <> "No waiver" then call write_bullet_and_variable_in_case_note("Client is requesting services/enrolled in waiver type", waiver_type_droplist)	
 IF essential_community_supports_check = 1 THEN Call write_variable_in_case_note ("* Essential Community supports.  Client does not meet LOC requirements.")	
 
 'Information from DHS 5181 Dialog 2
 Call write_bullet_and_variable_in_case_note ("Waiver Assessment Date", waiver_assessment_date_editbox)	
-IF needs_waiver_check = 1 THEN Call write_variable_in_case_note ("* Waiver assessment date determined client needs waiver services & meets LOC requirements. Anticipated effective date no sooner than:", estimated_effective_date_editbox)		 
-IF estimated_monthly_check  = 1 THEN Call write_variable_in_case_note ("* Estimated monthly waiver costs", estimated_monthly_waiver_costs_editbox)
+Call write_bullet_and_variable_in_case_note ("* Estimated monthly waiver costs", estimated_monthly_waiver_costs_editbox)
 IF does_not_meet_waiver_LOC_check = 1 THEN Call write_variable_in_case_note ("* Client does not meet LOC requirements for waivered services.")
-IF ongoing_waiver_case_manager_check = 1 THEN Call write_variable_in_case_note ("* Ongoing case manager is", ongoing_waiver_case_manager_editbox)
+Call write_bullet_and_variable_in_case_note ("Ongoing case manager is", ongoing_waiver_case_manager_editbox)
 Call write_bullet_and_variable_in_case_note ("LTCF Assessment Date", LTCF_assessment_date_editbox)	
 IF meets_MALOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client meets the LOC requirement")
-IF ongoing_case_manager_check = 1 THEN Call write_variable_in_case_note("* Ongoing case manager is", ongoing_case_manager_editbox)
+Call write_bullet_and_variable_in_case_note("Ongoing case manager is", ongoing_case_manager_editbox)
 IF ongoing_case_manager_not_available_check = 1 THEN Call write_variable_in_case_note ("* Ongoing Case Manager not available")
 IF does_not_meet_MALTC_LOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client does not meet LOC requirements for LTCF's.")
 IF requested_1503_check = 1 THEN Call write_variable_in_case_note ("* A DHS-1503 has been requested from the LTCF.")
 IF onfile_1503_check = 1 THEN Call write_variable_in_case_note ("A DHS-1503 has been provided.")
 IF client_applied_MA_check = 1 THEN Call write_variable_in_case_note ("* Client has applied for MA")
-IF client_MA_enrollee_3543_provided_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Client is an MA enrollee.  Assessor provided a DHS-3543 on:", Client_MA_enrollee_editbox)
+Call write_bullet_and_variable_in_case_note ("Client is an MA enrollee. Assessor provided a DHS-3543 on", Client_MA_enrollee_editbox)
 IF completed_3543_3531_check = 1 THEN Call write_variable_in_case_note ("* Completed DHS-3543 or DHS-3531 attached to DHS 5181")
-IF completed_3543_3531_faxed_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Completed DHS-3543 or DHS-3531 faxed to county on:", completed_3543_3531_faxed_editbox)
+Call write_bullet_and_variable_in_case_note ("Completed DHS-3543 or DHS-3531 faxed to county on", completed_3543_3531_faxed_editbox)
 IF please_send_3543_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3543 be sent to the MA enrollee or AREP.")
-IF please_send_3531_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at:", please_send_3531_check)
+Call write_bullet_and_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at", please_send_3531_check)
 IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP")
-IF client_no_longer_meets_LOC_check = 1 THEN Call write_variable_in_case_note ("* Client no longer meets LOC - Effective date should be no sooner than:", client_no_longer_meets_LOC_efffective_date_editbox)					 
-IF waiver_program_change_by_assessor_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:", waiver_program_change_from_assessor_editbox, "to", waiver_program_change_to_assessor_editbox)
-Call write_bullet_and_variable_in_case_note ("Effective date", waiver_program_change_effective_date_editbox)
-IF exited_waiver_program_check = 1 THEN Call write_variable_in_case_note("* Exited waiver program.  Effective date: ", exit_waiver_end_date_editbox)
+Call write_bullet_and_variable_in_case_note ("Client no longer meets LOC - Effective date should be no sooner than", client_no_longer_meets_LOC_efffective_date_editbox)					 
+IF waiver_program_change_by_assessor_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:" & waiver_program_change_from_assessor_editbox & "to" & waiver_program_change_to_assessor_editbox & "Effective date" & waiver_program_change_effective_date_editbox)
 
 'Information from DHS 5181 Dialog 3
+IF exited_waiver_program_check = 1 THEN Call write_variable_in_case_note("* Exited waiver program.  Effective date: " & exit_waiver_end_date_editbox)
 IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program")
-IF client_deceased_check = 1 THEN Call write_variable_in_case_note ("* Client is deceased.  Date of death", date_of_death_editbox)
-IF client_moved_to_LTCF_check = 1 THEN Call write_variable_in_case_note ("* Client moved to LTCF on", client_moved_to_LTCF_editbox)
+IF client_deceased_check = 1 THEN Call write_variable_in_case_note ("* Client is deceased.  Date of death: " & date_of_death_editbox)
+IF client_moved_to_LTCF_check = 1 THEN Call write_variable_in_case_note ("* Client moved to LTCF on" & client_moved_to_LTCF_editbox)
 Call write_bullet_and_variable_in_case_note ("Facility name", client_moved_to_LTCF_editbox)
-Call write_bullet_and_variable_in_case_note ("Facility address", LTCF_ADDR_line_01 & LTCF_ADDR_line_02 & LTCF_city & LTCF_state & LTCF_zip_code)
-IF waiver_program_change_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:", waiver_program_change_from_editbox, "to", waiver_program_change_to_editbox)
-IF client_disenrolled_health_plan_check = 1 THEN Call write_variable_in_case_note ("* Client disenrolled from health plan effective", client_disenrolled_from_healthplan_editbox)
-IF new_address_check = 1 THEN Call write_variable_in_case_note ("* New Address, effective date",new_address_effective_date_editbox & change_ADDR_line_1 & change_ADDR_line_2 & change_city & change_state & change_zip_code)
+Call write_bullet_and_variable_in_case_note ("Facility address", LTCF_ADDR_line_01 & " " & LTCF_ADDR_line_02 & " " &  LTCF_city & " " & LTCF_state & " " & LTCF_zip_code)
+IF waiver_program_change_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:" & waiver_program_change_from_editbox & "to" & waiver_program_change_to_editbox)
+IF client_disenrolled_health_plan_check = 1 THEN Call write_variable_in_case_note ("* Client disenrolled from health plan effective" & client_disenrolled_from_healthplan_editbox)
+IF new_address_check = 1 THEN Call write_variable_in_case_note ("* New Address, effective date: " & new_address_effective_date_editbox & " " & change_ADDR_line_1 & " " & change_ADDR_line_2 & " " & change_city & " " & change_state & " " & change_zip_code)
 Call write_bullet_and_variable_in_case_note ("Case actions", case_action_editbox)
 Call write_bullet_and_variable_in_case_note ("Other notes", other_notes_editbox)
 Call write_variable_in_case_note ("---")						 
 call write_variable_in_case_note (worker_signature)
-MsgBox "Make sure your DISA and FACI panel(s) are updated if they needed."
-
-script_end_procedure("")
-
-
+MsgBox "Make sure your DISA and FACI panel(s) are updated if needed. Please also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed."
