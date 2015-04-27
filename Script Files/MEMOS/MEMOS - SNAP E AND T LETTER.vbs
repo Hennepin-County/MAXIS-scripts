@@ -115,7 +115,7 @@ IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkF
 IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one", "Pine County Health & Human Services", "Pine Technical & Community College E&T Center")
 IF worker_county_code = "x159" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Pipestone")
 IF worker_county_code = "x160" THEN county_FSET_offices = array("Select one", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston")
-'IF worker_county_code = "x161" THEN county_FSET_offices = array("Select one",
+IF worker_county_code = "x161" THEN county_FSET_offices = array("Minnesota Workforce Center Alexandria")
 'IF worker_county_code = "x162" THEN county_FSET_offices = array("Select one",
 IF worker_county_code = "x163" THEN county_FSET_offices = array("Minnesota Workforce Center: Red Lake")
 IF worker_county_code = "x164" THEN county_FSET_offices = array("Southwest Health & Human Services")
@@ -154,28 +154,28 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 ' FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work
 ' This dialog is for counties that HAVE provided FSET office addresses
-BeginDialog SNAPET_automated_adress_dialog, 0, 0, 311, 115, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
   EditBox 205, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
   EditBox 205, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 225, 25, 20, 15, appointment_time_post_editbox
-  DropListBox 250, 25, 55, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
-  DropListBox 115, 50, 190, 15, FSET_list, interview_location
-  EditBox 60, 70, 55, 15, SNAPET_contact
-  EditBox 180, 70, 55, 15, SNAPET_phone
-  EditBox 130, 90, 65, 15, worker_signature
+  DropListBox 250, 25, 45, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
+  DropListBox 115, 50, 180, 15, "county_office_list", interview_location
+  EditBox 60, 70, 65, 15, SNAPET_contact
+  EditBox 185, 70, 65, 15, SNAPET_phone
+  EditBox 120, 90, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 200, 90, 50, 15
-    CancelButton 255, 90, 50, 15
+    OkButton 190, 90, 50, 15
+    CancelButton 245, 90, 50, 15
   Text 5, 50, 105, 10, "Location (select from dropdown)"
-  Text 70, 95, 60, 10, "Worker Signature:"
+  Text 60, 95, 60, 10, "Worker Signature:"
   Text 10, 10, 50, 10, "Case Number:"
   Text 130, 10, 70, 10, "HH Member Number:"
   Text 135, 30, 60, 15, "Appointment Time:"
   Text 10, 75, 50, 10, "Contact name: "
   Text 5, 30, 60, 10, "Appointment Date:"
-  Text 130, 75, 50, 10, "Contact phone:"
+  Text 135, 75, 50, 10, "Contact phone:"
 EndDialog
 
 
@@ -253,7 +253,6 @@ DO
 											  worker_county_code = "x152" OR _
 											  worker_county_code = "x153" OR _
 											  worker_county_code = "x154" OR _
-											  worker_county_code = "x161" OR _
 											  worker_county_code = "x162" OR _
 											  worker_county_code = "x170" OR _
 											  worker_county_code = "x172" OR _
@@ -415,7 +414,7 @@ END IF
 'CO #21 DOUGLAS COUNTY address
 IF interview_location = "Alexandria Workforce Center" THEN 
 	SNAPET_name = "Alexandria Workforce Center"
-	SNAPET_address_01 = "303 22nd Avenue W Suite 197"
+	SNAPET_address_01 = "303 22nd Avenue W Suite 107"
 	SNAPET_city = "Alexandria"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56308"
@@ -695,6 +694,15 @@ ELSEIF interview_location  = "Polk County Social Services: Fosston" THEN
     SNAPET_city = "Fosston"
     SNAPET_ST = "MN"
     SNAPET_zip = "56542"
+END IF
+
+'CO #61 POPE COUNTY address
+IF interview_location = "Minnesota Workforce Center Alexandria" THEN 
+	SNAPET_name = "Minnesota Workforce Center Alexandria"
+	SNAPET_address_01 = "303 22nd Avenue W Suite 107"
+	SNAPET_city = "Alexandria"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56308"
 END IF
 
 'CO #63 REDLAKE COUNTY address
