@@ -210,7 +210,6 @@ call start_a_blank_case_note
 
 'The case note
 CALL write_variable_in_case_note("***" & recert_month & " HC ER received " & recert_datestamp & ": " & recert_status & "***")
-If SNAP_CSR_check = checked then call write_variable_in_case_note("* Used HC ER as SNAP CSR.")
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
