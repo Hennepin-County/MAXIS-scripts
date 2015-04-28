@@ -174,6 +174,8 @@ DIM next_to_page_03_button
 DIM footer_month_as_date
 DIM difference_between_dates
 DIM move_on_to_case_note
+DIM from_droplist
+DIM to_droplist
 
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
@@ -296,9 +298,9 @@ BeginDialog DHS_5181_dialog_2, 0, 0, 361, 415, "5181 Dialog 2"
   EditBox 180, 290, 150, 15, please_send_3531_editbox
   CheckBox 5, 310, 205, 10, "Please send DHS-3340 to client - Asset Assessment needed", please_send_3340_check
   EditBox 235, 345, 45, 15, client_no_longer_meets_LOC_efffective_date_editbox
-  EditBox 110, 370, 45, 15, waiver_program_change_from_assessor_editbox
-  EditBox 170, 370, 45, 15, waiver_program_change_to_assessor_editbox
-  EditBox 270, 370, 45, 15, waiver_program_change_effective_date_editbox
+  DropListBox 105, 370, 60, 15, "Select one..."+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW", from_droplist
+  DropListBox 180, 370, 60, 15, "Select one..."+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW", to_droplist
+  EditBox 295, 370, 55, 15, waiver_program_change_effective_date_editbox
   ButtonGroup ButtonPressed
     PushButton 190, 400, 50, 15, "Previous", previous_to_page_01_button
     PushButton 245, 400, 50, 15, "Next", next_to_page_03_button
@@ -312,10 +314,10 @@ BeginDialog DHS_5181_dialog_2, 0, 0, 361, 415, "5181 Dialog 2"
   Text 5, 335, 160, 15, "**CHANGES COMPLETED BY THE ASSESSOR**"
   Text 5, 5, 145, 10, "INITIAL REQUESTS (check all that apply):"
   Text 0, 120, 135, 15, "**LTCF** Assessment determines client: "
-  Text 160, 375, 15, 10, "To:"
+  Text 170, 375, 10, 10, "to:"
   Text 10, 40, 60, 10, "Assessment date:"
   Text 0, 205, 190, 10, "**MEDICAL ASSISTANCE REQUESTS/APPLICATIONS**"
-  Text 220, 375, 50, 10, "Effective date:"
+  Text 245, 375, 50, 10, "Effective date:"
   GroupBox 0, 325, 355, 65, ""
   Text 10, 75, 110, 10, "Estimated monthly waiver costs:"
   Text 10, 105, 95, 10, "Ongoing case mgr assigned:"
@@ -324,7 +326,7 @@ BeginDialog DHS_5181_dialog_2, 0, 0, 361, 415, "5181 Dialog 2"
   Text 10, 265, 225, 10, "If completed DHS-3543 or DHS-3531 was faxed to county, enter date: "
   Text 5, 295, 170, 10, "Please send DHS-3531 to client (Not MA enrollee) at:"
   Text 5, 350, 225, 10, "Client no longer meets LOC - Effective date should be no sooner than:"
-  Text 10, 375, 100, 10, "Waiver program change from:"
+  Text 5, 375, 100, 10, "Waiver program change from:"
 EndDialog
 
 
@@ -417,7 +419,7 @@ transmit
 'Dialog completed by worker
 Do
 	Do
-		Do
+		Do		
 			Do
 				Dialog DHS_5181_dialog_1			'Displays the first dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
@@ -431,7 +433,16 @@ Do
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
-			If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
+			If ButtonPressed = previous_to_page_01_button then exit do			'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
+			ELSEIF(from_droplist = "Select one..." AND to_droplist <> "") OR (to_droplist = "Select one..." AND from_droplist <> "")THEN 	
+				next_to_page_03_button = False	'Created a dummy true/false variable to simplify the end of the do...loop
+				Msgbox	"You must enter valid selections for the waiver program change 'to' and 'from'."
+			ELSEIF from_droplist = "Select one..." AND to_droplist = "Select one..." THEN next_to_page_03_button	
+			ELSE
+				next_to_page_03_button = True			'If all of that stuff is fine, this will set to true and the loop can end.
+			End if
+		LOOP UNTIL next_to_page_03_button = True
+		Do	
 			Do
 				Dialog DHS_5181_Dialog_3			'Displays the third dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
@@ -447,9 +458,10 @@ Do
 			move_on_to_case_note = False		'Created a dummy true/false variable to simplify the end of the do...loop
 'Tells the worker what's required in a MsgBox.
 			MsgBox "You need to:" & chr(13) & chr(13) & _
-			  "-Case actions section, and/or" & chr(13) & _
-			  "-Sign your case note." & chr(13) & chr(13) & _
-			  "Check these items after pressing ''OK''."	
+				"-Complete a field next to an option that was checked, and/or" & chr(13) & _	
+				"-Case note the 'case actions' section, and/or" & chr(13) & _
+				"-Sign your case note." & chr(13) & chr(13) & _
+				"Check these items after pressing ''OK''."	
 		ELSE
 			move_on_to_case_note = True			'If all of that stuff is fine, this will set to true and the loop can end.
 		End if
@@ -736,6 +748,7 @@ Call start_a_blank_CASE_NOTE
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Information from DHS 5181 Dialog 1
+'Contact information
 Call write_variable_in_case_note ("~~~DHS 5181 rec'd~~~")											
 Call write_bullet_and_variable_in_case_note ("Date of 5181", date_5181_editbox )		
 Call write_bullet_and_variable_in_case_note ("Date received", date_received_editbox)			
@@ -744,18 +757,21 @@ Call write_bullet_and_variable_in_case_note ("Lead Agency Assessor/Case Manager"
 Call write_bullet_and_variable_in_case_note ("Address", casemgr_ADDR_line_01 & " " & casemgr_ADDR_line_02 & " " & casemgr_city & " " & casemgr_state & " " & casemgr_zip_code)					 
 Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & " " & phone_prefix & " " & phone_second_four & " " & phone_extension)
 Call write_bullet_and_variable_in_case_note ("Fax", fax_editbox)
+'STATUS
 Call write_bullet_and_variable_in_case_note ("Name of Facility", name_of_facility_editbox)											
 Call write_bullet_and_variable_in_case_note ("Date of admission", date_of_admission_editbox)		
 Call write_bullet_and_variable_in_case_note ("Facility address", facility_address_line_01 & " " & facility_address_line_02 & " " & facility_city & " " & facility_state & " " & facility_zip_code)	
-'OR
 IF waiver_type_droplist <> "No waiver" then call write_bullet_and_variable_in_case_note("Client is requesting services/enrolled in waiver type", waiver_type_droplist)	
 IF essential_community_supports_check = 1 THEN Call write_variable_in_case_note ("* Essential Community supports.  Client does not meet LOC requirements.")	
 
 'Information from DHS 5181 Dialog 2
+'Waivers
 Call write_bullet_and_variable_in_case_note ("Waiver Assessment Date", waiver_assessment_date_editbox)	
-Call write_bullet_and_variable_in_case_note ("* Estimated monthly waiver costs", estimated_monthly_waiver_costs_editbox)
+Call write_bullet_and_variable_in_case_note ("Assessment determines that client needs waiver services and meets LOC requirements.  Anticipated effective date no sooner than", estimated_effective_date_editbox)
+Call write_bullet_and_variable_in_case_note ("Estimated monthly waiver costs", estimated_monthly_waiver_costs_editbox)
 IF does_not_meet_waiver_LOC_check = 1 THEN Call write_variable_in_case_note ("* Client does not meet LOC requirements for waivered services.")
 Call write_bullet_and_variable_in_case_note ("Ongoing case manager is", ongoing_waiver_case_manager_editbox)
+'LTCF
 Call write_bullet_and_variable_in_case_note ("LTCF Assessment Date", LTCF_assessment_date_editbox)	
 IF meets_MALOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client meets the LOC requirement")
 Call write_bullet_and_variable_in_case_note("Ongoing case manager is", ongoing_case_manager_editbox)
@@ -763,17 +779,20 @@ IF ongoing_case_manager_not_available_check = 1 THEN Call write_variable_in_case
 IF does_not_meet_MALTC_LOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client does not meet LOC requirements for LTCF's.")
 IF requested_1503_check = 1 THEN Call write_variable_in_case_note ("* A DHS-1503 has been requested from the LTCF.")
 IF onfile_1503_check = 1 THEN Call write_variable_in_case_note ("A DHS-1503 has been provided.")
+'MA requests/applications
 IF client_applied_MA_check = 1 THEN Call write_variable_in_case_note ("* Client has applied for MA")
 Call write_bullet_and_variable_in_case_note ("Client is an MA enrollee. Assessor provided a DHS-3543 on", Client_MA_enrollee_editbox)
 IF completed_3543_3531_check = 1 THEN Call write_variable_in_case_note ("* Completed DHS-3543 or DHS-3531 attached to DHS 5181")
 Call write_bullet_and_variable_in_case_note ("Completed DHS-3543 or DHS-3531 faxed to county on", completed_3543_3531_faxed_editbox)
 IF please_send_3543_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3543 be sent to the MA enrollee or AREP.")
-Call write_bullet_and_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at", please_send_3531_check)
+Call write_bullet_and_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at", please_send_3531_editbox)
 IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP")
+'changes completed by the assessor
 Call write_bullet_and_variable_in_case_note ("Client no longer meets LOC - Effective date should be no sooner than", client_no_longer_meets_LOC_efffective_date_editbox)					 
-IF waiver_program_change_by_assessor_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:" & waiver_program_change_from_assessor_editbox & "to" & waiver_program_change_to_assessor_editbox & "Effective date" & waiver_program_change_effective_date_editbox)
+Call write_bullet_and_variable_in_case_note ("Waiver program changed from", from_droplist & " to: " & to_droplist & ". Effective date: " & waiver_program_change_effective_date_editbox)
 
 'Information from DHS 5181 Dialog 3
+'changes
 IF exited_waiver_program_check = 1 THEN Call write_variable_in_case_note("* Exited waiver program.  Effective date: " & exit_waiver_end_date_editbox)
 IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program")
 IF client_deceased_check = 1 THEN Call write_variable_in_case_note ("* Client is deceased.  Date of death: " & date_of_death_editbox)
@@ -783,6 +802,7 @@ Call write_bullet_and_variable_in_case_note ("Facility address", LTCF_ADDR_line_
 IF waiver_program_change_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:" & waiver_program_change_from_editbox & "to" & waiver_program_change_to_editbox)
 IF client_disenrolled_health_plan_check = 1 THEN Call write_variable_in_case_note ("* Client disenrolled from health plan effective" & client_disenrolled_from_healthplan_editbox)
 IF new_address_check = 1 THEN Call write_variable_in_case_note ("* New Address, effective date: " & new_address_effective_date_editbox & " " & change_ADDR_line_1 & " " & change_ADDR_line_2 & " " & change_city & " " & change_state & " " & change_zip_code)
+'case summary
 Call write_bullet_and_variable_in_case_note ("Case actions", case_action_editbox)
 Call write_bullet_and_variable_in_case_note ("Other notes", other_notes_editbox)
 Call write_variable_in_case_note ("---")						 
