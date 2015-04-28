@@ -4,31 +4,49 @@
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog benefits_approved, 0, 0, 271, 285, "Benefits Approved"
@@ -171,10 +189,12 @@ IF autofill_snap_check = checked THEN
 				EMReadScreen snap_bene_amt, 5, 13, 73
 				EMReadScreen current_snap_bene_mo, 2, 19, 54
 				EMReadScreen current_snap_bene_yr, 2, 19, 57
+				EMReadScreen snap_reporter, 10, 8, 31
 				snap_bene_amt = replace(snap_bene_amt, ",", "")
 				snap_bene_amt = replace(snap_bene_amt, " ", "0")
+				snap_reporter = replace(snap_reporter, " ", "")
 				IF len(snap_bene_amt) = 5 THEN snap_bene_amt = right(snap_bene_amt, 4)
-				snap_approval_array = snap_approval_array & snap_bene_amt & current_snap_bene_mo & current_snap_bene_yr & " "
+				snap_approval_array = snap_approval_array & snap_bene_amt & snap_reporter & current_snap_bene_mo & current_snap_bene_yr & " "
 			ELSE
 				script_end_procedure("Your most recent SNAP approval for the benefit month chosen is not from today. The script cannot autofill this result. Process manually.")
 			END IF
@@ -191,10 +211,12 @@ IF autofill_snap_check = checked THEN
 				EMReadScreen snap_bene_amt, 5, 13, 73
 				EMReadScreen current_snap_bene_mo, 2, 19, 54
 				EMReadScreen current_snap_bene_yr, 2, 19, 57
+				EMReadScreen snap_reporter, 10, 8, 31
 				snap_bene_amt = replace(snap_bene_amt, ",", "")
 				snap_bene_amt = replace(snap_bene_amt, " ", "0")
+				snap_reporter = replace(snap_reporter, " ", "")
 				IF len(snap_bene_amt) = 5 THEN snap_bene_amt = right(snap_bene_amt, 4)
-				snap_approval_array = snap_approval_array & snap_bene_amt & current_snap_bene_mo & current_snap_bene_yr & " "
+				snap_approval_array = snap_approval_array & snap_bene_amt & snap_reporter & current_snap_bene_mo & current_snap_bene_yr & " "
 			ELSE
 				script_end_procedure("Your most recent SNAP approval for the benefit month chosen is not from today. The script cannot autofill this result. Process manually.")
 			END IF
@@ -432,10 +454,13 @@ IF benefit_breakdown <> "" THEN call write_editbox_in_case_note("Benefit Breakdo
 IF autofill_snap_check = checked THEN
 	FOR EACH snap_approval_result in snap_approval_array
 		bene_amount = left(snap_approval_result, 4)
+		report_status = " " & MID(snap_approval_result, 5)
+		len_report_status = LEN(report_status)
+		report_status = LEFT(report_status, (len_report_status - 4)) & " Reporter"
 		benefit_month = left(right(snap_approval_result, 4), 2)
 		benefit_year = right(snap_approval_result, 2)
 		snap_header = ("SNAP for " & benefit_month & "/" & benefit_year)
-		call write_editbox_in_case_note(snap_header, FormatCurrency(bene_amount), 6)
+		call write_editbox_in_case_note(snap_header, FormatCurrency(bene_amount) & report_status, 6)
 	NEXT
 END IF
 IF autofill_cash_check = checked THEN
@@ -478,3 +503,16 @@ If closed_progs_check = checked then run_from_github(script_repository & "NOTES/
 If denied_progs_check = checked then run_script(script_repository & "NOTES/NOTES - DENIED PROGRAMS.vbs")
 
 script_end_procedure("")
+
+	
+
+
+
+
+
+
+	
+
+
+
+
