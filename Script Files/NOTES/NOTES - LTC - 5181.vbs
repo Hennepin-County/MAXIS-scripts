@@ -415,68 +415,66 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 transmit
 
-'Dialog completed by worker
+'Dialog completed by worker. Each dialog follows this process:
+'  1. Show the dialog and validate that next/OK or prev is pressed
+'  2. Do the validation on that page, but contain a "if ButtonPressed = prev then exit do" to skip the validation if previous is pressed
+'  3. Validate again that next/OK or prev is pressed
+'  4. Loop until next is pressed, which will loop back to the previous dialog.
 Do
 	Do
-		Do		
+		Do
 			Do
 				Dialog DHS_5181_dialog_1			'Displays the first dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_02_button
-			IF waiver_type_droplist = "Select one..." THEN MsgBox "Choose waiver type (or select 'no waiver')."
+			IF waiver_type_droplist = "Select one..." THEN MsgBox "Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
 		Loop until waiver_type_droplist <> "Select one..."
+	Loop until ButtonPressed = next_to_page_02_button
+	Do
 		Do
 			Do
-				Dialog DHS_5181_dialog_2			'Displays the second dialog
-				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-			Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
-			If ButtonPressed = previous_to_page_01_button then exit do			'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
-			IF from_droplist = "Select one..." AND to_droplist = "Select one..." THEN next_to_page_03_button = True
-			DO	
-				If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") THEN 
-				next_to_page_03_button = False	'Created a dummy true/false variable to simplify the end of the do...loop	
-				Msgbox	"You must enter valid selections for the waiver program change 'to' and 'from'."
-			LOOP UNTIL (from_droplist = "Select one..." AND to_droplist = "Select one...") or (from_droplist AND to_droplist <> "Select one..."
-			ELSE
-			next_to_page_03_button = True			'If all of that stuff is fine, this will set to true and the loop can end.
-			END IF
-		LOOP UNTIL next_to_page_03_button = True
-		Do	
-			Do
-				Dialog DHS_5181_Dialog_3			'Displays the third dialog
-				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-				If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
-			Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
-		Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
-		If ButtonPressed = previous_to_page_02_button then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
-		If case_action_editbox = "" or worker_signature = "" OR (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") OR _
-		  (client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
-		  (waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
-		  (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
-			move_on_to_case_note = False		'Created a dummy true/false variable to simplify the end of the do...loop
-			'Tells the worker what's required in a MsgBox.
-			MsgBox "You need to:" & chr(13) & chr(13) & _
-				"-Complete a field next to an option that was checked, and/or" & chr(13) & _	
-				"-Case note the 'case actions' section, and/or" & chr(13) & _
-				"-Sign your case note." & chr(13) & chr(13) & _
-				"Check these items after pressing ''OK''."	
-		ELSE
-			move_on_to_case_note = True			'If all of that stuff is fine, this will set to true and the loop can end.
-		End if
-	'Loop until case_action_editbox <> ""  and worker_signature <> ""	'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
-	LOOP UNTIL move_on_to_case_note = True
+				Do
+					Dialog DHS_5181_dialog_2			'Displays the second dialog
+					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
+				If ButtonPressed = previous_to_page_01_button THEN exit do
+				If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") THEN Msgbox	"You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
+			Loop until (from_droplist = "Select one..." AND to_droplist = "Select one...") OR (from_droplist <> "Select one..." AND to_droplist <> "Select one...") 'Loops until both from and to are filled out, or neither.
+		Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
+		If ButtonPressed = previous_to_page_01_button then exit do
+		Do
+			Do				
+				Do
+					Dialog DHS_5181_Dialog_3			'Displays the third dialog
+					cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
+					MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
+				If ButtonPressed = previous_to_page_02_button THEN exit do
+				If case_action_editbox = "" or worker_signature = "" OR (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") OR _
+				(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
+				(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
+				(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
+					MsgBox "You need to:" & vbNewLine & vbNewLine & _
+					"-Complete a field next to an option that was checked, and/or" & vbNewLine & _	
+					"-Case note the 'case actions' section, and/or" & vbNewLine & _
+					"-Sign your case note." & vbNewLine & vbNewLine & _
+					"Check these items after pressing ''OK''."	
+				ELSE
+					move_on_to_case_note = True			'If all of that stuff is fine, this will set to true and the loop can end.
+				End if
+			Loop until move_on_to_case_note = True
+		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
+	Loop until ButtonPressed = -1
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
-									  
+Loop until case_note_confirm = TRUE							  
 
 'Dollar bill symbol will be added to numeric variables 
 IF estimated_monthly_waiver_costs_editbox <> "" THEN estimated_monthly_waiver_costs_editbox = "$" & estimated_monthly_waiver_costs_editbox
 
 'Checking to see that we're in MAXIS
-call check_for_MAXIS(True)
+call check_for_MAXIS(False)
 
 'ACTIONS----------------------------------------------------------------------------------------------------
 
