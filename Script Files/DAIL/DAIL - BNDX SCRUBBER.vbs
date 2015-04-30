@@ -1,3 +1,21 @@
+'This script has been updated on 04/23/2015.
+'(1) This script has been updated to handle multiple RSDI claims. I have used a multidimensional array to handle a whole bunch of information. Here's how it goes...
+'	The "i" in the bndx_array refers to the RSDI claim. If the client has 1 RSDI claim, it will work only with bndx_array(0, x). If there are two, it wll be bndx_array(1, x), etc.
+'	bndx_array(i, 0) = RSDI claim number as found in BNDX
+'	bndx_array(i, 1) = RSDI claim amount as found in BNDX
+'	bndx_array(i, 2) = RSDI claim number as found in UNEA
+'	bndx_array(i, 3) = RSDI prospective amount as found in UNEA
+'	bndx_array(i, 4) = RSDI amount found in UNEA PIC
+'	bndx_array(i, 5) = RSDI amount found in UNEA HC INC EST
+'----------------------------------------------------------------
+'(2) The error message and comparison message has been updated to provide more information.
+'----------------------------------------------------------------
+'(3) The way the script handles the RSDI claim number has been updated. Because some claim suffixes include numeric values, the script will read 11 characters on UNEA, but it will always drop the last 
+' character when reading a claim number ending in "A". The reason for this is that some cases have A00 in the claim number and some only have "A". BNDX, however, will only ever put "A" for the suffix.
+'-----------------------------------------------------------------
+'(4) Future plans could include bulking the BNDX Scrubber. However, for 04/2015, the number of BNDX DAILs seems to be down considerably. That enhancement request could be put on hold.
+'-----------------------------------------------------------------
+
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "DAIL - BNDX SCRUBBER.vbs"
 start_time = timer
@@ -45,6 +63,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 
 FUNCTION abended_function
 	EMReadScreen case_abended, 7, 9, 27
@@ -97,32 +116,50 @@ transmit
 EMWriteScreen "BNDX", 20, 71
 transmit
 
+DIM bndx_array()
+ReDim bndx_array(2, 5)
 '========== Collects information from BNDX ==========
-EMReadScreen bndx_claim_one_number, 14, 5, 12
-  bndx_claim_one_number = replace(bndx_claim_one_number, " ", "")
+EMReadScreen bndx_claim_one_number, 13, 5, 12
+bndx_claim_one_number = replace(bndx_claim_one_number, " ", "")
 EMReadScreen bndx_claim_one_amt, 8, 7, 12
-  bndx_claim_one_amt = replace(bndx_claim_one_amt, " ", "")
-  bndx_claim_one_amt = FormatCurrency(bndx_claim_one_amt)
+bndx_claim_one_amt = replace(bndx_claim_one_amt, " ", "")  
+'ReDim bndx_array(0, 5)
+num_of_rsdi = 0
+bndx_array(0, 0) = bndx_claim_one_number
+bndx_array(0, 1) = bndx_claim_one_amt
 
-EMReadScreen bndx_claim_two_number, 14, 5, 38
-  bndx_claim_two_number = replace(bndx_claim_two_number, " ", "")
+EMReadScreen bndx_claim_two_number, 13, 5, 38
+bndx_claim_two_number = replace(bndx_claim_two_number, " ", "")
 EMReadScreen bndx_claim_two_amt, 8, 7, 38
-  bndx_claim_two_amt = replace(bndx_claim_two_amt, " ", "")
-  IF bndx_claim_two_amt <> "" THEN bndx_claim_two_amt = INT(bndx_claim_two_amt)
+bndx_claim_two_amt = replace(bndx_claim_two_amt, " ", "")
+	IF bndx_claim_two_amt <> "" THEN 
+'		ReDim bndx_array(1, 5)
+		num_of_rsdi = 1
+		bndx_array(1, 0) = bndx_claim_two_number
+		bndx_array(1, 1) = bndx_claim_two_amt
+	END IF
 
-EMReadScreen bndx_claim_three_number, 14, 5, 64
-  bndx_claim_three_number = replace(bndx_claim_three_number, " ", "")
+EMReadScreen bndx_claim_three_number, 13, 5, 64
+bndx_claim_three_number = replace(bndx_claim_three_number, " ", "")
 EMReadScreen bndx_claim_three_amt, 8, 7, 64
-  bndx_claim_three_amt = replace(bndx_claim_three_amt, " ", "")
-  IF bndx_claim_three_amt <> "" THEN bndx_claim_three_amt = INT(bndx_claim_three_amt)
+bndx_claim_three_amt = replace(bndx_claim_three_amt, " ", "")
+	IF bndx_claim_three_amt <> "" THEN
+'		ReDim bndx_array(2, 5)
+		num_of_rsdi = 2
+		bndx_array(2, 0) = bndx_claim_three_number
+		bndx_array(2, 1) = bndx_claim_three_amt
+	END IF
 
+
+	
 '========== Goes back to STAT/PROG to determine which programs are active. ==========
 back_to_SELF
 EMWriteScreen "STAT", 16, 43
 EMWriteScreen maxis_case_number, 18, 43
 EMWriteScreen "PROG", 21, 70
 transmit
-abended_function
+EMReadScreen abended_check, 7, 9, 27
+IF abended_check = "abended" THEN transmit
 EMReadScreen errr_check, 4, 2, 52
 IF errr_check = "ERRR" THEN transmit
 
@@ -150,173 +187,110 @@ DO
 	END IF
 LOOP UNTIL use_ssn = memb_ssn
 
+FOR i = 0 TO num_of_rsdi
+	end_of_unea = ""
+	'========== Goes to STAT/UNEA ==========
+	EMWriteScreen "UNEA", 20, 71
+	EMWriteScreen reference_number, 20, 76
+	EMWriteScreen "01", 20, 79
+	transmit
 
-'========== Goes to STAT/UNEA ==========
-EMWriteScreen "UNEA", 20, 71
-EMWriteScreen reference_number, 20, 76
-transmit
-
-EMReadScreen number_of_unea_panels, 1, 2, 78
-IF number_of_unea_panels = "1" THEN
-	EMReadScreen unea_type, 4, 5, 40
-	IF unea_type = "RSDI" THEN
-		EMReadScreen unea_claim_number, 12, 6, 37
-		IF right(unea_claim_number, 2) = "00" THEN unea_claim_number = left(unea_claim_number, 10)
-		unea_claim_number = replace(unea_claim_number, "_", "")
-		IF bndx_claim_one_number <> unea_claim_number THEN error_message = error_message & chr(13) & "Claim numbers do not match."
-		EMReadScreen unea_prospective_amt, 8, 13, 68
-		unea_prospective_amt = replace(unea_prospective_amt, " ", "")
-		unea_prospective_amount = INT(unea_prospective_amt)
-		IF ((unea_prospective_amount - bndx_claim_one_amt > county_bndx_variance_threshold) OR (bndx_claim_one_amt - unea_prospective_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amounts are significantly different."
-		IF fs_status = "ACTV" or fs_status = "PEND" THEN
-			EMWriteScreen "X", 10, 26
-			transmit
-			EMReadScreen unea_pic_amt, 8, 18, 56
-			unea_pic_amt = replace(unea_pic_amt, " ", "")
-			unea_pic_amount = INT(unea_pic_amt)
-			IF ((unea_pic_amount - bndx_claim_one_amt > county_bndx_variance_threshold) OR (bndx_claim_one_amt - unea_pic_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the PIC is significantly different from BNDX."
-			PF3
-		END IF
-		IF hc_status = "ACTV" or hc_status = "PEND" THEN
-			EMWriteScreen "X", 6, 56
-			transmit
-			EMReadScreen unea_hc_inc_amt, 8, 9, 65
-			unea_hc_inc_amt = replace(unea_hc_inc_amt, " ", "")
-			unea_hc_inc_amount = INT(unea_hc_inc_amt)
-			IF ((unea_hc_inc_amount - bndx_claim_one_amt > county_bndx_variance_threshold) OR (bndx_claim_one_amt - unea_hc_inc_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Income Estimator is significantly different from BNDX."
-			PF3
-		END IF
-	ELSE
-		error_message = "This case is not showing an RSDI claim."
-	END IF
-ELSEIF CINT(number_of_unea_panels) > 1 THEN
-	number_of_unea_panels = cint(number_of_unea_panels)
-	unea_panels_to_check = number_of_unea_panels
-	claim_count = 0
-	rsdi_count = 0
-	'========== This part of the script collects information from UNEA when there are multiple UNEA screens. This is for display ONLY and is used 
-	'========== to populate the MSGBox at the end of the script for Beta Testing. This DO-LOOP can be removed when the script is taken out of BETA.
-	DO
-		EMReadScreen unea_panel_number, 1, 2, 73
-		unea_panel_number = cint(unea_panel_number)
-		EMWriteScreen "0", 20, 79
-		EMWriteScreen unea_panel_number, 20, 80
-		transmit
-		EMReadScreen unea_is_rsdi, 4, 5, 40
-			IF unea_is_rsdi = "RSDI" THEN
-				EMReadScreen unea_amount, 8, 13, 68
-				unea_amount = replace(unea_amount, " ", "0")
-				total_unea = unea_amount
-				IF hc_status = "ACTV" OR hc_status = "PEND" THEN
-					EMWriteScreen "X", 6, 56
-					transmit
-					EMReadScreen unea_hc_amount, 8, 9, 65
-					unea_hc_amount = replace(unea_hc_amount, " ", "0")
-					total_unea = total_unea & unea_hc_amount
-					transmit
-				END IF
-				IF fs_status = "ACTV" OR fs_status = "PEND" THEN
-					EMWriteScreen "X", 10, 26
-					transmit
-					EMReadScreen uneaPIC, 8, 18, 56
-					uneaPIC = replace(uneaPIC, " ", "0")
-					total_unea = total_unea & uneaPIC
-					transmit
-				END IF
-			END IF
-		transmit
-	LOOP UNTIL unea_panel_number = number_of_unea_panels
-	DO
-		EMReadScreen which_unea_panel, 1, 2, 73
-		EMWriteScreen "0", 20, 79
-		EMWriteScreen (claim_count + 1), 20, 80
-		transmit
+	EMReadScreen number_of_unea_panels, 1, 2, 78
+	IF number_of_unea_panels = "0" THEN
+		script_end_procedure("Client is not showing any UNEA panels.")
+	ELSEIF number_of_unea_panels = "1" THEN
 		EMReadScreen unea_type, 4, 5, 40
 		IF unea_type = "RSDI" THEN
-			EMReadScreen unea_claim_number, 10, 6, 37
-			IF right(unea_claim_number, 2) = "00" THEN unea_claim_number = left(unea_claim_number, 10)
-			unea_claim_number = replace(unea_claim_number, "_", "")
-			IF bndx_claim_one_number = unea_claim_number THEN
-				EMReadScreen unea_prospective_amt, 8, 13, 68
-				unea_prospective_amt = replace(unea_prospective_amt, " ", "")
-				unea_prospective_amount = INT(unea_prospective_amt)
-				IF ((unea_prospective_amount - bndx_claim_one_amt > county_bndx_variance_threshold) OR (bndx_claim_one_amt - unea_prospective_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The amounts for claim 1 are significantly different."
+			EMReadScreen unea_claim_number, 11, 6, 37
+			bndx_array(i, 2) = unea_claim_number
+			IF (right(bndx_array(i, 0), 1) = "A" AND right(bndx_array(i, 0), 2) <> "HA") OR _
+				(right(bndx_array(i, 0), 1) = "B" AND right(bndx_array(i, 0), 2) <> "HB") OR _
+				right(bndx_array(i, 0), 1) = "D" OR _ 
+				right(bndx_array(i, 0), 1) = "E" OR _ 
+				right(bndx_array(i, 0), 1) = "G" OR _
+				right(bndx_array(i, 0), 1) = "M" OR _ 
+				right(bndx_array(i, 0), 1) = "T" OR _
+				right(bndx_array(i, 0), 1) = "W" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
+			IF bndx_array(i, 0) <> bndx_array(i, 2) THEN error_message = error_message & chr(13) & "Claim numbers do not match."
+			EMReadScreen unea_prospective_amt, 8, 18, 68
+			bndx_array(i, 3) = trim(unea_prospective_amt)
+			IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The prospective amount in UNEA is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
+			IF fs_status = "ACTV" or fs_status = "PEND" THEN
+				EMWriteScreen "X", 10, 26
+				transmit
+				EMReadScreen unea_pic_amt, 8, 18, 56
+				bndx_array(i, 4) = trim(unea_pic_amt)
+				IF ((CDbl(bndx_array(i, 4)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 4)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the PIC is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
+				PF3
+			ELSE
+				bndx_array(i, 4) = ""
+			END IF
+			IF hc_status = "ACTV" or hc_status = "PEND" THEN
+				EMWriteScreen "X", 6, 56
+				transmit
+				EMReadScreen unea_hc_inc_amt, 8, 9, 65
+				bndx_array(i, 5) = trim(unea_hc_inc_amt)
+				IF ((CDbl(bndx_array(i, 5)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 5)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Inc Est is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
+				PF3
+			ELSE
+				bndx_array(i, 5) = ""
+			END IF
+		ELSE
+			script_end_procedure("This case is not showing an RSDI claim.")
+		END IF
+	ELSE
+		DO
+			EMReadScreen unea_type, 4, 5, 40
+			IF unea_type <> "RSDI" THEN transmit
+			EMReadScreen end_of_unea, 15, 24, 2
+			end_of_unea = trim(end_of_unea)
+			IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There is a discrepancy with BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
+		LOOP UNTIL unea_type = "RSDI" or end_of_unea <> ""
+		IF end_of_unea = "" THEN 
+			DO
+				EMReadScreen unea_claim_number, 11, 6, 37
+				bndx_array(i, 2) = unea_claim_number
+				IF (right(bndx_array(i, 0), 1) = "A" AND right(bndx_array(i, 0), 2) <> "HA") OR _
+					(right(bndx_array(i, 0), 1) = "B" AND right(bndx_array(i, 0), 2) <> "HB") OR _
+					right(bndx_array(i, 0), 1) = "D" OR _ 
+					right(bndx_array(i, 0), 1) = "E" OR _ 
+					right(bndx_array(i, 0), 1) = "G" OR _
+					right(bndx_array(i, 0), 1) = "M" OR _ 
+					right(bndx_array(i, 0), 1) = "T" OR _
+					right(bndx_array(i, 0), 1) = "W" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
+				IF bndx_array(i, 0) <> bndx_array(i, 2) THEN transmit
+				EMReadScreen end_of_unea, 15, 24, 2
+				end_of_unea = trim(end_of_unea)
+				IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There is a discrepancy with BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
+			LOOP UNTIL bndx_array(i, 0) = bndx_array(i, 2) OR end_of_unea <> ""
+			IF end_of_unea = "" THEN 
+				EMReadScreen unea_prospective_amt, 8, 18, 68
+				bndx_array(i, 3) = trim(unea_prospective_amt)
+				IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The prospective amount in UNEA is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 				IF fs_status = "ACTV" or fs_status = "PEND" THEN
 					EMWriteScreen "X", 10, 26
 					transmit
 					EMReadScreen unea_pic_amt, 8, 18, 56
-					unea_pic_amt = replace(unea_pic_amt, " ", "")
-					unea_pic_amount = INT(unea_pic_amt)
-					IF ((unea_pic_amount - bndx_claim_one_amt > county_bndx_variance_threshold) OR (bndx_claim_one_amt - unea_pic_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The amount on the PIC does not match the BNDX message for claim 1."
+					bndx_array(i, 4) = trim(unea_pic_amt)
+					IF ((CDbl(bndx_array(i, 4)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 4)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the PIC is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 					PF3
+				ELSE
+					bndx_array(i, 4) = ""
 				END IF
 				IF hc_status = "ACTV" or hc_status = "PEND" THEN
 					EMWriteScreen "X", 6, 56
 					transmit
 					EMReadScreen unea_hc_inc_amt, 8, 9, 65
-					unea_hc_inc_amt = replace(unea_hc_inc_amt, " ", "")
-					unea_hc_inc_amount = INT(unea_hc_inc_amt)
-					IF ((unea_hc_inc_amount - bndx_claim_one_amt > county_bndx_variance_threshold) OR (bndx_claim_one_amt - unea_hc_inc_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Income Estimator is significantly different from BNDX."
+					bndx_array(i, 5) = trim(unea_hc_inc_amt)
+					IF ((CDbl(bndx_array(i, 5)) - CDbl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDBl(bndx_array(i, 5)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on the HC Inc Est is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 					PF3
-				END IF
-			ELSEIF bndx_claim_two_number = unea_claim_number THEN
-				EMReadScreen unea_prospective_amt, 8, 13, 68
-				unea_prospective_amt = replace(unea_prospective_amt, " ", "")
-				unea_prospective_amount = INT(unea_prospective_amt)
-				IF ((unea_prospective_amount - bndx_claim_two_amt > county_bndx_variance_threshold) OR (bndx_claim_two_amt - unea_prospective_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount for claim 2 is significantly different from BNDX."
-				IF fs_status = "ACTV" or fs_status = "PEND" THEN
-					EMWriteScreen "X", 10, 26
-					transmit
-					EMReadScreen unea_pic_amt, 8, 18, 56
-					unea_pic_amt = replace(unea_pic_amt, " ", "")
-					unea_pic_amount = INT(unea_pic_amt)
-					IF ((unea_pic_amount - bndx_claim_two_amt > county_bndx_variance_threshold) OR (bndx_claim_two_amt - unea_pic_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The amount on the PIC from claim 2 does not match the BNDX message."
-					PF3
-				END IF
-				IF hc_status = "ACTV" or hc_status = "PEND" THEN
-					EMWriteScreen "X", 6, 56
-					transmit
-					EMReadScreen unea_hc_inc_amt, 8, 9, 65
-					unea_hc_inc_amt = replace(unea_hc_inc_amt, " ", "")
-					unea_hc_inc_amount = INT(unea_hc_inc_amt)
-					IF ((unea_hc_inc_amount - bndx_claim_two_amt > county_bndx_variance_threshold) OR (bndx_claim_two_amt - unea_hc_inc_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on claim 2 in the HC Income Estimator is significantly different from BNDX."
-					PF3
-				END IF
-			ELSEIF bndx_claim_three_number = unea_claim_number THEN
-				EMReadScreen unea_prospective_amt, 8, 13, 68
-				unea_prospective_amt = replace(unea_prospective_amt, " ", "")
-				unea_prospective_amount = INT(unea_prospective_amt)
-				IF ((unea_prospective_amount - bndx_claim_three_amt > county_bndx_variance_threshold) OR (bndx_claim_three_amt - unea_prospective_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount for claim 3 is significantly different from BNDX."
-				IF fs_status = "ACTV" or fs_status = "PEND" THEN
-					EMWriteScreen "X", 10, 26
-					transmit
-					EMReadScreen unea_pic_amt, 8, 18, 56
-					unea_pic_amt = replace(unea_pic_amt, " ", "")
-					unea_pic_amount = INT(unea_pic_amt)
-					IF ((unea_pic_amount - bndx_claim_three_amt > county_bndx_variance_threshold) OR (bndx_claim_three_amt - unea_pic_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The amount on the PIC from claim 3 does not match the BNDX message."
-					PF3
-				END IF
-				IF hc_status = "ACTV" or hc_status = "PEND" THEN
-					EMWriteScreen "X", 6, 56
-					transmit
-					EMReadScreen unea_hc_inc_amt, 8, 9, 65
-					unea_hc_inc_amt = replace(unea_hc_inc_amt, " ", "")
-					unea_hc_inc_amount = INT(unea_hc_inc_amt)
-					IF ((unea_hc_inc_amount - bndx_claim_three_amt > county_bndx_variance_threshold) OR (bndx_claim_three_amt - unea_hc_inc_amount > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The claim amount on claim 3 in the HC Income Estimator is significantly different from BNDX."
-					PF3
+				ELSE
+					bndx_array(i, 5) = ""
 				END IF
 			END IF
-			rsdi_count = rsdi_count + 1
 		END IF
-		claim_count = claim_count + 1
-		number_of_unea_panels = number_of_unea_panels + 1
-	LOOP UNTIL claim_count = unea_panels_to_check
-	IF rsdi_count = 0 THEN error_message = "This case is not showing any RSDI claims."
-ELSEIF number_of_unea_panels = "0" THEN
-	error_message = "This case is not showing any UNEA panels."
-END IF
-
-IF rsdi_count > 1 THEN error_message = "This client has multiple RSDI claims. Double check case and process." & chr(13) & error_message
+	END IF
+NEXT
 
 back_to_SELF
 EMWriteScreen "DAIL", 16, 43
@@ -326,31 +300,14 @@ transmit
 
 '========== The bit about the MSGBox is used only as a safeguard for Beta Testing.
 IF error_message = "" THEN 
-	compare_message = "BNDX Claim 1 Amt: " & (bndx_claim_one_amt)
-	IF bndx_claim_two_amt <> "" THEN compare_message = compare_message & chr(13) & "BNDX Claim 2 Amt: " & (bndx_claim_two_amt)
-	IF bndx_claim_three_amt <> "" THEN compare_message = compare_message & chr(13) & "BNDX Claim 3 Amt: " & (bndx_claim_three_amt)
-	IF total_unea <> "" THEN
-		uneaPROS = left(total_unea, 8)
-		compare_message = compare_message & chr(13) & "UNEA Prospected Amt: " & FormatCurrency(uneaPROS)
-		IF hc_status = "ACTV" OR hc_status = "PEND" THEN
-			uneaHCamt = right(left(total_unea, 16), 8)
-			compare_message = compare_message & chr(13) & "UNEA HC Inc Est: " & FormatCurrency(uneaHCamt)
-		END IF
-		IF fs_status = "ACTV" OR fs_status = "PEND" THEN
-			uneaFSPIC = right(total_unea, 8)
-			compare_message = compare_message & chr(13) & "UNEA SNAP PIC: " & FormatCurrency(uneaFSPIC)
-		END IF
-	ELSE
-		compare_message = compare_message & chr(13) & "UNEA Prospected Amt: " & FormatCurrency(unea_prospective_amt)
-		IF hc_status = "ACTV" OR hc_status = "PEND" THEN 
-			unea_hc_inc_amt = cstr(unea_hc_inc_amt)
-			compare_message = compare_message & chr(13) & "UNEA HC Inc Est: " & FormatCurrency(unea_hc_inc_amt)
-		END IF
-		IF fs_status = "ACTV" OR fs_status = "PEND" THEN
-			unea_pic_amt = cstr(unea_pic_amt)
-			compare_message = compare_message & chr(13) & "UNEA SNAP PIC:   " & FormatCurrency(unea_pic_amt)
-		END IF
-	END IF
+	compare_message = "BNDX Conclusion" & vbCr & "============="
+	FOR i = 0 to num_of_rsdi
+		compare_message = compare_message & vbCr & "BNDX Claim #: " & bndx_array(i, 0)
+		compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1) 
+		compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
+		IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
+		IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)
+	NEXT
 	MSGBox compare_message
 	DIALOG delete_message_dialog
 		IF ButtonPressed = delete_button THEN
@@ -368,37 +325,19 @@ IF error_message = "" THEN
 					IF dail_read_row = 19 THEN PF8
 				LOOP UNTIL dail_read_row = 19
 			LOOP UNTIL double_check = original_bndx_dail
-		ELSE
-			script_end_procedure("Double check the case and try again. You may need to send an electronic SSA verif request.")
 		END IF
 ELSE
-	MSGBox error_message & chr(13) & "Review case and request RSDI information if necessary."
-	compare_message = "BNDX Claim 1 Amt: " & (bndx_claim_one_amt)
-	IF bndx_claim_two_amt <> "" THEN compare_message = compare_message & chr(13) & "BNDX Claim 2 Amt: " & (bndx_claim_two_amt)
-	IF bndx_claim_three_amt <> "" THEN compare_message = compare_message & chr(13) & "BNDX Claim 3 Amt: " & (bndx_claim_three_amt)
-	IF total_unea <> "" THEN
-		uneaPROS = left(total_unea, 8)
-		compare_message = compare_message & chr(13) & "UNEA Prospected Amt: " & FormatCurrency(uneaPROS)
-		IF hc_status = "ACTV" OR hc_status = "PEND" THEN
-			uneaHCamt = right(left(total_unea, 16), 8)
-			compare_message = compare_message & chr(13) & "UNEA HC Inc Est: " & FormatCurrency(uneaHCamt)
-		END IF
-		IF fs_status = "ACTV" OR fs_status = "PEND" THEN
-			uneaFSPIC = right(total_unea, 8)
-			compare_message = compare_message & chr(13) & "UNEA SNAP PIC: " & FormatCurrency(uneaFSPIC)
-		END IF
-	ELSE
-		compare_message = compare_message & chr(13) & "UNEA Prospected Amt: " & FormatCurrency(unea_prospective_amt)
-		IF hc_status = "ACTV" OR hc_status = "PEND" THEN 
-			unea_hc_inc_amt = cstr(unea_hc_inc_amt)
-			compare_message = compare_message & chr(13) & "UNEA HC Inc Est: " & FormatCurrency(unea_hc_inc_amt)
-		END IF
-		IF fs_status = "ACTV" OR fs_status = "PEND" THEN
-			unea_pic_amt = cstr(unea_pic_amt)
-			compare_message = compare_message & chr(13) & "UNEA SNAP PIC:   " & FormatCurrency(unea_pic_amt)
-		END IF
-	END IF
-	MSGBox compare_message
+	error_message = "*** NOTICE ***" & vbCr & "==========" & vbCr & error_message & vbCr & vbCr & "Review case and request RSDI information if necessary."
+	MSGBox error_message
+	'compare_message = "BNDX Conclusion" & vbCr & "============="
+	'FOR i = 0 to num_of_rsdi
+	'	compare_message = compare_message & vbCr & "BNDX Claim #: " & bndx_array(i, 0)
+	'	compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1) 
+	'	compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
+	'	IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
+	'	IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)
+	'NEXT
+	'MSGBox compare_message
 END IF
 
 script_end_procedure("")
