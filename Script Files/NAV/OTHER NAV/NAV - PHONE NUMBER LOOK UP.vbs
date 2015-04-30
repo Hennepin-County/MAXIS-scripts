@@ -1,31 +1,50 @@
+'This script can be used to look up clients in the REPT/ACTV. This could be useful when checking voicemails if the client garbles their name or has a difficult name to look up or if you just want an easier way of checking your REPT screens.
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - PHONE LOOK UP.vbs"
+name_of_script = "BETA - NAV - Phone number look up"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN 'Shouldn't load FuncLib if it already loaded once
+	 IF run_locally = FALSE or run_locally = "" THEN 'If the scripts are set to run locally, it skips this and uses an FSO below.
+		 IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN 'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			 FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		 ELSEIF beta_agency = "" or beta_agency = True then 'If you're a beta agency, you should probably use the beta branch.
+			 FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		 Else 'Everyone else should use the release branch.
+			 FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		 End if
+			 SET req = CreateObject("Msxml2.XMLHttp.6.0") 'Creates an object to get a FuncLib_URL
+			 req.open "GET", FuncLib_URL, FALSE 'Attempts to open the FuncLib_URL
+			 req.send 'Sends request
+			 IF req.Status = 200 THEN '200 means great success
+			 Set fso = CreateObject("Scripting.FileSystemObject") 'Creates an FSO
+			 Execute req.responseText 'Executes the script code
+		 ELSE 'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			 MsgBox "Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
+			 vbCr & _
+			 "Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+			 vbCr & _
+			 "If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+			 vbTab & "- The name of the script you are running." & vbCr &_
+			 vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+			 vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+			 vbTab & vbTab & "responsible for network issues." & vbCr &_
+		 	vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+		 	vbCr & _
+		 	"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
+		 	vbCr &_
+		 	"URL: " & FuncLib_URL
+			 script_end_procedure("Script ended due to error connecting to GitHub.")
+		 END IF
+	 ELSE
+		 FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		 Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		 text_from_the_other_script = fso_command.ReadAll
+		 fso_command.Close
+		 Execute text_from_the_other_script
+	 END IF
 END IF
 
 
@@ -191,10 +210,19 @@ FOR EACH case_number in case_number_array
 		EMReadscreen area_code_3, 3, 19, 45
 		EMReadscreen addr_phone_number_3, 8, 19, 51
 		complete_phone_1 = area_code_1 & replace(addr_phone_number_1, " ", "")
-		complete_phone_2 = area_code_2 & replace(addr_phone_number_1, " ", "")
-		complete_phone_3 = area_code_3 & replace(addr_phone_number_1, " ", "")
-
+		complete_phone_2 = area_code_2 & replace(addr_phone_number_2, " ", "")
+		complete_phone_3 = area_code_3 & replace(addr_phone_number_3, " ", "")
 		IF complete_phone_1 = phone_look_up OR complete_phone_2 = phone_look_up OR complete_phone_3 = phone_look_up then script_end_procedure(case_number & " contains requested phone number " & phone_look_up & ".")
+		CALL navigate_to_MAXIS_screen("STAT", "AREP")
+		EMReadscreen arep_area_code_1, 3, 8, 34
+		EMReadscreen arep_phone_number_1, 8, 8, 40
+		EMReadscreen arep_area_code_2, 3, 9, 34
+		EMReadscreen arep_phone_number_2, 8, 9, 40
+		arep_complete_phone_1 = arep_area_code_1 & replace(arep_phone_number_1, " ", "")
+		arep_complete_phone_2 = arep_area_code_2 & replace(arep_phone_number_2, " ", "")
+		IF arep_complete_phone_1 = phone_look_up OR arep_complete_phone_2 = phone_look_up then script_end_procedure("AREP on case " & case_number & " contains requested phone number " & phone_look_up & ".")
+
+	
 	END IF
 NEXT
 
