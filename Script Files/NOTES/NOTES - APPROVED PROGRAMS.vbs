@@ -189,10 +189,12 @@ IF autofill_snap_check = checked THEN
 				EMReadScreen snap_bene_amt, 5, 13, 73
 				EMReadScreen current_snap_bene_mo, 2, 19, 54
 				EMReadScreen current_snap_bene_yr, 2, 19, 57
+				EMReadScreen snap_reporter, 10, 8, 31
 				snap_bene_amt = replace(snap_bene_amt, ",", "")
 				snap_bene_amt = replace(snap_bene_amt, " ", "0")
+				snap_reporter = replace(snap_reporter, " ", "")
 				IF len(snap_bene_amt) = 5 THEN snap_bene_amt = right(snap_bene_amt, 4)
-				snap_approval_array = snap_approval_array & snap_bene_amt & current_snap_bene_mo & current_snap_bene_yr & " "
+				snap_approval_array = snap_approval_array & snap_bene_amt & snap_reporter & current_snap_bene_mo & current_snap_bene_yr & " "
 			ELSE
 				script_end_procedure("Your most recent SNAP approval for the benefit month chosen is not from today. The script cannot autofill this result. Process manually.")
 			END IF
@@ -209,10 +211,12 @@ IF autofill_snap_check = checked THEN
 				EMReadScreen snap_bene_amt, 5, 13, 73
 				EMReadScreen current_snap_bene_mo, 2, 19, 54
 				EMReadScreen current_snap_bene_yr, 2, 19, 57
+				EMReadScreen snap_reporter, 10, 8, 31
 				snap_bene_amt = replace(snap_bene_amt, ",", "")
 				snap_bene_amt = replace(snap_bene_amt, " ", "0")
+				snap_reporter = replace(snap_reporter, " ", "")
 				IF len(snap_bene_amt) = 5 THEN snap_bene_amt = right(snap_bene_amt, 4)
-				snap_approval_array = snap_approval_array & snap_bene_amt & current_snap_bene_mo & current_snap_bene_yr & " "
+				snap_approval_array = snap_approval_array & snap_bene_amt & snap_reporter & current_snap_bene_mo & current_snap_bene_yr & " "
 			ELSE
 				script_end_procedure("Your most recent SNAP approval for the benefit month chosen is not from today. The script cannot autofill this result. Process manually.")
 			END IF
@@ -450,10 +454,13 @@ IF benefit_breakdown <> "" THEN call write_editbox_in_case_note("Benefit Breakdo
 IF autofill_snap_check = checked THEN
 	FOR EACH snap_approval_result in snap_approval_array
 		bene_amount = left(snap_approval_result, 4)
+		report_status = " " & MID(snap_approval_result, 5)
+		len_report_status = LEN(report_status)
+		report_status = LEFT(report_status, (len_report_status - 4)) & " Reporter"
 		benefit_month = left(right(snap_approval_result, 4), 2)
 		benefit_year = right(snap_approval_result, 2)
 		snap_header = ("SNAP for " & benefit_month & "/" & benefit_year)
-		call write_editbox_in_case_note(snap_header, FormatCurrency(bene_amount), 6)
+		call write_editbox_in_case_note(snap_header, FormatCurrency(bene_amount) & report_status, 6)
 	NEXT
 END IF
 IF autofill_cash_check = checked THEN
@@ -496,3 +503,16 @@ If closed_progs_check = checked then run_from_github(script_repository & "NOTES/
 If denied_progs_check = checked then run_script(script_repository & "NOTES/NOTES - DENIED PROGRAMS.vbs")
 
 script_end_procedure("")
+
+	
+
+
+
+
+
+
+	
+
+
+
+
