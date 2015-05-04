@@ -1,3 +1,5 @@
+worker_county_code = "x127"
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
@@ -10,13 +12,13 @@ DIM FuncLib_URL, req, fso
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+'		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
+'		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+'			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+'		Else																		'Everyone else should use the release branch.
+'			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+'		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -161,7 +163,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointmen
   EditBox 205, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 225, 25, 20, 15, appointment_time_post_editbox
   DropListBox 250, 25, 45, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
-  DropListBox 115, 50, 180, 15, "county_office_list", interview_location
+  DropListBox 115, 50, 180, 15, FSET_list, interview_location
   EditBox 60, 70, 65, 15, SNAPET_contact
   EditBox 185, 70, 65, 15, SNAPET_phone
   EditBox 120, 90, 65, 15, worker_signature
