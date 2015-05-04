@@ -90,7 +90,7 @@ MAXIS_background_check
 
 
 'Navigate to stat/memb and check for ERRR message
-CALL Navigate_to_screen("STAT", "MEMB")
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 ERRR_screen_check
 
 'Navigating to selected memb panel
@@ -116,7 +116,7 @@ Middle_initial = replace(Middle_initial, "_", "")
 
 'Navigate back to self and to EDRS
 Back_to_self
-CALL Navigate_to_screen("INFC", "EDRS")
+CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 
 'Write in SSN number into EDRS
 EMwritescreen SSN_number, 2, 7

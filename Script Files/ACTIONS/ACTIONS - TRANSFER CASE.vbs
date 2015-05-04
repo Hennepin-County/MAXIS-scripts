@@ -162,7 +162,7 @@ IF XFERRadioGroup = 0 THEN
 			EMReadScreen MAXIS_check, 5, 1, 39
 			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
 		  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-		  call navigate_to_screen("case", "note")
+		  call navigate_to_MAXIS_screen("case", "note")
 		  PF9
 		  EMReadScreen mode_check, 7, 20, 3
 		  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
@@ -221,7 +221,7 @@ IF XFERRadioGroup = 0 THEN
 						DIALOG out_of_county_dlg
 							IF ButtonPressed = 0 THEN stopscript
 							IF ButtonPressed = nav_to_xfer_button THEN 
-								CALL navigate_to_screen("SPEC", "XFER")
+								CALL navigate_to_MAXIS_screen("SPEC", "XFER")
 								EMWriteScreen "X", 9, 16
 								transmit
 							END IF
@@ -230,7 +230,7 @@ IF XFERRadioGroup = 0 THEN
 				LOOP UNTIL last_chance = vbYes
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
-				call navigate_to_screen("STAT", "PROG")
+				call navigate_to_MAXIS_screen("STAT", "PROG")
 					EMReadScreen cash_one_status, 4, 6, 74
 					EMReadScreen cash_two_status, 4, 7, 74
 					EMReadScreen snap_status, 4, 10, 74
@@ -256,7 +256,7 @@ IF XFERRadioGroup = 0 THEN
 			((manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 1 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 1))			
 
 			'----------Checks that the worker or agency is valid----------
-			call navigate_to_screen("REPT", "USER")
+			call navigate_to_MAXIS_screen("REPT", "USER")
 			EMWriteScreen transfer_to, 21, 12
 			transmit
 			EMReadScreen worker_found, 15, 24, 2
@@ -315,7 +315,7 @@ IF XFERRadioGroup = 0 THEN
 		
 		back_to_SELF
 
-		call navigate_to_screen("CASE", "NOTE")
+		call navigate_to_MAXIS_screen("CASE", "NOTE")
 		PF9
 		EMReadScreen write_access, 9, 24, 12
 		IF write_access = "READ ONLY" THEN MsgBox("You do not have access to modify this case. Please double check your case number and try again." & chr(13) & chr(13) & "Alternatively, you may be in INQUIRY MODE.")
@@ -324,7 +324,7 @@ IF XFERRadioGroup = 0 THEN
 
 	'----------Sending the CL a SPEC/MEMO notifying them of the details of the transfer----------
 	If SPEC_MEMO_check = checked then
-		call navigate_to_screen("SPEC", "MEMO")
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")
 		PF5
 		EMWriteScreen "X", 5, 10
 		transmit
@@ -368,7 +368,7 @@ IF XFERRadioGroup = 0 THEN
 	End if
 
 	'----------The case note of the reason for the XFER----------
-		call navigate_to_screen("CASE", "NOTE")
+		call navigate_to_MAXIS_screen("CASE", "NOTE")
 		PF9
 		IF SNAP_status = "ACTV" THEN active_programs = active_programs & "SNAP/"
 		IF hc_status = "ACTV" THEN active_programs = active_programs & "HC/"
@@ -423,7 +423,7 @@ IF XFERRadioGroup = 0 THEN
 	PF3	
 
 	'----------The business end of the script (DON'T POINT THIS SCRIPT AT ANYTHING YOU DON'T WANT TRANSFERRED!!)----------
-	call navigate_to_screen("SPEC", "XFER")
+	call navigate_to_MAXIS_screen("SPEC", "XFER")
 	EMWriteScreen "X", 9, 16
 	transmit
 	PF9

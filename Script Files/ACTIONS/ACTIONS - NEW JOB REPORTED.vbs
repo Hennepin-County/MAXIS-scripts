@@ -132,7 +132,7 @@ If left(footer_month_year_check, 2) <> footer_month or right(footer_month_year_c
 End if
 
 'Now it enters stat/jobs. It'll check to make sure it gets past the SELF menu and gets onto the JOBS panel.
-call navigate_to_screen("stat", "jobs")
+call navigate_to_MAXIS_screen("stat", "jobs")
 EMReadScreen SELF_check, 27, 2, 28
 If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to navigate past the SELF menu. Is your case in background? Wait a few seconds and try again.")
 
@@ -224,7 +224,7 @@ If create_JOBS_checkbox = checked then
 End if
 
 'Jumps to case note the info.
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
 EMReadScreen edit_mode_check, 1, 20, 9
 If edit_mode_check = "D" then script_end_procedure("Unable to create a new case note. Your case may be in inquiry. If so shut down inquiry and try again. Or try closing BlueZone.")
@@ -246,7 +246,7 @@ call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
-call navigate_to_screen("dail", "writ")
+call navigate_to_MAXIS_screen("dail", "writ")
 
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)

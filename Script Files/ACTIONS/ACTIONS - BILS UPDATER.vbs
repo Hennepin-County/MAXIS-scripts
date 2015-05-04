@@ -166,7 +166,7 @@ Do
 Loop until isnumeric(case_number) = True
 
 'Gets to STAT/BUDG
-call navigate_to_screen("STAT", "BUDG")
+call navigate_to_MAXIS_screen("STAT", "BUDG")
 ERRR_screen_check
 
 'Determines budget begin/end dates. 
@@ -176,7 +176,7 @@ EMReadScreen budget_end, 5, 10, 46
 budget_end = replace(trim(budget_end), " ", "/")	'MM/DD format, trims the EMReadScreen to ignore strings that are all spaces (implies no budget period established, case may be pending)
 
 'Gets to BILS
-call navigate_to_screen("STAT", "BILS")
+call navigate_to_MAXIS_screen("STAT", "BILS")
 
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
 If updating_existing_BILS_check = checked then
@@ -280,7 +280,7 @@ Do
 	End if
 Loop until dialog_validation_complete = True
  
-call navigate_to_screen("stat", "bils") 'In case the worker navigated out.
+call navigate_to_MAXIS_screen("stat", "bils") 'In case the worker navigated out.
 
 'Cleaning up date field
 budget_begin = replace(budget_begin, ".", "/")		'in case worker used periods instead of slashes

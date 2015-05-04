@@ -279,7 +279,7 @@ EMReadScreen STAT_footer_month_check, 2, 20, 55
 EMReadScreen STAT_footer_year_check, 2, 20, 58
 If STAT_check <> "STAT" or trim(replace(STAT_case_number, "_", "")) <> case_number or STAT_footer_month_check <> footer_month or STAT_footer_year_check <> footer_year then back_to_SELF
 
-call navigate_to_screen("stat", "jobs")
+call navigate_to_MAXIS_screen("stat", "jobs")
 
 'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
 EMReadScreen SELF_check, 4, 2, 50

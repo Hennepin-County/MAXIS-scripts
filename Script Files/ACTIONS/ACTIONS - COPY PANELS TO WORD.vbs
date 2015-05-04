@@ -191,7 +191,7 @@ back_to_SELF
 Dialog all_MAXIS_panels_dialog
 	If buttonpressed = 0 then stopscript
 
-call navigate_to_screen("STAT", "MEMI")
+call navigate_to_MAXIS_screen("STAT", "MEMI")
 ERRR_screen_check
 
 call HH_member_custom_dialog(HH_member_array)
@@ -306,7 +306,7 @@ For each panel_to_scan in all_panels_selected_array
 	panel_to_scan = "ADDR" OR _
 	panel_to_scan = "HCRE" OR _
 	panel_to_scan = "ABPS" THEN
-		call navigate_to_screen("STAT", panel_to_scan)
+		call navigate_to_MAXIS_screen("STAT", panel_to_scan)
 				call copy_screen_to_array(screentest)
 
 				'Adds current screen to Word doc
@@ -331,7 +331,7 @@ For each panel_to_scan in all_panels_selected_array
 			number_of_panels = ""
 
 			IF panel_to_scan = "MEMB" THEN 
-				call navigate_to_screen("STAT", "MEMB")
+				call navigate_to_MAXIS_screen("STAT", "MEMB")
 				EMWriteScreen hh_member, 20, 76
 				transmit
 					call copy_screen_to_array(screentest)
@@ -351,7 +351,7 @@ For each panel_to_scan in all_panels_selected_array
 					End if
 
 			ELSEIF panel_to_scan = "BILS" THEN
-				call navigate_to_screen("STAT", "BILS")
+				call navigate_to_MAXIS_screen("STAT", "BILS")
 					EMReadScreen total_bils_panel, 1, 3, 78
 					IF total_bils_panel = "0" THEN
 						call copy_screen_to_array(screentest)
@@ -405,7 +405,7 @@ For each panel_to_scan in all_panels_selected_array
 					END IF
 
 			ELSEIF panel_to_scan = "FMED" THEN
-				call navigate_to_screen("STAT", "FMED")
+				call navigate_to_MAXIS_screen("STAT", "FMED")
 					EMReadScreen more_fmed_screens, 7, 15, 68
 					IF more_fmed_screens = "       " THEN
 						call copy_screen_to_array(screentest)
@@ -459,7 +459,7 @@ For each panel_to_scan in all_panels_selected_array
 
 			ELSE
 				'Goes to the screen for the first HH memb
-				call navigate_to_screen("STAT", panel_to_scan)
+				call navigate_to_MAXIS_screen("STAT", panel_to_scan)
 				EMWriteScreen hh_member, 20, 76
 				EMWriteScreen "01", 20, 79
 				transmit

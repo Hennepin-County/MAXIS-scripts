@@ -84,7 +84,7 @@ If member_number = "" then member_number = "01"
 call check_for_MAXIS(True)
 
 'Goes to MEMB to get info
-call navigate_to_screen("stat", "memb")
+call navigate_to_MAXIS_screen("stat", "memb")
 
 'Goes to the right HH member
 EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
@@ -101,7 +101,7 @@ EMReadScreen SSN3, 4, 7, 49
 EMReadScreen PMI, 8, 4, 46
 
 If SSN_radiobutton = 1 then
-  call navigate_to_screen("infc", "sves")
+  call navigate_to_MAXIS_screen("infc", "sves")
   EMWriteScreen SSN1,  4, 68
   EMWriteScreen SSN2,  4, 71
   EMWriteScreen SSN3,  4, 73
@@ -109,7 +109,7 @@ If SSN_radiobutton = 1 then
   EMWriteScreen "qury",  20, 70
   transmit 'Now we will enter the QURY screen to type the case number.
 ElseIf UNEA_radiobutton = 1 then
-  call navigate_to_screen("stat", "unea")
+  call navigate_to_MAXIS_screen("stat", "unea")
 
   EMWriteScreen "unea", 20, 71 'It does this to move past error prone cases
   EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
@@ -178,14 +178,14 @@ ElseIf UNEA_radiobutton = 1 then
     EMReadScreen claim_number, 15, 6, 37
     claim_number = replace(claim_number, "_", "")
   End if
-  call navigate_to_screen("infc", "sves")
+  call navigate_to_MAXIS_screen("infc", "sves")
   EMWriteScreen PMI,  5, 68
   EMWriteScreen "qury",  20, 70
   transmit 'Now we will enter the QURY screen to type the claim number.
 
   EMWriteScreen claim_number, 7, 38
 ElseIf BNDX_radiobutton = 1 then
-  call navigate_to_screen ("infc", "____")
+  call navigate_to_MAXIS_screen ("infc", "____")
   EMWriteScreen SSN1,  4, 63
   EMWriteScreen SSN2,  4, 66
   EMWriteScreen SSN3,  4, 68
@@ -247,7 +247,7 @@ transmit
 
 
 'Now it case notes
-call navigate_to_screen("CASE", "NOTE")
+call navigate_to_MAXIS_screen("CASE", "NOTE")
 PF9
 call write_variable_in_case_note("~~~SVES/QURY sent for MEMB " & member_number & "~~~")
 If SSN_radiobutton = 1 then

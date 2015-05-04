@@ -151,7 +151,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
 'Jumping to STAT
-call navigate_to_screen("stat", "memb")
+call navigate_to_MAXIS_screen("stat", "memb")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
 EMReadScreen ERRR_check, 4, 2, 52
@@ -161,7 +161,7 @@ If ERRR_check = "ERRR" then transmit 'For error prone cases.
 call HH_member_custom_dialog(HH_member_array)
 
 'Pulling household and worker info for the letter
-call navigate_to_screen("stat", "addr") 
+call navigate_to_MAXIS_screen("stat", "addr") 
 EMReadScreen addr_line1, 21, 6, 43
 EMReadScreen addr_line2, 21, 7, 43
 EMReadScreen addr_city, 14, 8, 43
@@ -176,7 +176,7 @@ household_members = UBound(HH_member_array) + 1 'Total members in household
 household_members = cStr(household_members)
 
 'Collecting and formatting client name
-call navigate_to_screen("stat", "memb")
+call navigate_to_MAXIS_screen("stat", "memb")
 call find_variable("Last: ", last_name, 24)
 call find_variable("First: ", first_name, 11)
 client_name = first_name & " " & last_name
@@ -213,10 +213,10 @@ Function cash_members_finder
 End Function
 
 'Pulling the elig amounts for all open progs on case / curr
-call navigate_to_screen("case", "curr")
+call navigate_to_MAXIS_screen("case", "curr")
  call find_variable("MFIP: ", MFIP_check, 6)
    If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
-   call navigate_to_screen("elig", "mfip")    
+   call navigate_to_MAXIS_screen("elig", "mfip")    
 	  call approved_version
 		EMWriteScreen version, 20, 79
 		transmit
@@ -231,27 +231,27 @@ call navigate_to_screen("case", "curr")
 		'add readscreen for sanction 
 		'Finding the number of members on cash grant
 		call cash_members_finder
-		Call navigate_to_screen("case", "curr")
+		Call navigate_to_MAXIS_screen("case", "curr")
 	End if
 	If MFIP_check = "PENDIN" then msgbox "MFIP is pending, please enter amounts manually to avoid errors."
 
 	call find_variable("FS: ", fs_check, 6)
 	If fs_check = "ACTIVE" then
-		call navigate_to_screen("elig", "fs")
+		call navigate_to_MAXIS_screen("elig", "fs")
 		call approved_version
 		EMWriteScreen version, 20, 78
 		transmit
 		EMWriteScreen "FSB2", 19, 70
 		transmit
 		EMReadScreen SNAP_grant, 7, 10, 75
-	    call navigate_to_screen ("case", "curr")
+	    call navigate_to_MAXIS_screen ("case", "curr")
 	End if
 	If fs_check = "APP CL" then msgbox "SNAP is set to close, please enter amounts manually to avoid errors."
 	If fs_check = "PENDIN" then msgbox "SNAP is pending, please enter amounts manually to avoid errors."
 	
 	call find_variable("DWP: ", DWP_check, 6)
 	If DWP_check = "ACTIVE" then
-		call navigate_to_screen("elig", "dwp")
+		call navigate_to_MAXIS_screen("elig", "dwp")
 		call approved_version
 		EMWriteScreen version, 20, 79
 		transmit
@@ -264,13 +264,13 @@ call navigate_to_screen("case", "curr")
 		call find_variable("Children......", children, 5)
 		cash_members = cInt(caregivers) + cInt(children)
 		cash_members = cStr(cash_members)
-		call navigate_to_screen ("case", "curr")
+		call navigate_to_MAXIS_screen ("case", "curr")
 	 End if
 	If DWP_check = "PENDIN" then msgbox "DWP is pending, please enter amounts manually to avoid errors."
 	
 	call find_variable("GA: ", GA_check, 6)
 	If GA_check = "ACTIVE" then
-		call navigate_to_screen("elig", "GA")
+		call navigate_to_MAXIS_screen("elig", "GA")
 		call approved_version
 		EMWriteScreen version, 20, 78
 		transmit
@@ -280,14 +280,14 @@ call navigate_to_screen("case", "curr")
 	    EMReadScreen ga_members, 1, 13, 32 'Reading file unit type to determine members on cash grant
 		If ga_members = "1" then cash_members = "1"
 		If ga_members = "6" then cash_members = "2"
-		call navigate_to_screen ("case", "curr")
+		call navigate_to_MAXIS_screen ("case", "curr")
 	End If
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
 	If GA_check = "PENDIN" then msgbox "GA is pending, please enter amounts manually to avoid errors."
 	
 	call find_variable("MSA: ", MSA_check, 6)
 	If MSA_check = "ACTIVE" then
-		call navigate_to_screen("elig", "msa")
+		call navigate_to_MAXIS_screen("elig", "msa")
 		call approved_version
 		EMWriteScreen version, 20, 79
 		transmit
@@ -295,7 +295,7 @@ call navigate_to_screen("case", "curr")
 		transmit
 		EMReadScreen MSA_Grant, 7, 11, 74
 		EMReadScreen cash_members, 1, 14, 29
-		call navigate_to_screen ("case", "curr")
+		call navigate_to_MAXIS_screen ("case", "curr")
 	End If
 	If MSA_check = "APP CL" then MsgBox "MSA is set to close, please enter amounts manually to avoid errors."
 	If MSA_check = "PENDIN" then MsgBox "MSA is pending, please enter amounts manually to avoid errors."
@@ -379,7 +379,7 @@ IF inqd_check = checked THEN
 	objSelection.TypeParagraph()
 	objSelection.TypeText "Issue Date	    Benefit               Amount                            Benefit Period"
 	objSelection.TypeParagraph()
-	call navigate_to_screen("MONY", "INQD")
+	call navigate_to_MAXIS_screen("MONY", "INQD")
 	output_array = "" 'resetting array
 	Dim screenarray(12)	'12 line array (leaves out the header and function info)
 	row = 6
@@ -403,7 +403,7 @@ objSelection.TypeText "Worker phone: "
 objSelection.TypeText worker_phone
 
 Do	
-	call navigate_to_screen("case", "note")
+	call navigate_to_MAXIS_screen("case", "note")
     PF9
     EMReadScreen case_note_check, 17, 2, 33
     EMReadScreen mode_check, 1, 20, 09
