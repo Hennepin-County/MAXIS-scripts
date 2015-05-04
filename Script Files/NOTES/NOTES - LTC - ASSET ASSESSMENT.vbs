@@ -221,29 +221,35 @@ EMReadScreen SPAA_line_15, 55, 18, 24
 If trim(SPAA_line_15) = "" then SPAA_line_15 = "."
 
 'Now it's going to get the marital asset list. Skips lines 2 and 16 as they are blank.
-EMWriteScreen "x", 4, 33
+EMWriteScreen "x", 4, 33 
 transmit
+'these lines are not included in the DO LOOP since they are headers and footers
 EMReadScreen total_marital_asset_list_line_01, 53, 2, 25
 EMReadScreen total_marital_asset_list_line_03, 53, 4, 25
-EMReadScreen total_marital_asset_list_line_04, 53, 5, 25
-EMReadScreen total_marital_asset_list_line_05, 53, 6, 25
-EMReadScreen total_marital_asset_list_line_06, 53, 7, 25
-EMReadScreen total_marital_asset_list_line_07, 53, 8, 25
-EMReadScreen total_marital_asset_list_line_08, 53, 9, 25
-EMReadScreen total_marital_asset_list_line_09, 53, 10, 25
-EMReadScreen total_marital_asset_list_line_10, 53, 11, 25
-EMReadScreen total_marital_asset_list_line_11, 53, 12, 25
-EMReadScreen total_marital_asset_list_line_12, 53, 13, 25
-EMReadScreen total_marital_asset_list_line_13, 53, 14, 25
-EMReadScreen total_marital_asset_list_line_14, 53, 15, 25
-EMReadScreen total_marital_asset_list_line_15, 53, 16, 25
 EMReadScreen total_marital_asset_list_line_17, 53, 18, 25
+DO
+	EMReadScreen total_marital_asset_list_line_04, 53, 5, 25
+	EMReadScreen total_marital_asset_list_line_05, 53, 6, 25
+	EMReadScreen total_marital_asset_list_line_06, 53, 7, 25
+	EMReadScreen total_marital_asset_list_line_07, 53, 8, 25
+	EMReadScreen total_marital_asset_list_line_08, 53, 9, 25
+	EMReadScreen total_marital_asset_list_line_09, 53, 10, 25
+	EMReadScreen total_marital_asset_list_line_10, 53, 11, 25
+	EMReadScreen total_marital_asset_list_line_11, 53, 12, 25
+	EMReadScreen total_marital_asset_list_line_12, 53, 13, 25
+	EMReadScreen total_marital_asset_list_line_13, 53, 14, 25
+	EMReadScreen total_marital_asset_list_line_14, 53, 15, 25
+	EMReadScreen total_marital_asset_list_line_15, 53, 16, 25
+	PF8
+	EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+Loop until last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" 
 PF3
 
 Do
   Do
     dialog asset_assessment_dialog
     If buttonpressed = 0 then stopscript
+	cancel_confirmation
     transmit
     EMReadScreen function_check, 4, 20, 21
     If function_check <> "ASET" then MsgBox "You do not appear to be in the ASET function anymore. You might be locked out of your case, or have nagigated away. Reenter the ASET function before proceeding."
