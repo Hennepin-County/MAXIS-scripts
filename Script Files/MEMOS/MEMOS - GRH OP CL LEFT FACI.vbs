@@ -43,40 +43,71 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 
-DIM
-DIM
-DIM
 
-DIALOG----------------------------------------------------------------------------------------------------
+'DECLARING VARIABLES----------------------------------------------------------------------------------------------------
+DIM ButtonPressed
+DIM case_number
+DIM total_OP_amt
+DIM facility_address_line_01
+DIM facility_address_line_02
+DIM facility_city
+DIM facility_state
+DIM facility_zip
+DIM OP_reason
+DIM discovery_date
+DIM established_date
+DIM OP_date_01
+DIM OP_date_02
+DIM OP_date_03
+DIM OP_date_04
+DIM OP_date_05
+DIM OP_date_06
+DIM OP_amt_01
+DIM OP_amt_02
+DIM OP_amt_03
+DIM OP_amt_04
+DIM OP_amt_05
+DIM OP_amt_06
+DIM county_address_line_01
+DIM county_address_line_02
+DIM county_address_city
+DIM county_address_state
+DIM county_address_zip
+DIM send_OP_to_DHS_check
+DIM set_TIKL_check
+DIM worker_signature
+
+
+'DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 360, "GRH overpayment due to leaving facility dialog"
   EditBox 55, 5, 40, 15, case_number
-  EditBox 200, 5, 55, 15, 
+  EditBox 200, 5, 55, 15, total_OP_amt
   EditBox 70, 40, 230, 15, facility_address_line_01
   EditBox 70, 60, 230, 15, facility_address_line_02
   EditBox 70, 80, 80, 15, facility_city
   EditBox 155, 80, 25, 15, facility_state
   EditBox 185, 80, 45, 15, facility_zip
-  EditBox 90, 115, 210, 15, Edit14
+  EditBox 90, 115, 210, 15, OP_reason
   EditBox 60, 135, 45, 15, discovery_date
   EditBox 180, 135, 40, 15, established_date
-  EditBox 45, 160, 45, 15, overpayment_date_01
-  EditBox 110, 160, 30, 15, 
-  EditBox 185, 160, 45, 15, 
-  EditBox 255, 160, 45, 15, Edit21
-  EditBox 45, 180, 45, 15, 
-  EditBox 110, 180, 30, 15, 
-  EditBox 185, 180, 45, 15, 
-  EditBox 255, 180, 45, 15, 
-  EditBox 45, 200, 45, 15, 
-  EditBox 110, 200, 30, 15, 
-  EditBox 185, 200, 45, 15, 
-  EditBox 255, 200, 45, 15, 
-  EditBox 65, 250, 235, 15, address_line_01
-  EditBox 65, 270, 235, 15, address_line_02
-  EditBox 65, 290, 80, 15, address_city
-  EditBox 150, 290, 25, 15, address_state
-  EditBox 180, 290, 45, 15, address_zip
-  CheckBox 40, 315, 95, 10, "Send overpayment to DHS", send_OP_to _DHS_check
+  EditBox 45, 160, 45, 15, OP_date_01
+  EditBox 110, 160, 30, 15, OP_amt_01
+  EditBox 185, 160, 45, 15, OP_date_02
+  EditBox 255, 160, 45, 15, OP_amt_02
+  EditBox 45, 180, 45, 15, OP_date_03
+  EditBox 110, 180, 30, 15, OP_amt_03
+  EditBox 185, 180, 45, 15, OP_date_04
+  EditBox 255, 180, 45, 15, OP_amt_04
+  EditBox 45, 200, 45, 15, OP_date_05
+  EditBox 110, 200, 30, 15, OP_amt_05
+  EditBox 185, 200, 45, 15, OP_date_06
+  EditBox 255, 200, 45, 15, OP_amt_06
+  EditBox 65, 250, 235, 15, county_address_line_01
+  EditBox 65, 270, 235, 15, county_address_line_02
+  EditBox 65, 290, 80, 15, county_address_city
+  EditBox 150, 290, 25, 15, county_address_state
+  EditBox 180, 290, 45, 15, county_address_zip
+  CheckBox 40, 315, 95, 10, "Send overpayment to DHS", send_OP_to_DHS_check
   CheckBox 155, 315, 125, 10, "Set TIKL to recheck case in 30 days", set_TIKL_check
   EditBox 95, 330, 90, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -113,3 +144,5 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 360, "GRH overpayment due to 
   GroupBox 0, 110, 305, 110, ""
   GroupBox 0, 230, 305, 120, ""
 EndDialog
+
+
