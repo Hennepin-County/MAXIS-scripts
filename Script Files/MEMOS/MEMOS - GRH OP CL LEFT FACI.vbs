@@ -3,6 +3,15 @@ OPTION EXPLICIT
 name_of_script = "MEMOS - GRH OP CL LEFT FACI.vbs"
 start_time = timer
 
+DIM name_of_script
+DIM start_time
+DIM FuncLib_URL
+DIM run_locally
+DIM default_directory
+DIM beta_agency
+DIM req
+DIM fso
+
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -50,6 +59,7 @@ END IF
 
 'DECLARING VARIABLES----------------------------------------------------------------------------------------------------
 DIM ButtonPressed
+DIM GRH_OP_LEAVING_FACI_dialog
 DIM case_number
 DIM total_OP_amt
 DIM facility_name
@@ -87,10 +97,9 @@ DIM last_name
 
 
 'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 385, "GRH overpayment due to leaving facility dialog"
- BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 410, "GRH overpayment due to leaving facility dialog"
-  Text 65, 250, 235, 10, "**COUNTY ADDRESS WHERE THE OVERPAYMENT WILL BE SENT**"
-  Text 40, 370, 60, 10, "Worker signature:"
+BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 390, "GRH overpayment due to leaving facility dialog"
+  EditBox 50, 5, 55, 15, case_number
+  EditBox 210, 5, 55, 15, total_OP_amt
   EditBox 70, 45, 230, 15, facility_name
   EditBox 70, 65, 230, 15, facility_address_line_01
   EditBox 70, 85, 230, 15, facility_address_line_02
@@ -124,8 +133,8 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 385, "GRH overpayment due to 
   ButtonGroup ButtonPressed
     OkButton 195, 365, 50, 15
     CancelButton 250, 365, 50, 15
-  EditBox 50, 5, 55, 15, case_number
-  EditBox 210, 5, 55, 15, total_OP_amt
+  Text 65, 250, 235, 10, "**COUNTY ADDRESS WHERE THE OVERPAYMENT WILL BE SENT**"
+  Text 40, 370, 60, 10, "Worker signature:"
   Text 5, 310, 55, 10, "Address Line 2:"
   Text 95, 185, 15, 10, "Amt:"
   Text 120, 10, 90, 10, "Total overpayment amount:"
@@ -155,6 +164,24 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 385, "GRH overpayment due to 
   Text 0, 270, 65, 10, "County Name/Dept:"
 EndDialog
 
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to MAXIS
+EMConnect ""
+'searches for a case number
+call MAXIS_case_number_finder(case_number)
+
+'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
+
+DO
+	Dialog GRH_OP_LEAVING_FACI_dialog
+	If ButtonPressed = 0 THEN StopScript
+	cancel_confirmation	
+	If case_number = ""  or isnumeric(case_number) = false then MsgBox "You did not enter a valid case number. Please try again."
+	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> ""
+
+transmit
 
 'Actions and calculations----------------------------------------------------------------------------------------------------
 'Dollar bill symbol will be added to numeric variables 
@@ -186,26 +213,9 @@ EMReadScreen first_name, 11, 6, 63
 last_name = trim(replace(last_name, "_", ""))
 first_name = trim(replace(first_name, "_", ""))
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-EMConnect ""
-
-'searches for a case number
-call MAXIS_case_number_finder(case_number)
-
-'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
-
-DO
-	Dialog GRH_OP_LEAVING_FACI_dialog
-	If ButtonPressed = 0 THEN StopScript
-	cancel_confirmation	
-	If case_number = ""  or isnumeric(case_number) = false then MsgBox "You did not enter a valid case number. Please try again."
-	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> ""
-
-transmit
-
 'Checking to see that we're in MAXIS
 call check_for_MAXIS(False)
+
 
 'Sending the SPEC/MEMO to FACI----------------------------------------------------------------------------------------------------
 'Navigates to SPEC/MEMO and selects a new MEMO 
@@ -243,11 +253,13 @@ ELSE
 END IF
 Call write_variable_in_SPEC_MEMO("*")
 Call write_variable_in_SPEC_MEMO("Please include the case name, case number, month(s) of recovery and reason for the recovery with the payment. Please use the contact phone number on this letter if you have any questions. Thank you.")
-
+'Saves and sends the MEMOS
+PF4
+PF3
 
 'THE CASE NOTE -----------------------------------------------------------------------------------------------------------------
 'Navigates to a blank case note
-Call start_a_blank_CASE_NOTE(case_number)
+Call start_a_blank_CASE_NOTE
 
 'Writes inforamtion from the dialog into the case note
 Call write_variable_in_CASE_NOTE("****GRH OVERPAYMENT SENT DUE TO CLIENT LEAVING FACILITY****")
