@@ -172,16 +172,38 @@ EMConnect ""
 call MAXIS_case_number_finder(case_number)
 
 'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
-
 DO
-	Dialog GRH_OP_LEAVING_FACI_dialog
-	If ButtonPressed = 0 THEN StopScript
-	cancel_confirmation	
-	If case_number = ""  or isnumeric(case_number) = false then MsgBox "You did not enter a valid case number. Please try again."
-	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> ""
+	Do
+			Dialog GRH_OP_LEAVING_FACI_dialog
+			If ButtonPressed = 0 THEN StopScript
+			cancel_confirmation	
+			If case_number = ""  or isnumeric(case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
+			If worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
+			If total_OP_amt = "" THEN MsgBox "You must enter the total amount of the overpayment"
+			If facility_name = "" THEN MsgBox "You must enter the facility name"
+			If facility_address_line_01 = "" THEN MsgBox "You must enter the facility's street address"
+			If facility_city = "" THEN MsgBox "You must enter the facility's city"
+			If facility_zip = "" THEN MsgBox "You must enter the facility's zip code"
+			If OP_reason = "" THEN MsgBox "You must enter the reason for the overpayment"
+			If discovery_date = "" THEN MsgBox "You must enter the discovery date"
+			If established_date = "" THEN MsgBox "You must enter the established date"
+			If OP_date_01 = "" THEN MsgBox "You must enter at least one overpayment date"
+			If OP_amt_01 = "" THEN MsgBox "You must enter at least one overpayment amount"
+		IF send_OP_to_DHS_check = 1 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
+		county_address_city AND county_address_zip <> "" OR
+		IF send_OP_to_DHS_check = 0 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
+		county_address_city AND county_address_zip = "" THEN 
+		MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information.")
+	LOOP UNTIL send_OP_to_DHS_check = 1 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
+	county_address_city AND county_address_zip) = "" OR send_OP_to_DHS_check = 0 AND county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
+	county_address_city AND county_address_zip) <> ""
+Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and total_OP_amt <> ""_
+and facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_zip <> ""_ 
+and OP_reason <> "" and discovery_date <> "" and OP_date_01 <> "" and OP_amt_01 <> ""
 
-transmit
+
+'Checking to see that we're in MAXIS
+call check_for_MAXIS(False)
 
 'Actions and calculations----------------------------------------------------------------------------------------------------
 'Dollar bill symbol will be added to numeric variables 
@@ -193,36 +215,30 @@ IF OP_amt_04 <> "" THEN OP_amt_04 = "$" & OP_amt_04
 IF OP_amt_05 <> "" THEN OP_amt_05 = "$" & OP_amt_05
 IF OP_amt_06 <> "" THEN OP_amt_06 = "$" & OP_amt_06
 
+'autofills facility_state field on dialog
+facility_state = "MN"
 
 'Sending the TIKL to the worker
 If set_TIKL_check = checked THEN 
 	'navigates to DAIL/WRIT 
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
+	'The following will generate a TIKL formatted date for 10 days from now.
+	Call create_MAXIS_friendly_date(date, 30, 5, 18)
 	'Writes TIKL to worker
-	call write_variable_in_TIKL("A letter of overpayment was sent to:", facility_name, ". Please follow up on this case.  Thank you.")
+	Call write_variable_in_TIKL("A letter of overpayment was sent for this case. Please check this case to see if follow up is required. Thank you.")
+	'Saves TIKL and enters out of TIKL function
 	transmit
 	PF3
 END If
 
 
-'Pulls the member name.
-call navigate_to_MAXIS_screen("STAT", "MEMB")
-transmit
-EMReadScreen last_name, 24, 6, 30
-EMReadScreen first_name, 11, 6, 63
-last_name = trim(replace(last_name, "_", ""))
-first_name = trim(replace(first_name, "_", ""))
-
-'Checking to see that we're in MAXIS
-call check_for_MAXIS(False)
-
-
 'Sending the SPEC/MEMO to FACI----------------------------------------------------------------------------------------------------
 'Navigates to SPEC/MEMO and selects a new MEMO 
-call navigate_to_MAXIS_screen("SPEC", "MMEMO")
+call navigate_to_MAXIS_screen("SPEC", "MEMO")
 PF5 
 'Selects "other recipient of your choosing" instead of the client to send the MEMO to
 EMWritescreen "x", 6, 10
+transmit
 'Writes in Name of Facility and the address which MEMO is being sent
 EMWritescreen facility_name, 13, 24
 EMWritescreen facility_address_line_01, 14, 24
@@ -235,9 +251,15 @@ transmit
 transmit
 transmit
 
+
 'Writes the information in the SPEC/MEMO
-Call write_variable_in_SPEC_MEMO ("Due to " & first_name & " " & last_name & "'s change in placement, A GRH overpayment has occurred for the following month(s):")
-Call write_variable_in_SPEC_MEMO("$" & OP_amt_01 & " for " & OP_date_01 & ", $" & OP_amt_02 & " for " & OP_date_02 & ", $" & OP_amt_03 & " for " & OP_date_03 & ", $" & OP_amt_04 & " for " & OP_date_04 & ", $" & OP_amt_05 & " for " & OP_date_05 & ", $" & OP_amt_06 & " for " & OP_date_06)
+Call write_variable_in_SPEC_MEMO ("Due to a change in placement, A GRH overpayment has occurred for this case for the following month(s):")
+IF OP_amt_01 and OP_date_01 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_01 & " for " & OP_date_01)
+IF OP_amt_02 and OP_date_02 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_02 & " for " & OP_date_02)
+IF OP_amt_02 and OP_date_02 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_03 & " for " & OP_date_03)
+IF OP_amt_02 and OP_date_02 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_04 & " for " & OP_date_04)
+IF OP_amt_02 and OP_date_02 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_05 & " for " & OP_date_05)
+IF OP_amt_02 and OP_date_02 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_06 & " for " & OP_date_06)
 Call write_variable_in_SPEC_MEMO("The total amount of the overpayment to be returned is: " & total_OP_amt)
 Call write_variable_in_SPEC_MEMO("Please submit payment to:")
 If send_OP_to_DHS_check = 1 THEN 
@@ -256,6 +278,7 @@ Call write_variable_in_SPEC_MEMO("Please include the case name, case number, mon
 'Saves and sends the MEMOS
 PF4
 PF3
+StopScript
 
 'THE CASE NOTE -----------------------------------------------------------------------------------------------------------------
 'Navigates to a blank case note
@@ -264,17 +287,17 @@ Call start_a_blank_CASE_NOTE
 'Writes inforamtion from the dialog into the case note
 Call write_variable_in_CASE_NOTE("****GRH OVERPAYMENT SENT DUE TO CLIENT LEAVING FACILITY****")
 Call write_bullet_and_variable_in_case_note("Name of facility which OP was issued", facility_name)
-Call write_bullet_and_variable_in_case_note("Address OP was sent to", facility_address_line_01, " ",facility_address_line_02, " , ", facility_city, " ", facility_state, " ", facility_zip)
+Call write_variable_in_case_note("* Address OP was sent to: " & facility_address_line_01 & ", " & facility_address_line_02 & ", " & facility_city & ", " & facility_state & " " & facility_zip)
 Call write_variable_in_CASE_NOTE ("*")
 Call write_bullet_and_variable_in_case_note("Reason for overpayment(s)", OP_reason)
 Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 Call write_bullet_and_variable_in_case_note("Established date", established_date)
 Call write_bullet_and_variable_in_case_note("Total overpayment amount", total_OP_amt)
-Call write_bullet_and_variable_in_case_note("Dates & amounts of overpayment(s)", OP_amt_01, " for ", OP_date_01, ", ", OP_amt_02, " for ", OP_date_02, ", ", OP_amt_03, " for ", OP_date_03, ", ", OP_amt_04, " for ", OP_date_04, ", ", OP_amt_05, " for ", OP_date_05, ", ", OP_amt_06, " for ", OP_date_06, ", ")
+'Call write_variable_in_case_note("* Dates & amounts of overpayment(s)" & OP_amt_01 & " for ", OP_date_01, ", ", OP_amt_02, " for ", OP_date_02, ", ", OP_amt_03, " for ", OP_date_03, ", ", OP_amt_04, " for ", OP_date_04, ", ", OP_amt_05, " for ", OP_date_05, ", ", OP_amt_06, " for ", OP_date_06, ", ")
 Call write_bullet_and_variable_in_case_note ("Instructed FACI to send overpayment to", county_name_dept)
 If send_OP_to_DHS_check = 1 THEN write_variable_in_CASE_NOTE("*  Instructed FACI to send overpayment to DHS.")
 If set_TIKL_check = 1 THEN write_variable_in_CASE_NOTE ("* TIKL'd to recheck case in 30 days")
-Call write_bullet_and_variable_in_case_note("---")
+Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 
 script_end_procedure ""
