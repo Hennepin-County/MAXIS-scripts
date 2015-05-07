@@ -172,8 +172,8 @@ EMConnect ""
 call MAXIS_case_number_finder(case_number)
 
 'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
-DO
-	Do
+	DO
+		DO
 			Dialog GRH_OP_LEAVING_FACI_dialog
 			If ButtonPressed = 0 THEN StopScript
 			cancel_confirmation	
@@ -189,17 +189,14 @@ DO
 			If established_date = "" THEN MsgBox "You must enter the established date"
 			If OP_date_01 = "" THEN MsgBox "You must enter at least one overpayment date"
 			If OP_amt_01 = "" THEN MsgBox "You must enter at least one overpayment amount"
-		IF send_OP_to_DHS_check = 1 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
-		county_address_city AND county_address_zip <> "" OR
-		IF send_OP_to_DHS_check = 0 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
-		county_address_city AND county_address_zip = "" THEN 
-		MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information.")
-	LOOP UNTIL send_OP_to_DHS_check = 1 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
-	county_address_city AND county_address_zip) = "" OR send_OP_to_DHS_check = 0 AND county_name_dept AND county_address_line_01 AND county_address_line_02 AND_
-	county_address_city AND county_address_zip) <> ""
-Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and total_OP_amt <> ""_
-and facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_zip <> ""_ 
-and OP_reason <> "" and discovery_date <> "" and OP_date_01 <> "" and OP_amt_01 <> ""
+		Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and total_OP_amt <> ""_
+		and facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_zip <> ""_ 
+		and OP_reason <> "" and discovery_date <> "" and OP_date_01 <> "" and OP_amt_01 <> ""
+	IF send_OP_to_DHS_check = 1 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND county_address_city AND county_address_zip) <> "" OR
+	IF send_OP_to_DHS_check = 0 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND county_address_city AND county_address_zip) = "" THEN 
+	MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information.")
+LOOP UNTIL send_OP_to_DHS_check = 1 AND (county_name_dept AND county_address_line_01 AND county_address_line_02 AND_county_address_city AND county_address_zip) = "" OR 
+send_OP_to_DHS_check = 0 AND county_name_dept AND county_address_line_01 AND county_address_line_02 AND county_address_city AND county_address_zip) <> ""
 
 
 'Checking to see that we're in MAXIS
@@ -299,5 +296,6 @@ If send_OP_to_DHS_check = 1 THEN write_variable_in_CASE_NOTE("*  Instructed FACI
 If set_TIKL_check = 1 THEN write_variable_in_CASE_NOTE ("* TIKL'd to recheck case in 30 days")
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
+MsgBox "A MEMO has been sent.  Please refer to your agency's overpayment procedure to ensure the overpayment process is complete.  Thank you."
 
 script_end_procedure ""
