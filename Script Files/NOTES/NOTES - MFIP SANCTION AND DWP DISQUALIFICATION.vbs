@@ -150,7 +150,7 @@ IF write_TIKL_for_worker_check = 1 THEN
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
 	
 	'Writes TIKL to worker
-	call write_variable_in_TIKL("A DHS 5181 has been received for this case.  Please review the case and case notes.")
+	call write_variable_in_TIKL("A pending sanction was determined last month.  Please review case, and resolve or impose the sanction.")
 	transmit
 	PF3
 END If
