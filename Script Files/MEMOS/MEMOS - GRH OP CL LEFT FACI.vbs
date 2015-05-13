@@ -172,33 +172,47 @@ EMConnect ""
 call MAXIS_case_number_finder(case_number)
 
 'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
+DO
 	DO
 		DO
-			Dialog GRH_OP_LEAVING_FACI_dialog
-			cancel_confirmation	
-			If case_number = "" or isnumeric(case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
-			If worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
-			If total_OP_amt = "" THEN MsgBox "You must enter the total amount of the overpayment"
-			If facility_name = "" THEN MsgBox "You must enter the facility name"
-			If facility_address_line_01 = "" THEN MsgBox "You must enter the facility's street address"
-			If facility_city = "" THEN MsgBox "You must enter the facility's city"
-			If facility_state = "" THEN MsgBox "You must enter the facility's state"
-			If facility_zip = "" THEN MsgBox "You must enter the facility's zip code"
-			If OP_reason = "" THEN MsgBox "You must enter the reason for the overpayment"
-			If discovery_date = "" THEN MsgBox "You must enter the discovery date"
-			If established_date = "" THEN MsgBox "You must enter the established date"
-			If OP_date_01 = "" THEN MsgBox "You must enter at least one overpayment date"
-			If OP_amt_01 = "" THEN MsgBox "You must enter at least one overpayment amount"
-		Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and total_OP_amt <> "" and facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_state <> "" and facility_zip <> ""_ 
-		  and OP_reason <> "" and discovery_date <> "" AND established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> ""
-	IF send_OP_to_DHS_check = 1 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_line_02 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> "")  THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information."
-	If send_OP_to_DHS_check = 0 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_line_02 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "") THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information."
-LOOP UNTIL send_OP_to_DHS_check = 1 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_line_02 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "") OR _
-send_OP_to_DHS_check = 0 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> "")
-
+			DO
+				DO
+					DO
+						DO
+							DO
+								Dialog GRH_OP_LEAVING_FACI_dialog
+								cancel_confirmation	
+								If case_number = "" or isnumeric(case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
+								If worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
+								If total_OP_amt = "" THEN MsgBox "You must enter the total amount of the overpayment"
+								If facility_name = "" THEN MsgBox "You must enter the facility name"
+								If facility_address_line_01 = "" THEN MsgBox "You must enter the facility's street address"
+								If facility_city = "" THEN MsgBox "You must enter the facility's city"
+								If facility_state = "" THEN MsgBox "You must enter the facility's state"
+								If facility_zip = "" THEN MsgBox "You must enter the facility's zip code"
+								If OP_reason = "" THEN MsgBox "You must enter the reason for the overpayment"
+								If discovery_date = "" THEN MsgBox "You must enter the discovery date"
+								If established_date = "" THEN MsgBox "You must enter the established date"
+								If OP_date_01 = "" THEN MsgBox "You must enter at least one overpayment date"
+								If OP_amt_01 = "" THEN MsgBox "You must enter at least one overpayment amount"
+							Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and total_OP_amt <> "" and facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_state <> "" and facility_zip <> "" and OP_reason <> "" and discovery_date <> "" and established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> ""
+							If (OP_date_01 = "" AND OP_amt_0 <> "") OR (OP_date_01 <> "" AND OP_amt_01 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+						LOOP UNTIL(OP_date_01 = "" AND OP_amt_01 = "") OR (OP_date_01 <> "" AND OP_amt_01 <> "")	
+						If (OP_date_02 = "" AND OP_amt_02 <> "") OR (OP_date_02 <> "" AND OP_amt_02 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+					LOOP UNTIL(OP_date_02 = "" AND OP_amt_02 = "") OR (OP_date_02 <> "" AND OP_amt_02 <> "")		
+					If (OP_date_03 = "" AND OP_amt_03 <> "") OR (OP_date_03 <> "" AND OP_amt_03 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+				LOOP UNTIL OR (OP_date_03 = "" AND OP_amt_03 = "") OR (OP_date_03 <> "" AND OP_amt_03 <> "")
+				If (OP_date_04 = "" AND OP_amt_04 <> "") OR (OP_date_04 <> "" AND OP_amt_04 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+			LOOP UNTIL (OP_date_04 = "" AND OP_amt_04 = "") OR (OP_date_04 <> "" AND OP_amt_04 <> "")
+			If (OP_date_05 = "" AND OP_amt_05 <> "") OR (OP_date_05 <> "" AND OP_amt_05 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+		LOOP UNTIL (OP_date_05 = "" AND OP_amt_05 = "") OR (OP_date_05 <> "" AND OP_amt_05 <> "") 	
+		If (OP_date_06 = "" AND OP_amt_06 <> "") OR (OP_date_06 <> "" AND OP_amt_06 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+	LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "") 
+	IF send_OP_to_DHS_check = 1 AND (county_name_dept <> "" OR county_address_line_01 <> "" OR county_address_line_02 <> "" OR county_address_city <> "" OR county_address_state <> "" OR county_address_zip <> "") THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
+LOOP UNTIL send_OP_to_DHS_check = 1 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "") OR send_OP_to_DHS_check = 0 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> "")
 
 'Checking to see that we're in MAXIS
-call check_for_MAXIS(False)
+Call check_for_MAXIS(False)
 
 'Actions and calculations----------------------------------------------------------------------------------------------------
 'Dollar bill symbol will be added to numeric variables 
