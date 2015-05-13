@@ -4,6 +4,15 @@ OPTION EXPLICIT
 name_of_script = "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 start_time = timer
 
+DIM name_of_script
+DIM start_time
+DIM FuncLib_URL
+DIM run_locally
+DIM default_directory
+DIM beta_agency
+DIM req
+DIM fso
+
 ''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -49,13 +58,16 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 
 'Dimming variables----------------------------------------------------------------------------------------------------
 DIM MFIP_Sanction_DWP_Disq_Dialog
+DIM case_number
 DIM sanction_status_droplist
 DIM HH_Member_Number
 DIM sanction_type_droplist
 DIM number_occurances_droplist
 DIM Date_Sanction
+DIM Sanction_Percentage_droplist
 DIM sanction_information
 DIM sanction_reason_droplist
+DIM other_sanction_notes
 DIM Memo_to_Client
 DIM Impact_Other_Programs
 DIM Vendor_Information
@@ -66,47 +78,50 @@ DIM Update_Sent_CCA_Checkbox
 DIM mandatory_vendor_check
 DIM TIKL_next_month
 DIM Sent_SPEC_MEMO
+DIM set_TIKL_check
+DIM worker_signature
 DIM ButtonPressed
+DIM TIKL_date
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 'MFIP Sanction/DWP Disqualification Dialog Box
 BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 336, 250, "MFIP Sanction - DWP Disqualification"
   EditBox 55, 5, 60, 15, case_number
-  DropListBox 180, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
-  EditBox 310, 5, 20, 15, HH_Member_Number
+  EditBox 180, 5, 20, 15, HH_Member_Number
+  DropListBox 265, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
   DropListBox 65, 25, 110, 15, "Select one..."+chr(9)+"CS"+chr(9)+"ES"+chr(9)+"No show to orientation"+chr(9)+"Minor mom truancy", sanction_type_droplist
   DropListBox 265, 25, 65, 15, "Select one..."+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"7+", number_occurances_droplist
-  EditBox 150, 45, 60, 15, Date_Sanction
-  DropListBox 265, 45, 65, 15, "Select one..."+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
-  EditBox 90, 65, 240, 15, sanction_information
-  DropListBox 90, 85, 240, 15, "Select one..."+chr(9)+"Failed to attend ES overview"+chr(9)+"Failed to develop employment plan"+chr(9)+"Non-compliance with employment plan"+chr(9)+"< 20, failed education requirement"+chr(9)+"Failed to accept suitable employment"+chr(9)+"Quit suitable employment w/o good cause"+chr(9)+"Failure to attend MFIP orientation"+chr(9)+"Non-cooperation with child support", sanction_reason_droplist
+  DropListBox 50, 45, 65, 15, "Select one..."+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
+  EditBox 265, 45, 65, 15, Date_Sanction
+  DropListBox 90, 65, 240, 15, "Select one..."+chr(9)+"Failed to attend ES overview"+chr(9)+"Failed to develop employment plan"+chr(9)+"Non-compliance with employment plan"+chr(9)+"< 20, failed education requirement"+chr(9)+"Failed to accept suitable employment"+chr(9)+"Quit suitable employment w/o good cause"+chr(9)+"Failure to attend MFIP orientation"+chr(9)+"Non-cooperation with child support", sanction_reason_droplist
+  EditBox 90, 85, 240, 15, sanction_information
   EditBox 90, 105, 240, 15, other_sanction_notes
   EditBox 90, 125, 240, 15, Impact_Other_Programs
   EditBox 90, 145, 240, 15, Vendor_Information
-  EditBox 180, 165, 60, 15, Last_Day_Cure
+  EditBox 175, 165, 60, 15, Last_Day_Cure
   CheckBox 5, 185, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
-  CheckBox 145, 185, 80, 10, "Case has been FIAT'd", Fiat_check
   CheckBox 5, 200, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
-  CheckBox 145, 200, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
   CheckBox 5, 215, 130, 10, "TIKL to change sanction status ", TIKL_next_month
+  CheckBox 145, 185, 80, 10, "Case has been FIAT'd", Fiat_check
+  CheckBox 145, 200, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
   CheckBox 145, 215, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_SPEC_MEMO
   EditBox 145, 230, 75, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 225, 230, 50, 15
     CancelButton 280, 230, 50, 15
-  Text 5, 90, 80, 10, "Reason for the sanction:"
+  Text 5, 70, 80, 10, "Reason for the sanction:"
   Text 80, 235, 60, 10, "Worker signature:"
   Text 5, 170, 170, 10, "Last day to cure (10 day cutoff or last day of month):"
   Text 185, 30, 75, 10, "Number of occurences:"
   Text 5, 150, 65, 10, "Vendor information:"
   Text 5, 130, 85, 10, "Impact to other programs:"
-  Text 5, 70, 80, 10, "Sanction info from/how:"
-  Text 220, 50, 40, 10, "Sanction %:"
-  Text 125, 10, 55, 10, "Sanction status:"
+  Text 5, 90, 80, 10, "Sanction info from/how:"
+  Text 5, 50, 40, 10, "Sanction %:"
+  Text 210, 10, 55, 10, "Sanction status:"
   Text 5, 10, 45, 10, "Case number:"
-  Text 5, 50, 140, 10, "Effective Date of Sanction/Disqualification:"
-  Text 260, 10, 50, 10, "HH Member #:"
+  Text 125, 50, 140, 10, "Effective Date of Sanction/Disqualification:"
+  Text 130, 10, 50, 10, "HH Member #:"
   Text 5, 30, 60, 10, "Type of sanction:"
   Text 5, 110, 70, 10, "Other sanction notes:"
 EndDialog
@@ -133,7 +148,7 @@ DO
 										DO
 											DO								
 												Dialog MFIP_Sanction_DWP_Disq_Dialog
-												cancel_comfirmation
+												cancel_confirmation
 												IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number"
 											LOOP UNTIL IsNumeric(case_number) = TRUE
 											IF sanction_status_droplist = "Select one..." THEN MsgBox "You must select a sanction status type"
@@ -154,16 +169,18 @@ DO
 			LOOP UNTIL IsDate(Date_Sanction) = TRUE
 			IF sanction_reason_droplist = "Select One..." THEN MsgBox "You must select a sanction percentage"
 		LOOP UNTIL sanction_reason_droplist <> "Select One..."
-		IF Last_Day_Cure = "" THEN MsgBox "You must enter the day to cure the sanction"
+		IF Last_Day_Cure = "" THEN MsgBox "You must enter the last day to cure the sanction"
 	LOOP UNTIL Last_Day_Cure <> ""
 	IF worker_signature = "" THEN MsgBox "You must sign your case note"
 LOOP UNTIL worker_signature <> ""
+END if
+
 
 'Checks MAXIS for password prompt
-MAXIS_check_function
+Call MAXIS_check_function
 
 'TIKL to change sanction status (check box selected)
-If set_TIKL_check = checked THEN 
+If TIKL_next_month = checked THEN 
 	'navigates to DAIL/WRIT 
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
 	
@@ -171,7 +188,7 @@ If set_TIKL_check = checked THEN
 	TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
 	
 	'The following will generate a TIKL formatted date for 10 days from now.
-	Call create_MAXIS_friendly_date(date, , 5, 18) updates to first day of the next available month dateadd(m, 1)
+	Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
 	'Writes TIKL to worker
 	Call write_variable_in_TIKL("A pending sanction was determined last month.  Please review case, and resolve or impose the sanction.")
 	'Saves TIKL and enters out of TIKL function
@@ -180,17 +197,17 @@ If set_TIKL_check = checked THEN
 END If
 
 'Navigates to case note
-CALL write_a_blank_CASE_NOTE
+CALL start_a_blank_CASE_NOTE
 
 'Writes case note
 'case noting the droplist and editboxes
-Call write_variable_in_case_note("***" & Sanction_Percentage & " " & Type_Sanction & " SANCTION " & "MEMBER " & HH_Member_Number & " EFF " & Date_Sanction & sanction_type_droplist & "***")
-Call write_bullet_and_variable_in_case_note("Sanction status", sanction_status_droplist)
+Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_status_droplist & " SANCTION" & " for " & "MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
 CALL write_bullet_and_variable_in_case_note("HH member number", HH_Member_Number)
+Call write_bullet_and_variable_in_case_note("Sanction status", sanction_status_droplist)
 CALL write_bullet_and_variable_in_case_note("Type of Sanction", sanction_type_droplist)
 CALL write_bullet_and_variable_in_case_note("Number of occurences", number_occurances_droplist)
-CALL write_bullet_and_variable_in_case_note("Effective date of sanction/disqualification", Date_Sanction)
 CALL write_bullet_and_variable_in_case_note("Sanction Percent is", Sanction_Percentage_droplist)
+CALL write_bullet_and_variable_in_case_note("Effective date of sanction/disqualification", Date_Sanction)
 CALL write_bullet_and_variable_in_case_note("Sanction information received from", sanction_information)
 CALL write_bullet_and_variable_in_case_note ("Reason for the sanction", sanction_reason_droplist)
 If other_sanction_notes <> "" THEN CALL write_bullet_and_variable_in_case_note("Other sanction notes", other_sanction_notes)
@@ -200,13 +217,11 @@ CALL write_bullet_and_variable_in_case_note("Last day to cure", Last_Day_Cure)
 'case noting check boxes if checked
 IF Update_Sent_ES_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Employment Services.")
 IF Update_Sent_CCA_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Child Care Assistance.")
-IF TIKL_next_month = 1 THEN Call write_variable_in_case_note("* A TIKL was set to update the case from pending to imposed for the 1st of the next month.")
+IF TIKL_next_month = 1 THEN Call write_variable_in_case_note("* A TIKL was set to update the case from pending to imposed for the 1st of         the next month.")
 IF FIAT_check = 1 THEN CALL write_variable_in_case_note("* Case has been FIATed.")
 IF mandatory_vendor_check = 1 THEN CALL write_variable_in_case_note("* A mandatory vendor form has been mailed to the sanctioned individual.")
-IF Sent_SPEC_MEMO = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sanction for future closed month SPEC/MEMO to the sanctioned individual.")
+IF Sent_SPEC_MEMO = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sanction for future closed month SPEC/MEMO to the sanctioned           individual.")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-script_end_procedure("")
-
-
+'script_end_procedure ""
