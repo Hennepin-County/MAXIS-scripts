@@ -189,8 +189,7 @@ call MAXIS_case_number_finder(case_number)
 			If established_date = "" THEN MsgBox "You must enter the established date"
 			If OP_date_01 = "" THEN MsgBox "You must enter at least one overpayment date"
 			If OP_amt_01 = "" THEN MsgBox "You must enter at least one overpayment amount"
-		Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and total_OP_amt <> ""_
-		  and facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_state <> "" and facility_zip <> ""_ 
+		Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and total_OP_amt <> "" and facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_state <> "" and facility_zip <> ""_ 
 		  and OP_reason <> "" and discovery_date <> "" AND established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> ""
 	IF send_OP_to_DHS_check = 1 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_line_02 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> "")  THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information."
 	If send_OP_to_DHS_check = 0 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_line_02 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "") THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information."
