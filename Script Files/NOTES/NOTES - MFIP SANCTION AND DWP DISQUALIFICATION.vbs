@@ -1,17 +1,17 @@
-OPTION EXPLICIT
+'OPTION EXPLICIT
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 start_time = timer
 
-DIM name_of_script
-DIM start_time
-DIM FuncLib_URL
-DIM run_locally
-DIM default_directory
-DIM beta_agency
-DIM req
-DIM fso
+'DIM name_of_script
+'DIM start_time
+'DIM FuncLib_URL
+'DIM run_locally
+'DIM default_directory
+'DIM beta_agency
+'DIM req
+'DIM fso
 
 ''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -57,31 +57,31 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Dimming variables----------------------------------------------------------------------------------------------------
-DIM MFIP_Sanction_DWP_Disq_Dialog
-DIM case_number
-DIM sanction_status_droplist
-DIM HH_Member_Number
-DIM sanction_type_droplist
-DIM number_occurances_droplist
-DIM Date_Sanction
-DIM Sanction_Percentage_droplist
-DIM sanction_information
-DIM sanction_reason_droplist
-DIM other_sanction_notes
-DIM Memo_to_Client
-DIM Impact_Other_Programs
-DIM Vendor_Information
-DIM Last_Day_Cure
-DIM Update_Sent_ES_Checkbox
-DIM FIAT_check
-DIM Update_Sent_CCA_Checkbox
-DIM mandatory_vendor_check
-DIM TIKL_next_month
-DIM Sent_SPEC_MEMO
-DIM set_TIKL_check
-DIM worker_signature
-DIM ButtonPressed
-DIM TIKL_date
+'DIM MFIP_Sanction_DWP_Disq_Dialog
+'DIM case_number
+'DIM sanction_status_droplist
+'DIM HH_Member_Number
+'DIM sanction_type_droplist
+'DIM number_occurances_droplist
+'DIM Date_Sanction
+'DIM Sanction_Percentage_droplist
+'DIM sanction_information
+'DIM sanction_reason_droplist
+'DIM other_sanction_notes
+'DIM Memo_to_Client
+'DIM Impact_Other_Programs
+'DIM Vendor_Information
+'DIM Last_Day_Cure
+'DIM Update_Sent_ES_Checkbox
+'DIM FIAT_check
+'DIM Update_Sent_CCA_Checkbox
+'DIM mandatory_vendor_check
+'DIM TIKL_next_month
+'DIM Sent_SPEC_MEMO
+'DIM set_TIKL_check
+'DIM worker_signature
+'DIM ButtonPressed
+'DIM TIKL_date
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
