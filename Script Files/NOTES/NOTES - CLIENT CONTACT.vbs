@@ -1,8 +1,5 @@
-Option Explicit
 DIM beta_agency
 DIM url, req, fso, name_of_script, start_time, Funclib_url,run_another_script_fso, fso_command, text_from_the_other_script, run_locally, default_directory
-
-beta_agency = True
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - CLIENT CONTACT.vbs"
@@ -52,47 +49,46 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, contact_dialog, contact_type, contact_direction, who_contacted, regarding, phone_number, when_contact_was_made, case_number, Call_Center_answer_check, contact_reason, actions_taken, verifs_needed, cl_instructions, case_status, TIKL_check, caf_1_check, call_center_transfer_check, worker_signature 
+DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, contact_dialog, contact_type, contact_direction, who_contacted, regarding, phone_number, when_contact_was_made, case_number, Call_Center_answer_check, contact_reason, actions_taken, verifs_needed, cl_instructions, case_status, TIKL_check, caf_1_check, call_center_transfer_check, worker_signature, Sent_arep_checkbox
 
 
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog contact_dialog, 0, 0, 401, 355, "Client contact"
+BeginDialog contact_dialog, 0, 0, 391, 290, "Client contact"
   ComboBox 50, 5, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
   DropListBox 115, 5, 45, 10, "from"+chr(9)+"to", contact_direction
   ComboBox 165, 5, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Non-AREP"+chr(9)+"SWKR", who_contacted
   EditBox 280, 5, 100, 15, regarding
-  EditBox 55, 30, 85, 15, case_number
-  EditBox 220, 30, 85, 15, when_contact_was_made
-  EditBox 60, 55, 80, 15, phone_number
-  EditBox 70, 80, 310, 15, contact_reason
-  EditBox 55, 105, 325, 15, actions_taken
-  EditBox 65, 155, 310, 15, verifs_needed
-  EditBox 125, 175, 250, 15, cl_instructions
-  EditBox 55, 210, 325, 15, case_status
-  CheckBox 5, 235, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-  CheckBox 5, 255, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-  CheckBox 235, 285, 105, 15, "Answered caller's question", Call_center_answer_check
-  CheckBox 235, 300, 105, 15, "Transferred caller to Worker", call_center_transfer_check
-  EditBox 80, 335, 70, 15, worker_signature
+  EditBox 85, 25, 65, 15, phone_number
+  EditBox 230, 25, 85, 15, when_contact_was_made
+  EditBox 60, 45, 55, 15, case_number
+  EditBox 75, 65, 310, 15, contact_reason
+  EditBox 60, 85, 325, 15, actions_taken
+  EditBox 70, 120, 305, 15, verifs_needed
+  EditBox 125, 140, 250, 15, cl_instructions
+  EditBox 65, 160, 310, 15, case_status
+  CheckBox 10, 190, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
+  CheckBox 10, 205, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+  CheckBox 10, 220, 135, 10, "Check here if you sent forms to AREP", Sent_arep_checkbox
+  CheckBox 25, 255, 105, 10, "Answered caller's question", Call_center_answer_check
+  CheckBox 25, 270, 105, 10, "Transferred caller to Worker", call_center_transfer_check
+  EditBox 315, 245, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 270, 335, 50, 15
-    CancelButton 330, 335, 50, 15
+    OkButton 280, 270, 50, 15
+    CancelButton 330, 270, 50, 15
   Text 5, 10, 45, 10, "Contact type:"
   Text 260, 10, 15, 10, "Re:"
-  Text 5, 35, 50, 10, "Case number: "
-  Text 150, 35, 70, 10, "Date/Time of Contact"
-  Text 5, 60, 50, 10, "Phone number: "
-  Text 5, 85, 65, 10, "Reason for contact:"
-  Text 5, 110, 50, 10, "Actions taken: "
-  GroupBox 0, 140, 380, 60, "Helpful info for call centers (or front desks) to pass on to clients"
-  Text 15, 160, 50, 10, "Verifs needed: "
-  Text 15, 180, 105, 10, "Instructions/message for client:"
-  Text 5, 215, 45, 10, "Case status: "
-  GroupBox 210, 275, 165, 45, "Call Center:"
-  Text 10, 340, 70, 10, "Sign your case note: "
+  Text 30, 30, 50, 10, "Phone number: "
+  Text 155, 30, 70, 10, "Date/Time of Contact"
+  Text 10, 50, 50, 10, "Case number: "
+  Text 10, 70, 65, 10, "Reason for contact:"
+  Text 10, 90, 50, 10, "Actions taken: "
+  GroupBox 5, 105, 380, 75, "Helpful info for call centers (or front desks) to pass on to clients"
+  Text 15, 125, 50, 10, "Verifs needed: "
+  Text 15, 145, 105, 10, "Instructions/message for client:"
+  Text 15, 165, 45, 10, "Case status: "
+  GroupBox 10, 240, 130, 45, "Call Center:"
+  Text 240, 250, 70, 10, "Sign your case note: "
 EndDialog
-
-
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
@@ -169,6 +165,7 @@ IF case_status <>"" THEN CALL write_bullet_and_variable_in_Case_Note("Case Statu
 
 'checkbox results
 IF caf_1_check = 1 THEN CALL write_variable_in_Case_Note("* Reminded client about the importance of submitting the CAF 1.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 IF call_center_answer_check = 1 THEN CALL write_variable_in_case_note("Call Center answered caller's question.")
 IF call_center_transfer_check = 1 THEN CALL write_variable_in_case_note("Call Center was unable to answer question and transferred call to a Worker.")
 
@@ -177,12 +174,10 @@ CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 'TIKLING
-IF TIKL_check = 0 THEN script_end_procedure ""
+IF TIKL_check = 0 THEN 
+	script_end_procedure("")
+ELSE
 	MsgBox "The script will now navigate to a TIKL."
 	CALL navigate_to_MAXIS_screen("dail", "writ")
-
-IF TIKL_check = 1 THEN script_end_procedure ""
-	MsgBox("Unable to TIKL for MCRE case. Find the MAXIS case and TIKL manually.")
-
-
-'script_end_procedure ""
+	script_end_procedure("")
+END IF
