@@ -1,16 +1,16 @@
-OPTION EXPLICIT
+'OPTION EXPLICIT
 
 name_of_script = "MEMOS - GRH OP CL LEFT FACI.vbs"
 start_time = timer
 
-DIM name_of_script
-DIM start_time
-DIM FuncLib_URL
-DIM run_locally
-DIM default_directory
-DIM beta_agency
-DIM req
-DIM fso
+'DIM name_of_script
+'DIM start_time
+'DIM FuncLib_URL
+'DIM run_locally
+'DIM default_directory
+'DIM beta_agency
+'DIM req
+'DIM fso
 
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -58,42 +58,42 @@ END IF
 
 
 'DECLARING VARIABLES----------------------------------------------------------------------------------------------------
-DIM ButtonPressed
-DIM GRH_OP_LEAVING_FACI_dialog
-DIM case_number
-DIM total_OP_amt
-DIM facility_name
-DIM facility_address_line_01
-DIM facility_address_line_02
-DIM facility_city
-DIM facility_state
-DIM facility_zip
-DIM OP_reason
-DIM discovery_date
-DIM established_date
-DIM OP_date_01
-DIM OP_date_02
-DIM OP_date_03
-DIM OP_date_04
-DIM OP_date_05
-DIM OP_date_06
-DIM OP_amt_01
-DIM OP_amt_02
-DIM OP_amt_03
-DIM OP_amt_04
-DIM OP_amt_05
-DIM OP_amt_06
-DIM county_name_dept
-DIM county_address_line_01
-DIM county_address_line_02
-DIM county_address_city
-DIM county_address_state
-DIM county_address_zip
-DIM send_OP_to_DHS_check
-DIM set_TIKL_check
-DIM worker_signature
-DIM first_name
-DIM last_name
+'DIM ButtonPressed
+'DIM GRH_OP_LEAVING_FACI_dialog
+'DIM case_number
+'DIM total_OP_amt
+'DIM facility_name
+'DIM facility_address_line_01
+'DIM facility_address_line_02
+'DIM facility_city
+'DIM facility_state
+'DIM facility_zip
+'DIM OP_reason
+'DIM discovery_date
+'DIM established_date
+'DIM OP_date_01
+'DIM OP_date_02
+'DIM OP_date_03
+'DIM OP_date_04
+'DIM OP_date_05
+'DIM OP_date_06
+'DIM OP_amt_01
+'DIM OP_amt_02
+'DIM OP_amt_03
+'DIM OP_amt_04
+'DIM OP_amt_05
+'DIM OP_amt_06
+'DIM county_name_dept
+'DIM county_address_line_01
+'DIM county_address_line_02
+'DIM county_address_city
+'DIM county_address_state
+'DIM county_address_zip
+'DIM send_OP_to_DHS_check
+'DIM set_TIKL_check
+'DIM worker_signature
+'DIM first_name
+'DIM last_name
 
 
 'DIALOG----------------------------------------------------------------------------------------------------
@@ -208,8 +208,10 @@ DO
 		LOOP UNTIL (OP_date_05 = "" AND OP_amt_05 = "") OR (OP_date_05 <> "" AND OP_amt_05 <> "") 	
 		If (OP_date_06 = "" AND OP_amt_06 <> "") OR (OP_date_06 <> "" AND OP_amt_06 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
 	LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "") 
-	IF send_OP_to_DHS_check = 1 AND (county_name_dept <> "" OR county_address_line_01 <> "" OR county_address_line_02 <> "" OR county_address_city <> "" OR county_address_state <> "" OR county_address_zip <> "") THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
-LOOP UNTIL send_OP_to_DHS_check = 1 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "") OR send_OP_to_DHS_check = 0 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> "")
+	IF(send_OP_to_DHS_check = 1 AND (county_name_dept <> "" OR county_address_line_01 <> "" OR county_address_line_02 <> "" OR county_address_city <> "" OR county_address_state <> "" OR county_address_zip <> "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
+	IF(send_OP_to_DHS_check = 0 AND (county_name_dept = "" OR county_address_line_01 = "" OR county_address_city = "" OR county_address_state = "" OR county_address_zip = "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
+LOOP UNTIL (send_OP_to_DHS_check = 1 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "")) OR _
+  (send_OP_to_DHS_check = 0 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> ""))
 
 'Checking to see that we're in MAXIS
 Call check_for_MAXIS(False)
