@@ -4,8 +4,8 @@ start_time = timer
 
 'Option Explicit
 
-DIM beta_agency
-DIM FuncLib_URL, req, fso
+'DIM beta_agency
+'DIM FuncLib_URL, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -61,7 +61,7 @@ IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP De
 IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
 'IF worker_county_code = "x105" THEN county_FSET_offices = array("Select one",
 'IF worker_county_code = "x106" THEN county_FSET_offices = array("Select one",
-IF worker_county_code = "x107" THEN county_FSET_offices = array("Minnesota WorkForce Center: Blue Earth")
+IF worker_county_code = "x107" THEN county_FSET_offices = array("Blue Earth County Employment Services")
 IF worker_county_code = "x108" THEN county_FSET_offices = array("Minnesota Valley Action Council New Ulm")
 IF worker_county_code = "x109" THEN county_FSET_offices = array("Carlton County Human Services")
 'IF worker_county_code = "x110" THEN county_FSET_offices = array("Select one",
@@ -343,12 +343,12 @@ ElseIf interview_location = "Red Lake Oshkiimaajitahdah" THEN
 END IF
 
 'CO #7 BLUE EARTH COUNTY address
-IF interview_location = "Minnesota WorkForce Center: Blue Earth" THEN 
-	SNAPET_name = "Minnesota WorkForce Center"
-	SNAPET_address_01 = "301 N. Main Street"
-	SNAPET_city = "Blue Earth"
+IF interview_location = "Blue Earth County Employment Services" THEN 
+	SNAPET_name = "Blue Earth County Employment Services"
+	SNAPET_address_01 = "421 E Hickory Street, Suite 400"
+	SNAPET_city = "Mankato"
 	SNAPET_ST = "MN"
-	SNAPET_zip = "56013"
+	SNAPET_zip = "56001"
 END IF
 
 'CO #8 BROWN COUNTY address
