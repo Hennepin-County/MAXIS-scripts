@@ -95,7 +95,8 @@ BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 456, 325, "Notes (H-Z) scr
   Text 90, 310, 300, 10, "--- A case note template for when verifications are needed (enters each verification clearly)."
 EndDialog
 
-
+'Variables to declare
+IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------

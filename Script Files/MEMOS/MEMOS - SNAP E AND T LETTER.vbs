@@ -144,7 +144,7 @@ IF worker_county_code = "x186" THEN county_FSET_offices = array("Central MN Jobs
 IF worker_county_code = "x187" THEN county_FSET_offices = array("Yellow Medicine County Family Services")
 
 
-call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
+IF county_FSET_offices <> "" THEN call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
 
 If worker_county_code = "x127" THEN 
 	SNAPET_contact = "the EZ Info Line"
@@ -161,7 +161,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointmen
   EditBox 205, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 225, 25, 20, 15, appointment_time_post_editbox
   DropListBox 250, 25, 45, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
-  DropListBox 115, 50, 180, 15, "county_office_list", interview_location
+  DropListBox 115, 50, 180, 15, FSET_list, interview_location
   EditBox 60, 70, 65, 15, SNAPET_contact
   EditBox 185, 70, 65, 15, SNAPET_phone
   EditBox 120, 90, 65, 15, worker_signature
@@ -258,7 +258,8 @@ DO
 											  worker_county_code = "x172" OR _
 											  worker_county_code = "x173" OR _
 											  worker_county_code = "x183" OR _
-											  worker_county_code = "x185" THEN											  
+											  worker_county_code = "x185" OR _ 
+											  worker_county_code = "" THEN											  
 												Dialog SNAPET_manual_address_dialog 
 											ELSE 
 												Dialog SNAPET_automated_adress_dialog
