@@ -1,6 +1,6 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-'name_of_script = "NOTES - HH COMP CHANGE.vbs"
-'start_time = timer
+name_of_script = "NOTES - HH COMP CHANGE.vbs"
+start_time = timer
 
 
 
