@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - STATUS UPDATE.vbs"
+name_of_script = "NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs"
 start_time = timer
 
 'Option Explicit
