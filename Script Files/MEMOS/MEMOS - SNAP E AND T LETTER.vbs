@@ -144,7 +144,7 @@ IF worker_county_code = "x186" THEN county_FSET_offices = array("Central MN Jobs
 IF worker_county_code = "x187" THEN county_FSET_offices = array("Yellow Medicine County Family Services")
 
 
-call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
+IF county_FSET_offices <> "" THEN call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
 
 If worker_county_code = "x127" THEN 
 	SNAPET_contact = "the EZ Info Line"
@@ -258,7 +258,8 @@ DO
 											  worker_county_code = "x172" OR _
 											  worker_county_code = "x173" OR _
 											  worker_county_code = "x183" OR _
-											  worker_county_code = "x185" THEN											  
+											  worker_county_code = "x185" OR _ 
+											  worker_county_code = "" THEN											  
 												Dialog SNAPET_manual_address_dialog 
 											ELSE 
 												Dialog SNAPET_automated_adress_dialog
