@@ -69,7 +69,8 @@ BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 456, 175, "Memos scripts main 
   Text 70, 125, 365, 20, "--- NEW 04/2015!!! Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
 EndDialog
 
-
+'Variables to declare
+IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 

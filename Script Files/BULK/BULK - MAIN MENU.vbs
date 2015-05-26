@@ -91,7 +91,7 @@ EndDialog
 all_case_numbers_array = " "					'Creating blank variable for the future array
 call worker_county_code_determination(worker_county_code, two_digit_county_code)	'Determines worker county code
 is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'This is the string required to tell excel to ignore blank cells in a COUNTIFS function
-
+IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 

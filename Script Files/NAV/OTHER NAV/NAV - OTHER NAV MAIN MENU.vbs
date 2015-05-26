@@ -66,6 +66,9 @@ BeginDialog OTHER_NAV_scripts_main_menu_dialog, 0, 0, 456, 110, "Other NAV scrip
 EndDialog
 
 
+'Variables to declare
+IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Shows main menu dialog, which asks user which script to run. Loops until a button other than the SIR instructions button is clicked.
