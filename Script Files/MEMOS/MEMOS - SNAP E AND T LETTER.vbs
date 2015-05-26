@@ -161,7 +161,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointmen
   EditBox 205, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 225, 25, 20, 15, appointment_time_post_editbox
   DropListBox 250, 25, 45, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
-  DropListBox 115, 50, 180, 15, "county_office_list", interview_location
+  DropListBox 115, 50, 180, 15, FSET_list, interview_location
   EditBox 60, 70, 65, 15, SNAPET_contact
   EditBox 185, 70, 65, 15, SNAPET_phone
   EditBox 120, 90, 65, 15, worker_signature
