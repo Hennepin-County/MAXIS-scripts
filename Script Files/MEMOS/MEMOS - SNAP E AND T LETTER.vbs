@@ -154,13 +154,13 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 ' FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work
 ' This dialog is for counties that HAVE provided FSET office addresses
-BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
   EditBox 205, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
-  EditBox 205, 25, 20, 15, appointment_time_prefix_editbox
-  EditBox 225, 25, 20, 15, appointment_time_post_editbox
-  DropListBox 250, 25, 45, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
+  EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
+  EditBox 215, 25, 20, 15, appointment_time_post_editbox
+  DropListBox 235, 25, 60, 15, "Select one..."+chr(9)+"AM"+chr(9)+"PM", AM_PM
   DropListBox 115, 50, 180, 15, FSET_list, interview_location
   EditBox 60, 70, 65, 15, SNAPET_contact
   EditBox 185, 70, 65, 15, SNAPET_phone
@@ -172,11 +172,12 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointmen
   Text 60, 95, 60, 10, "Worker Signature:"
   Text 10, 10, 50, 10, "Case Number:"
   Text 130, 10, 70, 10, "HH Member Number:"
-  Text 135, 30, 60, 15, "Appointment Time:"
+  Text 130, 30, 60, 10, "Appointment Time:"
   Text 10, 75, 50, 10, "Contact name: "
   Text 5, 30, 60, 10, "Appointment Date:"
   Text 135, 75, 50, 10, "Contact phone:"
 EndDialog
+
 
 
 'This dialog is for counties that have not provided FSET office address(s)
