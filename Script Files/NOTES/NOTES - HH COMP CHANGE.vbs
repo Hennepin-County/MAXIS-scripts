@@ -1,10 +1,5 @@
-Option Explicit
-DIM beta_agency
-DIM url, req, fso
-beta_agency = True
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-'name_of_script = "NOTES - HH Comp Change.vbs"
+'name_of_script = "NOTES - HH COMP CHANGE.vbs"
 'start_time = timer
 
 
