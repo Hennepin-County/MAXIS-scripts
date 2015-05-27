@@ -1,6 +1,3 @@
-DIM beta_agency
-DIM url, req, fso, name_of_script, start_time, Funclib_url,run_another_script_fso, fso_command, text_from_the_other_script, run_locally, default_directory
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - CLIENT CONTACT.vbs"
 start_time = timer
@@ -49,50 +46,48 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, contact_dialog, contact_type, contact_direction, who_contacted, regarding, phone_number, when_contact_was_made, case_number, Call_Center_answer_check, contact_reason, actions_taken, verifs_needed, cl_instructions, case_status, TIKL_check, caf_1_check, call_center_transfer_check, worker_signature, Sent_arep_checkbox
-
-
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog contact_dialog, 0, 0, 391, 290, "Client contact"
+BeginDialog client_contact_dialog, 0, 0, 386, 300, "Client contact"
   ComboBox 50, 5, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
   DropListBox 115, 5, 45, 10, "from"+chr(9)+"to", contact_direction
   ComboBox 165, 5, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Non-AREP"+chr(9)+"SWKR", who_contacted
   EditBox 280, 5, 100, 15, regarding
-  EditBox 85, 25, 65, 15, phone_number
-  EditBox 230, 25, 85, 15, when_contact_was_made
-  EditBox 60, 45, 55, 15, case_number
-  EditBox 75, 65, 310, 15, contact_reason
-  EditBox 60, 85, 325, 15, actions_taken
-  EditBox 70, 120, 305, 15, verifs_needed
-  EditBox 125, 140, 250, 15, cl_instructions
-  EditBox 65, 160, 310, 15, case_status
-  CheckBox 10, 190, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-  CheckBox 10, 205, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-  CheckBox 10, 220, 135, 10, "Check here if you sent forms to AREP", Sent_arep_checkbox
-  CheckBox 25, 255, 105, 10, "Answered caller's question", Call_center_answer_check
-  CheckBox 25, 270, 105, 10, "Transferred caller to Worker", call_center_transfer_check
-  EditBox 315, 245, 65, 15, worker_signature
+  EditBox 80, 25, 65, 15, phone_number
+  EditBox 225, 25, 85, 15, when_contact_was_made
+  EditBox 55, 45, 55, 15, case_number
+  EditBox 70, 65, 310, 15, contact_reason
+  EditBox 55, 85, 325, 15, actions_taken
+  EditBox 65, 120, 310, 15, verifs_needed
+  EditBox 120, 140, 255, 15, cl_instructions
+  EditBox 60, 160, 315, 15, case_status
+  CheckBox 5, 185, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
+  CheckBox 5, 200, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+  CheckBox 5, 215, 135, 10, "Check here if you sent forms to AREP.", Sent_arep_checkbox
+  CheckBox 5, 230, 120, 10, "Check here if follow-up is needed.", follow_up_needed_checkbox
+  CheckBox 20, 265, 105, 10, "Answered caller's question", Call_center_answer_check
+  CheckBox 20, 280, 105, 10, "Transferred caller to Worker", call_center_transfer_check
+  EditBox 315, 255, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 280, 270, 50, 15
-    CancelButton 330, 270, 50, 15
+    OkButton 275, 280, 50, 15
+    CancelButton 330, 280, 50, 15
   Text 5, 10, 45, 10, "Contact type:"
   Text 260, 10, 15, 10, "Re:"
-  Text 30, 30, 50, 10, "Phone number: "
-  Text 155, 30, 70, 10, "Date/Time of Contact"
-  Text 10, 50, 50, 10, "Case number: "
-  Text 10, 70, 65, 10, "Reason for contact:"
-  Text 10, 90, 50, 10, "Actions taken: "
-  GroupBox 5, 105, 380, 75, "Helpful info for call centers (or front desks) to pass on to clients"
-  Text 15, 125, 50, 10, "Verifs needed: "
-  Text 15, 145, 105, 10, "Instructions/message for client:"
-  Text 15, 165, 45, 10, "Case status: "
-  GroupBox 10, 240, 130, 45, "Call Center:"
-  Text 240, 250, 70, 10, "Sign your case note: "
+  Text 25, 30, 50, 10, "Phone number: "
+  Text 150, 30, 70, 10, "Date/Time of Contact"
+  Text 5, 50, 50, 10, "Case number: "
+  Text 5, 70, 65, 10, "Reason for contact:"
+  Text 5, 90, 50, 10, "Actions taken: "
+  GroupBox 0, 105, 380, 75, "Helpful info for call centers (or front desks) to pass on to clients"
+  Text 10, 125, 50, 10, "Verifs needed: "
+  Text 10, 145, 105, 10, "Instructions/message for client:"
+  Text 10, 165, 45, 10, "Case status: "
+  GroupBox 5, 250, 130, 45, "Call Center:"
+  Text 240, 260, 70, 10, "Sign your case note: "
 EndDialog
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
-DIM MMIS_row, MMIS_col, OSLT_Check, navigate_to_screen, mode_check, RKEY_check, MMIS_edit_mode_check
+
 EMConnect ""
 
 
@@ -108,7 +103,7 @@ DO
 		Do
 			Do
 				DO
-				Dialog contact_dialog
+				Dialog client_contact_dialog
 				If buttonpressed = 0 then stopscript
 				IF contact_reason = "" or contact_type = "" Then MsgBox("You must enter a reason for contact, as well as a type (phone, etc.).")
 			Loop until contact_reason <> "" and contact_type <> ""
@@ -153,31 +148,35 @@ Loop until (mode_check = "Mode: A" or mode_check = "Mode: E") or (MMIS_edit_mode
 
 
 'Writing case note w/updated functions
-
-CALL write_variable_in_case_note(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)
-CALL write_bullet_and_variable_in_Case_Note("Contact was made", when_contact_was_made)
-CALL write_bullet_and_variable_in_Case_Note("Phone number", phone_number)
-CALL write_bullet_and_variable_in_Case_Note("Reason for contact", contact_reason)
-IF actions_taken <>"" THEN CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
-IF verifs_needed <>"" THEN CALL write_bullet_and_variable_in_Case_Note("Verifs Needed", verifs_needed)
-IF cl_instructions <>"" THEN CALL write_bullet_and_variable_in_Case_Note("Instructions/Message for CL", cl_instructions)
-IF case_status <>"" THEN CALL write_bullet_and_variable_in_Case_Note("Case Status", case_status)
+CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)
+CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
+CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number)
+CALL write_bullet_and_variable_in_CASE_NOTE("Reason for contact", contact_reason)
+CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
+CALL write_bullet_and_variable_in_CASE_NOTE("Verifs Needed", verifs_needed)
+CALL write_bullet_and_variable_in_CASE_NOTE("Instructions/Message for CL", cl_instructions)
+CALL write_bullet_and_variable_in_CASE_NOTE("Case Status", case_status)
 
 'checkbox results
-IF caf_1_check = 1 THEN CALL write_variable_in_Case_Note("* Reminded client about the importance of submitting the CAF 1.")
-IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-IF call_center_answer_check = 1 THEN CALL write_variable_in_case_note("Call Center answered caller's question.")
-IF call_center_transfer_check = 1 THEN CALL write_variable_in_case_note("Call Center was unable to answer question and transferred call to a Worker.")
+IF caf_1_check = checked THEN CALL write_variable_in_CASE_NOTE("* Reminded client about the importance of submitting the CAF 1.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
+IF call_center_answer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center answered caller's question.")
+IF call_center_transfer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center transferred call to a worker.")
+IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow-up is needed.")
 
-
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
+'Worker sig
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 
 'TIKLING
-IF TIKL_check = 0 THEN 
-	script_end_procedure("")
-ELSE
+IF TIKL_check = checked THEN
 	MsgBox "The script will now navigate to a TIKL."
 	CALL navigate_to_MAXIS_screen("dail", "writ")
-	script_end_procedure("")
 END IF
+
+'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
+If follow_up_needed_checkbox = checked then
+	script_end_procedure("Success! Follow-up is needed for case number: " & case_number)
+Else
+	script_end_procedure("")
+End if
