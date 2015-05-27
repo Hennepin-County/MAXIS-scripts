@@ -315,13 +315,14 @@ IF interview_location = "Rural MN CEP Detroit Lakes" THEN
 	SNAPET_address_01 = "1803 Roosevelt Ave"
 	SNAPET_city = "Detroit Lakes"
 	SNAPET_ST = "MN"
-	SNAPET_zip = "556501"
+	SNAPET_zip = "56501"
 END IF
 
 'CO #04 BELTRAMI COUNTY addresses
 IF interview_location = "RMCEP" THEN 
 	SNAPET_name = "RMCEP"
 	SNAPET_address_01 = "616 America Ave NW Suite 210"
+	SNAPET_city = "Bemedji"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56601"
 ElseIf interview_location = "MCT" THEN 
@@ -585,7 +586,7 @@ END IF
 IF interview_location  = "Fairmont Workforce Center Martin County" THEN
     SNAPET_name = "Fairmont Workforce Center Martin County"
     SNAPET_address_01 = "412 S. State Street"
-    SNAPET_city = "412 S. State Street"
+    SNAPET_city = "Fairmont"
     SNAPET_ST = "MN"
     SNAPET_zip = "56013"
 END IF
@@ -618,8 +619,8 @@ IF interview_location  = "Workforce Development Inc. (Austin)" THEN
 END IF
 
 'CO #51 MURRAY COUNTY address
-IF interview_location  = "Marshall WorkForce Center                                                      " THEN
-    SNAPET_name = "Marshall WorkForce Center                                                       "
+IF interview_location  = "Marshall WorkForce Center" THEN
+    SNAPET_name = "Marshall WorkForce Center"
     SNAPET_address_01 = "607 W. Main Street"
     SNAPET_city = "Marshall"
     SNAPET_ST = "MN"
@@ -657,15 +658,15 @@ END IF
 IF interview_location  = "Pine County Health & Human Services" THEN
     SNAPET_name = "Pine County Health & Human Services"
     SNAPET_address_01 = "130 Oriole St E Ste 1"
-    SNAPET_city = "130 Oriole St E Ste 1"
+    SNAPET_city = "Sandstone"
     SNAPET_ST = "MN"
     SNAPET_zip = "55072"
-ELSEIF interview_location  = "Pine County Health & Human Services" THEN
-    SNAPET_name = "Pine County Health & Human Services"
-    SNAPET_address_01 = "130 Oriole St E Ste 1"
-    SNAPET_city = "130 Oriole St E Ste 1"
+ELSEIF interview_location  = "Pine Technical & Community College E&T Center" THEN
+    SNAPET_name = "Pine Technical & Community College E&T Center"
+    SNAPET_address_01 = "900 4th St SE"
+    SNAPET_city = "Pine City"
     SNAPET_ST = "MN"
-    SNAPET_zip = "55072"
+    SNAPET_zip = "55063"
 END IF
 
 'CO #59 PIPESTONE COUNTY address
