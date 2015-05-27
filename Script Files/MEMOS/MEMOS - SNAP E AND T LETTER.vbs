@@ -51,6 +51,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
+county_FSET_offices = array("")
+
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
@@ -143,8 +146,8 @@ IF worker_county_code = "x184" THEN county_FSET_offices = array("Wilkin County F
 IF worker_county_code = "x186" THEN county_FSET_offices = array("Central MN Jobs and Training Services Monticello")
 IF worker_county_code = "x187" THEN county_FSET_offices = array("Yellow Medicine County Family Services")
 
-
-IF county_FSET_offices <> "" THEN call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
+'If the array isn't blank, then create a new array called FSET_list containing these items as a droplist. This will be used by the dialog.
+IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
 
 If worker_county_code = "x127" THEN 
 	SNAPET_contact = "the EZ Info Line"
