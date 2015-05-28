@@ -3,7 +3,7 @@ DIM hh_array
 
 FUNCTION hh_comp_dlg(hh_array)
 	dlg_height = 95
-	start_row = 5505
+	start_row = 55
 	num_of_peeps = 1
 	ReDim hh_array(num_of_peeps - 1, 5)
 	
