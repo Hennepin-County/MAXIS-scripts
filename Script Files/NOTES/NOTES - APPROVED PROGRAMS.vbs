@@ -1,19 +1,8 @@
-OPTION EXPLICIT
 'Created by Robert Kalb and Charles Potter from Anoka County.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
 start_time = timer
-
-DIM name_of_script
-DIM start_time
-DIM FuncLib_URL
-DIM run_locally
-DIM default_directory
-DIM beta_agency
-DIM req
-DIM fso
-
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -459,65 +448,24 @@ cash_approval_array = split(cash_approval_array)
 'updates WCOM with notice requirements if MFIP or DWP child support income disregarded in the budget
 If CASH_WCOM_checkbox = 1 THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-	EMReadScreen CASH_check 2, 7, 26  'checking to make sure that notice is for MFIP or DWP
-	EMReadScreen CASH_check 2, 8, 26
-	EMReadScreen CASH_check 2, 9, 26
-	EMReadScreen CASH_check 2, 10, 26
-	EMReadScreen CASH_check 2, 11, 26
-	EMReadScreen CASH_check 2, 12, 26
-	EMReadScreen CASH_check 2, 13, 26
-	EMReadScreen CASH_check 2, 14, 26
-	EMReadScreen CASH_check 2, 15, 26
-	EMReadScreen CASH_check 2, 16, 26
-	EMReadScreen CASH_check 2, 17, 26
-	
-	EMReadScreen Print_status_check 7, 7, 71
-	EMReadScreen Print_status_check 7, 8, 71
-	EMReadScreen Print_status_check 7, 9, 71
-	EMReadScreen Print_status_check 7, 10, 71
-	EMReadScreen Print_status_check 7, 11, 71
-	EMReadScreen Print_status_check 7, 12, 71
-	EMReadScreen Print_status_check 7, 13, 71
-	EMReadScreen Print_status_check 7, 14, 71
-	EMReadScreen Print_status_check 7, 15, 71
-	EMReadScreen Print_status_check 7, 16, 71
-	EMReadScreen Print_status_check 7, 17, 71
-	IF EMReadScreen CASH-check = "MF" and 
-	
-	DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
-		EMReadScreen more_pages, 8, 18, 72
-		IF more_pages = "MORE:  -" THEN PF7
-	LOOP until more_pages <> "MORE:  -"
-
-	read_row = 7
-	DO
-		EMReadscreen CASH_check, 7, read_row, 26 
-		EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
-		If waiting_check = "Waiting" and CASH_check = "MF" or CASH_check = "DW" THEN 'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
-			EMSetcursor read_row, 13
-			EMSendKey "x"
-			Transmit
-			PF9
-		    EMSetCursor 03, 15
-      		Call write_variable_in_SPEC_MEMO("************************************************************")
-			Call write_variable_in_SPEC_MEMO("Starting July 1, 2015 a new law begins that allows us to not count some of the child support you get when determining your monthly MFIP/DWP benefit amount:")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("* $100 for an assistance unit with one")
-			Call write_variable_in_SPEC_MEMO("* $200 for an assistance unit with two or more children")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("Because of this change, you may see an increase in your benefit amount.")
-			Call write_variable_in_SPEC_MEMO("************************************************************
-		    PF4
-			PF3
-			exit do
-		ELSE
-			read_row = read_row + 1
-		END IF
-		IF read_row = 18 THEN
-			PF8          'Navigates to the next page of notices.  DO/LOOP until read_row = 18??
-			read_row = 7
-		End if
-
+	EMReadscreen CASH_check, 7, read_row, 26 
+	EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
+	If waiting_check = "Waiting" and CASH_check = "MF" or CASH_check = "DW" THEN 'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
+		EMSetcursor read_row, 13
+		EMSendKey "x"
+		Transmit
+		PF9
+		   EMSetCursor 03, 15
+		Call write_variable_in_SPEC_MEMO("Starting July 1, 2015 a new law begins that allows us to not count some of the child support you get when determining your monthly MFIP/DWP benefit amount:")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("* $100 for an assistance unit with one")
+		Call write_variable_in_SPEC_MEMO("* $200 for an assistance unit with two or more children")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Because of this change, you may see an increase in your benefit amount.")
+		PF4
+		PF3
+	END IF 
+END if	
 		
 'Case notes----------------------------------------------------------------------------------------------------
 call start_a_blank_CASE_NOTE
@@ -527,7 +475,7 @@ IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
 IF emer_approved_check = checked THEN approved_programs = approved_programs & "EMER/"
 EMSendKey "---Approved " & approved_programs & "<backspace>" & " " & type_of_approval & "---" & "<newline>"
-IF benefit_breakdown <> "" THEN call write_editbox_in_case_note("Benefit Breakdown", benefit_breakdown, 6)
+IF benefit_breakdown <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Benefit Breakdown", benefit_breakdown)
 IF autofill_snap_check = checked THEN
 	FOR EACH snap_approval_result in snap_approval_array
 		bene_amount = left(snap_approval_result, 4)
@@ -537,7 +485,7 @@ IF autofill_snap_check = checked THEN
 		benefit_month = left(right(snap_approval_result, 4), 2)
 		benefit_year = right(snap_approval_result, 2)
 		snap_header = ("SNAP for " & benefit_month & "/" & benefit_year)
-		call write_editbox_in_case_note(snap_header, FormatCurrency(bene_amount) & report_status, 6)
+		call write_bullet_and_variable_in_CASE_NOTE(snap_header, FormatCurrency(bene_amount) & report_status)
 	NEXT
 END IF
 IF autofill_cash_check = checked THEN
@@ -547,15 +495,15 @@ IF autofill_cash_check = checked THEN
 			mfip_food_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_editbox_in_case_note(("MFIP Cash Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt), 6)
-			call write_editbox_in_case_note(("MFIP Food Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt), 6)
+			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
+			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
 		ELSEIF left(cash_approval_result, 4) = "DWP_" THEN
 			dwp_shel_amt = right(left(cash_approval_result, 12), 8)
 			dwp_pers_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_editbox_in_case_note(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt), 6)
-			call write_editbox_in_case_note(("DWP Personal Needs Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_pers_amt), 6)
+			call write_bullet_and_variable_in_CASE_NOTE(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt))
+			call write_bullet_and_variable_in_CASE_NOTE(("DWP Personal Needs Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_pers_amt))
 		ELSE
 			cash_program = left(cash_approval_result, 4)
 			cash_program = replace(cash_program, "_", "")
@@ -563,14 +511,14 @@ IF autofill_cash_check = checked THEN
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
 			cash_header = (cash_program & " Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr)
-			call write_editbox_in_case_note(cash_header, FormatCurrency(cash_bene_amt), 6)
+			call write_bullet_and_variable_in_CASE_NOTE(cash_header, FormatCurrency(cash_bene_amt))
 		END IF
 	NEXT
 END IF
-IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE "* This case has been FIATed."
-IF other_notes <> "" THEN call write_editbox_in_case_note("Approval Notes", other_notes, 6)
-IF programs_pending <> "" THEN call write_editbox_in_case_note("Programs Pending", programs_pending, 6)
-If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_needed, 6) 
+IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* This case has been FIATed.")
+IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)
+IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
+If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
 
@@ -580,18 +528,4 @@ If closed_progs_check = checked then run_from_github(script_repository & "NOTES/
 'Runs denied progs if selected
 If denied_progs_check = checked then run_script(script_repository & "NOTES/NOTES - DENIED PROGRAMS.vbs")
 
-
 script_end_procedure("")
-
-	
-
-
-
-
-
-
-	
-
-
-
-
