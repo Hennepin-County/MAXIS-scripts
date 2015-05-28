@@ -1,8 +1,19 @@
+OPTION EXPLICIT
 'Created by Robert Kalb and Charles Potter from Anoka County.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
 start_time = timer
+
+DIM name_of_script
+DIM start_time
+DIM FuncLib_URL
+DIM run_locally
+DIM default_directory
+DIM beta_agency
+DIM req
+DIM fso
+
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -49,44 +60,47 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog benefits_approved, 0, 0, 271, 285, "Benefits Approved"
-  CheckBox 15, 25, 35, 10, "SNAP", snap_approved_check
-  CheckBox 75, 25, 55, 10, "Health Care", hc_approved_check
-  CheckBox 155, 25, 35, 10, "Cash", cash_approved_check
-  CheckBox 210, 25, 55, 10, "Emergency", emer_approved_check
-  ComboBox 70, 40, 85, 15, ""+chr(9)+"Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
-  EditBox 65, 60, 70, 15, case_number
-  EditBox 120, 85, 145, 15, benefit_breakdown
-  CheckBox 5, 105, 255, 10, "Check here to have the script autofill the SNAP approval.", autofill_snap_check
-  EditBox 155, 120, 15, 15, snap_start_mo
-  EditBox 170, 120, 15, 15, snap_start_yr
-  EditBox 230, 120, 15, 15, snap_end_mo
-  EditBox 245, 120, 15, 15, snap_end_yr
-  CheckBox 5, 145, 255, 10, "Check here to have the script autofill the CASH approval.", autofill_cash_check
-  EditBox 155, 160, 15, 15, cash_start_mo
-  EditBox 170, 160, 15, 15, cash_start_yr
-  EditBox 230, 160, 15, 15, cash_end_mo
-  EditBox 245, 160, 15, 15, cash_end_yr
-  EditBox 55, 185, 210, 15, other_notes
-  EditBox 85, 205, 180, 15, programs_pending
-  EditBox 65, 225, 200, 15, docs_needed
-  EditBox 65, 245, 80, 15, worker_signature
+BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
+  CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
+  CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
+  CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
+  CheckBox 210, 5, 50, 10, "Emergency", emer_approved_check
+  ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
+  EditBox 55, 20, 60, 15, case_number
+  EditBox 115, 45, 150, 15, benefit_breakdown
+  CheckBox 5, 65, 255, 10, "Check here to have the script autofill the SNAP approval.", autofill_snap_check
+  EditBox 155, 80, 15, 15, snap_start_mo
+  EditBox 170, 80, 15, 15, snap_start_yr
+  EditBox 230, 80, 15, 15, snap_end_mo
+  EditBox 245, 80, 15, 15, snap_end_yr
+  CheckBox 5, 105, 255, 10, "Check here to have the script autofill the CASH approval.", autofill_cash_check
+  EditBox 155, 120, 15, 15, cash_start_mo
+  EditBox 170, 120, 15, 15, cash_start_yr
+  EditBox 230, 120, 15, 15, cash_end_mo
+  EditBox 245, 120, 15, 15, cash_end_yr
+  EditBox 55, 145, 210, 15, other_notes
+  EditBox 75, 165, 190, 15, programs_pending
+  EditBox 55, 185, 210, 15, docs_needed
+  EditBox 75, 235, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 155, 260, 50, 15
-    CancelButton 210, 260, 50, 15
+    OkButton 160, 235, 50, 15
+    CancelButton 215, 235, 50, 15
   Text 5, 5, 70, 10, "Approved Programs:"
-  Text 5, 45, 65, 10, "Type of Approval:"
-  Text 5, 65, 55, 10, "Case Number:"
-  Text 5, 80, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
-  Text 10, 125, 130, 10, "Select SNAP approval range (MM YY)..."
+  Text 120, 25, 60, 10, "Type of Approval:"
+  Text 5, 25, 50, 10, "Case Number:"
+  Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
+  Text 10, 85, 130, 10, "Select SNAP approval range (MM YY)..."
+  Text 195, 85, 25, 10, "through"
+  Text 10, 125, 130, 10, "Select CASH approval range (MM YY)..."
   Text 195, 125, 25, 10, "through"
-  Text 10, 165, 130, 10, "Select CASH approval range (MM YY)..."
-  Text 195, 165, 25, 10, "through"
-  Text 5, 190, 45, 10, "Other Notes:"
-  Text 5, 210, 75, 10, "Pending Program(s):"
-  Text 5, 230, 55, 10, "Verifs Needed:"
-  Text 5, 250, 60, 10, "Worker Signature: "
+  Text 5, 150, 45, 10, "Other Notes:"
+  Text 5, 170, 70, 10, "Pending Program(s):"
+  Text 5, 190, 50, 10, "Verifs Needed:"
+  Text 15, 240, 60, 10, "Worker Signature: "
+  CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
+  CheckBox 10, 220, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
 EndDialog
+
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -442,9 +456,72 @@ END IF
 cash_approval_array = trim(cash_approval_array)
 cash_approval_array = split(cash_approval_array)
 
-'Case notes
-call navigate_to_screen("CASE", "NOTE")
-PF9
+'updates WCOM with notice requirements if MFIP or DWP child support income disregarded in the budget
+If CASH_WCOM_checkbox = 1 THEN 
+	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
+	EMReadScreen CASH_check 2, 7, 26  'checking to make sure that notice is for MFIP or DWP
+	EMReadScreen CASH_check 2, 8, 26
+	EMReadScreen CASH_check 2, 9, 26
+	EMReadScreen CASH_check 2, 10, 26
+	EMReadScreen CASH_check 2, 11, 26
+	EMReadScreen CASH_check 2, 12, 26
+	EMReadScreen CASH_check 2, 13, 26
+	EMReadScreen CASH_check 2, 14, 26
+	EMReadScreen CASH_check 2, 15, 26
+	EMReadScreen CASH_check 2, 16, 26
+	EMReadScreen CASH_check 2, 17, 26
+	
+	EMReadScreen Print_status_check 7, 7, 71
+	EMReadScreen Print_status_check 7, 8, 71
+	EMReadScreen Print_status_check 7, 9, 71
+	EMReadScreen Print_status_check 7, 10, 71
+	EMReadScreen Print_status_check 7, 11, 71
+	EMReadScreen Print_status_check 7, 12, 71
+	EMReadScreen Print_status_check 7, 13, 71
+	EMReadScreen Print_status_check 7, 14, 71
+	EMReadScreen Print_status_check 7, 15, 71
+	EMReadScreen Print_status_check 7, 16, 71
+	EMReadScreen Print_status_check 7, 17, 71
+	IF EMReadScreen CASH-check = "MF" and 
+	
+	DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
+		EMReadScreen more_pages, 8, 18, 72
+		IF more_pages = "MORE:  -" THEN PF7
+	LOOP until more_pages <> "MORE:  -"
+
+	read_row = 7
+	DO
+		EMReadscreen CASH_check, 7, read_row, 26 
+		EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
+		If waiting_check = "Waiting" and CASH_check = "MF" or CASH_check = "DW" THEN 'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
+			EMSetcursor read_row, 13
+			EMSendKey "x"
+			Transmit
+			PF9
+		    EMSetCursor 03, 15
+      		Call write_variable_in_SPEC_MEMO("************************************************************")
+			Call write_variable_in_SPEC_MEMO("Starting July 1, 2015 a new law begins that allows us to not count some of the child support you get when determining your monthly MFIP/DWP benefit amount:")
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("* $100 for an assistance unit with one")
+			Call write_variable_in_SPEC_MEMO("* $200 for an assistance unit with two or more children")
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("Because of this change, you may see an increase in your benefit amount.")
+			Call write_variable_in_SPEC_MEMO("************************************************************
+		    PF4
+			PF3
+			exit do
+		ELSE
+			read_row = read_row + 1
+		END IF
+		IF read_row = 18 THEN
+			PF8          'Navigates to the next page of notices.  DO/LOOP until read_row = 18??
+			read_row = 7
+		End if
+
+		
+'Case notes----------------------------------------------------------------------------------------------------
+call start_a_blank_CASE_NOTE
+
 IF snap_approved_check = checked THEN approved_programs = approved_programs & "SNAP/"
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
@@ -490,6 +567,7 @@ IF autofill_cash_check = checked THEN
 		END IF
 	NEXT
 END IF
+IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE "* This case has been FIATed."
 IF other_notes <> "" THEN call write_editbox_in_case_note("Approval Notes", other_notes, 6)
 IF programs_pending <> "" THEN call write_editbox_in_case_note("Programs Pending", programs_pending, 6)
 If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_needed, 6) 
@@ -501,6 +579,7 @@ If closed_progs_check = checked then run_from_github(script_repository & "NOTES/
 
 'Runs denied progs if selected
 If denied_progs_check = checked then run_script(script_repository & "NOTES/NOTES - DENIED PROGRAMS.vbs")
+
 
 script_end_procedure("")
 
