@@ -51,11 +51,11 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
   CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
-  CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
   CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
+  CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
   CheckBox 210, 5, 50, 10, "Emergency", emer_approved_check
-  ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
   EditBox 55, 20, 60, 15, case_number
+  ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
   EditBox 115, 45, 150, 15, benefit_breakdown
   CheckBox 5, 65, 255, 10, "Check here to have the script autofill the SNAP approval.", autofill_snap_check
   EditBox 155, 80, 15, 15, snap_start_mo
@@ -70,12 +70,12 @@ BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
   EditBox 55, 145, 210, 15, other_notes
   EditBox 75, 165, 190, 15, programs_pending
   EditBox 55, 185, 210, 15, docs_needed
+  CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
+  CheckBox 10, 220, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
   EditBox 75, 235, 80, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 160, 235, 50, 15
     CancelButton 215, 235, 50, 15
-  Text 5, 5, 70, 10, "Approved Programs:"
-  Text 120, 25, 60, 10, "Type of Approval:"
   Text 5, 25, 50, 10, "Case Number:"
   Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
   Text 10, 85, 130, 10, "Select SNAP approval range (MM YY)..."
@@ -86,10 +86,9 @@ BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
   Text 5, 170, 70, 10, "Pending Program(s):"
   Text 5, 190, 50, 10, "Verifs Needed:"
   Text 15, 240, 60, 10, "Worker Signature: "
-  CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
-  CheckBox 10, 220, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
+  Text 120, 25, 60, 10, "Type of Approval:"
+  Text 5, 5, 70, 10, "Approved Programs:"
 EndDialog
-
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -305,13 +304,15 @@ IF autofill_cash_check = checked THEN
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 8, 15, 73
-						EMReadScreen mfip_bene_food_amt, 8, 16, 73
+						EMReadScreen mfip_bene_cash_amt, 8, 14, 73
+						EMReadScreen mfip_bene_food_amt, 8, 15, 73
+						EMReadScreen mfip_bene_housing_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
 						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
 						mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
+						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
 					END IF
 				ELSE
 					EMReadScreen cash_approval_versions, 1, 2, 18
@@ -322,13 +323,15 @@ IF autofill_cash_check = checked THEN
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 8, 15, 73
-						EMReadScreen mfip_bene_food_amt, 8, 16, 73
+						EMReadScreen mfip_bene_cash_amt, 8, 14, 73
+						EMReadScreen mfip_bene_food_amt, 8, 15, 73
+						EMReadScreen mfip_bene_housing_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
 						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
 						mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
+						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
 					END IF
 				END IF	
 			ELSEIF left(prog_to_check, 2) = "GA" THEN
@@ -437,36 +440,43 @@ IF autofill_cash_check = checked THEN
 				END IF
 			END IF
 		NEXT
-
-
 END IF
 
 
-cash_approval_array = trim(cash_approval_array)
-cash_approval_array = split(cash_approval_array)
-
 'updates WCOM with notice requirements if MFIP or DWP child support income disregarded in the budget
-If CASH_WCOM_checkbox = 1 THEN 
+read_row = 7
+
+If CASH_WCOM_checkbox = checked THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-	EMReadscreen CASH_check, 7, read_row, 26 
-	EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
-	If waiting_check = "Waiting" and CASH_check = "MF" or CASH_check = "DW" THEN 'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
+	EMReadscreen CASH_check, 7, read_row, 26  'checking to make sure that notice is for MFIP or DWP
+	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
+	'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
+	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
 		EMSetcursor read_row, 13
 		EMSendKey "x"
 		Transmit
 		PF9
-		   EMSetCursor 03, 15
+		EMSetCursor 03, 15
+		'WCOM required by workers upon approval of MFIP and DWP cases with child support FIAT'd out of the budget
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+		Call write_variable_in_SPEC_MEMO("")
 		Call write_variable_in_SPEC_MEMO("Starting July 1, 2015 a new law begins that allows us to not count some of the child support you get when determining your monthly MFIP/DWP benefit amount:")
 		Call write_variable_in_SPEC_MEMO("")
-		Call write_variable_in_SPEC_MEMO("* $100 for an assistance unit with one")
+		Call write_variable_in_SPEC_MEMO("* $100 for an assistance unit with one child")
 		Call write_variable_in_SPEC_MEMO("* $200 for an assistance unit with two or more children")
 		Call write_variable_in_SPEC_MEMO("")
 		Call write_variable_in_SPEC_MEMO("Because of this change, you may see an increase in your benefit amount.")
+		Call write_variable_in_SPEC_MEMO("************************************************************")
 		PF4
 		PF3
-	END IF 
-END if	
-		
+	ELSE Msgbox "There is not a pending notice for this cash case. The script was unable to update your notice."
+	END if
+END If
+
+cash_approval_array = trim(cash_approval_array)
+cash_approval_array = split(cash_approval_array)
+
+
 'Case notes----------------------------------------------------------------------------------------------------
 call start_a_blank_CASE_NOTE
 
@@ -493,10 +503,12 @@ IF autofill_cash_check = checked THEN
 		IF left(cash_approval_result, 4) = "MFIP" THEN
 			mfip_cash_amt = right(left(cash_approval_result, 12), 8)
 			mfip_food_amt = left(right(cash_approval_result, 12), 8)
+			mfip_housing_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
-			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
+			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
+			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
+			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Housing grant Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_housing_amt))
 		ELSEIF left(cash_approval_result, 4) = "DWP_" THEN
 			dwp_shel_amt = right(left(cash_approval_result, 12), 8)
 			dwp_pers_amt = left(right(cash_approval_result, 12), 8)
@@ -516,11 +528,14 @@ IF autofill_cash_check = checked THEN
 	NEXT
 END IF
 IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* This case has been FIATed.")
+If CASH_WCOM_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* The child support disregard was applied to this case.")
 IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)
 IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
 If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
+
+
 
 'Runs denied progs if selected
 If closed_progs_check = checked then run_from_github(script_repository & "NOTES/NOTES - CLOSED PROGRAMS.vbs")
