@@ -426,7 +426,7 @@ Do
 			Do
 				Dialog DHS_5181_dialog_1			'Displays the first dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
-				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_02_button
 			IF waiver_type_droplist = "Select one..." THEN MsgBox "Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
 		Loop until waiver_type_droplist <> "Select one..."
@@ -437,7 +437,7 @@ Do
 				Do
 					Dialog DHS_5181_dialog_2			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
 				If ButtonPressed = previous_to_page_01_button THEN exit do
 				If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") THEN Msgbox	"You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
@@ -449,13 +449,13 @@ Do
 				Do
 					Dialog DHS_5181_Dialog_3			'Displays the third dialog
 					cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
-					MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					'MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
 				If ButtonPressed = previous_to_page_02_button THEN exit do
 				If case_action_editbox = "" or worker_signature = "" OR (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") OR _
-				(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
-				(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
-				(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
+					(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
+					(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
+					(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
 					MsgBox "You need to:" & vbNewLine & vbNewLine & _
 					"-Complete a field next to an option that was checked, and/or" & vbNewLine & _	
 					"-Case note the 'case actions' section, and/or" & vbNewLine & _
@@ -468,7 +468,10 @@ Do
 		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
 	Loop until ButtonPressed = -1
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							  
+Loop until case_note_confirm = TRUE		
+
+
+
 
 'Dollar bill symbol will be added to numeric variables 
 IF estimated_monthly_waiver_costs_editbox <> "" THEN estimated_monthly_waiver_costs_editbox = "$" & estimated_monthly_waiver_costs_editbox
