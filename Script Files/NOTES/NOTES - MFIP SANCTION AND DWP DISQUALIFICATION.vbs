@@ -86,7 +86,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 'MFIP Sanction/DWP Disqualification Dialog Box
-BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 336, 250, "MFIP Sanction - DWP Disqualification"
+BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 341, 275, "MFIP Sanction - DWP Disqualification"
   EditBox 55, 5, 60, 15, case_number
   EditBox 180, 5, 20, 15, HH_Member_Number
   DropListBox 265, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
@@ -100,18 +100,18 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 336, 250, "MFIP Sanction - DWP 
   EditBox 90, 125, 240, 15, Impact_Other_Programs
   EditBox 90, 145, 240, 15, Vendor_Information
   EditBox 175, 165, 60, 15, Last_Day_Cure
-  CheckBox 5, 185, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
-  CheckBox 5, 200, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
-  CheckBox 5, 215, 130, 10, "TIKL to change sanction status ", TIKL_next_month
-  CheckBox 145, 185, 80, 10, "Case has been FIAT'd", Fiat_check
-  CheckBox 145, 200, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
-  CheckBox 145, 215, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_SPEC_MEMO
-  EditBox 145, 230, 75, 15, worker_signature
+  CheckBox 5, 190, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
+  CheckBox 5, 205, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
+  CheckBox 5, 220, 130, 10, "TIKL to change sanction status ", TIKL_next_month
+  CheckBox 145, 190, 80, 10, "Case has been FIAT'd", Fiat_check
+  CheckBox 145, 205, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
+  CheckBox 145, 220, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_SPEC_MEMO
+  EditBox 150, 255, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 225, 230, 50, 15
-    CancelButton 280, 230, 50, 15
+    OkButton 230, 255, 50, 15
+    CancelButton 285, 255, 50, 15
   Text 5, 70, 80, 10, "Reason for the sanction:"
-  Text 80, 235, 60, 10, "Worker signature:"
+  Text 85, 260, 60, 10, "Worker signature:"
   Text 5, 170, 170, 10, "Last day to cure (10 day cutoff or last day of month):"
   Text 185, 30, 75, 10, "Number of occurences:"
   Text 5, 150, 65, 10, "Vendor information:"
@@ -124,6 +124,8 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 336, 250, "MFIP Sanction - DWP 
   Text 130, 10, 50, 10, "HH Member #:"
   Text 5, 30, 60, 10, "Type of sanction:"
   Text 5, 110, 70, 10, "Other sanction notes:"
+  Text 155, 230, 160, 10, "(See TE10.20 for info on when to use this notice)"
+  GroupBox 0, 185, 335, 60, ""
 EndDialog
 
 
