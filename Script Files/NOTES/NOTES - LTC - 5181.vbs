@@ -201,22 +201,6 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
 EndDialog
 
 
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-	PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-	PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-	PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-	PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
-
-
 BeginDialog DHS_5181_dialog_1, 0, 0, 361, 305, "5181 Dialog 1"
   EditBox 55, 5, 55, 15, date_5181_editbox
   EditBox 170, 5, 55, 15, date_received_editbox
@@ -390,9 +374,7 @@ BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
 EndDialog
 
 
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-
 'Connecting to MAXIS
 EMConnect ""
 
