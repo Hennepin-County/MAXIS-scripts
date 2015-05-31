@@ -448,7 +448,7 @@ read_row = 7
 
 If CASH_WCOM_checkbox = checked THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-	EMReadscreen CASH_check, 7, read_row, 26  'checking to make sure that notice is for MFIP or DWP
+	EMReadscreen CASH_check, 2, read_row, 26  'checking to make sure that notice is for MFIP or DWP
 	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
 	'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
 	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
@@ -469,7 +469,8 @@ If CASH_WCOM_checkbox = checked THEN
 		Call write_variable_in_SPEC_MEMO("************************************************************")
 		PF4
 		PF3
-	ELSE Msgbox "There is not a pending notice for this cash case. The script was unable to update your notice."
+	ELSE 
+		Msgbox "There is not a pending notice for this cash case. The script was unable to update your notice."
 	END if
 END If
 
