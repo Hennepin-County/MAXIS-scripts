@@ -1,4 +1,4 @@
-OPTION EXPLICIT
+'OPTION EXPLICIT
 
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
 name_of_script = "NOTE - 5181.vbs"
