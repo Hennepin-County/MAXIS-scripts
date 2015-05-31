@@ -1,4 +1,4 @@
-'Created by Robert Kalb and Charles Potter from Anoka County.
+'Created by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
