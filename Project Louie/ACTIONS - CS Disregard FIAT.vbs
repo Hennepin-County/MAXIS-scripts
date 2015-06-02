@@ -50,19 +50,20 @@ END IF
 
 'DIALOG
 '===========================================================================================================================
-BeginDialog CSD_FIAT_dlg, 0, 0, 161, 90, "Child Support Disregard FIATer"
+BeginDialog CSD_FIAT_dlg, 0, 0, 161, 95, "Child Support Disregard FIATer"
   EditBox 60, 5, 90, 15, case_number
   EditBox 60, 25, 20, 15, footer_month
   EditBox 130, 25, 20, 15, footer_year
-  EditBox 75, 45, 75, 15, worker_signature
+  EditBox 75, 50, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 35, 65, 50, 15
-    CancelButton 90, 65, 50, 15
+    OkButton 35, 70, 50, 15
+    CancelButton 90, 70, 50, 15
   Text 10, 10, 50, 10, "Case Number:"
   Text 10, 30, 50, 10, "Footer Month:"
   Text 85, 30, 45, 10, "Footer Year:"
-  Text 10, 50, 60, 10, "Worker Signature:"
+  Text 10, 55, 60, 10, "Worker Signature:"
 EndDialog
+
 
 '============================================================================================================================
 
@@ -86,7 +87,7 @@ END IF
 
 'Warning/instruction box
 MsgBox "This script is intended for use for Family Cash cases (DWP/MFIP)." & vbnewline & vbNewLine &_
-		vbTab & "- If this case has adult caregivers and minor caregivers in it's " & vbNewline &_
+		vbTab & "- If this case has adult caregivers and minor caregivers in its " & vbNewline &_
 		vbTab & "   household composition please refer to CM0017.15.03 for child and" & vbNewLine &_
 		vbtab & "   spousal support income budgeting" & vbNewLine &_
 		vbTab & "- If the case is involved in a sanction please process manually" & vbNewLine & vbNewLine &_
@@ -110,6 +111,7 @@ DO
 	If footer_year = "" then MsgBox "You must have a starting footer year to continue."
 Loop until footer_year <> ""
 
+
 back_to_self
 
 'starting at requested month
@@ -117,6 +119,21 @@ EMwritescreen footer_month, 20, 43
 EMwritescreen footer_year, 20, 46
 
 check_for_maxis(true)
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+Do
+	EMReadScreen reference_number, 2, 4, 33
+	person_array = person_array & reference_number & "~~" 
+	transmit
+	EMReadScreen memb_edit, 5, 24, 2
+Loop until memb_edit = "ENTER"
+
+person_array = trim(person_array)
+person_array = split(person_array, "~~")
+
+number_of_people = ubound(person_array)
+DIM Household_array()
+ReDim Household_array(number_of_people, 6)
+
 
 'Checking for family cash
 CALL navigate_to_MAXIS_screen("CASE", "CURR")
@@ -126,44 +143,224 @@ call find_variable("MFIP: ", MFIP_cash_status, 7)
 IF DWP_cash_status = "" AND MFIP_cash_status = "" THEN script_end_procedure("This case does not seem to have MFIP or DWP open or pending. Please review case number or prog and try again.")
 
 
-'Creating custom dialog to determine counted children in Household
-CALL hh_member_custom_dialog(hh_member_array)
+FOR a = 1 to number_of_people
+	FOR b = 0 to 6
+		Household_array(a, b) = ""
+	NEXT
+NEXT
 
-'checking unea panels to see if selected HH members have one of the 3 types of CS UNEA panels. 
-FOR each HH_member in hh_member_array
-	CALL navigate_to_MAXIS_screen("STAT", "UNEA")
-	EMwritescreen HH_member, 20, 76
-	transmit
-	DO
-		EMReadScreen current_panel, 1, 2, 73
-		EMReadScreen total_panels, 1, 2, 78
-		EmReadScreen UNEA_type, 2, 5, 37
-		IF UNEA_type = "08" or UNEA_type = "36" or UNEA_type = "39" THEN
-			CS_found = True
-			Exit do
-		END IF
+'array map
+'(i, 0) = HH Ref #
+'(i, 1) = MFIP elig t/f
+'(i, 2) = mfip budg cycle
+'(i, 3) = dwp elig t/f
+'(i, 4) = dwp child support disregard
+'(i, 5) = Unea retro child support total
+'(i, 0) = Unea prosp child support total
+
+person_count = 1
+For each person in person_array
+	If person <> "" THEN
+		Household_array(person_count, 0) = person
+		person_count = person_count + 1
+	End If
+Next
+
+pare_row = 8
+FOR i = 1 to number_of_people
+	CALL navigate_to_MAXIS_screen("STAT", "PARE")
+	Do
+		EmReadScreen child_reference, 2, pare_row, 24
+		If child_reference = Household_array(i, 0) Then
+'			Household_array(i, 1) = TRUE
+'			Household_array(i, 3) = TRUE
+			Household_array(i, 4) = TRUE
+			exit do
+		ELSE
+'			Household_array(i, 1) = FALSE
+'			Household_array(i, 3) = FALSE
+			Household_array(i, 4) = FALSE
+			pare_row = pare_row + 1
+			IF pare_row = 18 Then
+				PF20
+				pare_row = 8
+			End If
+			EmReadScreen pare_edit, 4, 24, 2
+			IF pare_edit = "THIS" Then exit do
+		END If
+	Loop
+Next
+
+FOR i = 1 to number_of_people	
+	IF Household_array(i, 4) = TRUE THEN
+		CALL navigate_to_MAXIS_screen("STAT", "UNEA")
+		EMwritescreen Household_array(i, 0), 20, 76
+		EMwritescreen "01", 20, 79
 		Transmit
-	LOOP until current_panel = total_panels
+		Household_array(i, 5) = 0
+		Household_array(i, 6) = 0
+		DO
+			EMReadScreen current_panel, 1, 2, 73
+			EMReadScreen total_panels, 1, 2, 78
+			EmReadScreen UNEA_type, 2, 5, 37
+			IF UNEA_type = "08" or UNEA_type = "36" or UNEA_type = "39" THEN
+				EMReadScreen retro_unea, 9, 18, 38
+				retro_unea = Trim(retro_unea)
+				if retro_unea = "" THEN retro_unea = 0
+				Household_array(i, 5) = Household_array(i, 5) + retro_unea
+				EMReadScreen prosp_unea, 9, 18, 67		
+				prosp_unea = Trim(prosp_unea)
+				if prosp_unea = "" THEN prosp_unea = 0
+				Household_array(i, 6) = Household_array(i, 6) + prosp_unea
+				CS_found = TRUE
+			END IF
+			Transmit
+		LOOP until current_panel = total_panels
+	END If
 Next
 
 'if no CS UNEA is found the script ends
-IF CS_found <> True THEN script_end_procedure("A child support UNEA panel was not found for requested HH members. Please check to make sure the panel is assigned to the correct person and the correct HH members have been selected.")
+IF CS_found <> True THEN script_end_procedure("A child support UNEA panel was not found for Child HH members. Please check to make sure the panel is assigned to the correct person.")
 
 back_to_self
 
+
+
+
+'ELIG portion
 IF DWP_cash_status <> "" Then
 	CALL navigate_to_MAXIS_screen("ELIG", "DWP")
+	FOR i = 1 to number_of_people
+'		IF Household_array(i, 3) = TRUE Then
+'			msgbox Household_array(i, 0) & vbCr & Household_array(i, 1) & vbCr & Household_array(i, 2) & vbCr & Household_array(i, 3) & vbCr & Household_array(i, 4) & vbCr & Household_array(i, 5) & vbCr & Household_array(i, 6)
+			dwpr_row = 7
+			DO
+				EMReadScreen DWPR_ref, 2, dwpr_row, 5
+				IF DWPR_ref = Household_array(i, 0) THEN
+					EMReadScreen DWP_elig_status, 1, dwpr_row, 57
+					IF DWP_elig_status = "I" Then
+						Household_array(i, 3) = FALSE
+						Exit do
+					ELSEIF DWP_elig_status = "E" THEN
+						Household_array(i, 3) = True
+						Exit do
+					END If
+				END If
+				dwpr_row = dwpr_row + 1
+				If dwpr_row = 18 THEN 
+					PF8
+					dwpr_row = 7
+					EmReadScreen dwpr_edit, 4, 24, 2
+				END If
+			LOOP Until dwpr_edit = "THIS"
+'		End If
+	Next
+	
+	number_of_kids = 0
+	
+	FOR i = 1 to number_of_people 
+		IF Household_array(i, 3) = TRUE & Household_array(i, 6) <> 0 & Household_array(i, 4) = TRUE Then
+			number_of_kids = number_of_kids + 1
+		End If
+	NEXT
+	
+	disregard_limit = 0
+	IF number_of_kids = 0 Then 
+		script_end_procedure("No children were found eligible for DWP and are receiving Child Support. Please review case.")
+	ElseIF number_of_kids = 1 Then
+		disregard_limit = 100
+	Elseif number_of_kids > 1 Then
+		disregard_limit = 200
+	End if
+	
 	PF9
 	EMwritescreen "04", 10, 41
 	transmit
-	
-END If
-
-IF MFIP_cash_status <> "" Then
+	EMwritescreen "DWB1", 20, 71
+	transmit
+	EMwritescreen "x", 8, 41
+	transmit
+	Emwaitready 1, 1000
+	applied_dwp_disregard = 0
+	For i = 1 to number_of_people		
+		If Household_array(i, 3) = TRUE Then
+			IF Household_array(i, 4) = TRUE Then
+				EMwritescreen "        ", 17, 50
+				applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
+				If applied_dwp_disregard > disregard_limit THEN 
+					applied_dwp_disregard = applied_dwp_disregard - Household_array(i, 6)
+					Household_array(i, 6) = disregard_limit - applied_dwp_disregard
+				End if
+				EMwritescreen Household_array(i, 6), 17, 50
+				Transmit
+				Transmit
+			Else
+				transmit
+			End If
+		End if
+	Next
+ELSEIF MFIP_cash_status <> "" Then
 	CALL navigate_to_MAXIS_screen("FIAT", "")
 	EMwritescreen "03", 4, 34
 	EMwritescreen "x", 9, 22
 	transmit
-END If
+	
+	number_of_kids = 0
+		FOR i = 1 to number_of_people 
+		IF Household_array(i, 3) = TRUE AND Household_array(i, 6) <> 0 AND Household_array(i, 4) = TRUE Then
+			number_of_kids = number_of_kids + 1
+		End If
+	NEXT
+	
+	disregard_limit = 0
+	IF number_of_kids = 0 Then 
+		script_end_procedure("No children were found eligible for DWP and are receiving Child Support. Please review case.")
+	ElseIF number_of_kids = 1 Then
+		disregard_limit = 100
+	Elseif number_of_kids > 1 Then
+		disregard_limit = 200
+	End if	
 
+	applied_mfip_disregard = 0
+	FOR i = 1 to number_of_people
+		IF Household_array(i, 4) = True THEN
+			fmsl_row = 9
+			DO
+				EMReadSCreen fmsl_ref_num, 2, fmsl_row, 12
+				EMReadScreen mfip_elig_status, 4, fmsl_row, 55
+				EMReadScreen budget_retro_pro, 1, fmsl_row, 78
+				IF fmsl_ref_num = Household_array(i, 0) AND mfip_elig_status = "ELIG" THEN 
+					CALL write_value_and_transmit("X", fmsl_row, 8)
+					EMWriteScreen "        ", 21, 44
+					IF budget_retro_pro = "P" THEN 
+						applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
+						IF applied_mfip_disregard > disregard_limit THEN 
+							applied_mfip_disregard = applied_mfip_disregard - Household_array(i, 6)
+							Household_array(i, 6) = disregard_limit - applied_mfip_disregard
+						END IF
+						CALL write_value_and_transmit(Household_array(i, 6), 21, 44)
+					ELSEIF budget_retro_pro = "R" THEN
+						applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
+						IF applied_mfip_disregard > disregard_limit THEN 
+							applied_mfip_disregard = applied_mfip_disregard - Household_array(i, 5)
+							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
+						END IF
+						CALL write_value_and_transmit(Household_array(i, 5), 21, 44)
+					END IF
+					EXIT DO
+				ELSE
+					fmsl_row = fmsl_row + 1
+					IF fmsl_row = 15 THEN 
+						PF8
+						fmsl_row = 9
+						EMReadScreen no_more_people, 14, 24, 12
+						IF no_more_people = no_more_people = "NO MORE PEOPLE" THEN EXIT DO
+					END IF
+				END IF
+			LOOP 
+		END IF
+	NEXT	
+END IF
+	
 
+script_end_procedure("Success!")
