@@ -54,6 +54,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		fso_command.Close
 		Execute text_from_the_other_script
 	END IF
+END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Dimming variables----------------------------------------------------------------------------------------------------
@@ -175,11 +176,10 @@ DO
 	LOOP UNTIL Last_Day_Cure <> ""
 	IF worker_signature = "" THEN MsgBox "You must sign your case note"
 LOOP UNTIL worker_signature <> ""
-END if
 
 
 'Checks MAXIS for password prompt
-Call MAXIS_check_function
+Call check_for_MAXIS(True)
 
 'TIKL to change sanction status (check box selected)
 If TIKL_next_month = checked THEN 
@@ -212,9 +212,9 @@ CALL write_bullet_and_variable_in_case_note("Sanction Percent is", Sanction_Perc
 CALL write_bullet_and_variable_in_case_note("Effective date of sanction/disqualification", Date_Sanction)
 CALL write_bullet_and_variable_in_case_note("Sanction information received from", sanction_information)
 CALL write_bullet_and_variable_in_case_note ("Reason for the sanction", sanction_reason_droplist)
-If other_sanction_notes <> "" THEN CALL write_bullet_and_variable_in_case_note("Other sanction notes", other_sanction_notes)
-IF Impact_Other_Programs <> "" THEN CALL write_bullet_and_variable_in_case_note ("Impact to other programs", Impact_Other_Programs)
-IF Vendor_Information <> "" THEN CALL write_bullet_and_variable_in_case_note("Vendoring information", Vendor_Information)
+CALL write_bullet_and_variable_in_case_note("Other sanction notes", other_sanction_notes)
+CALL write_bullet_and_variable_in_case_note ("Impact to other programs", Impact_Other_Programs)
+CALL write_bullet_and_variable_in_case_note("Vendoring information", Vendor_Information)
 CALL write_bullet_and_variable_in_case_note("Last day to cure", Last_Day_Cure)
 'case noting check boxes if checked
 IF Update_Sent_ES_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Employment Services.")

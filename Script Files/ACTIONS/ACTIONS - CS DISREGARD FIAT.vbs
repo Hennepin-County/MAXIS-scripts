@@ -1,7 +1,7 @@
-'Created by Ilse Ferris from Hennepin County, Gay Sikkink from Sterns County, and Charles Potter from Anoka County.
+'Created by Ilse Ferris from Hennepin County, Gay Sikkink from Stearns County, and Charles Potter from Anoka County.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - CS Disregard FIAT.vbs"
+name_of_script = "ACTIONS - CS DISREGARD FIAT.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -78,11 +78,11 @@ If IsNumeric(case_number) = False then case_number = ""
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
 IF on_SELF = "SELF" THEN
-CALL find_variable("Benefit Period (MM YY): ", footer_month, 2)
-IF footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Benefit Period (MM YY): ", footer_month, 2)
+	IF footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & footer_month & " ", footer_year, 2)
 ELSE
-CALL find_variable("Month: ", footer_month, 2)
-IF footer_month <> "" THEN CALL find_variable("Month: " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Month: ", footer_month, 2)
+	IF footer_month <> "" THEN CALL find_variable("Month: " & footer_month & " ", footer_year, 2)
 END IF
 
 'Warning/instruction box
@@ -111,6 +111,7 @@ DO
 	If footer_year = "" then MsgBox "You must have a starting footer year to continue."
 Loop until footer_year <> ""
 
+check_for_maxis(true)
 
 back_to_self
 
@@ -118,7 +119,6 @@ back_to_self
 EMwritescreen footer_month, 20, 43
 EMwritescreen footer_year, 20, 46
 
-check_for_maxis(true)
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 Do
 	EMReadScreen reference_number, 2, 4, 33
