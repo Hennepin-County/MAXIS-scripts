@@ -503,7 +503,7 @@ IF autofill_cash_check = checked THEN
 	FOR EACH cash_approval_result IN cash_approval_array
 		IF left(cash_approval_result, 4) = "MFIP" THEN
 			mfip_cash_amt = right(left(cash_approval_result, 12), 8)
-			mfip_food_amt = left(right(cash_approval_result, 12), 8)
+			mfip_food_amt = right(left(cash_approval_result, 20), 8)
 			mfip_housing_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
