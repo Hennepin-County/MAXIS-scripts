@@ -119,6 +119,7 @@ back_to_self
 EMwritescreen footer_month, 20, 43
 EMwritescreen footer_year, 20, 46
 
+'Building the array of all persons in the household. This does not consider whether the person is an active client. The multi-dimensional array to follow does.
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 Do
 	EMReadScreen reference_number, 2, 4, 33
@@ -130,34 +131,38 @@ Loop until memb_edit = "ENTER"
 person_array = trim(person_array)
 person_array = split(person_array, "~~")
 
+'Programmatically determining the upper limit for the houshold array
 number_of_people = ubound(person_array)
 DIM Household_array()
 ReDim Household_array(number_of_people, 6)
 
+'The seven arguments in the array are as follows...
+'Household_array(i, 0) = household reference number
+'Household_array(i, 1) = True/False, is the person eligible for MFIP on this case?
+'Household_array(i, 2) = Prospective/Retrospective, what is the MFIP budget cycle?
+'Household_array(i, 3) = True/False, is the person elgible for DWP on this case?
+'Household_array(i, 4) = True/False, is the person eligible for the Child Support disregard on this case?
+'Household_array(i, 5) = RETROSPECTIVE Child Support amount (running total for this person)
+'Household_array(i, 6) = PROSPECTIVE Child Support amount (running total for this person)
 
 'Checking for family cash
 CALL navigate_to_MAXIS_screen("CASE", "CURR")
 
+'Determining which cash the case is active or pending on 
 call find_variable("DWP: ", DWP_cash_status, 7)
 call find_variable("MFIP: ", MFIP_cash_status, 7)
 IF DWP_cash_status = "" AND MFIP_cash_status = "" THEN script_end_procedure("This case does not seem to have MFIP or DWP open or pending. Please review case number or prog and try again.")
 
-
+'Reseting all values in the multi-dimensional array. Needed if the script is going to be modified to handle multiple months in one run.
 FOR a = 1 to number_of_people
 	FOR b = 0 to 6
 		Household_array(a, b) = ""
 	NEXT
 NEXT
 
-'array map
-'(i, 0) = HH Ref #
-'(i, 1) = MFIP elig t/f
-'(i, 2) = mfip budg cycle
-'(i, 3) = dwp elig t/f
-'(i, 4) = dwp child support disregard
-'(i, 5) = Unea retro child support total
-'(i, 0) = Unea prosp child support total
 
+'Migrating the HH reference numbers from the original array to the multi-dimensional array.
+'As referenced earlier, Household_array(i, 0) is the HH Reference Number.
 person_count = 1
 For each person in person_array
 	If person <> "" THEN
@@ -166,19 +171,18 @@ For each person in person_array
 	End If
 Next
 
+'Determining if the person is eligible for the CS Disregard.
+'The script determines eligibility for the disregard based on whether the person is a child on the PARE panel. This is a running decision.
+'Household_array(i, 4) is the eligibility for CS Disregard.
 pare_row = 8
 FOR i = 1 to number_of_people
 	CALL navigate_to_MAXIS_screen("STAT", "PARE")
 	Do
 		EmReadScreen child_reference, 2, pare_row, 24
 		If child_reference = Household_array(i, 0) Then
-'			Household_array(i, 1) = TRUE
-'			Household_array(i, 3) = TRUE
 			Household_array(i, 4) = TRUE
 			exit do
 		ELSE
-'			Household_array(i, 1) = FALSE
-'			Household_array(i, 3) = FALSE
 			Household_array(i, 4) = FALSE
 			pare_row = pare_row + 1
 			IF pare_row = 18 Then
@@ -191,27 +195,37 @@ FOR i = 1 to number_of_people
 	Loop
 Next
 
+'Finding the appropriate CS types on UNEA.
 FOR i = 1 to number_of_people	
+	'We are only concerned about the CS payments made to children eligible for the disregard.
+	'If CS Disregard eligible = false, the script will ignore UNEA for that person.
+	'If CS Disregard eligible = true, the script will navigate to UNEA for that person, starting with UNEA ## 01
 	IF Household_array(i, 4) = TRUE THEN
 		CALL navigate_to_MAXIS_screen("STAT", "UNEA")
 		EMwritescreen Household_array(i, 0), 20, 76
 		EMwritescreen "01", 20, 79
 		Transmit
+		'Retrospective amount = $0
 		Household_array(i, 5) = 0
+		'Prospective amount = $0
 		Household_array(i, 6) = 0
 		DO
 			EMReadScreen current_panel, 1, 2, 73
 			EMReadScreen total_panels, 1, 2, 78
 			EmReadScreen UNEA_type, 2, 5, 37
+			'Only three types of CS payments are eligible for the disregard...
 			IF UNEA_type = "08" or UNEA_type = "36" or UNEA_type = "39" THEN
 				EMReadScreen retro_unea, 9, 18, 38
 				retro_unea = Trim(retro_unea)
 				if retro_unea = "" THEN retro_unea = 0
+				'Adding up the running CS total for retrospective budgeting
 				Household_array(i, 5) = Household_array(i, 5) + retro_unea
 				EMReadScreen prosp_unea, 9, 18, 67		
 				prosp_unea = Trim(prosp_unea)
 				if prosp_unea = "" THEN prosp_unea = 0
+				'Adding up the running CS total for prospective budgeting
 				Household_array(i, 6) = Household_array(i, 6) + prosp_unea
+				'If the script gets through the looking and doesn't find any Child Support UNEA, the script will stop...but that's later. For now, we are on the Jimmy Fallon part of the script.
 				CS_found = TRUE
 			END IF
 			Transmit
@@ -224,46 +238,42 @@ IF CS_found <> True THEN script_end_procedure("A child support UNEA panel was no
 
 back_to_self
 
-
-
-
-'ELIG portion
+'Checking out the sweet, sweet eligibility results, begining with D to the Dubs P
 IF DWP_cash_status <> "" Then
 	CALL navigate_to_MAXIS_screen("ELIG", "DWP")
 	FOR i = 1 to number_of_people
-'		IF Household_array(i, 3) = TRUE Then
-'			msgbox Household_array(i, 0) & vbCr & Household_array(i, 1) & vbCr & Household_array(i, 2) & vbCr & Household_array(i, 3) & vbCr & Household_array(i, 4) & vbCr & Household_array(i, 5) & vbCr & Household_array(i, 6)
-			dwpr_row = 7
-			DO
-				EMReadScreen DWPR_ref, 2, dwpr_row, 5
-				IF DWPR_ref = Household_array(i, 0) THEN
-					EMReadScreen DWP_elig_status, 1, dwpr_row, 57
-					IF DWP_elig_status = "I" Then
-						Household_array(i, 3) = FALSE
-						Exit do
-					ELSEIF DWP_elig_status = "E" THEN
-						Household_array(i, 3) = True
-						Exit do
-					END If
+		dwpr_row = 7
+		DO
+			EMReadScreen DWPR_ref, 2, dwpr_row, 5
+			IF DWPR_ref = Household_array(i, 0) THEN
+				EMReadScreen DWP_elig_status, 1, dwpr_row, 57
+				IF DWP_elig_status = "I" Then
+					Household_array(i, 3) = FALSE
+					Exit do
+				ELSEIF DWP_elig_status = "E" THEN
+					Household_array(i, 3) = True
+					Exit do
 				END If
-				dwpr_row = dwpr_row + 1
-				If dwpr_row = 18 THEN 
-					PF8
-					dwpr_row = 7
-					EmReadScreen dwpr_edit, 4, 24, 2
-				END If
-			LOOP Until dwpr_edit = "THIS"
-'		End If
+			END If
+			dwpr_row = dwpr_row + 1
+			If dwpr_row = 18 THEN 
+				PF8
+				dwpr_row = 7
+				EmReadScreen dwpr_edit, 4, 24, 2
+			END If
+		LOOP Until dwpr_edit = "THIS"
 	Next
 	
+	'Determining the number of household members eligible for the disregard
+	'The person must be eligible for the disregard (Household_array(i, 4) = True) AND have Prospective CS income (Household_array(i, 6) <> 0) AND is eligible for DWP on this case (Household_array(i, 3) = True)
 	number_of_kids = 0
-	
 	FOR i = 1 to number_of_people 
 		IF Household_array(i, 3) = TRUE & Household_array(i, 6) <> 0 & Household_array(i, 4) = TRUE Then
 			number_of_kids = number_of_kids + 1
 		End If
 	NEXT
-	
+
+	'IF there is 1 child eligible for the disregard, the limit is $100. If the number of eligible children exceeds 1, the limit is $200.
 	disregard_limit = 0
 	IF number_of_kids = 0 Then 
 		script_end_procedure("No children were found eligible for DWP and are receiving Child Support. Please review case.")
@@ -273,6 +283,7 @@ IF DWP_cash_status <> "" Then
 		disregard_limit = 200
 	End if
 	
+	'FIATING DWP
 	PF9
 	EMwritescreen "04", 10, 41
 	transmit
@@ -280,15 +291,21 @@ IF DWP_cash_status <> "" Then
 	transmit
 	EMwritescreen "x", 8, 41
 	transmit
+	'Pausing to make sure MAXIS can keep up...
 	Emwaitready 1, 1000
+	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
 	applied_dwp_disregard = 0
 	For i = 1 to number_of_people		
 		If Household_array(i, 3) = TRUE Then
 			IF Household_array(i, 4) = TRUE Then
 				EMwritescreen "        ", 17, 50
+				'The applied disregard equals the existing applied amount PLUS the prospective CS amount for this person
 				applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
+				'If the amount to be applied exceeds the limit...
 				If applied_dwp_disregard > disregard_limit THEN 
+					'...the script subtracts the amount previously applied from this person...
 					applied_dwp_disregard = applied_dwp_disregard - Household_array(i, 6)
+					'...and applies the difference of the previous applied amount and the limit...
 					Household_array(i, 6) = disregard_limit - applied_dwp_disregard
 				End if
 				EMwritescreen Household_array(i, 6), 17, 50
@@ -299,19 +316,23 @@ IF DWP_cash_status <> "" Then
 			End If
 		End if
 	Next
+'...next, for MFIP cases...
 ELSEIF MFIP_cash_status <> "" Then
 	CALL navigate_to_MAXIS_screen("FIAT", "")
 	EMwritescreen "03", 4, 34
 	EMwritescreen "x", 9, 22
 	transmit
 	
+	'Determining the number of household members eligible for the disregard
+	'The person must be eligible for the disregard (Household_array(i, 4) = True) AND have Prospective CS income (Household_array(i, 6) <> 0) AND is eligible for DWP on this case (Household_array(i, 3) = True)
 	number_of_kids = 0
 		FOR i = 1 to number_of_people 
 		IF Household_array(i, 3) = TRUE AND Household_array(i, 6) <> 0 AND Household_array(i, 4) = TRUE Then
 			number_of_kids = number_of_kids + 1
 		End If
 	NEXT
-	
+
+	'IF there is 1 child eligible for the disregard, the limit is $100. If the number of eligible children exceeds 1, the limit is $200.	
 	disregard_limit = 0
 	IF number_of_kids = 0 Then 
 		script_end_procedure("No children were found eligible for DWP and are receiving Child Support. Please review case.")
@@ -321,6 +342,7 @@ ELSEIF MFIP_cash_status <> "" Then
 		disregard_limit = 200
 	End if	
 
+	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
 	applied_mfip_disregard = 0
 	FOR i = 1 to number_of_people
 		IF Household_array(i, 4) = True THEN
@@ -333,16 +355,22 @@ ELSEIF MFIP_cash_status <> "" Then
 					CALL write_value_and_transmit("X", fmsl_row, 8)
 					EMWriteScreen "        ", 21, 44
 					IF budget_retro_pro = "P" THEN 
+						'The applied disregard equals the existing applied amount PLUS the prospective CS amount for this person
 						applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
 						IF applied_mfip_disregard > disregard_limit THEN 
+							'...the script subtracts the amount previously applied from this person...
 							applied_mfip_disregard = applied_mfip_disregard - Household_array(i, 6)
+							'...and applies the difference of the previous applied amount and the limit...	
 							Household_array(i, 6) = disregard_limit - applied_mfip_disregard
 						END IF
 						CALL write_value_and_transmit(Household_array(i, 6), 21, 44)
 					ELSEIF budget_retro_pro = "R" THEN
+						'The applied disregard equals the existing applied amount PLUS the prospective CS amount for this person
 						applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
 						IF applied_mfip_disregard > disregard_limit THEN 
+							'...the script subtracts the amount previously applied from this person...
 							applied_mfip_disregard = applied_mfip_disregard - Household_array(i, 5)
+							'...and applies the difference of the previous applied amount and the limit...
 							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
 						END IF
 						CALL write_value_and_transmit(Household_array(i, 5), 21, 44)
