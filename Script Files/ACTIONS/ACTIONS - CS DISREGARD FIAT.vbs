@@ -285,6 +285,8 @@ IF DWP_cash_status <> "" Then
 		disregard_limit = 200
 	End if
 	
+	msgbox number_of_kids & " of clients are eligible." & vbCr & vbCr & "The disregard limit is " & disregard_limit & "." & vbCr & vbCr & "Press OK to continue."
+	
 	'FIATING DWP
 	PF9
 	EMwritescreen "04", 10, 41
@@ -309,9 +311,10 @@ IF DWP_cash_status <> "" Then
 					applied_dwp_disregard = applied_dwp_disregard - Household_array(i, 6)
 					'...and applies the difference of the previous applied amount and the limit...
 					Household_array(i, 6) = disregard_limit - applied_dwp_disregard
+					applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
 				End if
-				EMwritescreen Household_array(i, 6), 17, 50
-				MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
+				EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
+				MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 				Transmit
 				Transmit
 			Else
@@ -355,8 +358,6 @@ ELSEIF MFIP_cash_status <> "" Then
 		IF Household_array(i, 1) = True AND Household_array(i, 4) = True THEN number_of_kids = number_of_kids + 1
 	NEXT
 	
-	msgbox number_of_kids & " of clients are eligible." & vbCr & vbCr & "Press OK to continue."
-	
 	'IF there is 1 child eligible for the disregard, the limit is $100. If the number of eligible children exceeds 1, the limit is $200.	
 	disregard_limit = 0
 	IF number_of_kids = 0 Then 
@@ -366,7 +367,9 @@ ELSEIF MFIP_cash_status <> "" Then
 	Elseif number_of_kids > 1 Then
 		disregard_limit = 200
 	End if	
-
+	
+	msgbox number_of_kids & " of clients are eligible." & vbCr & vbCr & "The disregard limit is " & disregard_limit & "." & vbCr & vbCr & "Press OK to continue."
+	
 	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
 	applied_mfip_disregard = 0
 	FOR i = 1 to number_of_people
@@ -387,6 +390,7 @@ ELSEIF MFIP_cash_status <> "" Then
 							applied_mfip_disregard = applied_mfip_disregard - Household_array(i, 6)
 							'...and applies the difference of the previous applied amount and the limit...	
 							Household_array(i, 6) = disregard_limit - applied_mfip_disregard
+							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
 							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						END IF
 						EMWriteScreen Household_array(i, 6), 21, 44
@@ -400,9 +404,10 @@ ELSEIF MFIP_cash_status <> "" Then
 							applied_mfip_disregard = applied_mfip_disregard - Household_array(i, 5)
 							'...and applies the difference of the previous applied amount and the limit...
 							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
+							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
 						END IF
-						MsgBox "The script is applying " & Household_array(i, 5) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
-						EMWriteScreen Household_array(i, 5), 21, 44
+						EMWriteScreen FormatNumber(Household_array(i, 5)), 21, 44
+						MsgBox "The script is applying " & FormatNumber(Household_array(i, 5)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						transmit
 						transmit
 					END IF
