@@ -70,7 +70,7 @@ BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
   EditBox 55, 145, 210, 15, other_notes
   EditBox 75, 165, 190, 15, programs_pending
   EditBox 55, 185, 210, 15, docs_needed
-  CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
+  'CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
   CheckBox 10, 220, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
   EditBox 75, 235, 80, 15, worker_signature
   ButtonGroup ButtonPressed
