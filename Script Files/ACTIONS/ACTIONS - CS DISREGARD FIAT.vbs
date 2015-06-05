@@ -386,8 +386,8 @@ ELSEIF MFIP_cash_status <> "" Then
 							'...the script subtracts the amount previously applied from this person...
 							applied_mfip_disregard = applied_mfip_disregard - Household_array(i, 6)
 							'...and applies the difference of the previous applied amount and the limit...	
-							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 							Household_array(i, 6) = disregard_limit - applied_mfip_disregard
+							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						END IF
 						EMWriteScreen Household_array(i, 6), 21, 44
 						transmit
