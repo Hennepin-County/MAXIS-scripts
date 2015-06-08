@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "WCOM - DUPLICATE ASSISTANCE.vbs"
+name_of_script = "MEMO - DUPLICATE ASSISTANCE WCOM.vbs"
 start_time = timer
 
 'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
