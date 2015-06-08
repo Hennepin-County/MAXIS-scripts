@@ -247,10 +247,7 @@ Do
 			Do
 				Do
 					Dialog CSR_dialog
-					If ButtonPressed = 0 then 
-						cancel_confirm = MsgBox("Are you sure you want to cancel? Press YES to cancel. Press NO to return to the script.", vbYesNo)
-						If cancel_confirm = vbYes THEN stopscript
-					End if
+					If ButtonPressed = 0 then cancel_confirmation
 					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 				Loop until ButtonPressed <> no_cancel_button
 				EMReadScreen STAT_check, 4, 20, 21
@@ -289,8 +286,8 @@ Do
 		Loop until ButtonPressed = -1
 		If (earned_income = "" and unearned_income = "") or actions_taken = "" or CSR_datestamp = "" or worker_signature = "" or CSR_status = "select one..." then MsgBox "You need to fill in the datestamp, income, CSR status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
 	Loop until (earned_income <> "" or unearned_income <> "") and actions_taken <> "" and CSR_datestamp <> "" and worker_signature <> "" and CSR_status <> "select one..."
-	If ButtonPressed = -1 then case_note_confirm = MsgBox("Are you sure you want to case note? Press YES to case note. Press NO to return to the script.", vbYesNo)
-	If case_note_confirm = vbYes THEN
+	CALL proceed_confirmation(go_to_case_note)	'Asking the worker if they want to proceed to case note.
+	If go_to_case_note = True THEN
 		If grab_FS_info_checkbox = 1 then
 			call navigate_to_screen("elig", "fs")
 			EMReadScreen FSPR_check, 4, 3, 48
