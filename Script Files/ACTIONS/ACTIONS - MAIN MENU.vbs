@@ -77,6 +77,8 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts m
   Text 95, 200, 185, 10, "--- Updates the default worker signature on your scripts."
 EndDialog
 
+'Variables to declare
+IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 

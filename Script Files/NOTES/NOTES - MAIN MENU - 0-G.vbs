@@ -46,57 +46,56 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 546, 350, "Notes (0-G) scripts main menu dialog"
+BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 350, "Notes (0-G) scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 490, 330, 50, 15
-    PushButton 475, 10, 65, 10, "SIR instructions", SIR_instructions_button
-    PushButton 10, 25, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
-    PushButton 10, 40, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
-    PushButton 10, 55, 45, 10, "Baby born", BABY_BORN_button
-    PushButton 10, 70, 50, 10, "Burial assets", BURIAL_ASSETS_button
-    PushButton 10, 85, 20, 10, "CAF", CAF_button
-    PushButton 10, 100, 100, 10, "Change report form received", CHANGE_REPORT_FORM_RECEIVED_button
-    PushButton 10, 115, 95, 10, "Citizenship/identity verified", CITIZENSHIP_IDENTITY_VERIFIED_button
-    PushButton 10, 130, 115, 10, "Client contact (call center version)", CLIENT_CONTACT_CALL_CENTER_VERSION_button
-    PushButton 10, 145, 50, 10, "Client contact", CLIENT_CONTACT_button
-    PushButton 10, 160, 60, 10, "Closed programs", CLOSED_PROGRAMS_button
-    PushButton 10, 180, 50, 10, "Combined AR", COMBINED_AR_button
-    PushButton 10, 195, 20, 10, "CSR", CSR_button
-    PushButton 10, 210, 60, 10, "Denied programs", DENIED_PROGRAMS_button
-    PushButton 10, 230, 75, 10, "Documents received", DOCUMENTS_RECEIVED_button
-    PushButton 10, 245, 40, 10, "Drug felon", DRUG_FELON_button
-    PushButton 10, 260, 50, 10, "DWP budget", DWP_BUDGET_button
-    PushButton 10, 275, 45, 10, "Emergency", EMERGENCY_button
-    PushButton 10, 290, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-    PushButton 10, 305, 40, 10, "Fraud info", FRAUD_INFO_button
-    PushButton 10, 320, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
-    PushButton 10, 335, 45, 10, "GRH - HRF", GRH_HRF_button
-  Text 5, 5, 245, 10, "Notes scripts main menu: select the script to run from the choices below."
-  Text 120, 25, 330, 10, "--- A case note template for documenting details about an ApplyMN application recevied."
-  Text 85, 40, 455, 10, "--- A case note template for when you approve a clients programs. Can autofill some data about the approval (like benefit totals) from MAXIS."
-  Text 60, 55, 270, 10, "--- NEW 04/2015!!! A case note template for a baby born and added to household."
-  Text 65, 70, 135, 10, "--- A case note template for burial assets."
-  Text 35, 85, 390, 10, "--- A case note template for when youre processing a CAF. Works for intake as well as recertification and reapplication."
-  Text 115, 100, 265, 10, "--- NEW 04/2015!!! A case note template for a change report form (CRF) received."
-  Text 110, 115, 295, 10, "--- A case note template for documenting citizenship/identity status for a client (or clients)."
-  Text 130, 130, 285, 10, "--- A case note template for documenting client contact (for call center/phone bank staff)."
-  Text 65, 145, 260, 10, "--- A case note template for documenting client contact, either from or to a client."
-  Text 75, 160, 455, 20, "--- A case note template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on programs closing and conditions of closure."
-  Text 65, 180, 250, 10, "--- A case note template for the Combined Annual Renewal (or Combined AR)."
-  Text 35, 195, 120, 10, "--- A case note template for the CSR."
-  Text 75, 210, 465, 20, "--- A case note template for indicating which programs youve denied, and when. Also case notes intake/REIN dates based on programs denied and conditions of denial."
-  Text 90, 230, 405, 10, "--- A case note template to clearly indicate what documents youve received for a case (shelter form, AREP verification, etc.)."
-  Text 55, 245, 215, 10, "--- NEW 04/2015!!! A case note template for noting drug felon info."
-  Text 65, 260, 215, 10, "--- NEW 04/2015!!! A case note template for noting DWP budgets."
-  Text 60, 275, 240, 10, "--- A case note template for emergency assistance applications (EA/EGA)."
-  Text 90, 290, 220, 10, "--- A case note template for screening a client for expedited status."
-  Text 55, 305, 200, 10, "--- NEW 04/2015!!! A case note template for noting fraud info."
-  Text 80, 320, 450, 10, "--- NEW 04/2015!!! A case note template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
-  Text 60, 335, 210, 10, "--- A case note template for GRH HRFs. Case must be post-pay."
+    CancelButton 460, 330, 50, 15
+    PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+    PushButton 5, 20, 60, 10, "Document noting", DOCUMENT_NOTING_button
+    PushButton 5, 45, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
+    PushButton 5, 60, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
+    PushButton 5, 75, 45, 10, "Baby born", BABY_BORN_button
+    PushButton 5, 90, 50, 10, "Burial assets", BURIAL_ASSETS_button
+    PushButton 5, 105, 20, 10, "CAF", CAF_button
+    PushButton 5, 120, 95, 10, "Citizenship/identity verified", CITIZENSHIP_IDENTITY_VERIFIED_button
+    PushButton 5, 135, 50, 10, "Client contact", CLIENT_CONTACT_button
+    PushButton 5, 150, 60, 10, "Closed programs", CLOSED_PROGRAMS_button
+    PushButton 5, 165, 50, 10, "Combined AR", COMBINED_AR_button
+    PushButton 5, 180, 20, 10, "CSR", CSR_button
+    PushButton 5, 195, 60, 10, "Denied programs", DENIED_PROGRAMS_button
+    PushButton 5, 210, 40, 10, "Drug felon", DRUG_FELON_button
+    PushButton 5, 225, 50, 10, "DWP budget", DWP_BUDGET_button
+    PushButton 5, 240, 45, 10, "Emergency", EMERGENCY_button
+    PushButton 5, 255, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
+    PushButton 5, 270, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
+    PushButton 5, 285, 40, 10, "Fraud info", FRAUD_INFO_button
+    PushButton 5, 300, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
+    PushButton 5, 315, 45, 10, "GRH - HRF", GRH_HRF_button
+  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+  Text 75, 20, 330, 10, "--- NEW 06/2015!!! Templates that are for use when various documents are received."
+  Text 115, 45, 330, 10, "--- Template for documenting details about an ApplyMN application recevied."
+  Text 80, 60, 325, 10, "--- Template for when you approve a client's programs."
+  Text 55, 75, 270, 10, "--- Template for a baby born and added to household."
+  Text 60, 90, 135, 10, "--- Template for burial assets."
+  Text 30, 105, 390, 10, "--- Template for when you're processing a CAF. Works for intake as well as recertification and reapplication.*"
+  Text 105, 120, 295, 10, "--- Template for documenting citizenship/identity status for a case."
+  Text 60, 135, 430, 10, "--- Template for documenting client contact, either from or to a client. MERGED WITH CALL CENTER VERSION 06/2015!!!"
+  Text 70, 150, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
+  Text 60, 165, 250, 10, "--- Template for the Combined Annual Renewal.*"
+  Text 30, 180, 120, 10, "--- Template for the CSR.*"
+  Text 70, 195, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
+  Text 50, 210, 215, 10, "--- Template for noting drug felon info."
+  Text 60, 225, 215, 10, "--- Template for noting DWP budgets."
+  Text 55, 240, 240, 10, "--- Template for EA/EGA applications.*"
+  Text 130, 255, 345, 10, "--- NEW 06/2015!!! Template for case noting an employment plan or status update for family cash cases."
+  Text 85, 270, 220, 10, "--- Template for screening a client for expedited status."
+  Text 50, 285, 200, 10, "--- Template for noting fraud info."
+  Text 75, 300, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
+  Text 55, 315, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
 EndDialog
 
+'Variables to declare
+IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
@@ -110,6 +109,7 @@ Loop until buttonpressed <> SIR_instructions_button
 'Connecting to BlueZone
 EMConnect ""
 
+IF ButtonPressed = DOCUMENT_NOTING_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DOCUMENT NOTING MENU.vbs")				
 IF ButtonPressed = APPLYMN_APPLICATION_RECEIVED_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPLYMN APPLICATION RECEIVED.vbs")		
 IF ButtonPressed = APPROVED_PROGRAMS_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPROVED PROGRAMS.vbs")					
 IF ButtonPressed = BABY_BORN_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - BABY BORN.vbs")
@@ -123,10 +123,10 @@ IF ButtonPressed = CLOSED_PROGRAMS_button						THEN CALL run_from_GitHub(script_
 IF ButtonPressed = COMBINED_AR_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - COMBINED AR.vbs")						
 IF ButtonPressed = CSR_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CSR.vbs")								
 IF ButtonPressed = DENIED_PROGRAMS_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DENIED PROGRAMS.vbs")					
-IF ButtonPressed = DOCUMENTS_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DOCUMENTS RECEIVED.vbs")				
 IF ButtonPressed = DRUG_FELON_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DRUG FELON.vbs")
 IF ButtonPressed = DWP_BUDGET_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DWP BUDGET.vbs")
-IF ButtonPressed = EMERGENCY_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")							
+IF ButtonPressed = EMERGENCY_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")						
+IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button		THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
 IF ButtonPressed = EXPEDITED_SCREENING_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPEDITED SCREENING.vbs")				
 IF ButtonPressed = FRAUD_INFO_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FRAUD INFO.vbs")
 IF ButtonPressed = GAS_CARDS_ISSUED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - GAS CARDS ISSUED.vbs")

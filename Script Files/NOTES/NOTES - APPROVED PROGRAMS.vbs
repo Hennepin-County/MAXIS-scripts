@@ -1,4 +1,4 @@
-'Created by Robert Kalb and Charles Potter from Anoka County.
+'Created by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
@@ -49,43 +49,45 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog benefits_approved, 0, 0, 271, 285, "Benefits Approved"
-  CheckBox 15, 25, 35, 10, "SNAP", snap_approved_check
-  CheckBox 75, 25, 55, 10, "Health Care", hc_approved_check
-  CheckBox 155, 25, 35, 10, "Cash", cash_approved_check
-  CheckBox 210, 25, 55, 10, "Emergency", emer_approved_check
-  ComboBox 70, 40, 85, 15, ""+chr(9)+"Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
-  EditBox 65, 60, 70, 15, case_number
-  EditBox 120, 85, 145, 15, benefit_breakdown
-  CheckBox 5, 105, 255, 10, "Check here to have the script autofill the SNAP approval.", autofill_snap_check
-  EditBox 155, 120, 15, 15, snap_start_mo
-  EditBox 170, 120, 15, 15, snap_start_yr
-  EditBox 230, 120, 15, 15, snap_end_mo
-  EditBox 245, 120, 15, 15, snap_end_yr
-  CheckBox 5, 145, 255, 10, "Check here to have the script autofill the CASH approval.", autofill_cash_check
-  EditBox 155, 160, 15, 15, cash_start_mo
-  EditBox 170, 160, 15, 15, cash_start_yr
-  EditBox 230, 160, 15, 15, cash_end_mo
-  EditBox 245, 160, 15, 15, cash_end_yr
-  EditBox 55, 185, 210, 15, other_notes
-  EditBox 85, 205, 180, 15, programs_pending
-  EditBox 65, 225, 200, 15, docs_needed
-  EditBox 65, 245, 80, 15, worker_signature
+BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
+  CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
+  CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
+  CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
+  CheckBox 210, 5, 50, 10, "Emergency", emer_approved_check
+  EditBox 55, 20, 60, 15, case_number
+  ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
+  EditBox 115, 45, 150, 15, benefit_breakdown
+  CheckBox 5, 65, 255, 10, "Check here to have the script autofill the SNAP approval.", autofill_snap_check
+  EditBox 155, 80, 15, 15, snap_start_mo
+  EditBox 170, 80, 15, 15, snap_start_yr
+  EditBox 230, 80, 15, 15, snap_end_mo
+  EditBox 245, 80, 15, 15, snap_end_yr
+  CheckBox 5, 105, 255, 10, "Check here to have the script autofill the CASH approval.", autofill_cash_check
+  EditBox 155, 120, 15, 15, cash_start_mo
+  EditBox 170, 120, 15, 15, cash_start_yr
+  EditBox 230, 120, 15, 15, cash_end_mo
+  EditBox 245, 120, 15, 15, cash_end_yr
+  EditBox 55, 145, 210, 15, other_notes
+  EditBox 75, 165, 190, 15, programs_pending
+  EditBox 55, 185, 210, 15, docs_needed
+  'CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
+  CheckBox 10, 220, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
+  EditBox 75, 235, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 155, 260, 50, 15
-    CancelButton 210, 260, 50, 15
-  Text 5, 5, 70, 10, "Approved Programs:"
-  Text 5, 45, 65, 10, "Type of Approval:"
-  Text 5, 65, 55, 10, "Case Number:"
-  Text 5, 80, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
-  Text 10, 125, 130, 10, "Select SNAP approval range (MM YY)..."
+    OkButton 160, 235, 50, 15
+    CancelButton 215, 235, 50, 15
+  Text 5, 25, 50, 10, "Case Number:"
+  Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
+  Text 10, 85, 130, 10, "Select SNAP approval range (MM YY)..."
+  Text 195, 85, 25, 10, "through"
+  Text 10, 125, 130, 10, "Select CASH approval range (MM YY)..."
   Text 195, 125, 25, 10, "through"
-  Text 10, 165, 130, 10, "Select CASH approval range (MM YY)..."
-  Text 195, 165, 25, 10, "through"
-  Text 5, 190, 45, 10, "Other Notes:"
-  Text 5, 210, 75, 10, "Pending Program(s):"
-  Text 5, 230, 55, 10, "Verifs Needed:"
-  Text 5, 250, 60, 10, "Worker Signature: "
+  Text 5, 150, 45, 10, "Other Notes:"
+  Text 5, 170, 70, 10, "Pending Program(s):"
+  Text 5, 190, 50, 10, "Verifs Needed:"
+  Text 15, 240, 60, 10, "Worker Signature: "
+  Text 120, 25, 60, 10, "Type of Approval:"
+  Text 5, 5, 70, 10, "Approved Programs:"
 EndDialog
 
 
@@ -189,10 +191,12 @@ IF autofill_snap_check = checked THEN
 				EMReadScreen snap_bene_amt, 5, 13, 73
 				EMReadScreen current_snap_bene_mo, 2, 19, 54
 				EMReadScreen current_snap_bene_yr, 2, 19, 57
+				EMReadScreen snap_reporter, 10, 8, 31
 				snap_bene_amt = replace(snap_bene_amt, ",", "")
 				snap_bene_amt = replace(snap_bene_amt, " ", "0")
+				snap_reporter = replace(snap_reporter, " ", "")
 				IF len(snap_bene_amt) = 5 THEN snap_bene_amt = right(snap_bene_amt, 4)
-				snap_approval_array = snap_approval_array & snap_bene_amt & current_snap_bene_mo & current_snap_bene_yr & " "
+				snap_approval_array = snap_approval_array & snap_bene_amt & snap_reporter & current_snap_bene_mo & current_snap_bene_yr & " "
 			ELSE
 				script_end_procedure("Your most recent SNAP approval for the benefit month chosen is not from today. The script cannot autofill this result. Process manually.")
 			END IF
@@ -209,10 +213,12 @@ IF autofill_snap_check = checked THEN
 				EMReadScreen snap_bene_amt, 5, 13, 73
 				EMReadScreen current_snap_bene_mo, 2, 19, 54
 				EMReadScreen current_snap_bene_yr, 2, 19, 57
+				EMReadScreen snap_reporter, 10, 8, 31
 				snap_bene_amt = replace(snap_bene_amt, ",", "")
 				snap_bene_amt = replace(snap_bene_amt, " ", "0")
+				snap_reporter = replace(snap_reporter, " ", "")
 				IF len(snap_bene_amt) = 5 THEN snap_bene_amt = right(snap_bene_amt, 4)
-				snap_approval_array = snap_approval_array & snap_bene_amt & current_snap_bene_mo & current_snap_bene_yr & " "
+				snap_approval_array = snap_approval_array & snap_bene_amt & snap_reporter & current_snap_bene_mo & current_snap_bene_yr & " "
 			ELSE
 				script_end_procedure("Your most recent SNAP approval for the benefit month chosen is not from today. The script cannot autofill this result. Process manually.")
 			END IF
@@ -288,6 +294,7 @@ IF autofill_cash_check = checked THEN
 				MsgBox "There are no CASH result found."
 
 			ELSEIF left(prog_to_check, 2) = "MF" THEN
+				mfip_housing_start_date = #07/01/2015#
 				'MFIP portion
 				call navigate_to_screen("ELIG", "MFIP")
 				EMWriteScreen left(right(prog_to_check, 4), 2), 20, 56
@@ -298,13 +305,26 @@ IF autofill_cash_check = checked THEN
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 8, 15, 73
-						EMReadScreen mfip_bene_food_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
-						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
-						mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						current_cash_month = current_cash_bene_mo & "/01/" & current_cash_bene_yr
+						'Determining the benefit month so that script knows whether or not to be looking for the MFIP housing grant.
+						'If the benefit month is 07/15 or later, it will read the housing grant...
+						IF DateDiff("D", mfip_housing_start_date, current_cash_month) >= 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 14, 73
+							EMReadScreen mfip_bene_food_amt, 8, 15, 73
+							EMReadScreen mfip_bene_housing_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						ELSEIF DateDiff("D", mfip_housing_start_date, current_cash_month) < 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 15, 73
+							EMReadScreen mfip_bene_food_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						END IF
 					END IF
 				ELSE
 					EMReadScreen cash_approval_versions, 1, 2, 18
@@ -315,13 +335,26 @@ IF autofill_cash_check = checked THEN
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 8, 15, 73
-						EMReadScreen mfip_bene_food_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
-						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
-						mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						current_cash_month = current_cash_bene_mo & "/01/" & current_cash_bene_yr
+						'Determining the benefit month so that script knows whether or not to be looking for the MFIP housing grant.
+						'If the benefit month is 07/15 or later, it will read the housing grant...
+						IF DateDiff("D", mfip_housing_start_date, current_cash_month) >= 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 14, 73
+							EMReadScreen mfip_bene_food_amt, 8, 15, 73
+							EMReadScreen mfip_bene_housing_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						ELSEIF DateDiff("D", mfip_housing_start_date, current_cash_month) < 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 15, 73
+							EMReadScreen mfip_bene_food_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						END IF
 					END IF
 				END IF	
 			ELSEIF left(prog_to_check, 2) = "GA" THEN
@@ -430,48 +463,93 @@ IF autofill_cash_check = checked THEN
 				END IF
 			END IF
 		NEXT
-
-
 END IF
 
+
+'updates WCOM with notice requirements if MFIP or DWP child support income disregarded in the budget
+read_row = 7
+
+If CASH_WCOM_checkbox = checked THEN 
+	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
+	EMReadscreen CASH_check, 2, read_row, 26  'checking to make sure that notice is for MFIP or DWP
+	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
+	'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
+	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
+		EMSetcursor read_row, 13
+		EMSendKey "x"
+		Transmit
+		PF9
+		EMSetCursor 03, 15
+		'WCOM required by workers upon approval of MFIP and DWP cases with child support FIAT'd out of the budget
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Starting July 1, 2015 a new law begins that allows us to not count some of the child support you get when determining your monthly MFIP/DWP benefit amount:")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("* $100 for an assistance unit with one child")
+		Call write_variable_in_SPEC_MEMO("* $200 for an assistance unit with two or more children")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Because of this change, you may see an increase in your benefit amount.")
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+		PF4
+		PF3
+	ELSE 
+		Msgbox "There is not a pending notice for this cash case. The script was unable to update your notice."
+	END if
+END If
 
 cash_approval_array = trim(cash_approval_array)
 cash_approval_array = split(cash_approval_array)
 
-'Case notes
-call navigate_to_screen("CASE", "NOTE")
-PF9
+
+'Case notes----------------------------------------------------------------------------------------------------
+call start_a_blank_CASE_NOTE
+
 IF snap_approved_check = checked THEN approved_programs = approved_programs & "SNAP/"
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
 IF emer_approved_check = checked THEN approved_programs = approved_programs & "EMER/"
 EMSendKey "---Approved " & approved_programs & "<backspace>" & " " & type_of_approval & "---" & "<newline>"
-IF benefit_breakdown <> "" THEN call write_editbox_in_case_note("Benefit Breakdown", benefit_breakdown, 6)
+IF benefit_breakdown <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Benefit Breakdown", benefit_breakdown)
 IF autofill_snap_check = checked THEN
 	FOR EACH snap_approval_result in snap_approval_array
 		bene_amount = left(snap_approval_result, 4)
+		report_status = " " & MID(snap_approval_result, 5)
+		len_report_status = LEN(report_status)
+		report_status = LEFT(report_status, (len_report_status - 4)) & " Reporter"
 		benefit_month = left(right(snap_approval_result, 4), 2)
 		benefit_year = right(snap_approval_result, 2)
 		snap_header = ("SNAP for " & benefit_month & "/" & benefit_year)
-		call write_editbox_in_case_note(snap_header, FormatCurrency(bene_amount), 6)
+		call write_bullet_and_variable_in_CASE_NOTE(snap_header, FormatCurrency(bene_amount) & report_status)
 	NEXT
 END IF
 IF autofill_cash_check = checked THEN
 	FOR EACH cash_approval_result IN cash_approval_array
 		IF left(cash_approval_result, 4) = "MFIP" THEN
-			mfip_cash_amt = right(left(cash_approval_result, 12), 8)
-			mfip_food_amt = left(right(cash_approval_result, 12), 8)
+			mfip_housing_start_date = #07/01/2015#
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_editbox_in_case_note(("MFIP Cash Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt), 6)
-			call write_editbox_in_case_note(("MFIP Food Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt), 6)
+			current_cash_month_for_case_noting_purposes = curr_cash_bene_mo & "/01/" & curr_cash_bene_yr
+			'Determining whether the script needs to be concerned about the MFIP housing grant...
+			IF DateDiff("D", mfip_housing_start_date, current_cash_month_for_case_noting_purposes) >= 0 THEN
+				mfip_cash_amt = right(left(cash_approval_result, 12), 8)
+				mfip_food_amt = right(left(cash_approval_result, 20), 8)
+				mfip_housing_amt = left(right(cash_approval_result, 12), 8)
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Housing grant Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_housing_amt))
+			ELSEIF DateDiff("D", mfip_housing_start_date, current_cash_month_for_case_noting_purposes) < 0 THEN 
+				mfip_cash_amt = right(left(cash_approval_result, 12), 8)
+				mfip_food_amt = right(left(cash_approval_result, 20), 8)
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
+			END IF
 		ELSEIF left(cash_approval_result, 4) = "DWP_" THEN
 			dwp_shel_amt = right(left(cash_approval_result, 12), 8)
 			dwp_pers_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_editbox_in_case_note(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt), 6)
-			call write_editbox_in_case_note(("DWP Personal Needs Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_pers_amt), 6)
+			call write_bullet_and_variable_in_CASE_NOTE(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt))
+			call write_bullet_and_variable_in_CASE_NOTE(("DWP Personal Needs Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_pers_amt))
 		ELSE
 			cash_program = left(cash_approval_result, 4)
 			cash_program = replace(cash_program, "_", "")
@@ -479,15 +557,19 @@ IF autofill_cash_check = checked THEN
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
 			cash_header = (cash_program & " Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr)
-			call write_editbox_in_case_note(cash_header, FormatCurrency(cash_bene_amt), 6)
+			call write_bullet_and_variable_in_CASE_NOTE(cash_header, FormatCurrency(cash_bene_amt))
 		END IF
 	NEXT
 END IF
-IF other_notes <> "" THEN call write_editbox_in_case_note("Approval Notes", other_notes, 6)
-IF programs_pending <> "" THEN call write_editbox_in_case_note("Programs Pending", programs_pending, 6)
-If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_needed, 6) 
+IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* This case has been FIATed.")
+If CASH_WCOM_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* The child support disregard was applied to this case.")
+IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)
+IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
+If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
 call write_new_line_in_case_note("---")
 call write_new_line_in_case_note(worker_signature)
+
+
 
 'Runs denied progs if selected
 If closed_progs_check = checked then run_from_github(script_repository & "NOTES/NOTES - CLOSED PROGRAMS.vbs")

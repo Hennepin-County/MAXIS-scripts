@@ -99,6 +99,9 @@ DO
 		IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
 	LOOP until case_number <> "" and worker_signature <> ""
 	CALL check_for_MAXIS(TRUE)
+	Back_to_self
+	CALL navigate_to_MAXIS_screen("STAT", "PROG")  'checking for stat to remind worker about WREG/ABAWD
+	EMReadScreen SNAP_ACTV, 4, 10, 74
 	CALL navigate_to_screen("case", "note")
 	PF9
 	EMReadscreen mode_check, 7, 20, 3
@@ -119,11 +122,5 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", action_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
+IF SNAP_ACTV = "ACTV" or SNAP_ACTV = "PEND" THEN MSGBOX "Please remember to update WREG and client's ABAWD status accordingly."  'Adds message box to remind worker to update WREG and ABAWD is SNAP is ACTV or pending
 Script_end_procedure("")
-
-	
-
-
-
-
-
