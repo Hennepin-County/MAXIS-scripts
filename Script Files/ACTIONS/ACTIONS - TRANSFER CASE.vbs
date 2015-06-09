@@ -2,31 +2,49 @@
 name_of_script = "ACTIONS - TRANSFER CASE.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'VARIABLES TO DECLARE----------------------------------------------------------------------------
 SPEC_MEMO_check = checked		'Should default to checked, as we usually want to send a new worker memo
@@ -208,7 +226,7 @@ IF XFERRadioGroup = 0 THEN
 								transmit
 							END IF
 					LOOP UNTIL ButtonPressed = -1	
-						last_chance = MsgBox("Do you want to continue? NOTE: This will transfer the case out of county.", vbYesNo)
+						last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEC/XFER before transmitting to transfer.", vbYesNo)
 				LOOP UNTIL last_chance = vbYes
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
@@ -257,10 +275,11 @@ IF XFERRadioGroup = 0 THEN
 		END IF
 
 		IF ucase(transfer_to) = "X120ICT" OR ucase(transfer_to) = "X181ICT" THEN transfer_to = "X174ICT"
-	
+
+		'Using move date to determine CRF change date.
 		IF manual_cfr_cash_check = 0 AND cash_cfr_no_change_check = 0 THEN
 			cash_cfr = right(worker_county_code, 2)
-			cash_cfr_date = dateadd("M", 1, date)
+			cash_cfr_date = dateadd("M", 1, cl_move_date)
 			cash_cfr_date = datepart("M", cash_cfr_date) & "/01/" & datepart("YYYY", cash_cfr_date)
 			cash_cfr_date = dateadd("M", 2, cash_cfr_date)
 			cash_cfr_month = datepart("M", cash_cfr_date)
@@ -270,7 +289,7 @@ IF XFERRadioGroup = 0 THEN
 		END IF
 		IF manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 0 THEN
 			hc_cfr = right(worker_county_code, 2)
-			hc_cfr_date = dateadd("M", 1, date)
+			hc_cfr_date = dateadd("M", 1, cl_move_date)
 			hc_cfr_date = datepart("M", hc_cfr_date) & "/01/" & datepart("YYYY", hc_cfr_date)
 			hc_cfr_date = dateadd("M", 2, hc_cfr_date)
 			hc_cfr_month = datepart("M", hc_cfr_date)
@@ -453,9 +472,6 @@ IF XFERRadioGroup = 0 THEN
 	EMWriteScreen primary_worker, 18, 28
 	EMWriteScreen transfer_to, 18, 61
 
-	transmit
-	IF crf_sent_check = unchecked THEN transmit
-
-	script_end_procedure("")
+	script_end_procedure("The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER and transfer the case.")
 	
 END IF

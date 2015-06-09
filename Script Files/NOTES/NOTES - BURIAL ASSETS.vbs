@@ -2,35 +2,49 @@
 name_of_script = "NOTES - BURIAL ASSETS.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-If beta_agency = "" or beta_agency = True then
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-Else
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-End if
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'SECTION 01 -- Dialogs
 BeginDialog opening_dialog_01, 0, 0, 311, 425, "LTC Burial Assets"
@@ -73,26 +87,32 @@ BeginDialog opening_dialog_01, 0, 0, 311, 425, "LTC Burial Assets"
 EndDialog
 
 'Burial Agreement Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog burial_assets_dialog_01, 0, 0, 286, 125, "Burial assets dialog (01)"
-  CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-  DropListBox 100, 40, 45, 15, "None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
-  EditBox 210, 40, 65, 15, purchase_date
-  EditBox 55, 60, 125, 15, issuer_name
-  EditBox 215, 60, 55, 15, policy_number
-  EditBox 50, 80, 50, 15, face_value
-  EditBox 165, 80, 115, 15, funeral_home
+BeginDialog burial_assets_dialog_01, 0, 0, 286, 160, "Burial assets dialog (01)"
+  CheckBox 5, 20, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
+  DropListBox 95, 35, 45, 15, "None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  EditBox 210, 35, 65, 15, purchase_date
+  EditBox 55, 55, 125, 15, issuer_name
+  EditBox 215, 55, 55, 15, policy_number
+  EditBox 50, 75, 50, 15, face_value
+  EditBox 165, 75, 115, 15, funeral_home
+  CheckBox 5, 95, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
+  CheckBox 5, 110, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
+  CheckBox 5, 125, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
   ButtonGroup ButtonPressed
-    PushButton 50, 105, 50, 15, "Previous", previous
-    PushButton 110, 105, 50, 15, "Next", next_button
-    CancelButton 170, 105, 50, 15
-  Text 5, 45, 90, 10, "Type of burial agreement:"
-  Text 155, 45, 55, 10, "Purchase date:"
-  Text 5, 65, 50, 10, "Issuer name:"
-  Text 185, 65, 30, 10, "Policy #:"
-  Text 5, 85, 40, 10, "Face value:"
-  Text 110, 85, 50, 10, "Funeral home:"
+    PushButton 50, 140, 50, 15, "Previous", previous
+    PushButton 110, 140, 50, 15, "Next", next_button
+    CancelButton 170, 140, 50, 15
   Text 5, 5, 160, 10, "Burial Agreement"
+  Text 5, 40, 90, 10, "Type of burial agreement:"
+  Text 155, 40, 50, 10, "Purchase date:"
+  Text 5, 60, 50, 10, "Issuer name:"
+  Text 185, 60, 30, 10, "Policy #:"
+  Text 5, 80, 40, 10, "Face value:"
+  Text 110, 80, 50, 10, "Funeral home:"
 EndDialog
+
+
+
 
 BeginDialog burial_assets_dialog_02, 0, 0, 305, 380, "Burial Assets Dialog (02)"
   CheckBox 10, 25, 110, 10, "Basic service funeral director", basic_service_funeral_director_check
@@ -497,8 +517,8 @@ If total_counted_amount = "" then total_counted_amount = "0"
 
 'SECTION 04
 
-dim MAXIS_service_row
-dim MAXIS_col
+DIM MAXIS_service_row
+DIM MAXIS_col
 
 
 'NOTE: "Other" sections need to be included in correct sections. 
@@ -527,6 +547,9 @@ IF type_of_burial_agreement <> "None" THEN
 	CALL write_variable_in_case_note("* Issuer: " & issuer_name & ". Policy #: " & policy_number & ".")
 	CALL write_bullet_and_variable_in_case_note("Face value", face_value)
 	CALL write_bullet_and_variable_in_case_note("Funeral home", funeral_home)
+	IF Primary_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Primary beneficiary is: Any funeral provider whose interest may appear                irrevocably")             
+	IF Contingent_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Contingent Beneficiary is: The estate of the insured")
+	IF policy_CSV_check = 1 THEN Call write_variable_in_case_note ("* Policy's CSV is irrevocably designated to the funeral provider")
 	CALL write_variable_in_case_note("--------------SERVICE--------------------AMOUNT----------STATUS------------")
 	case_note_page_four
 	If basic_service_funeral_director_check = 1 then 
@@ -827,8 +850,4 @@ case_note_page_four
 EMSendKey worker_sig & "<newline>"
 
 script_end_procedure("")
-
-
-
-
 

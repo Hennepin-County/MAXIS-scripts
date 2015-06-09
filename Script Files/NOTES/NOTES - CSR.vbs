@@ -2,31 +2,49 @@
 name_of_script = "NOTES - CSR.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 
@@ -56,6 +74,8 @@ BeginDialog case_number_dialog, 0, 0, 181, 115, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
+
+
 BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   EditBox 65, 15, 50, 15, CSR_datestamp
   DropListBox 170, 15, 75, 15, "select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
@@ -66,36 +86,36 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   EditBox 60, 115, 95, 15, SHEL_HEST
   EditBox 220, 115, 95, 15, COEX_DCEX
   EditBox 100, 135, 345, 15, FIAT_reasons
-  EditBox 50, 155, 395, 15, other_notes
+  EditBox 50, 155, 395, 15, other_notes '10
   EditBox 45, 175, 400, 15, changes
   EditBox 60, 195, 385, 15, verifs_needed
   EditBox 60, 215, 385, 15, actions_taken
   EditBox 380, 235, 65, 15, worker_signature
-  CheckBox 165, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
-  CheckBox 165, 295, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
-  CheckBox 165, 310, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
+  CheckBox 190, 265, 110, 10, "Send forms to AREP?", sent_arep_checkbox
+  CheckBox 190, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
+  CheckBox 190, 295, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
+  CheckBox 190, 310, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
   EditBox 60, 290, 90, 15, MAEPD_premium
-  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_checkbox
+  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_checkbox '20
   ButtonGroup ButtonPressed
     OkButton 340, 255, 50, 15
     CancelButton 395, 255, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
-    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button 
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 120, 25, 10, "SHEL/", SHEL_button
+    PushButton 5, 120, 25, 10, "SHEL/", SHEL_button '30
     PushButton 30, 120, 25, 10, "HEST:", HEST_button
     PushButton 165, 120, 25, 10, "COEX/", COEX_button
     PushButton 190, 120, 25, 10, "DCEX:", DCEX_button
     PushButton 10, 250, 25, 10, "BUSI", BUSI_button
     PushButton 35, 250, 25, 10, "JOBS", JOBS_button
-    PushButton 10, 260, 25, 10, "RBIC", RBIC_button
     PushButton 35, 260, 25, 10, "UNEA", UNEA_button
     PushButton 75, 250, 25, 10, "ACCT", ACCT_button
     PushButton 100, 250, 25, 10, "CARS", CARS_button
-    PushButton 125, 250, 25, 10, "CASH", CASH_button
+    PushButton 125, 250, 25, 10, "CASH", CASH_button '40
     PushButton 150, 250, 25, 10, "OTHR", OTHR_button
     PushButton 75, 260, 25, 10, "REST", REST_button
     PushButton 100, 260, 25, 10, "SECU", SECU_button
@@ -105,7 +125,7 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
     PushButton 240, 250, 25, 10, "REVW", REVW_button
     PushButton 80, 310, 65, 10, "SIR mail", SIR_mail_button
   GroupBox 255, 5, 50, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation:"  '50
   Text 5, 20, 55, 10, "CSR datestamp:"
   Text 125, 20, 40, 10, "CSR status:"
   Text 5, 40, 35, 10, "HH comp:"
@@ -114,30 +134,14 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   Text 5, 100, 30, 10, "Assets:"
   Text 5, 140, 95, 10, "FIAT reasons (if applicable):"
   Text 5, 160, 40, 10, "Other notes:"
-  Text 5, 180, 35, 10, "Changes?:"
-  Text 5, 200, 50, 10, "Verifs needed:"
+  Text 5, 180, 35, 10, "Changes?:" 
+  Text 5, 200, 50, 10, "Verifs needed:" '60
   Text 5, 220, 50, 10, "Actions taken:"
   GroupBox 5, 240, 175, 35, "Income and asset panels"
   GroupBox 185, 240, 85, 25, "other STAT panels:"
   Text 315, 240, 65, 10, "Worker signature:"
   GroupBox 5, 280, 150, 45, "If MA-EPD..."
   Text 10, 295, 50, 10, "New premium:"
-EndDialog
-
-
-
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -243,10 +247,7 @@ Do
 			Do
 				Do
 					Dialog CSR_dialog
-					If ButtonPressed = 0 then 
-						dialog cancel_dialog
-						If ButtonPressed = yes_cancel_button then stopscript
-					End if
+					If ButtonPressed = 0 then cancel_confirmation
 					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 				Loop until ButtonPressed <> no_cancel_button
 				EMReadScreen STAT_check, 4, 20, 21
@@ -285,8 +286,8 @@ Do
 		Loop until ButtonPressed = -1
 		If (earned_income = "" and unearned_income = "") or actions_taken = "" or CSR_datestamp = "" or worker_signature = "" or CSR_status = "select one..." then MsgBox "You need to fill in the datestamp, income, CSR status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
 	Loop until (earned_income <> "" or unearned_income <> "") and actions_taken <> "" and CSR_datestamp <> "" and worker_signature <> "" and CSR_status <> "select one..."
-	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then
+	CALL proceed_confirmation(go_to_case_note)	'Asking the worker if they want to proceed to case note.
+	If go_to_case_note = True THEN
 		If grab_FS_info_checkbox = 1 then
 			call navigate_to_screen("elig", "fs")
 			EMReadScreen FSPR_check, 4, 3, 48
@@ -322,6 +323,7 @@ if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other not
 If changes <> "" then call write_bullet_and_variable_in_case_note("Changes", changes)
 If HRF_checkbox = checked then call write_variable_in_case_note("* CSR and cash supplement used as HRF.")
 If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 if verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 If MAEPD_premium <> "" then call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)

@@ -2,31 +2,49 @@
 name_of_script = "NOTES - HC RENEWAL.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
@@ -49,16 +67,14 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
     CancelButton 85, 45, 50, 15
 EndDialog
 
-
 BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   EditBox 75, 50, 50, 15, recert_datestamp
-  DropListBox 185, 50, 75, 15, " "+chr(9)+"complete"+chr(9)+"incomplete", recert_status
+  DropListBox 185, 50, 75, 15, "(select one...)"+chr(9)+"complete"+chr(9)+"incomplete", recert_status
   EditBox 325, 50, 125, 15, HH_comp
   EditBox 60, 70, 390, 15, earned_income
   EditBox 70, 90, 380, 15, unearned_income
   EditBox 40, 110, 410, 15, assets
   EditBox 60, 130, 95, 15, COEX_DCEX
-  CheckBox 180, 135, 205, 10, "Check here if you used this HC ER as a SNAP CSR as well.", SNAP_CSR_check
   EditBox 100, 150, 350, 15, FIAT_reasons
   EditBox 50, 170, 400, 15, other_notes
   EditBox 45, 190, 405, 15, changes
@@ -110,22 +126,10 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   Text 5, 235, 50, 10, "Actions taken:"
   GroupBox 5, 250, 150, 45, "If MA-EPD..."
   Text 10, 265, 50, 10, "New premium:"
+  CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
   Text 335, 255, 65, 10, "Worker signature:"
 EndDialog
 
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -140,132 +144,88 @@ HC_check = 1 'This is so the functions will work without having to select a prog
 EMConnect ""
 
 'Grabbing the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 'Grabbing the footer month/year
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
+	footer_month = MAXIS_footer_month
+	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+	If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
 'Showing the case number dialog 
 Do
-  Dialog case_number_and_footer_month_dialog
-  If ButtonPressed = 0 then stopscript
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+	Dialog case_number_and_footer_month_dialog
+	If ButtonPressed = 0 then stopscript
+	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+CALL check_for_MAXIS(True)
 
-'Navigating to STAT, checking for error prone
-call navigate_to_screen("stat", "memb")
+'Navigating to STAT, checks for abended cases
+call navigate_to_MAXIS_screen("stat", "memb")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then call script_end_procedure("Can't get into STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
 
 'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
+CALL HH_member_custom_dialog(HH_member_array)
 
 'Autofilling info from STAT
-call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
-call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
-call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
-call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "REVW", recert_datestamp)
-call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "REVW", recert_datestamp)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'Creating variable for recert_month
 recert_month = footer_month & "/" & footer_year
 
-'Showing case note dialog, with navigation and required answers logic, and it navigates to the case note
+'Showing case note dialog, with navigation and required answers logic
 Do
-  Do
-    Do
-      Do
-        Do
-          Dialog HC_ER_dialog
-          If ButtonPressed = 0 then 
-            dialog cancel_dialog
-            If ButtonPressed = yes_cancel_button then stopscript
-          End if
-        Loop until ButtonPressed <> no_cancel_button
-        EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then call panel_navigation_prev
-          If ButtonPressed = next_panel_button then call panel_navigation_next
-          If ButtonPressed = prev_memb_button then call memb_navigation_prev
-          If ButtonPressed = next_memb_button then call memb_navigation_next
-        End if
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
-      If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
-      If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
-      If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-      If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
-      If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
-      If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
-      If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
-      If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
-      If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
-      If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
-      If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
-      If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
-      If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
-      If ButtonPressed = COEX_button then call navigate_to_screen("stat", "COEX")
-      If ButtonPressed = DCEX_button then call navigate_to_screen("stat", "DCEX")
-      If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-      If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
-    Loop until ButtonPressed = -1
-    If recert_status = " " or actions_taken = "" or recert_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, recert status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-  Loop until recert_status <> " " and actions_taken <> "" and recert_datestamp <> "" and worker_signature <> "" 
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+	Do
+		Do
+			Dialog HC_ER_dialog				'Displays the dialog
+			'cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
+			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
+			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
+		Loop until ButtonPressed = -1 		'Loops until OK is selected
+		If recert_status = "(select one...)" or actions_taken = "" or recert_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, recert status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."			'Warns the user if everything isn't pressed.
+	Loop until recert_status <> "(select one...)" and actions_taken <> "" and recert_datestamp <> "" and worker_signature <> "" 
+	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+
+'Navigates to a blank case note
+call start_a_blank_case_note
 
 'The case note
-EMSendKey "<home>" & "***" & recert_month & " HC ER received " & recert_datestamp & ": " & recert_status & "***" & "<newline>"
-If SNAP_CSR_check = 1 then call write_new_line_in_case_note("* Used HC ER as SNAP CSR.")
-If HH_comp <> "" then call write_editbox_in_case_note("HH comp", HH_comp, 6)
-If earned_income <> "" then call write_editbox_in_case_note("Earned income", earned_income, 6)
-If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
-If assets <> "" then call write_editbox_in_case_note("Assets", assets, 6)
-If COEX_DCEX <> "" then call write_editbox_in_case_note("COEX/DCEX", COEX_DCEX, 6)
-if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
-If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-If changes <> "" then call write_editbox_in_case_note("Changes", changes, 6)
-if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-call write_new_line_in_case_note("---")
-If MAEPD_premium <> "" then call write_editbox_in_case_note("MA-EPD premium", MAEPD_premium, 6)
-If MADE_check = 1 then call write_new_line_in_case_note("* Emailed MADE.")
-If MAEPD_premium <> "" or MADE_check = 1 then call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+CALL write_variable_in_case_note("***" & recert_month & " HC ER received " & recert_datestamp & ": " & recert_status & "***")
+call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
+call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+call write_bullet_and_variable_in_case_note("Assets", assets)
+call write_bullet_and_variable_in_case_note("COEX/DCEX", COEX_DCEX)
+call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+call write_bullet_and_variable_in_case_note("Changes", changes)
+call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+call write_variable_in_case_note("---")
+call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
+If MADE_check = checked then call write_variable_in_case_note("* Emailed MADE.")
+If MAEPD_premium <> "" or MADE_check = checked then call write_variable_in_case_note("---")		'Does this for MAEPD <> blank because if it's blank and there's no MADE_check, it means there's nothing in this section after the ---, and we don't want two in a row now, do we?
+call write_variable_in_case_note(worker_signature)
 
 call script_end_procedure("")
 

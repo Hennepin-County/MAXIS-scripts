@@ -2,31 +2,49 @@
 name_of_script = "NOTES - CLOSED PROGRAMS.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'VARIABLE REQUIRED TO RESIZE DIALOG BASED ON A GLOBAL VARIABLE IN FUNCTIONS FILE
 If case_noting_intake_dates = False then dialog_shrink_amt = 45
@@ -149,38 +167,41 @@ If cash_check = 1 then
   cash_followup_text = ", after which a new CAF is required."
 End if
 
+'Removing the last character of the progs_closed variable, as it is always a trailing slash
+progs_closed = left(progs_closed, len(progs_closed) - 1)
+
 'The dialog navigated to CASE/NOTE. This will write the info into the case note.
 IF death_check = 1 THEN
-	case_note_header = "---Closed " & progs_closed & "<backspace>" & " due to client death---"
+	case_note_header = "---Closed " & progs_closed & " due to client death---"
 ELSE
-	case_note_header = "---Closed " & progs_closed & "<backspace>" & " " & closure_date & "---"
+	case_note_header = "---Closed " & progs_closed & " " & closure_date & "---"
 END IF
-call write_new_line_in_case_note(case_note_header)
-IF death_check = 1 AND HC_check = 1 THEN call write_editbox_in_case_note("HC Closure Date", hc_close_for_death_date, 6)
-IF death_check = 1 AND snap_check = 1 THEN call write_editbox_in_case_note("SNAP Closure Date", closure_date, 6)
-IF death_check = 1 AND cash_check = 1 THEN call write_editbox_in_case_note("CASH Closure Date", closure_date, 6)
-call write_editbox_in_case_note("Reason for closure", reason_for_closure, 6)
-If verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-If updated_MMIS_check = 1 then call write_new_line_in_case_note("* Updated MMIS.")
-If WCOM_check = 1 then call write_new_line_in_case_note("* Added WCOM to notice.")
-If CSR_check = 1 then call write_editbox_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.", 6)
-If HC_ER_check = 1 then call write_new_line_in_case_note("* Case is at HC ER.")
+call write_variable_in_case_note(case_note_header)
+IF death_check = 1 AND HC_check = 1 THEN call write_bullet_and_variable_in_case_note("HC Closure Date", hc_close_for_death_date)
+IF death_check = 1 AND snap_check = 1 THEN call write_bullet_and_variable_in_case_note("SNAP Closure Date", closure_date)
+IF death_check = 1 AND cash_check = 1 THEN call write_bullet_and_variable_in_case_note("CASH Closure Date", closure_date)
+call write_bullet_and_variable_in_case_note("Reason for closure", reason_for_closure)
+If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
+If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
+If CSR_check = 1 then call write_bullet_and_variable_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.")
+If HC_ER_check = 1 then call write_variable_in_case_note("* Case is at HC ER.")
 If case_noting_intake_dates = True then
-	call write_new_line_in_case_note("---")
-	IF death_check <> 1 and HC_check = 1 then call write_editbox_in_case_note("Last HC REIN date", HC_last_REIN_date & HC_followup_text, 6)
-	If death_check <> 1 and SNAP_check = 1 then call write_editbox_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text, 6)
-	If death_check <> 1 and cash_check = 1 then call write_editbox_in_case_note("Last cash REIN date", cash_last_REIN_date & cash_followup_text, 6)
+	call write_variable_in_case_note("---")
+	IF death_check <> 1 and HC_check = 1 then call write_bullet_and_variable_in_case_note("Last HC REIN date", HC_last_REIN_date & HC_followup_text)
+	If death_check <> 1 and SNAP_check = 1 then call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
+	If death_check <> 1 and cash_check = 1 then call write_bullet_and_variable_in_case_note("Last cash REIN date", cash_last_REIN_date & cash_followup_text)
 	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then
-		call write_editbox_in_case_note("Open programs", open_progs, 6)
+		call write_bullet_and_variable_in_case_note("Open programs", open_progs)
 	Else
-		IF death_check = 1 THEN call write_new_line_in_case_note("* All programs closed.")
-		IF death_check <> 1 THEN call write_new_line_in_case_note("* All programs closed. Case becomes intake again on " & intake_date & ".")
+		IF death_check = 1 THEN call write_variable_in_case_note("* All programs closed.")
+		IF death_check <> 1 THEN call write_variable_in_case_note("* All programs closed. Case becomes intake again on " & intake_date & ".")
 	End if
 Else
-	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then call write_editbox_in_case_note("Open programs", open_progs, 6)
+	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
 End if
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 'Runs denied progs if selected
 If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
