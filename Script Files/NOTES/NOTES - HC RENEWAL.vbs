@@ -196,7 +196,7 @@ Do
 	Do
 		Do
 			Dialog HC_ER_dialog				'Displays the dialog
-			'cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
+			cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
 			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
 			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
 		Loop until ButtonPressed = -1 		'Loops until OK is selected
