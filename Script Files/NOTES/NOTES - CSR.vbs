@@ -144,22 +144,6 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   Text 10, 295, 50, 10, "New premium:"
 EndDialog
 
-
-
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 Dim row
@@ -263,10 +247,7 @@ Do
 			Do
 				Do
 					Dialog CSR_dialog
-					If ButtonPressed = 0 then 
-						dialog cancel_dialog
-						If ButtonPressed = yes_cancel_button then stopscript
-					End if
+					If ButtonPressed = 0 then cancel_confirmation
 					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 				Loop until ButtonPressed <> no_cancel_button
 				EMReadScreen STAT_check, 4, 20, 21
@@ -305,8 +286,8 @@ Do
 		Loop until ButtonPressed = -1
 		If (earned_income = "" and unearned_income = "") or actions_taken = "" or CSR_datestamp = "" or worker_signature = "" or CSR_status = "select one..." then MsgBox "You need to fill in the datestamp, income, CSR status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
 	Loop until (earned_income <> "" or unearned_income <> "") and actions_taken <> "" and CSR_datestamp <> "" and worker_signature <> "" and CSR_status <> "select one..."
-	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then
+	CALL proceed_confirmation(go_to_case_note)	'Asking the worker if they want to proceed to case note.
+	If go_to_case_note = True THEN
 		If grab_FS_info_checkbox = 1 then
 			call navigate_to_screen("elig", "fs")
 			EMReadScreen FSPR_check, 4, 3, 48
