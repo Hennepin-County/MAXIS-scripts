@@ -468,9 +468,9 @@ End if
 '----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
 '----IF the DatePart("M", CAF_datestamp) = footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then 
 '---------the script generates a TIKL.
-footer_comparo_month = DatePart("M", CAF_datestamp)
-IF len(footer_comparo_month) <> 2 THEN footer_comparo_month = "0" & footer_comparo_month
-IF CAF_type = "Recertification" AND footer_month = footer_comparo_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
+footer_comparison_month = DatePart("M", CAF_datestamp)
+IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
+IF CAF_type = "Recertification" AND footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
 	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
