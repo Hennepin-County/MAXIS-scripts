@@ -70,7 +70,7 @@ BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
   EditBox 55, 145, 210, 15, other_notes
   EditBox 75, 165, 190, 15, programs_pending
   EditBox 55, 185, 210, 15, docs_needed
-  CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
+  'CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
   CheckBox 10, 220, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
   EditBox 75, 235, 80, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -294,6 +294,7 @@ IF autofill_cash_check = checked THEN
 				MsgBox "There are no CASH result found."
 
 			ELSEIF left(prog_to_check, 2) = "MF" THEN
+				mfip_housing_start_date = #07/01/2015#
 				'MFIP portion
 				call navigate_to_screen("ELIG", "MFIP")
 				EMWriteScreen left(right(prog_to_check, 4), 2), 20, 56
@@ -304,15 +305,26 @@ IF autofill_cash_check = checked THEN
 				IF cash_approved_version = "APPROVED" THEN
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 8, 14, 73
-						EMReadScreen mfip_bene_food_amt, 8, 15, 73
-						EMReadScreen mfip_bene_housing_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
-						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
-						mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
-						mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						current_cash_month = current_cash_bene_mo & "/01/" & current_cash_bene_yr
+						'Determining the benefit month so that script knows whether or not to be looking for the MFIP housing grant.
+						'If the benefit month is 07/15 or later, it will read the housing grant...
+						IF DateDiff("D", mfip_housing_start_date, current_cash_month) >= 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 14, 73
+							EMReadScreen mfip_bene_food_amt, 8, 15, 73
+							EMReadScreen mfip_bene_housing_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						ELSEIF DateDiff("D", mfip_housing_start_date, current_cash_month) < 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 15, 73
+							EMReadScreen mfip_bene_food_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						END IF
 					END IF
 				ELSE
 					EMReadScreen cash_approval_versions, 1, 2, 18
@@ -323,15 +335,26 @@ IF autofill_cash_check = checked THEN
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen mfip_bene_cash_amt, 8, 14, 73
-						EMReadScreen mfip_bene_food_amt, 8, 15, 73
-						EMReadScreen mfip_bene_housing_amt, 8, 16, 73
 						EMReadScreen current_cash_bene_mo, 2, 20, 55
 						EMReadScreen current_cash_bene_yr, 2, 20, 58
-						mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
-						mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
-						mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						current_cash_month = current_cash_bene_mo & "/01/" & current_cash_bene_yr
+						'Determining the benefit month so that script knows whether or not to be looking for the MFIP housing grant.
+						'If the benefit month is 07/15 or later, it will read the housing grant...
+						IF DateDiff("D", mfip_housing_start_date, current_cash_month) >= 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 14, 73
+							EMReadScreen mfip_bene_food_amt, 8, 15, 73
+							EMReadScreen mfip_bene_housing_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & mfip_bene_housing_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						ELSEIF DateDiff("D", mfip_housing_start_date, current_cash_month) < 0 THEN 
+							EMReadScreen mfip_bene_cash_amt, 8, 15, 73
+							EMReadScreen mfip_bene_food_amt, 8, 16, 73
+							mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+							mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "MFIP" & mfip_bene_cash_amt & mfip_bene_food_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						END IF
 					END IF
 				END IF	
 			ELSEIF left(prog_to_check, 2) = "GA" THEN
@@ -502,14 +525,24 @@ END IF
 IF autofill_cash_check = checked THEN
 	FOR EACH cash_approval_result IN cash_approval_array
 		IF left(cash_approval_result, 4) = "MFIP" THEN
-			mfip_cash_amt = right(left(cash_approval_result, 12), 8)
-			mfip_food_amt = right(left(cash_approval_result, 20), 8)
-			mfip_housing_amt = left(right(cash_approval_result, 12), 8)
+			mfip_housing_start_date = #07/01/2015#
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
-			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
-			call write_bullet_and_variable_in_CASE_NOTE(("MFIP Housing grant Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_housing_amt))
+			current_cash_month_for_case_noting_purposes = curr_cash_bene_mo & "/01/" & curr_cash_bene_yr
+			'Determining whether the script needs to be concerned about the MFIP housing grant...
+			IF DateDiff("D", mfip_housing_start_date, current_cash_month_for_case_noting_purposes) >= 0 THEN
+				mfip_cash_amt = right(left(cash_approval_result, 12), 8)
+				mfip_food_amt = right(left(cash_approval_result, 20), 8)
+				mfip_housing_amt = left(right(cash_approval_result, 12), 8)
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Housing grant Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_housing_amt))
+			ELSEIF DateDiff("D", mfip_housing_start_date, current_cash_month_for_case_noting_purposes) < 0 THEN 
+				mfip_cash_amt = right(left(cash_approval_result, 12), 8)
+				mfip_food_amt = right(left(cash_approval_result, 20), 8)
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
+				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
+			END IF
 		ELSEIF left(cash_approval_result, 4) = "DWP_" THEN
 			dwp_shel_amt = right(left(cash_approval_result, 12), 8)
 			dwp_pers_amt = left(right(cash_approval_result, 12), 8)

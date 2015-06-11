@@ -47,7 +47,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS--------------------------------------------------------------------------------------------------
-BeginDialog verifs_needed_dialog, 0, 0, 351, 330, "Verifs needed"
+BeginDialog verifs_needed_dialog, 0, 0, 351, 360, "Verifs needed"
   EditBox 55, 5, 70, 15, case_number
   EditBox 250, 5, 60, 15, verif_due_date
   EditBox 30, 35, 315, 15, ADDR
@@ -61,15 +61,16 @@ BeginDialog verifs_needed_dialog, 0, 0, 351, 330, "Verifs needed"
   EditBox 30, 195, 315, 15, SHEL
   EditBox 30, 215, 315, 15, INSA
   EditBox 50, 235, 295, 15, other_proofs
-  CheckBox 5, 255, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
-  CheckBox 5, 270, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
-  CheckBox 5, 285, 175, 10, "Sent form to AREP?", sent_arep_checkbox
-  CheckBox 5, 300, 95, 10, "Signature page needed?", signature_page_needed_check
-  CheckBox 5, 315, 130, 10, "Check here to TIKL out for this case.", TIKL_check
-  EditBox 285, 285, 60, 15, worker_signature
+  CheckBox 5, 260, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
+  CheckBox 5, 275, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
+  CheckBox 5, 290, 240, 15, "Check here if these are postponed verifications for expedited SNAP.  ", postponed_check
+  CheckBox 5, 310, 175, 10, "Sent form to AREP?", sent_arep_checkbox
+  CheckBox 5, 325, 95, 10, "Signature page needed?", signature_page_needed_check
+  CheckBox 5, 340, 130, 10, "Check here to TIKL out for this case.", TIKL_check
+  EditBox 285, 315, 60, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 240, 305, 50, 15
-    CancelButton 295, 305, 50, 15
+    OkButton 240, 340, 50, 15
+    CancelButton 295, 340, 50, 15
     PushButton 315, 10, 30, 10, "CD+10", CD_plus_10_button
   Text 5, 10, 50, 10, "Case number:"
   Text 150, 10, 100, 10, "Verifs due by (MM/DD/YYYY):"
@@ -85,8 +86,8 @@ BeginDialog verifs_needed_dialog, 0, 0, 351, 330, "Verifs needed"
   Text 5, 200, 25, 10, "SHEL:"
   Text 5, 220, 25, 10, "INSA:"
   Text 5, 240, 45, 10, "Other proofs:"
-  Text 215, 290, 70, 10, "Sign your case note:"
-EndDialog
+  Text 215, 320, 70, 10, "Sign your case note:"
+ EndDialog
 
 BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 415, "Verifs needed (LTC) dialog"
   EditBox 55, 5, 70, 15, case_number
@@ -176,7 +177,11 @@ Do
 Loop until mode_check = "Mode: A" or mode_check = "Mode: E"		'Exits when mode is A or E.
 
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
-call write_new_line_in_case_note(">>>Verifications Requested<<<")
+IF postponed_check = checked THEN
+	call write_new_line_in_case_note(">>>POSTPONED VERIFICATIONS REQUESTED FOR EXPEDITED SNAP<<<")
+ELSE
+	call write_new_line_in_case_note(">>>Verifications Requested<<<")
+END IF
 If verif_due_date <> "" then call write_editbox_in_case_note("Verif due date", verif_due_date, 6)
 If ADDR <> "" then call write_editbox_in_case_note("ADDR", ADDR, 6)
 If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
@@ -219,9 +224,5 @@ If IsDate(verif_due_date) = True then call create_MAXIS_friendly_date(verif_due_
 
 'Script ends
 script_end_procedure("Success! Case note made. You may TIKL when ready. If you filled in a verif due date, it should be autofilled in this TIKL.")
-
-
-
-
 
 
