@@ -227,22 +227,63 @@ transmit
 EMReadScreen total_marital_asset_list_line_01, 53, 2, 25
 EMReadScreen total_marital_asset_list_line_03, 53, 4, 25
 EMReadScreen total_marital_asset_list_line_17, 53, 18, 25
-DO
-	EMReadScreen total_marital_asset_list_line_04, 53, 5, 25
-	EMReadScreen total_marital_asset_list_line_05, 53, 6, 25
-	EMReadScreen total_marital_asset_list_line_06, 53, 7, 25
-	EMReadScreen total_marital_asset_list_line_07, 53, 8, 25
-	EMReadScreen total_marital_asset_list_line_08, 53, 9, 25
-	EMReadScreen total_marital_asset_list_line_09, 53, 10, 25
-	EMReadScreen total_marital_asset_list_line_10, 53, 11, 25
-	EMReadScreen total_marital_asset_list_line_11, 53, 12, 25
-	EMReadScreen total_marital_asset_list_line_12, 53, 13, 25
-	EMReadScreen total_marital_asset_list_line_13, 53, 14, 25
-	EMReadScreen total_marital_asset_list_line_14, 53, 15, 25
-	EMReadScreen total_marital_asset_list_line_15, 53, 16, 25
-	PF8
-	EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
-Loop until last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" 
+
+EMReadScreen total_marital_asset_list_line_04, 53, 5, 25
+EMReadScreen total_marital_asset_list_line_10, 53, 6, 25
+EMReadScreen total_marital_asset_list_line_11, 53, 7, 25
+EMReadScreen total_marital_asset_list_line_12, 53, 8, 25
+EMReadScreen total_marital_asset_list_line_13, 53, 9, 25
+EMReadScreen total_marital_asset_list_line_14, 53, 10, 25
+EMReadScreen total_marital_asset_list_line_15, 53, 11, 25
+EMReadScreen total_marital_asset_list_line_16, 53, 12, 25
+EMReadScreen total_marital_asset_list_line_17, 53, 13, 25
+EMReadScreen total_marital_asset_list_line_18, 53, 14, 25
+EMReadScreen total_marital_asset_list_line_19, 53, 15, 25
+PF8
+EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+	PF3
+ELSE
+EMReadScreen total_marital_asset_list_line_20, 53, 6, 25
+EMReadScreen total_marital_asset_list_line_21, 53, 7, 25
+EMReadScreen total_marital_asset_list_line_22, 53, 8, 25
+EMReadScreen total_marital_asset_list_line_23, 53, 9, 25
+EMReadScreen total_marital_asset_list_line_24, 53, 10, 25
+EMReadScreen total_marital_asset_list_line_25, 53, 11, 25
+EMReadScreen total_marital_asset_list_line_26, 53, 12, 25
+EMReadScreen total_marital_asset_list_line_27, 53, 13, 25
+EMReadScreen total_marital_asset_list_line_28, 53, 14, 25
+EMReadScreen total_marital_asset_list_line_29, 53, 15, 25
+PF8
+EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+	PF3
+ELSE
+EMReadScreen total_marital_asset_list_line_30, 53, 6, 25
+EMReadScreen total_marital_asset_list_line_31, 53, 7, 25
+EMReadScreen total_marital_asset_list_line_32, 53, 8, 25
+EMReadScreen total_marital_asset_list_line_33, 53, 9, 25
+EMReadScreen total_marital_asset_list_line_34, 53, 10, 25
+EMReadScreen total_marital_asset_list_line_35, 53, 11, 25
+EMReadScreen total_marital_asset_list_line_36, 53, 12, 25
+EMReadScreen total_marital_asset_list_line_37, 53, 13, 25
+EMReadScreen total_marital_asset_list_line_38, 53, 14, 25
+EMReadScreen total_marital_asset_list_line_39, 53, 15, 25
+PF8
+EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+	PF3
+ELSE
+EMReadScreen total_marital_asset_list_line_40, 53, 6, 25
+EMReadScreen total_marital_asset_list_line_41, 53, 7, 25
+EMReadScreen total_marital_asset_list_line_42, 53, 8, 25
+EMReadScreen total_marital_asset_list_line_43, 53, 9, 25
+EMReadScreen total_marital_asset_list_line_44, 53, 10, 25
+EMReadScreen total_marital_asset_list_line_45, 53, 11, 25
+EMReadScreen total_marital_asset_list_line_46, 53, 12, 25
+EMReadScreen total_marital_asset_list_line_47, 53, 13, 25
+EMReadScreen total_marital_asset_list_line_48, 53, 14, 25
+EMReadScreen total_marital_asset_list_line_49, 53, 15, 25
 PF3
 
 Do
