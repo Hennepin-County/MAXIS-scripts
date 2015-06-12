@@ -226,4 +226,4 @@ IF Sent_SPEC_MEMO = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sancti
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-'script_end_procedure ""
+script_end_procedure ("")
