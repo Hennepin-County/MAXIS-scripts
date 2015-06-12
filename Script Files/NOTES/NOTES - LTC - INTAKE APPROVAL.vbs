@@ -505,34 +505,37 @@ End if
 Do
 	Do
 		Do
-			Dialog intake_approval_dialog
-			cancel_confirmation
-			'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly
-			IF len(baseline_date) < 10 THEN MsgBox "You must enter the baseline date in format MM/DD/YYYY"
-		LOOP until len(baseline_date) >= 10
-		EMReadScreen STAT_check, 4, 20, 21
-		If STAT_check = "STAT" then
-		If ButtonPressed = prev_panel_button then call panel_navigation_prev
-		If ButtonPressed = next_panel_button then call panel_navigation_next
-		If ButtonPressed = prev_memb_button then call memb_navigation_prev
-		If ButtonPressed = next_memb_button then call memb_navigation_next
-		End if
-		transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-		EMReadScreen MAXIS_check, 5, 1, 39
-		MAXIS_background_check
-		If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
-		If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "AREP")
-		If ButtonPressed = SWKR_button then call navigate_to_MAXIS_screen("stat", "SWKR")
-		If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
-		If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
-		If ButtonPressed = MEDI_button then call navigate_to_MAXIS_screen("stat", "MEDI")
-		If ButtonPressed = INSA_button then call navigate_to_MAXIS_screen("stat", "INSA")
-		If ButtonPressed = BILS_button then call navigate_to_MAXIS_screen("stat", "BILS")
-	Loop until ButtonPressed = -1 
-	If actions_taken = "" THEN MsgBox "You need to complete the 'actions taken' field."
-	If application_date = "" THEN MsgBox "You need to fill in the application date."
-	IF worker_signature = "" then MsgBox "You need to sign your case note."
-Loop until actions_taken <> "" and application_date <> "" and worker_signature <> "" 
+			Do
+				Dialog intake_approval_dialog
+				cancel_confirmation
+				'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly
+				IF len(baseline_date) < 10 THEN MsgBox "You must enter the baseline date in format MM/DD/YYYY"
+			LOOP until len(baseline_date) >= 10
+			EMReadScreen STAT_check, 4, 20, 21
+			If STAT_check = "STAT" then
+			If ButtonPressed = prev_panel_button then call panel_navigation_prev
+			If ButtonPressed = next_panel_button then call panel_navigation_next
+			If ButtonPressed = prev_memb_button then call memb_navigation_prev
+			If ButtonPressed = next_memb_button then call memb_navigation_next
+			End if
+			transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
+			EMReadScreen MAXIS_check, 5, 1, 39
+			If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
+			If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "AREP")
+			If ButtonPressed = SWKR_button then call navigate_to_MAXIS_screen("stat", "SWKR")
+			If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
+			If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
+			If ButtonPressed = MEDI_button then call navigate_to_MAXIS_screen("stat", "MEDI")
+			If ButtonPressed = INSA_button then call navigate_to_MAXIS_screen("stat", "INSA")
+			If ButtonPressed = BILS_button then call navigate_to_MAXIS_screen("stat", "BILS")
+		Loop until ButtonPressed = -1 
+		If actions_taken = "" THEN MsgBox "You need to complete the 'actions taken' field."
+		If application_date = "" THEN MsgBox "You need to fill in the application date."
+		IF worker_signature = "" then MsgBox "You need to sign your case note."
+	Loop until actions_taken <> "" and application_date <> "" and worker_signature <> "" 
+	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+
 
 'LOGIC
 if month_MA_starts <> "" then
@@ -548,14 +551,16 @@ If baseline_date <> "" then
 	end_of_lookback = dateadd("d", -1, cdate(baseline_date)) & ""
 End if
 
+'This will write in 'no spenddown' into the case note if there is no amount the client is responsible to pay for MA purposes
+If recipient_amt = "$" THEN recipient_amt = "no spenddown"
+
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
-EMSendKey "***MA effective " & header_date & "***"
+Call write_variable_in_CASE_NOTE ("***MA effective " & header_date & "***")
 If elig_type <> "DP" then 
-  If budget_type = "L" then EMSendKey "* LTC spenddown: "
-  If budget_type = "S" then EMSendKey "* SISEW waiver obligation: "
-  If budget_type = "B" then EMSendKey "* Recipient amount: "
-  EMSendKey recipient_amt 
+  If budget_type = "L" then call write_bullet_and_variable_in_CASE_NOTE ("LTC spenddown", recipient_amt)	'these 3 are separate options as the 3 budget types have different wording for the client portion 
+  If budget_type = "S" then call write_bullet_and_variable_in_CASE_NOTE ("SISEW waiver obligation", recipient_amt)
+  If budget_type = "B" then call write_bullet_and_variable_in_CASE_NOTE ("Recipient amount", recipient_amt)
 End if
 If elig_date_01 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_01 & ": " & replace(elig_type_std_01, "/_", "") & ", method " & elig_method_01 & replace(", waiver type " & elig_waiver_type_01, ", waiver type _", "") & ".")
 If elig_date_02 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_02 & ": " & replace(elig_type_std_02, "/_", "") & ", method " & elig_method_02 & replace(", waiver type " & elig_waiver_type_02, ", waiver type _", "") & ".")
