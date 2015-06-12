@@ -67,6 +67,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
   Text 110, 30, 25, 10, "Year:"
 EndDialog
 
+
 BeginDialog intake_approval_dialog, 0, 0, 386, 435, "Intake Approval Dialog"
   EditBox 65, 5, 45, 15, application_date
   CheckBox 140, 5, 155, 15, "Check here if this client is in the community.", community_check
@@ -170,6 +171,7 @@ BeginDialog type_std_dialog, 0, 0, 206, 172, "Type-Std dialog"
   Text 170, 10, 25, 10, "Waiver"
 EndDialog
 
+
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 Dim row
@@ -210,7 +212,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
 'Navigating into STAT
-call navigate_to_screen("stat", "hcre")
+call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
 EMReadScreen ERRR_check, 4, 2, 52
@@ -260,7 +262,6 @@ If person_check = "NO" then
 End if
 If person_check <> "NO" then EMWriteScreen "x", 8, 26
 transmit
-
 
 'SEARCHES FOR FOOTER MONTH AND YEAR
 row = 6
@@ -500,54 +501,41 @@ If BBUD_check = "BBUD" then
   End if
 End if
 
-'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+'DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Do
-  Do
-    Do
-      Do
-        Do
-		  Do
-			
-          Dialog intake_approval_dialog
-          If ButtonPressed = 0 then 
-            CancelDialog = MsgBox ("Are you sure you want to end this script?" & chr(13) & chr(13) & "Press ''YES'' to end the script. Press ''NO'' to return to the script.", vbYesNo)
-            If CancelDialog = vbYes then stopscript
-          End if
-        Loop until CancelDialog <> vbNo
-			IF len(baseline_date) < 6 THEN MsgBox "You must enter a date in format MM/DD/YYYY"
-		LOOP until len(baseline_date) >= 6
-		EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then call panel_navigation_prev
-          If ButtonPressed = next_panel_button then call panel_navigation_next
-          If ButtonPressed = prev_memb_button then call memb_navigation_prev
-          If ButtonPressed = next_memb_button then call memb_navigation_next
-        End if
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-      If ButtonPressed = AREP_button then call navigate_to_screen("stat", "AREP")
-      If ButtonPressed = SWKR_button then call navigate_to_screen("stat", "SWKR")
-      If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
-      If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-      If ButtonPressed = MEDI_button then call navigate_to_screen("stat", "MEDI")
-      If ButtonPressed = INSA_button then call navigate_to_screen("stat", "INSA")
-      If ButtonPressed = BILS_button then call navigate_to_screen("stat", "BILS")
-    Loop until ButtonPressed = -1 
-    If actions_taken = "" or application_date = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-  Loop until actions_taken <> "" and application_date <> "" and worker_signature <> "" 
-  If ButtonPressed = -1 then CaseNoteDialog = MsgBox("Press ''YES'' to CASE NOTE. Press ''NO'' to return to the script.", vbYesNo)
-  If CaseNoteDialog = vbYes then
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+	Do
+		Do
+			Do
+				Dialog intake_approval_dialog
+				cancel_confirmation
+				'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly
+				IF len(baseline_date) < 10 THEN MsgBox "You must enter the baseline date in format MM/DD/YYYY"
+			LOOP until len(baseline_date) >= 10
+			EMReadScreen STAT_check, 4, 20, 21
+			If STAT_check = "STAT" then
+			If ButtonPressed = prev_panel_button then call panel_navigation_prev
+			If ButtonPressed = next_panel_button then call panel_navigation_next
+			If ButtonPressed = prev_memb_button then call memb_navigation_prev
+			If ButtonPressed = next_memb_button then call memb_navigation_next
+			End if
+			transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
+			EMReadScreen MAXIS_check, 5, 1, 39
+			If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
+			If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "AREP")
+			If ButtonPressed = SWKR_button then call navigate_to_MAXIS_screen("stat", "SWKR")
+			If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
+			If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
+			If ButtonPressed = MEDI_button then call navigate_to_MAXIS_screen("stat", "MEDI")
+			If ButtonPressed = INSA_button then call navigate_to_MAXIS_screen("stat", "INSA")
+			If ButtonPressed = BILS_button then call navigate_to_MAXIS_screen("stat", "BILS")
+		Loop until ButtonPressed = -1 
+		If actions_taken = "" THEN MsgBox "You need to complete the 'actions taken' field."
+		If application_date = "" THEN MsgBox "You need to fill in the application date."
+		IF worker_signature = "" then MsgBox "You need to sign your case note."
+	Loop until actions_taken <> "" and application_date <> "" and worker_signature <> "" 
+	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+
 
 'LOGIC
 if month_MA_starts <> "" then
@@ -563,53 +551,55 @@ If baseline_date <> "" then
 	end_of_lookback = dateadd("d", -1, cdate(baseline_date)) & ""
 End if
 
-'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'This will write in 'no spenddown' into the case note if there is no amount the client is responsible to pay for MA purposes
+If recipient_amt = "$" THEN recipient_amt = "no spenddown"
 
-EMSendKey "***MA effective " & header_date & "***" & "<newline>"
+'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE ("***MA effective " & header_date & "***")
 If elig_type <> "DP" then 
-  If budget_type = "L" then EMSendKey "* LTC spenddown: "
-  If budget_type = "S" then EMSendKey "* SISEW waiver obligation: "
-  If budget_type = "B" then EMSendKey "* Recipient amount: "
-  EMSendKey recipient_amt & "<newline>"
+  If budget_type = "L" then call write_bullet_and_variable_in_CASE_NOTE ("LTC spenddown", recipient_amt)	'these 3 are separate options as the 3 budget types have different wording for the client portion 
+  If budget_type = "S" then call write_bullet_and_variable_in_CASE_NOTE ("SISEW waiver obligation", recipient_amt)
+  If budget_type = "B" then call write_bullet_and_variable_in_CASE_NOTE ("Recipient amount", recipient_amt)
 End if
-If elig_date_01 <> "" then call write_new_line_in_case_note("* Elig type/std for " & elig_date_01 & ": " & replace(elig_type_std_01, "/_", "") & ", method " & elig_method_01 & replace(", waiver type " & elig_waiver_type_01, ", waiver type _", "") & ".")
-If elig_date_02 <> "" then call write_new_line_in_case_note("* Elig type/std for " & elig_date_02 & ": " & replace(elig_type_std_02, "/_", "") & ", method " & elig_method_02 & replace(", waiver type " & elig_waiver_type_02, ", waiver type _", "") & ".")
-If elig_date_03 <> "" then call write_new_line_in_case_note("* Elig type/std for " & elig_date_03 & ": " & replace(elig_type_std_03, "/_", "") & ", method " & elig_method_03 & replace(", waiver type " & elig_waiver_type_03, ", waiver type _", "") & ".")
-If elig_date_04 <> "" then call write_new_line_in_case_note("* Elig type/std for " & elig_date_04 & ": " & replace(elig_type_std_04, "/_", "") & ", method " & elig_method_04 & replace(", waiver type " & elig_waiver_type_04, ", waiver type _", "") & ".")
-If elig_date_05 <> "" then call write_new_line_in_case_note("* Elig type/std for " & elig_date_05 & ": " & replace(elig_type_std_05, "/_", "") & ", method " & elig_method_05 & replace(", waiver type " & elig_waiver_type_05, ", waiver type _", "") & ".")
-If elig_date_06 <> "" then call write_new_line_in_case_note("* Elig type/std for " & elig_date_06 & ": " & replace(elig_type_std_06, "/_", "") & ", method " & elig_method_06 & replace(", waiver type " & elig_waiver_type_06, ", waiver type _", "") & ".")
-call write_editbox_in_case_note("Application date", application_date, 6)
-If LTCC_check = 1 then call write_editbox_in_case_note("LTCC date", LTCC_date, 6)
-If DHS_5181_on_file_check = 1 then call write_new_line_in_case_note("* DHS-5181 on file.")
-If DHS_1503_on_file_check = 1 then call write_new_line_in_case_note("* DHS-1503 on file.")
-If retro_months <> "" then call write_editbox_in_case_note("Retro request", retro_months, 6)
-If month_MA_starts <> "" then call write_editbox_in_case_note("Month MA starts", month_MA_starts, 6)
-If month_MA_LTC_starts <> "" then call write_editbox_in_case_note("Month MA-LTC starts", month_MA_LTC_starts, 6)
+If elig_date_01 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_01 & ": " & replace(elig_type_std_01, "/_", "") & ", method " & elig_method_01 & replace(", waiver type " & elig_waiver_type_01, ", waiver type _", "") & ".")
+If elig_date_02 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_02 & ": " & replace(elig_type_std_02, "/_", "") & ", method " & elig_method_02 & replace(", waiver type " & elig_waiver_type_02, ", waiver type _", "") & ".")
+If elig_date_03 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_03 & ": " & replace(elig_type_std_03, "/_", "") & ", method " & elig_method_03 & replace(", waiver type " & elig_waiver_type_03, ", waiver type _", "") & ".")
+If elig_date_04 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_04 & ": " & replace(elig_type_std_04, "/_", "") & ", method " & elig_method_04 & replace(", waiver type " & elig_waiver_type_04, ", waiver type _", "") & ".")
+If elig_date_05 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_05 & ": " & replace(elig_type_std_05, "/_", "") & ", method " & elig_method_05 & replace(", waiver type " & elig_waiver_type_05, ", waiver type _", "") & ".")
+If elig_date_06 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_06 & ": " & replace(elig_type_std_06, "/_", "") & ", method " & elig_method_06 & replace(", waiver type " & elig_waiver_type_06, ", waiver type _", "") & ".")
+call write_bullet_and_variable_in_CASE_NOTE("Application date", application_date)
+If LTCC_check = 1 then call write_variable_in_CASE_NOTE("LTCC date", LTCC_date)
+If DHS_5181_on_file_check = 1 then call write_variable_in_CASE_NOTE("* DHS-5181 on file.")
+If DHS_1503_on_file_check = 1 then call write_variable_in_CASE_NOTE("* DHS-1503 on file.")
+If retro_months <> "" then call write_bullet_and_variable_in_CASE_NOTE("Retro request", retro_months)
+If month_MA_starts <> "" then call write_bullet_and_variable_in_CASE_NOTE("Month MA starts", month_MA_starts)
+If month_MA_LTC_starts <> "" then call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC starts", month_MA_LTC_starts)
 Call write_bullet_and_variable_in_case_note ("Baseline Date", baseline_date) 
 Call write_bullet_and_variable_in_case_note ("Lookback period", lookback_period & "-" & end_of_lookback)
-If community_check = 1 then call write_new_line_in_case_note("* Client is in the community.")
-If AREP_SWKR <> "" then call write_editbox_in_case_note("AREP/SWKR", AREP_SWKR, 6)
-If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
-If CFR <> "" then call write_editbox_in_case_note("CFR", CFR, 6)
-If income <> "" then call write_editbox_in_case_note("Income", income, 6)
-If assets <> "" then call write_editbox_in_case_note("Assets", assets, 6)
-If total_countable_assets <> "" then call write_editbox_in_case_note("Total countable assets", total_countable_assets, 6)
-If other_asset_notes <> "" then call write_editbox_in_case_note("Other asset notes", other_asset_notes, 6)
-If MEDI_INSA <> "" then call write_editbox_in_case_note("MEDI/INSA", MEDI_INSA, 6)
-If INSA_loaded_into_TPL_check = 1 then call write_new_line_in_case_note("* INSA loaded into TPL.")
-If LTC_partnership_check = 1 then call write_new_line_in_case_note("* There is a LTC partnership for this case.")
-If lookback_period <> "" then call write_editbox_in_case_note("Lookback period", lookback_period, 6)
-If annuity_LTC_PRB <> "" then call write_editbox_in_case_note("Annuity (LTC) PRB", annuity_LTC_PRB, 6)
-If home_equity_limit <> "" then call write_editbox_in_case_note("Home equity limit", home_equity_limit, 6)
-If transfer <> "" then call write_editbox_in_case_note("Transfer", transfer, 6)
-If deductions <> "" then call write_editbox_in_case_note("BILS/deductions", deductions, 6)
-If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-If DHS_3050_1503_check = 1 then call write_new_line_in_case_note("* DHS-3050/1503 sent.")
-If DHS_3203_lien_doc_check = 1 then call write_new_line_in_case_note("* DHS-3203/lien doc sent.")
-If asset_transfer_letter_sent_check = 1 then call write_new_line_in_case_note("* Asset transfer letter sent.")
-If managed_care_referral_sent_check = 1 then call write_new_line_in_case_note("* Managed care referral sent.")
-call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+If community_check = 1 then call write_variable_in_CASE_NOTE("* Client is in the community.")
+If AREP_SWKR <> "" then call write_bullet_and_variable_in_CASE_NOTE("AREP/SWKR", AREP_SWKR)
+If FACI <> "" then call write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
+If CFR <> "" then call write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
+If income <> "" then call write_bullet_and_variable_in_CASE_NOTE("Income", income)
+If assets <> "" then call write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
+If total_countable_assets <> "" then call write_bullet_and_variable_in_CASE_NOTE("Total countable assets", total_countable_assets)
+If other_asset_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Other asset notes", other_asset_notes)
+If MEDI_INSA <> "" then call write_bullet_and_variable_in_CASE_NOTE("MEDI/INSA", MEDI_INSA)
+If INSA_loaded_into_TPL_check = 1 then call write_variable_in_CASE_NOTE("* INSA loaded into TPL.")
+If LTC_partnership_check = 1 then call write_variable_in_CASE_NOTE("* There is a LTC partnership for this case.")
+If lookback_period <> "" then call write_variable_in_CASE_NOTE("* Lookback period: " & lookback_period & " - " & end_of_lookback)
+If annuity_LTC_PRB <> "" then call write_bullet_and_variable_in_CASE_NOTE("Annuity (LTC) PRB", annuity_LTC_PRB)
+If home_equity_limit <> "" then call write_bullet_and_variable_in_CASE_NOTE("Home equity limit", home_equity_limit)
+If transfer <> "" then call write_bullet_and_variable_in_CASE_NOTE("Transfer", transfer)
+If deductions <> "" then call write_bullet_and_variable_in_CASE_NOTE("BILS/deductions", deductions)
+If other_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+If DHS_3050_1503_check = 1 then call write_variable_in_CASE_NOTE("* DHS-3050/1503 sent.")
+If DHS_3203_lien_doc_check = 1 then call write_variable_in_CASE_NOTE("* DHS-3203/lien doc sent.")
+If asset_transfer_letter_sent_check = 1 then call write_variable_in_CASE_NOTE("* Asset transfer letter sent.")
+If managed_care_referral_sent_check = 1 then call write_variable_in_CASE_NOTE("* Managed care referral sent.")
+call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
