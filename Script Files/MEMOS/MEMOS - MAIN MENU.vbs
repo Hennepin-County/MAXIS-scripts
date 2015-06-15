@@ -65,7 +65,7 @@ BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 456, 240, "Memos scripts main 
   Text 5, 5, 235, 10, "Memos scripts main menu: select the script to run from the choices below."
   Text 75, 25, 375, 20, "--- Sends a MEMO to the client reminding them of their reporting responsibilities (required for SNAP 2-year certification periods, per POLI/TEMP TE02.08.165)."
   Text 75, 50, 300, 10, "--- Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
-  Text 115, 65, 340, 20, "--- NEWS 07/2015!!! Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
+  Text 115, 65, 340, 20, "--- NEW 07/2015!!! Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
   Text 140, 90, 310, 20, "--- NEW 06/2015!!! Sends a MEMO to a facility indicating that an overpayment is due because a client left."
   Text 80, 115, 200, 10, "--- Sends a MEMO to a LTC client regarding asset transfers."
   Text 70, 130, 185, 10, "--- Sends a MEMO to a client regarding MFIP orientation."
