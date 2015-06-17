@@ -47,7 +47,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT
-Function write_editbox_in_person_note(x, y, z) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
   variable_array = split(y, " ")
   EMSendKey "* " & x & ": "
   For each x in variable_array 
@@ -59,8 +59,8 @@ Function write_editbox_in_person_note(x, y, z) 'x is the header, y is the variab
     EMReadScreen max_check, 51, 24, 2
     If max_check = "A MAXIMUM OF 4 PAGES ARE ALLOWED FOR EACH CASE NOTE" then exit for
     EMGetCursor row, col 
-    If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(z)
-    If (row = 5 and col = 3) then EMSendKey space(z)
+    If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(5)
+    If (row = 5 and col = 3) then EMSendKey space(5)
     EMSendKey x & " "
     If right(x, 1) = ";" then 
       EMSendKey "<backspace>" & "<backspace>" 
@@ -68,9 +68,9 @@ Function write_editbox_in_person_note(x, y, z) 'x is the header, y is the variab
       If row = 18 then
         EMSendKey "<PF8>"
         EMWaitReady 0, 0
-        EMSendKey space(z)
+        EMSendKey space(5)
       Else
-        EMSendKey "<newline>" & space(z)
+        EMSendKey "<newline>" & space(5)
       End if
     End if
   Next
@@ -152,15 +152,14 @@ BeginDialog case_and_PMI_number_dialog, 0, 0, 196, 101, "Case and PMI number dia
 EndDialog
 
 
-'SECTION 03: THE SCRIPT
+'SECTION 03: THE SCRIPT----------------------------------------------------------------------------------------------------
 
 Dialog case_and_PMI_number_dialog
 If ButtonPressed = 0 then stopscript
 
+'Connecting and checking for an active MAXIS section
 EMConnect ""
-PF3
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
+Call check_for_MAXIS(True)
 back_to_self
 call navigate_to_screen("aset", "____")
 
@@ -221,55 +220,108 @@ EMReadScreen SPAA_line_15, 55, 18, 24
 If trim(SPAA_line_15) = "" then SPAA_line_15 = "."
 
 'Now it's going to get the marital asset list. Skips lines 2 and 16 as they are blank.
-EMWriteScreen "x", 4, 33
+EMWriteScreen "x", 4, 33 
 transmit
-EMReadScreen total_marital_asset_list_line_01, 53, 2, 25
-EMReadScreen total_marital_asset_list_line_03, 53, 4, 25
-EMReadScreen total_marital_asset_list_line_04, 53, 5, 25
-EMReadScreen total_marital_asset_list_line_05, 53, 6, 25
-EMReadScreen total_marital_asset_list_line_06, 53, 7, 25
-EMReadScreen total_marital_asset_list_line_07, 53, 8, 25
-EMReadScreen total_marital_asset_list_line_08, 53, 9, 25
-EMReadScreen total_marital_asset_list_line_09, 53, 10, 25
-EMReadScreen total_marital_asset_list_line_10, 53, 11, 25
-EMReadScreen total_marital_asset_list_line_11, 53, 12, 25
-EMReadScreen total_marital_asset_list_line_12, 53, 13, 25
-EMReadScreen total_marital_asset_list_line_13, 53, 14, 25
-EMReadScreen total_marital_asset_list_line_14, 53, 15, 25
-EMReadScreen total_marital_asset_list_line_15, 53, 16, 25
-EMReadScreen total_marital_asset_list_line_17, 53, 18, 25
-PF3
+'these lines are not included in the DO LOOP since they are headers and footers
+EMReadScreen total_marital_asset_list_line_01, 53, 2, 25	'TOTAL MARITAL ASSET LIST (header)
+EMReadScreen total_marital_asset_list_line_03, 53, 4, 25	'Asset Description (header)
+EMReadScreen total_marital_asset_list_line_99, 53, 18, 25	'Assets Total: (footer) --made this '99' as to not cause conflict with other variable titles
+EMReadScreen total_marital_asset_list_line_04, 53, 5, 25	'-------------------- (header)
+'1st page of the total marital asset list
+EMReadScreen total_marital_asset_list_line_10, 53, 6, 25
+EMReadScreen total_marital_asset_list_line_11, 53, 7, 25
+EMReadScreen total_marital_asset_list_line_12, 53, 8, 25
+EMReadScreen total_marital_asset_list_line_13, 53, 9, 25
+EMReadScreen total_marital_asset_list_line_14, 53, 10, 25
+EMReadScreen total_marital_asset_list_line_15, 53, 11, 25
+EMReadScreen total_marital_asset_list_line_16, 53, 12, 25
+EMReadScreen total_marital_asset_list_line_17, 53, 13, 25
+EMReadScreen total_marital_asset_list_line_18, 53, 14, 25
+EMReadScreen total_marital_asset_list_line_19, 53, 15, 25
+PF8
+EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+	PF3
+ELSE
+	'2nd page of the total marital asset list
+	EMReadScreen total_marital_asset_list_line_20, 53, 6, 25
+	EMReadScreen total_marital_asset_list_line_21, 53, 7, 25
+	EMReadScreen total_marital_asset_list_line_22, 53, 8, 25
+	EMReadScreen total_marital_asset_list_line_23, 53, 9, 25
+	EMReadScreen total_marital_asset_list_line_24, 53, 10, 25
+	EMReadScreen total_marital_asset_list_line_25, 53, 11, 25
+	EMReadScreen total_marital_asset_list_line_26, 53, 12, 25
+	EMReadScreen total_marital_asset_list_line_27, 53, 13, 25
+	EMReadScreen total_marital_asset_list_line_28, 53, 14, 25
+	EMReadScreen total_marital_asset_list_line_29, 53, 15, 25
+	PF8
+	EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+	If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+		PF3
+	ELSE
+		'3rd page of the total marital asset list
+		EMReadScreen total_marital_asset_list_line_30, 53, 6, 25
+		EMReadScreen total_marital_asset_list_line_31, 53, 7, 25
+		EMReadScreen total_marital_asset_list_line_32, 53, 8, 25
+		EMReadScreen total_marital_asset_list_line_33, 53, 9, 25
+		EMReadScreen total_marital_asset_list_line_34, 53, 10, 25
+		EMReadScreen total_marital_asset_list_line_35, 53, 11, 25
+		EMReadScreen total_marital_asset_list_line_36, 53, 12, 25
+		EMReadScreen total_marital_asset_list_line_37, 53, 13, 25
+		EMReadScreen total_marital_asset_list_line_38, 53, 14, 25
+		EMReadScreen total_marital_asset_list_line_39, 53, 15, 25
+		PF8
+		EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+		If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+			PF3
+		ELSE
+			'4th page of the total marital asset list
+			EMReadScreen total_marital_asset_list_line_40, 53, 6, 25
+			EMReadScreen total_marital_asset_list_line_41, 53, 7, 25
+			EMReadScreen total_marital_asset_list_line_42, 53, 8, 25
+			EMReadScreen total_marital_asset_list_line_43, 53, 9, 25
+			EMReadScreen total_marital_asset_list_line_44, 53, 10, 25
+			EMReadScreen total_marital_asset_list_line_45, 53, 11, 25
+			EMReadScreen total_marital_asset_list_line_46, 53, 12, 25
+			EMReadScreen total_marital_asset_list_line_47, 53, 13, 25
+			EMReadScreen total_marital_asset_list_line_48, 53, 14, 25
+			EMReadScreen total_marital_asset_list_line_49, 53, 15, 25
+			PF3
+			PF3
+		END IF
+	END IF
+END IF
 
 Do
-  Do
-    dialog asset_assessment_dialog
-    If buttonpressed = 0 then stopscript
-    transmit
-    EMReadScreen function_check, 4, 20, 21
-    If function_check <> "ASET" then MsgBox "You do not appear to be in the ASET function anymore. You might be locked out of your case, or have nagigated away. Reenter the ASET function before proceeding."
-  Loop until function_check = "ASET"
-  PF5
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" then PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" then MsgBox "A person note could not be found. You might have accidentally navigated away from the ASET function. Get back into the asset assessment before trying again."
-Loop until mode_check = "Mode: A"
+	dialog asset_assessment_dialog
+	If buttonpressed = 0 then stopscript
+	cancel_confirmation
+	transmit
+	EMReadScreen function_check, 4, 20, 21
+	If function_check <> "ASET" then MsgBox "You do not appear to be in the ASET function anymore. You might be locked out of your case, or have nagigated away. Reenter the ASET function before proceeding."
+ Loop until function_check = "ASET"
+ 'navigates to person note
+PF5 
+'puts person note into edit mode
+PF9
 
+'case/person notes information about forms sent to client
 If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
 If sent_3340A_check = 1 then actions_taken = "Sent 3340-A. " & actions_taken
 
+'PERSON NOTE----------------------------------------------------------------------------------------------------
 EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT***" & "<newline>"
-call write_editbox_in_person_note("Effective date", effective_date, 5) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-If MA_LTC_first_month_of_documented_need <> "" then call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need, 5)
-If month_MA_LTC_rules_applied <> "" then call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied, 5)
-If LTC_spouse <> "" then call write_editbox_in_person_note("LTC spouse", LTC_spouse, 5)
-If community_spouse <> "" then call write_editbox_in_person_note("Community spouse", community_spouse, 5)
-If asset_summary <> "" then call write_editbox_in_person_note("Asset summary", asset_summary, 5)
-If total_counted_assets <> "" then call write_editbox_in_person_note("Total counted assets", total_counted_assets, 5)
-If half_of_total <> "" then call write_editbox_in_person_note("Half of total", half_of_total, 5)
+call write_editbox_in_person_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+If MA_LTC_first_month_of_documented_need <> "" then call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
+If month_MA_LTC_rules_applied <> "" then call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
+If LTC_spouse <> "" then call write_editbox_in_person_note("LTC spouse", LTC_spouse)
+If community_spouse <> "" then call write_editbox_in_person_note("Community spouse", community_spouse)
+If asset_summary <> "" then call write_editbox_in_person_note("Asset summary", asset_summary)
+If total_counted_assets <> "" then call write_editbox_in_person_note("Total counted assets", total_counted_assets)
+If half_of_total <> "" then call write_editbox_in_person_note("Half of total", half_of_total)
 If CSAA_type <> "" then call write_new_line_in_person_note("* " & CSAA_type & " CSAA: " & CSAA)
-If asset_calculation <> "" then call write_editbox_in_person_note("Asset calculation", asset_calculation, 5)
-If actions_taken <> "" then call write_editbox_in_person_note("Actions taken", actions_taken, 5)
+If asset_calculation <> "" then call write_editbox_in_person_note("Asset calculation", asset_calculation)
+If actions_taken <> "" then call write_editbox_in_person_note("Actions taken", actions_taken)
 call write_new_line_in_person_note("---")
 If worker_signature <> "" then call write_new_line_in_person_note(worker_signature)
 Do
@@ -302,39 +354,77 @@ Do
 Loop until row = 18
 EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
 PF8
-call write_new_line_in_person_note(total_marital_asset_list_line_17)
+'headers
+call write_new_line_in_person_note(total_marital_asset_list_line_99)
 call write_new_line_in_person_note(total_marital_asset_list_line_03)
 call write_new_line_in_person_note(total_marital_asset_list_line_04)
-call write_new_line_in_person_note(total_marital_asset_list_line_05)
-call write_new_line_in_person_note(total_marital_asset_list_line_06)
-call write_new_line_in_person_note(total_marital_asset_list_line_07)
-call write_new_line_in_person_note(total_marital_asset_list_line_08)
-call write_new_line_in_person_note(total_marital_asset_list_line_09)
-call write_new_line_in_person_note(total_marital_asset_list_line_10)
-call write_new_line_in_person_note(total_marital_asset_list_line_11)
-call write_new_line_in_person_note(total_marital_asset_list_line_12)
-call write_new_line_in_person_note(total_marital_asset_list_line_13)
-call write_new_line_in_person_note(total_marital_asset_list_line_14)
-call write_new_line_in_person_note(total_marital_asset_list_line_15)
-
+'1st page of total marital assets
+If total_marital_asset_list_line_10 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note (total_marital_asset_list_line_10)
+If total_marital_asset_list_line_11 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_11)
+If total_marital_asset_list_line_12 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_12)
+If total_marital_asset_list_line_13 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_13)
+If total_marital_asset_list_line_14 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_14)
+If total_marital_asset_list_line_15 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_15)
+If total_marital_asset_list_line_16 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_16)
+If total_marital_asset_list_line_17 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_17)
+If total_marital_asset_list_line_18 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_18)
+If total_marital_asset_list_line_19 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_19)
+'2nd page of the total marital asset list
+If total_marital_asset_list_line_20 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_20)
+If total_marital_asset_list_line_21 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_21)
+If total_marital_asset_list_line_22 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_22)
+If total_marital_asset_list_line_23 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_23)
+If total_marital_asset_list_line_24 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_24)
+If total_marital_asset_list_line_25 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_25)
+If total_marital_asset_list_line_26 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_26)
+If total_marital_asset_list_line_27 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_27)
+If total_marital_asset_list_line_28 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_28)
+If total_marital_asset_list_line_29 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_29)
+'3rd page of total marital asset list
+If total_marital_asset_list_line_30 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_30)
+If total_marital_asset_list_line_31 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_31)
+If total_marital_asset_list_line_32 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_32)
+If total_marital_asset_list_line_33 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_33)
+If total_marital_asset_list_line_34 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_34)
+If total_marital_asset_list_line_35 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_35)
+If total_marital_asset_list_line_36 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_36)
+If total_marital_asset_list_line_37 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_37)
+If total_marital_asset_list_line_38 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_38)
+If total_marital_asset_list_line_39 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_39)
+'4th page of total marital asset list
+If total_marital_asset_list_line_40 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_40)
+If total_marital_asset_list_line_41 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_41)
+If total_marital_asset_list_line_42 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_42)
+If total_marital_asset_list_line_43 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_43)
+If total_marital_asset_list_line_44 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_44)
+If total_marital_asset_list_line_45 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_45)
+If total_marital_asset_list_line_46 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_46)
+If total_marital_asset_list_line_47 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_47)
+If total_marital_asset_list_line_48 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_48)
+If total_marital_asset_list_line_49 <> "* ____________________  _________   _       _      _ " then Call write_new_line_in_person_note(total_marital_asset_list_line_49)
+PF3
+PF3
+'End of person note----------------------------------------------------------------------------------------------------
 
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
 
+'CASE NOTE----------------------------------------------------------------------------------------------------
 call navigate_to_screen("case", "note")
-PF9
-EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT***" & "<newline>"
-call write_editbox_in_case_note("Effective date", effective_date, 5) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-If MA_LTC_first_month_of_documented_need <> "" then call write_editbox_in_case_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need, 5)
-If month_MA_LTC_rules_applied <> "" then call write_editbox_in_case_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied, 5)
-call write_editbox_in_case_note("LTC spouse", LTC_spouse, 5)
-call write_editbox_in_case_note("Community spouse", community_spouse, 5)
-call write_editbox_in_case_note("Asset summary", asset_summary, 5)
-call write_editbox_in_case_note("Total counted assets", total_counted_assets, 5)
-call write_editbox_in_case_note("Half of total", half_of_total, 5)
-call write_new_line_in_case_note("* " & CSAA_type & " CSAA: " & CSAA)
-call write_editbox_in_case_note("Asset calculation", asset_calculation, 5)
-call write_editbox_in_case_note("Actions taken", actions_taken, 5)
-call write_new_line_in_case_note("---")
+Call start_a_blank_case_note
+
+Call write_variable_in_CASE_NOTE ("***" & asset_assessment_type & " ASSET ASSESSMENT***")
+call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+If MA_LTC_first_month_of_documented_need <> "" then call write_bullet_and_variable_in_CASE_NOTE("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
+If month_MA_LTC_rules_applied <> "" then call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
+call write_bullet_and_variable_in_CASE_NOTE("LTC spouse", LTC_spouse)
+call write_bullet_and_variable_in_CASE_NOTE("Community spouse", community_spouse)
+call write_bullet_and_variable_in_CASE_NOTE("Asset summary", asset_summary)
+call write_bullet_and_variable_in_CASE_NOTE("Total counted assets", total_counted_assets)
+call write_bullet_and_variable_in_CASE_NOTE("Half of total", half_of_total)
+call write_bullet_and_variable_in_CASE_NOTE(CSAA_type & " CSAA", CSAA)
+call write_bullet_and_variable_in_CASE_NOTE("Asset calculation", asset_calculation)
+call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+call write_variable_in_CASE_NOTE("---")
 If worker_signature <> "" then call write_new_line_in_case_note(worker_signature)
 Do
   EMGetCursor row, col
@@ -345,18 +435,19 @@ Do
 Loop until row = 17
 EMSendKey ">>>>SPAA PASTED ON NEXT PAGE>>>>"
 PF8
-call write_new_line_in_case_note(SPAA_line_01)
-call write_new_line_in_case_note(SPAA_line_02)
-call write_new_line_in_case_note(SPAA_line_03)
-call write_new_line_in_case_note(SPAA_line_05)
-call write_new_line_in_case_note(SPAA_line_07)
-call write_new_line_in_case_note(SPAA_line_08)
-call write_new_line_in_case_note(SPAA_line_09)
-call write_new_line_in_case_note(SPAA_line_10)
-call write_new_line_in_case_note(SPAA_line_11)
-call write_new_line_in_case_note(SPAA_line_13)
-call write_new_line_in_case_note(SPAA_line_14)
-call write_new_line_in_case_note(SPAA_line_15)
+call write_variable_in_CASE_NOTE(SPAA_line_01)
+call write_variable_in_CASE_NOTE(SPAA_line_02)
+call write_variable_in_CASE_NOTE(SPAA_line_03)
+call write_variable_in_CASE_NOTE(SPAA_line_05)
+call write_variable_in_CASE_NOTE(SPAA_line_07)
+call write_variable_in_CASE_NOTE(SPAA_line_08)
+call write_variable_in_CASE_NOTE(SPAA_line_09)
+call write_variable_in_CASE_NOTE(SPAA_line_10)
+call write_variable_in_CASE_NOTE(SPAA_line_11)
+call write_variable_in_CASE_NOTE(SPAA_line_13)
+call write_variable_in_CASE_NOTE(SPAA_line_14)
+call write_variable_in_CASE_NOTE(SPAA_line_15)
+
 Do
   EMGetCursor row, col
   If row < 17 then 
@@ -364,27 +455,56 @@ Do
     EMSendKey "<newline>"
   End if
 Loop until row = 17
+
 EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
 PF8
-call write_new_line_in_case_note(total_marital_asset_list_line_17)
-call write_new_line_in_case_note(total_marital_asset_list_line_03)
-call write_new_line_in_case_note(total_marital_asset_list_line_04)
-call write_new_line_in_case_note(total_marital_asset_list_line_05)
-call write_new_line_in_case_note(total_marital_asset_list_line_06)
-call write_new_line_in_case_note(total_marital_asset_list_line_07)
-call write_new_line_in_case_note(total_marital_asset_list_line_08)
-call write_new_line_in_case_note(total_marital_asset_list_line_09)
-call write_new_line_in_case_note(total_marital_asset_list_line_10)
-call write_new_line_in_case_note(total_marital_asset_list_line_11)
-call write_new_line_in_case_note(total_marital_asset_list_line_12)
-call write_new_line_in_case_note(total_marital_asset_list_line_13)
-call write_new_line_in_case_note(total_marital_asset_list_line_14)
-call write_new_line_in_case_note(total_marital_asset_list_line_15)
+'headers and footer
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_99)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_03)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_04)
+'1st page of total marital assets
+If total_marital_asset_list_line_10 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE (total_marital_asset_list_line_10)
+If total_marital_asset_list_line_11 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_11)
+If total_marital_asset_list_line_12 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_12)
+If total_marital_asset_list_line_13 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_13)
+If total_marital_asset_list_line_14 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_14)
+If total_marital_asset_list_line_15 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_15)
+If total_marital_asset_list_line_16 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_16)
+If total_marital_asset_list_line_17 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_17)
+If total_marital_asset_list_line_18 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_18)
+If total_marital_asset_list_line_19 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_19)
+'2nd page of the total marital asset list
+If total_marital_asset_list_line_20 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_20)
+If total_marital_asset_list_line_21 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_21)
+If total_marital_asset_list_line_22 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_22)
+If total_marital_asset_list_line_23 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_23)
+If total_marital_asset_list_line_24 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_24)
+If total_marital_asset_list_line_25 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_25)
+If total_marital_asset_list_line_26 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_26)
+If total_marital_asset_list_line_27 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_27)
+If total_marital_asset_list_line_28 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_28)
+If total_marital_asset_list_line_29 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_29)
+'3rd page of total marital asset list
+If total_marital_asset_list_line_30 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_30)
+If total_marital_asset_list_line_31 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_31)
+If total_marital_asset_list_line_32 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_32)
+If total_marital_asset_list_line_33 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_33)
+If total_marital_asset_list_line_34 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_34)
+If total_marital_asset_list_line_35 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_35)
+If total_marital_asset_list_line_36 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_36)
+If total_marital_asset_list_line_37 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_37)
+If total_marital_asset_list_line_38 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_38)
+If total_marital_asset_list_line_39 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_39)
+'4th page of total marital asset list
+If total_marital_asset_list_line_40 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_40)
+If total_marital_asset_list_line_41 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_41)
+If total_marital_asset_list_line_42 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_42)
+If total_marital_asset_list_line_43 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_43)
+If total_marital_asset_list_line_44 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_44)
+If total_marital_asset_list_line_45 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_45)
+If total_marital_asset_list_line_46 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_46)
+If total_marital_asset_list_line_47 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_47)
+If total_marital_asset_list_line_48 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_48)
+If total_marital_asset_list_line_49 <> "* ____________________  _________   _       _      _ " then Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_49)
 
 script_end_procedure("")
-
-
-
-
-
-

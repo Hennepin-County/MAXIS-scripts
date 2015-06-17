@@ -46,9 +46,24 @@ EndDialog
 
 EMConnect ""
 
-Msgbox "Warning: If you have multiple waiting SNAP results this script may be unable to find the most recent one. Please process manually."
-
-dialog dup_dlg
+'warning box
+Msgbox "Warning: If you have multiple waiting SNAP results this script may be unable to find the most recent one. Please process manually in those instances." & vbNewLine & vbNewLine &_
+		"- If this case includes members who are residing in a battered women's shelter please review approval." & vbNewLine &_
+		"- If this was an expedited case where client reported they did not receive benefits in another state please review approval" & vbNewLine &_
+		"- See CM 001.21 for more details on these two situations and how they qualify for duplicate assistance."
+		
+'the dialog
+Do	
+	Do
+		Do
+			dialog dup_dlg
+			cancel_confirmation
+			If footer_month = "" or footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
+			If case_number = "" THEN MsgBox "Please enter a case number."
+			If worker_signature = "" THEN MsgBox "Please sign your note."
+		Loop until footer_month <> "" & footer_year <> ""
+	Loop until case_number <> ""
+Loop until worker_signature <> ""
 
 'Converting dates into useable forms
 If len(footer_month) < 2 THEN footer_month = "0" & footer_month
@@ -86,6 +101,7 @@ Loop until spec_edit_check = "NOTICE"
 
 If no_fs_waiting = true then script_end_procedure("No waiting FS results were found for the requested month")
 
+'writing the WCOM
 Transmit
 PF9
 CALL write_new_line_in_SPEC_MEMO("******************************************************")
