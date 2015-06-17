@@ -569,7 +569,7 @@ If elig_date_04 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for
 If elig_date_05 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_05 & ": " & replace(elig_type_std_05, "/_", "") & ", method " & elig_method_05 & replace(", waiver type " & elig_waiver_type_05, ", waiver type _", "") & ".")
 If elig_date_06 <> "" then call write_variable_in_CASE_NOTE("* Elig type/std for " & elig_date_06 & ": " & replace(elig_type_std_06, "/_", "") & ", method " & elig_method_06 & replace(", waiver type " & elig_waiver_type_06, ", waiver type _", "") & ".")
 call write_bullet_and_variable_in_CASE_NOTE("Application date", application_date)
-If LTCC_check = 1 then call write_variable_in_CASE_NOTE("LTCC date", LTCC_date)
+If LTCC_check = 1 then call write_bullet_and_variable_in_CASE_NOTE("LTCC date", LTCC_date)
 If DHS_5181_on_file_check = 1 then call write_variable_in_CASE_NOTE("* DHS-5181 on file.")
 If DHS_1503_on_file_check = 1 then call write_variable_in_CASE_NOTE("* DHS-1503 on file.")
 If retro_months <> "" then call write_bullet_and_variable_in_CASE_NOTE("Retro request", retro_months)
