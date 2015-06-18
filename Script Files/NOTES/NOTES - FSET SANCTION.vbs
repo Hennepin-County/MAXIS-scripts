@@ -188,8 +188,9 @@ If sanction_type_droplist = "Imposing sanction" THEN
 		LOOP until agency_informed_sanction <> ""
 		If worker_signature = "" THEN MsgBox "You must sign your case note."
 	LOOP until worker_signature <> ""
-	'if worker selects to resolve a sanction, they will get this dialog 
+	'if worker selects to resolve a sanction, they will get this dialog
 	ELSE If sanction_type_droplist = "Resolving sanction" THEN
+	
 		DO
 			DO
 				DO	
@@ -206,6 +207,15 @@ If sanction_type_droplist = "Imposing sanction" THEN
 		LOOP until worker_signature <> ""
 	END IF 	
 END IF
+
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+'Next 2 lines create custom headers based on the type of sanction chosen 
+If sanction_type_droplist = "Imposing sanction" THEN 
+	Call write_variable_in_CASE_NOTE("-----Imposing SNAP sanction for " & HH_Member_Number & "effective:" & sanction_begin_date & "-----")
+
+	
+	ELSE If sanction_type_droplist = "Resolving sanction" THEN 
+		Call write_variable_in_CASE_NOTE("-----Resolving SNAP sanction for " & HH_Member_Number & "effective:" & sanction_end_date & "-----")
 
 script_end_procedure("")
 
