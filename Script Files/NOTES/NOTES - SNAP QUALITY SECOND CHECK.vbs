@@ -57,6 +57,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
 
+'DECLARING VARIABLES--------------------------------------------------------------------------------------------------------
 DIM SNAP_quality_Second_Check_dialog
 DIM ButtonPressed
 DIM case_number
@@ -85,7 +86,7 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
-'Asks for Case Number
+'Grabs case number
 CALL MAXIS_case_number_finder(case_number)
 
 DO
@@ -104,22 +105,26 @@ DO
 		If (returned_to_worker_check = 1 AND SNAP_approved_check = 1) THEN MsgBox "You must check either that the case is correct and has been approved, or an error exists."
 	LOOP UNTIL returned_to_worker_check = 1 OR SNAP_approved_check = 1
 	If (SNAP_approved_check = 1 AND grant_amount = "") THEN Msgbox "You must enter the SNAP grant amount."
-LOOP until (SNAP_approved_check = 1 AND grant_amount <> "") OR (SNAP_approved_check = 0 AND grant_amount = "") 
-	
+LOOP until (SNAP_approved_check = 1 AND grant_amount <> "") OR (SNAP_approved_check = 0 AND grant_amount = "") 	
 
 
-'Dollar bill symbol will be added to numeric variables 
+'Dollar bill symbol will be added to numeric variables (in grant_amount)
 IF grant_amount <> "" THEN grant_amount = "$" & grant_amount
+
+'Checking to make sure user is still in active MAXIS session
+check_for_MAXIS(TRUE)
 
 'The CASE NOTE----------------------------------------------------------------------------------------------------
 'navigates to and starts a new case note
 Call start_a_blank_CASE_NOTE
+'Case note if case is incorrect
 If returned_to_worker_check = 1 THEN 
 	Call write_variable_in_CASE_NOTE("~~~SNAP 2nd Check complete, further action required~~~")
 	Call write_variable_in_CASE_NOTE("* An error exists in the SNAP budget or issuance.")  
 	Call write_variable_in_CASE_NOTE("* The case has been returned to the worker and supervisor for correction.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(reviewed_by)
+	'Case note if case is correct
 	ELSE IF SNAP_approved_check = 1 THEN 
 		Call write_variable_in_CASE_NOTE("~~~SNAP 2nd Check complete & approved " & grant_amount & " SNAP grant~~~")
 		Call write_variable_in_CASE_NOTE("* SNAP budget and issuance is correct.")
