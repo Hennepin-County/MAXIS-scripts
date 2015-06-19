@@ -60,7 +60,9 @@ END IF
 DIM ButtonPressed
 DIM SNAP_sanction_type_dialog
 DIM case_number
+DIM footer_month
 DIM MAXIS_footer_month
+DIM footer_year
 DIM MAXIS_footer_year
 DIM worker_signature
 DIM sanction_type_droplist
@@ -96,53 +98,50 @@ BeginDialog SNAP_sanction_type_dialog, 0, 0, 171, 110, "SNAP Sanction type dialo
 EndDialog
 
 
-BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 351, 175, "SNAP sanction imposed dialog"
+BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 346, 160, "SNAP sanction imposed dialog"
   EditBox 95, 5, 55, 15, sanction_begin_date
   EditBox 210, 5, 20, 15, HH_Member_Number
   CheckBox 240, 10, 110, 10, "Sanctioned individual is PWE", PWE_check
   DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st  (1 month or until compiance, whichever is longer)"+chr(9)+"2nd (3 months or until compiance, whichever is longer)"+chr(9)+"3rd  (6 months or until compiance, whichever is longer)", number_of_sanction_droplist
   DropListBox 90, 45, 255, 15, "Select one..."+chr(9)+"Failed to attend SNAP overview"+chr(9)+"Failed to accept suitable employment w/o good cause"+chr(9)+"Voluntarily quit suitable employment w/o good cause"+chr(9)+"Voluntarily reduced work hours w/o good cause", sanction_reason_droplist
   EditBox 90, 65, 255, 15, other_sanction_notes
-  EditBox 135, 85, 55, 15, agency_informed_sanction
-  EditBox 260, 85, 85, 15, worker_signature
-  CheckBox 10, 110, 115, 10, "WREG panel has been updated", imposed_update_WREG_check
+  EditBox 130, 85, 50, 15, agency_informed_sanction
+  CheckBox 190, 90, 150, 10, "WREG has been updated to reflect sanction", imposed_update_WREG_check
+  EditBox 145, 105, 85, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 235, 105, 50, 15
     CancelButton 290, 105, 50, 15
   Text 5, 50, 80, 10, "Reason for the sanction:"
   Text 5, 10, 85, 10, "FSET sanction begin date:"
-  Text 5, 70, 70, 10, "Other sanction notes:"
   Text 155, 10, 50, 10, "HH Member #:"
-  Text 5, 90, 130, 10, "Date agency was informed of sanction:"
-  Text 195, 90, 60, 10, "Worker signature:"
-  Text 5, 130, 220, 40, "**Per CM 0028.30.06**   If client is PWE the ENTIRE unit is sanctioned.  If they are not the PWE, ONLY the member is sanctioned.  Also ABAWDs have until the end of the month prior to the effective date of the SNAP closing to cooperate with the SNAP E and T orientation/work requirements.  "
+  Text 5, 70, 70, 10, "Other sanction notes:"
+  Text 5, 90, 125, 10, "Date agency was notified of sanction:"
+  Text 80, 110, 60, 10, "Worker signature:"
+  Text 5, 130, 340, 25, "**Per CM 0028.30.06:  If client is PWE the ENTIRE unit is sanctioned.  If they are not the PWE, ONLY the member is sanctioned.  Also ABAWDs have until the end of the month prior to the effective date of the SNAP closing to cooperate with the SNAP E and T orientation/work requirements.  "
   Text 5, 30, 70, 10, "Number of sanctions:"
-  GroupBox 0, 125, 230, 45, ""
 EndDialog
 
 
-BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 336, 105, "SNAP sanction resolved dialog"
-  Text 150, 10, 50, 10, "HH Member #:"
+BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 336, 100, "SNAP sanction resolved dialog"
+  EditBox 90, 5, 55, 15, sanction_end_date
   EditBox 200, 5, 20, 15, resolved_HH_Member_Number
   CheckBox 230, 10, 110, 10, "Sanctioned individual is PWE", resolved_PWE_check
   DropListBox 80, 25, 250, 15, "Select one..."+chr(9)+"Member served minimum sanction & verbally agrees to comply"+chr(9)+"Member leaves the unit's home"+chr(9)+"Member becomes exempt (work registration or E & T)", sanction_resolution_droplist
-  EditBox 80, 45, 250, 15, resolved_ other_sanction_notes
-  CheckBox 15, 70, 115, 10, "WREG panel has been updated", resolved_update_WREG_check
-  EditBox 225, 65, 105, 15, worker_signature
+  EditBox 80, 45, 250, 15, resolved_other_sanction_notes
+  CheckBox 50, 65, 280, 10, "WREG panel has been updated to reflect new status (no longer 'in sanction' status)", resolved_update_WREG_check
+  EditBox 135, 80, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 225, 85, 50, 15
-    CancelButton 280, 85, 50, 15
+    OkButton 225, 80, 50, 15
+    CancelButton 280, 80, 50, 15
+  Text 150, 10, 50, 10, "HH Member #:"
   Text 5, 10, 85, 10, "FSET sanction end date: "
-  EditBox 90, 5, 55, 15, sanction_end_date
   Text 5, 50, 70, 10, "Other sanction notes:"
   Text 5, 30, 70, 10, "Sanction resolution: "
-  Text 160, 70, 60, 10, "Worker signature:"
+  Text 75, 85, 60, 10, "Worker signature:"
 EndDialog
 
 
-EndDialo
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to MAXIS
 EMConnect ""
 'Grabbing the case number
@@ -152,21 +151,25 @@ Call MAXIS_case_number_finder(case_number)
 Call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
 	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 	If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
+
 Do	
 	Do
-		Dialog SNAP_sanction_type_dialog
-		cancel_confirmation
-		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-	Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+		Do
+			Dialog SNAP_sanction_type_dialog
+			cancel_confirmation
+			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+		Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+		IF MAXIS_footer_month = "" OR MAXIS_footer_year = "" THEN MsgBox "You must enter both the footer month & footer year."
+	LOOP until (MAXIS_footer_month <> "" AND MAXIS_footer_year <> "")
 	If sanction_type_droplist = "Select one..." THEN MsgBox "You must choose to either impose or resolve the sanction."
 LOOP until sanction_type_droplist <> "Select one..."
 
-'if worker selects to impose a sanction, they will get this dialog 
+'If worker selects to impose a sanction, they will get this dialog 
 If sanction_type_droplist = "Imposing sanction" THEN
 	DO
 		DO					
@@ -188,7 +191,7 @@ If sanction_type_droplist = "Imposing sanction" THEN
 		LOOP until agency_informed_sanction <> ""
 		If worker_signature = "" THEN MsgBox "You must sign your case note."
 	LOOP until worker_signature <> ""
-	'if worker selects to resolve a sanction, they will get this dialog
+	'If worker selects to resolve a sanction, they will get this dialog
 	ELSE If sanction_type_droplist = "Resolving sanction" THEN
 	
 		DO
@@ -210,12 +213,35 @@ END IF
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Next 2 lines create custom headers based on the type of sanction chosen 
+'Case note if imposing sanction
 If sanction_type_droplist = "Imposing sanction" THEN 
-	Call write_variable_in_CASE_NOTE("-----Imposing SNAP sanction for " & HH_Member_Number & "effective:" & sanction_begin_date & "-----")
-
-	
-	ELSE If sanction_type_droplist = "Resolving sanction" THEN 
-		Call write_variable_in_CASE_NOTE("-----Resolving SNAP sanction for " & HH_Member_Number & "effective:" & sanction_end_date & "-----")
+	Call write_variable_in_CASE_NOTE("--Imposing SNAP sanction for MEMB " & HH_Member_Number & ", effective:" & sanction_begin_date & "--")
+	Call write_bullet_and_variable_in_CASE_NOTE("FSET sanction begin date:", sanction_begin_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("Household member number", HH_Member_Number)
+		If PWE_check = 1 THEN Call write_bullet_and_variable_in_CASE_NOTE("Sanctioned individual is the PWE. Entire household is sanctioned.")
+			ELSE Call write_bullet_and_variable_in_CASE_NOTE("Sanctioned individual is NOT the PWE. Only", HH_Member_Number & "is sanctioned.")
+		END IF
+	Call write_bullet_and_variable_in_CASE_NOTE("Number/occurrence of sanction", number_of_sanction_droplist)
+	Call write_bullet_and_variable_in_CASE_NOTE("Reason for sanction", sanction_reason_droplist)
+	IF other_sanction_notes <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_sanction_notes)
+	Call write_bullet_and_variable_in_CASE_NOTE("Date agency was notified of sanction", agency_informed_sanction)
+	If imposed_update_WREG_check = 1 THEN Call write_bullet_and_variable_in_CASE_NOTE ("The WREG panel has been updated to reflect sanction.")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+'Case note if resolving sanction	
+'	ELSE 
+'		IF sanction_type_droplist = "Resolving sanction" THEN 
+'		Call write_variable_in_CASE_NOTE("--Resolving SNAP sanction for MEMB " & HH_Member_Number & ", effective:" & sanction_end_date & "--")
+'		Call write_bullet_and_variable_in_CASE_NOTE("FSET sanction end date", sanction_end_date)
+'		Call write_bullet_and_variable_in_CASE_NOTE("Household member number", resolved_HH_Member_Number)
+'			If resolved_PWE_check = 1 THEN Call write_bullet_and_variable_in_CASE_NOTE("Sanctioned individual is the PWE. Entire household's sanction is resolved.")
+'				ELSE IF Call write_bullet_and_variable_in_CASE_NOTE("Sanctioned individual is NOT the PWE. Only" & HH_Member_Number & "'s sanction is resolved.")
+'			End If
+'		Call write_bullet_and_variable_in_CASE_NOTE("Sanction resolution reason", sanction_resolution_droplist)
+'		If resolved_ other_sanction_notes <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", resolved_ other_sanction_notes)
+'		If resolved_update_WREG_check = 1 THEN Call write_bullet_and_variable_in_CASE_NOTE("The WREG panel has been updated to reflect new status (no longer 'in sanction' status).")
+'		Call write_variable_in_CASE_NOTE("---")
+'		Call write_variable_in_CASE_NOTE(worker_signature)	
 
 script_end_procedure("")
 
