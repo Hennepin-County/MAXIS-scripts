@@ -55,6 +55,7 @@ If ucase(objNet.UserName) = "PWVKC45" or _
   ucase(objNet.UserName) = "VKCARY" or _
   ucase(objNet.UserName) = "RAKALB" or _
   ucase(objNet.UserName) = "CDPOTTER" or _
+  ucase(objNet.UserName) = "COURTRIGHTD" or _
   ucase(objNet.UserName) = "VKC" then 
 	inquiry_testing = MsgBox("Developer " & ucase(objNet.UserName) & " detected. Enable inquiry testing and bypass date restrictions?", vbYesNoCancel)
 End if
@@ -150,154 +151,157 @@ If revw_check = checked then
 	  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
 	For each case_number in case_number_array
 		CALL navigate_to_screen("rept", "revw")  'Reads MAGI code for each case. 
-		EMREADSCREEN MAGI_code, 4, 7, 54    
-		call navigate_to_screen("stat", "revw")
-		EMReadScreen ERRR_check, 4, 2, 52
-		If ERRR_check = "ERRR" then call navigate_to_screen("stat", "revw") 'In case of error prone cases
-		EMReadScreen cash_review_code, 1, 7, 40
-		EMReadScreen FS_review_code, 1, 7, 60
-		EMReadScreen HC_review_code, 1, 7, 73
-		If cash_review_code = "N" then cash_review_status = "closing for no renewal CAF."
-		If cash_review_code = "I" then cash_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-		If FS_review_code = "N" then 
-			EMWriteScreen "x", 5, 58
-			transmit
-			EMReadScreen recertification_date, 8, 9, 64
-			recertification_date = cdate(replace(recertification_date, " ", "/"))
-			If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
-				FS_review_document = "renewal CAF"
-			Else
-				FS_review_document = "CSR"
-			End if
-			FS_review_status = "closing for no " & FS_review_document & "."
-			transmit
-		End if
-		If FS_review_code = "I" then FS_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-		If HC_review_code = "N" then 
-			EMWriteScreen "x", 5, 71
-			transmit
-			EMReadScreen recertification_date, 8, 9, 27
-			recertification_date = cdate(replace(recertification_date, " ", "/"))
-			If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
-				HC_review_document = "renewal document"
-			Else
-				HC_review_document = "CSR"
-			End if
-			HC_review_status = "closing for no " & HC_review_document & "."
-			transmit
-		End if
-		If HC_review_code = "I" then HC_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-
-		'Checking for the active CASH program. If the case is GRH, MSA, GA, MFIP, or DWP, the client is eligible for an additional 30 day reinstatement period.
-		'If the case is RCA, the client is not eligible for an additional 30 day reinstatement period for no-or-incomplete review.
-		'For policy on the matter, see Bulletin #14-69-05 (http://www.dhs.state.mn.us/main/groups/publications/documents/pub/dhs16_185044.pdf)
-		IF cash_review_code = "N" OR cash_review_code = "I" THEN
-			EMWriteScreen "PROG", 20, 71
-			transmit
-			
-			EMReadScreen cash_status, 4, 9, 74
-			IF cash_status = "ACTV" THEN 
-				cash_prog = "GR"
-			ELSE
-				EMReadScreen cash_status, 4, 6, 74
-				IF cash_status = "ACTV" THEN
-					EMReadScreen cash_prog, 2, 6, 67
-				ELSE
-					EMReadScreen cash_status, 4, 7, 74
-					EMReadScreen cash_prog, 2, 7, 67
-				END IF
-			END IF
-			
-			IF cash_prog = "GR" OR cash_prog = "GA" OR cash_prog = "MS" OR cash_prog = "DW" OR cash_prog = "MF" THEN
-				elig_for_cash_rein = True
-			ELSEIF cash_prog = "RC" THEN
-				elig_for_cash_rein = False
-			END IF
-			
-			EMWriteScreen "REVW", 20, 71
-			transmit
-		END IF
-		
-		'---------------THIS SECTION FIGURES OUT WHEN PROGRAMS CAN TURN IN NEW RENEWALS AND WHEN THEY BECOME INTAKES AGAIN
-			EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
-			first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
-			
-		MAGI_HC_extension = "" 'This clears out the MAGI extension variable before each run through for each case.
-		If HC_review_status <> "" then	'Added additional logic as currently MAGI clients get an additonal 4 months to turn in renewal paperwork.
-			IF MAGI_code = "NONE" THEN 
-				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-				HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
-			END IF
-			IF MAGI_code = "ALL " THEN 
-				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
-				HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
-			END IF
-			IF MAGI_code = "MIXE" THEN 'MIXED HHs also get same extension for the MAGI client only, though if MAGI is reinstated they can add a person but it is technically not a reinstate.
-				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-				MAGI_HC_extension = "HH member may be eligible for MAGI renewal extension. Please refer to worker to see what documents are needed."
-				HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)	
-			END IF
-			IF HC_intake_date = "" THEN HC_intake_date = dateadd("m", 1, first_of_working_month)
-		End If
-			If FS_review_status <> "" then
-				If FS_review_code = "I" or FS_review_document = "CSR" then
-					last_day_to_turn_in_SNAP_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-					SNAP_intake_date = dateadd("m", 1, first_of_working_month)
+		EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
+		IF priv_check <> "PRIV" THEN 'Not privileged, we can go ahead and do everything
+			call navigate_to_screen("stat", "revw")
+			EMREADSCREEN MAGI_code, 4, 7, 54    
+			EMReadScreen ERRR_check, 4, 2, 52
+			If ERRR_check = "ERRR" then call navigate_to_screen("stat", "revw") 'In case of error prone cases
+			EMReadScreen cash_review_code, 1, 7, 40
+			EMReadScreen FS_review_code, 1, 7, 60
+			EMReadScreen HC_review_code, 1, 7, 73
+			If cash_review_code = "N" then cash_review_status = "closing for no renewal CAF."
+			If cash_review_code = "I" then cash_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
+			If FS_review_code = "N" then 
+				EMWriteScreen "x", 5, 58
+				transmit
+				EMReadScreen recertification_date, 8, 9, 64
+				recertification_date = cdate(replace(recertification_date, " ", "/"))
+				If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
+					FS_review_document = "renewal CAF"
 				Else
-					last_day_to_turn_in_SNAP_docs = dateadd("d", -1, first_of_working_month)
-					SNAP_intake_date = first_of_working_month
+					FS_review_document = "CSR"
 				End if
+				FS_review_status = "closing for no " & FS_review_document & "."
+				transmit
 			End if
-			If cash_review_status <> "" then
-				IF elig_for_cash_rein = True THEN
-					last_day_to_turn_in_cash_docs = dateadd("d", -1, dateadd("M", 1, first_of_working_month))
-					cash_intake_date = dateadd("M", 1, first_of_working_month)
-				ELSEIF elig_for_cash_rein = False THEN
-					last_day_to_turn_in_cash_docs = dateadd("d", -1, first_of_working_month)
-					cash_intake_date = first_of_working_month
+			If FS_review_code = "I" then FS_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
+			If HC_review_code = "N" then 
+				EMWriteScreen "x", 5, 71
+				transmit
+				EMReadScreen recertification_date, 8, 9, 27
+				recertification_date = cdate(replace(recertification_date, " ", "/"))
+				If datepart("m", recertification_date) = datepart("m", dateadd("m", 1, now)) then
+					HC_review_document = "renewal document"
+				Else
+					HC_review_document = "CSR"
+				End if
+				HC_review_status = "closing for no " & HC_review_document & "."
+				transmit
+			End if
+			If HC_review_code = "I" then HC_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
+	
+			'Checking for the active CASH program. If the case is GRH, MSA, GA, MFIP, or DWP, the client is eligible for an additional 30 day reinstatement period.
+			'If the case is RCA, the client is not eligible for an additional 30 day reinstatement period for no-or-incomplete review.
+			'For policy on the matter, see Bulletin #14-69-05 (http://www.dhs.state.mn.us/main/groups/publications/documents/pub/dhs16_185044.pdf)
+			IF cash_review_code = "N" OR cash_review_code = "I" THEN
+				EMWriteScreen "PROG", 20, 71
+				transmit
+				
+				EMReadScreen cash_status, 4, 9, 74
+				IF cash_status = "ACTV" THEN 
+					cash_prog = "GR"
+				ELSE
+					EMReadScreen cash_status, 4, 6, 74
+					IF cash_status = "ACTV" THEN
+						EMReadScreen cash_prog, 2, 6, 67
+					ELSE
+						EMReadScreen cash_status, 4, 7, 74
+						EMReadScreen cash_prog, 2, 7, 67
+					END IF
 				END IF
+				
+				IF cash_prog = "GR" OR cash_prog = "GA" OR cash_prog = "MS" OR cash_prog = "DW" OR cash_prog = "MF" THEN
+					elig_for_cash_rein = True
+				ELSEIF cash_prog = "RC" THEN
+					elig_for_cash_rein = False
+				END IF
+				
+				EMWriteScreen "REVW", 20, 71
+				transmit
+			END IF
+			
+			'---------------THIS SECTION FIGURES OUT WHEN PROGRAMS CAN TURN IN NEW RENEWALS AND WHEN THEY BECOME INTAKES AGAIN
+				EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
+				first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
+				
+			MAGI_HC_extension = "" 'This clears out the MAGI extension variable before each run through for each case.
+			If HC_review_status <> "" then	'Added additional logic as currently MAGI clients get an additonal 4 months to turn in renewal paperwork.
+				IF MAGI_code = "NONE" THEN 
+					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+					HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
+				END IF
+				IF MAGI_code = "ALL " THEN 
+					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
+					HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
+				END IF
+				IF MAGI_code = "MIXE" THEN 'MIXED HHs also get same extension for the MAGI client only, though if MAGI is reinstated they can add a person but it is technically not a reinstate.
+					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+					MAGI_HC_extension = "HH member may be eligible for MAGI renewal extension. Please refer to worker to see what documents are needed."
+					HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)	
+				END IF
+				IF HC_intake_date = "" THEN HC_intake_date = dateadd("m", 1, first_of_working_month)
+			End If
+				If FS_review_status <> "" then
+					If FS_review_code = "I" or FS_review_document = "CSR" then
+						last_day_to_turn_in_SNAP_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
+						SNAP_intake_date = dateadd("m", 1, first_of_working_month)
+					Else
+						last_day_to_turn_in_SNAP_docs = dateadd("d", -1, first_of_working_month)
+						SNAP_intake_date = first_of_working_month
+					End if
+				End if
+				If cash_review_status <> "" then
+					IF elig_for_cash_rein = True THEN
+						last_day_to_turn_in_cash_docs = dateadd("d", -1, dateadd("M", 1, first_of_working_month))
+						cash_intake_date = dateadd("M", 1, first_of_working_month)
+					ELSEIF elig_for_cash_rein = False THEN
+						last_day_to_turn_in_cash_docs = dateadd("d", -1, first_of_working_month)
+						cash_intake_date = first_of_working_month
+					END IF
+				End if
+	
+			'---------------NOW IT CASE NOTES
+			If inquiry_testing <> vbYes then
+				
+				PF4
+				PF9
+			
+				If HC_review_code = "I" or FS_review_code = "I" or cash_review_code = "I" then
+					call write_new_line_in_case_note("---Programs closing for incomplete review---")
+				Else
+					call write_new_line_in_case_note("---Programs closing for no review---")
+				End if
+				If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
+				If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
+				If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
+				If last_day_to_turn_in_cash_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
+				If last_day_to_turn_in_SNAP_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
+				If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
+				If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for cash on " & cash_intake_date & ".")
+				If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for SNAP on " & SNAP_intake_date & ".")
+				If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for HC after " & HC_intake_date & ".")
+				
+				call write_new_line_in_case_note("---")
+				call write_new_line_in_case_note(worker_signature & ", via automated script.")
+				
+			Else	'special handling for inquiry_testing (developers testing scenarios)
+				string_for_msgbox = 	"Cash: " & cash_review_status & chr(10) & _
+										"SNAP: " & FS_review_status & chr(10) & _
+										"HC: " & HC_review_status & chr(10) & _
+										"Last CASH doc date: " & last_day_to_turn_in_cash_docs & chr(10) & _
+										"CASH intake date: " & cash_intake_date & chr(10) & _
+										"Last SNAP doc date: " & last_day_to_turn_in_SNAP_docs & chr(10) & _
+										"SNAP intake date: " & SNAP_intake_date & chr(10) & _
+										"Last HC doc date: " & last_day_to_turn_in_HC_docs & chr(10) & MAGI_HC_extension & _
+										"HC intake date: " & HC_intake_date
+				debugging_MsgBox = MsgBox(string_for_msgbox, vbOKCancel)
+				If debugging_MsgBox = vbCancel then stopscript
 			End if
-
-		'---------------NOW IT CASE NOTES
-		If inquiry_testing <> vbYes then
-			
-			PF4
-			PF9
-		  
-			If HC_review_code = "I" or FS_review_code = "I" or cash_review_code = "I" then
-				call write_new_line_in_case_note("---Programs closing for incomplete review---")
-			Else
-				call write_new_line_in_case_note("---Programs closing for no review---")
-			End if
-			If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
-			If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
-			If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
-			If last_day_to_turn_in_cash_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
-			If last_day_to_turn_in_SNAP_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
-			If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
-			If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for cash on " & cash_intake_date & ".")
-			If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for SNAP on " & SNAP_intake_date & ".")
-			If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for HC after " & HC_intake_date & ".")
-			
-			call write_new_line_in_case_note("---")
-			call write_new_line_in_case_note(worker_signature & ", via automated script.")
-			
-		Else	'special handling for inquiry_testing (developers testing scenarios)
-			string_for_msgbox = 	"Cash: " & cash_review_status & chr(10) & _
-									"SNAP: " & FS_review_status & chr(10) & _
-									"HC: " & HC_review_status & chr(10) & _
-									"Last CASH doc date: " & last_day_to_turn_in_cash_docs & chr(10) & _
-									"CASH intake date: " & cash_intake_date & chr(10) & _
-									"Last SNAP doc date: " & last_day_to_turn_in_SNAP_docs & chr(10) & _
-									"SNAP intake date: " & SNAP_intake_date & chr(10) & _
-									"Last HC doc date: " & last_day_to_turn_in_HC_docs & chr(10) & MAGI_HC_extension & _
-									"HC intake date: " & HC_intake_date
-			debugging_MsgBox = MsgBox(string_for_msgbox, vbOKCancel)
-			If debugging_MsgBox = vbCancel then stopscript
-		End if
-			
-
-		'----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
+		ELSE 'This is a privileged case, we need to skip to the next one, so we won't do anything with it		
+			priv_case_list = priv_case_list & " " & case_number 'saving a list of priv cases for later.
+		END IF
+			'----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
 		first_of_working_month = ""
 		cash_review_code = ""
 		FS_review_code = ""
@@ -330,7 +334,7 @@ case_number_array = ""
 If mont_check = 1 then 
   'Navigating to MONT
   call navigate_to_screen("rept", "mont")
-
+  
   'Checking the current worker number. If it's not the selected one it will enter the selected one.
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
@@ -372,29 +376,32 @@ If mont_check = 1 then
   For each case_number in case_number_array
     'Going to the case, checking for error prone
     call navigate_to_screen("stat", "mont")
-    EMReadScreen ERRR_check, 4, 2, 52
-    If ERRR_check = "ERRR" then call navigate_to_screen("stat", "mont") 'In case of error prone cases
+	EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
+	IF priv_check <> "PRIV" THEN 'Not privileged, we can go ahead and do everything
+		EMReadScreen ERRR_check, 4, 2, 52
+		If ERRR_check = "ERRR" then call navigate_to_screen("stat", "mont") 'In case of error prone cases
 
-    'Reading the review codes, converting them to a status update for the case note
-    EMReadScreen cash_review_code, 1, 11, 43
-    EMReadScreen FS_review_code, 1, 11, 53
-    EMReadScreen GRH_review_code, 1, 11, 63
-    EMReadScreen HC_review_code, 1, 11, 73
-
-
-  '---------------NOW IT CASE NOTES
-    PF4
-    PF9
-
-    If HC_review_code = "I" or FS_review_code = "I" or GRH_review_code = "I" or cash_review_code = "I" then
-      call write_new_line_in_case_note("---Incomplete HRF---")
-    Else
-      call write_new_line_in_case_note("---HRF not provided---")
-    End if
-    call write_new_line_in_case_note("---")
-    call write_new_line_in_case_note(worker_signature & ", via automated script.")
+		'Reading the review codes, converting them to a status update for the case note
+		EMReadScreen cash_review_code, 1, 11, 43
+		EMReadScreen FS_review_code, 1, 11, 53
+		EMReadScreen GRH_review_code, 1, 11, 63
+		EMReadScreen HC_review_code, 1, 11, 73
 
 
+	  '---------------NOW IT CASE NOTES
+		PF4
+		PF9
+
+		If HC_review_code = "I" or FS_review_code = "I" or GRH_review_code = "I" or cash_review_code = "I" then
+		  call write_new_line_in_case_note("---Incomplete HRF---")
+		Else
+		  call write_new_line_in_case_note("---HRF not provided---")
+		End if
+		call write_new_line_in_case_note("---")
+		call write_new_line_in_case_note(worker_signature & ", via automated script.")
+	ELSE 'Prived case, add the case number to the list
+		priv_case_list = priv_case_list & " " & case_number
+	END IF
   
   '----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
     cash_review_code = ""
@@ -421,4 +428,5 @@ End If
 
 
 MsgBox "Success! All cases that are coded in REPT/REVW and/or REPT/MONT as either an ''N'' or an ''I'' have been case noted for why they're closing, and what documents need to get turned in."
+IF trim(priv_case_list) <> "" THEN MsgBox "Please note the following case numbers that are PRIVILEGED and could not be updated by the script.  They must be case noted manually:" & VbCr & priv_case_list
 script_end_procedure("")
