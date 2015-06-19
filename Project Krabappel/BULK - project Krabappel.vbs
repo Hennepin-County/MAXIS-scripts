@@ -1767,6 +1767,7 @@ FOR EACH case_number IN case_number_array
 	If cash_application = True then 
 		'=====DETERMINING CASH PROGRAM =========
 		'This scans CASE CURR to find what type of cash program to approve.
+	DO 'The loop brings it to a different screen and back in case this screen hasn't updated due to slow background.  Keeps checking until it finds a pending cash program.
 		call navigate_to_screen("case", "curr")
 		call find_variable("MFIP: ", MFIP_check, 7)
 		If MFIP_check = "PENDING" then cash_type = "MFIP"
@@ -1776,6 +1777,9 @@ FOR EACH case_number IN case_number_array
 		If MSA_check = "PENDING" then cash_type = "MSA"
 		call find_variable("GA: ", GA_check, 7)
 		If GA_check = "PENDING" then cash_type = "GA"
+		IF cash_type <> "" THEN EXIT DO 'no pending cash found, will leave screen and start over
+		call navigate_to_screen("TYPE", "PROG")
+	LOOP
 		
 		'========= MFIP Approval section ==============
 		If cash_type = "MFIP" then
@@ -1820,12 +1824,10 @@ FOR EACH case_number IN case_number_array
 				transmit
 				'======= This handles the WF1 referral =========
 				EMReadScreen work_screen_check, 4, 2, 51
-				msgbox work_screen_check
 					IF work_screen_check = "WORK" Then
 						work_row = 7
 						DO 
 							EMReadScreen WORK_ref_nbr, 2, work_row, 3 
-							msgbox WORK_ref_nbr
 							EMWriteScreen "x", work_row, 47
 							work_row = work_row + 1
 						LOOP UNTIL WORK_ref_nbr = "  "
@@ -1843,71 +1845,123 @@ FOR EACH case_number IN case_number_array
 		END IF
 		'============ DWP APPROVAL ====================
 		IF cash_type = "DWP" then
-			'===== Needs to send a WF1 referral before approval can be done =======
-			Call navigate_to_screen("INFC", "WORK")
-			work_row = 7
-			EMReadScreen referral_sent, 2, 7, 72
-			IF referral_sent = "  " Then 'Makes sure the referral wasn't already sent, if it was it skips this
-				DO 
-					EMReadScreen WORK_ref_nbr, 2, work_row, 3 
-					EMWriteScreen "x", work_row, 47
-					work_row = work_row + 1
-				LOOP UNTIL WORK_ref_nbr = "  "
-				transmit
-				DO 'Pulling up the ES provider screen, and choosing the first option for each member
-					EMReadScreen ES_provider_screen, 2, 2, 37
-					EMWriteScreen "x", 5, 9
+			DO 'We need to put this all in a loop because MAXIS likes to have an error at the end that causes us to start over.
+				'===== Needs to send a WF1 referral before approval can be done =======
+				Call navigate_to_screen("INFC", "WORK")
+				work_row = 7
+				EMReadScreen referral_sent, 2, 7, 72
+				IF referral_sent = "  " Then 'Makes sure the referral wasn't already sent, if it was it skips this
+					DO 
+						EMReadScreen WORK_ref_nbr, 2, work_row, 3 
+						EMWriteScreen "x", work_row, 47
+						work_row = work_row + 1
+					LOOP UNTIL WORK_ref_nbr = "  "
 					transmit
-				LOOP UNTIL ES_provider_screen <> "ES"
-				transmit 'This transmit pulls up the "do you want to send" box
-				DO
-					EMReadScreen referral, 8, 11, 48
-				LOOP UNTIL referral = "Referral"
-				EMWriteScreen "Y", 11, 64
-				transmit
-			END IF
-			'Now it starts doing the approval
-			DO			
-				back_to_SELF
-				EMWriteScreen "ELIG", 16, 43
-				EMWriteScreen case_number, 18, 43
-				EMWriteScreen appl_date_month, 20, 43
-				EMWriteScreen appl_date_year, 20, 46
-				EMWriteScreen "DWP", 21, 70
-				'========== This TRANSMIT sends the case to the DWPR screen ==========
-				transmit
-				EMReadScreen no_version, 10, 24, 2
-			LOOP UNTIL no_version <> "NO VERSION"
-			EMReadScreen is_case_approved, 10, 3, 3
-			IF is_case_approved <> "UNAPPROVED" THEN
-				back_to_SELF
-			ELSE
-				EMWriteScreen "DWSM", 20, 71
-				transmit
-				DO
-				EMWriteScreen "APP", 20, 71 
-				transmit
-					EMReadScreen not_allowed, 11, 24, 18 '<========  need to check these locations
-					EMReadScreen locked_by_background, 6, 24, 19 '<============= need to check location
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" 
-				'====== Now on vendor payment screen, the script does not set up any vendoring. ======
-				'====== This loop takes it through vendor screens for all months in package =====
-				DO
-					PF3
-					EMReadScreen approval_screen, 8, 15, 60
-					IF approval_screen = "approval" Then
-						EMWriteScreen "Y", 16, 51 'Approve the package
+					DO 'Pulling up the ES provider screen, and choosing the first option for each member
+						EMReadScreen ES_provider_screen, 2, 2, 37
+						EMWriteScreen "x", 5, 9
 						transmit
+					LOOP UNTIL ES_provider_screen <> "ES"
+					transmit 'This transmit pulls up the "do you want to send" box
+					DO
+						EMReadScreen referral, 8, 11, 48
+					LOOP UNTIL referral = "Referral"
+					EMWriteScreen "Y", 11, 64
+					transmit
+				END IF
+				'Now it starts doing the approval
+				DO			
+					back_to_SELF
+					EMWriteScreen "ELIG", 16, 43
+					EMWriteScreen case_number, 18, 43
+					EMWriteScreen appl_date_month, 20, 43
+					EMWriteScreen appl_date_year, 20, 46
+					EMWriteScreen "DWP", 21, 70
+					'========== This TRANSMIT sends the case to the DWPR screen ==========
+					transmit
+					EMReadScreen no_version, 10, 24, 2
+				LOOP UNTIL no_version <> "NO VERSION"
+				EMReadScreen is_case_approved, 10, 3, 3
+				IF is_case_approved <> "UNAPPROVED" THEN
+					back_to_SELF
+				ELSE
+					EMWriteScreen "DWSM", 20, 71
+					transmit
+					DO
+					EMWriteScreen "APP", 20, 71 
+					transmit
+						EMReadScreen not_allowed, 11, 24, 18 
+						EMReadScreen locked_by_background, 6, 24, 19 
+					LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" 
+					'====== Now on vendor payment screen, the script does not set up any vendoring. ======
+					'====== This loop takes it through vendor screens for all months in package, and scans the screen for the various package popups  =====
+					'====== and REI screens.  It will exit the loop upon finding a final approval screen. ========
+					DO
+						PF3 'bypasses current month vendor screen
+						EMReadScreen approval_screen, 8, 15, 60 'This checks for standard DWP approval
+						IF approval_screen = "approval" Then 
+							EMWriteScreen "Y", 16, 51 'Approve the package
+							transmit
+							transmit
+							EXIT DO
+						END IF
+						'Now it needs check if an REI screen has popped up, and handle it
+						row = 1
+						col = 1
+						EMSearch "REI", row, col
+						IF row <> 0 THEN
+							rei_row = 6
+							rei_col = 8
+							DO 'Need to find all REI options and answer them
+								EMSearch "(Y/N)", rei_row, rei_col
+								EMWriteScreen "N", rei_row, rei_col + 7
+								rei_row = rei_row +1
+							LOOP UNTIL rei_row = 1 'this exits when no more instances of y/n found
+							transmit 'This should return back to the vendor screen / trigger next popup
+						END IF
+						'The next series of IFs are checking for further package approvals, for MFIP transition
+						EMReadScreen HRF_check, 3, 11, 50 'Needs to check for the HRF popup, in the case of DWP - MFIP transition
+						IF HRF_check = "HRF" THEN
+							EMWriteScreen "N", 12, 54
+							Transmit
+						END IF
+						'This checks for the final package approval if in a combined DWP / MFIP screen
+						EMReadScreen combined_package_check, 7, 4, 59
+						IF combined_package_check = "PACKAGE" THEN
+							DO 'This gets to the last screen of the package
+								EMReadScreen next_screen_check, 1, 14, 33
+								IF next_screen_check = "+" THEN PF8
+							LOOP UNTIL next_screen_check <> "+"
+							EMWriteScreen "Y", 16, 51
+							Transmit
+							Transmit
+							EXIT DO
+						END IF					
+					LOOP 	
+					'Now it needs to handle the possibility of additional WF1 referrals due to combined package
+					EMReadScreen work_screen_check, 4, 2, 51
+					EMReadScreen back_to_ELIG_check, 4, 2, 52
+					IF back_to_ELIG_check = "ELIG" THEN EXIT DO
+					IF work_screen_check = "WORK" Then
+						work_row = 7
+						DO 
+							EMReadScreen WORK_ref_nbr, 2, work_row, 3 
+							EMWriteScreen "x", work_row, 47
+							work_row = work_row + 1
+						LOOP UNTIL WORK_ref_nbr = "  "
+						transmit
+						DO 'Pulling up the ES provider screen, and choosing the first option for each member
+						EMReadScreen ES_provider_screen, 2, 2, 37
+						EMWriteScreen "x", 5, 9
+						transmit
+						LOOP UNTIL ES_provider_screen <> "ES"
+						transmit 
 						transmit
 						EXIT DO
-					END IF
-					EMReadScreen REI_screen_check, 3, 8, 13 
-					IF REI_screen_check = "REI" THEN
-						EMWriteScreen "N", 11, 49 'says no to REI and moves on to next month
-						transmit
-					END IF
-				LOOP 
-			END IF
+					END If
+					IF work_screen_check = "r   " THEN transmit
+				END IF
+			LOOP
 		END IF
 		'========= MSA Approval =======================
 		IF cash_type = "MSA" Then
