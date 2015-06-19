@@ -97,14 +97,15 @@ DO
 					cancel_confirmation
 					IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
 				LOOP UNTIL IsNumeric(case_number) = TRUE
-					If (returned_to_worker_check = 0 AND SNAP_approved_check = 0) THEN MsgBox "You must check either that the case is correct and has been approved, or an error exists."
-				LOOP UNTIL (returned_to_worker_check = 1 AND SNAP_approved_check = 0) OR (returned_to_worker_check = 0 AND SNAP_approved_check = 1)
-				If (returned_to_worker_check = 1 AND SNAP_approved_check = 1) THEN MsgBox "You must check either that the case is correct and has been approved, or an error exists."
-			LOOP UNTIL (returned_to_worker_check = 1 AND SNAP_approved_check = 0) OR (returned_to_worker_check = 0 AND SNAP_approved_check = 1)
-		If (SNAP_approved_check = 1 AND grant_amount = "") THEN Msgbox "You must enter the SNAP grant amount."
-	LOOP until (SNAP_approved_check <> "" AND grant_amount <> "") OR (SNAP_approved_check = "" AND grant_amount = "") 
-	If reviewed_by = "" THEN MsgBox "You must sign the case note."
-LOOP until reviewed_by <> ""
+				If reviewed_by = "" THEN MsgBox "You must sign the case note."
+			LOOP until reviewed_by <> ""
+			If (returned_to_worker_check = 0 AND SNAP_approved_check = 0) THEN MsgBox "You must check either that the case is correct and has been approved, or an error exists."
+		LOOP UNTIL returned_to_worker_check = 1 OR SNAP_approved_check = 1
+		If (returned_to_worker_check = 1 AND SNAP_approved_check = 1) THEN MsgBox "You must check either that the case is correct and has been approved, or an error exists."
+	LOOP UNTIL returned_to_worker_check = 1 OR SNAP_approved_check = 1
+	If (SNAP_approved_check = 1 AND grant_amount = "") THEN Msgbox "You must enter the SNAP grant amount."
+LOOP until (SNAP_approved_check = 1 AND grant_amount <> "") OR (SNAP_approved_check = 0 AND grant_amount = "") 
+	
 
 
 'Dollar bill symbol will be added to numeric variables 
@@ -114,12 +115,13 @@ IF grant_amount <> "" THEN grant_amount = "$" & grant_amount
 'navigates to and starts a new case note
 Call start_a_blank_CASE_NOTE
 If returned_to_worker_check = 1 THEN 
-	Call write_variable_in_CASE_NOTE("~~~~~SNAP Second Check complete~~~~~")
-	Call write_variable_in_CASE_NOTE("* An error exists, and the case has been returned to the worker and supervisor for corrections/updates.")
+	Call write_variable_in_CASE_NOTE("~~~SNAP 2nd Check complete, further action required~~~")
+	Call write_variable_in_CASE_NOTE("* An error exists in the SNAP budget or issuance.")  
+	Call write_variable_in_CASE_NOTE("* The case has been returned to the worker and supervisor for correction.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(reviewed_by)
 	ELSE IF SNAP_approved_check = 1 THEN 
-		Call write_variable_in_CASE_NOTE("~~~~~SNAP Second Check complete & approved " & grant_amount & " SNAP grant~~~~~")
+		Call write_variable_in_CASE_NOTE("~~~SNAP 2nd Check complete & approved " & grant_amount & " SNAP grant~~~")
 		Call write_variable_in_CASE_NOTE("* SNAP budget and issuance is correct.")
 		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE(reviewed_by)
