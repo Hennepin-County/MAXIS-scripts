@@ -99,27 +99,29 @@ EndDialog
 
 
 BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 346, 160, "SNAP sanction imposed dialog"
-  EditBox 95, 5, 55, 15, sanction_begin_date
-  EditBox 210, 5, 20, 15, HH_Member_Number
-  CheckBox 240, 10, 110, 10, "Sanctioned individual is PWE", PWE_check
-  DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st  (1 month or until compiance, whichever is longer)"+chr(9)+"2nd (3 months or until compiance, whichever is longer)"+chr(9)+"3rd  (6 months or until compiance, whichever is longer)", number_of_sanction_droplist
-  DropListBox 90, 45, 255, 15, "Select one..."+chr(9)+"Failed to attend SNAP overview"+chr(9)+"Failed to accept suitable employment w/o good cause"+chr(9)+"Voluntarily quit suitable employment w/o good cause"+chr(9)+"Voluntarily reduced work hours w/o good cause", sanction_reason_droplist
-  EditBox 90, 65, 255, 15, other_sanction_notes
-  EditBox 130, 85, 50, 15, agency_informed_sanction
+  Text 5, 50, 80, 10, "Reason for the sanction:"
+  Text 5, 10, 85, 10, "FSET sanction begin date:"
+  Text 5, 90, 125, 10, "Date agency was notified of sanction:"
+  Text 155, 10, 50, 10, "HH Member #:"
+  Text 80, 110, 60, 10, "Worker signature:"
+  Text 5, 130, 340, 25, "**Per CM 0028.30.06:  If client is PWE the ENTIRE unit is sanctioned.  If they are not the PWE, ONLY the member is sanctioned.  Also ABAWDs have until the end of the month prior to the effective date of the SNAP closing to cooperate with the SNAP E and T orientation/work requirements.  "
+  Text 5, 30, 70, 10, "Number of sanctions:"
   CheckBox 190, 90, 150, 10, "WREG has been updated to reflect sanction", imposed_update_WREG_check
   EditBox 145, 105, 85, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 235, 105, 50, 15
     CancelButton 290, 105, 50, 15
-  Text 5, 50, 80, 10, "Reason for the sanction:"
-  Text 5, 10, 85, 10, "FSET sanction begin date:"
-  Text 155, 10, 50, 10, "HH Member #:"
+  EditBox 95, 5, 55, 15, sanction_begin_date
+  EditBox 210, 5, 20, 15, HH_Member_Number
   Text 5, 70, 70, 10, "Other sanction notes:"
-  Text 5, 90, 125, 10, "Date agency was notified of sanction:"
-  Text 80, 110, 60, 10, "Worker signature:"
-  Text 5, 130, 340, 25, "**Per CM 0028.30.06:  If client is PWE the ENTIRE unit is sanctioned.  If they are not the PWE, ONLY the member is sanctioned.  Also ABAWDs have until the end of the month prior to the effective date of the SNAP closing to cooperate with the SNAP E and T orientation/work requirements.  "
-  Text 5, 30, 70, 10, "Number of sanctions:"
+  DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st  (1 month or until compiance, whichever is longer)"+chr(9)+"2nd (3 months or until compiance, whichever is longer)"+chr(9)+"3rd  (6 months or until compiance, whichever is longer)", number_of_sanction_droplist
+  CheckBox 240, 10, 110, 10, "Sanctioned individual is PWE", PWE_check
+  DropListBox 90, 45, 255, 15, "Select one..."+chr(9)+"Failed to comply with SNAP E&T requirements"+chr(9)+"Failed to accept suitable employment w/o good cause"+chr(9)+"Voluntarily quit suitable employment w/o good cause"+chr(9)+"Voluntarily reduced work hours w/o good cause", sanction_reason_droplist
+  EditBox 90, 65, 255, 15, other_sanction_notes
+  EditBox 130, 85, 50, 15, agency_informed_sanction
 EndDialog
+
+
 
 
 BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 336, 100, "SNAP sanction resolved dialog"
