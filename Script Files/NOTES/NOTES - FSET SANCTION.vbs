@@ -56,7 +56,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
-
+'SNAP_sanction_type_droplist dialog and common variables
 DIM ButtonPressed
 DIM SNAP_sanction_type_dialog
 DIM case_number
@@ -66,24 +66,29 @@ DIM footer_year
 DIM MAXIS_footer_year
 DIM worker_signature
 DIM sanction_type_droplist
+'SNAP_sanction_imposed_dialog
 DIM SNAP_sanction_imposed_dialog
+DIM sanction_begin_date
 DIM HH_Member_Number
 DIM PWE_check
 DIM number_of_sanction_droplist
 DIM sanction_reason_droplist
 DIM other_sanction_notes
 DIM agency_informed_sanction
-DIM sanction_begin_date
-DIM imposed_update_WREG_check
+DIM WREG_sanction_droplist
+'SNAP_sanction_resolved_dialog
 DIM SNAP_sanction_resolved_dialog
+DIM sanction_end_date
 DIM resolved_HH_Member_Number
 DIM resolved_PWE_check
-DIM sanction_resolution_droplist
-DIM resolved_other_sanction_notes
-DIM sanction_end_date
-DIM resolved_update_WREG_check
+DIM sanction_resolved_reason_droplist
+DIM other_resolved_sanction_notes
+DIM ABAWD_status_droplist
+DIM Exempt_FSET_WREG_droplist
+DIM Exempt_FSET_WREG_droplist
 
 
+'The DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_sanction_type_dialog, 0, 0, 171, 110, "SNAP Sanction type dialog					"
   EditBox 65, 10, 65, 15, case_number
   EditBox 65, 30, 30, 15, MAXIS_footer_month
@@ -98,46 +103,55 @@ BeginDialog SNAP_sanction_type_dialog, 0, 0, 171, 110, "SNAP Sanction type dialo
 EndDialog
 
 
-BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 346, 160, "SNAP sanction imposed dialog"
-  Text 5, 50, 80, 10, "Reason for the sanction:"
-  Text 5, 10, 85, 10, "FSET sanction begin date:"
-  Text 5, 90, 125, 10, "Date agency was notified of sanction:"
-  Text 155, 10, 50, 10, "HH Member #:"
-  Text 80, 110, 60, 10, "Worker signature:"
-  Text 5, 130, 340, 25, "**Per CM 0028.30.06:  If client is PWE the ENTIRE unit is sanctioned.  If they are not the PWE, ONLY the member is sanctioned.  Also ABAWDs have until the end of the month prior to the effective date of the SNAP closing to cooperate with the SNAP E and T orientation/work requirements.  "
-  Text 5, 30, 70, 10, "Number of sanctions:"
-  CheckBox 190, 90, 150, 10, "WREG has been updated to reflect sanction", imposed_update_WREG_check
-  EditBox 145, 105, 85, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 235, 105, 50, 15
-    CancelButton 290, 105, 50, 15
+BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 351, 170, "SNAP sanction imposed dialog"
   EditBox 95, 5, 55, 15, sanction_begin_date
   EditBox 210, 5, 20, 15, HH_Member_Number
-  Text 5, 70, 70, 10, "Other sanction notes:"
-  DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st (1 month or until compiance, whichever is longer)"+chr(9)+"2nd (3 months or until compiance, whichever is longer)"+chr(9)+"3rd (6 months or until compiance, whichever is longer)", number_of_sanction_droplist
   CheckBox 240, 10, 110, 10, "Sanctioned individual is PWE", PWE_check
+  DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st  (1 month or until compiance, whichever is longer)"+chr(9)+"2nd (3 months or until compiance, whichever is longer)"+chr(9)+"3rd  (6 months or until compiance, whichever is longer)", number_of_sanction_droplist
   DropListBox 90, 45, 255, 15, "Select one..."+chr(9)+"Failed to comply with SNAP E&T requirements"+chr(9)+"Failed to accept suitable employment w/o good cause"+chr(9)+"Voluntarily quit suitable employment w/o good cause"+chr(9)+"Voluntarily reduced work hours w/o good cause", sanction_reason_droplist
   EditBox 90, 65, 255, 15, other_sanction_notes
-  EditBox 130, 85, 50, 15, agency_informed_sanction
+  EditBox 90, 85, 50, 15, agency_informed_sanction
+  DropListBox 230, 85, 115, 15, "Select one..."+chr(9)+"02  Fail To Cooperate With FSET "+chr(9)+"33  Non-Coop Being Referred", WREG_sanction_droplist
+  EditBox 150, 105, 85, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 240, 105, 50, 15
+    CancelButton 295, 105, 50, 15
+  Text 5, 10, 85, 10, "FSET sanction begin date:"
+  Text 5, 70, 70, 10, "Other sanction notes:"
+  Text 155, 10, 50, 10, "HH Member #:"
+  Text 5, 90, 85, 10, "Notified of sanction date:"
+  Text 85, 110, 60, 10, "Worker signature:"
+  Text 5, 135, 340, 25, "If client is PWE the ENTIRE unit is sanctioned.  If they are not the PWE, ONLY the member is sanctioned.  Also ABAWDs have until the end of the month prior to the effective date of the SNAP closing to cooperate with the SNAP E and T orientation/work requirements.  "
+  Text 5, 30, 70, 10, "Number of sanctions:"
+  Text 145, 90, 80, 10, "Sanction WREG status:"
+  Text 5, 50, 80, 10, "Reason for the sanction:"
+  GroupBox 0, 125, 350, 40, "Per CM.0028.30.03"
 EndDialog
 
 
-BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 336, 100, "SNAP sanction resolved dialog"
-  EditBox 90, 5, 55, 15, sanction_end_date
-  EditBox 200, 5, 20, 15, resolved_HH_Member_Number
-  CheckBox 230, 10, 110, 10, "Sanctioned individual is PWE", resolved_PWE_check
-  DropListBox 80, 25, 250, 15, "Select one..."+chr(9)+"Member served minimum sanction & verbally agrees to comply"+chr(9)+"Member leaves the unit's home"+chr(9)+"Member becomes exempt(work registration or E&T)", sanction_resolution_droplist
-  EditBox 80, 45, 250, 15, resolved_other_sanction_notes
-  CheckBox 50, 65, 280, 10, "WREG panel has been updated to reflect new status (no longer 'in sanction' status)", resolved_update_WREG_check
-  EditBox 135, 80, 85, 15, worker_signature
+BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 185, "SNAP sanction resolved dialog"
+  EditBox 90, 10, 55, 15, sanction_end_date
+  EditBox 200, 10, 20, 15, resolved_HH_Member_Number
+  CheckBox 230, 15, 110, 10, "Sanctioned individual is PWE", resolved_PWE_check
+  DropListBox 80, 30, 255, 15, "Select one..."+chr(9)+"Member served minimum sanction & verbally agrees to comply"+chr(9)+"Member leaves the unit's home"+chr(9)+"Member becomes exempt (work registration or E & T)", sanction_resolved_reason_droplist
+  EditBox 80, 50, 255, 15, other_resolved_sanction_notes
+  DropListBox 80, 70, 255, 15, "Select one..."+chr(9)+"01 Work Reg Exmpt"+chr(9)+"02 Under Age 18  "+chr(9)+"03 Age 50 Or Over"+chr(9)+"04 Caregiver Of  Minor Child   "+chr(9)+"05 Pregnant      "+chr(9)+"06 Employed Avg Of 20 Hrs/Wk  "+chr(9)+"07 Wrk Experience Participant   "+chr(9)+"08 Other E & T Services"+chr(9)+"09 Resides In A Waivered Area "+chr(9)+"10 ABAWD Counted Month         "+chr(9)+"11 2nd-3rd Month Period Of Elig"+chr(9)+"12 RCA Or GA Recipient     "+chr(9)+"13 ABAWD Extension", ABAWD_status_droplist
+  DropListBox 135, 115, 200, 15, "Select one..."+chr(9)+"03 Temp/Perm Incap (Min 30 Days)"+chr(9)+"04  Responsible For Care Incap HH MEMB *"+chr(9)+"05 Age 60 or older"+chr(9)+"06 Under age 16"+chr(9)+"07 Age 16-17 living w/ parent/caregiver"+chr(9)+"08 Resp for care of child <6 *"+chr(9)+"09 Empl 30 hr/wk or earining = to min wage x 30 hr/wk"+chr(9)+"10 Matching grant participant"+chr(9)+"11 Receiving or applied for unemployment"+chr(9)+"12 Enrolled in school, training program or higher education"+chr(9)+"13 Participating In CD Program"+chr(9)+"14 Receiving MFIP"+chr(9)+"20 Pending/Receiving DWP Or WB"+chr(9)+"22 Applied for SSI", Exempt_FSET_WREG_droplist
+  DropListBox 135, 135, 200, 15, "Select one..."+chr(9)+"15  Age 16-17 Not Lvg W/Pare/Crgvr"+chr(9)+"16  50-59 years old"+chr(9)+"21  Resp For Care Of Child < 18"+chr(9)+"17  Receiving RCA Or GA"+chr(9)+"18  Providing In-Home Schooling"+chr(9)+"30  Mandatory FSET participant", mandatory_WREG_exempt_FSET_droplist
+  EditBox 140, 165, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 225, 80, 50, 15
-    CancelButton 280, 80, 50, 15
-  Text 150, 10, 50, 10, "HH Member #:"
-  Text 5, 10, 85, 10, "FSET sanction end date: "
-  Text 5, 50, 70, 10, "Other sanction notes:"
-  Text 5, 30, 70, 10, "Sanction resolution: "
-  Text 75, 85, 60, 10, "Worker signature:"
+    OkButton 230, 165, 50, 15
+    CancelButton 285, 165, 50, 15
+  Text 5, 55, 70, 10, "Other sanction notes:"
+  Text 5, 70, 55, 10, "ABAWD Status:"
+  Text 5, 15, 80, 10, "FSET sanction end date: "
+  Text 75, 170, 60, 10, "Worker signature:"
+  Text 150, 15, 50, 10, "HH Member #:"
+  Text 5, 120, 90, 10, "Exempt from FSET/WREG:"
+  Text 5, 140, 125, 10, "Mandatory WREG, FSET (non)exempt:"
+  Text 5, 35, 70, 10, "Sanction resolution: "
+  GroupBox 0, 0, 340, 90, ""
+  GroupBox 0, 100, 340, 60, "New FSET/WREG status, complete the one of the two sections that applies to the member's status"
 EndDialog
 
 
@@ -156,7 +170,6 @@ If row <> 0 then
 End if
 
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
-
 Do	
 	Do	
 		Do
@@ -176,45 +189,59 @@ If sanction_type_droplist = "Imposing sanction" THEN
 				DO 			
 					DO
 						DO
-							dialog SNAP_sanction_imposed_dialog
-							cancel_confirmation
-							If sanction_begin_date = "" THEN MsgBox "You must enter the date the sanction begins."
-						LOOP until sanction_begin_date <> ""
-						If HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
-					LOOP until HH_Member_Number <> ""
-					If number_of_sanction_droplist = "Select one..." THEN MsgBox "You must choose the number of sanctions."
-				LOOP until number_of_sanction_droplist <> "Select one..."
-				If sanction_reason_droplist = "Select one..." THEN MsgBox "You must choose the reason for the sanction."
-			LOOP until sanction_reason_droplist <> "Select one..."
-			If agency_informed_sanction = "" THEN MsgBox "You must enter the date the agency was informed of the sanction."
-		LOOP until agency_informed_sanction <> ""
+							Do
+								dialog SNAP_sanction_imposed_dialog
+								cancel_confirmation
+								If sanction_begin_date = "" THEN MsgBox "You must enter the date the sanction begins."
+							LOOP until sanction_begin_date <> ""
+							If HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
+						LOOP until HH_Member_Number <> ""
+						If number_of_sanction_droplist = "Select one..." THEN MsgBox "You must choose the number of sanctions."
+					LOOP until number_of_sanction_droplist <> "Select one..."
+					If sanction_reason_droplist = "Select one..." THEN MsgBox "You must choose the reason for the sanction."
+				LOOP until sanction_reason_droplist <> "Select one..."
+				If agency_informed_sanction = "" THEN MsgBox "You must enter the date the agency was informed of the sanction."
+			LOOP until agency_informed_sanction <> ""
+			If WREG_sanction_droplist = "Select one..." THEN MsgBox "You must choose the number of sanctions."
+		LOOP until WREG_sanction_droplist <> "Select one..."
 		If worker_signature = "" THEN MsgBox "You must sign your case note."
 	LOOP until worker_signature <> ""
 'If worker selects to resolve a sanction, they will get this dialog
 	ELSE If sanction_type_droplist = "Resolving sanction" THEN	
 		DO
-			DO
-				DO	
-					DO
-						dialog SNAP_sanction_resolved_dialog
-						cancel_confirmation
-						If sanction_end_date = "" THEN MsgBox "You must enter the date the sanction ends."
-					LOOP until sanction_end_date <> ""
-					If resolved_HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
-				LOOP until resolved_HH_Member_Number <> ""
-				If sanction_resolution_droplist = "Select one..." THEN MsgBox "You must choose the reason the sanction has been resolved."
-			LOOP until sanction_resolution_droplist <> "Select one..."
-			If worker_signature = "" THEN MsgBox "You must sign your case note."
-		LOOP until worker_signature <> ""
+			Do
+				DO
+					DO	
+						DO
+							DO
+								dialog SNAP_sanction_resolved_dialog
+								cancel_confirmation
+								If sanction_end_date = "" THEN MsgBox "You must enter the date the sanction ends."
+							LOOP until sanction_end_date <> ""
+							If resolved_HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
+						LOOP until resolved_HH_Member_Number <> ""
+						If sanction_resolved_reason_droplist = "Select one..." THEN MsgBox "You must choose the reason the sanction has been resolved."
+					LOOP until sanction_resolved_reason_droplist <> "Select one..."
+					If ABAWD_status_droplist = "Select one..." THEN MsgBox "You must choose the reason the sanction has been resolved."
+				LOOP until ABAWD_status_droplist <> "Select one..."
+				If worker_signature = "" THEN MsgBox "You must sign your case note."
+			LOOP until worker_signature <> ""
+			If (Exempt_FSET_WREG_droplist <> "Select one..." AND mandatory_WREG_exempt_FSET_droplist <> "Select one...") OR _
+		   (Exempt_FSET_WREG_droplist = "Select one..." AND mandatory_WREG_exempt_FSET_droplist = "Select one...") THEN MsgBox "You must select only one of the options for the new FSET/WREG status."
+		LOOP until Exempt_FSET_WREG_droplist = "Select one..." AND mandatory_WREG_exempt_FSET_droplist <> "Select one...") OR (Exempt_FSET_WREG_droplist <> "Select one..." AND mandatory_WREG_exempt_FSET_droplist = "Select one...")
 	END IF 	
 END If
 
 
-'Logic to have full policy verbiage in the case note (droplist could not support full policy verbiage)
-IF sanction_resolution_droplist = "Member served minimum sanction & verbally agrees to comply" THEN sanction_resolution_droplist = "Member served the minimum sanction period, and verbally agrees to comply with SNAP E&T during the SNAP application process." 
+'ACTIONS: updating the WREG panel
+
+
 
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
+'Logic to have full policy verbiage in the case note (droplist could not support full policy verbiage)
+IF sanction_resolution_droplist = "Member served minimum sanction & verbally agrees to comply" THEN sanction_resolution_droplist = "Member served the minimum sanction period, and verbally agrees to comply with SNAP E&T during the SNAP application process." 
+
 Call MAXIS_background_check
 Call start_a_blank_CASE_NOTE
 'Next 2 lines create custom headers based on the type of sanction chosen 
@@ -247,5 +274,5 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	END IF	
 END IF
 
-script_end_procedure("")
+script_end_procedure("Success, your case note been made, and the WREG panel updated.  Remember to approve your new results, and check your notice for accuracy.")
 
