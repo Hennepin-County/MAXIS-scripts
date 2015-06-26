@@ -68,6 +68,7 @@ DIM worker_signature
 DIM sanction_type_droplist
 DIM ABAWD_status_check
 DIM FSET_work_reg_status_check
+DIM WREG_MEMB_check
 'SNAP_sanction_imposed_dialog
 DIM SNAP_sanction_imposed_dialog
 DIM sanction_begin_date
@@ -320,28 +321,45 @@ Call MAXIS_background_check
 'Updates WREG if sanction is imposed
 If sanction_type_droplist = "Imposing sanction" THEN 
 		Call navigate_to_MAXIS_screen("STAT", "WREG")
-		PF9
-		EMWriteScreen WREG_sanction_droplist, 8, 50
-		Call create_MAXIS_friendly_date(sanction_begin_date, 0, 10, 50)
-		EMWriteScreen number_of_sanction_droplist, 11, 50
-		EMWriteScreen "N", 8, 80
+		EMWriteScreen HH_Member_Number, 20, 76
+		transmit
+		EMReadScreen WREG_MEMB_check, 7, 12, 2
+		IF WREG_MEMB_check = "REFERE" or "MEMBER " THEN MsgBox "The member number that you entered is not valid.  Please check the member number, and start the script again." 
+		STOPSCRIPT
+		ELSE 
+			PF9
+			EMWriteScreen WREG_sanction_droplist, 8, 50
+			Call create_MAXIS_friendly_date(sanction_begin_date, 0, 10, 50)
+			EMWriteScreen number_of_sanction_droplist, 11, 50
+			EMWriteScreen "_", 8, 80
+		END IF
 	'Updates WREG if sanction is resolved	
 	ELSEIF sanction_type_droplist = "Resolving sanction" THEN
 		Call navigate_to_MAXIS_screen("STAT", "WREG")
-		PF9
-		IF Exempt_FSET_WREG_droplist <> "Select one..." THEN EMWriteScreen Exempt_FSET_WREG_droplist, 8, 50
-		IF mandatory_WREG_exempt_FSET_droplist <> "Select one..." THEN EMWriteScreen mandatory_WREG_exempt_FSET_droplist, 8, 50
-		If FSET_orientation_date <> "" THEN Call create_MAXIS_friendly_date(FSET_orientation_date, 0, 9, 50)
-		EMWriteScreen "______", 10, 50 'deletes out the sanction date
-		'updating the Defer FSET/No Funds (Y/N) field on WREG
-		EMReadScreen FSET_work_reg_status_check, 2, 8, 50
-		EMReadScreen ABAWD_status_check, 2, 13, 50
-		IF ABAWD_status_check = "30" THEN EMWriteScreen "N", 8, 80
-		IF ABAWD_status_check = "05" THEN EMWriteScreen "Y", 8, 80
-		IF ABAWD_status_check = "15" THEN EMWriteScreen "Y", 8, 80
-			ELSE EMWriteScreen "_", 8, 80
-		END IF  
-		EMWriteScreen ABAWD_status_droplist, 13, 50
-		If GA_basis_droplist <> "Select one..." THEN EMWritescreen GA_basis_droplist, 15, 50	
+		'checking to make sure HH MEMB is valid
+		EMWriteScreen resolved_HH_Member_Number, 20, 76
+		transmit
+		EMReadScreen WREG_MEMB_check, 7, 12, 2
+		IF WREG_MEMB_check = "REFERE" or "MEMBER " THEN MsgBox "The member number that you entered is not valid.  Please check the member number, and start the script again." 
+			STOPSCRIPT 
+		ELSE 
+			PF9
+			IF Exempt_FSET_WREG_droplist <> "Select one..." THEN EMWriteScreen Exempt_FSET_WREG_droplist, 8, 50
+			IF mandatory_WREG_exempt_FSET_droplist <> "Select one..." THEN EMWriteScreen mandatory_WREG_exempt_FSET_droplist, 8, 50
+			If FSET_orientation_date <> "" THEN Call create_MAXIS_friendly_date(FSET_orientation_date, 0, 9, 50)
+			EMWriteScreen "______", 10, 50 'deletes out the sanction date	
+			'updating the Defer FSET/No Funds (Y/N) field on WREG
+			EMReadScreen FSET_work_reg_status_check, 2, 8, 50
+			EMReadScreen ABAWD_status_check, 2, 13, 50
+			IF ABAWD_status_check = "30" THEN EMWriteScreen "N", 8, 80
+			IF ABAWD_status_check = "05" THEN EMWriteScreen "Y", 8, 80
+			IF ABAWD_status_check = "15" THEN EMWriteScreen "Y", 8, 80
+				ELSE EMWriteScreen "_", 8, 80
+			END IF  
+			EMWriteScreen ABAWD_status_droplist, 13, 50
+			If GA_basis_droplist <> "Select one..." THEN EMWritescreen GA_basis_droplist, 15, 50	
+		END if
+	END if
+END IF
 
 script_end_procedure("Success, your case note been made and the WREG panel updated. Remember to approve your new results, and check your notice for accuracy.")
