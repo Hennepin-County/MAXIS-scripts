@@ -1,6 +1,6 @@
 'OPTION EXPLICIT
 
-name_of_script = "NOTES - SNAP QUALITY SECOND CHECK.vbs"
+name_of_script = "NOTES - SNAP CASE REVIEW.vbs"
 start_time = timer
 
 'DIM name_of_script
