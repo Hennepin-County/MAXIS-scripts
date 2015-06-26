@@ -442,3 +442,5 @@ call write_variable_in_case_note(worker_signature)
 
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show
+
+script_end_procedure()
