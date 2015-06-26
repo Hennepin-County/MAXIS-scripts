@@ -86,6 +86,8 @@ DIM other_resolved_sanction_notes
 DIM ABAWD_status_droplist
 DIM Exempt_FSET_WREG_droplist
 DIM Exempt_FSET_WREG_droplist
+DIM FSET_orientation_date
+DIM orientation_letter_check
 
 
 'The DIALOGS----------------------------------------------------------------------------------------------------
@@ -107,7 +109,7 @@ BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 351, 170, "SNAP sanction imposed
   EditBox 95, 5, 55, 15, sanction_begin_date
   EditBox 210, 5, 20, 15, HH_Member_Number
   CheckBox 240, 10, 110, 10, "Sanctioned individual is PWE", PWE_check
-  DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st  (1 month or until compiance, whichever is longer)"+chr(9)+"2nd (3 months or until compiance, whichever is longer)"+chr(9)+"3rd  (6 months or until compiance, whichever is longer)", number_of_sanction_droplist
+  DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st (1 month or until compliance, whichever is longer)"+chr(9)+"2nd (3 months or until compliance, whichever is longer)"+chr(9)+"3rd (6 months or until compliance, whichever is longer)", number_of_sanction_droplist
   DropListBox 90, 45, 255, 15, "Select one..."+chr(9)+"Failed to comply with SNAP E&T requirements"+chr(9)+"Failed to accept suitable employment w/o good cause"+chr(9)+"Voluntarily quit suitable employment w/o good cause"+chr(9)+"Voluntarily reduced work hours w/o good cause", sanction_reason_droplist
   EditBox 90, 65, 255, 15, other_sanction_notes
   EditBox 90, 85, 50, 15, agency_informed_sanction
@@ -129,29 +131,32 @@ BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 351, 170, "SNAP sanction imposed
 EndDialog
 
 
-BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 185, "SNAP sanction resolved dialog"
+BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 215, "SNAP sanction resolved dialog"
   EditBox 90, 10, 55, 15, sanction_end_date
   EditBox 200, 10, 20, 15, resolved_HH_Member_Number
   CheckBox 230, 15, 110, 10, "Sanctioned individual is PWE", resolved_PWE_check
-  DropListBox 80, 30, 255, 15, "Select one..."+chr(9)+"Member served minimum sanction & verbally agrees to comply"+chr(9)+"Member leaves the unit's home"+chr(9)+"Member becomes exempt (work registration or E & T)", sanction_resolved_reason_droplist
-  EditBox 80, 50, 255, 15, other_resolved_sanction_notes
-  DropListBox 80, 70, 255, 15, "Select one..."+chr(9)+"01 Work Reg Exmpt"+chr(9)+"02 Under Age 18  "+chr(9)+"03 Age 50 Or Over"+chr(9)+"04 Caregiver Of  Minor Child   "+chr(9)+"05 Pregnant      "+chr(9)+"06 Employed Avg Of 20 Hrs/Wk  "+chr(9)+"07 Wrk Experience Participant   "+chr(9)+"08 Other E & T Services"+chr(9)+"09 Resides In A Waivered Area "+chr(9)+"10 ABAWD Counted Month         "+chr(9)+"11 2nd-3rd Month Period Of Elig"+chr(9)+"12 RCA Or GA Recipient     "+chr(9)+"13 ABAWD Extension", ABAWD_status_droplist
-  DropListBox 135, 115, 200, 15, "Select one..."+chr(9)+"03 Temp/Perm Incap (Min 30 Days)"+chr(9)+"04  Responsible For Care Incap HH MEMB *"+chr(9)+"05 Age 60 or older"+chr(9)+"06 Under age 16"+chr(9)+"07 Age 16-17 living w/ parent/caregiver"+chr(9)+"08 Resp for care of child <6 *"+chr(9)+"09 Empl 30 hr/wk or earining = to min wage x 30 hr/wk"+chr(9)+"10 Matching grant participant"+chr(9)+"11 Receiving or applied for unemployment"+chr(9)+"12 Enrolled in school, training program or higher education"+chr(9)+"13 Participating In CD Program"+chr(9)+"14 Receiving MFIP"+chr(9)+"20 Pending/Receiving DWP Or WB"+chr(9)+"22 Applied for SSI", Exempt_FSET_WREG_droplist
-  DropListBox 135, 135, 200, 15, "Select one..."+chr(9)+"15  Age 16-17 Not Lvg W/Pare/Crgvr"+chr(9)+"16  50-59 years old"+chr(9)+"21  Resp For Care Of Child < 18"+chr(9)+"17  Receiving RCA Or GA"+chr(9)+"18  Providing In-Home Schooling"+chr(9)+"30  Mandatory FSET participant", mandatory_WREG_exempt_FSET_droplist
-  EditBox 140, 165, 85, 15, worker_signature
+  DropListBox 90, 30, 245, 15, "Select one..."+chr(9)+"Member served minimum sanction & verbally agrees to comply"+chr(9)+"Member leaves the unit's home"+chr(9)+"Member becomes exempt (work registration or E & T)", sanction_resolved_reason_droplist
+  EditBox 90, 50, 245, 15, other_resolved_sanction_notes
+  DropListBox 90, 70, 245, 15, "Select one..."+chr(9)+"01 Work Reg Exmpt"+chr(9)+"02 Under Age 18  "+chr(9)+"03 Age 50 Or Over"+chr(9)+"04 Caregiver Of  Minor Child   "+chr(9)+"05 Pregnant      "+chr(9)+"06 Employed Avg Of 20 Hrs/Wk  "+chr(9)+"07 Wrk Experience Participant   "+chr(9)+"08 Other E & T Services"+chr(9)+"09 Resides In A Waivered Area "+chr(9)+"10 ABAWD Counted Month         "+chr(9)+"11 2nd-3rd Month Period Of Elig"+chr(9)+"12 RCA Or GA Recipient     "+chr(9)+"13 ABAWD Extension", ABAWD_status_droplist
+  DropListBox 145, 115, 190, 15, "Select one..."+chr(9)+"03 Temp/Perm Incap (Min 30 Days)"+chr(9)+"04  Responsible For Care Incap HH MEMB *"+chr(9)+"05 Age 60 or older"+chr(9)+"06 Under age 16"+chr(9)+"07 Age 16-17 living w/ parent/caregiver"+chr(9)+"08 Resp for care of child <6 *"+chr(9)+"09 Empl 30 hr/wk or earining = to min wage x 30 hr/wk"+chr(9)+"10 Matching grant participant"+chr(9)+"11 Receiving or applied for unemployment"+chr(9)+"12 Enrolled in school, training program or higher education"+chr(9)+"13 Participating In CD Program"+chr(9)+"14 Receiving MFIP"+chr(9)+"20 Pending/Receiving DWP Or WB"+chr(9)+"22 Applied for SSI", Exempt_FSET_WREG_droplist
+  DropListBox 145, 135, 190, 15, "Select one..."+chr(9)+"15  Age 16-17 Not Lvg W/Pare/Crgvr"+chr(9)+"16  50-59 years old"+chr(9)+"21  Resp For Care Of Child < 18"+chr(9)+"17  Receiving RCA Or GA"+chr(9)+"18  Providing In-Home Schooling"+chr(9)+"30  Mandatory FSET participant", mandatory_WREG_exempt_FSET_droplist
+  EditBox 145, 155, 55, 15, FSET_orientation_date
+  CheckBox 210, 160, 125, 10, "SNAP E and T orientation letter sent", orientation_letter_check
+  EditBox 140, 190, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 230, 165, 50, 15
-    CancelButton 285, 165, 50, 15
-  Text 5, 55, 70, 10, "Other sanction notes:"
-  Text 5, 70, 55, 10, "ABAWD Status:"
+    OkButton 230, 190, 50, 15
+    CancelButton 285, 190, 50, 15
   Text 5, 15, 80, 10, "FSET sanction end date: "
-  Text 75, 170, 60, 10, "Worker signature:"
+  Text 75, 195, 60, 10, "Worker signature:"
   Text 150, 15, 50, 10, "HH Member #:"
-  Text 5, 120, 90, 10, "Exempt from FSET/WREG:"
+  Text 5, 120, 135, 10, "Exempt from FSET/WREG:"
   Text 5, 140, 125, 10, "Mandatory WREG, FSET (non)exempt:"
   Text 5, 35, 70, 10, "Sanction resolution: "
   GroupBox 0, 0, 340, 90, ""
-  GroupBox 0, 100, 340, 60, "New FSET/WREG status, complete the one of the two sections that applies to the member's status"
+  GroupBox 0, 100, 340, 80, "New FSET/WREG status, complete the one of the next two sections that applies to the member's status"
+  Text 5, 55, 70, 10, "Other sanction notes:"
+  Text 5, 160, 135, 10, "New FSET orientation date (if applicable):"
+  Text 5, 75, 55, 10, "ABAWD Status:"
 EndDialog
 
 
@@ -232,17 +237,37 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	END IF 	
 END If
 
+'Logic to change the number_of_sanction_droplist into correct coding for the WREG panel
+IF number_of_sanction_droplist = "1st (1 month or until compliance, whichever is longer)" then number_of_sanction_droplist = "01"
+IF number_of_sanction_droplist = "2nd (3 months or until compliance, whichever is longer)" then number_of_sanction_droplist = "02"
+IF number_of_sanction_droplist = "3rd (6 months or until compliance, whichever is longer)" then number_of_sanction_droplist = "03"
 
-'ACTIONS: updating the WREG panel
 
+Call MAXIS_background_check
 
-
+'Updates WREG if sanction is imposed 
+If sanction_type_droplist = "Imposing sanction" THEN 
+		Call navigate_to_MAXIS_screen("STAT", "WREG")
+		EMWriteScreen WREG_sanction_droplist 8, 50
+		EMReadScreen defer_FSET_no_funds_check, 8, 80
+		IF defer_FSET_no_funds_check = "Y" OR defer_FSET_no_funds_check = "" THEN EMWriteScreen "N", 8, 80	
+		Call create_MAXIS_friendly_date (sanction_begin_date, 10, 50)
+		EMWriteScreen number_of_sanction_droplist, 11, 50
+	'Updates WREG if sanction is resolved	
+		ELSEIF sanction_type_droplist = "Resolving sanction" THEN
+			Call navigate_to_MAXIS_screen("STAT", "WREG")
+			IF Exempt_FSET_WREG_droplist <> "Select one..." THEN EMWriteScreen Exempt_FSET_WREG_droplist, 8, 50
+			IF mandatory_WREG_exempt_FSET_droplist <> "Select one..." THEN EMWriteScreen mandatory_WREG_exempt_FSET_droplist, 8, 50
+			If FSET_orientation_date <> "" THEN Call create_MAXIS_friendly_date(FSET_orientation_date, 9,50)
+			EMReadScreen defer_FSET_no_funds_check, 8, 80
+			IF defer_FSET_no_funds_check = "Y" OR defer_FSET_no_funds_check = "" THEN EMWriteScreen "N", 8, 80				
+			EMWriteScreen ABAWD_status_droplist, 13, 50
+		
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Logic to have full policy verbiage in the case note (droplist could not support full policy verbiage)
 IF sanction_resolution_droplist = "Member served minimum sanction & verbally agrees to comply" THEN sanction_resolution_droplist = "Member served the minimum sanction period, and verbally agrees to comply with SNAP E&T during the SNAP application process." 
 
-Call MAXIS_background_check
 Call start_a_blank_CASE_NOTE
 'Next 2 lines create custom headers based on the type of sanction chosen 
 'Case note if imposing sanction
@@ -255,8 +280,8 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("Number/occurrence of sanction", number_of_sanction_droplist)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for sanction", sanction_reason_droplist)
 	IF other_sanction_notes <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_sanction_notes)
+	Call write_bullet_and_variable_in_CASE_NOTE("Sanction WREG status", WREG_sanction_droplist)
 	Call write_bullet_and_variable_in_CASE_NOTE("Date agency was notified of sanction", agency_informed_sanction)
-	If imposed_update_WREG_check = 1 THEN Call write_variable_in_CASE_NOTE ("* The WREG panel has been updated to reflect sanction.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 'Case note if resolving sanction
@@ -268,7 +293,11 @@ If sanction_type_droplist = "Imposing sanction" THEN
 		IF resolved_PWE_check = 0 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is NOT the PWE. Only" & resolved_HH_Member_Number & "'s sanction is resolved.")
 		Call write_bullet_and_variable_in_CASE_NOTE("Sanction resolution reason", sanction_resolution_droplist)
 		If resolved_other_sanction_notes <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", resolved_other_sanction_notes)
-		If resolved_update_WREG_check = 1 THEN Call write_variable_in_CASE_NOTE("* The WREG panel has been updated to reflect new status (no longer 'in                            sanction' status).")
+		IF Exempt_FSET_WREG_droplist <> "Select one..." THEN Call write_bullet_and_variable_in_CASE_NOTE("New FSET Work Reg Status", Exempt_FSET_WREG_droplist
+		IF mandatory_WREG_exempt_FSET_droplist <> "Select one..." THEN Call write_bullet_and_variable_in_CASE_NOTE("New FSET Work Reg Status", mandatory_WREG_exempt_FSET_droplist
+		Call write_bullet_and_variable_in_CASE_NOTE("New ABAWD status", ABAWD_status_droplist)
+		IF FSET_orientation_date <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("New FSET orientation date", FSET_orientation_date
+		IF orientation_letter_check = 1 THEN Call write_variable_in_CASE_NOTE("* SNAP E&T orientation letter was sent to the client."
 		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE(worker_signature)	
 	END IF	
