@@ -1,17 +1,17 @@
-OPTION EXPLICIT
+'OPTION EXPLICIT
 
 name_of_script = "NOTES - FSET SANCTION.vbs"
 start_time = timer
 
-DIM name_of_script
-DIM start_time
-DIM FuncLib_URL
-DIM run_locally
-DIM default_directory
-DIM beta_agency
-DIM req
-DIM fso
-DIM row
+'DIM name_of_script
+'DIM start_time
+'DIM FuncLib_URL
+'DIM run_locally
+'DIM default_directory
+'DIM beta_agency
+'DIM req
+'DIM fso
+'DIM row
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -55,44 +55,44 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
-'SNAP_sanction_type_droplist dialog and other variables
-DIM ButtonPressed
-DIM SNAP_sanction_type_dialog
-DIM case_number
-DIM footer_month
-DIM MAXIS_footer_month
-DIM footer_year
-DIM MAXIS_footer_year
-DIM worker_signature
-DIM sanction_type_droplist
-DIM ABAWD_status_check
-DIM FSET_work_reg_status_check
-DIM WREG_MEMB_check
-'SNAP_sanction_imposed_dialog
-DIM SNAP_sanction_imposed_dialog
-DIM sanction_begin_date
-DIM HH_Member_Number
-DIM PWE_check
-DIM number_of_sanction_droplist
-DIM sanction_reason_droplist
-DIM other_sanction_notes
-DIM agency_informed_sanction
-DIM WREG_sanction_droplist
-'SNAP_sanction_resolved_dialog
-DIM SNAP_sanction_resolved_dialog
-DIM sanction_end_date
-DIM resolved_HH_Member_Number
-DIM resolved_PWE_check
-DIM sanction_resolved_reason_droplist
-DIM sanction_resolution_droplist
-DIM other_resolved_sanction_notes
-DIM ABAWD_status_droplist
-DIM Exempt_FSET_WREG_droplist
-DIM mandatory_WREG_exempt_FSET_droplist
-DIM FSET_orientation_date
-DIM orientation_letter_check
-DIM GA_basis_droplist
+''END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
+''SNAP_sanction_type_droplist dialog and other variables
+'DIM ButtonPressed
+'DIM SNAP_sanction_type_dialog
+'DIM case_number
+'DIM footer_month
+'DIM MAXIS_footer_month
+'DIM footer_year
+'DIM MAXIS_footer_year
+'DIM worker_signature
+'DIM sanction_type_droplist
+'DIM ABAWD_status_check
+'DIM FSET_work_reg_status_check
+'DIM WREG_MEMB_check
+''SNAP_sanction_imposed_dialog
+'DIM SNAP_sanction_imposed_dialog
+'DIM sanction_begin_date
+'DIM HH_Member_Number
+'DIM PWE_check
+'DIM number_of_sanction_droplist
+'DIM sanction_reason_droplist
+'DIM other_sanction_notes
+'DIM agency_informed_sanction
+'DIM WREG_sanction_droplist
+''SNAP_sanction_resolved_dialog
+'DIM SNAP_sanction_resolved_dialog
+'DIM sanction_end_date
+'DIM resolved_HH_Member_Number
+'DIM resolved_PWE_check
+'DIM sanction_resolved_reason_droplist
+'DIM sanction_resolution_droplist
+'DIM other_resolved_sanction_notes
+'DIM ABAWD_status_droplist
+'DIM Exempt_FSET_WREG_droplist
+'DIM mandatory_WREG_exempt_FSET_droplist
+'DIM FSET_orientation_date
+'DIM orientation_letter_check
+'DIM GA_basis_droplist
 
 
 'The DIALOGS----------------------------------------------------------------------------------------------------
