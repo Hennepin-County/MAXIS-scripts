@@ -377,7 +377,7 @@ EMConnect ""
 
 'FORCING THE CASE INTO FOOTER MONTH 01/15
 back_to_self
-EMWriteScreen "01", 20, 43
+EMWriteScreen "07", 20, 43
 EMWriteScreen "15", 20, 46
 
 'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
