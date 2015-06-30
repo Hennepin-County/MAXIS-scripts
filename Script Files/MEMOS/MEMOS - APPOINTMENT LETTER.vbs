@@ -87,13 +87,7 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-row = 1
-col = 1
-EMSearch "Case Nbr: ", row, col
-EMReadScreen case_number, 8, row, col + 10
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If isnumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
@@ -104,31 +98,29 @@ Do
 				Do
 					Do
 						Do
-							Do
-								Dialog appointment_letter_dialog
-								If ButtonPressed = cancel then stopscript
-								If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-							Loop until isnumeric(case_number) = True and len(case_number) <= 8 
-							CAF_date = replace(CAF_date, ".", "/")
-							If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
-							If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
-						Loop until no_CAF_check = checked or isdate(CAF_date) = True
-						if interview_location = "phone" and client_phone = "" then MsgBox "If this is a phone interview, you must enter a phone number! Pleast try again."
-					Loop until interview_location <> "phone" or (interview_location = "phone" and client_phone <> "")
-					interview_date = replace(interview_date, ".", "/")
-					If isdate(interview_date) = False then MsgBox "You did not enter a valid interview date (MM/DD/YYYY format). Please try again."
-				Loop until isdate(interview_date) = True 
-				If interview_time = "" then MsgBox "You must type an interview time. Please try again."
-			Loop until interview_time <> ""
-			If no_CAF_check = checked then exit do 'If no CAF was turned in, this layer of validation is unnecessary, so the script will skip it.
-			If expedited_check = checked and datediff("d", CAF_date, interview_date) > 6 and expedited_explanation = "" then MsgBox "You have indicated that your case is expedited, but scheduled the interview date outside of the six-day window. An explanation of why is required for QC purposes."
-		Loop until expedited_check = unchecked or (datediff("d", CAF_date, interview_date) <= 6) or (datediff("d", CAF_date, interview_date) > 6 and expedited_explanation <> "")
-		If worker_signature = "" then MsgBox "You must provide a signature for your case note."
-	Loop until worker_signature <> ""
-	transmit
-	EMReadScreen MAXIS_check, 5, 1, 39
-	IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+							Dialog appointment_letter_dialog
+							If ButtonPressed = cancel then stopscript
+							If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+						Loop until isnumeric(case_number) = True and len(case_number) <= 8 
+						CAF_date = replace(CAF_date, ".", "/")
+						If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
+						If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
+					Loop until no_CAF_check = checked or isdate(CAF_date) = True
+					if interview_location = "phone" and client_phone = "" then MsgBox "If this is a phone interview, you must enter a phone number! Pleast try again."
+				Loop until interview_location <> "phone" or (interview_location = "phone" and client_phone <> "")
+				interview_date = replace(interview_date, ".", "/")
+				If isdate(interview_date) = False then MsgBox "You did not enter a valid interview date (MM/DD/YYYY format). Please try again."
+			Loop until isdate(interview_date) = True 
+			If interview_time = "" then MsgBox "You must type an interview time. Please try again."
+		Loop until interview_time <> ""
+		If no_CAF_check = checked then exit do 'If no CAF was turned in, this layer of validation is unnecessary, so the script will skip it.
+		If expedited_check = checked and datediff("d", CAF_date, interview_date) > 6 and expedited_explanation = "" then MsgBox "You have indicated that your case is expedited, but scheduled the interview date outside of the six-day window. An explanation of why is required for QC purposes."
+	Loop until expedited_check = unchecked or (datediff("d", CAF_date, interview_date) <= 6) or (datediff("d", CAF_date, interview_date) > 6 and expedited_explanation <> "")
+	If worker_signature = "" then MsgBox "You must provide a signature for your case note."
+Loop until worker_signature <> ""
+
+'Checks for MAXIS
+call check_for_MAXIS(False)
 
 'Using custom function to assign addresses to the selected office
 call assign_county_address_variables(county_address_line_01, county_address_line_02)
@@ -145,101 +137,114 @@ End if
 If app_type = "new application" then last_contact_day = CAF_date + 30
 If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date 
 
-'Navigating to SPEC/MEMO
-call navigate_to_screen("SPEC", "MEMO")
+'This checks to make sure the case is not in background.
+MAXIS_background_check
 
-'This checks to make sure we've moved passed SELF.
-EMReadScreen SELF_check, 27, 2, 28
-If SELF_check = "Select Function Menu (SELF)" then StopScript 
+'Navigating to SPEC/MEMO
+call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 'Creates a new MEMO. If it's unable the script will stop.
 PF5
 EMReadScreen memo_display_check, 12, 2, 33
 If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-'Checking for AREP 
-row = 4
+
+'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+row = 4								'Defining row and col for the search feature.
 col = 1
-EMSearch "ALTREP", row, col
-IF row > 4 THEN
-	arep_row = row
-	call navigate_to_screen("STAT", "AREP")
-	EMReadscreen forms_to_arep, 1, 10, 45
-	call navigate_to_screen("SPEC", "MEMO")
-	PF5
+EMSearch "ALTREP", row, col			'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+IF row > 4 THEN						'If it isn't 4, that means it was found.
+	arep_row = row											'Logs the row it found the ALTREP string as arep_row
+	call navigate_to_MAXIS_screen("STAT", "AREP")			'Navigates to STAT/AREP to check and see if forms go to the AREP
+	EMReadscreen forms_to_arep, 1, 10, 45					'Reads for the "Forms to AREP?" Y/N response on the panel.
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")			'Navigates back to SPEC/MEMO
+	PF5														'PF5s again to initiate the new memo process
 END IF
 'Checking for SWKR
-row = 4
+row = 4								'Defining row and col for the search feature.
 col = 1
-EMSearch "SOCWKR", row, col 
-IF row > 4 THEN
-	swkr_row = row
-	call navigate_to_screen("STAT", "SWKR")
-	EMReadscreen forms_to_swkr, 1, 15, 63
-	call navigate_to_screen("SPEC", "MEMO")
-	PF5
+EMSearch "SOCWKR", row, col 		'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+IF row > 4 THEN						'If it isn't 4, that means it was found.
+	swkr_row = row											'Logs the row it found the SOCWKR string as swkr_row
+	call navigate_to_MAXIS_screen("STAT", "SWKR")           'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+	EMReadscreen forms_to_swkr, 1, 15, 63                   'Reads for the "Forms to SWKR?" Y/N response on the panel.
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+	PF5                                                     'PF5s again to initiate the new memo process
 END IF
-EMWriteScreen "x", 5, 10
-IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10
-IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10
-transmit
+EMWriteScreen "x", 5, 10										'Initiates new memo to client
+IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10		'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10		'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+transmit														'Transmits to start the memo writing process
 
 'Writes the MEMO.
-EMSetCursor 3, 15
-EMSendKey("************************************************************")
+call write_variable_in_SPEC_MEMO("************************************************************")
 IF app_type = "new application" then
-	call write_new_line_in_SPEC_MEMO("You recently applied for assistance in " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
+	call write_variable_in_SPEC_MEMO("You recently applied for assistance in " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
 Elseif app_type = "recertification" then
 	If no_CAF_check = unchecked then 
-		call write_new_line_in_SPEC_MEMO("You sent recertification paperwork to " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
+		call write_variable_in_SPEC_MEMO("You sent recertification paperwork to " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
 	Else
-		call write_new_line_in_SPEC_MEMO("You asked us to set up an interview for your recertification. Remember to send in your forms before the interview.")
+		call write_variable_in_SPEC_MEMO("You asked us to set up an interview for your recertification. Remember to send in your forms before the interview.")
 	End if
 End if
-call write_new_line_in_SPEC_MEMO("")
+call write_variable_in_SPEC_MEMO("")
 If interview_location = "phone" then 	'Phone interviews have a different verbiage than any other interview type
-	call write_new_line_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & ".")
+	call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & ".")
 Else
-	call write_new_line_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
+	call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
 End if
-call write_new_line_in_SPEC_MEMO("")
+call write_variable_in_SPEC_MEMO("")
 If interview_location = "phone" then
-	call write_new_line_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".") 
-	call write_new_line_in_SPEC_MEMO("")
-	call write_new_line_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call your worker.")
+	call write_variable_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".") 
+	call write_variable_in_SPEC_MEMO("")
+	call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call your worker.")
 Else
-	call write_new_line_in_SPEC_MEMO("Your interview is at the " & interview_location & " Office, located at:")
-	call write_new_line_in_SPEC_MEMO("   " & county_address_line_01)
-	call write_new_line_in_SPEC_MEMO("   " & county_address_line_02)
-	call write_new_line_in_SPEC_MEMO("")
-	call write_new_line_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview over the phone, please call your worker and provide your phone number.")
+	call write_variable_in_SPEC_MEMO("Your interview is at the " & interview_location & " Office, located at:")
+	call write_variable_in_SPEC_MEMO("   " & county_address_line_01)
+	call write_variable_in_SPEC_MEMO("   " & county_address_line_02)
+	call write_variable_in_SPEC_MEMO("")
+	call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview over the phone, please call your worker and provide your phone number.")
 End if
-call write_new_line_in_SPEC_MEMO("")
-call write_new_line_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " we will deny your application.")
-EMSendKey("************************************************************")
-
+call write_variable_in_SPEC_MEMO("")
+IF app_type = "new application" then			'"deny your application" vs "your case will auto-close"
+	call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " we will deny your application.")
+Elseif app_type = "recertification" then
+	call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & ", your case will auto-close.")
+END IF
+call write_variable_in_SPEC_MEMO("************************************************************")
 
 'Exits the MEMO
 PF4
 
-'Navigates to CASE/NOTE
-call navigate_to_screen("case", "note")
-PF9
+'Navigates to CASE/NOTE and starts a blank one
+start_a_blank_CASE_NOTE
 
 'Writes the case note
-If reschedule_check = checked then EMSendKey "**Client requested rescheduled appointment, appt letter sent in MEMO.**" & "<newline>"
-If app_type = "new application" and reschedule_check = unchecked then EMSendKey "**New CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
-If same_day_declined_check = checked then EMSendKey "* Same day interview offered and declined." & "<newline>"
-If app_type = "recertification" and no_CAF_check = unchecked and reschedule_check = unchecked then EMSendKey "**Recert CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
-If app_type = "recertification" and no_CAF_check = checked then EMSendKey "**Client requested recert appointment, letter sent in MEMO**" & "<newline>"
-EMSendKey "* Appointment is " & interview_date & " at " & interview_time & "." & "<newline>" 
-If expedited_explanation <> "" then call write_editbox_in_case_note("Why interview is more than six days from now", expedited_explanation, 5)
-call write_editbox_in_case_note("Appointment location", interview_location, 5)
-If client_phone <> "" then call write_editbox_in_case_note("Client phone", client_phone, 5)
-call write_new_line_in_case_note("* Client must complete interview by " & last_contact_day & ".")
-If voicemail_check = checked then call write_new_line_in_case_note("* Left client a voicemail requesting a call back.")
-If forms_to_arep = "Y" then call write_new_line_in_case_note("* Copy of notice sent to AREP.")
-If forms_to_swkr = "Y" then call write_new_line_in_case_note("* Copy of notice sent to Social Worker.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+
+'If it's rescheduled, that header should engage. Otherwise, it uses separate headers for new apps and recerts.
+If reschedule_check = checked then
+	call write_variable_in_CASE_NOTE("**Client requested rescheduled appointment, appt letter sent in MEMO.**")
+ElseIf app_type = "new application" then 
+	call write_variable_in_CASE_NOTE("**New CAF received " & CAF_date & ", appt letter sent in MEMO**")
+ElseIf app_type = "recertification" then 
+	If no_CAF_check = unchecked then 		'Uses separate headers for whether-or-not a CAF was received.
+		call write_variable_in_CASE_NOTE("**Recert CAF received " & CAF_date & ", appt letter sent in MEMO**")
+	Else
+		call write_variable_in_CASE_NOTE("**Client requested recert appointment, letter sent in MEMO**")	
+	End if
+End if
+
+'And the rest...
+If same_day_declined_check = checked then write_variable_in_CASE_NOTE("* Same day interview offered and declined.")
+call write_bullet_and_variable_in_CASE_NOTE("Appointment date", interview_date) 
+call write_bullet_and_variable_in_CASE_NOTE("Appointment time", interview_time) 
+call write_bullet_and_variable_in_CASE_NOTE("Why interview is more than six days from now", expedited_explanation)
+call write_bullet_and_variable_in_CASE_NOTE("Appointment location", interview_location)
+call write_bullet_and_variable_in_CASE_NOTE("Client phone", client_phone)
+call write_variable_in_CASE_NOTE("* Client must complete interview by " & last_contact_day & ".")
+If voicemail_check = checked then call write_variable_in_CASE_NOTE("* Left client a voicemail requesting a call back.")
+If forms_to_arep = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")				'Defined above
+If forms_to_swkr = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")		'Defined above
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
