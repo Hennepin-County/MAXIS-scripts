@@ -98,36 +98,36 @@ If isnumeric(case_number) = False then case_number = ""
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 Do
-  Do
-    Do
-      Do
-        Do
-          Do
-            Do
-              Do
-                Dialog appointment_letter_dialog
-                If ButtonPressed = cancel then stopscript
-                If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-              Loop until isnumeric(case_number) = True and len(case_number) <= 8 
-              CAF_date = replace(CAF_date, ".", "/")
-              If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
-              If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
-            Loop until no_CAF_check = checked or isdate(CAF_date) = True
-            if interview_location = "phone" and client_phone = "" then MsgBox "If this is a phone interview, you must enter a phone number! Pleast try again."
-          Loop until interview_location <> "phone" or (interview_location = "phone" and client_phone <> "")
-          interview_date = replace(interview_date, ".", "/")
-          If isdate(interview_date) = False then MsgBox "You did not enter a valid interview date (MM/DD/YYYY format). Please try again."
-        Loop until isdate(interview_date) = True 
-        If interview_time = "" then MsgBox "You must type an interview time. Please try again."
-      Loop until interview_time <> ""
-      If no_CAF_check = checked then exit do 'If no CAF was turned in, this layer of validation is unnecessary, so the script will skip it.
-      If expedited_check = checked and datediff("d", CAF_date, interview_date) > 6 and expedited_explanation = "" then MsgBox "You have indicated that your case is expedited, but scheduled the interview date outside of the six-day window. An explanation of why is required for QC purposes."
-    Loop until expedited_check = unchecked or (datediff("d", CAF_date, interview_date) <= 6) or (datediff("d", CAF_date, interview_date) > 6 and expedited_explanation <> "")
-    If worker_signature = "" then MsgBox "You must provide a signature for your case note."
-  Loop until worker_signature <> ""
-  transmit
-  EMReadScreen MAXIS_check, 5, 1, 39
-  IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
+	Do
+		Do
+			Do
+				Do
+					Do
+						Do
+							Do
+								Dialog appointment_letter_dialog
+								If ButtonPressed = cancel then stopscript
+								If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+							Loop until isnumeric(case_number) = True and len(case_number) <= 8 
+							CAF_date = replace(CAF_date, ".", "/")
+							If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
+							If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
+						Loop until no_CAF_check = checked or isdate(CAF_date) = True
+						if interview_location = "phone" and client_phone = "" then MsgBox "If this is a phone interview, you must enter a phone number! Pleast try again."
+					Loop until interview_location <> "phone" or (interview_location = "phone" and client_phone <> "")
+					interview_date = replace(interview_date, ".", "/")
+					If isdate(interview_date) = False then MsgBox "You did not enter a valid interview date (MM/DD/YYYY format). Please try again."
+				Loop until isdate(interview_date) = True 
+				If interview_time = "" then MsgBox "You must type an interview time. Please try again."
+			Loop until interview_time <> ""
+			If no_CAF_check = checked then exit do 'If no CAF was turned in, this layer of validation is unnecessary, so the script will skip it.
+			If expedited_check = checked and datediff("d", CAF_date, interview_date) > 6 and expedited_explanation = "" then MsgBox "You have indicated that your case is expedited, but scheduled the interview date outside of the six-day window. An explanation of why is required for QC purposes."
+		Loop until expedited_check = unchecked or (datediff("d", CAF_date, interview_date) <= 6) or (datediff("d", CAF_date, interview_date) > 6 and expedited_explanation <> "")
+		If worker_signature = "" then MsgBox "You must provide a signature for your case note."
+	Loop until worker_signature <> ""
+	transmit
+	EMReadScreen MAXIS_check, 5, 1, 39
+	IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
 Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
 
 'Using custom function to assign addresses to the selected office
@@ -138,9 +138,9 @@ If no_CAF_check = unchecked then CAF_date = cdate(CAF_date)
 
 'Figuring out the last contact day
 If app_type = "recertification" then
-  next_month = datepart("m", dateadd("m", 1, interview_date))
-  next_month_year = datepart("yyyy", dateadd("m", 1, interview_date))
-  last_contact_day = dateadd("d", -1, next_month & "/01/" & next_month_year)
+	next_month = datepart("m", dateadd("m", 1, interview_date))
+	next_month_year = datepart("yyyy", dateadd("m", 1, interview_date))
+	last_contact_day = dateadd("d", -1, next_month & "/01/" & next_month_year)
 End if
 If app_type = "new application" then last_contact_day = CAF_date + 30
 If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date 
