@@ -96,10 +96,9 @@ DO
 		IF UCASE(left(x_number, 1)) <> "X" or len(x_number) <> 7 THEN MsgBox "Please enter a valid X number."
 LOOP UNTIL worker_signature <> "" AND UCASE(left(x_number, 1)) = "X" AND len(x_number) = 7
 
-CALL check_for_MAXIS(FALSE)
 
 IF bulk_check = checked THEN
-
+	CALL check_for_MAXIS(FALSE)
 	'Creating the Excel file for tracking
 	SET objExcel = CreateObject("Excel.Application")
 	objExcel.Visible = FALSE
@@ -119,14 +118,15 @@ IF bulk_check = checked THEN
 	
 	EMWriteScreen "_", 7, 39	'"ALL"
 	EMWriteScreen "X", 8, 39	'"COLA"
+	EMWriteScreen "X", 13, 39	'"INFO" because GRH auto-approved is an INFO message rather than COLA
 	pick_row = 9
 	DO
 		EMWriteScreen "_", pick_row, 39		'Deselects all the other options
 		pick_row = pick_row + 1
+		IF pick_row = 13 then pick_row = pick_row + 1 'Skips info row when clearing all other picked rows. 
 	LOOP UNTIL pick_row = 21
 	transmit
-	
-	
+
 	dail_row = 6
 	excel_row = 2
 	DO
@@ -140,31 +140,31 @@ IF bulk_check = checked THEN
 				EMReadScreen MAXIS_case_number, 8, check_for_case_number_row, 73
 				MAXIS_case_number = trim(MAXIS_case_number)
 			ELSE
-				check_for_case_number_row = check_for_case_number_row - 1
+				check_for_case_number_row = check_for_case_number_row - 1   
 			END IF
 		LOOP UNTIL look_for_case_number = "CASE NBR"
 		
 		'Making sure this is a COLA message and not a client's name.
 		DO
 			EMReadScreen is_this_a_cola_message, 5, dail_row, 6
-			IF is_this_a_cola_message <> "COLA " THEN dail_row = dail_row + 1
+			IF is_this_a_cola_message <> "COLA " THEN
+				IF is_this_a_cola_message <> "INFO " THEN dail_row = dail_row + 1
 				IF dail_row = 19 THEN 
-				PF8 
-				EMReadScreen last_page, 21, 24, 2
-				dail_row = 6
+					PF8 
+					EMReadScreen last_page, 21, 24, 2
+					dail_row = 6
 				END IF
-
-		LOOP UNTIL is_this_a_cola_message = "COLA " or last_page = "THIS IS THE LAST PAGE"
-IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
+			END IF
+		LOOP UNTIL is_this_a_cola_message = "COLA " or is_this_a_cola_message = "INFO " or last_page = "THIS IS THE LAST PAGE"
+		IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
 
 		
 		EMReadScreen cola_message, 60, dail_row, 20
-		
+
 		IF trim(cola_message) = "SNAP: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "GRH: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "NEW MSA ELIG AUTO-APPROVED" THEN
 			EMWriteScreen "N", dail_row, 3
 			transmit
 			PF9
-			
 			'This is error_msg to determine if you do not have write access to the case.
 			EMReadScreen error_msg, 3, 24, 2
 			IF error_msg <> "YOU" THEN
@@ -192,17 +192,17 @@ IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
 						transmit
 						EMReadScreen current_user, 7, 21, 73
 						IF UCASE(current_user) <> UCASE(x_number) THEN transmit
-
-						 
-					ELSEIF original_message = "-------------------------------" THEN
-						script_end_procedure("The original DAIL could not be found.")
+					ELSEIF original_message = "-------------------------------" THEN script_end_procedure("The original DAIL could not be found.")
+		
 					ELSE
 						dail_row = dail_row + 1
 					END IF
 				LOOP UNTIL original_message = case_note_auto_approval
+			ELSE
+				dail_row = dail_row + 1
 			END IF
 		ELSE
-			dail_row = dail_row + 1
+			dail_row = dail_row + 1  'accounting for when dail message isn't deleted and remains on top. without this it will re-read same message and case note infinitely. 
 		END IF 
 
 		IF dail_row = 19 THEN 
@@ -210,7 +210,6 @@ IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
 			EMReadScreen last_page, 21, 24, 2
 			dail_row = 6
 		END IF
-		
 		
 		objExcel.Cells(excel_row, 1).Value = MAXIS_case_number
 		objExcel.Cells(excel_row, 2).Value = cola_message
@@ -221,17 +220,22 @@ script_end_procedure("Success!")
 	
 
 ELSE
+	EMGetCursor read_row, read_col   'must be read first otherwise read for DAIL changes cursor and the maxis check changes cursor
+	
+	CALL check_for_MAXIS(FALSE)
+	
 	'The code below is a safeguard to make sure the worker is on DAIL and the cursor is set to a COLA DAIL.
 	EMReadScreen on_dail, 4, 2, 48
 	IF on_dail <> "DAIL" THEN script_end_procedure("You are not in DAIL. Please navigate to DAIL and run the script again.")
 	
-	EMGetCursor read_row, read_col
-	
 	EMReadScreen is_right_line, 4, read_row, 6
-	IF is_right_line <> "COLA" THEN script_end_procedure("You are not on the correct line. Please select a COLA message on your DAIL.")
+	IF is_right_line <> "COLA" THEN			'must be nested otherwise does OR does not work.
+		IF is_right_line <> "INFO" THEN script_end_procedure("You are not on the correct line. Please select a COLA/INFO message on your DAIL.")
+	END IF
 
 	'Now the script needs to read the specific COLA message to determine what action to take next.
 	EMReadScreen cola_message, 60, read_row, 20
+
 	IF trim(cola_message) = "SNAP: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "GRH: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "NEW MSA ELIG AUTO-APPROVED" THEN
 		
 		'IF the COLA message is for an auto-approved SNAP case, the script will case note that the SNAP was auto-approved and give the worker the option to delete the DAIL.
@@ -245,7 +249,6 @@ ELSE
 		CALL write_variable_in_case_note("Case was auto approved due to COLA changes")
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note(worker_signature)
-		
 		'Navigating back to DAIL/DAIL
 		PF3
 		PF3
@@ -269,7 +272,7 @@ ELSE
 		END IF
 	
 	ELSE
-		script_end_procedure("This COLA message is not yet supported by the script.")	
+		script_end_procedure("This COLA/INFO message is not yet supported by the script.")	
 	END IF 
 	script_end_procedure("Success!")
 END IF
