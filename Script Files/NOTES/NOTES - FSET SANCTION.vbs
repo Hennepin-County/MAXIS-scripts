@@ -1,17 +1,17 @@
-'OPTION EXPLICIT
+OPTION EXPLICIT
 
 name_of_script = "NOTES - FSET SANCTION.vbs"
 start_time = timer
 
-'DIM name_of_script
-'DIM start_time
-'DIM FuncLib_URL
-'DIM run_locally
-'DIM default_directory
-'DIM beta_agency
-'DIM req
-'DIM fso
-'DIM row
+DIM name_of_script
+DIM start_time
+DIM FuncLib_URL
+DIM run_locally
+DIM default_directory
+DIM beta_agency
+DIM req
+DIM fso
+DIM row
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -56,43 +56,47 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 ''END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
-''SNAP_sanction_type_droplist dialog and other variables
-'DIM ButtonPressed
-'DIM SNAP_sanction_type_dialog
-'DIM case_number
-'DIM footer_month
-'DIM MAXIS_footer_month
-'DIM footer_year
-'DIM MAXIS_footer_year
-'DIM worker_signature
-'DIM sanction_type_droplist
-'DIM ABAWD_status_check
-'DIM FSET_work_reg_status_check
-'DIM WREG_MEMB_check
-''SNAP_sanction_imposed_dialog
-'DIM SNAP_sanction_imposed_dialog
-'DIM sanction_begin_date
-'DIM HH_Member_Number
-'DIM PWE_check
-'DIM number_of_sanction_droplist
-'DIM sanction_reason_droplist
-'DIM other_sanction_notes
-'DIM agency_informed_sanction
-'DIM WREG_sanction_droplist
-''SNAP_sanction_resolved_dialog
-'DIM SNAP_sanction_resolved_dialog
-'DIM sanction_end_date
-'DIM resolved_HH_Member_Number
-'DIM resolved_PWE_check
-'DIM sanction_resolved_reason_droplist
-'DIM sanction_resolution_droplist
-'DIM other_resolved_sanction_notes
-'DIM ABAWD_status_droplist
-'DIM Exempt_FSET_WREG_droplist
-'DIM mandatory_WREG_exempt_FSET_droplist
-'DIM FSET_orientation_date
-'DIM orientation_letter_check
-'DIM GA_basis_droplist
+
+
+'SNAP_sanction_type_droplist dialog and other variables
+DIM ButtonPressed
+DIM SNAP_sanction_type_dialog
+DIM case_number
+DIM footer_month
+DIM MAXIS_footer_month
+DIM footer_year
+DIM MAXIS_footer_year
+DIM worker_signature
+DIM sanction_type_droplist
+DIM ABAWD_status_check
+DIM WREG_MEMB_check
+'SNAP_sanction_imposed_dialog
+DIM SNAP_sanction_imposed_dialog
+DIM sanction_begin_date
+DIM HH_Member_Number
+DIM PWE_check
+DIM number_of_sanction_droplist
+DIM sanction_reason_droplist
+DIM other_sanction_notes
+DIM agency_informed_sanction
+DIM WREG_sanction_droplist
+'SNAP_sanction_resolved_dialog
+DIM SNAP_sanction_resolved_dialog
+DIM sanction_end_date
+DIM resolved_HH_Member_Number
+DIM resolved_PWE_check
+DIM sanction_resolved_reason_droplist
+DIM sanction_resolution_droplist
+DIM other_resolved_sanction_notes
+DIM ABAWD_status_droplist
+DIM Exempt_FSET_WREG_droplist
+DIM mandatory_WREG_exempt_FSET_droplist
+DIM FSET_orientation_date
+DIM orientation_letter_check
+DIM GA_basis_droplist
+
+DIM MAXIS_footer_month_check
+DIM MAXIS_footer_year_check
 
 
 'The DIALOGS----------------------------------------------------------------------------------------------------
@@ -167,7 +171,11 @@ BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 250, "SNAP sanction resolv
   Text 5, 15, 80, 10, "FSET sanction end date: "
 EndDialog
 
-
+FUNCTION MAXIS_footer_month_and_footer_year_finder
+	Call back_to_self
+	EMReadScreen MAXIS_footer_month_check, 2 ,20, 43
+	EMReadScreen MAXIS_footer_year_check, 2, 20, 46
+	
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS
@@ -324,11 +332,12 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	IF Exempt_FSET_WREG_droplist <> "Select one..." THEN EMWriteScreen Exempt_FSET_WREG_droplist, 8, 50
 	IF mandatory_WREG_exempt_FSET_droplist <> "Select one..." THEN EMWriteScreen mandatory_WREG_exempt_FSET_droplist, 8, 50
 	If FSET_orientation_date <> "" THEN Call create_MAXIS_friendly_date(FSET_orientation_date, 0, 9, 50)
+	EMWriteScreen "_", 8, 80 'deletes out the Defer FSET/No Funds (Y/N) field
 	EMWriteScreen "______", 10, 50 'deletes out the sanction date
 	EMWriteScreen "______", 10, 53
 	EMWriteScreen "______", 10, 56
+	EMWriteScreen ABAWD_status_droplist, 13, 50
 	'updating the Defer FSET/No Funds (Y/N) field on WREG
-	EMReadScreen FSET_work_reg_status_check, 2, 8, 50
 	EMReadScreen ABAWD_status_check, 2, 13, 50
 	IF ABAWD_status_check = "10" THEN 
 		EMWriteScreen "N", 8, 80
@@ -339,7 +348,6 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	ELSE 
 		EMWriteScreen "_", 8, 80
 	END IF  
-	EMWriteScreen ABAWD_status_droplist, 13, 50
 	'updates GA basis if GA basis exists
 	If GA_basis_droplist <> "Se" THEN 
 		EMWritescreen GA_basis_droplist, 15, 50	
