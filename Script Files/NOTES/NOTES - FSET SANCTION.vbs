@@ -189,7 +189,7 @@ EMConnect ""
 'Grabbing the case number
 Call MAXIS_case_number_finder(case_number)
 'Grabbing the footer month and footer year
-Call MAXIS_footer_finder(MAXIS_footer_year, MAXIS_footer_month)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
