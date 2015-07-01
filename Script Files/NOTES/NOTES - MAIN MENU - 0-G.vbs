@@ -47,7 +47,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 350, "Notes (0-G) scripts main menu dialog"
+BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 355, "Notes (0-G) scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 460, 330, 50, 15
     PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
@@ -69,17 +69,17 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 350, "Notes (0-G) scr
     PushButton 5, 255, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
     PushButton 5, 270, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
     PushButton 5, 285, 40, 10, "Fraud info", FRAUD_INFO_button
-    PushButton 5, 300, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
-    PushButton 5, 315, 45, 10, "GRH - HRF", GRH_HRF_button
+    PushButton 5, 315, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
+    PushButton 5, 330, 45, 10, "GRH - HRF", GRH_HRF_button
   Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-  Text 75, 20, 330, 10, "--- NEW 06/2015!!! Templates that are for use when various documents are received."
+  Text 75, 20, 330, 10, "--- Templates that are for use when various documents are received."
   Text 115, 45, 330, 10, "--- Template for documenting details about an ApplyMN application recevied."
   Text 80, 60, 325, 10, "--- Template for when you approve a client's programs."
   Text 55, 75, 270, 10, "--- Template for a baby born and added to household."
   Text 60, 90, 135, 10, "--- Template for burial assets."
   Text 30, 105, 390, 10, "--- Template for when you're processing a CAF. Works for intake as well as recertification and reapplication.*"
   Text 105, 120, 295, 10, "--- Template for documenting citizenship/identity status for a case."
-  Text 60, 135, 430, 10, "--- Template for documenting client contact, either from or to a client. MERGED WITH CALL CENTER VERSION 06/2015!!!"
+  Text 60, 135, 430, 10, "--- Template for documenting client contact, either from or to a client."
   Text 70, 150, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
   Text 60, 165, 250, 10, "--- Template for the Combined Annual Renewal.*"
   Text 30, 180, 120, 10, "--- Template for the CSR.*"
@@ -87,12 +87,16 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 350, "Notes (0-G) scr
   Text 50, 210, 215, 10, "--- Template for noting drug felon info."
   Text 60, 225, 215, 10, "--- Template for noting DWP budgets."
   Text 55, 240, 240, 10, "--- Template for EA/EGA applications.*"
-  Text 130, 255, 345, 10, "--- NEW 06/2015!!! Template for case noting an employment plan or status update for family cash cases."
+  Text 130, 255, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
   Text 85, 270, 220, 10, "--- Template for screening a client for expedited status."
   Text 50, 285, 200, 10, "--- Template for noting fraud info."
-  Text 75, 300, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
-  Text 55, 315, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
+  Text 75, 315, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
+  Text 55, 330, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
+  ButtonGroup ButtonPressed
+    PushButton 5, 300, 50, 10, "FSET sanction ", Button23
+  Text 60, 300, 350, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
 EndDialog
+
 
 'Variables to declare
 IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
