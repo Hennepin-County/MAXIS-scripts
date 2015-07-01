@@ -47,49 +47,50 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog BULK_scripts_main_menu_dialog, 0, 0, 456, 330, "Bulk scripts main menu dialog"
+BeginDialog BULK_scripts_main_menu_dialog, 0, 0, 456, 395, "Bulk scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 400, 310, 50, 15
+    CancelButton 400, 375, 50, 15
     PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 10, 65, 25, 10, "ACTV", ACTV_LIST_button
-    PushButton 35, 65, 25, 10, "EOMC", EOMC_LIST_button
-    PushButton 60, 65, 25, 10, "PND1", PND1_LIST_button
-    PushButton 85, 65, 25, 10, "PND2", PND2_LIST_button
-    PushButton 20, 75, 25, 10, "REVS", REVS_LIST_button
-    PushButton 45, 75, 30, 10, "REVW", REVW_LIST_button
-    PushButton 75, 75, 25, 10, "MFCM", MFCM_LIST_button
-    PushButton 125, 30, 25, 10, "ARST", ARST_LIST_button
-    PushButton 125, 45, 65, 10, "LTC-GRH list gen", LTC_GRH_LIST_GENERATOR_button
-    PushButton 125, 70, 105, 10, "Misc. non-MAGI HC deductions", MISC_NON_MAGI_HC_DEDUCTIONS_button
-    PushButton 125, 95, 55, 10, "SWKR list gen", SWKR_LIST_GENERATOR_button
-    PushButton 10, 135, 45, 10, "Bulk TIKLer", BULK_TIKLER_button
-    PushButton 10, 150, 95, 10, "CASE/NOTE from Excel list", CASE_NOTE_FROM_EXCEL_LIST_button
-    PushButton 10, 175, 70, 10, "CEI premium noter", CEI_PREMIUM_NOTER_button
-    PushButton 10, 190, 110, 10, "COLA auto approved DAIL noter", COLA_AUTO_APPROVED_DAIL_NOTER_button
-    PushButton 10, 215, 55, 10, "INAC scrubber", INAC_SCRUBBER_button
-    PushButton 10, 255, 55, 10, "Returned mail", RETURNED_MAIL_button
-    PushButton 10, 280, 80, 10, "REVW/MONT closures", REVW_MONT_CLOSURES_button
+    PushButton 35, 65, 25, 10, "DAIL", DAIL_REPORT_button
+    PushButton 60, 65, 25, 10, "EOMC", EOMC_LIST_button
+    PushButton 85, 65, 25, 10, "PND1", PND1_LIST_button
+    PushButton 10, 75, 25, 10, "PND2", PND2_LIST_button
+    PushButton 35, 75, 25, 10, "REVS", REVS_LIST_button
+    PushButton 60, 75, 30, 10, "REVW", REVW_LIST_button
+    PushButton 85, 75, 25, 10, "MFCM", MFCM_LIST_button
+    PushButton 125, 35, 25, 10, "ADDR", ADDRESS_LIST_button
+    PushButton 125, 60, 25, 10, "ARST", ARST_LIST_button
+    PushButton 125, 75, 65, 10, "LTC-GRH list gen", LTC_GRH_LIST_GENERATOR_button
+    PushButton 125, 100, 80, 10, "MA-EPD/Medi Pt B CEI", MAEPD_MEDICARE_LIST_button
+    PushButton 125, 125, 105, 10, "Misc. non-MAGI HC deductions", MISC_NON_MAGI_HC_DEDUCTIONS_button
+    PushButton 125, 150, 55, 10, "SWKR list gen", SWKR_LIST_GENERATOR_button
+    PushButton 10, 195, 45, 10, "Bulk TIKLer", BULK_TIKLER_button
+    PushButton 10, 210, 95, 10, "CASE/NOTE from Excel list", CASE_NOTE_FROM_EXCEL_LIST_button
+    PushButton 10, 235, 70, 10, "CEI premium noter", CEI_PREMIUM_NOTER_button
+    PushButton 10, 250, 110, 10, "COLA auto approved DAIL noter", COLA_AUTO_APPROVED_DAIL_NOTER_button
+    PushButton 10, 275, 55, 10, "INAC scrubber", INAC_SCRUBBER_button
+    PushButton 10, 315, 55, 10, "Returned mail", RETURNED_MAIL_button
+    PushButton 10, 340, 80, 10, "REVW/MONT closures", REVW_MONT_CLOSURES_button
   Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
   GroupBox 5, 20, 110, 70, "Case lists"
   Text 10, 35, 100, 25, "Case list scripts pull a list of cases into an Excel spreadsheet."
-  GroupBox 120, 20, 330, 100, "Other bulk lists"
-  Text 155, 30, 215, 10, "--- Caseload stats by worker. Includes most MAXIS programs."
-  Text 195, 45, 250, 20, "--- Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload (or group of caseloads)."
-  Text 235, 70, 210, 20, "--- NEW 06/2015!!! Creates a list of cases with non-MAGI HC deductions."
-  Text 185, 95, 260, 20, "--- Creates a list of SWKRs assigned to the various cases in a caseload (or group of caseloads)."
-  GroupBox 5, 120, 445, 185, "Other bulk scripts"
-  Text 60, 135, 175, 10, "--- Creates the same TIKL on up to 60 cases at once."
-  Text 110, 150, 335, 20, "--- Creates the same CASE/NOTE on potentially hundreds of cases listed on an Excel spreadsheet of your choice."
-  Text 85, 175, 240, 10, "--- Case notes recurring CEI premiums on multiple cases simultaneously."
-  Text 125, 190, 320, 20, "--- NEW 06/2015!!! Case notes all cases on DAIL/DAIL that have a message indicating that COLA was auto-approved, copies the messages to an Excel spreadsheet, and deletes the DAIL."
-  Text 70, 215, 375, 35, "--- Checks all cases on REPT/INAC (in the month before the current footer month, or prior) for MMIS discrepancies, active claims, DAIL messages, and ABPS panels in need of update (for Good Cause status), and adds them to a Word document. After that, it case notes all of the cases without DAIL messages or MMIS discrepancies. If your agency uses a closed-file worker number, it will SPEC/XFER the cases from your number into that number."
-  Text 70, 255, 375, 20, "--- Case notes that returned mail (without a forwarding address) was received for up to 60 cases simultaneously, and TIKLs for 10-day return of proofs."
-  Text 95, 280, 350, 20, "--- Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER. Case notes ''last day of REIN'' as well as ''date case becomes an intake.''"
+  GroupBox 120, 20, 330, 155, "Other bulk lists"
+  Text 155, 60, 215, 10, "--- Caseload stats by worker. Includes most MAXIS programs."
+  Text 195, 75, 250, 20, "--- Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload (or group of caseloads)."
+  Text 210, 100, 230, 20, "--- NEW 07/2015!!! Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
+  Text 235, 125, 210, 20, "--- NEW 06/2015!!! Creates a list of cases with non-MAGI HC deductions."
+  Text 185, 150, 260, 20, "--- Creates a list of SWKRs assigned to the various cases in a caseload (or group of caseloads)."
+  GroupBox 5, 180, 445, 185, "Other bulk scripts"
+  Text 60, 195, 175, 10, "--- Creates the same TIKL on up to 60 cases at once."
+  Text 110, 210, 335, 20, "--- Creates the same CASE/NOTE on potentially hundreds of cases listed on an Excel spreadsheet of your choice."
+  Text 85, 235, 240, 10, "--- Case notes recurring CEI premiums on multiple cases simultaneously."
+  Text 125, 250, 320, 20, "--- NEW 06/2015!!! Case notes all cases on DAIL/DAIL that have a message indicating that COLA was auto-approved, copies the messages to an Excel spreadsheet, and deletes the DAIL."
+  Text 70, 275, 375, 35, "--- Checks all cases on REPT/INAC (in the month before the current footer month, or prior) for MMIS discrepancies, active claims, DAIL messages, and ABPS panels in need of update (for Good Cause status), and adds them to a Word document. After that, it case notes all of the cases without DAIL messages or MMIS discrepancies. If your agency uses a closed-file worker number, it will SPEC/XFER the cases from your number into that number."
+  Text 70, 315, 375, 20, "--- Case notes that returned mail (without a forwarding address) was received for up to 60 cases simultaneously, and TIKLs for 10-day return of proofs."
+  Text 95, 340, 350, 20, "--- Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER. Case notes ''last day of REIN'' as well as ''date case becomes an intake.''"
+  Text 155, 35, 285, 20, "--- NEW 07/2015!!! Creates a list of client addresses. Can be run for individual workers or the entire agency."
 EndDialog
-
-
-
-
 
 'VARIABLES TO DECLARE (there's more here than usual because this was originally one big BULK script. This should be added to the other bulk scripts as needed, and removed from here.)
 all_case_numbers_array = " "					'Creating blank variable for the future array
@@ -110,14 +111,17 @@ Loop until buttonpressed <> SIR_instructions_button
 EMConnect ""
 
 If ButtonPressed = ACTV_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-ACTV LIST.vbs")
+IF ButtonPressed = DAIL_REPORT_button THEN CALL run_from_GitHub(script_repositry & "/BULK/BULK - DAIL REPORT.vbs")
 If ButtonPressed = EOMC_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-EOMC LIST.vbs")
 If ButtonPressed = PND1_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND1 LIST.vbs")
 If ButtonPressed = PND2_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND2 LIST.vbs")
 If ButtonPressed = REVS_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-REVS LIST.vbs")
 If ButtonPressed = REVW_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-REVW LIST.vbs")
 If ButtonPressed = MFCM_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-MFCM LIST.vbs")
+IF ButtonPressed = ADDRESS_LIST_button THEN CALL run_from_GitHub(script_repository & "/BULK/BULK - ADDRESS REPORT.vbs")
 If ButtonPressed = ARST_LIST_button then call run_from_GitHub(script_repository & "/BULK/BULK - REPT-ARST LIST.vbs")
 If ButtonPressed = LTC_GRH_LIST_GENERATOR_button then call run_from_GitHub(script_repository & "/BULK/BULK - LTC-GRH LIST GENERATOR.vbs")
+IF ButtonPressed = MAEPD_MEDICARE_LIST_button THEN CALL run_from_GitHub(script_repository & "/BULK/BULK - FIND MAEPD MEDI CEI.vbs")
 If ButtonPressed = MISC_NON_MAGI_HC_DEDUCTIONS_button then call run_from_GitHub(script_repository & "/BULK/BULK - MISC NON-MAGI HC DEDUCTIONS.vbs")
 If ButtonPressed = SWKR_LIST_GENERATOR_button then call run_from_GitHub(script_repository & "/BULK/BULK - SWKR LIST GENERATOR.vbs")
 If ButtonPressed = BULK_TIKLER_button then call run_from_GitHub(script_repository & "/BULK/BULK - BULK TIKLER.vbs")

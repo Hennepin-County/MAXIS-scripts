@@ -49,7 +49,6 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 516, 335, "Notes (H-Z) scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 460, 315, 50, 15
     PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 20, 60, 10, "Document noting", DOCUMENT_NOTING_button
     PushButton 5, 45, 50, 10, "HC Renewal", HC_RENEWAL_button
@@ -69,12 +68,13 @@ BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 516, 335, "Notes (H-Z) scr
     PushButton 5, 255, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
     PushButton 5, 270, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
     PushButton 5, 285, 50, 10, "Overpayment", OVERPAYMENT_button
-    PushButton 5, 300, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
-  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-  Text 75, 20, 330, 10, "--- NEW 06/2015!!! Templates that are for use when various documents are received."
+    PushButton 5, 300, 75, 10, "SNAP case review", SNAP_case_review
+    PushButton 5, 315, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
+    CancelButton 460, 315, 50, 15
+  Text 75, 20, 330, 10, "--- Templates that are for use when various documents are received."
   Text 60, 45, 140, 10, "--- Template for HC renewals.*"
   Text 40, 60, 120, 10, "--- Template for HCAPPs.*"
-  Text 75, 75, 240, 10, "--- NEW 06/2015!!! Template for when you update the HH comp of a case."
+  Text 75, 75, 240, 10, "--- Template for when you update the HH comp of a case."
   Text 35, 90, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
   Text 55, 105, 255, 10, "--- Template for the SAVE system for verifying immigration status."
   Text 90, 120, 345, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
@@ -89,8 +89,11 @@ BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 516, 335, "Notes (H-Z) scr
   Text 120, 255, 260, 10, "--- Template for actions taken on medical mileage reimbursements."
   Text 120, 270, 250, 10, "--- Template for when MNsure documents have been requested."
   Text 60, 285, 240, 10, "--- Template for noting basic information about overpayments."
-  Text 85, 300, 425, 10, "--- Template for when verifications are needed (enters each verification clearly)."
+  Text 85, 315, 425, 10, "--- Template for when verifications are needed (enters each verification clearly)."
+  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+  Text 85, 300, 345, 10, "---NEW 07/2015  Template for SNAP reviewers to use that will case note the status  SNAP quality review."
 EndDialog
+
 
 'Variables to declare
 IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
