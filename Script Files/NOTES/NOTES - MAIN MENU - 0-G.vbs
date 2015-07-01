@@ -49,7 +49,6 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 355, "Notes (0-G) scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 460, 330, 50, 15
     PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 20, 60, 10, "Document noting", DOCUMENT_NOTING_button
     PushButton 5, 45, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
@@ -69,9 +68,10 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 355, "Notes (0-G) scr
     PushButton 5, 255, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
     PushButton 5, 270, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
     PushButton 5, 285, 40, 10, "Fraud info", FRAUD_INFO_button
+    PushButton 5, 300, 50, 10, "FSET sanction ", FSET_sanction_button
     PushButton 5, 315, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
     PushButton 5, 330, 45, 10, "GRH - HRF", GRH_HRF_button
-  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+    CancelButton 460, 330, 50, 15
   Text 75, 20, 330, 10, "--- Templates that are for use when various documents are received."
   Text 115, 45, 330, 10, "--- Template for documenting details about an ApplyMN application recevied."
   Text 80, 60, 325, 10, "--- Template for when you approve a client's programs."
@@ -92,8 +92,7 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 355, "Notes (0-G) scr
   Text 50, 285, 200, 10, "--- Template for noting fraud info."
   Text 75, 315, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
   Text 55, 330, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
-  ButtonGroup ButtonPressed
-    PushButton 5, 300, 50, 10, "FSET sanction ", FSET_sanction_button
+  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
   Text 60, 300, 350, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
 EndDialog
 
