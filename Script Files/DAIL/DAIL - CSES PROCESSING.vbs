@@ -322,6 +322,7 @@ Do
     EMReadScreen all_members_checked, 31, 24, 2
     If all_members_checked = "ENTER A VALID COMMAND OR PF-KEY" then exit do
     EMReadScreen PMI_from_MEMB, 8, 4, 46
+    PMI_from_MEMB = Replace(PMI_from_MEMB, "_", "")		'Fixing this so Ramsey County can use the script. They have underscores here for some reason.
     PMI_check = Replace(PMI_from_MEMB, " ", "")
     EMReadScreen HH_memb_number, 2, 4, 33
     EMReadScreen SSN_number, 11, 7, 42
