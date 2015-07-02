@@ -116,6 +116,10 @@ transmit
 EMWriteScreen "BNDX", 20, 71
 transmit
 
+'checking for IRS non-disclosure agreement.
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure(To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.)
+
 DIM bndx_array()
 ReDim bndx_array(2, 5)
 '========== Collects information from BNDX ==========
