@@ -160,7 +160,7 @@ IF XFERRadioGroup = 0 THEN
 			  Dialog within_county_dlg
 			  If buttonpressed = 0 then stopscript
 			  If case_number = "" then MsgBox "You must have a case number to continue."
-			  IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X102 in the worker number"
+			  IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X1## in the worker number"
 			  IF preg_y_n = "Select one..." THEN MsgBox "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
 			  IF unit_drop_down = "Select one..." THEN MsgBox "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
 			Loop until case_number <> "" and len(worker_to_transfer_to) = 7 AND preg_y_n <> "Select one..." AND unit_drop_down <> "Select one..."
