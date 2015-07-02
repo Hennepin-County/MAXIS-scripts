@@ -107,7 +107,7 @@ EndDialog
 
 BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   EditBox 65, 10, 50, 15, case_number
-  ComboBox 80, 30, 75, 15, "Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC", unit_drop_down
+  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC", unit_drop_down
   EditBox 130, 50, 65, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
   CheckBox 55, 90, 30, 10, "SNAP", SNAP_active_check
@@ -119,7 +119,7 @@ BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   CheckBox 95, 125, 20, 10, "HC", HC_pend_check
   CheckBox 125, 125, 35, 10, "MNsure", mnsure_pend_check
   CheckBox 170, 125, 40, 10, "EMER", EMER_pend_check
-  DropListBox 100, 140, 65, 10, "Yes"+chr(9)+"No", preg_y_n
+  DropListBox 100, 140, 65, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
   EditBox 85, 160, 120, 15, Transfer_reason
   EditBox 80, 180, 125, 15, Action_to_be_taken
   EditBox 80, 200, 125, 15, worker_signature
@@ -160,8 +160,10 @@ IF XFERRadioGroup = 0 THEN
 			  Dialog within_county_dlg
 			  If buttonpressed = 0 then stopscript
 			  If case_number = "" then MsgBox "You must have a case number to continue."
-			IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X102 in the worker number"
-			Loop until case_number <> "" and len(worker_to_transfer_to) = 7
+			  IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X1## in the worker number"
+			  IF preg_y_n = "Select one..." THEN MsgBox "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
+			  IF unit_drop_down = "Select one..." THEN MsgBox "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
+			Loop until case_number <> "" and len(worker_to_transfer_to) = 7 AND preg_y_n <> "Select one..." AND unit_drop_down <> "Select one..."
 			transmit
 			EMReadScreen MAXIS_check, 5, 1, 39
 			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
@@ -187,7 +189,7 @@ IF XFERRadioGroup = 0 THEN
 
 		'Case notes
 		EMSendKey "***Transfer within county***" & "<newline>"
-		call write_variable_in_case_note("* Transfer to: " & unit_drop_down) 
+		IF unit_drop_down <> "N/A" THEN call write_variable_in_case_note("* Transfer to: " & unit_drop_down) 
 		IF active_programs <> "" THEN
 		  EMSendKey "* Active Programs: " & active_programs & "<backspace>"
 		  EMSendKey "<newline>"
@@ -196,7 +198,7 @@ IF XFERRadioGroup = 0 THEN
 		  EMSendKey "* Pending Programs: " & pend_programs & "<backspace>"
 		  EMSendKey "<newline>"
 		END IF
-		IF preg_y_n <> "" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
+		IF preg_y_n <> "N/A" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
 		call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason) 
 		call write_bullet_and_variable_in_case_note("Actions to be taken", Action_to_be_taken) 
 		call write_variable_in_case_note("---")
