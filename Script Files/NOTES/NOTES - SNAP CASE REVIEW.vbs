@@ -16,7 +16,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -57,6 +57,21 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
 
+'FUNCTION----------------------------------------------------------------------------------------------------
+FUNCTION MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)'Grabbing the footer month/year
+	back_to_self
+    Call find_variable("Benefit Period (MM YY): ", MAXIS_footer_month, 2)
+    If isnumeric(MAXIS_footer_month) = true then               'checking to see if a footer month 'number' is present 
+    footer_month = MAXIS_footer_month                
+    call find_variable("Benefit Period (MM YY): " & footer_month & " ", MAXIS_footer_year, 2)
+    If isnumeric(MAXIS_footer_year) = true then footer_year = MAXIS_footer_year 'checking to see if a footer year 'number' is present
+	Else 'If we don’t have one found, we’re going to assign the current month/year.
+		MAXIS_footer_month = DatePart("m", date)   'Datepart delivers the month number to the variable
+		If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month   'If it’s a single digit month, add a zero
+		MAXIS_footer_year = right(DatePart("yyyy", date), 2)   'We only need the right two characters of the year for MAXIS
+	End if
+END FUNCTION
+
 'DECLARING VARIABLES--------------------------------------------------------------------------------------------------------
 'DIM SNAP_quality_case_review_dialog
 'DIM ButtonPressed
@@ -94,28 +109,20 @@ EndDialog
 EMConnect ""
 'Grabs case number
 CALL MAXIS_case_number_finder(case_number)
-
 'Grabbing the footer month/year
-Call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
+Call MAXIS_footer_finder (MAXIS_footer_month, MAXIS_footer_year)
+
 
 DO
 	DO
-		DO
-			Do
-				DO
-					Dialog SNAP_quality_case_review_dialog
-					cancel_confirmation
-					IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
-				LOOP UNTIL IsNumeric(case_number) = TRUE
-				If worker_signature = "" THEN MsgBox "You must sign the case note."
-			LOOP until worker_signature <> ""
-			If (MAXIS_footer_month = "" AND MAXIS_footer_year = "") OR (MAXIS_footer_month <> "" AND MAXIS_footer_year = "") OR (MAXIS_footer_month = "" AND MAXIS_footer_year <> "") THEN MsgBox "You must enter the footer year AND footer month."
-		LOOP until (MAXIS_footer_month <> "" AND MAXIS_footer_year <> "")
+		Do
+			DO
+				Dialog SNAP_quality_case_review_dialog
+				cancel_confirmation
+				IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
+			LOOP UNTIL IsNumeric(case_number) = TRUE
+			If worker_signature = "" THEN MsgBox "You must sign the case note."
+		LOOP until worker_signature <> ""
 		If SNAP_status = "Select one..." THEN MsgBox "You must check either that the case is correct and approved, or an error exists."
 	LOOP UNTIL SNAP_status <> "Select one..."
 	If (SNAP_status = "correct & approved" AND grant_amount = "") OR (SNAP_status = "error exists" AND grant_amount <> "") THEN Msgbox "You must either select 'error exists', and leave the grant amount blank OR select 'correct & approved', and enter the grant amount. "
