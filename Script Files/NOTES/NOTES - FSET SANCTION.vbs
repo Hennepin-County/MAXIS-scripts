@@ -12,11 +12,12 @@ start_time = timer
 'DIM req
 'DIM fso
 'DIM row
+'DIM col
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -56,7 +57,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 ''END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
-''SNAP_sanction_type_droplist dialog and other variables
+
+
+''SNAP_sanction_type_droplist dialog and other variables----------------------------------------------------------------------------------------------------
 'DIM ButtonPressed
 'DIM SNAP_sanction_type_dialog
 'DIM case_number
@@ -67,8 +70,8 @@ END IF
 'DIM worker_signature
 'DIM sanction_type_droplist
 'DIM ABAWD_status_check
-'DIM FSET_work_reg_status_check
 'DIM WREG_MEMB_check
+'MAXIS_footer_finder(MAXIS_footer_year, MAXIS_footer_month)
 ''SNAP_sanction_imposed_dialog
 'DIM SNAP_sanction_imposed_dialog
 'DIM sanction_begin_date
@@ -95,6 +98,20 @@ END IF
 'DIM GA_basis_droplist
 
 
+'FUNCTION----------------------------------------------------------------------------------------------------
+FUNCTION MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)'Grabbing the footer month/year
+	Call find_variable("Month: ", MAXIS_footer_month, 2)
+	If isnumeric(MAXIS_footer_month) = true then 	'checking to see if a footer month 'number' is present 
+		footer_month = MAXIS_footer_month	
+		call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+		If isnumeric(MAXIS_footer_year) = true then footer_year = MAXIS_footer_year 'checking to see if a footer year 'number' is present
+	Else 'If we don’t have one found, we’re going to assign the current month/year.
+		MAXIS_footer_month = DatePart("m", date)   'Datepart delivers the month number to the variable
+		If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month   'If it’s a single digit month, add a zero
+		MAXIS_footer_year = right(DatePart("yyyy", date), 2)	'We only need the right two characters of the year for MAXIS
+	End if
+END FUNCTION
+
 'The DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_sanction_type_dialog, 0, 0, 171, 110, "SNAP Sanction type dialog					"
   EditBox 65, 10, 65, 15, case_number
@@ -117,8 +134,7 @@ BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 351, 170, "SNAP sanction imposed
   DropListBox 90, 25, 255, 15, "Select one..."+chr(9)+"1st (1 month or until compliance, whichever is longer)"+chr(9)+"2nd (3 months or until compliance, whichever is longer)"+chr(9)+"3rd (6 months or until compliance, whichever is longer)", number_of_sanction_droplist
   DropListBox 90, 45, 255, 15, "Select one..."+chr(9)+"Failed to comply with SNAP E&T requirements"+chr(9)+"Failed to accept suitable employment w/o good cause"+chr(9)+"Voluntarily quit suitable employment w/o good cause"+chr(9)+"Voluntarily reduced work hours w/o good cause", sanction_reason_droplist
   EditBox 90, 65, 255, 15, other_sanction_notes
-  EditBox 90, 85, 50, 15, agency_informed_sanction
-  DropListBox 230, 85, 115, 15, "Select one..."+chr(9)+"02  Fail To Cooperate With FSET "+chr(9)+"33  Non-Coop Being Referred", WREG_sanction_droplist
+  EditBox 130, 85, 50, 15, agency_informed_sanction
   EditBox 150, 105, 85, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 240, 105, 50, 15
@@ -126,11 +142,10 @@ BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 351, 170, "SNAP sanction imposed
   Text 5, 10, 85, 10, "FSET sanction begin date:"
   Text 5, 70, 70, 10, "Other sanction notes:"
   Text 155, 10, 50, 10, "HH Member #:"
-  Text 5, 90, 85, 10, "Notified of sanction date:"
+  Text 5, 90, 125, 10, "Date agency was notified of sanction:"
   Text 85, 110, 60, 10, "Worker signature:"
   Text 5, 135, 340, 25, "If client is PWE the ENTIRE unit is sanctioned.  If they are not the PWE, ONLY the member is sanctioned.  Also ABAWDs have until the end of the month prior to the effective date of the SNAP closing to cooperate with the SNAP E and T orientation/work requirements.  "
   Text 5, 30, 70, 10, "Number of sanctions:"
-  Text 145, 90, 80, 10, "Sanction WREG status:"
   Text 5, 50, 80, 10, "Reason for the sanction:"
   GroupBox 0, 125, 350, 40, "Per CM.0028.30.03"
 EndDialog
@@ -168,20 +183,14 @@ BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 250, "SNAP sanction resolv
 EndDialog
 
 
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS
 EMConnect ""
 'Grabbing the case number
 Call MAXIS_case_number_finder(case_number)
+'Grabbing the footer month and footer year
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing the footer month/year
-Call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
 
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
 Do	
@@ -197,29 +206,26 @@ Do
 LOOP until sanction_type_droplist <> "Select one..."
 'If worker selects to impose a sanction, they will get this dialog 
 If sanction_type_droplist = "Imposing sanction" THEN
-	DO
-		DO					
-			DO				
-				DO 			
-					DO
-						DO
-							Do
-								dialog SNAP_sanction_imposed_dialog
-								cancel_confirmation
-								If sanction_begin_date = "" THEN MsgBox "You must enter the date the sanction begins."
-							LOOP until sanction_begin_date <> ""
-							If HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
-						LOOP until HH_Member_Number <> ""
-						If number_of_sanction_droplist = "Select one..." THEN MsgBox "You must choose the number of sanctions."
-					LOOP until number_of_sanction_droplist <> "Select one..."
-					If sanction_reason_droplist = "Select one..." THEN MsgBox "You must choose the reason for the sanction."
-				LOOP until sanction_reason_droplist <> "Select one..."
-				If agency_informed_sanction = "" THEN MsgBox "You must enter the date the agency was informed of the sanction."
-			LOOP until agency_informed_sanction <> ""
-			If WREG_sanction_droplist = "Select one..." THEN MsgBox "You must choose the sanction WREG status."
-		LOOP until WREG_sanction_droplist <> "Select one..."
-		If worker_signature = "" THEN MsgBox "You must sign your case note."
-	LOOP until worker_signature <> ""
+DO					
+	DO				
+		DO 			
+			DO
+				DO
+					Do
+						dialog SNAP_sanction_imposed_dialog
+						cancel_confirmation
+						If sanction_begin_date = "" THEN MsgBox "You must enter the date the sanction begins."
+					LOOP until sanction_begin_date <> ""
+					If HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
+				LOOP until HH_Member_Number <> ""
+				If number_of_sanction_droplist = "Select one..." THEN MsgBox "You must choose the number of sanctions."
+			LOOP until number_of_sanction_droplist <> "Select one..."
+			If sanction_reason_droplist = "Select one..." THEN MsgBox "You must choose the reason for the sanction."
+		LOOP until sanction_reason_droplist <> "Select one..."
+		If agency_informed_sanction = "" THEN MsgBox "You must enter the date the agency was informed of the sanction."
+	LOOP until agency_informed_sanction <> ""
+	If worker_signature = "" THEN MsgBox "You must sign your case note."
+LOOP until worker_signature <> ""
 'If worker selects to resolve a sanction, they will get this dialog
 ELSEIf sanction_type_droplist = "Resolving sanction" THEN	
 	DO
@@ -261,7 +267,7 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("Number/occurrence of sanction", number_of_sanction_droplist)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for sanction", sanction_reason_droplist)
 	IF other_sanction_notes <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_sanction_notes)
-	Call write_bullet_and_variable_in_CASE_NOTE("Sanction WREG status", WREG_sanction_droplist)
+	Call write_variable_in_CASE_NOTE("* Sanction WREG status: 02 Fail To Cooperate With FSET")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 'Case note if resolving sanction
@@ -307,7 +313,7 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER " THEN script_end_procedure ("The member number that you entered is not valid.  Please check the member number, and start the script again.")
 	'if MEMB number is correct the WREG is updated
 	PF9
-	EMWriteScreen WREG_sanction_droplist, 8, 50
+	EMWriteScreen "02", 8, 50
 	Call create_MAXIS_friendly_date(sanction_begin_date, 0, 10, 50)
 	EMWriteScreen number_of_sanction_droplist, 11, 50
 	EMWriteScreen "_", 8, 80
@@ -327,19 +333,14 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	EMWriteScreen "______", 10, 50 'deletes out the sanction date
 	EMWriteScreen "______", 10, 53
 	EMWriteScreen "______", 10, 56
+	EMWriteScreen ABAWD_status_droplist, 13, 50 ' updates the ABAWD status 
 	'updating the Defer FSET/No Funds (Y/N) field on WREG
-	EMReadScreen FSET_work_reg_status_check, 2, 8, 50
-	EMReadScreen ABAWD_status_check, 2, 13, 50
+	EMReadScreen ABAWD_status_check, 2, 13, 50	'checking for the coding on ABAWD status field
 	IF ABAWD_status_check = "10" THEN 
 		EMWriteScreen "N", 8, 80
-	ElseIF ABAWD_status_check = "05" THEN 
-		EMWriteScreen "Y", 8, 80
-	ElseIF ABAWD_status_check = "15" THEN 
-		EMWriteScreen "Y", 8, 80
 	ELSE 
 		EMWriteScreen "_", 8, 80
 	END IF  
-	EMWriteScreen ABAWD_status_droplist, 13, 50
 	'updates GA basis if GA basis exists
 	If GA_basis_droplist <> "Se" THEN 
 		EMWritescreen GA_basis_droplist, 15, 50	
@@ -348,5 +349,5 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	END IF	
 END IF
 
-'end message to worker reminding them to check notices
+'end message to worker reminding users to check notices
 script_end_procedure("Success, your case note been made and the WREG panel updated. Remember to approve your new results, and check your notice for accuracy.")
