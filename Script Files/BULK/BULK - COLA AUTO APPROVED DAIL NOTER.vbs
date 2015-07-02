@@ -164,6 +164,14 @@ IF bulk_check = checked THEN
 		IF trim(cola_message) = "SNAP: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "GRH: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "NEW MSA ELIG AUTO-APPROVED" THEN
 			EMWriteScreen "N", dail_row, 3
 			transmit
+			
+			'Reading the top case note header to see if it matches. If it does it will end the script as the script has derailed and needs to be stopped. 
+			EMReadScreen double_message_catch, 55, 5, 25
+			IF trim(double_message_catch) = trim(cola_message) Then
+				catch_msgbox = ("Looks like this already was case noted, are you sure about this?", vbYesNo)
+				IF catch_msgbox = vbNo then script_end_procedure("An error has occurred and the script is re-reading a dail causing it to duplicate a case note. Please check with your Alpha Script User.")
+			END IF
+			
 			PF9
 			'This is error_msg to determine if you do not have write access to the case.
 			EMReadScreen error_msg, 3, 24, 2
@@ -242,6 +250,13 @@ ELSE
 		EMWriteScreen "N", read_row, 3
 		'replacing TRANSMIT with CALL check_for_MAXIS(True) because there is already a TRANSMIT at the start of that function
 		transmit
+		
+		'Reading the top case note header to see if it matches. If it does it will end the script as the script has derailed and needs to be stopped. 
+		EMReadScreen double_message_catch, 55, 5, 25
+		IF trim(double_message_catch) = trim(cola_message) Then
+			catch_msgbox = ("Looks like this already was case noted, are you sure about this?", vbYesNo)
+			IF catch_msgbox = vbNo then script_end_procedure("An error has occurred and the script is re-reading a dail causing it to duplicate a case note. Please check with your Alpha Script User.")
+		END IF
 		
 		PF9
 		case_note_auto_approval = trim(cola_message)
