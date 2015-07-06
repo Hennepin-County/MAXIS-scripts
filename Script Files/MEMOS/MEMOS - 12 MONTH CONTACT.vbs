@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -70,15 +70,15 @@ case_number = replace(case_number, "_", "")
 dialog case_number_dialog
 If ButtonPressed = 0 then stopscript
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" then
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" then
   MsgBox "MAXIS cannot be found. You may be passworded out. Please try again."
   Stopscript
 End if
 
 'THE MEMO
 
-call navigate_to_screen("spec", "memo")
+call navigate_to_MAXIS_screen("spec", "memo")
 PF5
 EMReadScreen MEMO_edit_mode_check, 26, 2, 28
 If MEMO_edit_mode_check <> "Notice Recipient Selection" then
@@ -93,7 +93,7 @@ EMSendKey "************************************************************"
 PF4
 
 'THE CASE NOTE
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
 EMSendKey "Sent 12 month contact letter via SPEC/MEMO on " & date & ". -" & worker_sig
 

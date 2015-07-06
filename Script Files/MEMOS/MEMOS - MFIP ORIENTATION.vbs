@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -112,14 +112,14 @@ Do
 		If MFIP_address_line_01 = "" or MFIP_address_line_02 = "" then MsgBox "You must enter an orientation address. Select one from the list, or enter one manually. Please note that the list fills in from intake locations, and may not be accurate in all agencies."
 	Loop until MFIP_address_line_01 <> "" and MFIP_address_line_02 <> ""
 	transmit
-	EMReadScreen MAXIS_check, 5, 1, 39
-	IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+	EMReadScreen check_for_MAXIS(True), 5, 1, 39
+	IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
+Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
 
 'Creating an array from the member number list to get names for notice
 member_array = split(member_list, ",") 
 	for each member in member_array
-		call navigate_to_screen("STAT", "MEMB")
+		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		member = replace(member, " ", "")
 		if len(member) = 1 then member = "0" & member
 		EMWriteScreen member, 20, 76
@@ -134,7 +134,7 @@ member_array = split(member_list, ",")
 
 
 'Navigating to SPEC/MEMO
-call navigate_to_screen("SPEC", "MEMO")
+call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 'This checks to make sure we've moved passed SELF.
 EMReadScreen SELF_check, 27, 2, 28
@@ -162,7 +162,7 @@ call write_variable_in_SPEC_MEMO("**********************************************
 PF4
 
 'Navigates to CASE/NOTE
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
 
 'Writes the case note

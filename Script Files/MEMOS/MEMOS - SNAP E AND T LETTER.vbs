@@ -10,7 +10,7 @@ DIM FuncLib_URL, req, fso
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -951,12 +951,12 @@ PF4		'saves and sends memo
 call start_a_blank_CASE_NOTE
 
 'Writes the case note
-CALL write_new_line_in_case_note("***SNAP E&T Appointment Letter Sent***")
+CALL write_variable_in_CASE_NOTE("***SNAP E&T Appointment Letter Sent***")
 CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
-CALL write_new_line_in_case_note("---")
-CALL write_new_line_in_case_note(worker_signature)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 
 MsgBox "If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!"
 

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -126,9 +126,9 @@ Do
     If worker_signature = "" then MsgBox "You must provide a signature for your case note."
   Loop until worker_signature <> ""
   transmit
-  EMReadScreen MAXIS_check, 5, 1, 39
-  IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+  EMReadScreen check_for_MAXIS(True), 5, 1, 39
+  IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
+Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
 
 'Using custom function to assign addresses to the selected office
 call assign_county_address_variables(county_address_line_01, county_address_line_02)
@@ -146,7 +146,7 @@ If app_type = "new application" then last_contact_day = CAF_date + 30
 If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date 
 
 'Navigating to SPEC/MEMO
-call navigate_to_screen("SPEC", "MEMO")
+call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 'This checks to make sure we've moved passed SELF.
 EMReadScreen SELF_check, 27, 2, 28
@@ -162,9 +162,9 @@ col = 1
 EMSearch "ALTREP", row, col
 IF row > 4 THEN
 	arep_row = row
-	call navigate_to_screen("STAT", "AREP")
+	call navigate_to_MAXIS_screen("STAT", "AREP")
 	EMReadscreen forms_to_arep, 1, 10, 45
-	call navigate_to_screen("SPEC", "MEMO")
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")
 	PF5
 END IF
 'Checking for SWKR
@@ -173,9 +173,9 @@ col = 1
 EMSearch "SOCWKR", row, col 
 IF row > 4 THEN
 	swkr_row = row
-	call navigate_to_screen("STAT", "SWKR")
+	call navigate_to_MAXIS_screen("STAT", "SWKR")
 	EMReadscreen forms_to_swkr, 1, 15, 63
-	call navigate_to_screen("SPEC", "MEMO")
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")
 	PF5
 END IF
 EMWriteScreen "x", 5, 10
@@ -187,34 +187,34 @@ transmit
 EMSetCursor 3, 15
 EMSendKey("************************************************************")
 IF app_type = "new application" then
-	call write_new_line_in_SPEC_MEMO("You recently applied for assistance in " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
+	call write_variable_in_SPEC_MEMO("You recently applied for assistance in " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
 Elseif app_type = "recertification" then
 	If no_CAF_check = unchecked then 
-		call write_new_line_in_SPEC_MEMO("You sent recertification paperwork to " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
+		call write_variable_in_SPEC_MEMO("You sent recertification paperwork to " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
 	Else
-		call write_new_line_in_SPEC_MEMO("You asked us to set up an interview for your recertification. Remember to send in your forms before the interview.")
+		call write_variable_in_SPEC_MEMO("You asked us to set up an interview for your recertification. Remember to send in your forms before the interview.")
 	End if
 End if
-call write_new_line_in_SPEC_MEMO("")
+call write_variable_in_SPEC_MEMO("")
 If interview_location = "phone" then 	'Phone interviews have a different verbiage than any other interview type
-	call write_new_line_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & ".")
+	call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & ".")
 Else
-	call write_new_line_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
+	call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
 End if
-call write_new_line_in_SPEC_MEMO("")
+call write_variable_in_SPEC_MEMO("")
 If interview_location = "phone" then
-	call write_new_line_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".") 
-	call write_new_line_in_SPEC_MEMO("")
-	call write_new_line_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call your worker.")
+	call write_variable_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".") 
+	call write_variable_in_SPEC_MEMO("")
+	call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call your worker.")
 Else
-	call write_new_line_in_SPEC_MEMO("Your interview is at the " & interview_location & " Office, located at:")
-	call write_new_line_in_SPEC_MEMO("   " & county_address_line_01)
-	call write_new_line_in_SPEC_MEMO("   " & county_address_line_02)
-	call write_new_line_in_SPEC_MEMO("")
-	call write_new_line_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview over the phone, please call your worker and provide your phone number.")
+	call write_variable_in_SPEC_MEMO("Your interview is at the " & interview_location & " Office, located at:")
+	call write_variable_in_SPEC_MEMO("   " & county_address_line_01)
+	call write_variable_in_SPEC_MEMO("   " & county_address_line_02)
+	call write_variable_in_SPEC_MEMO("")
+	call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview over the phone, please call your worker and provide your phone number.")
 End if
-call write_new_line_in_SPEC_MEMO("")
-call write_new_line_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " we will deny your application.")
+call write_variable_in_SPEC_MEMO("")
+call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " we will deny your application.")
 EMSendKey("************************************************************")
 
 
@@ -222,7 +222,7 @@ EMSendKey("************************************************************")
 PF4
 
 'Navigates to CASE/NOTE
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
 
 'Writes the case note
@@ -235,11 +235,11 @@ EMSendKey "* Appointment is " & interview_date & " at " & interview_time & "." &
 If expedited_explanation <> "" then call write_editbox_in_case_note("Why interview is more than six days from now", expedited_explanation, 5)
 call write_editbox_in_case_note("Appointment location", interview_location, 5)
 If client_phone <> "" then call write_editbox_in_case_note("Client phone", client_phone, 5)
-call write_new_line_in_case_note("* Client must complete interview by " & last_contact_day & ".")
-If voicemail_check = checked then call write_new_line_in_case_note("* Left client a voicemail requesting a call back.")
-If forms_to_arep = "Y" then call write_new_line_in_case_note("* Copy of notice sent to AREP.")
-If forms_to_swkr = "Y" then call write_new_line_in_case_note("* Copy of notice sent to Social Worker.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_CASE_NOTE("* Client must complete interview by " & last_contact_day & ".")
+If voicemail_check = checked then call write_variable_in_CASE_NOTE("* Left client a voicemail requesting a call back.")
+If forms_to_arep = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")
+If forms_to_swkr = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")

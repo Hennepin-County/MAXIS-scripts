@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -84,14 +84,14 @@ Do
     If isdate(denial_effective_date) = False then MsgBox "You must put in a valid denial effective date (MM/DD/YYYY)."
   Loop until isdate(denial_effective_date) = True
   transmit 'sending refresh
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "MAXIS is not found. Check to make sure you're in MAXIS production and not passworded out."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+  EMReadScreen check_for_MAXIS(True), 5, 1, 39
+  If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "MAXIS is not found. Check to make sure you're in MAXIS production and not passworded out."
+Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
 
 'For the WCOM option it needs to go to SPEC/WCOM. Otherwise it goes to MEMO.
 If radiogroup1 = 0 then
   'Navigating to SPEC/WCOM
-  call navigate_to_screen("SPEC", "WCOM")  
+  call navigate_to_MAXIS_screen("SPEC", "WCOM")  
   'This checks to make sure we've moved passed SELF.
   EMReadScreen SELF_check, 27, 2, 28
   If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to get past SELF menu. Check for error messages and try again.")   
@@ -109,7 +109,7 @@ If radiogroup1 = 0 then
   If client_copy_check = "Client Copy" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 Else
   'Navigating to SPEC/MEMO
-  call navigate_to_screen("SPEC", "MEMO")  
+  call navigate_to_MAXIS_screen("SPEC", "MEMO")  
   'This checks to make sure we've moved passed SELF.
   EMReadScreen SELF_check, 27, 2, 28
   If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to get past SELF menu. Check for error messages and try again.")   
@@ -134,7 +134,7 @@ PF4
 PF3
 
 'Navigates to case note
-call navigate_to_screen("CASE", "NOTE")
+call navigate_to_MAXIS_screen("CASE", "NOTE")
 PF9
 
 'Enters case note

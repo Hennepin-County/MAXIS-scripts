@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -114,12 +114,12 @@ If recert_check = 6 then			'This is the "yes" button on a MsgBox
 			If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
 		Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_missed_interview <> "" and last_day_for_recert <> "" and worker_signature <> ""
 		transmit
-		EMReadScreen MAXIS_check, 5, 1, 39
-		IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+		EMReadScreen check_for_MAXIS(True), 5, 1, 39
+		IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
+	Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
     
 	'Navigates into SPEC/MEMO
-	call navigate_to_screen("SPEC", "MEMO")
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 	'Checks to make sure we're past the SELF menu
 	EMReadScreen still_self, 27, 2, 28 
@@ -142,7 +142,7 @@ If recert_check = 6 then			'This is the "yes" button on a MsgBox
 	PF4
 
 	'Navigates to a blank case note
-	call navigate_to_screen("case", "note")
+	call navigate_to_MAXIS_screen("case", "note")
 	PF9
 
 	'Writes the case note
@@ -167,12 +167,12 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 			If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
 		Loop until case_number <> "" and isdate(date_of_missed_interview) = True and time_of_missed_interview <> "" and isdate(application_date) = True and worker_signature <> ""
 		transmit
-		EMReadScreen MAXIS_check, 5, 1, 39
-		IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+		EMReadScreen check_for_MAXIS(True), 5, 1, 39
+		IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
+	Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
 
 	'Navigates into SPEC/LETR
-	call navigate_to_screen("SPEC", "LETR")
+	call navigate_to_MAXIS_screen("SPEC", "LETR")
 
 	'Checks to make sure we're past the SELF menu
 	EMReadScreen still_self, 27, 2, 28 
@@ -193,7 +193,7 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 
 	'Navigates to REPT/PND2 and updates for client delay if applicable.
 	If client_delay_check = checked then
-		call navigate_to_screen("rept", "pnd2")
+		call navigate_to_MAXIS_screen("rept", "pnd2")
 		EMGetCursor PND2_row, PND2_col
 		for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
 			EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
@@ -224,14 +224,14 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	End if
 
 	'Navigates to a blank case note
-	call navigate_to_screen("case", "note")
+	call navigate_to_MAXIS_screen("case", "note")
 	PF9
 
 	'Writes the case note
 	EMSendKey "**Client missed SNAP interview**" & "<newline>"
 	EMSendKey "* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & "." & "<newline>" 
 	EMSendKey "* A NOMI has been sent via SPEC/LETR informing them of missed interview." & "<newline>"
-	If client_delay_check = checked then call write_new_line_in_case_note("* Updated PND2 for client delay.")
+	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
 	EMSendKey "---" & "<newline>" 
 	EMSendKey worker_signature
 	MsgBox "Success! The NOMI has been sent and a case note has been made."
