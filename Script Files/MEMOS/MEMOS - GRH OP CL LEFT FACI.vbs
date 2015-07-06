@@ -61,6 +61,7 @@ END IF
 'DIM ButtonPressed
 'DIM GRH_OP_LEAVING_FACI_dialog
 'DIM case_number
+'DIM calculate_button
 'DIM total_OP_amt
 'DIM facility_name
 'DIM facility_address_line_01
@@ -99,7 +100,9 @@ END IF
 'DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 390, "GRH overpayment due to leaving facility dialog"
   EditBox 50, 5, 55, 15, case_number
-  EditBox 210, 5, 55, 15, total_OP_amt
+  EditBox 175, 5, 55, 15, total_OP_amt
+  ButtonGroup ButtonPressed
+    PushButton 235, 5, 70, 15, "Calculate total OP", calculate_button
   EditBox 70, 45, 230, 15, facility_name
   EditBox 70, 65, 230, 15, facility_address_line_01
   EditBox 70, 85, 230, 15, facility_address_line_02
@@ -122,7 +125,6 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 390, "GRH overpayment due to 
   EditBox 185, 220, 45, 15, OP_date_06
   EditBox 255, 220, 45, 15, OP_amt_06
   EditBox 65, 265, 235, 15, county_name_dept
-  EditBox 65, 285, 235, 15, county_address_line_01
   EditBox 65, 305, 235, 15, county_address_line_02
   EditBox 65, 325, 80, 15, county_address_city
   EditBox 150, 325, 25, 15, county_address_state
@@ -137,7 +139,7 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 390, "GRH overpayment due to 
   Text 40, 370, 60, 10, "Worker signature:"
   Text 5, 310, 55, 10, "Address Line 2:"
   Text 95, 185, 15, 10, "Amt:"
-  Text 120, 10, 90, 10, "Total overpayment amount:"
+  Text 115, 10, 60, 10, "Total OP amount:"
   Text 5, 290, 55, 10, "Address Line 1:"
   Text 145, 185, 40, 10, "Date of OP:"
   Text 5, 350, 25, 10, "**OR**"
@@ -162,7 +164,9 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 306, 390, "GRH overpayment due to 
   Text 25, 50, 40, 10, "FACI Name:"
   Text 190, 160, 60, 10, "Established date:"
   Text 0, 270, 65, 10, "County Name/Dept:"
+  EditBox 65, 285, 235, 15, county_address_line_01
 EndDialog
+
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -270,13 +274,14 @@ IF OP_amt_04 <> "" and OP_date_04 <> "" THEN Call write_variable_in_SPEC_MEMO("*
 IF OP_amt_05 <> "" and OP_date_05 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_05 & " for " & OP_date_05)
 IF OP_amt_06 <> "" and OP_date_06 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_06 & " for " & OP_date_06)
 Call write_variable_in_SPEC_MEMO("The total amount of the overpayment to be returned is: " & total_OP_amt)
+Call write_variable_in_SPEC_MEMO("Reason for the overpayment(s):" & OP_reason)
 Call write_variable_in_SPEC_MEMO("Please submit payment to:")
 If send_OP_to_DHS_check = 1 THEN 
 	Call write_variable_in_SPEC_MEMO("Minnesota Department of Human Services")
 	Call write_variable_in_SPEC_MEMO("MAXIS Cashier - 211")
 	Call write_variable_in_SPEC_MEMO("PO BOX 64835")
 	Call write_variable_in_SPEC_MEMO("St. Paul, MN 55164-0835")
-ELSE
+ELSEIF
 	Call write_variable_in_SPEC_MEMO(county_name_dept)
 	Call write_variable_in_SPEC_MEMO(county_address_line_01)
 	Call write_variable_in_SPEC_MEMO(county_address_line_02)
@@ -302,12 +307,12 @@ Call write_bullet_and_variable_in_case_note("Reason for overpayment(s)", OP_reas
 Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 Call write_bullet_and_variable_in_case_note("Established date", established_date)
 Call write_bullet_and_variable_in_case_note("Total overpayment amount", total_OP_amt)
-IF OP_amt_01 <> "" and OP_date_01 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_01 & " for " & OP_date_01)
-IF OP_amt_02 <> "" and OP_date_02 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_02 & " for " & OP_date_02)
-IF OP_amt_03 <> "" and OP_date_03 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_03 & " for " & OP_date_03)
-IF OP_amt_04 <> "" and OP_date_04 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_04 & " for " & OP_date_04)
-IF OP_amt_05 <> "" and OP_date_05 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_05 & " for " & OP_date_05)
-IF OP_amt_06 <> "" and OP_date_06 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_06 & " for " & OP_date_06)
+IF OP_amt_01 <> "" and OP_date_01 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_01 & " for " & OP_date_01)
+IF OP_amt_02 <> "" and OP_date_02 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_02 & " for " & OP_date_02)
+IF OP_amt_03 <> "" and OP_date_03 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_03 & " for " & OP_date_03)
+IF OP_amt_04 <> "" and OP_date_04 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_04 & " for " & OP_date_04)
+IF OP_amt_05 <> "" and OP_date_05 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_05 & " for " & OP_date_05)
+IF OP_amt_06 <> "" and OP_date_06 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_06 & " for " & OP_date_06)
 Call write_bullet_and_variable_in_case_note ("Instructed FACI to send overpayment to", county_name_dept)
 If send_OP_to_DHS_check = 1 THEN write_variable_in_CASE_NOTE("*  Instructed FACI to send overpayment to DHS.")
 If set_TIKL_check = 1 THEN write_variable_in_CASE_NOTE ("* TIKL'd to recheck case in 30 days")
