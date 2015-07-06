@@ -46,7 +46,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-BeginDialog Dialog1, 0, 0, 166, 80, "Dialog"
+BeginDialog check_snap_dlg, 0, 0, 166, 80, "Check SNAP for GA/RCA"
   EditBox 105, 10, 50, 15, worker_number
   CheckBox 15, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
   ButtonGroup ButtonPressed
@@ -67,7 +67,7 @@ EMWriteScreen benefit_month, 20, 43
 EMWriteScreen benefit_year, 20, 46
 
 DO
-	DIALOG Dialog1
+	DIALOG check_snap_dlg
 		IF ButtonPressed = 0 THEN stopscript
 LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
 
