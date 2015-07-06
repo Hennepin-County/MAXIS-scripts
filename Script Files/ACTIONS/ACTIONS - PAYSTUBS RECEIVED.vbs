@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -263,14 +263,7 @@ If pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then
 End if
 
 'Sends a transmit to refresh screen, then checks for MAXIS status. Does this on a loop so as not to lose pay information, and includes a cancel button.
-Do
-  transmit
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then
-    MAXIS_check_msgbox = MsgBox("MAXIS not found. You may be passworded out.", 1)
-    If MAXIS_check_msgbox = 2 then stopscript
-  End if
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+ call check_for_MAXIS(True)
 
 'Checks to see if it's in STAT, and checks footer month/year. If it isn't in STAT or the right footer month/year, the script will leave the case.
 EMReadScreen STAT_check, 4, 20, 21
@@ -557,8 +550,8 @@ If update_PIC_check = 1 then
   End if
   call write_editbox_in_case_note("Employer name", employer_name, 6)
   If document_datestamp <> "" then call write_editbox_in_case_note("Paystubs received date", document_datestamp, 6)
-  call write_new_line_in_case_note("---")
-  call write_new_line_in_case_note(worker_signature)
+  call write_variable_in_CASE_NOTE("---")
+  call write_variable_in_CASE_NOTE(worker_signature)
   PF3
   PF3
 End if
@@ -579,8 +572,8 @@ If case_note_check = 1 then
   End if
   call write_editbox_in_case_note("Employer name", employer_name, 6)
   If document_datestamp <> "" then call write_editbox_in_case_note("Paystubs received date", document_datestamp, 6)
-  call write_new_line_in_case_note("---")
-  call write_new_line_in_case_note(worker_signature)
+  call write_variable_in_CASE_NOTE("---")
+  call write_variable_in_CASE_NOTE(worker_signature)
   PF3
   PF3
 End if

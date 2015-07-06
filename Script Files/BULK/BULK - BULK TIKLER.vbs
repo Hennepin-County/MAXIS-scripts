@@ -238,7 +238,7 @@ For each case_number in case_number_array
 		back_to_self
 		call navigate_to_MAXIS_screen("DAIL", "WRIT")
 		call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)
-		call write_TIKL_function(tikl_text)
+		call write_variable_in_TIKL(tikl_text)
 		PF3
 	End if
 Next

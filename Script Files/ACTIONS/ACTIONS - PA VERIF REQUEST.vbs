@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -147,8 +147,8 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 'Checking for MAXIS
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+check_for_MAXIS(True)
+
 
 'Jumping to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
@@ -411,9 +411,9 @@ Do
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'Enters the case note
-call write_new_line_in_case_note("PA verification request completed and sent to requesting agency.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_CASE_NOTE("PA verification request completed and sent to requesting agency.")
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -151,7 +151,6 @@ If IsNumeric(case_number) = False then case_number = ""
 IF XFERRadioGroup = 0 THEN
 		'Displays the dialog and navigates to case note
 		Do
-		  Do
 			Do
 			  Dialog within_county_dlg
 			  If buttonpressed = 0 then stopscript
@@ -159,9 +158,7 @@ IF XFERRadioGroup = 0 THEN
 			IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X102 in the worker number"
 			Loop until case_number <> "" and len(worker_to_transfer_to) = 7
 			transmit
-			EMReadScreen MAXIS_check, 5, 1, 39
-			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-		  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+			Call check_for_MAXIS(True)
 		  call navigate_to_MAXIS_screen("case", "note")
 		  PF9
 		  EMReadScreen mode_check, 7, 20, 3

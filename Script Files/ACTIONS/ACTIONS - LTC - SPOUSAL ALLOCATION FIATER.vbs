@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -303,17 +303,15 @@ gross_spousal_earned_income_04 = trim(gross_spousal_earned_income_04)
 HH_memb_row = 6
 
 'Shows the spousal maintenance dialog
+
 Do
-  Do
     dialog spousal_maintenance_dialog
     cancel_confirmation
 	If ButtonPressed = 0 then stopscript
     EMReadScreen STAT_check, 4, 20, 21
     If STAT_check = "STAT" then call stat_navigation
     transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+    check_for_MAXIS(True)
   If ButtonPressed <> -1 then call navigation_buttons
 Loop until ButtonPressed = -1
 

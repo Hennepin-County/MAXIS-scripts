@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -118,8 +118,7 @@ If ButtonPressed = 0 then stopscript
 
 'It sends an enter to force the screen to refresh, in order to check for MAXIS. If MAXIS isn't found the script will stop.
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS not found. Are you in MAXIS on the screen you started the script? Check and try again. If it still doesn't work try shutting down BlueZone and starting it up again.")
+check_for_MAXIS(True)
 
 'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
 EMReadScreen footer_month_year_check, 5, 20, 55
@@ -148,25 +147,22 @@ Do
 			Do
 				Do
 					Do
-						Do
-							Dialog new_job_reported_dialog
-							If ButtonPressed = cancel then stopscript
-							EMReadScreen STAT_check, 4, 20, 21
-							If STAT_check = "STAT" then call stat_navigation
-							transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-							EMReadScreen MAXIS_check, 5, 1, 39
-							If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again.")
-						Loop until ButtonPressed = OK
-						If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
-							If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
-								MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
-								pass_through_inc_date_loop = False
-							Else
-								pass_through_inc_date_loop = True
-							End if
+						Dialog new_job_reported_dialog
+						If ButtonPressed = cancel then stopscript
+						EMReadScreen STAT_check, 4, 20, 21
+						If STAT_check = "STAT" then call stat_navigation
+						transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
+						check_for_MAXIS(True)
+					If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
+						If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
+							MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
+							pass_through_inc_date_loop = False
 						Else
-							If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
+							pass_through_inc_date_loop = True
 						End if
+					Else
+						If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
+					End if
 					Loop until income_start_date = "" or pass_through_inc_date_loop = True
 					If employer = "" then MsgBox "You must type an employer!"
 				Loop until employer <> ""

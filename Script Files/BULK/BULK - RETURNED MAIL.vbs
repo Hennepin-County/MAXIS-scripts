@@ -254,7 +254,7 @@ For each case_number in case_number_array
 		call create_MAXIS_friendly_date(date, 10, 5, 18)
 
 		'Writes TIKL
-		write_TIKL_function("Request for address sent 10 days ago. If not responded to, take appropriate action. (TIKL generated via BULK script)")
+		write_variable_in_TIKL("Request for address sent 10 days ago. If not responded to, take appropriate action. (TIKL generated via BULK script)")
 
 		'Exits case note
 		PF3
