@@ -7,7 +7,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -184,7 +184,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
 'Jumping to STAT
-call navigate_to_screen("stat", "memb")
+call navigate_to_MAXIS_screen("stat", "memb")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
 EMReadScreen ERRR_check, 4, 2, 52
@@ -233,14 +233,14 @@ Do
 				EMReadScreen MAXIS_check, 5, 1, 39
 				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
 			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-			If buttonpressed <> -1 then call navigation_buttons
+			If buttonpressed <> -1 then call MAXIS_dialog_navigation
 		Loop until ButtonPressed = -1
 		If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
 	Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
 	If ButtonPressed = -1 then dialog case_note_dialog
 	If buttonpressed = yes_case_note_button then
 		If grab_GRH_info_check = 1 then
-			call navigate_to_screen("elig", "grh")
+			call navigate_to_MAXIS_screen("elig", "grh")
 			EMReadScreen GRPR_check, 4, 3, 47
 			If GRPR_check <> "GRPR" then
 				MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
@@ -254,7 +254,7 @@ Do
 				EMReadScreen GRSM_Obligation, 9, 18, 31
 			End if		
 		End if
-		call navigate_to_screen("case", "note")
+		call navigate_to_MAXIS_screen("case", "note")
 		PF9
 		EMReadScreen case_note_check, 17, 2, 33
 		EMReadScreen mode_check, 1, 20, 09

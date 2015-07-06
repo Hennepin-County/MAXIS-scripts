@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -169,7 +169,7 @@ Do
 		EMReadScreen MAXIS_check, 5, 1, 39	'Checks to see if MAXIS is up. If MAXIS isn't up, it'll yell at you (next line).
 		If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
 	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "	'If MAXIS is found, it will move on. Otherwise, it loops.
-	call navigate_to_screen("case", "note")			'Goes to case/note.
+	call navigate_to_MAXIS_screen("case", "note")			'Goes to case/note.
 	PF9												'PF9s, which creates a new case note.
 	EMReadScreen mode_check, 7, 20, 3				'Reads the case note "mode". The mode needs to have become A or E (add or edit) to continue (next line).
 	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
@@ -212,7 +212,7 @@ call write_new_line_in_case_note(worker_signature)
 If TIKL_check = unchecked then script_end_procedure("")
 
 'Navigating to DAIL/WRIT
-call navigate_to_screen("dail", "writ")
+call navigate_to_MAXIS_screen("dail", "writ")
 
 'If the date in Verif due date is a date, it'll fill that date in on the TIKL.
 If IsDate(verif_due_date) = True then call create_MAXIS_friendly_date(verif_due_date, 0, 5, 18)

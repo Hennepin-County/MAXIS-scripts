@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -162,7 +162,7 @@ PF3
 EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
 back_to_self
-call navigate_to_screen("aset", "____")
+call navigate_to_MAXIS_screen("aset", "____")
 
 EMWriteScreen "________", 13, 62
 If community_spouse_check = 1 then 
@@ -320,7 +320,7 @@ call write_new_line_in_person_note(total_marital_asset_list_line_15)
 
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
 
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
 EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT***" & "<newline>"
 call write_editbox_in_case_note("Effective date", effective_date, 5) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.

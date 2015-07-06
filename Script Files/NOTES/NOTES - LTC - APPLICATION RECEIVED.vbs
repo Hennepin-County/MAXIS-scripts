@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -146,7 +146,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found. The script will now exit. Make sure you start this script on the window that has MAXIS.")
 
 'Navigating to STAT/HCRE so we can grab the app date
-call navigate_to_screen("stat", "hcre")
+call navigate_to_MAXIS_screen("stat", "hcre")
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -175,7 +175,7 @@ Do
         Do
           Dialog LTC_app_recd_dialog
           If ButtonPressed = 0 then stopscript
-          If buttonpressed <> -1 then call navigation_buttons
+          If buttonpressed <> -1 then call MAXIS_dialog_navigation
           If buttonpressed = prev_panel_button then call panel_navigation_prev
           If buttonpressed = next_panel_button then call panel_navigation_next
           If buttonpressed = prev_memb_button then call memb_navigation_prev
@@ -194,7 +194,7 @@ Do
 Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
 
 'Navigating to case/note and starting a fresh note. Will close if unable to get to edit mode (in case worker is in inquiry for instance).
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
 EMReadScreen edit_mode_check, 1, 20, 09
 If edit_mode_check <> "A" then script_end_procedure("Unable to get to edit mode in this case note. Are you in inquiry? Is the case out of county? Resolve these issues and try the script again.")

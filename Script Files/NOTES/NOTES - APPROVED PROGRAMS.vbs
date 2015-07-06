@@ -7,7 +7,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -160,7 +160,7 @@ Do
     EMReadScreen MAXIS_check, 5, 1, 39
     If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
   Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-  call navigate_to_screen("case", "note")
+  call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen mode_check, 7, 20, 3
   If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
@@ -176,7 +176,7 @@ IF autofill_snap_check = checked THEN
 	snap_count = 0
 	DO
 		IF len(snap_month) = 1 THEN snap_month = "0" & snap_month
-		call navigate_to_screen("ELIG", "FS")
+		call navigate_to_MAXIS_screen("ELIG", "FS")
 		EMWriteScreen snap_month, 19, 54
 		EMWriteScreen snap_year, 19, 57
 		EMWRiteScreen "FSSM", 19, 70
@@ -242,7 +242,7 @@ IF autofill_cash_check = checked THEN
 
 	DO
 		IF len(cash_month) = 1 THEN cash_month = "0" & cash_month
-		call navigate_to_screen("ELIG", "SUMM")
+		call navigate_to_MAXIS_screen("ELIG", "SUMM")
 		EMWriteScreen cash_month, 19, 56
 		EMWriteScreen cash_year, 19, 59
 		transmit
@@ -293,7 +293,7 @@ IF autofill_cash_check = checked THEN
 
 			ELSEIF left(prog_to_check, 2) = "MF" THEN
 				'MFIP portion
-				call navigate_to_screen("ELIG", "MFIP")
+				call navigate_to_MAXIS_screen("ELIG", "MFIP")
 				EMWriteScreen left(right(prog_to_check, 4), 2), 20, 56
 				EMWriteScreen right(prog_to_check, 2), 20, 59
 				EMWRiteScreen "MFSM", 20, 71
@@ -330,7 +330,7 @@ IF autofill_cash_check = checked THEN
 				END IF	
 			ELSEIF left(prog_to_check, 2) = "GA" THEN
 				'GA portion
-				call navigate_to_screen("ELIG", "GA")
+				call navigate_to_MAXIS_screen("ELIG", "GA")
 				EMWriteScreen left(right(prog_to_check, 4), 2), 20, 54
 				EMWriteScreen right(prog_to_check, 2), 20, 57
 				EMWRiteScreen "GASM", 20, 70
@@ -364,7 +364,7 @@ IF autofill_cash_check = checked THEN
 		
 			ELSEIF left(prog_to_check, 2) = "MS" THEN
 				'MSA portion
-				call navigate_to_screen("ELIG", "MSA")
+				call navigate_to_MAXIS_screen("ELIG", "MSA")
 				EMWriteScreen left(right(prog_to_check, 4), 2), 20, 56
 				EMWriteScreen right(prog_to_check, 2), 20, 59
 				EMWRiteScreen "MSSM", 20, 71
@@ -397,7 +397,7 @@ IF autofill_cash_check = checked THEN
 				END IF
 			ELSEIF left(prog_to_check, 2) = "DW" THEN
 				'DWP portion
-				call navigate_to_screen("ELIG", "DWP")
+				call navigate_to_MAXIS_screen("ELIG", "DWP")
 				EMWriteScreen left(right(prog_to_check, 4), 2), 20, 56
 				EMWriteScreen right(prog_to_check, 2), 20, 59
 				EMWRiteScreen "DWSM", 20, 71
@@ -443,7 +443,7 @@ cash_approval_array = trim(cash_approval_array)
 cash_approval_array = split(cash_approval_array)
 
 'Case notes
-call navigate_to_screen("CASE", "NOTE")
+call navigate_to_MAXIS_screen("CASE", "NOTE")
 PF9
 IF snap_approved_check = checked THEN approved_programs = approved_programs & "SNAP/"
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"

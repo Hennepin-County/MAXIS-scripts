@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -124,7 +124,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen. The script will now stop")
 
 'Navigates to STAT to make sure the case is out of background
-call navigate_to_screen("stat", "____")
+call navigate_to_MAXIS_screen("stat", "____")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Unable to get to STAT. Your case could be in background. Wait a few moments then try again.")
 
@@ -141,7 +141,7 @@ Do
     EMReadScreen MAXIS_check, 5, 1, 39
     If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
   Loop until MAXIS_check = "MAXIS" 
-  call navigate_to_screen("case", "note")
+  call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen NOTE_mode_check, 7, 20, 3
   If NOTE_mode_check <> "Mode: A" then MsgBox "A valid case note could not be found. Are you in the right case number? Did you accidentally start the script in inquiry? Check the case number, the screen, and try again."
@@ -205,7 +205,7 @@ transmit
 'TIKLING
 
 If TIKL_check = 1 then
-  call navigate_to_screen("dail", "writ")
+  call navigate_to_MAXIS_screen("dail", "writ")
   EMWriteScreen TIKL_date_MM, 5, 18
   EMWriteScreen TIKL_date_DD, 5, 21
   EMWriteScreen TIKL_date_YY, 5, 24
@@ -218,7 +218,7 @@ End if
 'UPDATING FACI
 
 If FACI_update_check = 1 then
-  call navigate_to_screen("stat", "faci")
+  call navigate_to_MAXIS_screen("stat", "faci")
   EMReadScreen ERRR_check, 4, 2, 52
   If ERRR_check = "ERRR" then transmit
   EMWriteScreen "nn", 20, 79
@@ -250,7 +250,7 @@ If HCMI_update_check = 1 then
     EMWriteScreen "hcmi", 20, 71
     transmit
   Else
-    call navigate_to_screen("stat", "hcmi")
+    call navigate_to_MAXIS_screen("stat", "hcmi")
   End if
   EMReadScreen ERRR_check, 4, 2, 52
   If ERRR_check = "ERRR" then transmit

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -210,7 +210,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
 'Navigating into STAT
-call navigate_to_screen("stat", "hcre")
+call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
 EMReadScreen ERRR_check, 4, 2, 52
@@ -528,20 +528,20 @@ Do
         EMReadScreen MAXIS_check, 5, 1, 39
         If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
       Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-      If ButtonPressed = AREP_button then call navigate_to_screen("stat", "AREP")
-      If ButtonPressed = SWKR_button then call navigate_to_screen("stat", "SWKR")
-      If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
-      If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-      If ButtonPressed = MEDI_button then call navigate_to_screen("stat", "MEDI")
-      If ButtonPressed = INSA_button then call navigate_to_screen("stat", "INSA")
-      If ButtonPressed = BILS_button then call navigate_to_screen("stat", "BILS")
+      If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
+      If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "AREP")
+      If ButtonPressed = SWKR_button then call navigate_to_MAXIS_screen("stat", "SWKR")
+      If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
+      If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
+      If ButtonPressed = MEDI_button then call navigate_to_MAXIS_screen("stat", "MEDI")
+      If ButtonPressed = INSA_button then call navigate_to_MAXIS_screen("stat", "INSA")
+      If ButtonPressed = BILS_button then call navigate_to_MAXIS_screen("stat", "BILS")
     Loop until ButtonPressed = -1 
     If actions_taken = "" or application_date = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
   Loop until actions_taken <> "" and application_date <> "" and worker_signature <> "" 
   If ButtonPressed = -1 then CaseNoteDialog = MsgBox("Press ''YES'' to CASE NOTE. Press ''NO'' to return to the script.", vbYesNo)
   If CaseNoteDialog = vbYes then
-    call navigate_to_screen("case", "note")
+    call navigate_to_MAXIS_screen("case", "note")
     PF9
     EMReadScreen case_note_check, 17, 2, 33
     EMReadScreen mode_check, 1, 20, 09

@@ -7,7 +7,7 @@
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -117,7 +117,7 @@ CALL check_for_MAXIS(True)
 
 
 'Navigates to case note
-CALL navigate_to_screen("CASE", "NOTE")
+CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 
 'Sends a PF9
 PF9
@@ -143,7 +143,7 @@ CALL write_variable_in_case_note(worker_signature)
 
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 IF tikl_nav_check = 1 THEN
-	CALL navigate_to_screen("DAIL", "WRIT")
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
 END IF

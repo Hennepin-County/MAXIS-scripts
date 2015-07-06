@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -186,7 +186,7 @@ EMReadScreen MAXIS_check, 5, 1, 39
 If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS, or you are locked out of your case.")
 
 'Navigates to STAT
-call navigate_to_screen("STAT", "REVW")
+call navigate_to_MAXIS_screen("STAT", "REVW")
 
 'Checks for error prone, and moves past it
 ERRR_screen_check
@@ -239,35 +239,35 @@ Do
 				EMReadScreen MAXIS_check, 5, 1, 39
 				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
 			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-			If ButtonPressed = AREP_button then call navigate_to_screen("stat", "arep")
-			If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
-			If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
-			If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
-			If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
-			If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-			If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
-			If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
-			If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
-			If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
-			If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
-			If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
-			If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
-			If ButtonPressed = HCRE_button then call navigate_to_screen("stat", "HCRE")
-			If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
-			If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
-			If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
-			IF ButtonPressed = SHEL_button THEN CALL navigate_to_screen("STAT", "SHEL")
-			IF ButtonPressed = HEST_button THEN CALL navigate_to_screen("STAT", "HEST")
-			If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-			If ButtonPressed = ELIG_FS_button then call navigate_to_screen("elig", "FS__")
-			If ButtonPressed = ELIG_GA_button then call navigate_to_screen("elig", "GA__")
-			If ButtonPressed = ELIG_MSA_button then call navigate_to_screen("elig", "MSA_")
+			If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "arep")
+			If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
+			If ButtonPressed = BUSI_button then call navigate_to_MAXIS_screen("stat", "BUSI")
+			If ButtonPressed = JOBS_button then call navigate_to_MAXIS_screen("stat", "JOBS")
+			If ButtonPressed = RBIC_button then call navigate_to_MAXIS_screen("stat", "RBIC")
+			If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
+			If ButtonPressed = ACCT_button then call navigate_to_MAXIS_screen("stat", "ACCT")
+			If ButtonPressed = CARS_button then call navigate_to_MAXIS_screen("stat", "CARS")
+			If ButtonPressed = CASH_button then call navigate_to_MAXIS_screen("stat", "CASH")
+			If ButtonPressed = OTHR_button then call navigate_to_MAXIS_screen("stat", "OTHR")
+			If ButtonPressed = REST_button then call navigate_to_MAXIS_screen("stat", "REST")
+			If ButtonPressed = SECU_button then call navigate_to_MAXIS_screen("stat", "SECU")
+			If ButtonPressed = TRAN_button then call navigate_to_MAXIS_screen("stat", "TRAN")
+			If ButtonPressed = HCRE_button then call navigate_to_MAXIS_screen("stat", "HCRE")
+			If ButtonPressed = REVW_button then call navigate_to_MAXIS_screen("stat", "REVW")
+			If ButtonPressed = MEMB_button then call navigate_to_MAXIS_screen("stat", "MEMB")
+			If ButtonPressed = MEMI_button then call navigate_to_MAXIS_screen("stat", "MEMI")
+			IF ButtonPressed = SHEL_button THEN CALL navigate_to_MAXIS_screen("STAT", "SHEL")
+			IF ButtonPressed = HEST_button THEN CALL navigate_to_MAXIS_screen("STAT", "HEST")
+			If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
+			If ButtonPressed = ELIG_FS_button then call navigate_to_MAXIS_screen("elig", "FS__")
+			If ButtonPressed = ELIG_GA_button then call navigate_to_MAXIS_screen("elig", "GA__")
+			If ButtonPressed = ELIG_MSA_button then call navigate_to_MAXIS_screen("elig", "MSA_")
 		Loop until ButtonPressed = -1
 		If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
 	Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""
 	If ButtonPressed = -1 then dialog case_note_dialog
 	If buttonpressed = yes_case_note_button then
-		call navigate_to_screen("case", "note")
+		call navigate_to_MAXIS_screen("case", "note")
 		PF9
 		EMReadScreen case_note_check, 17, 2, 33
 		EMReadScreen mode_check, 1, 20, 09

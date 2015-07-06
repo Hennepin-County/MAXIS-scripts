@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -295,7 +295,7 @@ call check_for_MAXIS(True)
 
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-call navigate_to_screen("stat", "hcre")
+call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
@@ -403,7 +403,7 @@ Loop until case_note_confirm = TRUE							'Loops until we affirm that we're read
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then 
-	call navigate_to_screen("rept", "pnd2")
+	call navigate_to_MAXIS_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
 		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
@@ -436,7 +436,7 @@ End if
 'Going to TIKL, there's a custom function for this. Evaluate using it.
 If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-		call navigate_to_screen("dail", "writ")
+		call navigate_to_MAXIS_screen("dail", "writ")
 		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
 		EMSetCursor 9, 3
 		If cash_checkbox = checked then EMSendKey "cash/"
@@ -447,7 +447,7 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 		PF3
 	End if
 	If HC_checkbox = checked then
-		call navigate_to_screen("dail", "writ")
+		call navigate_to_MAXIS_screen("dail", "writ")
 		call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
 		EMSetCursor 9, 3
 		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
@@ -456,7 +456,7 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	End if
 End if
 If client_delay_TIKL_checkbox = checked then
-	call navigate_to_screen("dail", "writ")
+	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 10, 5, 18) 
 	EMSetCursor 9, 3
 	EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"

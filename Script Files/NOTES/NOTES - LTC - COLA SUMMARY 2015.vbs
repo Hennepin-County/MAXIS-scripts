@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -313,7 +313,7 @@ EndDialog
 		If buttonpressed = BBUD_button then
 			maxis_check_function
 			back_to_self
-			Call navigate_to_screen("ELIG", "HC")
+			Call navigate_to_MAXIS_screen("ELIG", "HC")
  			 EMReadScreen person_check, 2, 8, 31
  			 If person_check = "NO" then
  			   MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
@@ -336,7 +336,7 @@ EndDialog
 		If buttonpressed = BILS_button_COLADLG then
 			maxis_check_function
 			back_to_self
-			Call navigate_to_screen("STAT", "BILS")
+			Call navigate_to_MAXIS_screen("STAT", "BILS")
 			EMReadScreen BILS_check, 4, 2, 54
    			If BILS_check <> "BILS" then transmit  'ERR checkin
 		End if
@@ -381,7 +381,7 @@ EMWriteScreen "01", 20, 43
 EMWriteScreen "15", 20, 46
 
 'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-call navigate_to_screen("stat", "unea")
+call navigate_to_MAXIS_screen("stat", "unea")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then 
   MsgBox "Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background, contact a Support Team member."
@@ -490,7 +490,7 @@ HH_member_array = split(HH_member_array, " ")
 
 'DETERMINES THE UNEARNED INCOME RECEIVED BY THE CLIENT
 For each HH_member in HH_member_array
-  call navigate_to_screen("stat", "unea")
+  call navigate_to_MAXIS_screen("stat", "unea")
   EMWriteScreen HH_member, 20, 76
   EMWriteScreen "01", 20, 79
   transmit
@@ -510,7 +510,7 @@ Next
 
 'DETERMINES THE JOBS INCOME RECEIVED BY THE CLIENT
 For each HH_member in HH_member_array
-  call navigate_to_screen("stat", "jobs")
+  call navigate_to_MAXIS_screen("stat", "jobs")
   EMWriteScreen HH_member, 20, 76
   EMWriteScreen "01", 20, 79
   transmit
@@ -530,7 +530,7 @@ Next
 
 'DETERMINES THE BUSI INCOME RECEIVED BY THE CLIENT
 For each HH_member in HH_member_array
-  call navigate_to_screen("stat", "busi")
+  call navigate_to_MAXIS_screen("stat", "busi")
   EMWriteScreen HH_member, 20, 76
   EMWriteScreen "01", 20, 79
   transmit
@@ -550,7 +550,7 @@ Next
 
 'DETERMINES THE RBIC INCOME RECEIVED BY THE CLIENT
 For each HH_member in HH_member_array
-  call navigate_to_screen("stat", "rbic")
+  call navigate_to_MAXIS_screen("stat", "rbic")
   EMWriteScreen HH_member, 20, 76
   EMWriteScreen "01", 20, 79
   transmit
@@ -569,7 +569,7 @@ For each HH_member in HH_member_array
 Next
 
 'DETERMINES THE MEDICARE PART B PAID BY THE CLIENT
-call navigate_to_screen("stat", "medi")
+call navigate_to_MAXIS_screen("stat", "medi")
 EMWriteScreen "01", 20, 76
 transmit
 EMReadScreen MEDI_total, 1, 2, 78
@@ -630,7 +630,7 @@ Do
     EMReadScreen MAXIS_check, 5, 1, 39
     If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
   Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-  call navigate_to_screen("case", "note")
+  call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen case_note_check, 17, 2, 33
   EMReadScreen mode_check, 1, 20, 09

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -51,7 +51,7 @@ If case_noting_intake_dates = False then dialog_shrink_amt = 105
 
 'LOADING SPECIALTY FUNCTIONS----------------------------------------------------------------------------------------------------
 function autofill_previous_denied_progs_note_info
-  call navigate_to_screen("case", "note")
+  call navigate_to_MAXIS_screen("case", "note")
   MAXIS_row = 1
   MAXIS_col = 1
   EMSearch "---Denied", MAXIS_row, MAXIS_col
@@ -194,7 +194,7 @@ Do
           Do
             Dialog denied_dialog
             If buttonpressed = 0 then stopscript
-            If buttonpressed = SPEC_WCOM_button then call navigate_to_screen("spec", "wcom")
+            If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
             If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
           Loop until buttonpressed = -1
           If (isdate(SNAP_denial_date) = False and isdate(HC_denial_date) = False and isdate(cash_denial_date) = False and isdate(emer_denial_date) = False) or isdate(application_date) = False then MsgBox "You need to enter a valid date of denial and application date (MM/DD/YYYY)."
@@ -212,7 +212,7 @@ Do
     EMReadScreen MAXIS_check, 5, 1, 39
     If MAXIS_check <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
   Loop until MAXIS_check = "MAXIS"
-  call navigate_to_screen("case", "note")
+  call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen mode_check, 7, 20, 3
   If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "You do not appear to be able to edit a case note. This case could have errored out, or might be in another county. Or you could be on inquiry. Check the case number, and try again."
@@ -349,7 +349,7 @@ If open_prog_check = 1 then
 End if
 
 'IT NAVIGATES TO DAIL/WRIT.
-call navigate_to_screen("dail", "writ")
+call navigate_to_MAXIS_screen("dail", "writ")
 
 'DETERMINES THE CORRECT FORMATTING FOR THE DATE CLIENT BECOMES AN INTAKE.
 TIKL_day = datepart("d", intake_date)
