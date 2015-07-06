@@ -322,6 +322,7 @@ Do
     EMReadScreen all_members_checked, 31, 24, 2
     If all_members_checked = "ENTER A VALID COMMAND OR PF-KEY" then exit do
     EMReadScreen PMI_from_MEMB, 8, 4, 46
+    PMI_from_MEMB = Replace(PMI_from_MEMB, "_", "")		'Fixing this so Ramsey County can use the script. They have underscores here for some reason.
     PMI_check = Replace(PMI_from_MEMB, " ", "")
     EMReadScreen HH_memb_number, 2, 4, 33
     EMReadScreen SSN_number, 11, 7, 42
@@ -461,7 +462,7 @@ Sub MFIP_sub
   If len(issue_day) = 1 then issue_day = "0" & issue_day
   EMWriteScreen issue_day, 13, 28
   EMWriteScreen retro_year, 13, 31
-  payment_amount = FormatNumber(ObjExcel.Cells(excel_row, 4).Value, 2)
+  payment_amount = FormatNumber(ObjExcel.Cells(excel_row, 4).Value, 2, , , 0)
   EMWriteScreen payment_amount, 13, 39
   EMWriteScreen footer_month, 13, 54
   issue_date = ObjExcel.Cells(excel_row, 6).Value
@@ -483,7 +484,7 @@ Sub MFIP_sub
       end_excel_and_script
     End if
     next_issue_day = day(ObjExcel.Cells(MFIP_memb_excel_row, 6).Value)
-    next_payment_amount = FormatNumber(ObjExcel.Cells(MFIP_memb_excel_row, 4).Value, 2)
+    next_payment_amount = FormatNumber(ObjExcel.Cells(MFIP_memb_excel_row, 4).Value, 2, , , 0)
     if len(next_issue_day) = 1 then next_issue_day = "0" & next_issue_day
     If ObjExcel.Cells(MFIP_memb_excel_row, 3).Value = HH_memb_to_check and Cint(income_type_on_UNEA) = ObjExcel.Cells(MFIP_memb_excel_row, 5).Value then 
       EMWriteScreen retro_month, MAXIS_payment_row, 25
