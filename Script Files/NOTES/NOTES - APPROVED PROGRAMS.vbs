@@ -157,9 +157,9 @@ Do
 	((cash_approved_check = checked AND autofill_cash_check = checked AND (datediff("M", cash_start, cash_end) >= 0) AND (datediff("M", date, cash_start) < 2) AND (datediff("M", date, cash_end) < 2)) OR (autofill_cash_check = 0))
 
     transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
+  Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
   call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen mode_check, 7, 20, 3

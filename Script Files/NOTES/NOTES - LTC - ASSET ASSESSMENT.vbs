@@ -159,8 +159,8 @@ If ButtonPressed = 0 then stopscript
 
 EMConnect ""
 PF3
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
 back_to_self
 call navigate_to_MAXIS_screen("aset", "____")
 

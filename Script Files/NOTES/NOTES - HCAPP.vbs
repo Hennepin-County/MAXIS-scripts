@@ -291,9 +291,9 @@ Do
 					If ButtonPressed = next_memb_button then call memb_navigation_next
 				End if
 				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-				EMReadScreen MAXIS_check, 5, 1, 39
-				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+				EMReadScreen check_for_MAXIS(True), 5, 1, 39
+				If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+			Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
 			If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
 			If ButtonPressed = ABPS_button then call navigate_to_MAXIS_screen("stat", "ABPS")
 			If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "AREP")
@@ -330,9 +330,9 @@ Do
 					If ButtonPressed = next_memb_button then call memb_navigation_next
 				End if
 				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-				EMReadScreen MAXIS_check, 5, 1, 39
-				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+				EMReadScreen check_for_MAXIS(True), 5, 1, 39
+				If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+			Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
 			If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
 			If ButtonPressed = ACCT_button then call navigate_to_MAXIS_screen("stat", "ACCT")
 			If ButtonPressed = CARS_button then call navigate_to_MAXIS_screen("stat", "CARS")

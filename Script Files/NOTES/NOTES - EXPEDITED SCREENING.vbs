@@ -100,9 +100,9 @@ Do
 		If worker_signature = "" then MsgBox "You must sign your case note."
 	Loop until worker_signature <> ""
 	transmit 'to check for MAXIS status
-	EMReadScreen MAXIS_check, 5, 1, 39
-	If MAXIS_check <> "MAXIS" then MsgBox "MAXIS is not found. You may need to enter a password. If you are in MAXIS, you may have had a configuration error. To fix this, restart BlueZone."
-Loop until MAXIS_check = "MAXIS"
+	EMReadScreen check_for_MAXIS(True), 5, 1, 39
+	If check_for_MAXIS(True) <> "MAXIS" then MsgBox "MAXIS is not found. You may need to enter a password. If you are in MAXIS, you may have had a configuration error. To fix this, restart BlueZone."
+Loop until check_for_MAXIS(True) = "MAXIS"
 
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
 If heat_AC_check = checked then

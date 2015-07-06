@@ -369,9 +369,9 @@ Do
 		      IF confirm_cancel = vbNo THEN EXIT DO
           End if
           transmit
-          EMReadScreen MAXIS_check, 5, 1, 39
-          If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You don't appear to be in MAXIS. You might be locked out of your case. Please get back into MAXIS production before continuing."
-        Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+          EMReadScreen check_for_MAXIS(True), 5, 1, 39
+          If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You don't appear to be in MAXIS. You might be locked out of your case. Please get back into MAXIS production before continuing."
+        Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
       Loop until buttonpressed = -1
     Loop until buttonpressed = -1
   Loop until buttonpressed = -1

@@ -209,9 +209,9 @@ Do
       If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
     Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
     transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
-  Loop until MAXIS_check = "MAXIS"
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
+  Loop until check_for_MAXIS(True) = "MAXIS"
   call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen mode_check, 7, 20, 3

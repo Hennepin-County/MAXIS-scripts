@@ -128,9 +128,9 @@ Do
 			If can_move_on = False then MsgBox "You must select a cit and ID proof for each client whose name you've typed."
 		Loop until can_move_on = True
 		transmit
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
-	Loop until MAXIS_check = "MAXIS"
+		EMReadScreen check_for_MAXIS(True), 5, 1, 39
+		If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
+	Loop until check_for_MAXIS(True) = "MAXIS"
 	EMReadScreen mode_check, 7, 20, 3
 	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then
 		call navigate_to_MAXIS_screen("case", "note")

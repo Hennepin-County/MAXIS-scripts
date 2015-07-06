@@ -50,8 +50,8 @@ EMConnect ""
 
 'Checks for MAXIS
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You do not seem to be in MAXIS. The script will now stop.")
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("You do not seem to be in MAXIS. The script will now stop.")
 
 back_to_self
 

@@ -91,9 +91,9 @@ Do
     Dialog apply_MN_dialog
     If ButtonPressed = 0 then stopscript
     transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You do not appear to be in MAXIS on the screen you started this script. Are you passworded out? Press OK, and navigate to MAXIS before proceeding."
-  Loop until MAXIS_check = "MAXIS"
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You do not appear to be in MAXIS on the screen you started this script. Are you passworded out? Press OK, and navigate to MAXIS before proceeding."
+  Loop until check_for_MAXIS(True) = "MAXIS"
   call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen mode_check, 7, 20, 3

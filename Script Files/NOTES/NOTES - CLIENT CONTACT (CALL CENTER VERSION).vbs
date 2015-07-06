@@ -103,10 +103,10 @@ Do
     Loop until (isnumeric(case_number) = True) 
     transmit
     If isnumeric(case_number) = True then
-      EMReadScreen MAXIS_check, 5, 1, 39
-      If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your screen to MAXIS and try again. You might be passworded out."
+      EMReadScreen check_for_MAXIS(True), 5, 1, 39
+      If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your screen to MAXIS and try again. You might be passworded out."
     End if
-  Loop until MAXIS_check = "MAXIS"
+  Loop until check_for_MAXIS(True) = "MAXIS"
   call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen mode_check, 7, 20, 3

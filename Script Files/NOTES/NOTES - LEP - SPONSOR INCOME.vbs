@@ -105,9 +105,9 @@ Do
     If worker_signature = "" then MsgBox "You must sign your case note!"
   Loop until worker_signature <> ""
   transmit
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "MAXIS not found. You might be locked out of your case. Check BlueZone and try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+  EMReadScreen check_for_MAXIS(True), 5, 1, 39
+  If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "MAXIS not found. You might be locked out of your case. Check BlueZone and try again."
+Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
 
 'Determines the income limits
 If sponsor_HH_size = 1 then income_limit = 1265

@@ -256,12 +256,12 @@ Sub approval_summary
     If ButtonPressed = 0 then stopscript
     If ButtonPressed = BILS_button then
       PF3
-      EMReadScreen MAXIS_check, 5, 1, 39
-      If MAXIS_check <> "MAXIS" then
+      EMReadScreen check_for_MAXIS(True), 5, 1, 39
+      If check_for_MAXIS(True) <> "MAXIS" then
         Do
           Dialog BBUD_Dialog
           If buttonpressed = 0 then stopscript
-        Loop until MAXIS_check = "MAXIS"
+        Loop until check_for_MAXIS(True) = "MAXIS"
       End if
       back_to_SELF
       EMWriteScreen "stat", 16, 43
@@ -462,9 +462,9 @@ Do
   Dialog HH_memb_dialog
   If buttonpressed = 0 then stopscript
   transmit
-  EMReadScreen MAXIS_check, 5, 1, 39
-  IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. You may have navigated away, or are passworded out. Clear up the issue, and try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+  EMReadScreen check_for_MAXIS(True), 5, 1, 39
+  IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. You may have navigated away, or are passworded out. Clear up the issue, and try again."
+Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
 
 'DETERMINING WHICH HH MEMBERS TO LOOK AT
 If client_01_check = 1 then HH_member_array = HH_member_array & left(HH_member_01, 2) & " "
@@ -627,9 +627,9 @@ Do
     Dialog COLA_income_dialog
     If ButtonPressed = 0 then stopscript
     transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+  Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
   call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen case_note_check, 17, 2, 33

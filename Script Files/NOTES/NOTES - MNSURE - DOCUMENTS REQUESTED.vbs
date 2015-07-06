@@ -91,9 +91,9 @@ Do
       If case_number = "" then MsgBox "You must have a case number to continue!"
     Loop until case_number <> ""
     transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
+  Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
   call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen mode_check, 7, 20, 3

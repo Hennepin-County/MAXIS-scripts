@@ -194,8 +194,8 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 'Checking for MAXIS
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
 'If "paperless" was checked, the script will put a simple case note in and end.
 If paperless_checkbox = 1 then
@@ -277,9 +277,9 @@ Do
 					If ButtonPressed = next_memb_button then call memb_navigation_next
 				End if
 				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-				EMReadScreen MAXIS_check, 5, 1, 39
-				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+				EMReadScreen check_for_MAXIS(True), 5, 1, 39
+				If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+			Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
 			If ButtonPressed = BUSI_button then call navigate_to_MAXIS_screen("stat", "BUSI")
 			If ButtonPressed = JOBS_button then call navigate_to_MAXIS_screen("stat", "JOBS")
 			If ButtonPressed = RBIC_button then call navigate_to_MAXIS_screen("stat", "RBIC")

@@ -110,9 +110,9 @@ Do
             Dialog closed_dialog
             If buttonpressed = 0 then stopscript
             transmit
-            EMReadScreen MAXIS_check, 5, 1, 39
-            If MAXIS_check <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
-          Loop until MAXIS_check = "MAXIS"
+            EMReadScreen check_for_MAXIS(True), 5, 1, 39
+            If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
+          Loop until check_for_MAXIS(True) = "MAXIS"
           If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
         Loop until ButtonPressed = -1
         If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."

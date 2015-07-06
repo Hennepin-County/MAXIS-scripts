@@ -142,8 +142,8 @@ Loop until case_number <> ""
 
 'Now it checks to make sure MAXIS is running on this screen.
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found. The script will now exit. Make sure you start this script on the window that has MAXIS.")
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("MAXIS is not found. The script will now exit. Make sure you start this script on the window that has MAXIS.")
 
 'Navigating to STAT/HCRE so we can grab the app date
 call navigate_to_MAXIS_screen("stat", "hcre")
@@ -189,9 +189,9 @@ Do
     If worker_signature = "" then MsgBox "You must sign your case note!"
   Loop until worker_signature <> ""
   transmit 'to check for password and MAXIS
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "MAXIS appears to have passworded out, or you navigated away from it. Navigate back to MAXIS before trying again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+  EMReadScreen check_for_MAXIS(True), 5, 1, 39
+  If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "MAXIS appears to have passworded out, or you navigated away from it. Navigate back to MAXIS before trying again."
+Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
 
 'Navigating to case/note and starting a fresh note. Will close if unable to get to edit mode (in case worker is in inquiry for instance).
 call navigate_to_MAXIS_screen("case", "note")

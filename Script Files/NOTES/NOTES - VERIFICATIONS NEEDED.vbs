@@ -166,9 +166,9 @@ Do
 			If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
 		Loop until case_number <> ""														'Loops until that case number exists
 		transmit							'transmits to see if there's a password screen
-		EMReadScreen MAXIS_check, 5, 1, 39	'Checks to see if MAXIS is up. If MAXIS isn't up, it'll yell at you (next line).
-		If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "	'If MAXIS is found, it will move on. Otherwise, it loops.
+		EMReadScreen check_for_MAXIS(True), 5, 1, 39	'Checks to see if MAXIS is up. If MAXIS isn't up, it'll yell at you (next line).
+		If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
+	Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "	'If MAXIS is found, it will move on. Otherwise, it loops.
 	call navigate_to_MAXIS_screen("case", "note")			'Goes to case/note.
 	PF9												'PF9s, which creates a new case note.
 	EMReadScreen mode_check, 7, 20, 3				'Reads the case note "mode". The mode needs to have become A or E (add or edit) to continue (next line).

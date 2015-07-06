@@ -188,8 +188,8 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 'Checking for MAXIS
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You are not in MAXIS, or you are locked out of your case.")
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("You are not in MAXIS, or you are locked out of your case.")
 
 'Jumping to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
@@ -347,12 +347,12 @@ If BBUD_check = "BBUD" then
   If ButtonPressed = 0 then stopscript
   If ButtonPressed = 4 then
     PF3
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" then
       Do
         Dialog BBUD_Dialog
         If buttonpressed = 0 then stopscript
-      Loop until MAXIS_check = "MAXIS"
+      Loop until check_for_MAXIS(True) = "MAXIS"
     End if
     call navigate_to_MAXIS_screen("stat", "bils")
     EMReadScreen BILS_check, 4, 2, 54
@@ -384,9 +384,9 @@ Do
           If ButtonPressed = next_memb_button then call next_memb_navigation
         End if
         transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+        EMReadScreen check_for_MAXIS(True), 5, 1, 39
+        If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+      Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
       If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "arep")
       If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
       If ButtonPressed = BUSI_button then call navigate_to_MAXIS_screen("stat", "BUSI")

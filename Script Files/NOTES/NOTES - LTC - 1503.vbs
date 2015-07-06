@@ -120,8 +120,8 @@ If buttonpressed = 0 then stopscript
 
 'Checks for MAXIS
 transmit 'to check for MAXIS
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen. The script will now stop")
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("MAXIS is not found on this screen. The script will now stop")
 
 'Navigates to STAT to make sure the case is out of background
 call navigate_to_MAXIS_screen("stat", "____")
@@ -138,9 +138,9 @@ Do
       If isdate(admit_date) = False then MsgBox "You did not type a valid date (MM/DD/YYYY) in the admit date box. This is required for the script to work correctly."
     Loop until isdate(admit_date) = True
     PF3
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
-  Loop until MAXIS_check = "MAXIS" 
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
+  Loop until check_for_MAXIS(True) = "MAXIS" 
   call navigate_to_MAXIS_screen("case", "note")
   PF9
   EMReadScreen NOTE_mode_check, 7, 20, 3

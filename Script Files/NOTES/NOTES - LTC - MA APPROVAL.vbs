@@ -130,8 +130,8 @@ If ButtonPressed = 0 then stopscript
 
 'Sends transmit to check for MAXIS
 transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" then script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+EMReadScreen check_for_MAXIS(True), 5, 1, 39
+If check_for_MAXIS(True) <> "MAXIS" then script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
 'Navigates back to self
 back_to_self
@@ -273,12 +273,12 @@ If BBUD_check = "BBUD" then
   If ButtonPressed = 0 then stopscript
   If ButtonPressed = 4 then
     PF3
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" then
       Do
         Dialog BBUD_Dialog
         If buttonpressed = 0 then stopscript
-      Loop until MAXIS_check = "MAXIS"
+      Loop until check_for_MAXIS(True) = "MAXIS"
     End if
     back_to_SELF
     EMWriteScreen "stat", 16, 43
@@ -299,9 +299,9 @@ Do
     Dialog approval_dialog
     If buttonpressed = 0 then stopscript
     transmit 'checking for password prompt
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS, or are passworded out. Please navigate back to MAXIS production and try again."
-  Loop until MAXIS_check = "MAXIS"
+    EMReadScreen check_for_MAXIS(True), 5, 1, 39
+    If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You are not in MAXIS, or are passworded out. Please navigate back to MAXIS production and try again."
+  Loop until check_for_MAXIS(True) = "MAXIS"
   If buttonpressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "hc__")
   If buttonpressed = BILS_button then call navigate_to_MAXIS_screen("stat", "bils")
   If buttonpressed = FACI_button then call navigate_to_MAXIS_screen("stat", "faci")
