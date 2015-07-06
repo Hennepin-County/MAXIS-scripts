@@ -89,7 +89,7 @@ EndDialog
 'Burial Agreement Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog burial_assets_dialog_01, 0, 0, 286, 160, "Burial assets dialog (01)"
   CheckBox 5, 20, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-  DropListBox 95, 35, 45, 15, "None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  DropListBox 95, 35, 45, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
   EditBox 210, 35, 65, 15, purchase_date
   EditBox 55, 55, 125, 15, issuer_name
   EditBox 215, 55, 55, 15, policy_number
@@ -301,7 +301,7 @@ case_number = trim(case_number)
 case_number = replace(case_number, "_", "")
 If IsNumeric(case_number) = False THEN case_number = ""
 
-maxis_check_function
+check_for_maxis(true)
 
 DO
   DO
@@ -337,37 +337,24 @@ DO
 Do
   IF buttonpressed = previous THEN EXIT DO
   Do
+	Do
       Dialog burial_assets_dialog_01
+	  cancel_confirmation
+	  If type_of_burial_agreement = "Select One..." Then msgbox "You must select a type of burial agreement. Select none if n/a."
+	Loop until type_of_burial_agreement <> "Select One..."
       IF buttonpressed = previous THEN EXIT DO
-      If buttonpressed = 0 then 
-		confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
-		IF confirm_cancel = vbYes THEN stopscript
-		IF confirm_cancel = vbNo THEN EXIT DO
-      End if
     Do
       Dialog burial_assets_dialog_02
-      If buttonpressed = 0 then 
-        confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
-		IF confirm_cancel = vbYes THEN stopscript
-		IF confirm_cancel = vbNo THEN EXIT DO
-      End if
+      cancel_confirmation
       If buttonpressed = previous_button then exit do
       Do
         Dialog burial_assets_dialog_03
         If buttonpressed = previous_button then exit do
-        If buttonpressed = 0 then 
-			confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
-		    IF confirm_cancel = vbYes THEN stopscript
-		    IF confirm_cancel = vbNo THEN EXIT DO
-        End if
+        cancel_confirmation
         Do
           Dialog burial_assets_dialog_04
           If buttonpressed = previous_button then exit do
-          If buttonpressed = 0 then 
-			  confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
-		      IF confirm_cancel = vbYes THEN stopscript
-		      IF confirm_cancel = vbNo THEN EXIT DO
-          End if
+          cancel_confirmation
           transmit
           EMReadScreen MAXIS_check, 5, 1, 39
           If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You don't appear to be in MAXIS. You might be locked out of your case. Please get back into MAXIS production before continuing."
@@ -524,7 +511,7 @@ DIM MAXIS_col
 'NOTE: "Other" sections need to be included in correct sections. 
 EMSendKey "**BURIAL ASSETS -- Memb " + hh_member + "<newline>"
 IF type_of_designated_account <> "None" then
-	call write_new_line_in_case_note("---Designated Account----")
+	call write_variable_in_case_note("---Designated Account----")
 	call write_bullet_and_variable_in_case_note("Type of designated account", type_of_designated_account)
 	call write_bullet_and_variable_in_case_note("Account Identified", account_identifier)
 	call write_bullet_and_variable_in_case_note("Reasons funds could not be separated", why_not_separated)
@@ -533,7 +520,7 @@ IF type_of_designated_account <> "None" then
 	call write_bullet_and_variable_in_case_note("Info on BFE", BFE_information_designated)
 END IF
 IF insurance_policy_number <> "none" THEN
-	call write_new_line_in_case_note("---Non-Term Life Insurance----")
+	call write_variable_in_case_note("---Non-Term Life Insurance----")
 	call write_bullet_and_variable_in_case_note("Policy Number", insurance_policy_number)
 	call write_bullet_and_variable_in_case_note("Insurance Company", insurance_company)
 	call write_bullet_and_variable_in_case_note("Date policy created", insurance_create_date)
