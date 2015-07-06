@@ -176,9 +176,9 @@ Do
 	EMReadScreen STAT_check, 4, 20, 21
 	If STAT_check = "STAT" then
 		If ButtonPressed = prev_panel_button then call panel_navigation_prev
-		If ButtonPressed = next_panel_button then call panel_navigation_next
+		If ButtonPressed = next_panel_button then call MAXIS_dialog_navigation
 		If ButtonPressed = prev_memb_button then call memb_navigation_prev
-		If ButtonPressed = next_memb_button then call memb_navigation_next
+		If ButtonPressed = next_memb_button then call MAXIS_dialog_navigation
 	End if
 	transmit
 Loop until ButtonPressed = OK
