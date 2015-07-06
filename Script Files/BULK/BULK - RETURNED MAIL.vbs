@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -221,7 +221,7 @@ For each case_number in case_number_array
 	If case_number <> "" then	'skip blanks
 
 		'Getting to case note
-		Call navigate_to_screen("case", "note")
+		Call navigate_to_MAXIS_screen("case", "note")
 
 		'If there was an error after trying to go to CASE/NOTE, the script will shut down.
 		EMReadScreen SELF_error_check, 27, 2, 28 
@@ -239,16 +239,16 @@ For each case_number in case_number_array
 
 		'Writing the case note
 		EMSendKey "<home>" & "-->Returned mail received<--" & "<newline>"
-		call write_new_line_in_case_note("* No forwarding address was indicated.")
-		call write_new_line_in_case_note("* Sending verification request to last known address. TIKLed for 10-day return.")
-		call write_new_line_in_case_note("---")
-		call write_new_line_in_case_note(worker_signature)
+		call write_variable_in_CASE_NOTE("* No forwarding address was indicated.")
+		call write_variable_in_CASE_NOTE("* Sending verification request to last known address. TIKLed for 10-day return.")
+		call write_variable_in_CASE_NOTE("---")
+		call write_variable_in_CASE_NOTE(worker_signature)
 
 		'Exiting the case note
 		PF3
 
 		'Getting to DAIL/WRIT
-		call navigate_to_screen("dail", "writ")
+		call navigate_to_MAXIS_screen("dail", "writ")
 
 		'Inserting the date
 		call create_MAXIS_friendly_date(date, 10, 5, 18)

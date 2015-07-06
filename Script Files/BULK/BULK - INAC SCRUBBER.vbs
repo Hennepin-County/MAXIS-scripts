@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -129,7 +129,7 @@ If warning_message = vbCancel then stopscript
 EMConnect ""
 
 'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-MAXIS_check_function
+check_for_MAXIS(True)
 
 'Gets back to SELF
 back_to_self
@@ -299,9 +299,9 @@ For x = 0 to total_cases
 	End if
 Next
 
-'Navigating to the DAIL (Goes back to self as there are issues in CCOL/CLIC with the direct navigate_to_screen)
+'Navigating to the DAIL (Goes back to self as there are issues in CCOL/CLIC with the direct navigate_to_MAXIS_screen)
 back_to_SELF
-call navigate_to_screen("DAIL", "DAIL")
+call navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 
 
@@ -335,7 +335,7 @@ For x = 0 to total_cases
 	client_name = INAC_scrubber_primary_array(x, 1)	
 	
 	'Gets to MEMB
-	call navigate_to_screen("STAT", "MEMB")
+	call navigate_to_MAXIS_screen("STAT", "MEMB")
 	
 	'Checks to make sure we're past SELF. If we aren't, it'll save that the case is privileged (most likely cause) in the array.
 	EMReadScreen SELF_check, 4, 2, 50
@@ -362,7 +362,7 @@ For x = 0 to total_cases
 		Loop until no_more_MEMBs_check = "ENTER A VALID COMMAND OR PF-KEY"
 		
 		'Goes to ABPS to check good cause. Good cause will not hang the case from being sent to CLS, as such, it does not get entered in the array (just the Word doc).
-		call navigate_to_screen("STAT", "ABPS")
+		call navigate_to_MAXIS_screen("STAT", "ABPS")
 		EMReadScreen good_cause_check, 1, 5, 47
 		If good_cause_check = "P" then
 			objselection.typetext case_number & ", " & client_name
@@ -528,14 +528,14 @@ For x = 0 to total_cases
 	back_to_self
 	'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
 	If privileged_status <> True and DAILS_out = False and MMIS_status = False then
-		call navigate_to_screen("CASE", "NOTE")
+		call navigate_to_MAXIS_screen("CASE", "NOTE")
 		PF9
 		If developer_mode = False then
-			call write_new_line_in_case_note("--------------------Case is closed--------------------")
-			call write_new_line_in_case_note("* Reviewed closed case for claims via automated script.")
-			If CLS_x1_number <> "" then call write_new_line_in_case_note("* XFERed to " & CLS_x1_number & ".")
-			call write_new_line_in_case_note("---")
-			call write_new_line_in_case_note(worker_signature & ", via automated script.")
+			call write_variable_in_CASE_NOTE("--------------------Case is closed--------------------")
+			call write_variable_in_CASE_NOTE("* Reviewed closed case for claims via automated script.")
+			If CLS_x1_number <> "" then call write_variable_in_CASE_NOTE("* XFERed to " & CLS_x1_number & ".")
+			call write_variable_in_CASE_NOTE("---")
+			call write_variable_in_CASE_NOTE(worker_signature & ", via automated script.")
 		Else
 			case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
 			If case_note_box = vbCancel then stopscript

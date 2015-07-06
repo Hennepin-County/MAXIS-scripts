@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -100,12 +100,11 @@ Do
 Loop until worker_signature <> ""
 
 transmit 'It transmits to check for MAXIS.
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found. You may be passworded out. Try it again.")
+check_for_MAXIS(True)
 
 'THIS PART DOES THE REPT REVW----------------------------------------------------------------------------------------------------
 If revw_check = checked then 
-	call navigate_to_screen("rept", "revw")
+	call navigate_to_MAXIS_screen("rept", "revw")
 	EMReadScreen default_worker_number, 3, 21, 10
 	If worker_number <> default_worker_number then
 		EMWriteScreen worker_county_code & worker_number, 21, 6
@@ -149,11 +148,9 @@ If revw_check = checked then
 	  
 	  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
 	For each case_number in case_number_array
-		CALL navigate_to_screen("rept", "revw")  'Reads MAGI code for each case. 
+		CALL navigate_to_MAXIS_screen("rept", "revw")  'Reads MAGI code for each case. 
 		EMREADSCREEN MAGI_code, 4, 7, 54    
-		call navigate_to_screen("stat", "revw")
-		EMReadScreen ERRR_check, 4, 2, 52
-		If ERRR_check = "ERRR" then call navigate_to_screen("stat", "revw") 'In case of error prone cases
+		call navigate_to_MAXIS_screen("stat", "revw")
 		EMReadScreen cash_review_code, 1, 7, 40
 		EMReadScreen FS_review_code, 1, 7, 60
 		EMReadScreen HC_review_code, 1, 7, 73
@@ -265,22 +262,22 @@ If revw_check = checked then
 			PF9
 		  
 			If HC_review_code = "I" or FS_review_code = "I" or cash_review_code = "I" then
-				call write_new_line_in_case_note("---Programs closing for incomplete review---")
+				call write_variable_in_CASE_NOTE("---Programs closing for incomplete review---")
 			Else
-				call write_new_line_in_case_note("---Programs closing for no review---")
+				call write_variable_in_CASE_NOTE("---Programs closing for no review---")
 			End if
 			If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
 			If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
 			If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
-			If last_day_to_turn_in_cash_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
-			If last_day_to_turn_in_SNAP_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
-			If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
-			If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for cash on " & cash_intake_date & ".")
-			If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for SNAP on " & SNAP_intake_date & ".")
-			If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for HC after " & HC_intake_date & ".")
+			If last_day_to_turn_in_cash_docs <> "" then call write_variable_in_CASE_NOTE("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
+			If last_day_to_turn_in_SNAP_docs <> "" then call write_variable_in_CASE_NOTE("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
+			If last_day_to_turn_in_HC_docs <> "" then call write_variable_in_CASE_NOTE("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
+			If cash_review_status <> "" and cash_intake_date <> "" then call write_variable_in_CASE_NOTE("* Client needs to reapply for cash on " & cash_intake_date & ".")
+			If FS_review_status <> "" and SNAP_intake_date <> "" then call write_variable_in_CASE_NOTE("* Client needs to reapply for SNAP on " & SNAP_intake_date & ".")
+			If HC_intake_date <> "" then call write_variable_in_CASE_NOTE("* Client needs to reapply for HC after " & HC_intake_date & ".")
 			
-			call write_new_line_in_case_note("---")
-			call write_new_line_in_case_note(worker_signature & ", via automated script.")
+			call write_variable_in_CASE_NOTE("---")
+			call write_variable_in_CASE_NOTE(worker_signature & ", via automated script.")
 			
 		Else	'special handling for inquiry_testing (developers testing scenarios)
 			string_for_msgbox = 	"Cash: " & cash_review_status & chr(10) & _
@@ -315,7 +312,7 @@ If revw_check = checked then
 		  
 	Next
 	  
-	call navigate_to_screen("rept", "revw")
+	call navigate_to_MAXIS_screen("rept", "revw")
 	EMReadScreen default_worker_number, 3, 21, 10
 	If worker_number <> default_worker_number then
 		EMWriteScreen worker_county_code & worker_number, 21, 6
@@ -329,7 +326,7 @@ case_number_array = ""
 'THIS PART DOES THE REPT MONT----------------------------------------------------------------------------------------------------
 If mont_check = 1 then 
   'Navigating to MONT
-  call navigate_to_screen("rept", "mont")
+  call navigate_to_MAXIS_screen("rept", "mont")
 
   'Checking the current worker number. If it's not the selected one it will enter the selected one.
   EMReadScreen default_worker_number, 3, 21, 10
@@ -371,10 +368,8 @@ If mont_check = 1 then
   'Navigating to each case, and case noting the ones that are closing.
   For each case_number in case_number_array
     'Going to the case, checking for error prone
-    call navigate_to_screen("stat", "mont")
-    EMReadScreen ERRR_check, 4, 2, 52
-    If ERRR_check = "ERRR" then call navigate_to_screen("stat", "mont") 'In case of error prone cases
-
+    call navigate_to_MAXIS_screen("stat", "mont")
+    
     'Reading the review codes, converting them to a status update for the case note
     EMReadScreen cash_review_code, 1, 11, 43
     EMReadScreen FS_review_code, 1, 11, 53
@@ -387,12 +382,12 @@ If mont_check = 1 then
     PF9
 
     If HC_review_code = "I" or FS_review_code = "I" or GRH_review_code = "I" or cash_review_code = "I" then
-      call write_new_line_in_case_note("---Incomplete HRF---")
+      call write_variable_in_CASE_NOTE("---Incomplete HRF---")
     Else
-      call write_new_line_in_case_note("---HRF not provided---")
+      call write_variable_in_CASE_NOTE("---HRF not provided---")
     End if
-    call write_new_line_in_case_note("---")
-    call write_new_line_in_case_note(worker_signature & ", via automated script.")
+    call write_variable_in_CASE_NOTE("---")
+    call write_variable_in_CASE_NOTE(worker_signature & ", via automated script.")
 
 
   
@@ -411,7 +406,7 @@ If mont_check = 1 then
   
   Next
   
-  call navigate_to_screen("rept", "mont")
+  call navigate_to_MAXIS_screen("rept", "mont")
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
     EMWriteScreen worker_county_code & worker_number, 21, 6

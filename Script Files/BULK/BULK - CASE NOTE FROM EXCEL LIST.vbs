@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -129,7 +129,7 @@ out_of_county_count = 0
 invalid_case_count = 0
 FOR EACH case_number IN case_number_array
 	back_to_SELF
-	call navigate_to_screen("CASE", "NOTE")
+	call navigate_to_MAXIS_screen("CASE", "NOTE")
 	EMReadScreen invalid_case, 7, 24, 2
 	EMReadScreen primary_county, 4, 21, 14
 	EMReadScreen user_county, 4, 21, 73
@@ -143,15 +143,15 @@ FOR EACH case_number IN case_number_array
 				PF9
 			'-----Added because the script was only case noting the header, footer and worker_sig on the first case.
 				FOR EACH message_part IN message_array
-					CALL write_new_line_in_case_note(message_part)
+					CALL write_variable_in_CASE_NOTE(message_part)
 				NEXT
 			'-----Commented out because this has, for whatever reason, stopped working. The script would case note the header and body ONLY on the first case.
-'				call write_new_line_in_case_note(case_note_header)
-'				call write_new_line_in_case_note(case_note_body)
-'				call write_new_line_in_case_note("---")
-'				call write_new_line_in_case_note(worker_sig)
-'				call write_new_line_in_case_note("---")
-'				call write_new_line_in_case_note("**Processed in bulk script**")
+'				call write_variable_in_CASE_NOTE(case_note_header)
+'				call write_variable_in_CASE_NOTE(case_note_body)
+'				call write_variable_in_CASE_NOTE("---")
+'				call write_variable_in_CASE_NOTE(worker_sig)
+'				call write_variable_in_CASE_NOTE("---")
+'				call write_variable_in_CASE_NOTE("**Processed in bulk script**")
 			ELSE
 				out_of_county_array = out_of_county_array & case_number & " "
 				out_of_county_count = out_of_county_count + 1

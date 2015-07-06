@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -72,12 +72,12 @@ If buttonpressed = cancel then stopscript
 
 'CHECKS FOR PASSWORD PROMPT/MAXIS STATUS
 transmit
-MAXIS_check_function
+check_for_MAXIS(True)
 
 'NAVIGATES BACK TO SELF TO FORCE THE FOOTER MONTH, THEN NAVIGATES TO THE SELECTED SCREEN
 back_to_self
 EMWriteScreen "________", 18, 43
-call navigate_to_screen("rept", right(REPT_panel, 4))
+call navigate_to_MAXIS_screen("rept", right(REPT_panel, 4))
 If right(REPT_panel, 4) = "REVS" then
 	current_month_plus_one = datepart("m", dateadd("m", 1, date))
 	If len(current_month_plus_one) = 1 then current_month_plus_one = "0" & current_month_plus_one
@@ -189,10 +189,7 @@ do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no mor
 	back_to_self
 	
 	'NAVIGATES TO STAT/SWKR
-	call navigate_to_screen("STAT", "SWKR")
-	
-	'CHECKS FOR ERROR PRONE CASES
-	ERRR_screen_check
+	call navigate_to_MAXIS_screen("STAT", "SWKR")
 	
 	'NAVIGATES TO SWKR, READS THE NAME AND NOTICE Y/N, AND ADDS TO SPREADSHEET
 	EMReadScreen SWKR_name, 34, 6, 32
