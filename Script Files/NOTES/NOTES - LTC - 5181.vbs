@@ -792,3 +792,5 @@ Call write_bullet_and_variable_in_case_note ("Other notes", other_notes_editbox)
 Call write_variable_in_case_note ("---")						 
 call write_variable_in_case_note (worker_signature)
 MsgBox "Make sure your DISA and FACI panel(s) are updated if needed. Please also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed."
+
+script_end_procedure("")
