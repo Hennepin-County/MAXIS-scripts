@@ -214,7 +214,7 @@ case_number_array = array(case_number_01, case_number_02, case_number_03, case_n
   'End crazy array splitting
 
 'Checking for MAXIS
-maxis_check_function
+Call check_for_MAXIS(True)
 
 For each case_number in case_number_array
 

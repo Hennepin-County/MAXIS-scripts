@@ -83,11 +83,11 @@ EndDialog
 '----------THE SCRIPT----------
 EMConnect ""
 
-maxis_check_function
+Call check_for_MAXIS(True)
 
 DO
 	Dialog bulk_case_note_dialog
-		IF ButtonPressed = 0 THEN stopscript
+		cancel_confirmation
 		IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN 
 			MsgBox "Please do not use such a large column. The script cannot handle it."
 		ELSE

@@ -129,7 +129,8 @@ EndDialog
 EMConnect ""
 
 'Checks for MAXIS
-maxis_check_function
+Call check_for_MAXIS(True)
+
 
 
 Do	
