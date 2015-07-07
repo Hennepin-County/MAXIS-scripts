@@ -90,16 +90,10 @@ EndDialog
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS
 EMConnect ""
-
-maxis_check_function
-
 'Finds the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
@@ -123,48 +117,38 @@ cash_end_mo = bene_month
 cash_end_yr = bene_year
 
 'Displays the dialog and navigates to case note
-Do
-  Do
-    Do
-      Dialog benefits_approved
-      If buttonpressed = cancel then stopscript
-	IF snap_approved_check = 0 AND autofill_snap_check = checked THEN MsgBox "You checked to have the SNAP results autofilled but did not select that SNAP was approved. Please reconsider your selections and try again."
-	IF cash_approved_check = 0 AND autofill_cash_check = checked THEN MsgBox "You checked to have the CASH results autofilled but did not select that CASH was approved. Please reconsider your selections and try again."
-      If case_number = "" then MsgBox "You must have a case number to continue!"
-	If worker_signature = "" then Msgbox "Please sign your case note"
+   Do
+     Dialog benefits_approved
+     cancel_confirmation
+IF snap_approved_check = 0 AND autofill_snap_check = checked THEN MsgBox "You checked to have the SNAP results autofilled but did not select that SNAP was approved. Please reconsider your selections and try again."
+IF cash_approved_check = 0 AND autofill_cash_check = checked THEN MsgBox "You checked to have the CASH results autofilled but did not select that CASH was approved. Please reconsider your selections and try again."
+     If case_number = "" then MsgBox "You must have a case number to continue!"
+If worker_signature = "" then Msgbox "Please sign your case note"
 
-	IF autofill_cash_check = checked AND cash_approved_check = checked THEN
-		'Calculates the number of benefit months the worker is trying to case note.
-		cash_start = cdate(cash_start_mo & "/01/" & cash_start_yr)
-		cash_end = cdate(cash_end_mo & "/01/" & cash_end_yr)
-		IF datediff("M", date, cash_start) > 1 THEN MsgBox "Your CASH start month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-		IF datediff("M", date, cash_end) > 1 THEN MsgBox "Your CASH end month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-		IF datediff("M", cash_start, cash_end) < 0 THEN MsgBox "Please double check your CASH date range. Your start month cannot be later than your end month."
-	END IF
+IF autofill_cash_check = checked AND cash_approved_check = checked THEN
+	'Calculates the number of benefit months the worker is trying to case note.
+	cash_start = cdate(cash_start_mo & "/01/" & cash_start_yr)
+	cash_end = cdate(cash_end_mo & "/01/" & cash_end_yr)
+	IF datediff("M", date, cash_start) > 1 THEN MsgBox "Your CASH start month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
+	IF datediff("M", date, cash_end) > 1 THEN MsgBox "Your CASH end month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
+	IF datediff("M", cash_start, cash_end) < 0 THEN MsgBox "Please double check your CASH date range. Your start month cannot be later than your end month."
+END IF
 
-	IF autofill_snap_check = checked AND snap_approved_check = checked THEN 
-		'Calculates the number of benefit months the worker is trying to case note.
-		snap_start = cdate(snap_start_mo & "/01/" & snap_start_yr)
-		snap_end = cdate(snap_end_mo & "/01/" & snap_end_yr)
-		IF datediff("M", date, snap_start) > 1 THEN MsgBox "Your SNAP start month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-		IF datediff("M", date, snap_end) > 1 THEN MsgBox "Your SNAP end month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-		IF datediff("M", snap_start, snap_end) < 0 THEN MsgBox "Please double check your SNAP date range. Your start month cannot be later than your end month."
-	END IF
+IF autofill_snap_check = checked AND snap_approved_check = checked THEN 
+	'Calculates the number of benefit months the worker is trying to case note.
+	snap_start = cdate(snap_start_mo & "/01/" & snap_start_yr)
+	snap_end = cdate(snap_end_mo & "/01/" & snap_end_yr)
+	IF datediff("M", date, snap_start) > 1 THEN MsgBox "Your SNAP start month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
+	IF datediff("M", date, snap_end) > 1 THEN MsgBox "Your SNAP end month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
+	IF datediff("M", snap_start, snap_end) < 0 THEN MsgBox "Please double check your SNAP date range. Your start month cannot be later than your end month."
+END IF
+Loop until case_number <> "" AND _
+worker_signature <> "" AND _
+((snap_approved_check = checked AND autofill_snap_check = checked AND (datediff("M", snap_start, snap_end) >= 0) AND (datediff("M", date, snap_start) < 2) AND (datediff("M", date, snap_end) < 2)) OR (autofill_snap_check = 0)) AND _
+((cash_approved_check = checked AND autofill_cash_check = checked AND (datediff("M", cash_start, cash_end) >= 0) AND (datediff("M", date, cash_start) < 2) AND (datediff("M", date, cash_end) < 2)) OR (autofill_cash_check = 0))
 
-    Loop until case_number <> "" AND _
-	worker_signature <> "" AND _
-	((snap_approved_check = checked AND autofill_snap_check = checked AND (datediff("M", snap_start, snap_end) >= 0) AND (datediff("M", date, snap_start) < 2) AND (datediff("M", date, snap_end) < 2)) OR (autofill_snap_check = 0)) AND _
-	((cash_approved_check = checked AND autofill_cash_check = checked AND (datediff("M", cash_start, cash_end) >= 0) AND (datediff("M", date, cash_start) < 2) AND (datediff("M", date, cash_end) < 2)) OR (autofill_cash_check = 0))
-
-    transmit
-    EMReadScreen check_for_MAXIS(True), 5, 1, 39
-    If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-  Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
-  call navigate_to_MAXIS_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)  
 
 total_snap_months = (datediff("m", snap_start, snap_end)) + 1
 total_cash_months = (datediff("m", cash_start, cash_end)) + 1

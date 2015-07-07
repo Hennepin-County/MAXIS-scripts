@@ -369,7 +369,7 @@ Do
 		      IF confirm_cancel = vbNo THEN EXIT DO
           End if
           transmit
-          EMReadScreen check_for_MAXIS(True), 5, 1, 39
+          Call check_for_MAXIS(True)
           If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You don't appear to be in MAXIS. You might be locked out of your case. Please get back into MAXIS production before continuing."
         Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
       Loop until buttonpressed = -1
@@ -379,11 +379,9 @@ Loop until buttonpressed = -1
 Loop until buttonpressed = -1
 
 
-call navigate_to_MAXIS_screen ("case", "note")
-PF9
+call start_a_blank_CASE_NOTE
 
 'Converting DESIGNATED ACCOUNT INFORMATION
-
 
 'SECTION 03
 'Must convert non-numeric "values" to numeric for calculations to work
@@ -513,8 +511,6 @@ If total_unavailable_CAI_amount = "" then total_unavailable_CAI_amount = "0"
 If total_counted_amount = "" then total_counted_amount = "0"
 
 
-
-
 'SECTION 04
 
 DIM MAXIS_service_row
@@ -524,7 +520,7 @@ DIM MAXIS_col
 'NOTE: "Other" sections need to be included in correct sections. 
 EMSendKey "**BURIAL ASSETS -- Memb " + hh_member + "<newline>"
 IF type_of_designated_account <> "None" then
-	call write_new_line_in_case_note("---Designated Account----")
+	call Call write_variable_in_CASE_NOTE("---Designated Account----")
 	call write_bullet_and_variable_in_case_note("Type of designated account", type_of_designated_account)
 	call write_bullet_and_variable_in_case_note("Account Identified", account_identifier)
 	call write_bullet_and_variable_in_case_note("Reasons funds could not be separated", why_not_separated)
@@ -533,7 +529,7 @@ IF type_of_designated_account <> "None" then
 	call write_bullet_and_variable_in_case_note("Info on BFE", BFE_information_designated)
 END IF
 IF insurance_policy_number <> "none" THEN
-	call write_new_line_in_case_note("---Non-Term Life Insurance----")
+	call Call write_variable_in_CASE_NOTE("---Non-Term Life Insurance----")
 	call write_bullet_and_variable_in_case_note("Policy Number", insurance_policy_number)
 	call write_bullet_and_variable_in_case_note("Insurance Company", insurance_company)
 	call write_bullet_and_variable_in_case_note("Date policy created", insurance_create_date)
@@ -850,4 +846,3 @@ case_note_page_four
 EMSendKey worker_sig & "<newline>"
 
 script_end_procedure("")
-

@@ -216,8 +216,8 @@ If INSA <> "" then call write_editbox_in_case_note("INSA/MEDI", INSA, 6)
 If adult_signatures <> "" then call write_editbox_in_case_note("Adult signatures", adult_signatures, 6)
 If LTCC <> "" then call write_editbox_in_case_note("LTCC info", LTCC, 6)
 call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
 

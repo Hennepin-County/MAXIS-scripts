@@ -90,10 +90,8 @@ EndDialog
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------
-
 'Connect to Bluezone
 EMConnect ""
-
 'Grabs Maxis Case number
 CALL MAXIS_case_number_finder(case_number)
 
@@ -102,7 +100,7 @@ DO
 	DO
 		DO
 			Dialog crf_received_dialog
-			IF ButtonPressed = 0 THEN StopScript
+			cancel_confirmation
 			IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 		LOOP UNTIL worker_signature <> ""
 		IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
@@ -111,16 +109,10 @@ DO
 LOOP UNTIL changes_continue <> "Select One..."
 
 
-
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(True)
-
-
 'Navigates to case note
-CALL navigate_to_MAXIS_screen("CASE", "NOTE")
-
-'Sends a PF9
-PF9
+Call start_a_blank_CASE_NOTE
 
 'Writes the case note
 CALL write_variable_in_case_note ("***Change Report Form Received***")
@@ -148,4 +140,4 @@ IF tikl_nav_check = 1 THEN
 	EMSetCursor 9, 3
 END IF
 
-CALL script_end_procedure("")
+script_end_procedure("")

@@ -108,8 +108,8 @@ If application_case_number <> "" then call write_editbox_in_case_note("Applicati
 If docs_reqd <> "" then call write_editbox_in_case_note("Docs requested", docs_reqd, 6)
 If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
 call write_editbox_in_case_note("Please note", "If these docs come into your ''My documents received'' queue in OnBase, please create a copy of the document and re-index it to the appropriate MNsure doc type, and send to the proper workflow. If you have questions, consult a member of the MNsure team.", 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
 

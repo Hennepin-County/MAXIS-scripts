@@ -267,37 +267,25 @@ application_signed_checkbox = checked 'The script should default to having the a
 
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
+'connecting to MAXIS
 EMConnect ""
 
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
-
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
 
 Do
   Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+  cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 transmit
-call check_for_MAXIS(True)
 
+'checking for an active MAXIS session
+call check_for_MAXIS(True)
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
 
 'Creating a custom dialog for determining who the HH members are

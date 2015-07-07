@@ -150,8 +150,8 @@ call write_editbox_in_case_note("Sponsor HH size and income limit", sponsor_HH_s
 call write_editbox_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants, 6)
 call write_editbox_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP, 6)
 call write_editbox_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
 

@@ -114,7 +114,7 @@ If Claim_number = "" Then
 	Claim_number = "Not available at this time"
 end if
 
-call write_new_line_in_case_note("**OVERPAYMENT/CLAIM ESTABLISHED**")
+call Call write_variable_in_CASE_NOTE("**OVERPAYMENT/CLAIM ESTABLISHED**")
 call write_editbox_in_case_note("Program(s) overpayment cited for", programs_cited, 6) 
 call write_editbox_in_case_note("Claim Number(s)", Claim_number, 6) 
 call write_editbox_in_case_note("Month(s) of overpayment", months_of_overpayment, 6) 
@@ -125,7 +125,7 @@ call write_editbox_in_case_note("When/Why should this have been reported", reaso
 call write_editbox_in_case_note("Supporting documents/verifications", supporting_docs, 6) 
 call write_editbox_in_case_note("Responsible parties", responsible_parties, 6) 
 call write_editbox_in_case_note("Total overpayment amount", total_amt_of_OP, 6) 
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")

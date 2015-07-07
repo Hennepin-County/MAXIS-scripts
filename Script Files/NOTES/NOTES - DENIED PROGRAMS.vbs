@@ -315,12 +315,12 @@ If emer_denial_date <> "" then call write_editbox_in_case_note("Emer denial date
 call write_editbox_in_case_note("Application date", application_date, 6)
 call write_editbox_in_case_note("Reason for denial", reason_for_denial, 6)
 If verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-If updated_MMIS_check = 1 then call write_new_line_in_case_note("* Updated MMIS.")
-If disabled_client_check = 1 then call write_new_line_in_case_note("* Client is disabled.")
-If WCOM_check = 1 then call write_new_line_in_case_note("* Added WCOM to notice.")
-If NOMI_check = 1 then call write_new_line_in_case_note("* Sent NOMI to client.")
+If updated_MMIS_check = 1 then call Call write_variable_in_CASE_NOTE("* Updated MMIS.")
+If disabled_client_check = 1 then call Call write_variable_in_CASE_NOTE("* Client is disabled.")
+If WCOM_check = 1 then call Call write_variable_in_CASE_NOTE("* Added WCOM to notice.")
+If NOMI_check = 1 then call Call write_variable_in_CASE_NOTE("* Sent NOMI to client.")
 If case_noting_intake_dates = True then
-	call write_new_line_in_case_note("---")
+	call Call write_variable_in_CASE_NOTE("---")
 	If HC_check = 1 then call write_editbox_in_case_note("Last HC REIN date", HC_last_REIN_date, 6)
 	If SNAP_check = 1 then call write_editbox_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date, 6)
 	If cash_check = 1 then call write_editbox_in_case_note("Last cash REIN date", cash_last_REIN_date, 6)
@@ -329,15 +329,15 @@ If case_noting_intake_dates = True then
 		If open_progs <> "" then call write_editbox_in_case_note("Open programs", open_progs, 6)
 		If HH_membs_on_HC <> "" then call write_editbox_in_case_note("HH members remaining on HC", HH_membs_on_HC, 6)
 	Else
-		call write_new_line_in_case_note("* All programs denied. Case becomes intake again on " & intake_date & ".")
+		call Call write_variable_in_CASE_NOTE("* All programs denied. Case becomes intake again on " & intake_date & ".")
 	End if
 Else
 	If open_progs <> "" then call write_editbox_in_case_note("Open programs", open_progs, 6)
 	If HH_membs_on_HC <> "" then call write_editbox_in_case_note("HH members remaining on HC", HH_membs_on_HC, 6)
 End if
 If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 'NOW THE SCRIPT STOPS, IF NO TIKL WAS REQUESTED.
 If TIKL_check = 0 then script_end_procedure("")

@@ -274,16 +274,16 @@ IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent fo
 if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
 call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 If date_check_sent_to_facility <> "" then call write_editbox_in_case_note("Date check sent to facility", date_check_sent_to_facility, 6)
-call write_new_line_in_case_note("---")
+call Call write_variable_in_CASE_NOTE("---")
 If GRPR_check = "GRPR" then
-	call write_new_line_in_case_note("   " & GRSM_line_01)
-	call write_new_line_in_case_note("   " & GRSM_line_02)
-	call write_new_line_in_case_note("   " & GRSM_line_03)
-	call write_new_line_in_case_note("   " & GRSM_line_04)
-	CALL write_new_line_in_case_note("Client Obligation: $" & GRSM_Obligation)
-	call write_new_line_in_case_note("---")
+	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_01)
+	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_02)
+	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_03)
+	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_04)
+	CALL Call write_variable_in_CASE_NOTE("Client Obligation: $" & GRSM_Obligation)
+	call Call write_variable_in_CASE_NOTE("---")
 End if
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 call script_end_procedure("")
 

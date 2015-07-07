@@ -173,16 +173,16 @@ If read_only_check = "YOU HAVE 'READ ONLY' ACCESS FOR THIS CASE" then script_end
 'Enters data into the case note
 EMSendKey "<home>" 'To get to the top of the case note.
 EMSendKey "Received " & application_type & ", " & expedited_status & "<newline>"
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note("     CAF 1 income claimed this month: $" & income)
-call write_new_line_in_case_note("         CAF 1 liquid assets claimed: $" & assets)
-call write_new_line_in_case_note("         CAF 1 rent/mortgage claimed: $" & rent)
-call write_new_line_in_case_note("        Utilities (amt/HEST claimed): $" & utilities)
-call write_new_line_in_case_note("---")
-If has_DISQ = True then call write_new_line_in_case_note("A DISQ panel exists for someone on this case.")
-If has_DISQ = False then call write_new_line_in_case_note("No DISQ panels were found for this case.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
+call Call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
+call Call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
+call Call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
+call Call write_variable_in_CASE_NOTE("---")
+If has_DISQ = True then call Call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
+If has_DISQ = False then call Call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 If expedited_status = "client appears expedited" then
 	MsgBox "This client appears expedited. A same day interview needs to be offered."
 End if

@@ -647,8 +647,8 @@ If medicare_part_B <> "" then call write_editbox_in_case_note("Medicare Part B p
 If unearned_income_spouse <> "" then call write_editbox_in_case_note("Spousal unearned income", unearned_income_spouse, 6)
 If earned_income_spouse <> "" then call write_editbox_in_case_note("Spousal earned income", earned_income_spouse, 6)
 If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 End function
 
 'CONNECTS TO MAXIS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

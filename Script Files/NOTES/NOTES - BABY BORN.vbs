@@ -78,31 +78,25 @@ EndDialog
 
 
 'THE SCRIPT---------------------------------------------------------------------------------------------------------------
+'connecting to MAXIS
 EMConnect ""
+'grabbing case number
+Call MAXIS_case_number_finder(case_number)
 
-
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-
-
-  Do
-    Do
-      Dialog baby_born_dialog
-      If buttonpressed = 0 then stopscript
-      If case_number = "" then MsgBox "You must have a case number to continue!"
+Do
+	Dialog baby_born_dialog
+	cancel_confirmation
+	If case_number = "" then MsgBox "You must have a case number to continue!"
 	If worker_signature = "" then MsgBox "You must sign your case note!"
 	If father_in_household = "Select One" then MsgBox "You must select 'yes' or 'no' regarding whether or not the father is in the household."
 	If other_health_insurance = "Select One" then MsgBox "You must select 'yes' or 'no' to availability of other health insurance." 
-    Loop until case_number <> "" and worker_signature <> "" and father_in_household <> "Select One" and other_health_insurance <> "Select One"
-    call check_for_MAXIS(True)
-  call navigate_to_MAXIS_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+Loop until case_number <> "" and worker_signature <> "" and father_in_household <> "Select One" and other_health_insurance <> "Select One"    
+
+'checking to see if still in an active MAXIS session
+Call check_for_MAXIS(True)
+ 
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE 	'Function to start new case note
 
 call write_variable_in_CASE_NOTE("***Baby Born***")
 call write_bullet_and_variable_in_CASE_NOTE("Baby's Name", babys_name)
@@ -117,7 +111,4 @@ call write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-
-
 script_end_procedure("")
-

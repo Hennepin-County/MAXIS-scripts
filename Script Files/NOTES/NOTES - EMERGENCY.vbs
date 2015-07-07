@@ -300,8 +300,8 @@ If discussion_of_crisis <> "" then call write_editbox_in_case_note("Discussion o
 If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
 If referrals <> "" then call write_editbox_in_case_note("Referrals", referrals, 6)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
 

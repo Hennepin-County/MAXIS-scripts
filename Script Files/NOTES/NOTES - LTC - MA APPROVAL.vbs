@@ -327,14 +327,14 @@ End if
 EMSendKey "<newline>"
 call write_editbox_in_case_note ("Income", income, 6)
 call write_editbox_in_case_note ("Deductions", deductions, 6)
-call write_new_line_in_case_note ("---")
-If updated_RSPD_check = 1 then call write_new_line_in_case_note ("* Updated RSPD in MMIS.")
+call Call write_variable_in_CASE_NOTE ("---")
+If updated_RSPD_check = 1 then call Call write_variable_in_CASE_NOTE ("* Updated RSPD in MMIS.")
 If designated_provider <> "" then call write_editbox_in_case_note ("Designated provider", designated_provider, 6)
-If approved_check = 1 then call write_new_line_in_case_note ("* Approved new MAXIS results.")
-If DHS_3050_check = 1 then call write_new_line_in_case_note ("* Sent DHS-3050 LTC communication form to facility.")
+If approved_check = 1 then call Call write_variable_in_CASE_NOTE ("* Approved new MAXIS results.")
+If DHS_3050_check = 1 then call Call write_variable_in_CASE_NOTE ("* Sent DHS-3050 LTC communication form to facility.")
 If other <> "" then call write_editbox_in_case_note ("Other", other, 6)
-call write_new_line_in_case_note ("---")
-call write_new_line_in_case_note (worker_sig)
+call Call write_variable_in_CASE_NOTE ("---")
+call Call write_variable_in_CASE_NOTE (worker_sig)
 
 script_end_procedure("")
 

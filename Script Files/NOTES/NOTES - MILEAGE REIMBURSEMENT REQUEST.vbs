@@ -106,8 +106,8 @@ If date_to_accounting <> "" then call write_editbox_in_case_note("Date Sent to A
 If docs_reqd <> "" then call write_editbox_in_case_note("Docs requested", docs_reqd, 6)
 If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
 If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-If worker_county_code = "x179" then call write_new_line_in_case_note("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.", 6)	'Should only do this for Wabasha County, unless other counties request it.
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+If worker_county_code = "x179" then call Call write_variable_in_CASE_NOTE("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.", 6)	'Should only do this for Wabasha County, unless other counties request it.
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")

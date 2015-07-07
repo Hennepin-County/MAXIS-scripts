@@ -331,11 +331,11 @@ call write_editbox_in_case_note("Community spouse", community_spouse, 5)
 call write_editbox_in_case_note("Asset summary", asset_summary, 5)
 call write_editbox_in_case_note("Total counted assets", total_counted_assets, 5)
 call write_editbox_in_case_note("Half of total", half_of_total, 5)
-call write_new_line_in_case_note("* " & CSAA_type & " CSAA: " & CSAA)
+call Call write_variable_in_CASE_NOTE("* " & CSAA_type & " CSAA: " & CSAA)
 call write_editbox_in_case_note("Asset calculation", asset_calculation, 5)
 call write_editbox_in_case_note("Actions taken", actions_taken, 5)
-call write_new_line_in_case_note("---")
-If worker_signature <> "" then call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+If worker_signature <> "" then call Call write_variable_in_CASE_NOTE(worker_signature)
 Do
   EMGetCursor row, col
   If row < 17 then 
@@ -345,18 +345,18 @@ Do
 Loop until row = 17
 EMSendKey ">>>>SPAA PASTED ON NEXT PAGE>>>>"
 PF8
-call write_new_line_in_case_note(SPAA_line_01)
-call write_new_line_in_case_note(SPAA_line_02)
-call write_new_line_in_case_note(SPAA_line_03)
-call write_new_line_in_case_note(SPAA_line_05)
-call write_new_line_in_case_note(SPAA_line_07)
-call write_new_line_in_case_note(SPAA_line_08)
-call write_new_line_in_case_note(SPAA_line_09)
-call write_new_line_in_case_note(SPAA_line_10)
-call write_new_line_in_case_note(SPAA_line_11)
-call write_new_line_in_case_note(SPAA_line_13)
-call write_new_line_in_case_note(SPAA_line_14)
-call write_new_line_in_case_note(SPAA_line_15)
+call Call write_variable_in_CASE_NOTE(SPAA_line_01)
+call Call write_variable_in_CASE_NOTE(SPAA_line_02)
+call Call write_variable_in_CASE_NOTE(SPAA_line_03)
+call Call write_variable_in_CASE_NOTE(SPAA_line_05)
+call Call write_variable_in_CASE_NOTE(SPAA_line_07)
+call Call write_variable_in_CASE_NOTE(SPAA_line_08)
+call Call write_variable_in_CASE_NOTE(SPAA_line_09)
+call Call write_variable_in_CASE_NOTE(SPAA_line_10)
+call Call write_variable_in_CASE_NOTE(SPAA_line_11)
+call Call write_variable_in_CASE_NOTE(SPAA_line_13)
+call Call write_variable_in_CASE_NOTE(SPAA_line_14)
+call Call write_variable_in_CASE_NOTE(SPAA_line_15)
 Do
   EMGetCursor row, col
   If row < 17 then 
@@ -366,20 +366,20 @@ Do
 Loop until row = 17
 EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
 PF8
-call write_new_line_in_case_note(total_marital_asset_list_line_17)
-call write_new_line_in_case_note(total_marital_asset_list_line_03)
-call write_new_line_in_case_note(total_marital_asset_list_line_04)
-call write_new_line_in_case_note(total_marital_asset_list_line_05)
-call write_new_line_in_case_note(total_marital_asset_list_line_06)
-call write_new_line_in_case_note(total_marital_asset_list_line_07)
-call write_new_line_in_case_note(total_marital_asset_list_line_08)
-call write_new_line_in_case_note(total_marital_asset_list_line_09)
-call write_new_line_in_case_note(total_marital_asset_list_line_10)
-call write_new_line_in_case_note(total_marital_asset_list_line_11)
-call write_new_line_in_case_note(total_marital_asset_list_line_12)
-call write_new_line_in_case_note(total_marital_asset_list_line_13)
-call write_new_line_in_case_note(total_marital_asset_list_line_14)
-call write_new_line_in_case_note(total_marital_asset_list_line_15)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_17)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_03)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_04)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_05)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_06)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_07)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_08)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_09)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_10)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_11)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_12)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_13)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_14)
+call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_15)
 
 script_end_procedure("")
 

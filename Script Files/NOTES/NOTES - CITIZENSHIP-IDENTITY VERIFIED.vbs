@@ -97,118 +97,98 @@ EndDialog
 
 
 'THE SCRIPT------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
-
 'Checking for MAXIS
-maxis_check_function
+call check_for_MAXIS(True)
 
 'Searching for case number
 call MAXIS_case_number_finder(case_number)
 
 'Show the dialog, determine if it's filled out correctly (at least one line must be filled out), then navigating to a blank case note.
 Do
-	Do
-		Do
-			Dialog cit_ID_dialog
-			If buttonpressed = 0 then stopscript
-			If (HH_memb_01 <> "" and (exempt_reason_01 = "(select or type here)" and (cit_proof_01 = "(select or type here)" or ID_proof_01 = "(select or type here)"))) or _
-			   (HH_memb_02 <> "" and (exempt_reason_02 = "(select or type here)" and (cit_proof_02 = "(select or type here)" or ID_proof_02 = "(select or type here)"))) or _
-			   (HH_memb_03 <> "" and (exempt_reason_03 = "(select or type here)" and (cit_proof_03 = "(select or type here)" or ID_proof_03 = "(select or type here)"))) or _
-			   (HH_memb_04 <> "" and (exempt_reason_04 = "(select or type here)" and (cit_proof_04 = "(select or type here)" or ID_proof_04 = "(select or type here)"))) or _
-			   (HH_memb_05 <> "" and (exempt_reason_05 = "(select or type here)" and (cit_proof_05 = "(select or type here)" or ID_proof_05 = "(select or type here)"))) or _
-			   (HH_memb_06 <> "" and (exempt_reason_06 = "(select or type here)" and (cit_proof_06 = "(select or type here)" or ID_proof_06 = "(select or type here)"))) or _
-			   (HH_memb_07 <> "" and (exempt_reason_07 = "(select or type here)" and (cit_proof_07 = "(select or type here)" or ID_proof_07 = "(select or type here)"))) or _
-			   (HH_memb_08 <> "" and (exempt_reason_08 = "(select or type here)" and (cit_proof_08 = "(select or type here)" or ID_proof_08 = "(select or type here)"))) then
-				can_move_on = False
-		      Else
-				can_move_on = True
-			End if
-			If can_move_on = False then MsgBox "You must select a cit and ID proof for each client whose name you've typed."
-		Loop until can_move_on = True
-		transmit
-		EMReadScreen check_for_MAXIS(True), 5, 1, 39
-		If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
-	Loop until check_for_MAXIS(True) = "MAXIS"
-	EMReadScreen mode_check, 7, 20, 3
-	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then
-		call navigate_to_MAXIS_screen("case", "note")
-		PF9
-		EMReadScreen mode_check, 7, 20, 3
-		If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
+	Dialog cit_ID_dialog
+	cancel_confirmation
+	If (HH_memb_01 <> "" and (exempt_reason_01 = "(select or type here)" and (cit_proof_01 = "(select or type here)" or ID_proof_01 = "(select or type here)"))) or _
+	   (HH_memb_02 <> "" and (exempt_reason_02 = "(select or type here)" and (cit_proof_02 = "(select or type here)" or ID_proof_02 = "(select or type here)"))) or _
+	   (HH_memb_03 <> "" and (exempt_reason_03 = "(select or type here)" and (cit_proof_03 = "(select or type here)" or ID_proof_03 = "(select or type here)"))) or _
+	   (HH_memb_04 <> "" and (exempt_reason_04 = "(select or type here)" and (cit_proof_04 = "(select or type here)" or ID_proof_04 = "(select or type here)"))) or _
+	   (HH_memb_05 <> "" and (exempt_reason_05 = "(select or type here)" and (cit_proof_05 = "(select or type here)" or ID_proof_05 = "(select or type here)"))) or _
+	   (HH_memb_06 <> "" and (exempt_reason_06 = "(select or type here)" and (cit_proof_06 = "(select or type here)" or ID_proof_06 = "(select or type here)"))) or _
+	   (HH_memb_07 <> "" and (exempt_reason_07 = "(select or type here)" and (cit_proof_07 = "(select or type here)" or ID_proof_07 = "(select or type here)"))) or _
+	   (HH_memb_08 <> "" and (exempt_reason_08 = "(select or type here)" and (cit_proof_08 = "(select or type here)" or ID_proof_08 = "(select or type here)"))) then
+		can_move_on = False
+    Else
+		can_move_on = True
 	End if
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+	If can_move_on = False then MsgBox "You must select a CIT and ID proof for each client whose name you've typed."
+Loop until can_move_on = True
 
-'Case noting
-EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
-EMSendKey string(77, "-") 
-EMSendKey "    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF" & "<newline>"
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)	
+
+'Case noting----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
+'body of the case note
+Call write_variable_in_CASE_NOTE("***CITIZENSHIP/IDENTITY***")
+Call write_variable_in_CASE_NOTE("--------------------------------------------------------------------------------")
+Call write_variable_in_CASE_NOTE("    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF")
 If HH_memb_01 <> "" then 
-	EMWriteScreen string(76, " "), 7, 3
-	EMWriteScreen HH_memb_01, 7, 5
-	IF exempt_reason_01 <> "(select or type here)" then EMWriteScreen exempt_reason_01, 7, 22
-	IF cit_proof_01 <> "(select or type here)" then EMWriteScreen cit_proof_01, 7, 45
-	IF ID_proof_01 <> "(select or type here)" then EMWriteScreen ID_proof_01, 7, 63
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_01)
+	IF exempt_reason_01 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_01)
+	IF cit_proof_01 <> "(select or type here)" then call write_variable_in_CASE_NOTE (cit_proof_01)
+	IF ID_proof_01 <> "(select or type here)" then call write_variable_in_CASE_NOTE (ID_proof_01)
 End if
 If HH_memb_02 <> "" then
-	EMWriteScreen string(76, " "), 8, 3
-	EMWriteScreen HH_memb_02, 8, 5
-	IF exempt_reason_02 <> "(select or type here)" then EMWriteScreen exempt_reason_02, 8, 22
-	IF cit_proof_02 <> "(select or type here)" then EMWriteScreen cit_proof_02, 8, 45
-	IF ID_proof_02 <> "(select or type here)" then EMWriteScreen ID_proof_02, 8, 63
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_02)
+	IF exempt_reason_02 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_02)
+	IF cit_proof_02 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(cit_proof_02)
+	IF ID_proof_02 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_02)
 End if
 If HH_memb_03 <> "" then
-	EMWriteScreen string(76, " "), 9, 3
-	EMWriteScreen HH_memb_03, 9, 5
-	IF exempt_reason_03 <> "(select or type here)" then EMWriteScreen exempt_reason_03, 9, 22
-	IF cit_proof_03 <> "(select or type here)" then EMWriteScreen cit_proof_03, 9, 45
-	IF ID_proof_03 <> "(select or type here)" then EMWriteScreen ID_proof_03, 9, 63
-End if
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_03)
+	IF exempt_reason_03 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_03)
+	IF cit_proof_03 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(cit_proof_03)
+	IF ID_proof_03 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_03)
 If HH_memb_04 <> "" then
-	EMWriteScreen string(76, " "), 10, 3
-	EMWriteScreen HH_memb_04, 10, 5
-	IF exempt_reason_04 <> "(select or type here)" then EMWriteScreen exempt_reason_04, 10, 22
-	IF cit_proof_04 <> "(select or type here)" then EMWriteScreen cit_proof_04, 10, 45
-	IF ID_proof_04 <> "(select or type here)" then EMWriteScreen ID_proof_04, 10, 63
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_04)
+	IF exempt_reason_04 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_04)
+	IF cit_proof_04 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(cit_proof_04)
+	IF ID_proof_04 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_04)
 End if
 If HH_memb_05 <> "" then
-	EMWriteScreen string(76, " "), 11, 3
-	EMWriteScreen HH_memb_05, 11, 5
-	IF exempt_reason_05 <> "(select or type here)" then EMWriteScreen exempt_reason_05, 11, 22
-	IF cit_proof_05 <> "(select or type here)" then EMWriteScreen cit_proof_05, 11, 45
-	IF ID_proof_05 <> "(select or type here)" then EMWriteScreen ID_proof_05, 11, 63
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_05)
+	IF exempt_reason_05 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_05)
+	IF cit_proof_05 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(cit_proof_05)
+	IF ID_proof_05 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_05)
 End if
 If HH_memb_06 <> "" then
-	EMWriteScreen string(76, " "), 12, 3
-	EMWriteScreen HH_memb_06, 12, 5
-	IF exempt_reason_06 <> "(select or type here)" then EMWriteScreen exempt_reason_06, 12, 22
-	IF cit_proof_06 <> "(select or type here)" then EMWriteScreen cit_proof_06, 12, 45
-	IF ID_proof_06 <> "(select or type here)" then EMWriteScreen ID_proof_06, 12, 63
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_06)	
+	IF exempt_reason_06 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_06)
+	IF cit_proof_06 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(cit_proof_06)
+	IF ID_proof_06 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_06)
 End if
 If HH_memb_07 <> "" then
-	EMWriteScreen string(76, " "), 13, 3
-	EMWriteScreen HH_memb_07, 13, 5
-	IF exempt_reason_07 <> "(select or type here)" then EMWriteScreen exempt_reason_07, 13, 22
-	IF cit_proof_07 <> "(select or type here)" then EMWriteScreen cit_proof_07, 13, 45
-	IF ID_proof_07 <> "(select or type here)" then EMWriteScreen ID_proof_07, 13, 63
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_07)
+	IF exempt_reason_07 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_07)
+	IF cit_proof_07 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(cit_proof_07)
+	IF ID_proof_07 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_07)
 End if
 If HH_memb_08 <> "" then
-	EMWriteScreen string(76, " "), 14, 3
-	EMWriteScreen HH_memb_08, 14, 5
-	IF exempt_reason_08 <> "(select or type here)" then EMWriteScreen exempt_reason_08, 14, 22
-	IF cit_proof_08 <> "(select or type here)" then EMWriteScreen cit_proof_08, 14, 45
-	IF ID_proof_08 <> "(select or type here)" then EMWriteScreen ID_proof_08, 14, 63
+	Call write_variable_in_CASE_NOTE("                                                                            ")
+	Call write_variable_in_CASE_NOTE(HH_memb_08)
+	IF exempt_reason_08 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(exempt_reason_08)
+	IF cit_proof_08 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(cit_proof_08)
+	IF ID_proof_08 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_08)
 End if
-EMSetCursor 15, 3
-EMSendKey string(77, "-") & "<newline>"
-Call write_new_line_in_case_note(worker_sig)
+Call write_variable_in_CASE_NOTE("--------------------------------------------------------------------------------")
+Call write_variable_in_CASE_NOTE(worker_sig)
 
-'End the script
 script_end_procedure("")
-
-
-
-
-
-

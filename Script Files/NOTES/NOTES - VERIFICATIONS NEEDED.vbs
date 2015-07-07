@@ -176,7 +176,7 @@ Do
 Loop until mode_check = "Mode: A" or mode_check = "Mode: E"		'Exits when mode is A or E.
 
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
-call write_new_line_in_case_note(">>>Verifications Requested<<<")
+call Call write_variable_in_CASE_NOTE(">>>Verifications Requested<<<")
 If verif_due_date <> "" then call write_editbox_in_case_note("Verif due date", verif_due_date, 6)
 If ADDR <> "" then call write_editbox_in_case_note("ADDR", ADDR, 6)
 If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
@@ -201,12 +201,12 @@ If SHEL <> "" then call write_editbox_in_case_note("SHEL", SHEL, 6)
 If INSA <> "" then call write_editbox_in_case_note("INSA", INSA, 6)
 If medical_expenses <> "" then call write_editbox_in_case_note("Medical expenses", medical_expenses, 6)
 If other_proofs <> "" then call write_editbox_in_case_note("Other proofs", other_proofs, 6)
-If signature_page_needed_check = checked then call write_new_line_in_case_note("* Signature page is needed.")
-If verif_A_check = checked then call write_new_line_in_case_note("* DHS-2919A (Verification Request Form - A) sent to client.")
-If verif_B_check = checked then call write_new_line_in_case_note("* DHS-2919B (Verification Request Form - B) sent to client.")
+If signature_page_needed_check = checked then call Call write_variable_in_CASE_NOTE("* Signature page is needed.")
+If verif_A_check = checked then call Call write_variable_in_CASE_NOTE("* DHS-2919A (Verification Request Form - A) sent to client.")
+If verif_B_check = checked then call Call write_variable_in_CASE_NOTE("* DHS-2919B (Verification Request Form - B) sent to client.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_signature)
 
 'If TIKL_check isn't checked this is the end
 If TIKL_check = unchecked then script_end_procedure("")

@@ -120,12 +120,13 @@ EMSendKey "<newline>"
 If when_contact_was_made <> "" then Call write_editbox_in_case_note("Contact made", when_contact_was_made, 6)
 If phone_number <> "" then Call write_editbox_in_case_note("Phone number", phone_number, 6)
 If issue <> "" then Call write_editbox_in_case_note("Issue/subject", issue, 6)
-If answered_question_check = 1 then call write_new_line_in_case_note("* Call center was able to answer client question.")
-If transferred_question_check = 1 then call write_new_line_in_case_note("* Call center was unable to answer client question, transferred to worker.")
-If caf_1_check = 1 then call write_new_line_in_case_note("* Reminded client about the importance of completing the CAF 1.")
+If answered_question_check = 1 then call Call write_variable_in_CASE_NOTE("* Call center was able to answer client question.")
+If transferred_question_check = 1 then call Call write_variable_in_CASE_NOTE("* Call center was unable to answer client question, transferred to worker.")
+If caf_1_check = 1 then call Call write_variable_in_CASE_NOTE("* Reminded client about the importance of completing the CAF 1.")
 If other_action <> "" then Call write_editbox_in_case_note("Other actions", other_action, 6)
-Call write_new_line_in_case_note("---")
-Call write_new_line_in_case_note(worker_signature)
+Call Call write_variable_in_CASE_NOTE("---")
+Call Call write_variable_in_CASE_NOTE(worker_signature)
+
 script_end_procedure("")
 
 

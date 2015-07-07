@@ -439,8 +439,8 @@ call write_editbox_in_case_note("Recipient amt", recipient_amt, 6)
 call write_editbox_in_case_note("Deducts", deductions, 6)
 If other_notes <> "" then call write_editbox_in_case_note("Notes", other_notes, 6)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_sig)
+call Call write_variable_in_CASE_NOTE("---")
+call Call write_variable_in_CASE_NOTE(worker_sig)
 
 script_end_procedure("")
 
