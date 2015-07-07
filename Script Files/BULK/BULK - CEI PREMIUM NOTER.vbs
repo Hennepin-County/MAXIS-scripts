@@ -204,7 +204,7 @@ Do
 Loop until buttonpressed = OK
 transmit
 	
-check_for_MAXIS(True)
+Call check_for_MAXIS(True)
 
 'Heading back to self
 back_to_self

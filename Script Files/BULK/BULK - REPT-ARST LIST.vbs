@@ -146,7 +146,7 @@ Loop until buttonpressed = OK
 query_start_time = timer
 
 'Checking MAXIS
-check_for_MAXIS(True)
+Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")

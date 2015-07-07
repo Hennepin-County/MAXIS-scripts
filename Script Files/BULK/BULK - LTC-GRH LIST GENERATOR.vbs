@@ -72,7 +72,7 @@ If buttonpressed = cancel then stopscript
 
 'CHECKS FOR PASSWORD PROMPT/MAXIS STATUS
 transmit
-check_for_MAXIS(True)
+call check_for_MAXIS(True)
 
 'NAVIGATES BACK TO SELF TO FORCE THE FOOTER MONTH, THEN NAVIGATES TO THE SELECTED SCREEN
 back_to_self

@@ -100,7 +100,7 @@ Do
 Loop until worker_signature <> ""
 
 transmit 'It transmits to check for MAXIS.
-check_for_MAXIS(True)
+Call check_for_MAXIS(True)
 
 'THIS PART DOES THE REPT REVW----------------------------------------------------------------------------------------------------
 If revw_check = checked then 

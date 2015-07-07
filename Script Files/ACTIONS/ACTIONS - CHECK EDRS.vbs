@@ -91,8 +91,6 @@ MAXIS_background_check
 
 'Navigate to stat/memb and check for ERRR message
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-ERRR_screen_check
-
 'Navigating to selected memb panel
 EMwritescreen memb_number, 20, 76
 transmit

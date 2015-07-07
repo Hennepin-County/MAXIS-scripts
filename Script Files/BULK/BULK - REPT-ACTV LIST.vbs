@@ -86,7 +86,7 @@ If COLA_stats = vbYes then collect_COLA_stats = True	'Will use this variable bel
 query_start_time = timer
 
 'Checking for MAXIS
-check_for_MAXIS(True)
+Call check_for_MAXIS(True)
 
 
 'Opening the Excel file

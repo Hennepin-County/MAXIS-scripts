@@ -129,7 +129,7 @@ If warning_message = vbCancel then stopscript
 EMConnect ""
 
 'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-check_for_MAXIS(True)
+Call check_for_MAXIS(True)
 
 'Gets back to SELF
 back_to_self

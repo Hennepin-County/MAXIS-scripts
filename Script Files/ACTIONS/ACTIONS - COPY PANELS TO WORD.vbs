@@ -192,7 +192,6 @@ Dialog all_MAXIS_panels_dialog
 	If buttonpressed = 0 then stopscript
 
 call navigate_to_MAXIS_screen("STAT", "MEMI")
-ERRR_screen_check
 
 call HH_member_custom_dialog(HH_member_array)
 

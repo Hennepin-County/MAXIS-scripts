@@ -118,7 +118,7 @@ If ButtonPressed = 0 then stopscript
 
 'It sends an enter to force the screen to refresh, in order to check for MAXIS. If MAXIS isn't found the script will stop.
 transmit
-check_for_MAXIS(True)
+Call check_for_MAXIS(True)
 
 'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
 EMReadScreen footer_month_year_check, 5, 20, 55
@@ -150,9 +150,9 @@ Do
 						Dialog new_job_reported_dialog
 						If ButtonPressed = cancel then stopscript
 						EMReadScreen STAT_check, 4, 20, 21
-						If STAT_check = "STAT" then call stat_navigation
+						If STAT_check = "STAT" then call MAXIS_dialog_navigation
 						transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-						check_for_MAXIS(True)
+						Call check_for_MAXIS(True)
 					If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
 						If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
 							MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."

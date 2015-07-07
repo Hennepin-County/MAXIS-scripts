@@ -76,7 +76,7 @@ If buttonpressed = cancel then stopscript
 query_start_time = timer
 
 'Checking for MAXIS
-check_for_MAXIS(True)
+Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")

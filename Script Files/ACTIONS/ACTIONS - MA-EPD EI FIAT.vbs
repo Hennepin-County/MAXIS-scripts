@@ -84,24 +84,9 @@ call MAXIS_case_number_finder(case_number)
 memb_number = "01" 'Setting a default
 
 Dialog case_number_dialog
-If buttonpressed = 0 then stopscript
+Cancel_confirmation
 
-back_to_self
-
-EMWriteScreen "stat", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
-EMWriteScreen "jobs", 21, 70
-EMWriteScreen memb_number, 21, 75
-transmit
-
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" then stopscript
-
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit
+call navigate_to_MAXIS_screen("STAT", "JOBS")
 
 EMReadScreen jobs_total, 1, 2, 78
 EMReadScreen jobs_current, 1, 2, 73
