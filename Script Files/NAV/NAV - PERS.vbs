@@ -46,23 +46,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
 'CONNECTING TO MAXIS, STOPPING THE CASE NUMBER FROM CARRYING THROUGH
-
 EMConnect ""
-
 case_number = "________"
 
 'NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+'checking for active MAXIS session
 call check_for_MAXIS(True)
 
 call navigate_to_MAXIS_screen("pers", "____")
 
 script_end_procedure("")
-
-
-
-
-
-

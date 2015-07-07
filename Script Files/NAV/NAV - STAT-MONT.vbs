@@ -58,31 +58,20 @@ BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
 EndDialog
 
 'SECTION 03: FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS
 EMConnect ""
-
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+'grabbing the case number
+call MAXIS_case_number_finder(case_number)
 
 If case_number = "" then
-  Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+	Dialog case_number_dialog
+	cancel_confirmation
 End if
 
 'SECTION 04: NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-transmit
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)
 
 call navigate_to_MAXIS_screen("stat", "mont")
 
 script_end_procedure("")
-
-
-
-
-
-

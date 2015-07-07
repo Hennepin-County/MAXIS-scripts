@@ -60,14 +60,14 @@ EndDialog
 
 If case_number = "" then 
 	Dialog case_number_dialog
-	If ButtonPressed = 0 then stopscript
+	cancel_confirmation
 END IF
 
 'It sends an enter to force the screen to refresh, in order to check for a password prompt.
 transmit
 
-'Checks for MAXIS
-check_for_MAXIS(True)
+'Checks for an active MAXIS session
+Call check_for_MAXIS(True)
 
 'Navigates to CASE/NOTE
 call navigate_to_MAXIS_screen("CASE", "NOTE")

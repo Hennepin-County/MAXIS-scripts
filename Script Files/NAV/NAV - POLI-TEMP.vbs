@@ -71,7 +71,6 @@ ElseIf radiogroup1 = index_radio then
 	panel_title = "INDEX"
 End if
 
-
 'Connects to BlueZone
 EMConnect ""
 

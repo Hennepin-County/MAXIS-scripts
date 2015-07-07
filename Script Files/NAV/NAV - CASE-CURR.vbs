@@ -66,8 +66,8 @@ END IF
 'It sends an enter to force the screen to refresh, in order to check for a password prompt.
 transmit
 
-'Checks for MAXIS
-check_for_MAXIS(True)
+'Checks for an active MAXIS session
+Call check_for_MAXIS(True)
 
 'Navigates to CASE/CURR
 call navigate_to_MAXIS_screen("CASE", "CURR")

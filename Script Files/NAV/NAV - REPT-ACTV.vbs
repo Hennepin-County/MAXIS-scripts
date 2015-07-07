@@ -78,8 +78,8 @@ call worker_county_code_determination(worker_county_code, two_digit_county_code)
 EMConnect ""
 
 'NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-check_for_MAXIS(True)
+'checking for an active MAXIS screen
+Call check_for_MAXIS(True)
 
 call navigate_to_MAXIS_screen("rept", "actv")
 
@@ -89,9 +89,3 @@ IF worker_number <> "" THEN
 END IF
 
 script_end_procedure("")
-
-
-
-
-
-

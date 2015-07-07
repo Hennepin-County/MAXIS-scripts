@@ -69,14 +69,9 @@ If case_number = "" then
 End if
 
 'SECTION 04: NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'checking for an active MAXIS session
 call check_for_MAXIS(True)
 
 call navigate_to_MAXIS_screen("elig", "dwp_")
 
 script_end_procedure("")
-
-
-
-
-
-

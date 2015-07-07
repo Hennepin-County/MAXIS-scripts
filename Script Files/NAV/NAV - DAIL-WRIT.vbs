@@ -62,15 +62,11 @@ call MAXIS_case_number_finder(case_number)										'Grabs the case number
 IF case_number = "" THEN 														'If there's no case number it asks for one
 	Do
 		Dialog case_number_dialog												'Shows the dialog
-		If buttonpressed = cancel then stopscript								'If cancel is pressed it ends
+		cancel_confirmation								'If cancel is pressed it ends
 		If case_number = "" then MsgBox "You must type a case number."			'Lets the worker know if a case number wasn't entered
 	Loop until case_number <> ""												'Loops until a case number is entered
 END IF
+
 call navigate_to_MAXIS_screen("DAIL", "WRIT")									'Goes to the screen
+
 script_end_procedure("")														'Script ends
-
-
-
-
-
-

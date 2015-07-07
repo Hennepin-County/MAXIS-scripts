@@ -45,22 +45,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
 EMConnect ""
 
 'Checks for MAXIS
-transmit
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("You do not seem to be in MAXIS. The script will now stop.")
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)
 
 back_to_self
 
 EMWriteScreen "________", 18, 43
 
 script_end_procedure("")
-
-
-
-
-
-

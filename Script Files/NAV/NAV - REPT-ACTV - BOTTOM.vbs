@@ -76,7 +76,6 @@ call worker_county_code_determination(worker_county_code, two_digit_county_code)
 
 'Connects to BlueZone
 EMConnect ""
-
 'Now it checks to make sure MAXIS is running on this screen.
 call check_for_MAXIS(True)
 
@@ -94,11 +93,4 @@ DO
 	EMReadScreen last_page_check, 21, 24, 2
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
-
 script_end_procedure("")
-
-
-
-
-
-

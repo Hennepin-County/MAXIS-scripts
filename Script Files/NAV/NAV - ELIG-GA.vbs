@@ -59,12 +59,11 @@ EndDialog
 'SECTION 03: FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 EMConnect ""
-
 call MAXIS_case_number_finder(case_number)
 
 If case_number = "" then
 	Dialog case_number_dialog
-	If ButtonPressed = 0 then stopscript
+	cancel_confirmation
 End if
 
 'SECTION 04: NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -74,9 +73,3 @@ call check_for_MAXIS(True)
 call navigate_to_MAXIS_screen("elig", "GA__")
 
 script_end_procedure("")
-
-
-
-
-
-
