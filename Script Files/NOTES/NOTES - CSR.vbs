@@ -144,8 +144,6 @@ BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
   Text 10, 295, 50, 10, "New premium:"
 EndDialog
 
-
-
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
     PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
@@ -167,23 +165,12 @@ Dim col
 
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-
 'Connecting to MAXIS
 EMConnect ""
-
 'Searching for the case_number variable
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Searching for the footer month
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
+call MAXIS_case_number_finder(case_number)
+'Searching for the footer month and footer year
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 Do
@@ -193,18 +180,15 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
-transmit
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+Call check_for_MAXIS(True)
 
 'If "paperless" was checked, the script will put a simple case note in and end.
 If paperless_checkbox = 1 then
-	call navigate_to_MAXIS_screen("case", "note")
-	PF9
-	EMWriteScreen "***Cleared paperless IR for " & footer_month & "/" & footer_year & "***", 4, 3
-	EMWriteScreen "---", 5, 3
+	call start_a_blank_CASE_NOTE
+	Call write_variable_in_case_note("***Cleared paperless IR for " & footer_month & "/" & footer_year & "***")
+	Call write_variable_in_case_note("---")
 	worker_signature = InputBox ("Sign your case note:", "worker signature")
-	EMWriteScreen worker_signature, 6, 3
+	Call write_variable_in_case_note(worker_signature)
 	call script_end_procedure("")
 End if
 
@@ -271,10 +255,10 @@ Do
 				Loop until ButtonPressed <> no_cancel_button
 				EMReadScreen STAT_check, 4, 20, 21
 				If STAT_check = "STAT" then
-					If ButtonPressed = prev_panel_button then call panel_navigation_prev
-					If ButtonPressed = next_panel_button then call panel_navigation_next
-					If ButtonPressed = prev_memb_button then call memb_navigation_prev
-					If ButtonPressed = next_memb_button then call memb_navigation_next
+					If ButtonPressed = prev_panel_button then Call MAXIS_dialog_navigation
+					If ButtonPressed = next_panel_button then Call MAXIS_dialog_navigation
+					If ButtonPressed = prev_memb_button then Call MAXIS_dialog_navigation
+					If ButtonPressed = next_memb_button then Call MAXIS_dialog_navigation
 				End if
 				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
 				EMReadScreen check_for_MAXIS(True), 5, 1, 39

@@ -461,8 +461,8 @@ IF autofill_cash_check = checked THEN
 			dwp_pers_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_editbox_in_case_note(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt), 6)
-			call write_editbox_in_case_note(("DWP Personal Needs Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_pers_amt), 6)
+			call write_variable_in_CASE_NOTE(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt))
+			call write_variable_in_CASE_NOTE(("DWP Personal Needs Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_pers_amt))
 		ELSE
 			cash_program = left(cash_approval_result, 4)
 			cash_program = replace(cash_program, "_", "")
@@ -470,15 +470,15 @@ IF autofill_cash_check = checked THEN
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
 			cash_header = (cash_program & " Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr)
-			call write_editbox_in_case_note(cash_header, FormatCurrency(cash_bene_amt), 6)
+			call write_variable_in_CASE_NOTE(cash_header, FormatCurrency(cash_bene_amt))
 		END IF
 	NEXT
 END IF
-IF other_notes <> "" THEN call write_editbox_in_case_note("Approval Notes", other_notes, 6)
-IF programs_pending <> "" THEN call write_editbox_in_case_note("Programs Pending", programs_pending, 6)
-If docs_needed <> "" then call write_editbox_in_case_note("Verifs needed", docs_needed, 6) 
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+IF other_notes <> "" THEN call write_variable_in_CASE_NOTE("Approval Notes", other_notes)
+IF programs_pending <> "" THEN call write_variable_in_CASE_NOTE("Programs Pending", programs_pending)
+If docs_needed <> "" then call write_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 'Runs denied progs if selected
 If closed_progs_check = checked then run_from_github(script_repository & "NOTES/NOTES - CLOSED PROGRAMS.vbs")

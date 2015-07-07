@@ -176,10 +176,10 @@ Do
           Dialog LTC_app_recd_dialog
           If ButtonPressed = 0 then stopscript
           If buttonpressed <> -1 then call MAXIS_dialog_navigation
-          If buttonpressed = prev_panel_button then call panel_navigation_prev
-          If buttonpressed = next_panel_button then call panel_navigation_next
-          If buttonpressed = prev_memb_button then call memb_navigation_prev
-          If buttonpressed = next_memb_button then call memb_navigation_next
+          If buttonpressed = prev_panel_button then Call MAXIS_dialog_navigation
+          If buttonpressed = next_panel_button then Call MAXIS_dialog_navigation
+          If buttonpressed = prev_memb_button then Call MAXIS_dialog_navigation
+          If buttonpressed = next_memb_button then Call MAXIS_dialog_navigation
           If buttonpressed = prev_panel_button or buttonpressed = next_panel_button or buttonpressed = prev_memb_button or buttonpressed = next_memb_button then transmit 'it won't transmit otherwise
         Loop until buttonpressed = -1
         If isdate(appl_date) = False then MsgBox "You must enter a valid APPL date (MM/DD/YYYY). Please try again."

@@ -218,10 +218,10 @@ Do
         Loop until ButtonPressed <> no_cancel_button
         EMReadScreen STAT_check, 4, 20, 21
         If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then call panel_navigation_prev
-          If ButtonPressed = next_panel_button then call panel_navigation_next
-          If ButtonPressed = prev_memb_button then call memb_navigation_prev
-          If ButtonPressed = next_memb_button then call memb_navigation_next
+          If ButtonPressed = prev_panel_button then Call MAXIS_dialog_navigation
+          If ButtonPressed = next_panel_button then Call MAXIS_dialog_navigation
+          If ButtonPressed = prev_memb_button then Call MAXIS_dialog_navigation
+          If ButtonPressed = next_memb_button then Call MAXIS_dialog_navigation
         End if
         transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
         EMReadScreen check_for_MAXIS(True), 5, 1, 39
