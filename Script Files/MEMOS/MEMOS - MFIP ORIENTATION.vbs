@@ -82,39 +82,39 @@ call MAXIS_case_number_finder(case_number)
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 Do
-	Do
-		Do 
-			Do
-				Do 
+	Do 
+		Do
+			Do 
+				Do
 					Do
 						Do
-							Do
-								Dialog MFIP_orientation_dialog
-								If ButtonPressed = cancel then stopscript
-								If buttonPressed = refresh_button then
-									IF interview_location <> "" then 
-										call assign_county_address_variables(county_address_line_01, county_address_line_02)
-										MFIP_address_line_01 = county_address_line_01
-										MFIP_address_line_02 = county_address_line_02
-									End if
+							Dialog MFIP_orientation_dialog
+							If ButtonPressed = cancel then stopscript
+							If buttonPressed = refresh_button then
+								IF interview_location <> "" then 
+									call assign_county_address_variables(county_address_line_01, county_address_line_02)
+									MFIP_address_line_01 = county_address_line_01
+									MFIP_address_line_02 = county_address_line_02
 								End if
-							Loop until ButtonPressed = OK
-							If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-						Loop until isnumeric(case_number) = True and len(case_number) <= 8
-						If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
-					Loop until isdate(orientation_date) = True 
-					If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
-				Loop until orientation_time <> ""
-				If member_list = "" then MsgBox "You must enter at least one household member to attend the interview."
-			Loop until member_list <> ""
-			If worker_signature = "" then MsgBox "You must provide a signature for your case note."
-		Loop until worker_signature <> ""
-		If MFIP_address_line_01 = "" or MFIP_address_line_02 = "" then MsgBox "You must enter an orientation address. Select one from the list, or enter one manually. Please note that the list fills in from intake locations, and may not be accurate in all agencies."
-	Loop until MFIP_address_line_01 <> "" and MFIP_address_line_02 <> ""
-	transmit
-	EMReadScreen check_for_MAXIS(True), 5, 1, 39
-	IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
-Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
+							End if
+						Loop until ButtonPressed = OK
+						If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+					Loop until isnumeric(case_number) = True and len(case_number) <= 8
+					If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
+				Loop until isdate(orientation_date) = True 
+				If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
+			Loop until orientation_time <> ""
+			If member_list = "" then MsgBox "You must enter at least one household member to attend the interview."
+		Loop until member_list <> ""
+		If worker_signature = "" then MsgBox "You must provide a signature for your case note."
+	Loop until worker_signature <> ""
+	If MFIP_address_line_01 = "" or MFIP_address_line_02 = "" then MsgBox "You must enter an orientation address. Select one from the list, or enter one manually. Please note that the list fills in from intake locations, and may not be accurate in all agencies."
+Loop until MFIP_address_line_01 <> "" and MFIP_address_line_02 <> ""
+transmit
+
+'checking for active MAXIS session
+Call check_for_MAXIS(True)
+
 
 'Creating an array from the member number list to get names for notice
 member_array = split(member_list, ",") 

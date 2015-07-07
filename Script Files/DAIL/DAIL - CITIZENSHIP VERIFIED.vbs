@@ -288,20 +288,17 @@ EndDialog
 
 'Shows dialog and then seeks out case/note
 Do
-  Do
     Dialog cit_ID_dialog
-    If buttonpressed = 0 then stopscript
+	cancel_confirmation
     transmit
-    EMReadScreen check_for_MAXIS(True), 5, 1, 39
-    If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
-  Loop until check_for_MAXIS(True) = "MAXIS"
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen mode_check, 7, 20, 3
-    If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
-  End if
+    Call check_for_MAXIS(True)
+	EMReadScreen mode_check, 7, 20, 3
+	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then
+		call navigate_to_screen("case", "note")
+		PF9
+		EMReadScreen mode_check, 7, 20, 3
+		If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
+	End if
 Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
 
 'Sends the case note
@@ -366,10 +363,9 @@ If HH_memb_08 <> "" then
 End if
 EMSetCursor 15, 3
 EMSendKey string(77, "-") & "<newline>"
-Call write_new_line_in_case_note(worker_sig)
+Call write_variable_in_CASE_NOTE(worker_sig)
 
 script_end_procedure("")
-
 
 
 

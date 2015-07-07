@@ -293,8 +293,8 @@ DO
 	IF SNAPET_phone = "" THEN MsgBox "You must enter a contact phone number.  Please try again."
 LOOP UNTIL SNAPET_phone <> ""	
 
-transmit
-Call maxis_check_function
+'checking for active MAXIS session
+Call check_for_MAXIS(True)
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
 

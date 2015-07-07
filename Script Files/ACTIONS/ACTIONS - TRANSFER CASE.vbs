@@ -138,22 +138,19 @@ EndDialog
 '----------THE SCRIPT----------
 EMConnect ""
 
-maxis_check_function
+Call check_for_MAXIS(True)
 
 DIALOG xfer_menu_dialog
-	IF ButtonPressed = 0 THEN stopscript
+Cancel_confirmation
 
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 	
 IF XFERRadioGroup = 0 THEN
 		'Displays the dialog and navigates to case note
 		Do
 			Do
 			  Dialog within_county_dlg
-			  If buttonpressed = 0 then stopscript
+			  cancel_confirmation
 			  If case_number = "" then MsgBox "You must have a case number to continue."
 			IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X102 in the worker number"
 			Loop until case_number <> "" and len(worker_to_transfer_to) = 7

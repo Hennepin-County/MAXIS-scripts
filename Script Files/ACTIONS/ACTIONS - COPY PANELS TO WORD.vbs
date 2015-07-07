@@ -164,19 +164,12 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
-maxis_check_function
+Call check_for_MAXIS(True)
 
 'Finds MAXIS case number
 call MAXIS_case_number_finder(case_number)
-
 'Finds MAXIS footer month
-row = 1
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Shows case number dialog
 Do
@@ -189,7 +182,7 @@ Loop until isnumeric(case_number) = True
 back_to_SELF
 
 Dialog all_MAXIS_panels_dialog
-	If buttonpressed = 0 then stopscript
+Cancel_confirmation
 
 call navigate_to_MAXIS_screen("STAT", "MEMI")
 

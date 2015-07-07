@@ -104,20 +104,18 @@ If recert_check = 6 then			'This is the "yes" button on a MsgBox
 	
   'Shows dialog, checks for password prompt
 	Do
-		Do
-			Dialog SNAP_ER_NOMI_dialog
-			If ButtonPressed = 0 then stopscript
-			If case_number = "" then MsgBox "You did not enter a case number. Please try again."
-			If date_of_missed_interview = "" then MsgBox "You did not enter a date of missed interview. Please try again."
-			If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
-			If last_day_for_recert = "" then MsgBox "You did not enter a date the recert must be completed by. Please try again."
-			If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-		Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_missed_interview <> "" and last_day_for_recert <> "" and worker_signature <> ""
-		transmit
-		EMReadScreen check_for_MAXIS(True), 5, 1, 39
-		IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
-	Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
-    
+		Dialog SNAP_ER_NOMI_dialog
+		If ButtonPressed = 0 then stopscript
+		If case_number = "" then MsgBox "You did not enter a case number. Please try again."
+		If date_of_missed_interview = "" then MsgBox "You did not enter a date of missed interview. Please try again."
+		If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
+		If last_day_for_recert = "" then MsgBox "You did not enter a date the recert must be completed by. Please try again."
+		If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+	Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_missed_interview <> "" and last_day_for_recert <> "" and worker_signature <> ""
+	
+	'checking for an active MAXIS session
+	Call check_for_MAXIS(True)
+		
 	'Navigates into SPEC/MEMO
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
@@ -133,12 +131,14 @@ If recert_check = 6 then			'This is the "yes" button on a MsgBox
 	transmit
 
 	'Writes the info into the MEMO.
-	EMSetCursor 3, 15
-	EMSendKey "************************************************************"
-	EMSendKey "You have missed your Food Support interview that was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & "." & "<newline>" & "<newline>"
-	EMSendKey "Please contact your worker at the telephone number listed below to reschedule the required Food Support interview." & "<newline>" & "<newline>"
-	EMSendKey "The Combined Application Form (DHS-5223), the interview by phone or in the office, and the mandatory verifications needed to process your recertification must be completed by " & last_day_for_recert & " or your Food Support case will Auto-Close on this date." & "<newline>"
-	EMSendKey "************************************************************"
+	
+	Call write_variable_in_SPEC_MEMO("************************************************************")
+	Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("Please contact your worker at the telephone number listed below to reschedule the required Food Support interview.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("The Combined Application Form (DHS-5223), the interview by phone or in the office, and the mandatory verifications needed to process your recertification must be completed by " & last_day_for_recert & " or your Food Support case will Auto-Close on this date.")
+	Call write_variable_in_SPEC_MEMO("************************************************************"
 	PF4
 
 	'Navigates to a blank case note
@@ -146,31 +146,30 @@ If recert_check = 6 then			'This is the "yes" button on a MsgBox
 	PF9
 
 	'Writes the case note
-	EMSendKey "**Client missed SNAP recertification interview**" & "<newline>"
-	EMSendKey "* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & "." & "<newline>" 
-	EMSendKey "* A SPEC/MEMO has been sent to the client informing them of missed interview." & "<newline>"
-	EMSendKey "---" & "<newline>" 
-	EMSendKey worker_signature
+	Call write_variable_in_CASE_NOTE("**Client missed SNAP recertification interview**")
+	Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	Call write_variable_in_CASE_NOTE("* A SPEC/MEMO has been sent to the client informing them of missed interview." &)
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
 	MsgBox "Success! A SPEC/MEMO has been sent with the correct language for a missed SNAP recert. A case note has been made."
 
 Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 
 	'Shows dialog, checks for password prompt
-	Do
-		Do
-			Dialog NOMI_dialog
-			If ButtonPressed = 0 then stopscript
-			If case_number = "" then MsgBox "You did not enter a case number. Please try again."
-			If isdate(date_of_missed_interview) = False then MsgBox "You did not enter a valid date of missed interview. Please try again."
-			If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
-			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
-			If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-		Loop until case_number <> "" and isdate(date_of_missed_interview) = True and time_of_missed_interview <> "" and isdate(application_date) = True and worker_signature <> ""
-		transmit
-		EMReadScreen check_for_MAXIS(True), 5, 1, 39
-		IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
-	Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
 
+	Do
+		Dialog NOMI_dialog
+		cancel_confirmation
+		If case_number = "" then MsgBox "You did not enter a case number. Please try again."
+		If isdate(date_of_missed_interview) = False then MsgBox "You did not enter a valid date of missed interview. Please try again."
+		If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
+		If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
+		If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+	Loop until case_number <> "" and isdate(date_of_missed_interview) = True and time_of_missed_interview <> "" and isdate(application_date) = True and worker_signature <> ""
+
+	'checks for an active MAXIS session
+	Call check_for_MAXIS(True)
+	
 	'Navigates into SPEC/LETR
 	call navigate_to_MAXIS_screen("SPEC", "LETR")
 
@@ -224,24 +223,15 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	End if
 
 	'Navigates to a blank case note
-	call navigate_to_MAXIS_screen("case", "note")
-	PF9
-
+	Call start_a_blank_CASE_NOTE
 	'Writes the case note
-	EMSendKey "**Client missed SNAP interview**" & "<newline>"
-	EMSendKey "* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & "." & "<newline>" 
-	EMSendKey "* A NOMI has been sent via SPEC/LETR informing them of missed interview." & "<newline>"
+	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
+	CALL write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
-	EMSendKey "---" & "<newline>" 
-	EMSendKey worker_signature
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
 	MsgBox "Success! The NOMI has been sent and a case note has been made."
-
 End if
 
 script_end_procedure("")
-
-
-
-
-
-

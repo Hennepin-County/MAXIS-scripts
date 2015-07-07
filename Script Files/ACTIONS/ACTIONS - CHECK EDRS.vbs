@@ -84,10 +84,7 @@ footer_year = right(datepart("YYYY", date), 2)
 IF LEN(memb_number) <> 2 THEN memb_number = "0" & memb_number
 
 'Error proof functions
-Maxis_check_function
-MAXIS_background_check
-
-
+Call check_for_MAXIS(True)
 
 'Navigate to stat/memb and check for ERRR message
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")

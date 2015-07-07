@@ -128,7 +128,7 @@ EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure("This case couldn't get to stat. MAXIS may have slowed down or be in background. Try again in a few seconds. If this continues to happen and MAXIS is up, send the case number to the script administrator.")
 
 'Checks for the error screen, and if found, transmits
-navigate_to_MAXIS_screen("STAT", MEMB")
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 'Checking for the HH memb on the message. If not found, script will exit.
 EMReadScreen HH_memb_check, 31, 24, 02

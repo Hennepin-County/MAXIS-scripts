@@ -293,20 +293,7 @@ If row <> 0 then FS_active = "True"
 If row = 0 then FS_active = "False"
 
 'Now it gets to STAT/MEMB to associate the HH members with the PMIs
-EMWriteScreen "stat", 20, 22
-EMWriteScreen "memb", 20, 69
-transmit
-
-
-EMReadScreen stat_check, 4, 20, 21
-If stat_check <> "STAT" then
-  MsgBox "This case appears to have been abended. Press ''OK'', then transmit, then try this DAIL message again."
-  end_excel_and_script
-End if
-
-'The following checks for error prone cases.
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit
+Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 
 'Now we're in STAT/MEMB, and the script will associate a PMI with that HH member.
 excel_row = 1 'setting the variable for the following Do...Loop

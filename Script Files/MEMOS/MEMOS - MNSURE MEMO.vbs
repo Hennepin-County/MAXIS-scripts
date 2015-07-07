@@ -78,15 +78,13 @@ call MAXIS_case_number_finder(case_number)
 
 'Shows dialog, checks for MAXIS or WCOM status.
 Do
-  Do
-    Dialog MNsure_info_dialog
-    If ButtonPressed = 0 then stopscript
-    If isdate(denial_effective_date) = False then MsgBox "You must put in a valid denial effective date (MM/DD/YYYY)."
-  Loop until isdate(denial_effective_date) = True
-  transmit 'sending refresh
-  EMReadScreen check_for_MAXIS(True), 5, 1, 39
-  If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "MAXIS is not found. Check to make sure you're in MAXIS production and not passworded out."
-Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
+	Dialog MNsure_info_dialog
+	cancel_confirmation
+	If isdate(denial_effective_date) = False then MsgBox "You must put in a valid denial effective date (MM/DD/YYYY)."
+Loop until isdate(denial_effective_date) = True
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)
 
 'For the WCOM option it needs to go to SPEC/WCOM. Otherwise it goes to MEMO.
 If radiogroup1 = 0 then
