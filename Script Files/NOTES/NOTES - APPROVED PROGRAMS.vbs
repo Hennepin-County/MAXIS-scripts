@@ -577,4 +577,4 @@ If closed_progs_check = checked then run_from_github(script_repository & "NOTES/
 'Runs denied progs if selected
 If denied_progs_check = checked then run_script(script_repository & "NOTES/NOTES - DENIED PROGRAMS.vbs")
 
-script_end_procedure("")
+script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
