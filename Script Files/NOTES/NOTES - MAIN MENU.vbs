@@ -145,7 +145,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 5, 175, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
             PushButton 5, 190, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
             PushButton 5, 205, 50, 10, "Overpayment", OVERPAYMENT_button
-            PushButton 5, 220, 75, 10, "SNAP case review", SNAP_case_review
+            PushButton 5, 220, 75, 10, "SNAP case review", SNAP_CASE_REVIEW_button
             PushButton 5, 235, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
             CancelButton 460, 250, 50, 15
           Text 60, 70, 140, 10, "--- Template for HC renewals.*"
@@ -271,6 +271,7 @@ IF ButtonPressed = LTC_1503_button									THEN CALL run_from_GitHub(script_repo
 IF ButtonPressed = LTC_5181_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 5181.vbs")
 IF ButtonPressed = MEDICAL_OPINION_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
 IF ButtonPressed = SHELTER_FORM_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SHELTER FORM RECEIVED.vbs")
+IF ButtonPressed = SNAP_CASE_REVIEW_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SNAP CASE REVIEW.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
