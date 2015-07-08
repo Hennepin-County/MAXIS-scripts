@@ -133,7 +133,7 @@ LOOP until (SNAP_status = "correct & approved" AND grant_amount <> "") OR (SNAP_
 IF grant_amount <> "" THEN grant_amount = "$" & grant_amount
 
 'Checking to make sure user is still in active MAXIS session
-check_for_MAXIS(TRUE)
+Call check_for_MAXIS(TRUE)
 
 'The CASE NOTE----------------------------------------------------------------------------------------------------
 'navigates to case note and creates a new one
@@ -154,4 +154,3 @@ If SNAP_status = "error exists" THEN
 END If
 
 Script_end_procedure("")
-
