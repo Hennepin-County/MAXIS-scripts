@@ -68,7 +68,7 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 355, "Notes (0-G) scr
     PushButton 5, 255, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
     PushButton 5, 270, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
     PushButton 5, 285, 40, 10, "Fraud info", FRAUD_INFO_button
-    PushButton 5, 300, 50, 10, "FSET sanction ", FSET_sanction_button
+    PushButton 5, 300, 50, 10, " FSET sanction ", FSET_sanction_button
     PushButton 5, 315, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
     PushButton 5, 330, 45, 10, "GRH - HRF", GRH_HRF_button
     CancelButton 460, 330, 50, 15
@@ -93,8 +93,9 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 355, "Notes (0-G) scr
   Text 75, 315, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
   Text 55, 330, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
   Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-  Text 60, 300, 350, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
+  Text 60, 300, 380, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
 EndDialog
+
 
 
 'Variables to declare
@@ -132,6 +133,7 @@ IF ButtonPressed = EMERGENCY_button								THEN CALL run_from_GitHub(script_repo
 IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button		THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
 IF ButtonPressed = EXPEDITED_SCREENING_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPEDITED SCREENING.vbs")				
 IF ButtonPressed = FRAUD_INFO_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FRAUD INFO.vbs")
+If ButtonPressed = FSET_sanction_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FSET SANCTION.vbs")
 IF ButtonPressed = GAS_CARDS_ISSUED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - GAS CARDS ISSUED.vbs")
 IF ButtonPressed = GRH_HRF_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - GRH - HRF.vbs")							
 
