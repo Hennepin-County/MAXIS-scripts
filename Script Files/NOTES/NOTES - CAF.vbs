@@ -553,4 +553,4 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure("Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd.")
