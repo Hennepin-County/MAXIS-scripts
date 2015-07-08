@@ -68,7 +68,7 @@ BeginDialog NOTES_H_Z_scripts_main_menu_dialog, 0, 0, 516, 335, "Notes (H-Z) scr
     PushButton 5, 255, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
     PushButton 5, 270, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
     PushButton 5, 285, 50, 10, "Overpayment", OVERPAYMENT_button
-    PushButton 5, 300, 75, 10, "SNAP case review", SNAP_case_review
+    PushButton 5, 300, 75, 10, "SNAP case review", SNAP_CASE_REVIEW_button
     PushButton 5, 315, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
     CancelButton 460, 315, 50, 15
   Text 75, 20, 330, 10, "--- Templates that are for use when various documents are received."
@@ -128,6 +128,7 @@ IF ButtonPressed = MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_f
 IF ButtonPressed = MILEAGE_REIMBURSEMENT_REQUEST_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs")
 IF ButtonPressed = MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
 IF ButtonPressed = OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - OVERPAYMENT.vbs")
+IF ButtonPressed = SNAP_CASE_REVIEW_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SNAP CASE REVIEW.vbs")
 IF ButtonPressed = VERIFICATIONS_NEEDED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
 
 'Logging usage stats
