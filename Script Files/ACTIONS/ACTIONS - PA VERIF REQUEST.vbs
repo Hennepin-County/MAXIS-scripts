@@ -75,7 +75,8 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   EditBox 125, 15, 25, 15, MFIP_food
   EditBox 155, 15, 25, 15, MFIP_cash  
   EditBox 50, 35, 25, 15, MSA_Grant
-  EditBox 155, 35, 25, 15, GA_grant
+  EditBox 50, 55, 25, 15, GA_grant
+  EditBox 155, 35, 25, 15, MFIP_housing
   EditBox 155, 55, 25, 15, DWP_grant
   EditBox 50, 75, 130, 15, other_notes
   EditBox 50, 100, 130, 15, other_income
@@ -91,9 +92,10 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   Text 5, 15, 40, 15, "SNAP:"
   Text 100, 55, 20, 15, "DWP:"
   Text 5, 75, 40, 15, "Other notes:"
-  Text 100, 35, 35, 15, "GA:"
+  Text 5, 55, 35, 15, "GA:"
   Text 5, 35, 35, 15, "MSA:"
   Text 100, 15, 25, 15, "MFIP:"
+  Text 100, 35, 30, 20, "MFIP Housing:"
   Text 5, 100, 45, 20, "Other income and type:"
   Text 5, 120, 45, 20, "$50 subsidy deduction?"
   Text 5, 140, 45, 30, "Number of members on cash grant:"
@@ -213,15 +215,18 @@ call navigate_to_screen("case", "curr")
 		Next
 		EMWriteScreen version, 20, 79
 		transmit
-        EMWriteScreen "MFSM", 20, 71
+        EMWriteScreen "MFB2", 20, 71
         transmit
-        EMReadScreen MFIP_cash, 6, 15, 74
-        EMReadScreen MFIP_food, 6, 16, 74
+        EMReadScreen MFIP_cash, 7, 12, 35
+        EMReadScreen MFIP_food, 7, 7, 35
+		EMReadScreen MFIP_housing, 6, 17, 36
+		IF MFIP_housing = "" then MFIP_housing = 0
+		'MFIP_cash = (cInt(MFIP_cash) + MFIP_housing)
+		'MFIP_cash = cstr(MFIP_cash)
  		'rental subsidy check
 		EMWriteScreen "MFB1", 20, 71
 		EMReadScreen subsidy, 2, 17, 37
 		If subsidy = "50" then subsidy_check = 1
-		'add readscreen for sanction 
 		'Finding the number of members on cash grant
 		call cash_members_finder
 		Call navigate_to_screen("case", "curr")
@@ -359,22 +364,24 @@ objSelection.TypeParagraph()
 objSelection.TypeText "The following grant amounts are active for this household:"
 
 Set objRange = objSelection.Range
-objDoc.Tables.Add objRange, 6, 3
+objDoc.Tables.Add objRange, 7, 3
 set objTable = objDoc.Tables(1)
 
 objTable.Cell(1, 2).Range.Text = "Cash  "
 objTable.Cell(1, 3).Range.Text = "Food Portion"
 objTable.Cell(2, 1).Range.Text = "MFIP  "
-objTable.Cell(3, 1).Range.Text = "GA    "
-objTable.Cell(4, 1).Range.Text = "MSA   "
-objTable.Cell(5, 1).Range.Text = "SNAP  "
+objTable.Cell(3, 1).Range.Text = "MFIP Housing"
+objTable.Cell(4, 1).Range.Text = "GA    "
+objTable.Cell(5, 1).Range.Text = "MSA   "
+objTable.Cell(6, 1).Range.Text = "SNAP  "
 objTable.Cell(2, 2).Range.Text = MFIP_cash
 objTable.Cell(2, 3).Range.Text = MFIP_food
-objTable.Cell(3, 2).Range.Text = GA_grant
-objTable.Cell(4, 2).Range.Text = MSA_Grant
-objTable.Cell(5, 3).Range.Text = SNAP_grant
-objTable.Cell(6, 1).Range.Text = "DWP   "
-objTable.Cell(6, 2).Range.Text = DWP_grant
+objTable.Cell(3, 2).Range.Text = MFIP_housing
+objTable.Cell(4, 2).Range.Text = GA_grant
+objTable.Cell(5, 2).Range.Text = MSA_Grant
+objTable.Cell(6, 3).Range.Text = SNAP_grant
+objTable.Cell(7, 1).Range.Text = "DWP   "
+objTable.Cell(7, 2).Range.Text = DWP_grant
 
 objTable.AutoFormat(16)
 
