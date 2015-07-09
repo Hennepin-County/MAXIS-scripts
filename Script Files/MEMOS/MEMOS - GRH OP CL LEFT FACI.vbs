@@ -96,52 +96,52 @@ END IF
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 195, "GRH overpayment due to leaving facility dialog"
+BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 185, "GRH overpayment due to leaving facility dialog"
   EditBox 50, 5, 55, 15, case_number
   EditBox 165, 5, 45, 15, discovery_date
   EditBox 275, 5, 45, 15, established_date
   EditBox 90, 30, 230, 15, OP_reason
-  EditBox 165, 50, 45, 15, OP_total
+  EditBox 55, 55, 45, 15, OP_date_01
+  EditBox 125, 55, 30, 15, OP_amt_01
+  EditBox 205, 55, 45, 15, OP_date_02
+  EditBox 275, 55, 45, 15, OP_amt_02
+  EditBox 55, 75, 45, 15, OP_date_03
+  EditBox 125, 75, 30, 15, OP_amt_03
+  EditBox 205, 75, 45, 15, OP_date_04
+  EditBox 275, 75, 45, 15, OP_amt_04
+  EditBox 55, 95, 45, 15, OP_date_05
+  EditBox 125, 95, 30, 15, OP_amt_05
+  EditBox 205, 95, 45, 15, OP_date_06
+  EditBox 275, 95, 45, 15, OP_amt_06
+  EditBox 275, 115, 45, 15, client_amt
+  CheckBox 10, 140, 95, 10, "Set follow-up 30 day TIKL ", set_TIKL_check
   ButtonGroup ButtonPressed
-    PushButton 230, 50, 90, 15, "Calculate total facility OP", OP_total_button
-  EditBox 55, 75, 45, 15, OP_date_01
-  EditBox 125, 75, 30, 15, OP_amt_01
-  EditBox 205, 75, 45, 15, OP_date_02
-  EditBox 275, 75, 45, 15, OP_amt_02
-  EditBox 55, 95, 45, 15, OP_date_03
-  EditBox 125, 95, 30, 15, OP_amt_03
-  EditBox 205, 95, 45, 15, OP_date_04
-  EditBox 275, 95, 45, 15, OP_amt_04
-  EditBox 55, 115, 45, 15, OP_date_05
-  EditBox 125, 115, 30, 15, OP_amt_05
-  EditBox 205, 115, 45, 15, OP_date_06
-  EditBox 275, 115, 45, 15, OP_amt_06
-  EditBox 275, 135, 45, 15, client_amt
-  CheckBox 10, 155, 125, 10, "Set TIKL to recheck case in 30 days", set_TIKL_check
-  EditBox 120, 170, 90, 15, worker_signature
+    PushButton 110, 135, 90, 15, "Calculate total facility OP", OP_total_button
+  EditBox 275, 135, 45, 15, OP_total
+  EditBox 120, 165, 90, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 215, 170, 50, 15
-    CancelButton 270, 170, 50, 15
-  Text 5, 140, 265, 10, "Total amt client is responsiblte to pay for GRH during all of the OP months above:"
-  Text 165, 80, 40, 10, "Date of OP:"
-  Text 255, 80, 15, 10, "Amt:"
-  Text 10, 100, 40, 10, "Date of OP:"
-  Text 105, 100, 15, 10, "Amt:"
-  Text 5, 35, 83, 10, "Reason for overpayment:"
-  Text 165, 100, 40, 10, "Date of OP:"
-  Text 5, 10, 45, 10, "Case number:"
-  Text 255, 100, 15, 10, "Amt:"
-  Text 110, 10, 55, 10, "Discovery date:"
-  Text 10, 120, 40, 10, "Date of OP:"
+    OkButton 215, 165, 50, 15
+    CancelButton 270, 165, 50, 15
+  Text 5, 120, 265, 10, "Total amt client is responsiblte to pay for GRH during all of the OP months above:"
+  Text 165, 60, 39, 10, "Date of OP:"
+  Text 255, 60, 15, 10, "Amt:"
   Text 10, 80, 40, 10, "Date of OP:"
-  Text 105, 120, 15, 10, "Amt:"
-  Text 165, 120, 40, 10, "Date of OP:"
-  Text 255, 120, 15, 10, "Amt:"
-  Text 215, 10, 60, 10, "Established date:"
   Text 105, 80, 15, 10, "Amt:"
-  Text 110, 55, 55, 10, "Facility OP total: "
-  Text 60, 175, 60, 10, "Worker signature:"
-  Text 215, 55, 10, 10, "OR"
+  Text 5, 35, 85, 10, "Reason for overpayment:"
+  Text 165, 80, 39, 10, "Date of OP:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 255, 80, 15, 10, "Amt:"
+  Text 110, 10, 55, 10, "Discovery date:"
+  Text 10, 100, 40, 10, "Date of OP:"
+  Text 10, 60, 40, 10, "Date of OP:"
+  Text 105, 100, 15, 10, "Amt:"
+  Text 165, 100, 39, 10, "Date of OP:"
+  Text 255, 100, 15, 10, "Amt:"
+  Text 215, 10, 60, 10, "Established date:"
+  Text 105, 60, 15, 10, "Amt:"
+  Text 220, 140, 54, 10, "Facility OP total: "
+  Text 60, 170, 60, 10, "Worker signature:"
+  Text 205, 140, 10, 10, "OR"
 EndDialog
 
 
@@ -175,6 +175,8 @@ BeginDialog GRH_OP_LEAVING_FACI_ADDR_dialog, 0, 0, 306, 220, "GRH overpayment du
 EndDialog
 
 
+
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to MAXIS
 EMConnect ""
@@ -189,31 +191,34 @@ DO
 				DO
 					DO
 						DO
-							Dialog GRH_OP_LEAVING_FACI_dialog
-							cancel_confirmation	
-							If case_number = "" or isnumeric(case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
-							If worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
-							If discovery_date = "" THEN MsgBox "You must enter the discovery date"
-							If established_date = "" THEN MsgBox "You must enter the established date"
-							If OP_date_01 = "" THEN MsgBox "You must enter at least one overpayment date"
-							If OP_amt_01 = "" THEN MsgBox "You must enter at least one overpayment amount"
-							If ButtonPressed = OP_total_button Then
-								OP_amt_01 + OP_amt_02 + OP_amt_03 + OP_amt_04 + OP_amt_05 + OP_amt_06
-							END IF
-							If OP_reason = "" THEN MsgBox "You must enter the reason for the overpayment OR select the ""Calculate total facility overpayment"" button."
-						Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and OP_reason <> "" and discovery_date <> "" and established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> ""
-						If (OP_date_01 = "" AND OP_amt_01 <> "") OR (OP_date_01 <> "" AND OP_amt_01 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-					LOOP UNTIL(OP_date_01 = "" AND OP_amt_01 = "") OR (OP_date_01 <> "" AND OP_amt_01 <> "")	
-					If (OP_date_02 = "" AND OP_amt_02 <> "") OR (OP_date_02 <> "" AND OP_amt_02 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-				LOOP UNTIL(OP_date_02 = "" AND OP_amt_02 = "") OR (OP_date_02 <> "" AND OP_amt_02 <> "")		
-				If (OP_date_03 = "" AND OP_amt_03 <> "") OR (OP_date_03 <> "" AND OP_amt_03 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-			LOOP UNTIL (OP_date_03 = "" AND OP_amt_03 = "") OR (OP_date_03 <> "" AND OP_amt_03 <> "")
-			If (OP_date_04 = "" AND OP_amt_04 <> "") OR (OP_date_04 <> "" AND OP_amt_04 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-		LOOP UNTIL (OP_date_04 = "" AND OP_amt_04 = "") OR (OP_date_04 <> "" AND OP_amt_04 <> "")
-		If (OP_date_05 = "" AND OP_amt_05 <> "") OR (OP_date_05 <> "" AND OP_amt_05 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-	LOOP UNTIL (OP_date_05 = "" AND OP_amt_05 = "") OR (OP_date_05 <> "" AND OP_amt_05 <> "") 	
-	If (OP_date_06 = "" AND OP_amt_06 <> "") OR (OP_date_06 <> "" AND OP_amt_06 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "") 
+							DO
+								Dialog GRH_OP_LEAVING_FACI_dialog
+								cancel_confirmation	
+								If case_number = "" or isnumeric(case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
+								If worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
+								If discovery_date = "" THEN MsgBox "You must enter the discovery date"
+								If established_date = "" THEN MsgBox "You must enter the established date"
+								If OP_date_01 = "" THEN MsgBox "You must enter at least 1 overpayment date"
+								If OP_amt_01 = "" THEN MsgBox "You must enter at least 1 overpayment amount"
+								If OP_reason = "" THEN MsgBox "You must enter the reason for the overpayment."
+							Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and discovery_date <> "" and established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> "" and OP_reason <> ""
+							If (OP_date_01 = "" AND OP_amt_01 <> "") OR (OP_date_01 <> "" AND OP_amt_01 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+						LOOP UNTIL(OP_date_01 = "" AND OP_amt_01 = "") OR (OP_date_01 <> "" AND OP_amt_01 <> "")	
+						If (OP_date_02 = "" AND OP_amt_02 <> "") OR (OP_date_02 <> "" AND OP_amt_02 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+					LOOP UNTIL(OP_date_02 = "" AND OP_amt_02 = "") OR (OP_date_02 <> "" AND OP_amt_02 <> "")		
+					If (OP_date_03 = "" AND OP_amt_03 <> "") OR (OP_date_03 <> "" AND OP_amt_03 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+				LOOP UNTIL (OP_date_03 = "" AND OP_amt_03 = "") OR (OP_date_03 <> "" AND OP_amt_03 <> "")
+				If (OP_date_04 = "" AND OP_amt_04 <> "") OR (OP_date_04 <> "" AND OP_amt_04 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+			LOOP UNTIL (OP_date_04 = "" AND OP_amt_04 = "") OR (OP_date_04 <> "" AND OP_amt_04 <> "")
+			If (OP_date_05 = "" AND OP_amt_05 <> "") OR (OP_date_05 <> "" AND OP_amt_05 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+		LOOP UNTIL (OP_date_05 = "" AND OP_amt_05 = "") OR (OP_date_05 <> "" AND OP_amt_05 <> "") 	
+		If (OP_date_06 = "" AND OP_amt_06 <> "") OR (OP_date_06 <> "" AND OP_amt_06 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
+	LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "") 
+	If ButtonPressed = OP_total_button THEN
+        OP_total = OP_amt_01 + OP_amt_02 + OP_amt_03 + OP_amt_04 + OP_amt_05 + OP_amt_06
+    End if
+	IF OP_total = "" THEN MsgBox "You must enter the total amount of the overpayment OR select the ""Calculate total facility overpayment"" button."
+LOOP until OP_total <> ""
 	DO
 		DO
 			Dialog GRH_OP_LEAVING_FACI_ADDR_dialog
@@ -224,14 +229,15 @@ LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_
 			If facility_state = "" THEN MsgBox "You must enter the facility's state"
 			If facility_zip = "" THEN MsgBox "You must enter the facility's zip code"
 		LOOP UNTIL (facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_state <> "" and facility_zip <> "")
-		IF(send_OP_to_DHS_check = 1 AND (county_name_dept <> "" OR county_address_line_01 <> "" OR county_address_line_02 <> "" OR county_address_city <> "" OR county_address_state <> "" OR county_address_zip <> "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."	IF(send_OP_to_DHS_check = 0 AND (county_name_dept = "" OR county_address_line_01 = "" OR county_address_city = "" OR county_address_state = "" OR county_address_zip = "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
+		IF(send_OP_to_DHS_check = 1 AND (county_name_dept <> "" OR county_address_line_01 <> "" OR county_address_line_02 <> "" OR county_address_city <> "" OR county_address_state <> "" OR county_address_zip <> "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."	
+		IF(send_OP_to_DHS_check = 0 AND (county_name_dept = "" OR county_address_line_01 = "" OR county_address_city = "" OR county_address_state = "" OR county_address_zip = "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
 	LOOP UNTIL (send_OP_to_DHS_check = 1 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "")) OR _
 	(send_OP_to_DHS_check = 0 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> ""))
 
 'Checking to see that we're in MAXIS
 Call check_for_MAXIS(False)
 
-  
+
 'Actions and calculations----------------------------------------------------------------------------------------------------
 'Dollar bill symbol will be added to numeric variables 
 IF total_OP_amt <> "" THEN total_OP_amt = "$" & total_OP_amt
@@ -242,6 +248,7 @@ IF OP_amt_04 <> "" THEN OP_amt_04 = "$" & OP_amt_04
 IF OP_amt_05 <> "" THEN OP_amt_05 = "$" & OP_amt_05
 IF OP_amt_06 <> "" THEN OP_amt_06 = "$" & OP_amt_06
 IF client_amt <> "" THEN client_amt = "$" & client_amt
+IF client_amt = "" THEN client_amt = "$0"
 
 
 'Sending the TIKL to the worker
@@ -288,14 +295,14 @@ IF OP_amt_05 <> "" and OP_date_05 <> "" THEN Call write_variable_in_SPEC_MEMO("*
 IF OP_amt_06 <> "" and OP_date_06 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_06 & " for " & OP_date_06)
 Call write_variable_in_SPEC_MEMO("The total amount of the overpayment to be returned is: " & total_OP_amt)
 Call write_variable_in_SPEC_MEMO("Reason for the overpayment(s):" & OP_reason)
-If client_amt <> "" THEN Call write_variable_in_SPEC_MEMO("Amount client is responsible to pay for GRH during overpayment months (this amount is not to be subtracted from the total overpayment amount)", client_amt) 
+Call write_variable_in_SPEC_MEMO("Amount client is responsible to pay for GRH during overpayment months (this amount is not to be subtracted from the total overpayment amount):" & client_amt) 
 Call write_variable_in_SPEC_MEMO("Please submit payment to:")
 If send_OP_to_DHS_check = 1 THEN 
 	Call write_variable_in_SPEC_MEMO("Minnesota Department of Human Services")
 	Call write_variable_in_SPEC_MEMO("MAXIS Cashier - 211")
 	Call write_variable_in_SPEC_MEMO("PO BOX 64835")
 	Call write_variable_in_SPEC_MEMO("St. Paul, MN 55164-0835")
-ELSEIF
+ELSE
 	Call write_variable_in_SPEC_MEMO(county_name_dept)
 	Call write_variable_in_SPEC_MEMO(county_address_line_01)
 	Call write_variable_in_SPEC_MEMO(county_address_line_02)
@@ -321,6 +328,7 @@ Call write_bullet_and_variable_in_case_note("Reason for overpayment(s)", OP_reas
 Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 Call write_bullet_and_variable_in_case_note("Established date", established_date)
 Call write_bullet_and_variable_in_case_note("Total overpayment amount", total_OP_amt)
+Call write_bullet_and_variable_in_case_note("Amount client is responsible to pay for GRH during overpayment months",client_amt) 
 IF OP_amt_01 <> "" and OP_date_01 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_01 & " for " & OP_date_01)
 IF OP_amt_02 <> "" and OP_date_02 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_02 & " for " & OP_date_02)
 IF OP_amt_03 <> "" and OP_date_03 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_03 & " for " & OP_date_03)
@@ -328,7 +336,7 @@ IF OP_amt_04 <> "" and OP_date_04 <> "" THEN Call write_variable_in_CASE_NOTE("*
 IF OP_amt_05 <> "" and OP_date_05 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_05 & " for " & OP_date_05)
 IF OP_amt_06 <> "" and OP_date_06 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_06 & " for " & OP_date_06)
 Call write_bullet_and_variable_in_case_note ("Instructed FACI to send overpayment to", county_name_dept)
-If send_OP_to_DHS_check = 1 THEN write_variable_in_CASE_NOTE("*  Instructed FACI to send overpayment to DHS.")
+If send_OP_to_DHS_check = 1 THEN write_variable_in_CASE_NOTE("* Instructed FACI to send overpayment to DHS.")
 If set_TIKL_check = 1 THEN write_variable_in_CASE_NOTE ("* TIKL'd to recheck case in 30 days")
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
