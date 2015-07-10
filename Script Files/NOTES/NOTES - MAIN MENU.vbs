@@ -50,129 +50,142 @@ END IF
 DIM ButtonPressed 
 DIM SIR_instructions_button, dialog_name
 DIM number_through_c_notes_button, d_through_g_notes_button, h_through_z_notes_button, ltc_notes_button
-DIM DOCUMENT_NOTING_button, APPLYMN_APPLICATION_RECEIVED_button, APPROVED_PROGRAMS_button, BABY_BORN_button, BURIAL_ASSETS_button								
-DIM CAF_button, CITIZENSHIP_IDENTITY_VERIFIED_button, CLIENT_CONTACT_CALL_CENTER_VERSION_button, CLIENT_CONTACT_button, CLOSED_PROGRAMS_button							
-DIM COMBINED_AR_button, CSR_button, DENIED_PROGRAMS_button, DRUG_FELON_button, DWP_BUDGET_button								
-DIM EMERGENCY_button, EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button, GAS_CARDS_ISSUED_button							
-DIM GRH_HRF_button, HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button										
-DIM LEP_SAVE_button, LEP_SPONSOR_INCOME_button						
+
+DIM APPLYMN_APPLICATION_RECEIVED_button, APPROVED_PROGRAMS_button, BABY_BORN_button, BURIAL_ASSETS_button, CAF_button
+DIM CHANGE_REPORT_FORM_RECEIVED_button, CITIZENSHIP_IDENTITY_VERIFIED_button, CLIENT_CONTACT_button, CLOSED_PROGRAMS_button, COMBINED_AR_button
+DIM CSR_button
+
+DIM DENIED_PROGRAMS_button, DOCUMENTS_RECEIVED_button, DRUG_FELON_button, DWP_BUDGET_button, EMERGENCY_button
+DIM EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button, FSET_sanction_button, GAS_CARDS_ISSUED_button
+DIM GRH_HRF_button
+
+DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, LEP_SAVE_button
+DIM LEP_SPONSOR_INCOME_button, MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button
+DIM OVERPAYMENT_button, SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button, VERIFICATIONS_NEEDED_button
+
 DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2015_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button							
-DIM LTC_RENEWAL_button, LTC_TRANSFER_PENALTY_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, LTC_1503_button, LTC_5181_button	
-DIM MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button, OVERPAYMENT_button, VERIFICATIONS_NEEDED_button, CHANGE_REPORT_FORM_RECEIVED_button				
-DIM DOCUMENTS_RECEIVED_button, MEDICAL_OPINION_FORM_RECEIVED_button, SHELTER_FORM_RECEIVED_button						
+DIM LTC_RENEWAL_button, LTC_TRANSFER_PENALTY_button, LTC_1503_button, LTC_5181_button
 
 'The function that creates the 4 dialogs depending on the dialog_name being sent through.
 FUNCTION create_NOTES_main_menu(dialog_name)
 	IF dialog_name = "#-C" THEN 
-        BeginDialog dialog_name, 0, 0, 516, 270, "# - C NOTES Scripts"
-          ButtonGroup ButtonPressed
-            PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
-            PushButton 45, 35, 30, 15, "D - G", d_through_g_notes_button
-            PushButton 75, 35, 30, 15, "H - Z", h_through_z_notes_button
-            PushButton 105, 35, 30, 15, "LTC", ltc_notes_button
-            PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-            PushButton 5, 70, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
-            PushButton 5, 85, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
-            PushButton 5, 100, 45, 10, "Baby born", BABY_BORN_button
-            PushButton 5, 115, 50, 10, "Burial assets", BURIAL_ASSETS_button
-            PushButton 5, 130, 20, 10, "CAF", CAF_button
-            PushButton 5, 145, 95, 10, "Citizenship/identity verified", CITIZENSHIP_IDENTITY_VERIFIED_button
-            PushButton 5, 160, 50, 10, "Client contact", CLIENT_CONTACT_button
-            PushButton 5, 175, 60, 10, "Closed programs", CLOSED_PROGRAMS_button
-            PushButton 5, 190, 50, 10, "Combined AR", COMBINED_AR_button
-            PushButton 5, 205, 20, 10, "CSR", CSR_button
-            CancelButton 460, 250, 50, 15
-          Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-          Text 115, 70, 330, 10, "--- Template for documenting details about an ApplyMN application recevied."
-          Text 80, 85, 325, 10, "--- Template for when you approve a client's programs."
-          Text 55, 100, 270, 10, "--- Template for a baby born and added to household."
-          Text 60, 115, 135, 10, "--- Template for burial assets."
-          Text 30, 130, 390, 10, "--- Template for when you're processing a CAF. Works for intake as well as recertification and reapplication.*"
-          Text 105, 145, 295, 10, "--- Template for documenting citizenship/identity status for a case."
-          Text 60, 160, 430, 10, "--- Template for documenting client contact, either from or to a client."
-          Text 70, 175, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
-          Text 60, 190, 250, 10, "--- Template for the Combined Annual Renewal.*"
-          Text 30, 205, 120, 10, "--- Template for the CSR.*"
-          GroupBox 5, 20, 140, 35, "NOTES Sub-Menus"
-        EndDialog
+		BeginDialog dialog_name, 0, 0, 516, 300, "# - C NOTES Scripts"
+		  ButtonGroup ButtonPressed
+		  	PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+		  	PushButton 45, 35, 30, 15, "D - G", d_through_g_notes_button
+		  	PushButton 75, 35, 30, 15, "H - Z", h_through_z_notes_button
+		  	PushButton 105, 35, 30, 15, "LTC", ltc_notes_button
+		  	PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+		  	PushButton 5, 70, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
+		  	PushButton 5, 85, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
+		  	PushButton 5, 100, 45, 10, "Baby born", BABY_BORN_button
+		  	PushButton 5, 115, 50, 10, "Burial assets", BURIAL_ASSETS_button
+		  	PushButton 5, 130, 20, 10, "CAF", CAF_button
+		  	PushButton 5, 145, 105, 10, "Change Report Form Received", CHANGE_REPORT_FORM_RECEIVED_button
+		  	PushButton 5, 160, 95, 10, "Citizenship/identity verified", CITIZENSHIP_IDENTITY_VERIFIED_button
+		  	PushButton 5, 175, 50, 10, "Client contact", CLIENT_CONTACT_button
+		  	PushButton 5, 190, 60, 10, "Closed programs", CLOSED_PROGRAMS_button
+		  	PushButton 5, 205, 50, 10, "Combined AR", COMBINED_AR_button
+		  	PushButton 5, 220, 20, 10, "CSR", CSR_button
+		  	CancelButton 460, 280, 50, 15
+		  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+		  Text 115, 70, 330, 10, "--- Template for documenting details about an ApplyMN application recevied."
+		  Text 80, 85, 325, 10, "--- Template for when you approve a client's programs."
+		  Text 55, 100, 270, 10, "--- Template for a baby born and added to household."
+		  Text 60, 115, 135, 10, "--- Template for burial assets."
+		  Text 30, 130, 390, 10, "--- Template for when you're processing a CAF. Works for intake as well as recertification and reapplication.*"
+		  Text 120, 145, 255, 10, "--- Template for case noting information reported from a Change Report Form."
+		  Text 105, 160, 295, 10, "--- Template for documenting citizenship/identity status for a case."
+		  Text 60, 175, 430, 10, "--- Template for documenting client contact, either from or to a client."
+		  Text 70, 190, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
+		  Text 60, 205, 250, 10, "--- Template for the Combined Annual Renewal.*"
+		  Text 30, 220, 120, 10, "--- Template for the CSR.*"
+		  GroupBox 5, 20, 140, 35, "NOTES Sub-Menus"
+		EndDialog
 	ELSEIF dialog_name = "D-G" THEN
-        BeginDialog dialog_name, 0, 0, 516, 270, "D - G NOTES Scripts"
-          ButtonGroup ButtonPressed
-            PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
-            PushButton 45, 35, 30, 15, "D - G", d_through_g_notes_button
-            PushButton 75, 35, 30, 15, "H - Z", h_through_z_notes_button
-            PushButton 105, 35, 30, 15, "LTC", ltc_notes_button
-            PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-            PushButton 5, 70, 60, 10, "Denied programs", DENIED_PROGRAMS_button
-            PushButton 5, 85, 40, 10, "Drug felon", DRUG_FELON_button
-            PushButton 5, 100, 50, 10, "DWP budget", DWP_BUDGET_button
-            PushButton 5, 115, 45, 10, "Emergency", EMERGENCY_button
-            PushButton 5, 130, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
-            PushButton 5, 145, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-            PushButton 5, 160, 40, 10, "Fraud info", FRAUD_INFO_button
-            PushButton 5, 175, 55, 10, "FSET sanction ", FSET_sanction_button
-            PushButton 5, 190, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
-            PushButton 5, 205, 45, 10, "GRH - HRF", GRH_HRF_button
-            CancelButton 460, 250, 50, 15
-          Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
-          Text 50, 85, 215, 10, "--- Template for noting drug felon info."
-          Text 60, 100, 215, 10, "--- Template for noting DWP budgets."
-          Text 55, 115, 240, 10, "--- Template for EA/EGA applications.*"
-          Text 130, 130, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
-          Text 85, 145, 220, 10, "--- Template for screening a client for expedited status."
-          Text 50, 160, 200, 10, "--- Template for noting fraud info."
-          Text 75, 190, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
-          Text 55, 205, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
-          Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-          Text 65, 175, 395, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
-          GroupBox 5, 20, 140, 35, "NOTES Sub-Menus"
-        EndDialog
+		BeginDialog dialog_name, 0, 0, 516, 300, "D - G NOTES Scripts"
+		  ButtonGroup ButtonPressed
+		  	PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+		  	PushButton 45, 35, 30, 15, "D - G", d_through_g_notes_button
+		  	PushButton 75, 35, 30, 15, "H - Z", h_through_z_notes_button
+		  	PushButton 105, 35, 30, 15, "LTC", ltc_notes_button
+		  	PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+		  	PushButton 5, 70, 60, 10, "Denied programs", DENIED_PROGRAMS_button
+		  	PushButton 5, 85, 55, 10, "Docs Received", DOCUMENTS_RECEIVED_button
+		  	PushButton 5, 100, 40, 10, "Drug felon", DRUG_FELON_button
+		  	PushButton 5, 115, 50, 10, "DWP budget", DWP_BUDGET_button
+		  	PushButton 5, 130, 45, 10, "Emergency", EMERGENCY_button
+		  	PushButton 5, 145, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
+		  	PushButton 5, 160, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
+		  	PushButton 5, 175, 40, 10, "Fraud info", FRAUD_INFO_button
+		  	PushButton 5, 190, 55, 10, "FSET sanction ", FSET_sanction_button
+		  	PushButton 5, 205, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
+		  	PushButton 5, 220, 45, 10, "GRH - HRF", GRH_HRF_button
+		  	CancelButton 460, 280, 50, 15
+		  Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
+		  Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
+		  Text 50, 100, 215, 10, "--- Template for noting drug felon info."
+		  Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
+		  Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
+		  Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
+		  Text 85, 160, 220, 10, "--- Template for screening a client for expedited status."
+		  Text 50, 175, 200, 10, "--- Template for noting fraud info."
+		  Text 75, 205, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
+		  Text 55, 220, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
+		  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+		  Text 65, 190, 395, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
+		  GroupBox 5, 20, 140, 35, "NOTES Sub-Menus"
+		EndDialog		
 	ELSEIF dialog_name = "H-Z" THEN 
-        BeginDialog dialog_name, 0, 0, 516, 270, "Notes (H-Z) scripts main menu dialog"
+		BeginDialog dialog_name, 0, 0, 516, 300, "Notes (H-Z) scripts main menu dialog"
+		  ButtonGroup ButtonPressed
+		  	PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+		  	PushButton 45, 35, 30, 15, "D - G", d_through_g_notes_button
+		  	PushButton 75, 35, 30, 15, "H - Z", h_through_z_notes_button
+		  	PushButton 105, 35, 30, 15, "LTC", ltc_notes_button
+		  	PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+		  	PushButton 5, 70, 50, 10, "HC Renewal", HC_RENEWAL_button
+		  	PushButton 5, 85, 30, 10, "HCAPP", HCAPP_button
+		  	PushButton 5, 100, 65, 10, "HH comp change", HH_COMP_CHANGE_button
+		  	PushButton 5, 115, 25, 10, "HRF", HRF_button
+		  	PushButton 5, 130, 45, 10, "LEP - SAVE", LEP_SAVE_button
+		  	PushButton 5, 145, 80, 10, "LEP - Sponsor income", LEP_SPONSOR_INCOME_button
+		  	PushButton 5, 160, 110, 10, "Medical Opinion Form Received", MEDICAL_OPINION_FORM_RECEIVED_button
+		  	PushButton 5, 175, 125, 10, "MFIP sanction/DWP disqualification", MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button
+		  	PushButton 5, 190, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
+		  	PushButton 5, 205, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
+		  	PushButton 5, 220, 50, 10, "Overpayment", OVERPAYMENT_button
+		  	PushButton 5, 235, 80, 10, "Shelter Form Received", SHELTER_FORM_RECEIVED_button
+		  	PushButton 5, 250, 70, 10, "SNAP case review", SNAP_case_review_button
+		  	PushButton 5, 265, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
+		  	CancelButton 460, 280, 50, 15
+		  Text 60, 70, 140, 10, "--- Template for HC renewals.*"
+		  Text 40, 85, 120, 10, "--- Template for HCAPPs.*"
+		  Text 75, 100, 240, 10, "--- Template for when you update the HH comp of a case."
+		  Text 35, 115, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
+		  Text 55, 130, 255, 10, "--- Template for the SAVE system for verifying immigration status."
+		  Text 90, 145, 345, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
+		  Text 135, 175, 290, 10, "--- Template for MFIP sanctions and DWP disqualifications, both CS and ES."
+		  Text 120, 190, 260, 10, "--- Template for actions taken on medical mileage reimbursements."
+		  Text 120, 205, 250, 10, "--- Template for when MNsure documents have been requested."
+		  Text 60, 220, 240, 10, "--- Template for noting basic information about overpayments."
+		  Text 85, 265, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
+		  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+		  Text 80, 250, 350, 10, "---NEW 07/2015  Template for SNAP reviewers to use that will case note the status  SNAP quality review."
+		  Text 120, 160, 335, 10, "--- Template for case noting information about a Medical Opinion Form."
+		  Text 90, 235, 350, 10, "--- Template for case noting information about a Shelter Form received."
+		  GroupBox 5, 20, 140, 35, "NOTES Sub-Menus"
+		EndDialog	
+	ELSEIF dialog_name = "LTC" THEN 
+        BeginDialog dialog_name, 0, 0, 516, 300, "Notes (LTC) scripts main menu dialog"
           ButtonGroup ButtonPressed
             PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
             PushButton 45, 35, 30, 15, "D - G", d_through_g_notes_button
             PushButton 75, 35, 30, 15, "H - Z", h_through_z_notes_button
             PushButton 105, 35, 30, 15, "LTC", ltc_notes_button
             PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-            PushButton 5, 70, 50, 10, "HC Renewal", HC_RENEWAL_button
-            PushButton 5, 85, 30, 10, "HCAPP", HCAPP_button
-            PushButton 5, 100, 65, 10, "HH comp change", HH_COMP_CHANGE_button
-            PushButton 5, 115, 25, 10, "HRF", HRF_button
-            PushButton 5, 130, 45, 10, "LEP - SAVE", LEP_SAVE_button
-            PushButton 5, 145, 80, 10, "LEP - Sponsor income", LEP_SPONSOR_INCOME_button
-            PushButton 5, 160, 125, 10, "MFIP sanction/DWP disqualification", MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button
-            PushButton 5, 175, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
-            PushButton 5, 190, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
-            PushButton 5, 205, 50, 10, "Overpayment", OVERPAYMENT_button
-            PushButton 5, 220, 75, 10, "SNAP case review", SNAP_CASE_REVIEW_button
-            PushButton 5, 235, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
-            CancelButton 460, 250, 50, 15
-          Text 60, 70, 140, 10, "--- Template for HC renewals.*"
-          Text 40, 85, 120, 10, "--- Template for HCAPPs.*"
-          Text 75, 100, 240, 10, "--- Template for when you update the HH comp of a case."
-          Text 35, 115, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
-          Text 55, 130, 255, 10, "--- Template for the SAVE system for verifying immigration status."
-          Text 90, 145, 345, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
-          Text 135, 160, 290, 10, "--- Template for MFIP sanctions and DWP disqualifications, both CS and ES."
-          Text 120, 175, 260, 10, "--- Template for actions taken on medical mileage reimbursements."
-          Text 120, 190, 250, 10, "--- Template for when MNsure documents have been requested."
-          Text 60, 205, 240, 10, "--- Template for noting basic information about overpayments."
-          Text 85, 235, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
-          Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-          Text 85, 220, 345, 10, "---NEW 07/2015  Template for SNAP reviewers to use that will case note the status  SNAP quality review."
-          GroupBox 5, 20, 140, 35, "NOTES Sub-Menus"
-        EndDialog	
-	ELSEIF dialog_name = "LTC" THEN 
-        BeginDialog dialog_name, 0, 0, 516, 270, "Notes (LTC) scripts main menu dialog"
-          ButtonGroup ButtonPressed
-            PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
-            PushButton 45, 35, 30, 15, "D - G", d_through_g_notes_button
-            PushButton 75, 35, 30, 15, "H - Z", h_through_z_notes_button
-            PushButton 105, 35, 30, 15, "LTC", ltc_notes_button
             PushButton 5, 70, 45, 10, "LTC - 1503", LTC_1503_button
             PushButton 5, 85, 45, 10, "LTC - 5181", LTC_5181_button
-            PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
             PushButton 5, 100, 90, 10, "LTC - Application received", LTC_APPLICATION_RECEIVED_button
             PushButton 5, 115, 85, 10, "LTC - Asset assessment", LTC_ASSET_ASSESSMENT_button
             PushButton 5, 130, 95, 10, "LTC - COLA summary 2015", LTC_COLA_SUMMARY_2015_button
@@ -180,7 +193,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 5, 160, 65, 10, "LTC - MA approval", LTC_MA_APPROVAL_button
             PushButton 5, 175, 55, 10, "LTC - Renewal", LTC_RENEWAL_button
             PushButton 5, 190, 80, 10, "LTC - Transfer penalty", LTC_TRANSFER_PENALTY_button
-            CancelButton 460, 245, 50, 15
+            CancelButton 460, 280, 50, 15
           Text 55, 70, 130, 10, "--- Template for processing DHS-1503."
           Text 55, 85, 180, 10, "--- NEW 06/2015!!! Template for processing DHS-5181."
           Text 100, 100, 205, 10, "--- Template for initial details of a LTC application.*"
@@ -233,27 +246,40 @@ IF ButtonPressed = BURIAL_ASSETS_button								THEN CALL run_from_GitHub(script_
 IF ButtonPressed = CAF_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CAF.vbs")								
 IF ButtonPressed = CHANGE_REPORT_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CHANGE REPORT FORM RECEIVED.vbs")
 IF ButtonPressed = CITIZENSHIP_IDENTITY_VERIFIED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CITIZENSHIP-IDENTITY VERIFIED.vbs")		
-IF ButtonPressed = CLIENT_CONTACT_CALL_CENTER_VERSION_button		THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CLIENT CONTACT (CALL CENTER VERSION).vbs")
 IF ButtonPressed = CLIENT_CONTACT_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CLIENT CONTACT.vbs")					
 IF ButtonPressed = CLOSED_PROGRAMS_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CLOSED PROGRAMS.vbs")					
 IF ButtonPressed = COMBINED_AR_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - COMBINED AR.vbs")						
 IF ButtonPressed = CSR_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - CSR.vbs")								
-IF ButtonPressed = DENIED_PROGRAMS_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DENIED PROGRAMS.vbs")					
+
+IF ButtonPressed = DENIED_PROGRAMS_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DENIED PROGRAMS.vbs")
+IF ButtonPressed = DOCUMENTS_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DOCUMENTS RECEIVED.vbs")					
 IF ButtonPressed = DRUG_FELON_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DRUG FELON.vbs")
 IF ButtonPressed = DWP_BUDGET_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DWP BUDGET.vbs")
 IF ButtonPressed = EMERGENCY_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")						
 IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
 IF ButtonPressed = EXPEDITED_SCREENING_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPEDITED SCREENING.vbs")				
 IF ButtonPressed = FRAUD_INFO_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FRAUD INFO.vbs")
+IF ButtonPressed = FSET_sanction_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FSET SANCTION.vbs")
 IF ButtonPressed = GAS_CARDS_ISSUED_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - GAS CARDS ISSUED.vbs")
 IF ButtonPressed = GRH_HRF_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - GRH - HRF.vbs")							
-IF ButtonPressed = DOCUMENT_NOTING_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DOCUMENT NOTING MENU.vbs")
+
 IF ButtonPressed = HC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HC RENEWAL.vbs")
 IF ButtonPressed = HCAPP_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HCAPP.vbs")
 IF ButtonPressed = HH_COMP_CHANGE_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HH COMP CHANGE.vbs")
 IF ButtonPressed = HRF_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HRF.vbs")
 IF ButtonPressed = LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
 IF ButtonPressed = LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
+IF ButtonPressed = MEDICAL_OPINION_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
+IF ButtonPressed = MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
+IF ButtonPressed = MILEAGE_REIMBURSEMENT_REQUEST_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs")
+IF ButtonPressed = MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
+IF ButtonPressed = OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - OVERPAYMENT.vbs")
+IF ButtonPressed = SHELTER_FORM_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SHELTER FORM RECEIVED.vbs")
+IF ButtonPressed = SNAP_CASE_REVIEW_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SNAP CASE REVIEW.vbs")
+IF ButtonPressed = VERIFICATIONS_NEEDED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
+
+IF ButtonPressed = LTC_1503_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 1503.vbs")
+IF ButtonPressed = LTC_5181_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 5181.vbs")
 IF ButtonPressed = LTC_APPLICATION_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - APPLICATION RECEIVED.vbs")
 IF ButtonPressed = LTC_ASSET_ASSESSMENT_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - ASSET ASSESSMENT.vbs")
 IF ButtonPressed = LTC_COLA_SUMMARY_2015_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - COLA SUMMARY 2015.vbs")
@@ -261,17 +287,6 @@ IF ButtonPressed = LTC_INTAKE_APPROVAL_button						THEN CALL run_from_GitHub(scr
 IF ButtonPressed = LTC_MA_APPROVAL_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - MA APPROVAL.vbs")
 IF ButtonPressed = LTC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - RENEWAL.vbs")
 IF ButtonPressed = LTC_TRANSFER_PENALTY_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - TRANSFER PENALTY.vbs")
-IF ButtonPressed = MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
-IF ButtonPressed = MILEAGE_REIMBURSEMENT_REQUEST_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs")
-IF ButtonPressed = MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
-IF ButtonPressed = OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - OVERPAYMENT.vbs")
-IF ButtonPressed = VERIFICATIONS_NEEDED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
-IF ButtonPressed = DOCUMENTS_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DOCUMENTS RECEIVED.vbs")				
-IF ButtonPressed = LTC_1503_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 1503.vbs")
-IF ButtonPressed = LTC_5181_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 5181.vbs")
-IF ButtonPressed = MEDICAL_OPINION_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
-IF ButtonPressed = SHELTER_FORM_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SHELTER FORM RECEIVED.vbs")
-IF ButtonPressed = SNAP_CASE_REVIEW_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SNAP CASE REVIEW.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
