@@ -6,7 +6,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'LOADING SCRIPT
-script_URL = script_repository & "/NOTES/NOTES - MAIN MENU - H-Z.vbs"
+script_URL = script_repository & "/NOTES/NOTES - MAIN MENU.vbs"
 IF run_locally = False THEN
 	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
 	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
