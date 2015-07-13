@@ -60,9 +60,11 @@ BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
 EndDialog
 
 
-BeginDialog LTC_app_recd_dialog, 0, 0, 286, 425, "LTC application received dialog"
+BeginDialog LTC_app_recd_dialog, 0, 0, 286, 415, "LTC application received dialog"
   EditBox 75, 35, 65, 15, appl_date
-  EditBox 75, 55, 205, 15, appl_type
+  EditBox 75, 55, 65, 15, appl_type
+  CheckBox 150, 45, 105, 10, "A transfer has been reported", transfer_reported_check
+  CheckBox 150, 60, 140, 10, "Spousal allocation has been requested", spousal_allocation_check
   EditBox 160, 75, 120, 15, forms_needed
   EditBox 30, 95, 30, 15, CFR
   EditBox 110, 95, 170, 15, HH_comp
@@ -77,15 +79,13 @@ BeginDialog LTC_app_recd_dialog, 0, 0, 286, 425, "LTC application received dialo
   EditBox 50, 275, 230, 15, veteran_info
   EditBox 50, 295, 230, 15, LTCC
   EditBox 55, 315, 225, 15, actions_taken
-  CheckBox 5, 350, 220, 10, "Check here to have the script update PND2 to show client delay.", update_PND2_check
-  CheckBox 5, 365, 280, 10, "Check here to have the script create a TIKL to deny at the 45 day mark (NON-DISA).", TIKL_45_day_check
-  CheckBox 5, 380, 265, 10, "Check here to have the script create a TIKL to deny at the 60 day mark (DISA).", TIKL_60_day_check
-  EditBox 90, 400, 80, 15, worker_signature
+  CheckBox 5, 345, 220, 10, "Check here to have the script update PND2 to show client delay.", update_PND2_check
+  CheckBox 5, 360, 280, 10, "Check here to have the script create a TIKL to deny at the 45 day mark (NON-DISA).", TIKL_45_day_check
+  CheckBox 5, 375, 265, 10, "Check here to have the script create a TIKL to deny at the 60 day mark (DISA).", TIKL_60_day_check
+  EditBox 90, 395, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 400, 50, 15
-    CancelButton 230, 400, 50, 15
-    PushButton 180, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 230, 15, 45, 10, "prev. memb", prev_memb_button
+    OkButton 175, 395, 50, 15
+    CancelButton 230, 395, 50, 15
     PushButton 180, 25, 45, 10, "next panel", next_panel_button
     PushButton 230, 25, 45, 10, "next memb", next_memb_button
     PushButton 5, 160, 25, 10, "FACI:", FACI_button
@@ -107,14 +107,17 @@ BeginDialog LTC_app_recd_dialog, 0, 0, 286, 425, "LTC application received dialo
   Text 5, 260, 55, 10, "Adult signatures:"
   Text 5, 300, 40, 10, "LTCC info:"
   Text 5, 320, 50, 10, "Actions taken:"
-  Text 30, 405, 60, 10, "Worker signature:"
+  Text 30, 400, 60, 10, "Worker signature:"
   Text 5, 40, 55, 10, "Application date:"
-  Text 5, 80, 150, 10, "Forms needed? 1503, 3543, 3050, 5181, etc?:"
+  Text 5, 80, 150, 10, "Forms needed? 1503, 3543, 3050, 5181, AA:"
   GroupBox 10, 5, 135, 25, "General STAT navigation:"
   GroupBox 175, 5, 105, 35, "STAT-based navigation"
   Text 5, 60, 65, 10, "Appl type received:"
   Text 5, 280, 45, 10, "Veteran info:"
-  GroupBox 0, 340, 285, 55, "Actions"
+  GroupBox 0, 335, 285, 55, "Actions"
+  ButtonGroup ButtonPressed
+    PushButton 230, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 180, 15, 45, 10, "prev. panel", prev_panel_button
 EndDialog
 
 
@@ -249,10 +252,11 @@ If adult_signatures <> "" then call write_bullet_and_variable_in_CASE_NOTE("Adul
 If LTCC <> "" then call write_bullet_and_variable_in_CASE_NOTE("LTCC info", LTCC)
 IF veteran_info <> "" then call write_bullet_and_variable_in_CASE_NOTE("Veteran information", veteran_info)
 call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+If transfer_reported_check = 1 THEN call write_variable_in_CASE_NOTE("* A transfer has been reported.")
+IF spousal_allocation_check = 1 THEN Call write_variable_in_CASE_NOTE("* Spousal allocation has been requested.")
 If update_PND2_check = 1 THEN Call write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 IF TIKL_45_day_check = 1 Then call write_variable_in_CASE_NOTE("* Set TIKL for 45 days to recheck case.")
 IF TIKL_60_day_check = 1 Then call write_variable_in_CASE_NOTE("* Set TIKL for 60 days to recheck case.")
-
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
