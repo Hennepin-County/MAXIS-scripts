@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -159,15 +159,15 @@ call MAXIS_case_number_finder(case_number)
 'Ask for case number, validate that it's numeric.
 Do
 	Dialog BILS_case_number_dialog	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
-	If ButtonPressed = cancel then stopscript
-	transmit
-	MAXIS_check_function
+	cancel_confirmation
+	Call check_for_MAXIS(True)
 	If isnumeric(case_number) = False then MsgBox "Enter a valid MAXIS case number."
 Loop until isnumeric(case_number) = True
 
 'Gets to STAT/BUDG
-call navigate_to_screen("STAT", "BUDG")
-ERRR_screen_check
+Call navigate_to_MAXIS_screen("STAT", "BUDG")
+Call MAXIS_background_check
+
 
 'Determines budget begin/end dates. 
 EMReadScreen budget_begin, 5, 10, 35
@@ -176,14 +176,14 @@ EMReadScreen budget_end, 5, 10, 46
 budget_end = replace(trim(budget_end), " ", "/")	'MM/DD format, trims the EMReadScreen to ignore strings that are all spaces (implies no budget period established, case may be pending)
 
 'Gets to BILS
-call navigate_to_screen("STAT", "BILS")
+call navigate_to_MAXIS_screen("STAT", "BILS")
 
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
 If updating_existing_BILS_check = checked then
 
 	'DIALOG RUNS, PUTS BILS ON EDIT MODE AND CHECKS FOR PASSWORD PROMPT
 	Dialog BILS_updater_abbreviated_dialog
-	If buttonpressed = cancel then stopscript
+	cancel_confirmation
 	PF9
 	EMReadScreen BILS_check, 4, 2, 54
 	If BILS_check <> "BILS" then script_end_procedure("BILS not found. Did you navigate away from BILS? Did you get passworded out? The script will now close.")
@@ -258,9 +258,8 @@ End if
 Do
 	DO
 		Dialog BILS_updater_dialog
-		If ButtonPressed = cancel then stopscript
-		transmit
-		MAXIS_check_function
+		cancel_confirmation
+		Call check_for_MAXIS(True)
 		IF isdate(budget_begin) = False OR isdate(budget_end) = False THEN MsgBox "Your budget range includes dates that are not valid. Please double check your budget months and years before continuing to ensure the script works properly."
 	LOOP UNTIL isdate(budget_begin) = True AND isdate(budget_end) = True
 	'Checking to see if the user added verifications. BILS requires that, without it it'll red up and error out.
@@ -280,7 +279,8 @@ Do
 	End if
 Loop until dialog_validation_complete = True
  
-call navigate_to_screen("stat", "bils") 'In case the worker navigated out.
+call navigate_to_MAXIS_screen("stat", "bils") 'In case the worker navigated out.
+Call create_panel_if_nonexistent()
 
 'Cleaning up date field
 budget_begin = replace(budget_begin, ".", "/")		'in case worker used periods instead of slashes

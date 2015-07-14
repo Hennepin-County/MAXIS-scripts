@@ -5,7 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN
+			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -57,8 +58,8 @@ footer_year = "" & footer_year - 2000
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 140, 25, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 35, 50, 50, 15
     CancelButton 95, 50, 50, 15
@@ -67,73 +68,72 @@ BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
   Text 110, 30, 25, 10, "Year:"
 EndDialog
 
-
 BeginDialog intake_approval_dialog, 0, 0, 386, 435, "Intake Approval Dialog"
-  EditBox 65, 5, 45, 15, application_date
+  EditBox 65, 5, 55, 15, application_date
   CheckBox 140, 5, 155, 15, "Check here if this client is in the community.", community_check
   DropListBox 45, 25, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
   DropListBox 135, 25, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
   EditBox 305, 25, 70, 15, recipient_amt
-  CheckBox 5, 45, 140, 15, "LTCC? If so, check here and enter date:", LTCC_check
-  EditBox 145, 45, 45, 15, LTCC_date
-  CheckBox 210, 45, 75, 15, "DHS-5181 on file?", DHS_5181_on_file_check
-  CheckBox 305, 45, 75, 15, "DHS-1503 on file?", DHS_1503_on_file_check
-  EditBox 55, 65, 45, 15, retro_months
+  CheckBox 5, 50, 140, 10, "LTCC? If so, check here and enter date:", LTCC_check
+  EditBox 150, 45, 45, 15, LTCC_date
+  CheckBox 210, 50, 75, 10, "DHS-5181 on file?", DHS_5181_on_file_check
+  CheckBox 305, 50, 75, 10, "DHS-1503 on file?", DHS_1503_on_file_check
+  EditBox 65, 65, 55, 15, retro_months
   EditBox 185, 65, 45, 15, month_MA_starts
   EditBox 330, 65, 45, 15, month_MA_LTC_starts
-  EditBox 65, 85, 60, 15, baseline_date
+  EditBox 65, 85, 55, 15, baseline_date
   EditBox 250, 85, 125, 15, AREP_SWKR
   EditBox 75, 105, 205, 15, FACI
-  EditBox 320, 105, 55, 15, CFR
+  EditBox 330, 105, 45, 15, CFR
   EditBox 60, 125, 315, 15, income
   EditBox 40, 145, 335, 15, assets
   EditBox 90, 165, 65, 15, total_countable_assets
   EditBox 235, 165, 140, 15, other_asset_notes
   EditBox 60, 185, 150, 15, MEDI_INSA
-  CheckBox 235, 185, 140, 15, "Check here if INSA was loaded into TPL.", INSA_loaded_into_TPL_check
+  CheckBox 240, 190, 140, 10, "Check here if INSA was loaded into TPL.", INSA_loaded_into_TPL_check
   CheckBox 5, 205, 230, 10, "LTC partnership? If so, check here and enter a separate case note.", LTC_partnership_check
-  CheckBox 235, 205, 105, 15, "Managed care referral sent?", managed_care_referral_sent_check
+  CheckBox 240, 205, 105, 10, "Managed care referral sent?", managed_care_referral_sent_check
   EditBox 70, 225, 305, 15, annuity_LTC_PRB
   DropListBox 70, 245, 75, 15, "N/A"+chr(9)+"Within limit"+chr(9)+"Beyond limit", home_equity_limit
   EditBox 190, 245, 185, 15, transfer
   EditBox 70, 265, 305, 15, deductions
   EditBox 50, 285, 325, 15, other_notes
   EditBox 55, 305, 320, 15, actions_taken
-  CheckBox 10, 325, 85, 15, "Sent DHS-3050/1503?", DHS_3050_1503_check
-  CheckBox 135, 325, 95, 15, "Sent DHS-3203/lien doc?", DHS_3203_lien_doc_check
-  CheckBox 275, 325, 95, 15, "Asset transfer memo sent?", asset_transfer_letter_sent_check
-  EditBox 195, 400, 65, 15, worker_signature
+  CheckBox 10, 325, 85, 10, "Sent DHS-3050/1503?", DHS_3050_1503_check
+  CheckBox 135, 325, 95, 10, "Sent DHS-3203/lien doc?", DHS_3203_lien_doc_check
+  CheckBox 275, 325, 95, 10, "Asset transfer memo sent?", asset_transfer_letter_sent_check
+  EditBox 185, 405, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 270, 400, 50, 15
-    CancelButton 325, 400, 50, 15
+    OkButton 270, 405, 50, 15
+    CancelButton 325, 405, 50, 15
     PushButton 340, 5, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 190, 85, 25, 10, "AREP/", AREP_button
-    PushButton 215, 85, 30, 10, "SWKR:", SWKR_button
-    PushButton 5, 105, 65, 10, "FACI (if applicable):", FACI_button
-    PushButton 5, 125, 50, 10, "UNEA/income:", UNEA_button
-    PushButton 5, 185, 25, 10, "MEDI/", MEDI_button
-    PushButton 30, 185, 25, 10, "INSA:", INSA_button
-    PushButton 5, 265, 60, 10, "BILS/deductions:", BILS_button
-  Text 5, 5, 55, 15, "Application date:"
-  Text 5, 25, 35, 15, "Elig type:"
-  Text 85, 25, 45, 15, "Budget type:"
-  Text 195, 25, 110, 15, "Waiver obilgation/recipient amt:"
-  Text 5, 65, 50, 15, "Retro months?:"
-  Text 125, 65, 55, 15, "Month MA starts:"
-  Text 255, 65, 75, 15, "Month MA-LTC starts:"
-  Text 300, 105, 20, 15, "CFR:"
-  Text 5, 145, 30, 15, "Assets:"
-  Text 5, 165, 80, 15, "Total countable assets:"
-  Text 165, 165, 65, 15, "Other asset notes:"
-  Text 5, 85, 60, 15, "Baseline date: "
-  Text 5, 225, 65, 15, "Annuity (LTC) PRB:"
-  Text 5, 245, 60, 15, "Home equity limit:"
-  Text 155, 245, 35, 15, "Transfer:"
-  Text 5, 285, 40, 15, "Other notes:"
-  Text 5, 305, 50, 15, "Actions taken:"
-  Text 130, 400, 60, 15, "Worker signature:"
-  Text 15, 350, 345, 40, "Per HCPM 19.40.15: The baseline date is the date in which both of the following conditions are met:  1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND 2. The person’s initial request month for MA payment of LTC services."
-  GroupBox 5, 340, 365, 55, ""
+    PushButton 190, 90, 25, 10, "AREP/", AREP_button
+    PushButton 215, 90, 30, 10, "SWKR:", SWKR_button
+    PushButton 5, 110, 65, 10, "FACI (if applicable):", FACI_button
+    PushButton 5, 130, 50, 10, "UNEA/income:", UNEA_button
+    PushButton 5, 190, 25, 10, "MEDI/", MEDI_button
+    PushButton 30, 190, 25, 10, "INSA:", INSA_button
+    PushButton 5, 270, 60, 10, "BILS/deductions:", BILS_button
+  Text 5, 10, 55, 10, "Application date:"
+  Text 5, 30, 35, 10, "Elig type:"
+  Text 85, 30, 45, 10, "Budget type:"
+  Text 195, 30, 110, 10, "Waiver obilgation/recipient amt:"
+  Text 5, 70, 50, 10, "Retro months?:"
+  Text 125, 70, 55, 10, "Month MA starts:"
+  Text 255, 70, 75, 10, "Month MA-LTC starts:"
+  Text 305, 110, 20, 10, "CFR:"
+  Text 5, 150, 30, 10, "Assets:"
+  Text 5, 170, 80, 10, "Total countable assets:"
+  Text 165, 170, 65, 10, "Other asset notes:"
+  Text 5, 90, 60, 10, "Baseline date*: "
+  Text 5, 230, 65, 10, "Annuity (LTC) PRB:"
+  Text 5, 250, 60, 10, "Home equity limit:"
+  Text 155, 250, 35, 10, "Transfer:"
+  Text 5, 290, 40, 10, "Other notes:"
+  Text 5, 310, 50, 10, "Actions taken:"
+  Text 125, 410, 60, 10, "Worker signature:"
+  Text 15, 355, 345, 40, "The baseline date is the date in which both of the following conditions are met:  1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND 2. The person’s initial request month for MA payment of LTC services."
+  GroupBox 5, 345, 365, 55, "*Per HCPM 19.40.15: "
 EndDialog
 
 
@@ -181,42 +181,25 @@ application_signed_check = 1 'The script should default to having the applicatio
 
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
 
-'Grabbing the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+'Grabbing the case number & the footer month/year
+Call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
 
 'Showing the case number dialog
 Do
   Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+  cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
-'Checking for MAXIS
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You are not in MAXIS or you are locked out of your case.")
 
-'Navigating into STAT
-call navigate_to_MAXIS_screen("stat", "hcre")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
+'Checking for MAXIS, NAV to HCRE
+Call check_for_MAXIS(True)
+Call navigate_to_MAXIS_screen("stat", "hcre")
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -404,7 +387,7 @@ Next
 
 'DISPLAYS THE TYPE/STD DIALOG AFTER GATHERING THE INFO
 Dialog type_std_dialog
-If buttonpressed = 0 then stopscript
+cancel_confirmation
 
 'READS THE FOOTER MONTH ELIG TYPE AND STANDARD
 EMReadScreen elig_type, 2, 12, col - 1
@@ -482,16 +465,13 @@ EndDialog
 EMReadScreen BBUD_check, 4, 3, 47
 If BBUD_check = "BBUD" then
   Dialog BBUD_dialog
-  If ButtonPressed = 0 then stopscript
+  cancel_confirmation
   If ButtonPressed = BILS_button then
     PF3
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then
-      Do
-        Dialog BBUD_Dialog
-        If buttonpressed = 0 then stopscript
-      Loop until MAXIS_check = "MAXIS"
-    End if
+    Call check_for_MAXIS(False)
+    Dialog BBUD_Dialog
+    cancel_confirmation
+    Call check_for_MAXIS(False) 
     back_to_SELF
     EMWriteScreen "stat", 16, 43
     EMWriteScreen "bils", 21, 70
@@ -513,10 +493,10 @@ Do
 			LOOP until len(baseline_date) >= 10
 			EMReadScreen STAT_check, 4, 20, 21
 			If STAT_check = "STAT" then
-			If ButtonPressed = prev_panel_button then call panel_navigation_prev
-			If ButtonPressed = next_panel_button then call panel_navigation_next
-			If ButtonPressed = prev_memb_button then call memb_navigation_prev
-			If ButtonPressed = next_memb_button then call memb_navigation_next
+			If ButtonPressed = prev_panel_button then Call MAXIS_dialog_navigation
+			If ButtonPressed = next_panel_button then Call MAXIS_dialog_navigation
+			If ButtonPressed = prev_memb_button then Call MAXIS_dialog_navigation
+			If ButtonPressed = next_memb_button then call MAXIS_dialog_navigation
 			End if
 			transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
 			EMReadScreen MAXIS_check, 5, 1, 39
@@ -588,7 +568,6 @@ If other_asset_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Oth
 If MEDI_INSA <> "" then call write_bullet_and_variable_in_CASE_NOTE("MEDI/INSA", MEDI_INSA)
 If INSA_loaded_into_TPL_check = 1 then call write_variable_in_CASE_NOTE("* INSA loaded into TPL.")
 If LTC_partnership_check = 1 then call write_variable_in_CASE_NOTE("* There is a LTC partnership for this case.")
-If lookback_period <> "" then call write_variable_in_CASE_NOTE("* Lookback period: " & lookback_period & " - " & end_of_lookback)
 If annuity_LTC_PRB <> "" then call write_bullet_and_variable_in_CASE_NOTE("Annuity (LTC) PRB", annuity_LTC_PRB)
 If home_equity_limit <> "" then call write_bullet_and_variable_in_CASE_NOTE("Home equity limit", home_equity_limit)
 If transfer <> "" then call write_bullet_and_variable_in_CASE_NOTE("Transfer", transfer)
