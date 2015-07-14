@@ -256,7 +256,7 @@ DO
 	If total_amt_of_panels = "0" then script_end_procedure("No JOBS panels exist for this client. Please add a JOBS panel and run through background before trying again. The script will now stop.")
 	
 	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
-	If total_amt_of_panels <> "1" then
+	If total_amt_of_panels <> "0" then
 		Do
 			EMReadScreen current_panel_number, 1, 2, 73
 			EMReadScreen employer_name, 30, 7, 42
