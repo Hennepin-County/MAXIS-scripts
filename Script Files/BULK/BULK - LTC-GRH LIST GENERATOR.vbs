@@ -156,6 +156,7 @@ For each worker in worker_number_array
 			IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then MsgBox "You are locked out of your case. Type your password then try again."
 		Loop until password_prompt <> "ACF2/CICS PASSWORD VERIFICATION PROMPT"
 
+		EMReadScreen last_page_check, 21, 24, 02
 		row = 7 'defining the row to look at
 		Do
 			If REPT_panel = "REPT/ACTV" then
@@ -174,8 +175,6 @@ For each worker in worker_number_array
 		Loop until row = 19 or trim(case_number) = ""
 
 		PF8 'going to the next screen
-
-		EMReadScreen last_page_check, 21, 24, 02
 
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
 

@@ -1,4 +1,4 @@
-OPTION EXPLICIT
+'OPTION EXPLICIT
 
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
 name_of_script = "NOTE - 5181.vbs"
@@ -53,129 +53,129 @@ END IF
 
 
 'Declaring variables
-DIM start_time
-DIM name_of_script
-DIM url
-DIM row
-DIM script_end_procedure
-DIM case_number_and_footer_month_dialog
-DIM case_number
-DIM footer_month
-DIM footer_year
-DIM next_month
-DIM ButtonPressed
-DIM case_note_dialog
-DIM yes_case_note_button
-DIM no_case_note_button
-DIM cancel_dialog
-DIM no_cancel_button
-DIM yes_cancel_button
-DIM MAXIS_footer_month
-DIM MAXIS_footer_year
-DIM DHS_5181_dialog_1
-DIM date_5181_editbox
-DIM date_received_editbox
-DIM lead_agency_editbox
-DIM lead_agency_assessor_editbox
-DIM casemgr_ADDR_line_01
-DIM casemgr_ADDR_line_02
-DIM casemgr_city
-DIM casemgr_state
-DIM casemgr_zip_code
-DIM phone_area_code
-DIM phone_prefix
-DIM phone_second_four
-DIM phone_extension
-DIM fax_editbox
-DIM update_SWKR_info_checkbox
-DIM update_addr_checkbox
-DIM name_of_facility_editbox
-DIM date_of_admission_editbox
-DIM facility_address_line_01
-DIM facility_address_line_02
-DIM facility_city
-DIM facility_state
-DIM facility_county_code
-DIM facility_zip_code
-DIM waiver_type_droplist
-DIM essential_community_supports_check
-DIM next_to_page_02_button
-DIM DHS_5181_dialog_2
-DIM waiver_assessment_date_editbox
-DIM needs_waiver_checkbox
-DIM estimated_effective_date_editbox
-DIM estimated_monthly_check
-DIM estimated_monthly_waiver_costs_editbox
-DIM does_not_meet_waiver_LOC_check
-DIM ongoing_waiver_case_manager_check
-DIM ongoing_waiver_case_manager_editbox
-DIM LTCF_assessment_date_editbox
-DIM meets_MALOC_check
-DIM ongoing_case_manager_check
-DIM ongoing_case_manager_editbox
-DIM ongoing_case_manager_not_available_check
-DIM does_not_meet_MALTC_LOC_check
-DIM client_applied_MA_check
-DIM client_MA_enrollee_3543_provided_check
-DIM Client_MA_enrollee_editbox
-DIM completed_3543_3531_check
-DIM completed_3543_3531_faxed_check
-DIM completed_3543_3531_faxed_editbox
-DIM please_send_3543_check
-DIM please_send_3531_check
-DIM please_send_3531_editbox
-DIM please_send_3340_check
-DIM previous_to_page_01_button
-DIM requested_1503_check
-DIM onfile_1503_check 
-DIM DHS_5181_Dialog_3
-DIM client_no_longer_meets_LOC_check
-DIM client_no_longer_meets_LOC_efffective_date_editbox
-DIM waiver_program_change_by_assessor_check
-DIM waiver_program_change_from_assessor_editbox
-DIM waiver_program_change_to_assessor_editbox
-DIM waiver_program_change_effective_date_editbox
-DIM exited_waiver_program_check
-DIM exit_waiver_end_date_editbox
-DIM client_choice_check
-DIM client_deceased_check
-DIM date_of_death_editbox
-DIM client_moved_to_LTCF_check
-DIM client_moved_to_LTCF_editbox
-DIM waiver_program_change_check
-DIM waiver_program_change_from_editbox
-DIM waiver_program_change_to_editbox
-DIM client_disenrolled_health_plan_check
-DIM client_disenrolled_from_healthplan_editbox
-DIM new_address_check
-DIM new_address_effective_date_editbox
-DIM case_action_editbox
-DIM other_notes_editbox
-DIM write_TIKL_for_worker_check
-DIM sent_5181_to_caseworker_check
-DIM worker_signature
-DIM previous_to_page_02_button
-DIM LTCF_ADDR_line_01
-DIM LTCF_ADDR_line_02
-DIM LTCF_city
-DIM LTCF_state
-DIM LTCF_county_code
-DIM LTCF_zip_code
-DIM LTCF_update_ADDR_checkbox
-DIM update_addr_new_ADDR_checkbox
-DIM change_ADDR_line_1
-DIM change_ADDR_line_2
-DIM change_city
-DIM change_state
-DIM change_county_code
-DIM change_zip_code
-DIM case_note_confirm
-DIM next_to_page_03_button
-DIM footer_month_as_date
-DIM difference_between_dates
-DIM move_on_to_case_note
-DIM from_droplist
-DIM to_droplist
+'DIM start_time
+'DIM name_of_script
+'DIM url
+'DIM row
+'DIM script_end_procedure
+'DIM case_number_and_footer_month_dialog
+'DIM case_number
+'DIM footer_month
+'DIM footer_year
+'DIM next_month
+'DIM ButtonPressed
+'DIM case_note_dialog
+'DIM yes_case_note_button
+'DIM no_case_note_button
+'DIM cancel_dialog
+'DIM no_cancel_button
+'DIM yes_cancel_button
+'DIM MAXIS_footer_month
+'DIM MAXIS_footer_year
+'DIM DHS_5181_dialog_1
+'DIM date_5181_editbox
+'DIM date_received_editbox
+'DIM lead_agency_editbox
+'DIM lead_agency_assessor_editbox
+'DIM casemgr_ADDR_line_01
+'DIM casemgr_ADDR_line_02
+'DIM casemgr_city
+'DIM casemgr_state
+'DIM casemgr_zip_code
+'DIM phone_area_code
+'DIM phone_prefix
+'DIM phone_second_four
+'DIM phone_extension
+'DIM fax_editbox
+'DIM update_SWKR_info_checkbox
+'DIM update_addr_checkbox
+'DIM name_of_facility_editbox
+'DIM date_of_admission_editbox
+'DIM facility_address_line_01
+'DIM facility_address_line_02
+'DIM facility_city
+'DIM facility_state
+'DIM facility_county_code
+'DIM facility_zip_code
+'DIM waiver_type_droplist
+'DIM essential_community_supports_check
+'DIM next_to_page_02_button
+'DIM DHS_5181_dialog_2
+'DIM waiver_assessment_date_editbox
+'DIM needs_waiver_checkbox
+'DIM estimated_effective_date_editbox
+'DIM estimated_monthly_check
+'DIM estimated_monthly_waiver_costs_editbox
+'DIM does_not_meet_waiver_LOC_check
+'DIM ongoing_waiver_case_manager_check
+'DIM ongoing_waiver_case_manager_editbox
+'DIM LTCF_assessment_date_editbox
+'DIM meets_MALOC_check
+'DIM ongoing_case_manager_check
+'DIM ongoing_case_manager_editbox
+'DIM ongoing_case_manager_not_available_check
+'DIM does_not_meet_MALTC_LOC_check
+'DIM client_applied_MA_check
+'DIM client_MA_enrollee_3543_provided_check
+'DIM Client_MA_enrollee_editbox
+'DIM completed_3543_3531_check
+'DIM completed_3543_3531_faxed_check
+'DIM completed_3543_3531_faxed_editbox
+'DIM please_send_3543_check
+'DIM please_send_3531_check
+'DIM please_send_3531_editbox
+'DIM please_send_3340_check
+'DIM previous_to_page_01_button
+'DIM requested_1503_check
+'DIM onfile_1503_check 
+'DIM DHS_5181_Dialog_3
+'DIM client_no_longer_meets_LOC_check
+'DIM client_no_longer_meets_LOC_efffective_date_editbox
+'DIM waiver_program_change_by_assessor_check
+'DIM waiver_program_change_from_assessor_editbox
+'DIM waiver_program_change_to_assessor_editbox
+'DIM waiver_program_change_effective_date_editbox
+'DIM exited_waiver_program_check
+'DIM exit_waiver_end_date_editbox
+'DIM client_choice_check
+'DIM client_deceased_check
+'DIM date_of_death_editbox
+'DIM client_moved_to_LTCF_check
+'DIM client_moved_to_LTCF_editbox
+'DIM waiver_program_change_check
+'DIM waiver_program_change_from_editbox
+'DIM waiver_program_change_to_editbox
+'DIM client_disenrolled_health_plan_check
+'DIM client_disenrolled_from_healthplan_editbox
+'DIM new_address_check
+'DIM new_address_effective_date_editbox
+'DIM case_action_editbox
+'DIM other_notes_editbox
+'DIM write_TIKL_for_worker_check
+'DIM sent_5181_to_caseworker_check
+'DIM worker_signature
+'DIM previous_to_page_02_button
+'DIM LTCF_ADDR_line_01
+'DIM LTCF_ADDR_line_02
+'DIM LTCF_city
+'DIM LTCF_state
+'DIM LTCF_county_code
+'DIM LTCF_zip_code
+'DIM LTCF_update_ADDR_checkbox
+'DIM update_addr_new_ADDR_checkbox
+'DIM change_ADDR_line_1
+'DIM change_ADDR_line_2
+'DIM change_city
+'DIM change_state
+'DIM change_county_code
+'DIM change_zip_code
+'DIM case_note_confirm
+'DIM next_to_page_03_button
+'DIM footer_month_as_date
+'DIM difference_between_dates
+'DIM move_on_to_case_note
+'DIM from_droplist
+'DIM to_droplist
 
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
@@ -198,22 +198,6 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
   ButtonGroup ButtonPressed
 	OkButton 25, 45, 50, 15
 	CancelButton 85, 45, 50, 15
-EndDialog
-
-
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-	PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-	PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-	PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-	PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
 EndDialog
 
 
@@ -390,9 +374,7 @@ BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
 EndDialog
 
 
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-
 'Connecting to MAXIS
 EMConnect ""
 
@@ -426,7 +408,7 @@ Do
 			Do
 				Dialog DHS_5181_dialog_1			'Displays the first dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
-				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_02_button
 			IF waiver_type_droplist = "Select one..." THEN MsgBox "Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
 		Loop until waiver_type_droplist <> "Select one..."
@@ -437,7 +419,7 @@ Do
 				Do
 					Dialog DHS_5181_dialog_2			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
 				If ButtonPressed = previous_to_page_01_button THEN exit do
 				If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") THEN Msgbox	"You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
@@ -449,13 +431,13 @@ Do
 				Do
 					Dialog DHS_5181_Dialog_3			'Displays the third dialog
 					cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
-					MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					'MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
 				If ButtonPressed = previous_to_page_02_button THEN exit do
 				If case_action_editbox = "" or worker_signature = "" OR (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") OR _
-				(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
-				(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
-				(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
+					(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
+					(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
+					(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
 					MsgBox "You need to:" & vbNewLine & vbNewLine & _
 					"-Complete a field next to an option that was checked, and/or" & vbNewLine & _	
 					"-Case note the 'case actions' section, and/or" & vbNewLine & _
@@ -468,7 +450,10 @@ Do
 		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
 	Loop until ButtonPressed = -1
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							  
+Loop until case_note_confirm = TRUE		
+
+
+
 
 'Dollar bill symbol will be added to numeric variables 
 IF estimated_monthly_waiver_costs_editbox <> "" THEN estimated_monthly_waiver_costs_editbox = "$" & estimated_monthly_waiver_costs_editbox
@@ -788,7 +773,7 @@ Call write_bullet_and_variable_in_case_note ("* Case manager has requested that 
 IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP")
 'changes completed by the assessor
 Call write_bullet_and_variable_in_case_note ("Client no longer meets LOC - Effective date should be no sooner than", client_no_longer_meets_LOC_efffective_date_editbox)					 
-Call write_bullet_and_variable_in_case_note ("Waiver program changed from", from_droplist & " to: " & to_droplist & ". Effective date: " & waiver_program_change_effective_date_editbox)
+IF from_droplist <> "Select one..." AND to_droplist <> "Select one.." THEN Call write_bullet_and_variable_in_case_note ("Waiver program changed from", from_droplist & " to: " & to_droplist & ". Effective date: " & waiver_program_change_effective_date_editbox)
 
 'Information from DHS 5181 Dialog 3
 'changes
@@ -807,3 +792,5 @@ Call write_bullet_and_variable_in_case_note ("Other notes", other_notes_editbox)
 Call write_variable_in_case_note ("---")						 
 call write_variable_in_case_note (worker_signature)
 MsgBox "Make sure your DISA and FACI panel(s) are updated if needed. Please also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed."
+
+script_end_procedure("")

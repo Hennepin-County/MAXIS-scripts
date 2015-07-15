@@ -107,17 +107,19 @@ EndDialog
 
 BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   EditBox 65, 10, 50, 15, case_number
-  DropListBox 60, 30, 70, 15, "Adult"+chr(9)+"Family", unit_drop_down
+  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC", unit_drop_down
   EditBox 130, 50, 65, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
   CheckBox 55, 90, 30, 10, "SNAP", SNAP_active_check
   CheckBox 95, 90, 20, 10, "HC", HC_active_check
-  CheckBox 125, 90, 80, 10, "MCRE Or Mnsure", Mcremnsure_active_check
+  CheckBox 125, 90, 35, 10, "MNsure", mnsure_active_check
+  CheckBox 170, 90, 35, 10, "EMER", EMER_active_check
   CheckBox 20, 125, 30, 10, "Cash", Cash_pend_check
   CheckBox 55, 125, 30, 10, "SNAP", SNAP_pend_check
   CheckBox 95, 125, 20, 10, "HC", HC_pend_check
-  CheckBox 125, 125, 75, 10, "MCRE Or Mnsure", Mcremnsure_pend_check
-  DropListBox 100, 140, 65, 10, ""+chr(9)+"Yes"+chr(9)+"No", preg_y_n
+  CheckBox 125, 125, 35, 10, "MNsure", mnsure_pend_check
+  CheckBox 170, 125, 40, 10, "EMER", EMER_pend_check
+  DropListBox 100, 140, 65, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
   EditBox 85, 160, 120, 15, Transfer_reason
   EditBox 80, 180, 125, 15, Action_to_be_taken
   EditBox 80, 200, 125, 15, worker_signature
@@ -125,15 +127,17 @@ BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
     OkButton 100, 220, 50, 15
     CancelButton 155, 220, 50, 15
   Text 15, 185, 65, 10, "Actions to be taken:"
-  Text 15, 35, 40, 10, "Transfer to: "
+  Text 15, 35, 60, 10, "Unit to transfer to: "
   Text 15, 165, 70, 10, "Reason for Transfer:"
   Text 15, 145, 85, 10, "Pregnancy verif received:"
   Text 15, 15, 50, 10, "Case Number:"
   Text 15, 75, 80, 10, "Active On:"
   Text 15, 110, 60, 10, "Pending On:"
   Text 15, 205, 60, 10, "Worker Signature:"
-  Text 15, 50, 105, 20, "Worker number you're transferring to  (x102XXX format)"
+  Text 15, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
 EndDialog
+
+
 
 '----------THE SCRIPT----------
 EMConnect ""
@@ -156,8 +160,10 @@ IF XFERRadioGroup = 0 THEN
 			  Dialog within_county_dlg
 			  If buttonpressed = 0 then stopscript
 			  If case_number = "" then MsgBox "You must have a case number to continue."
-			IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X102 in the worker number"
-			Loop until case_number <> "" and len(worker_to_transfer_to) = 7
+			  IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X1## in the worker number"
+			  IF preg_y_n = "Select one..." THEN MsgBox "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
+			  IF unit_drop_down = "Select one..." THEN MsgBox "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
+			Loop until case_number <> "" and len(worker_to_transfer_to) = 7 AND preg_y_n <> "Select one..." AND unit_drop_down <> "Select one..."
 			transmit
 			EMReadScreen MAXIS_check, 5, 1, 39
 			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
@@ -172,16 +178,18 @@ IF XFERRadioGroup = 0 THEN
 		  IF SNAP_active_check = 1 THEN active_programs = active_programs & "SNAP/"
 		  IF hc_active_check = 1 THEN active_programs = active_programs & "HC/"
 		  IF cash_active_check = 1 THEN active_programs = active_programs & "CASH/"
-		  IF Mcremnsure_active_check = 1 THEN active_programs = active_programs & "Mcre,Mnsure/"
+		  IF mnsure_active_check = 1 THEN active_programs = active_programs & "Mnsure/"
+		  IF EMER_active_check = 1 THEN active_programs = active_programs & "EMER/"
 
 		  IF SNAP_pend_check = 1 THEN pend_programs = pend_programs & "SNAP/"
 		  IF hc_pend_check = 1 THEN pend_programs = pend_programs & "HC/"
 		  IF cash_pend_check = 1 THEN pend_programs = pend_programs & "CASH/"
-		  IF Mcremnsure_pend_check = 1 THEN pend_programs = pend_programs & "Mcre,Mnsure/"
+		  IF mnsure_pend_check = 1 THEN pend_programs = pend_programs & "Mnsure/"
+		  IF EMER_pend_check = 1 THEN pend_programs = pend_programs & "EMER/"
 
 		'Case notes
 		EMSendKey "***Transfer within county***" & "<newline>"
-		call write_variable_in_case_note("* Transfer to: " & unit_drop_down) 
+		IF unit_drop_down <> "N/A" THEN call write_variable_in_case_note("* Transfer to: " & unit_drop_down) 
 		IF active_programs <> "" THEN
 		  EMSendKey "* Active Programs: " & active_programs & "<backspace>"
 		  EMSendKey "<newline>"
@@ -190,7 +198,7 @@ IF XFERRadioGroup = 0 THEN
 		  EMSendKey "* Pending Programs: " & pend_programs & "<backspace>"
 		  EMSendKey "<newline>"
 		END IF
-		IF preg_y_n <> "" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
+		IF preg_y_n <> "N/A" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
 		call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason) 
 		call write_bullet_and_variable_in_case_note("Actions to be taken", Action_to_be_taken) 
 		call write_variable_in_case_note("---")

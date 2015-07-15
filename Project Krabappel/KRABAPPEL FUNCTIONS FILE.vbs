@@ -897,10 +897,43 @@ FUNCTION write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_atten
 	EMWritescreen left(EMPS_care_family, 1), 9, 76
 	EMWritescreen left(EMPS_crisis, 1), 10, 76
 	EMWritescreen EMPS_hard_employ, 11, 76
-	EMWritescreen left(EMPS_under1, 1), 12, 76
+	EMWritescreen left(EMPS_under1, 1), 12, 76 'child under 1 exemption
 	EMWritescreen "n", 13, 76 'enters n for child under 12 weeks
 	If EMPS_DWP_date <> "" then call create_MAXIS_friendly_date(EMPS_DWP_date, 1, 17, 40) 'DWP plan date
-End Function	
+	'This populates the child under 1 popup if needed
+	IF ucase(left(EMPS_under1, 1)) = "Y" THEN
+		EMReadScreen month_to_use, 2, 20, 55
+		EMReadScreen start_year, 2, 20, 58
+		Emwritescreen "x", 12, 39
+		Transmit
+		EMReadScreen check_for_blank, 2, 7, 22 'makes sure the popup isn't already filled out
+		month_to_use = cint(month_to_use)
+		start_year = cint("20" & start_year)
+		popup_row = 7 'setting initial starting point for the popup
+		popup_col = 22
+		IF check_for_blank <> "  " THEN 'blank popup, fill it out!
+			FOR i = 1 to 12
+				IF month_to_use > 12 THEN 'handling the year change
+					popup_month = month_to_use - 12
+					year_to_use = start_year +1
+				ELSE 
+					popup_month = month_to_use
+					year_to_use = start_year
+				END IF
+				IF len(popup_month) = 1 THEN popup_month = "0" & popup_month 'formatting to two digit month
+				Emwritescreen popup_month, popup_row, popup_col
+				Emwritescreen year_to_use, popup_row, popup_col + 5
+				popup_col = popup_col + 11
+				month_to_use = month_to_use + 1
+				IF popup_col > 55 THEN 'This moves to the next row if necessary
+					popup_col = 22
+					popup_row = popup_row + 1
+				END IF
+			NEXT
+			PF3 'closing the popup
+		END IF
+	END IF
+End Function
 
 Function write_panel_to_MAXIS_FACI(FACI_vendor_number, FACI_name, FACI_type, FACI_FS_eligible, FACI_FS_facility_type, FACI_date_in, FACI_date_out)
 	call navigate_to_screen("STAT", "FACI")

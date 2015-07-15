@@ -102,6 +102,9 @@ EMReadScreen PMI, 8, 4, 46
 
 If SSN_radiobutton = 1 then
   call navigate_to_screen("infc", "sves")
+  'checking for IRS non-disclosure agreement.
+  EMReadScreen agreement_check, 9, 2, 24
+  IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
   EMWriteScreen SSN1,  4, 68
   EMWriteScreen SSN2,  4, 71
   EMWriteScreen SSN3,  4, 73
@@ -179,6 +182,9 @@ ElseIf UNEA_radiobutton = 1 then
     claim_number = replace(claim_number, "_", "")
   End if
   call navigate_to_screen("infc", "sves")
+  'checking for IRS non-disclosure agreement.
+  EMReadScreen agreement_check, 9, 2, 24
+  IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
   EMWriteScreen PMI,  5, 68
   EMWriteScreen "qury",  20, 70
   transmit 'Now we will enter the QURY screen to type the claim number.
@@ -229,6 +235,9 @@ ElseIf BNDX_radiobutton = 1 then
   transmit
   EMWriteScreen "qury", 20, 70
   transmit
+  'checking for IRS non-disclosure agreement.
+  EMReadScreen agreement_check, 9, 2, 24
+  IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
   EMWriteScreen "_________", 5, 38
   EMWriteScreen claim_number, 7, 38
   EMWriteScreen "________", 9, 38

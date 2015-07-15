@@ -75,14 +75,16 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   EditBox 125, 15, 25, 15, MFIP_food
   EditBox 155, 15, 25, 15, MFIP_cash  
   EditBox 50, 35, 25, 15, MSA_Grant
-  EditBox 155, 35, 25, 15, GA_grant
+  EditBox 50, 55, 25, 15, GA_grant
+  EditBox 155, 35, 25, 15, MFIP_housing
   EditBox 155, 55, 25, 15, DWP_grant
   EditBox 50, 75, 130, 15, other_notes
   EditBox 50, 100, 130, 15, other_income
   CheckBox 50, 120, 35, 10, "Yes", subsidy_check
   EditBox 50, 140, 20, 15, cash_members
   EditBox 150, 140, 20, 15, household_members
-  CheckBox 10, 170, 200, 10, "Include screenshot of last 3 months' benefits", inqd_check
+  CheckBox 10, 170, 92, 15, "Include screenshot of last", inqd_check
+  EditBox 104, 170, 15, 15, number_of_months
   EditBox 40, 190, 55, 15, completed_by
   EditBox 140, 190, 45, 15, worker_phone
   EditBox 120, 210, 65, 15, worker_signature
@@ -90,15 +92,17 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   Text 5, 15, 40, 15, "SNAP:"
   Text 100, 55, 20, 15, "DWP:"
   Text 5, 75, 40, 15, "Other notes:"
-  Text 100, 35, 35, 15, "GA:"
+  Text 5, 55, 35, 15, "GA:"
   Text 5, 35, 35, 15, "MSA:"
   Text 100, 15, 25, 15, "MFIP:"
+  Text 100, 35, 30, 20, "MFIP Housing:"
   Text 5, 100, 45, 20, "Other income and type:"
   Text 5, 120, 45, 20, "$50 subsidy deduction?"
   Text 5, 140, 45, 30, "Number of members on cash grant:"
   Text 90, 140, 55, 25, "Total members in household:"
   Text 130, 5, 25, 10, "Food:"
   Text 160, 5, 25, 10, "Cash:"
+  Text 123, 173, 60, 10, "months' benefits"
   Text 110, 190, 25, 20, "Worker Phone:"
   Text 5, 190, 35, 20, "Completed by:"
   Text 20, 210, 90, 15, "Worker Signature (For case note):"
@@ -125,10 +129,7 @@ Dim col
 EMConnect ""
 
 'Grabbing case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 'Grabbing footer month
 call find_variable("Month: ", MAXIS_footer_month, 2)
@@ -146,9 +147,7 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+call check_for_MAXIS(False)
 
 'Jumping to STAT
 call navigate_to_screen("stat", "memb")
@@ -193,17 +192,6 @@ earned_income = trim(earned_income)
 if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
 other_income = earned_income & " " & unearned_income
 
-'This function looks for an approved version of elig
-Function approved_version 
-	EMReadScreen version, 2, 2, 12
-	For approved = version to 0 Step -1
-	EMReadScreen approved_check, 8, 3, 3
-	If approved_check = "APPROVED" then Exit Function
-	version = version -1
-	EMWriteScreen version, 20, 79
-	transmit
-	Next
-End Function
 'This finds the number of members on a DWP/MFIP grant
 Function cash_members_finder
 	call find_variable("Caregivers......", caregivers, 4)
@@ -217,18 +205,28 @@ call navigate_to_screen("case", "curr")
  call find_variable("MFIP: ", MFIP_check, 6)
    If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
    call navigate_to_screen("elig", "mfip")    
-	  call approved_version
+	  	EMReadScreen version, 1, 2, 12 'Reading the version, the for loop finds most recent approved.
+		For approved = version to 0 Step -1
+			EMReadScreen approved_check, 8, 3, 3
+			If approved_check = "APPROVED" then Exit FOR
+			version = version -1
+			EMWriteScreen "0" & version, 20, 79
+			transmit
+		Next
 		EMWriteScreen version, 20, 79
 		transmit
-        EMWriteScreen "MFSM", 20, 71
+        EMWriteScreen "MFB2", 20, 71
         transmit
-        EMReadScreen MFIP_cash, 6, 15, 74
-        EMReadScreen MFIP_food, 6, 16, 74
+        EMReadScreen MFIP_cash, 7, 12, 35
+        EMReadScreen MFIP_food, 7, 7, 35
+		EMReadScreen MFIP_housing, 6, 17, 36
+		IF MFIP_housing = "" then MFIP_housing = 0
+		'MFIP_cash = (cInt(MFIP_cash) + MFIP_housing)
+		'MFIP_cash = cstr(MFIP_cash)
  		'rental subsidy check
 		EMWriteScreen "MFB1", 20, 71
 		EMReadScreen subsidy, 2, 17, 37
 		If subsidy = "50" then subsidy_check = 1
-		'add readscreen for sanction 
 		'Finding the number of members on cash grant
 		call cash_members_finder
 		Call navigate_to_screen("case", "curr")
@@ -238,8 +236,15 @@ call navigate_to_screen("case", "curr")
 	call find_variable("FS: ", fs_check, 6)
 	If fs_check = "ACTIVE" then
 		call navigate_to_screen("elig", "fs")
-		call approved_version
-		EMWriteScreen version, 20, 78
+		EMReadScreen version, 2, 2, 12
+		For approved = version to 0 Step -1
+			EMReadScreen approved_check, 8, 3, 3
+			If approved_check = "APPROVED" then Exit FOR
+			version = version -1
+			EMWriteScreen version, 19, 78
+			transmit
+		Next
+		EMWriteScreen version, 19, 78
 		transmit
 		EMWriteScreen "FSB2", 19, 70
 		transmit
@@ -252,7 +257,14 @@ call navigate_to_screen("case", "curr")
 	call find_variable("DWP: ", DWP_check, 6)
 	If DWP_check = "ACTIVE" then
 		call navigate_to_screen("elig", "dwp")
-		call approved_version
+		EMReadScreen version, 2, 2, 11
+		For approved = version to 0 Step -1
+			EMReadScreen approved_check, 8, 3, 3
+			If approved_check = "APPROVED" then Exit FOR
+			version = version -1
+			EMWriteScreen "0" & version, 20, 79
+			transmit
+		Next
 		EMWriteScreen version, 20, 79
 		transmit
 		EMWriteScreen "DWB2", 20, 71
@@ -271,7 +283,14 @@ call navigate_to_screen("case", "curr")
 	call find_variable("GA: ", GA_check, 6)
 	If GA_check = "ACTIVE" then
 		call navigate_to_screen("elig", "GA")
-		call approved_version
+		EMReadScreen version, 2, 2, 12
+		For approved = version to 0 Step -1
+			EMReadScreen approved_check, 8, 3, 3
+			If approved_check = "APPROVED" then Exit FOR
+			version = version -1
+			EMWriteScreen "0" & version, 20, 78
+			transmit
+		Next
 		EMWriteScreen version, 20, 78
 		transmit
 		EMWriteScreen "GASM", 20, 70
@@ -288,7 +307,14 @@ call navigate_to_screen("case", "curr")
 	call find_variable("MSA: ", MSA_check, 6)
 	If MSA_check = "ACTIVE" then
 		call navigate_to_screen("elig", "msa")
-		call approved_version
+		EMReadScreen version, 2, 2, 11
+		For approved = version to 0 Step -1
+			EMReadScreen approved_check, 8, 3, 3
+			If approved_check = "APPROVED" then Exit FOR
+			version = version -1
+			EMWriteScreen "0" & version, 20, 79
+			transmit
+		Next
 		EMWriteScreen version, 20, 79
 		transmit
 		EMWriteScreen "MSSM", 20, 71
@@ -338,22 +364,24 @@ objSelection.TypeParagraph()
 objSelection.TypeText "The following grant amounts are active for this household:"
 
 Set objRange = objSelection.Range
-objDoc.Tables.Add objRange, 6, 3
+objDoc.Tables.Add objRange, 7, 3
 set objTable = objDoc.Tables(1)
 
 objTable.Cell(1, 2).Range.Text = "Cash  "
 objTable.Cell(1, 3).Range.Text = "Food Portion"
 objTable.Cell(2, 1).Range.Text = "MFIP  "
-objTable.Cell(3, 1).Range.Text = "GA    "
-objTable.Cell(4, 1).Range.Text = "MSA   "
-objTable.Cell(5, 1).Range.Text = "SNAP  "
+objTable.Cell(3, 1).Range.Text = "MFIP Housing"
+objTable.Cell(4, 1).Range.Text = "GA    "
+objTable.Cell(5, 1).Range.Text = "MSA   "
+objTable.Cell(6, 1).Range.Text = "SNAP  "
 objTable.Cell(2, 2).Range.Text = MFIP_cash
 objTable.Cell(2, 3).Range.Text = MFIP_food
-objTable.Cell(3, 2).Range.Text = GA_grant
-objTable.Cell(4, 2).Range.Text = MSA_Grant
-objTable.Cell(5, 3).Range.Text = SNAP_grant
-objTable.Cell(6, 1).Range.Text = "DWP   "
-objTable.Cell(6, 2).Range.Text = DWP_grant
+objTable.Cell(3, 2).Range.Text = MFIP_housing
+objTable.Cell(4, 2).Range.Text = GA_grant
+objTable.Cell(5, 2).Range.Text = MSA_Grant
+objTable.Cell(6, 3).Range.Text = SNAP_grant
+objTable.Cell(7, 1).Range.Text = "DWP   "
+objTable.Cell(7, 2).Range.Text = DWP_grant
 
 objTable.AutoFormat(16)
 
@@ -373,23 +401,34 @@ ObjSelection.TypeText "Other Notes: "
 objSelection.TypeText other_notes
 objSelection.TypeParagraph()
 
-'Writing INQD to the doc if selected
+'Writing INQX to the doc if selected
 IF inqd_check = checked THEN
-	objSelection.TypeText "Benefits Issued for last 3 months:"
+	objSelection.TypeText "Benefits Issued for last " & number_of_months & " months:"
 	objSelection.TypeParagraph()
 	objSelection.TypeText "Issue Date	    Benefit               Amount                            Benefit Period"
 	objSelection.TypeParagraph()
-	call navigate_to_screen("MONY", "INQD")
+	call navigate_to_screen("MONY", "INQX")
+	start_date = dateadd("m", - number_of_months, date) 'Converting dates to determine how far back to look
+	start_month = datepart("m", start_date)
+	IF len(start_month) = 1 THEN start_month = "0" & start_month
+	EMWriteScreen start_month, 6, 38
+	EMWriteScreen right(datepart("YYYY", start_date), 2), 6, 41 
+	transmit
 	output_array = "" 'resetting array
-	Dim screenarray(12)	'12 line array (leaves out the header and function info)
 	row = 6
-	For each line in screenarray
-		EMReadScreen reading_line, 80, row, 1
-		output_array = output_array & reading_line & "UUDDLRLRBA"
-		row = row + 1
-	Next
+	DO
+	EMReadScreen reading_line, 80, row, 1
+	output_array = output_array & reading_line & "UUDDLRLRBA" 'adding the info to the array
+	row = row + 1
+	IF row = 18 THEN 'Checking for more screens
+		EMReadScreen more_check, 1, 19, 9
+		IF more_check <> "+" THEN EXIT DO
+		PF8
+		row = 6
+	END IF
+	LOOP 
 	output_array = split(output_array, "UUDDLRLRBA")
-	FOR EACH line in output_array
+	FOR EACH line in output_array 'Type the info from array into word doc
 		IF line <> "                                                                                " THEN
 			objSelection.TypeText line & Chr(11)
 		END IF
@@ -402,21 +441,13 @@ objSelection.TypeParagraph()
 objSelection.TypeText "Worker phone: "
 objSelection.TypeText worker_phone
 
-Do	
-	call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
-
 'Enters the case note
-call write_new_line_in_case_note("PA verification request completed and sent to requesting agency.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call start_a_blank_CASE_NOTE()
+call write_variable_in_case_note("PA verification request completed and sent to requesting agency.")
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show
 
-
-
+script_end_procedure()
