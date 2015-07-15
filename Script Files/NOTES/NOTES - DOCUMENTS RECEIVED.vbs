@@ -1,11 +1,11 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - DOCUMENTS RECEIVED.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN		'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -46,78 +46,163 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-
-BeginDialog docs_received_dialog, 0, 0, 466, 140, "Docs received"
-  EditBox 55, 5, 90, 15, case_number
-  EditBox 215, 5, 65, 15, document_datestamp
-  EditBox 60, 25, 215, 15, docs_received
-  EditBox 75, 45, 390, 15, verif_notes
-  EditBox 60, 65, 405, 15, actions_taken
-  EditBox 70, 85, 110, 15, worker_signature
-  'CheckBox 195, 85, 205, 10, "Check here to start the approved programs script after this.", approved_progs_check
-  'CheckBox 195, 95, 200, 10, "Check here to start the closed programs script after this. ", closed_progs_check
-  'CheckBox 195, 105, 195, 10, "Check here to start the denied programs script after this.", denied_progs_check
-  EditBox 115, 120, 350, 15, docs_needed
+'DIALOGS--------------------------------------------------------------------------------------------------
+BeginDialog documents_rec_GEN_dialog, 0, 0, 351, 405, "Documents received"
+  EditBox 55, 5, 70, 15, case_number
+  EditBox 225, 5, 60, 15, doc_date_stamp
+  EditBox 80, 25, 265, 15, docs_rec
+  EditBox 30, 70, 315, 15, ADDR
+  EditBox 70, 90, 275, 15, SCHL
+  EditBox 30, 110, 315, 15, DISA
+  EditBox 30, 130, 315, 15, JOBS
+  EditBox 30, 150, 315, 15, BUSI
+  EditBox 30, 170, 315, 15, UNEA
+  EditBox 30, 190, 315, 15, ACCT
+  EditBox 55, 210, 290, 15, other_assets
+  EditBox 30, 230, 315, 15, SHEL
+  EditBox 30, 250, 315, 15, INSA
+  EditBox 50, 270, 295, 15, other_verifs
+  EditBox 75, 310, 270, 15, notes
+  EditBox 75, 330, 270, 15, actions_taken
+  EditBox 75, 350, 270, 15, verifs_needed
+  EditBox 155, 375, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 355, 5, 50, 15
-    CancelButton 410, 5, 50, 15
+    OkButton 240, 375, 50, 15
+    CancelButton 295, 375, 50, 15
+  Text 5, 95, 65, 10, "SCHL/STIN/STEC:"
+  Text 5, 115, 25, 10, "DISA:"
+  Text 5, 135, 25, 10, "JOBS:"
+  Text 5, 155, 20, 10, "BUSI:"
+  Text 5, 175, 25, 10, "UNEA:"
+  Text 5, 195, 25, 10, "ACCT:"
+  Text 5, 215, 45, 10, "Other assets:"
+  Text 5, 235, 25, 10, "SHEL:"
+  Text 5, 255, 25, 10, "INSA:"
+  Text 5, 270, 45, 10, "Other verif's:"
+  Text 95, 380, 60, 10, "Worker signature:"
+  Text 5, 75, 25, 10, "ADDR:"
+  Text 5, 315, 70, 10, "Notes on your doc's:"
   Text 5, 10, 50, 10, "Case number:"
-  Text 160, 10, 55, 10, "Doc datestamp:"
-  Text 5, 30, 55, 10, "Docs received:"
-  Text 5, 50, 70, 10, "Notes on your docs:"
-  Text 280, 30, 190, 10, "Note: just list the docs here. This is the title of your note."
-  Text 5, 90, 65, 10, "Worker signature:"
-  Text 5, 70, 50, 10, "Actions taken: "
-  Text 5, 125, 110, 10, "Verifs still needed (if applicable):"
+  Text 5, 335, 50, 10, "Actions taken:"
+  Text 140, 45, 205, 10, "Note: What you enter above will become the case note header."
+  Text 5, 30, 70, 10, "Documents received: "
+  Text 145, 10, 75, 10, "Document date stamp:"
+  Text 5, 350, 70, 10, "Verif's still needed:"
+  GroupBox 0, 60, 350, 230, "Breakdown of Documents received"
+  GroupBox 0, 300, 345, 70, "Additional information"
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
 
+BeginDialog documents_received_LTC_dialog, 0, 0, 356, 425, "Documents received LTC"
+  EditBox 55, 5, 70, 15, case_number
+  EditBox 225, 5, 60, 15, doc_date_stamp
+  EditBox 80, 25, 265, 15, docs_rec
+  EditBox 30, 60, 315, 15, FACI
+  EditBox 30, 80, 135, 15, JOBS
+  EditBox 210, 80, 135, 15, BUSI_RBIC
+  EditBox 30, 100, 315, 15, UNEA
+  EditBox 30, 120, 315, 15, ACCT
+  EditBox 30, 140, 315, 15, SECU
+  EditBox 30, 160, 315, 15, CARS
+  EditBox 30, 180, 315, 15, REST
+  EditBox 60, 200, 285, 15, OTHR
+  EditBox 30, 220, 315, 15, SHEL
+  EditBox 30, 240, 315, 15, INSA
+  EditBox 75, 260, 270, 15, medical_expenses
+  EditBox 50, 280, 295, 15, veterans_info
+  EditBox 50, 300, 295, 15, other_verifs
+  EditBox 75, 335, 270, 15, notes
+  EditBox 75, 355, 270, 15, actions_taken
+  EditBox 75, 375, 270, 15, verifs_needed
+  EditBox 155, 400, 80, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 240, 400, 50, 15
+    CancelButton 295, 400, 50, 15
+  Text 5, 145, 20, 10, "SECU:"
+  Text 5, 165, 20, 10, "CARS:"
+  Text 5, 185, 20, 10, "REST:"
+  Text 5, 205, 50, 10, "BURIAL/OTHR:"
+  Text 5, 225, 25, 10, "SHEL:"
+  Text 5, 245, 25, 10, "INSA:"
+  Text 5, 305, 45, 10, "Other verif's:"
+  Text 95, 405, 60, 10, "Worker signature:"
+  Text 5, 65, 25, 10, "FACI:"
+  Text 5, 340, 70, 10, "Notes on your doc's:"
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 360, 50, 10, "Actions taken:"
+  Text 145, 40, 205, 10, "Note: What you enter above will become the case note header."
+  Text 5, 30, 70, 10, "Documents received: "
+  Text 145, 10, 75, 10, "Document date stamp:"
+  Text 5, 380, 70, 10, "Verif's still needed:"
+  GroupBox 0, 50, 350, 270, "Breakdown of Documents received"
+  Text 5, 125, 20, 10, "ACCT:"
+  Text 170, 85, 40, 10, "BUSI/RBIC:"
+  Text 5, 105, 25, 10, "UNEA:"
+  Text 5, 285, 45, 10, "Veteran info:"
+  Text 5, 85, 20, 10, "JOBS:"
+  Text 5, 265, 65, 10, "Medical expenses:"
+  GroupBox 0, 325, 350, 70, "Additional information"
+EndDialog
+
+
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------
+'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
+LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel)
+If LTC_case = vbCancel then stopscript
+
+'Connects to BlueZone
 EMConnect ""
+'Calls a MAXIS case number
+call MAXIS_case_number_finder(case_number)
 
-'Finds the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Displays the dialog and navigates to case note
+'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
 Do
 	Do
 		Do
-			Dialog docs_received_dialog
-			If buttonpressed = 0 then stopscript
-			If case_number = "" then MsgBox "You must have a case number to continue!"
-			Loop until case_number <> ""
-		transmit
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-	call navigate_to_screen("case", "note")
-	PF9
-	EMReadScreen mode_check, 7, 20, 3
-	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+			If LTC_case = vbYes then dialog documents_received_LTC_dialog					'Shows dialog if LTC
+			If LTC_case = vbNo then Dialog documents_rec_GEN_dialog							'Shows dialog if not LTC
+			cancel_confirmation																'quits if cancel is pressed																
+			If worker_signature = "" Then MsgBox "You must sign your case note."
+		LOOP until worker_signature <> ""
+		If actions_taken = "" Then MsgBox "You must note your actions taken."
+	LOOP until actions_taken <> ""
+	If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
+Loop until case_number <> ""														'Loops until that case number exists	
 
-'Case notes
-call write_variable_in_case_note("Docs Rec'd: " & docs_received)
-If document_datestamp <> "" then call write_bullet_and_variable_in_case_note("Document datestamp", document_datestamp)
-If verif_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", verif_notes) 
-call write_bullet_and_variable_in_case_note("Actions taken", actions_taken) 
-If docs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", docs_needed) 
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)
+
+
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
+call start_a_blank_CASE_NOTE
+Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
+If doc_date_stamp <> "" then call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
+If ADDR <> "" then call write_bullet_and_variable_in_case_note("ADDR", ADDR)
+If FACI <> "" then call write_bullet_and_variable_in_case_note("FACI", FACI)
+If SCHL <> "" then call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+If DISA <> "" then call write_bullet_and_variable_in_case_note("DISA", DISA)
+If JOBS <> "" then call write_bullet_and_variable_in_case_note("JOBS", JOBS)
+If BUSI <> "" then call write_bullet_and_variable_in_case_note("BUSI", BUSI)
+If BUSI_RBIC <> "" then call write_bullet_and_variable_in_case_note("BUSI/RBIC", BUSI_RBIC)
+If UNEA <> "" then call write_bullet_and_variable_in_case_note("UNEA", UNEA)
+If ACCT <> "" then call write_bullet_and_variable_in_case_note("ACCT", ACCT)
+If SECU<> "" then call write_bullet_and_variable_in_case_note("SECU", SECU)
+If CARS <> "" then call write_bullet_and_variable_in_case_note("CARS", CARS)
+If REST <> "" then call write_bullet_and_variable_in_case_note("REST", REST)
+If OTHR <> "" then call write_bullet_and_variable_in_case_note("Burial/OTHR", OTHR)
+If other_assets <> "" then call write_bullet_and_variable_in_case_note("Other assets", other_assets)
+If SHEL <> "" then call write_bullet_and_variable_in_case_note("SHEL", SHEL)
+If INSA <> "" then call write_bullet_and_variable_in_case_note("INSA", INSA)
+If medical_expenses <> "" then call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
+IF veterans_info <> "" then call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
+If other_verifs <> "" then call write_bullet_and_variable_in_case_note("Other verifications", other_verifs)
+Call write_variable_in_case_note("---")
+If notes <> "" then call write_bullet_and_variable_in_case_note("Notes on your doc's", notes)
+If actions_taken <> "" then call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-'Runs approved  progs if selected
-If approved_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - Approved Programs.vbs")
-
-'Runs denied progs if selected
-If closed_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - closed progs.vbs")
-
-'Runs denied progs if selected
-If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
-
 script_end_procedure("")
-
-
