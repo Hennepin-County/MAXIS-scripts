@@ -100,7 +100,7 @@ End if
 
 IF ButtonPressed = TWELVE_MONTH_CONTACT_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - 12 MONTH CONTACT.vbs")
 IF ButtonPressed = APPOINTMENT_LETTER_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - APPOINTMENT LETTER.vbs")
-IF ButtonPressed = DUPLICATE_ASSISTANCE_button  THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - DUPLICATE ASSISTANCE.vbs")
+IF ButtonPressed = DUPLICATE_ASSISTANCE_button  THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - DUPLICATE ASSISTANCE WCOM.vbs")
 IF ButtonPressed = GRH_OP_CL_LEFT_FACI_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - GRH OP CL LEFT FACI.vbs")
 IF ButtonPressed = LTC_ASSET_TRANSFER_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - LTC - ASSET TRANSFER.vbs")
 IF ButtonPressed = MFIP_ORIENTATION_button 		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - MFIP ORIENTATION.vbs")
