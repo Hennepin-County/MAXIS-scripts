@@ -252,7 +252,6 @@ If BBUD_check = "BBUD" then
 End if
 
 
-
 'Cleans up the recipient_amt variable in case it's blank
 If recipient_amt = "$" then recipient_amt = "$0"
 
@@ -294,5 +293,6 @@ If DHS_3050_check = 1 then call write_variable_in_case_note ("* Sent DHS-3050 LT
 If other <> "" then call write_bullet_and_variable_in_case_note ("Other", other)
 call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
+
 
 script_end_procedure("")
