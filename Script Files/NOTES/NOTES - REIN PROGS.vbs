@@ -1,3 +1,7 @@
+'GATHERING STATS----------------------------------------------------------------------------------------------------
+name_of_script = "NOTES - REIN PROGS.vbs"
+start_time = timer
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
