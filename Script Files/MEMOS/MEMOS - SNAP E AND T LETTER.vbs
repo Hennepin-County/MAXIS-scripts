@@ -60,42 +60,42 @@ county_FSET_offices = array("")
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
 
-'IF worker_county_code = "x101" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x101" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
-IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
-'IF worker_county_code = "x105" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x106" THEN county_FSET_offices = array("Select one",
+IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
+'IF worker_county_code = "x105" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x106" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x107" THEN county_FSET_offices = array("Blue Earth County Employment Services")
 IF worker_county_code = "x108" THEN county_FSET_offices = array("Minnesota Valley Action Council New Ulm")
 IF worker_county_code = "x109" THEN county_FSET_offices = array("Carlton County Human Services")
-'IF worker_county_code = "x110" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x111" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x110" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x111" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x112" THEN county_FSET_offices = array("Chippewa County Workforce Center")
-'IF worker_county_code = "x113" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x114" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x115" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x116" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x117" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x113" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x114" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x115" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x116" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x117" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x118" THEN county_FSET_offices = array("Rural MN CEP Brainerd")
-IF worker_county_code = "x119" THEN county_FSET_offices = array("Select one", "Northern Service Center", "Burnsville Workforce Center")
+IF worker_county_code = "x119" THEN county_FSET_offices = array("Select one...", "Northern Service Center", "Burnsville Workforce Center")
 IF worker_county_code = "x120" THEN county_FSET_offices = array("Workforce Development Inc. (Kasson)")
 IF worker_county_code = "x121" THEN county_FSET_offices = array("Alexandria Workforce Center")
 IF worker_county_code = "x122" THEN county_FSET_offices = array("Fairmont Workforce Center Fairbault County")
 IF worker_county_code = "x123" THEN county_FSET_offices = array("Workforce Development Office")
-'IF worker_county_code = "x124" THEN county_FSET_offices = array("Select one", 
+'IF worker_county_code = "x124" THEN county_FSET_offices = array("Select one...", 
 IF worker_county_code = "x125" THEN county_FSET_offices = array("Workforce Development Inc. (Redwing)")
 IF worker_county_code = "x126" THEN county_FSET_offices = array("Grant County Social Services")
-IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one", "Century Plaza", "Sabathani Community Center")
+IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one...", "Century Plaza", "Sabathani Community Center")
 IF worker_county_code = "x128" THEN county_FSET_offices = array("Workforce Development Inc.")
-'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x130" THEN county_FSET_offices = array("Cambridge MN Workforce Center")
 IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
-'IF worker_county_code = "x132" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x133" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x134" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x132" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x133" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x134" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x135" THEN county_FSET_offices = array("Kittson County Social Services")
-'IF worker_county_code = "x136" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x136" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x137" THEN county_FSET_offices = array("Lace qui Parle Co. Family Services")
 IF worker_county_code = "x138" THEN county_FSET_offices = array("AEOA")
 IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
@@ -107,44 +107,44 @@ IF worker_county_code = "x144" THEN county_FSET_offices = array("Marshall County
 IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
 IF worker_county_code = "x146" THEN county_FSET_offices = array("Central MN Jobs and Training Services Hutchinson")
 IF worker_county_code = "x147" THEN county_FSET_offices = array("Central MN Jobs and Training Services Litchfield")
-'IF worker_county_code = "x148" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x149" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x148" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x149" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x150" THEN county_FSET_offices = array("Workforce Development Inc. (Austin)")
 IF worker_county_code = "x151" THEN county_FSET_offices = array("Marshall WorkForce Center")
-'IF worker_county_code = "x152" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x153" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x154" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x152" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x153" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x154" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x155" THEN county_FSET_offices = array("Olmstead County Family Support & Assistance")
 IF worker_county_code = "x156" THEN county_FSET_offices = array("Rural MN CEP Fergus Falls")
 IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkForce Center: Theif River Falls")
-IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one", "Pine County Health & Human Services", "Pine Technical & Community College E&T Center")
+IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one...", "Pine County Health & Human Services", "Pine Technical & Community College E&T Center")
 IF worker_county_code = "x159" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Pipestone")
-IF worker_county_code = "x160" THEN county_FSET_offices = array("Select one", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston")
+IF worker_county_code = "x160" THEN county_FSET_offices = array("Select one...", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston")
 IF worker_county_code = "x161" THEN county_FSET_offices = array("Minnesota Workforce Center Alexandria")
-'IF worker_county_code = "x162" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x162" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x163" THEN county_FSET_offices = array("Minnesota Workforce Center: Red Lake")
 IF worker_county_code = "x164" THEN county_FSET_offices = array("Southwest Health & Human Services")
 IF worker_county_code = "x165" THEN county_FSET_offices = array("Central MN Jobs and Training Services Olivia")
-'IF worker_county_code = "x166" THEN county_FSET_offices = array("Select one", 
+'IF worker_county_code = "x166" THEN county_FSET_offices = array("Select one...", 
 IF worker_county_code = "x167" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Luverne") 
 IF worker_county_code = "x168" THEN county_FSET_offices = array("Roseau County Social Services")
-IF worker_county_code = "x169" THEN county_FSET_offices = array("Select one", "MN Workforce Center: Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota Workforce Center: Hibbing")
-'IF worker_county_code = "x170" THEN county_FSET_offices = array("Select one", 
+IF worker_county_code = "x169" THEN county_FSET_offices = array("Select one...", "MN Workforce Center: Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota Workforce Center: Hibbing")
+'IF worker_county_code = "x170" THEN county_FSET_offices = array("Select one...", 
 IF worker_county_code = "x171" THEN county_FSET_offices = array("Central MN Jobs and Training Services Monticello")
-'IF worker_county_code = "x172" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x173" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x172" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x173" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x174" THEN county_FSET_offices = array("Steele County Employment Services")
 IF worker_county_code = "x175" THEN county_FSET_offices = array("Stevens County Human Services")
 IF worker_county_code = "x176" THEN county_FSET_offices = array("SW MN Private Industry Council")
-IF worker_county_code = "x177" THEN county_FSET_offices = array("Select one", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples")
+IF worker_county_code = "x177" THEN county_FSET_offices = array("Select one...", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples")
 IF worker_county_code = "x178" THEN county_FSET_offices = array("Rural MN CEP Wadena")
 IF worker_county_code = "x179" THEN county_FSET_offices = array("Workforce Development Inc.")
 IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
 IF worker_county_code = "x181" THEN county_FSET_offices = array("Minnesota Valley Action Council Waseca")
-IF worker_county_code = "x182" THEN county_FSET_offices = array("Select one", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury")
-'IF worker_county_code = "x183" THEN county_FSET_offices = array("Select one",
+IF worker_county_code = "x182" THEN county_FSET_offices = array("Select one...", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury")
+'IF worker_county_code = "x183" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x184" THEN county_FSET_offices = array("Wilkin County Family Services")
-'IF worker_county_code = "x185" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x185" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x186" THEN county_FSET_offices = array("Central MN Jobs and Training Services Monticello")
 IF worker_county_code = "x187" THEN county_FSET_offices = array("Yellow Medicine County Family Services")
 
@@ -157,7 +157,7 @@ If worker_county_code = "x127" THEN
 END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-' FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work
+' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
 BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
@@ -192,7 +192,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment 
   EditBox 70, 25, 55, 15, appointment_date
   EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 215, 25, 20, 15, appointment_time_post_editbox
-  DropListBox 240, 25, 55, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
+  DropListBox 240, 25, 55, 15, "Select one..."+chr(9)+"AM"+chr(9)+"PM", AM_PM
   EditBox 65, 45, 190, 15, SNAPET_name
   EditBox 65, 65, 190, 15, SNAPET_address_01
   EditBox 65, 85, 95, 15, SNAPET_city
@@ -299,7 +299,7 @@ DO
 		IF SNAPET_phone = "" THEN MsgBox "You must enter a contact phone number.  Please try again."
 	LOOP UNTIL SNAPET_phone <> ""	
 	If interview_location = "Select one..." then MsgBox "You must select the E&T office location."
-Loop until interview_location <> = "Select one..."
+Loop until interview_location <> "Select one..."
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(True)
@@ -960,7 +960,7 @@ PF4		'saves and sends memo
 call start_a_blank_CASE_NOTE
 
 'Writes the case note
-CALL write_new_line_in_case_note("***SNAP E&T Appointment Letter Sent***")
+CALL write_new_line_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
 Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
 CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
