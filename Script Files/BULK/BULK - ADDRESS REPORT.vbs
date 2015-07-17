@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -56,23 +56,44 @@ BeginDialog x_dlg, 0, 0, 176, 140, "x1 Number"
   Text 20, 80, 145, 25, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
 
+'Custom function----------------------------------------------------------------------------------------------------
+FUNCTION find_MAXIS_worker_number(x_number)
+	EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
+	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates				
+		EMReadScreen x_number, 7, 22, 8
+	ELSE
+		Call find_variable("PW: ", x_number, 7)	'if not, then the PW: variable is searched to find the worker #
+		If isnumeric(MAXIS_worker_number) = true then 	 'making sure that the worker # is a number
+			MAXIS_worker_number = x_number				'delcares the MAXIS_worker_number to be the x_number
+		End if	
+	END if
+END FUNCTION
+
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
 
-CALL check_for_MAXIS(false)
+CALL check_for_MAXIS(True)
 
-CALL find_variable("User: ", worker_number, 7)
+Call find_MAXIS_worker_number(x_number)
 
 'Shows dialog
-Dialog x_dlg
-If buttonpressed = cancel then stopscript
+DO
+	Do
+		Dialog x_dlg
+		cancel_confirmation
+		'looping logic that makes the worker select either worker # or full agency
+		If x_number = "" and all_workers_check = 0 THEN MsgBox "You need to enter your worker number OR check to run the entire agency."
+	LOOP until x_number <> "" OR all_workers_check = 1
+	If x_number <> "" and all_workers_check = 1 THEN MsgBox "You need to enter your worker number OR check to run the entire agency, not both options."
+LOOP until (x_number = "" AND all_workers_check = 1) OR (x_number <> "" AND all_workers_check = 0)
 
-call check_for_MAXIS(false)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
-	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+	x1s_from_dialog = split(x_number, ",")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
