@@ -1,5 +1,3 @@
-worker_county_code = "x127"
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
