@@ -96,7 +96,7 @@ END IF
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 185, "GRH overpayment due to leaving facility dialog"
+BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 190, "GRH overpayment due to leaving facility dialog"
   EditBox 50, 5, 55, 15, case_number
   EditBox 165, 5, 45, 15, discovery_date
   EditBox 275, 5, 45, 15, established_date
@@ -113,35 +113,34 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 185, "GRH overpayment due to 
   EditBox 125, 95, 30, 15, OP_amt_05
   EditBox 205, 95, 45, 15, OP_date_06
   EditBox 275, 95, 45, 15, OP_amt_06
-  EditBox 275, 115, 45, 15, client_amt
-  CheckBox 10, 140, 95, 10, "Set follow-up 30 day TIKL ", set_TIKL_check
+  CheckBox 10, 125, 95, 10, "Set follow-up 30 day TIKL ", set_TIKL_check
+  EditBox 180, 120, 45, 15, OP_total
   ButtonGroup ButtonPressed
-    PushButton 110, 135, 90, 15, "Calculate total facility OP", OP_total_button
-  EditBox 275, 135, 45, 15, OP_total
+    PushButton 230, 120, 90, 15, "Calculate total facility OP", OP_total_button
+  EditBox 240, 140, 80, 15, client_amt
   EditBox 120, 165, 90, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 215, 165, 50, 15
     CancelButton 270, 165, 50, 15
-  Text 5, 120, 265, 10, "Total amt client is responsiblte to pay for GRH during all of the OP months above:"
-  Text 165, 60, 39, 10, "Date of OP:"
+  Text 10, 145, 230, 10, "Total client portion for GRH during all of the OP months (if applicable):"
+  Text 165, 60, 40, 10, "Date of OP:"
   Text 255, 60, 15, 10, "Amt:"
   Text 10, 80, 40, 10, "Date of OP:"
   Text 105, 80, 15, 10, "Amt:"
   Text 5, 35, 85, 10, "Reason for overpayment:"
-  Text 165, 80, 39, 10, "Date of OP:"
+  Text 165, 80, 40, 10, "Date of OP:"
   Text 5, 10, 45, 10, "Case number:"
   Text 255, 80, 15, 10, "Amt:"
   Text 110, 10, 55, 10, "Discovery date:"
   Text 10, 100, 40, 10, "Date of OP:"
   Text 10, 60, 40, 10, "Date of OP:"
   Text 105, 100, 15, 10, "Amt:"
-  Text 165, 100, 39, 10, "Date of OP:"
+  Text 165, 100, 40, 10, "Date of OP:"
   Text 255, 100, 15, 10, "Amt:"
   Text 215, 10, 60, 10, "Established date:"
   Text 105, 60, 15, 10, "Amt:"
-  Text 220, 140, 54, 10, "Facility OP total: "
-  Text 60, 170, 60, 10, "Worker signature:"
-  Text 205, 140, 10, 10, "OR"
+  Text 120, 125, 55, 10, "Facility OP total: "
+  Text 55, 170, 60, 10, "Worker signature:"
 EndDialog
 
 
@@ -175,13 +174,12 @@ BeginDialog GRH_OP_LEAVING_FACI_ADDR_dialog, 0, 0, 306, 220, "GRH overpayment du
 EndDialog
 
 
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to MAXIS
 EMConnect ""
 'searches for a case number
 call MAXIS_case_number_finder(case_number)
+
 
 'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
 DO
@@ -215,10 +213,24 @@ DO
 		If (OP_date_06 = "" AND OP_amt_06 <> "") OR (OP_date_06 <> "" AND OP_amt_06 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
 	LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "") 
 	If ButtonPressed = OP_total_button THEN
-		OP_total = OP_amt_01 + OP_amt_02 + OP_amt_03 + OP_amt_04 + OP_amt_05 + OP_amt_06
+		'makes the overpayment amounts = 0 so the Abs(number) function work
+		If OP_amt_01 = "" THEN OP_amt_01 = "0"
+		If OP_amt_02 = "" THEN OP_amt_02 = "0"
+		If OP_amt_03 = "" THEN OP_amt_03 = "0"
+		If OP_amt_04 = "" THEN OP_amt_04 = "0"
+		If OP_amt_05 = "" THEN OP_amt_05 = "0"
+		If OP_amt_06 = "" THEN OP_amt_06 = "0"	
+		OP_total = (Abs(OP_amt_01) + Abs(OP_amt_02) + Abs(OP_amt_03) + Abs(OP_amt_04) + Abs(OP_amt_05) + Abs(OP_amt_06)) & ""
 	END IF
+		'This reverses this logic listed above (makes the overpayment amounts = 0 so the Abs(number) function work)
+		If OP_amt_01 = "0" THEN OP_amt_01 = ""
+		If OP_amt_02 = "0" THEN OP_amt_02 = ""
+		If OP_amt_03 = "0" THEN OP_amt_03 = ""
+		If OP_amt_04 = "0" THEN OP_amt_04 = ""
+		If OP_amt_05 = "0" THEN OP_amt_05 = ""
+		If OP_amt_06 = "0" THEN OP_amt_06 = ""
 Loop until ButtonPressed = -1
-DO
+	Do
 		DO
 			Dialog GRH_OP_LEAVING_FACI_ADDR_dialog
 			cancel_confirmation
