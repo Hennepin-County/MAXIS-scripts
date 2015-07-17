@@ -49,7 +49,7 @@ END IF
 'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
 DIM ButtonPressed 
 DIM SIR_instructions_button, dialog_name
-DIM number_through_c_notes_button, d_through_g_notes_button, h_through_z_notes_button, ltc_notes_button
+DIM number_through_c_notes_button, d_through_f_notes_button, g_through_l_notes_button, m_through_z_notes_button, ltc_notes_button
 
 DIM APPLYMN_APPLICATION_RECEIVED_button, APPROVED_PROGRAMS_button, BABY_BORN_button, BURIAL_ASSETS_button, CAF_button
 DIM CHANGE_REPORT_FORM_RECEIVED_button, CITIZENSHIP_IDENTITY_VERIFIED_button, CLIENT_CONTACT_button, CLOSED_PROGRAMS_button, COMBINED_AR_button
@@ -112,7 +112,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
             PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
             PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-            PushButton 105, 35, 30, 15, "M - Z", h_through_z_notes_button
+            PushButton 105, 35, 30, 15, "M - Z", m_through_z_notes_button
             PushButton 135, 35, 30, 15, "LTC", ltc_notes_button
             PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
             PushButton 5, 70, 60, 10, "Denied programs", DENIED_PROGRAMS_button
@@ -143,7 +143,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
             PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
             PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-            PushButton 105, 35, 30, 15, "M - Z", h_through_z_notes_button
+            PushButton 105, 35, 30, 15, "M - Z", m_through_z_notes_button
             PushButton 135, 35, 30, 15, "LTC", ltc_notes_button
             PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
             PushButton 5, 70, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
@@ -176,7 +176,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
             PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
             PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-            PushButton 105, 35, 30, 15, "M - Z", h_through_z_notes_button
+            PushButton 105, 35, 30, 15, "M - Z", m_through_z_notes_button
             PushButton 135, 35, 30, 15, "LTC", ltc_notes_button
             PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
             PushButton 5, 70, 110, 10, "Medical Opinion Form Received", MEDICAL_OPINION_FORM_RECEIVED_button
@@ -210,7 +210,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
             PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
             PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-            PushButton 105, 35, 30, 15, "M - Z", h_through_z_notes_button
+            PushButton 105, 35, 30, 15, "M - Z", m_through_z_notes_button
             PushButton 135, 35, 30, 15, "LTC", ltc_notes_button
             PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
             PushButton 5, 70, 45, 10, "LTC - 1503", LTC_1503_button
@@ -266,7 +266,12 @@ DO
 		END IF
 
 		'If the user selects a script button, the script will exit the do-loop
-LOOP UNTIL ButtonPressed <> SIR_instructions_button AND ButtonPressed <> number_through_c_notes_button AND ButtonPressed <> d_through_g_notes_button AND ButtonPressed <> h_through_z_notes_button AND ButtonPressed <> LTC_notes_button
+LOOP UNTIL ButtonPressed <> SIR_instructions_button AND _
+			ButtonPressed <> number_through_c_notes_button AND _
+			ButtonPressed <> d_through_f_notes_button AND _
+			ButtonPressed <> g_through_l_notes_button AND _
+			ButtonPressed <> m_through_z_notes_button AND _
+			ButtonPressed <> LTC_notes_button
 
 'Available scripts
 IF ButtonPressed = APPLYMN_APPLICATION_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPLYMN APPLICATION RECEIVED.vbs")		
