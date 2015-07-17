@@ -215,11 +215,10 @@ DO
 		If (OP_date_06 = "" AND OP_amt_06 <> "") OR (OP_date_06 <> "" AND OP_amt_06 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
 	LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "") 
 	If ButtonPressed = OP_total_button THEN
-        OP_total = OP_amt_01 + OP_amt_02 + OP_amt_03 + OP_amt_04 + OP_amt_05 + OP_amt_06
-    End if
-	IF OP_total = "" THEN MsgBox "You must enter the total amount of the overpayment OR select the ""Calculate total facility overpayment"" button."
-LOOP until OP_total <> ""
-	DO
+		OP_total = OP_amt_01 + OP_amt_02 + OP_amt_03 + OP_amt_04 + OP_amt_05 + OP_amt_06
+	END IF
+Loop until ButtonPressed = -1
+DO
 		DO
 			Dialog GRH_OP_LEAVING_FACI_ADDR_dialog
 			cancel_confirmation
