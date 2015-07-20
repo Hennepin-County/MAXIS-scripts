@@ -89,7 +89,7 @@ Do
 					Do
 						Do
 							Dialog MFIP_orientation_dialog
-							If ButtonPressed = cancel then stopscript
+							cancel_confirmation
 							If buttonPressed = refresh_button then
 								IF interview_location <> "" then 
 									call assign_county_address_variables(county_address_line_01, county_address_line_02)
@@ -113,7 +113,7 @@ Loop until MFIP_address_line_01 <> "" and MFIP_address_line_02 <> ""
 transmit
 
 'checking for active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 
 'Creating an array from the member number list to get names for notice
@@ -131,14 +131,8 @@ member_array = split(member_list, ",")
 		if members_to_attend = "" then members_to_attend = member_name
 	next
 
-
-
 'Navigating to SPEC/MEMO
 call navigate_to_MAXIS_screen("SPEC", "MEMO")
-
-'This checks to make sure we've moved passed SELF.
-EMReadScreen SELF_check, 27, 2, 28
-If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("An error has occurred preventing the script from moving past the SELF menu. Your case might be in background. Check for errors and try again.")
 
 'Creates a new MEMO. If it's unable the script will stop.
 PF5
@@ -157,16 +151,11 @@ call write_variable_in_SPEC_MEMO(county_address_line_01)
 call write_variable_in_SPEC_MEMO(county_address_line_02) 
 call write_variable_in_SPEC_MEMO("If you cannot attend this orientation, please contact the agency office to reschedule.  Failure to attend an orientation will result in a sanction of your MFIP benefits.")
 call write_variable_in_SPEC_MEMO("************************************************************")
-
 'Exits the MEMO
 PF4
 
-'Navigates to CASE/NOTE
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-
-'Writes the case note
-
+'Writes the case note----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
 call write_variable_in_case_note("* Financial Orientation letter sent via SPEC/MEMO. *")
 call write_variable_in_case_note("Orientation is scheduled on: " & orientation_date & " at " & orientation_time)
 call write_variable_in_case_note("Location: " & interview_location)
@@ -174,5 +163,4 @@ call write_bullet_and_variable_in_case_note("Household members needing to attend
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-'Script ends
-script_end_procedure("")
+script_end_procedure("")	'Script ends

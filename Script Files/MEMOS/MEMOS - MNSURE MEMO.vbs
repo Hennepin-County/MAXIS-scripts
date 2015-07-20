@@ -65,15 +65,9 @@ BeginDialog MNsure_info_dialog, 0, 0, 196, 120, "MNsure Info Dialog"
   Text 5, 105, 60, 10, "Worker signature:"
 EndDialog
 
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone
+'Connects to BlueZone & grabs case number
 EMConnect ""
-EMFocus
-
-'Searches for a case number
 call MAXIS_case_number_finder(case_number)
 
 'Shows dialog, checks for MAXIS or WCOM status.
@@ -84,7 +78,7 @@ Do
 Loop until isdate(denial_effective_date) = True
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'For the WCOM option it needs to go to SPEC/WCOM. Otherwise it goes to MEMO.
 If radiogroup1 = 0 then
@@ -108,10 +102,7 @@ If radiogroup1 = 0 then
 Else
   'Navigating to SPEC/MEMO
   call navigate_to_MAXIS_screen("SPEC", "MEMO")  
-  'This checks to make sure we've moved passed SELF.
-  EMReadScreen SELF_check, 27, 2, 28
-  If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to get past SELF menu. Check for error messages and try again.")   
-  'Creates a new MEMO. If it's unable the script will stop.
+  'puts MEMO into edit mode
   PF5
   EMReadScreen memo_display_check, 12, 2, 33
   If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
@@ -119,30 +110,16 @@ Else
   transmit
 End if
 
-'Sends the home key to get to the top of the memo.
-EMSendKey "<home>" 
-
 'Enters different text for denials vs closures. This adds the different text to the first line
-If how_case_ended = "denied" then EMSendKey "Your application was denied " 
-If how_case_ended = "closed" then EMSendKey "Your case was closed " 
-
+If how_case_ended = "denied" then write_variable_in_SPEC_MEMO("Your application was denied effective " & denial_effective_date & ". You may be able to purchase medical insurance through MNsure. If your family is under an income limit you may get financial help to purchase insurance. You can apply online at www.mnsure.org. If you have questions or need help to apply you can call the MNsure Call Center at 1-855-366-7873.")
+If how_case_ended = "closed" then write_variable_in_SPEC_MEMO("Your case was closed effective " & denial_effective_date & ". You may be able to purchase medical insurance through MNsure. If your family is under an income limit you may get financial help to purchase insurance. You can apply online at www.mnsure.org. If you have questions or need help to apply you can call the MNsure Call Center at 1-855-366-7873.")
 'Now it sends the rest of the memo, saves the memo and exits the memo screen
-EMSendKey "effective " & denial_effective_date & "." & "<newline>" & "<newline>" & "You may be able to purchase medical insurance through MNsure. If your family is under an income limit you may get financial help to purchase insurance. You can apply online at www.mnsure.org. If you have questions or need help to apply you can call the MNsure Call Center at 1-855-366-7873."
 PF4
 PF3
 
-'Navigates to case note
-call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9
-
 'Enters case note
-If radiogroup1 = 0 then EMSendKey "Added MNsure info to client notice via WCOM. -" & worker_signature
-If radiogroup1 = 1 then EMSendKey "Sent client MNsure info via MEMO. -" & worker_signature
+Call start_a_blank_CASE_NOTE
+If radiogroup1 = 0 then call write_variable_in_CASE_NOTE("Added MNsure info to client notice via WCOM. -" & worker_signature)
+If radiogroup1 = 1 then call write_variable_in_CASE_NOTE("Sent client MNsure info via MEMO. -" & worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

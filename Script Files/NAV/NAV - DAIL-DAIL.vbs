@@ -77,9 +77,6 @@ call worker_county_code_determination(worker_county_code, two_digit_county_code)
 'Connects to BlueZone
 EMConnect ""
 
-'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-transmit
-
 'This checks to maks sure we're in MAXIS.
 call check_for_MAXIS(True)
 
@@ -95,5 +92,4 @@ IF worker_number <> "" THEN
 	transmit
 END IF
 
-'Ends script
-script_end_procedure("")
+script_end_procedure("")  'Ends script

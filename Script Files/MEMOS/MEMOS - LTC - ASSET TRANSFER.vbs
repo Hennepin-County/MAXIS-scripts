@@ -45,9 +45,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'<<DELETE REDUNDANCIES!
-
+'connecting to MAXIS
 EMConnect ""
 
 BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 82, "LTC asset transfer dialog"
@@ -76,9 +74,3 @@ EMSendKey "<home>" + "The ownership of " + client + "'s assets must be transferr
 EMSendKey "At the first annual renewal in " + renewal_footer_month_year + " the value of all assets that list " + client + " as an owner or co-owner will be applied towards the Medical Assistance Asset limit of $3,000.00.  If the total value of all countable assets for " + client + " is more than $3,000.00, Medical Assistance may be closed for " + renewal_footer_month_year + "."
 
 script_end_procedure("")
-
-
-
-
-
-
