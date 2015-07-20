@@ -82,19 +82,11 @@ BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
 'Searches for a case number
-row = 1
-col = 1
-EMSearch "Case Nbr: ", row, col
-EMReadScreen case_number, 8, row, col + 10
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If isnumeric(case_number) = False then case_number = ""
-
+call MAXIS_case_number_finder(case_number)
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 
@@ -106,7 +98,7 @@ Do
 					Do
 						Do
 							Dialog appointment_letter_dialog
-							If ButtonPressed = cancel then stopscript
+							cancel_confirmation
 							If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
 						Loop until isnumeric(case_number) = True and len(case_number) <= 8 
 						CAF_date = replace(CAF_date, ".", "/")
@@ -127,7 +119,7 @@ Do
  Loop until worker_signature <> ""
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
  
 'Using custom function to assign addresses to the selected office
 call assign_county_address_variables(county_address_line_01, county_address_line_02)
@@ -146,10 +138,6 @@ If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = i
 
 'Navigating to SPEC/MEMO
 call navigate_to_MAXIS_screen("SPEC", "MEMO")
-
-'This checks to make sure we've moved passed SELF.
-EMReadScreen SELF_check, 27, 2, 28
-If SELF_check = "Select Function Menu (SELF)" then StopScript 
 
 'Creates a new MEMO. If it's unable the script will stop.
 PF5
@@ -184,7 +172,7 @@ transmit
 
 'Writes the MEMO.
 EMSetCursor 3, 15
-EMSendKey("************************************************************")
+Call write_variable_in_SPEC_MEMO("************************************************************")
 IF app_type = "new application" then
 	call write_variable_in_SPEC_MEMO("You recently applied for assistance in " & county_name & " on " & CAF_date & ". An interview is required to process your application.")
 Elseif app_type = "recertification" then
@@ -214,28 +202,23 @@ Else
 End if
 call write_variable_in_SPEC_MEMO("")
 call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " we will deny your application.")
-EMSendKey("************************************************************")
-
-
-'Exits the MEMO
+write_variable_in_SPEC_MEMO("************************************************************")
+'saves and exits 
 PF4
 
-'Navigates to CASE/NOTE
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-
-'Writes the case note
-If reschedule_check = checked then EMSendKey "**Client requested rescheduled appointment, appt letter sent in MEMO.**" & "<newline>"
-If app_type = "new application" and reschedule_check = unchecked then EMSendKey "**New CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
-If same_day_declined_check = checked then EMSendKey "* Same day interview offered and declined." & "<newline>"
-If app_type = "recertification" and no_CAF_check = unchecked and reschedule_check = unchecked then EMSendKey "**Recert CAF received " & CAF_date & ", appt letter sent in MEMO**" & "<newline>"
-If app_type = "recertification" and no_CAF_check = checked then EMSendKey "**Client requested recert appointment, letter sent in MEMO**" & "<newline>"
-EMSendKey "* Appointment is " & interview_date & " at " & interview_time & "." & "<newline>" 
-If expedited_explanation <> "" then call write_editbox_in_case_note("Why interview is more than six days from now", expedited_explanation, 5)
-call write_editbox_in_case_note("Appointment location", interview_location, 5)
-If client_phone <> "" then call write_editbox_in_case_note("Client phone", client_phone, 5)
+'Writes the case note----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
+If reschedule_check = 1 then Call write_variable_in_CASE_NOTE("**Client requested rescheduled appointment, appt letter sent in MEMO.**")
+If app_type = "new application" and reschedule_check = un1 then call write_variable_in_CASE_NOTE("**New CAF received " & CAF_date & ", appt letter sent in MEMO**")
+If same_day_declined_check = 1 then call write_variable_in_CASE_NOTE("* Same day interview offered and declined.")
+If app_type = "recertification" and no_CAF_check = un1 and reschedule_check = un1 then Call write_variable_in_CASE_NOTE("**Recert CAF received " & CAF_date & ", appt letter sent in MEMO**")
+If app_type = "recertification" and no_CAF_check = 1 then write_variable_in_CASE_NOTE("**Client requested recert appointment, letter sent in MEMO**")
+Call write_variable_in_CASE_NOTE("* Appointment is " & interview_date & " at " & interview_time & ".")
+If expedited_explanation <> "" then call write_bullet_and_variable_in_case_note("Why interview is more than six days from now", expedited_explanation)
+call write_bullet_and_variable_in_case_note("Appointment location", interview_location)
+If client_phone <> "" then call write_bullet_and_variable_in_case_note("Client phone", client_phone)
 call write_variable_in_CASE_NOTE("* Client must complete interview by " & last_contact_day & ".")
-If voicemail_check = checked then call write_variable_in_CASE_NOTE("* Left client a voicemail requesting a call back.")
+If voicemail_check = 1 then call write_variable_in_CASE_NOTE("* Left client a voicemail requesting a call back.")
 If forms_to_arep = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")
 If forms_to_swkr = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")
 call write_variable_in_CASE_NOTE("---")

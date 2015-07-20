@@ -164,7 +164,7 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'Finds MAXIS case number
 call MAXIS_case_number_finder(case_number)

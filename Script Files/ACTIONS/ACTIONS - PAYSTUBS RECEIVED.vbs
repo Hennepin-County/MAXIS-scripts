@@ -263,7 +263,7 @@ If pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then
 End if
 
 'Sends a transmit to refresh screen, then checks for MAXIS status. Does this on a loop so as not to lose pay information, and includes a cancel button.
- call check_for_MAXIS(True)
+ Call check_for_MAXIS(False)
 
 'Checks to see if it's in STAT, and checks footer month/year. If it isn't in STAT or the right footer month/year, the script will leave the case.
 EMReadScreen STAT_check, 4, 20, 21
@@ -532,7 +532,7 @@ End if
 If update_PIC_check = 1 then
   PF4
   PF9
-  EMSendKey "~~~SNAP PIC" & HH_memb_for_case_note & ": " & date & "~~~" & "<newline>"
+  Call write_variable_in_CASE_NOTE("~~~SNAP PIC" & HH_memb_for_case_note & ": " & date & "~~~")
   EMSendKey PIC_line_02 & "<newline>"
   EMSendKey PIC_line_03 & "                 " & "<newline>"
   EMSendKey PIC_line_04 & "                 " & "<newline>"
@@ -545,11 +545,11 @@ If update_PIC_check = 1 then
   EMWriteScreen PIC_line_10, 8, 35
   EMWriteScreen PIC_line_11, 9, 35
   If explanation_of_income <> "" then 
-    EMSendKey "---" & "<newline>"
-    call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
+    Call write_variable_in_CASE_NOTE("---")
+    call write_bullet_and_variable_in_case_note("How income was calculated", explanation_of_income)
   End if
-  call write_editbox_in_case_note("Employer name", employer_name, 6)
-  If document_datestamp <> "" then call write_editbox_in_case_note("Paystubs received date", document_datestamp, 6)
+  call write_bullet_and_variable_in_case_note("Employer name", employer_name)
+  If document_datestamp <> "" then call write_bullet_and_variable_in_case_note("Paystubs received date", document_datestamp)
   call write_variable_in_CASE_NOTE("---")
   call write_variable_in_CASE_NOTE(worker_signature)
   PF3
@@ -559,7 +559,7 @@ End if
 If case_note_check = 1 then
   PF4
   PF9
-  EMSendKey "Paystubs Received" & HH_memb_for_case_note & ": updated JOBS w/script" & "<newline>"
+  Call write_variable_in_CASE_NOTE("Paystubs Received" & HH_memb_for_case_note & ": updated JOBS w/script")
   call write_three_columns_in_case_note(14, "DATE", 29, "AMT", 39, "HOURS")
   If pay_date_01 <> "01/01/2000" then call write_three_columns_in_case_note(12, pay_date_01, 27, "$" & gross_amt_01, 39, hours_01)
   If pay_date_02 <> "01/01/2000" then call write_three_columns_in_case_note(12, pay_date_02, 27, "$" & gross_amt_02, 39, hours_02)
@@ -567,11 +567,11 @@ If case_note_check = 1 then
   If pay_date_04 <> "01/01/2000" then call write_three_columns_in_case_note(12, pay_date_04, 27, "$" & gross_amt_04, 39, hours_04)
   If pay_date_05 <> "01/01/2000" then call write_three_columns_in_case_note(12, pay_date_05, 27, "$" & gross_amt_05, 39, hours_05)
   If explanation_of_income <> "" then 
-    EMSendKey "---" & "<newline>"
-    call write_editbox_in_case_note("How income was calculated", explanation_of_income, 6)
+    call write_variable_in_CASE_NOTE("---")
+    call write_bullet_and_variable_in_case_note("How income was calculated", explanation_of_income)
   End if
-  call write_editbox_in_case_note("Employer name", employer_name, 6)
-  If document_datestamp <> "" then call write_editbox_in_case_note("Paystubs received date", document_datestamp, 6)
+  call write_bullet_and_variable_in_case_note("Employer name", employer_name)
+  If document_datestamp <> "" then call write_bullet_and_variable_in_case_note("Paystubs received date", document_datestamp)
   call write_variable_in_CASE_NOTE("---")
   call write_variable_in_CASE_NOTE(worker_signature)
   PF3

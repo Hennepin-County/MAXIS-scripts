@@ -301,25 +301,14 @@ gross_spousal_earned_income_04 = trim(gross_spousal_earned_income_04)
 HH_memb_row = 6
 
 'Shows the spousal maintenance dialog
+dialog spousal_maintenance_dialog
+MAXIS_dialog_navigation
+cancel_confirmation
+Call check_for_MAXIS(False)
 
-Do
-    dialog spousal_maintenance_dialog
-    cancel_confirmation
-	If ButtonPressed = 0 then stopscript
-    EMReadScreen STAT_check, 4, 20, 21
-    If STAT_check = "STAT" then call MAXIS_dialog_navigation
-    transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-    Call check_for_MAXIS(True)
-  If ButtonPressed <> -1 then call MAXIS_dialog_navigation
-Loop until ButtonPressed = -1
-
-'Jumps back to the SELF menu
-back_to_self
 
 'Navigates to ELIG/HC.
-EMWriteScreen "elig", 16, 43
-EMWriteScreen "hc", 21, 70
-transmit
+Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 'Checks to see if MEMB 01 has HC, and puts an "x" there. If not it'll try MEMB 02. 
 EMReadScreen person_check, 1, 8, 26

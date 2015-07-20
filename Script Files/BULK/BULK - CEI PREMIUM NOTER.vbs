@@ -118,20 +118,16 @@ BeginDialog CEI_premium_dialog, 0, 0, 391, 165, "CEI premium dialog"
   Text 140, 150, 75, 10, "Sign your case notes:"
 EndDialog
 
-
-
-
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
-
-
 
 'Shows dialog, allows for cancel, and checks for MAXIS
 Do
 	Do
 		Do
 			Dialog CEI_premium_dialog
-			IF buttonpressed = cancel then stopscript
+			cancel_confirmation
 			'If the user selects the prefill months option, it'll add the current month to the dialog
 			If buttonpressed = prefill_months_button then
 				prefill_date = datepart("m", dateadd("m", -1, date)) & "/" & datepart("yyyy", dateadd("m", -1, date))		'Determines the date
@@ -202,9 +198,9 @@ Do
 	End if
 
 Loop until buttonpressed = OK
-transmit
-	
-Call check_for_MAXIS(True)
+
+'checking for an active MAXIS session	
+Call check_for_MAXIS(False)
 
 'Heading back to self
 back_to_self
@@ -230,13 +226,9 @@ For each case_info in info_array
 		mo_yr = case_specific_info_array(2)
 		date_sent = case_specific_info_array(3)
 		
-		'Gets to case curr
+		'navigates to case/curr
 		call navigate_to_MAXIS_screen("case", "curr")		
 		
-		'Checks for a MAXIS error. If it comes up, it'll stop.
-		EMReadScreen error_check, 37, 24, 2
-		If error_check <> "                                     " then script_end_procedure("Error! See the bottom of your MAXIS screen.")
-
 		'Checking to make sure case is active. This will skip cases without MA or IMD active.
 		row = 1											'Declaring prior to the EMSearch feature
 		col = 1
@@ -251,21 +243,17 @@ For each case_info in info_array
 		'If it was found the entire time, then make that case note.
 		If row <> 0 then
 			'Navigates to case note and creates a new case note.
-			call navigate_to_MAXIS_screen("case", "note")
-			PF9
-			
+			call start_a_blank_CASE_NOTE
 			'Now it is case noting the contents.
-			EMSendKey "<home>" & "CEI reimbursement for " & Mo_Yr & " sent to fiscal" & " on " & date_sent & "<newline>"
-			call write_editbox_in_case_note("CEI amount", CEI_amount, 6)
-			call write_editbox_in_case_note("Check will be mailed", check_will_be_mailed_date, 6)
+			Call write_variable_in_CASE_NOTE("CEI reimbursement for " & Mo_Yr & " sent to fiscal" & " on " & date_sent)
+			call write_bullet_and_variable_in_case_note("CEI amount", CEI_amount)
+			call write_bullet_and_variable_in_case_note("Check will be mailed", check_will_be_mailed_date)
 			call write_variable_in_CASE_NOTE("---")
 			call write_variable_in_CASE_NOTE(worker_signature)
 		End if
 	End if
 Next
 
-'Gets back to self because it'll look prettier.
-back_to_self
 
 'Script ends
 script_end_procedure("Success! Your cases have been case noted! Don't forget to send the authorization for payment forms. See a supervisor for more information.")

@@ -284,25 +284,16 @@ BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
     CancelButton 250, 200, 50, 15
 EndDialog
 
-
-
 'Shows dialog and then seeks out case/note
-Do
-    Dialog cit_ID_dialog
-	cancel_confirmation
-    transmit
-    Call check_for_MAXIS(True)
-	EMReadScreen mode_check, 7, 20, 3
-	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then
-		call navigate_to_screen("case", "note")
-		PF9
-		EMReadScreen mode_check, 7, 20, 3
-		If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
-	End if
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+Dialog cit_ID_dialog
+cancel_confirmation
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Sends the case note
-EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
+Call start_a_blank_CASE_NOTE
+call write_variable_in_CASE_NOTE("***CITIZENSHIP/IDENTITY***")
 EMSendKey string(77, "-") 
 EMSendKey "    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF" & "<newline>"
 If HH_memb_01 <> "" then 
@@ -366,8 +357,3 @@ EMSendKey string(77, "-") & "<newline>"
 Call write_variable_in_CASE_NOTE(worker_sig)
 
 script_end_procedure("")
-
-
-
-
-

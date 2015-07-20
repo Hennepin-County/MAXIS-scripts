@@ -146,7 +146,7 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'Jumping to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
@@ -210,7 +210,7 @@ End Function
 
 'Pulling the elig amounts for all open progs on case / curr
 call navigate_to_MAXIS_screen("case", "curr")
- call find_variable("MFIP: ", MFIP_check, 6)
+ call find_variable("MFIP: ", MFIP_check)
    If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
    call navigate_to_MAXIS_screen("elig", "mfip")    
 	  call approved_version
@@ -231,7 +231,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	End if
 	If MFIP_check = "PENDIN" then msgbox "MFIP is pending, please enter amounts manually to avoid errors."
 
-	call find_variable("FS: ", fs_check, 6)
+	call find_variable("FS: ", fs_check)
 	If fs_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "fs")
 		call approved_version
@@ -245,7 +245,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	If fs_check = "APP CL" then msgbox "SNAP is set to close, please enter amounts manually to avoid errors."
 	If fs_check = "PENDIN" then msgbox "SNAP is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("DWP: ", DWP_check, 6)
+	call find_variable("DWP: ", DWP_check)
 	If DWP_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "dwp")
 		call approved_version
@@ -264,7 +264,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	 End if
 	If DWP_check = "PENDIN" then msgbox "DWP is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("GA: ", GA_check, 6)
+	call find_variable("GA: ", GA_check)
 	If GA_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "GA")
 		call approved_version
@@ -281,7 +281,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
 	If GA_check = "PENDIN" then msgbox "GA is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("MSA: ", MSA_check, 6)
+	call find_variable("MSA: ", MSA_check)
 	If MSA_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "msa")
 		call approved_version
@@ -296,7 +296,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	If MSA_check = "APP CL" then MsgBox "MSA is set to close, please enter amounts manually to avoid errors."
 	If MSA_check = "PENDIN" then MsgBox "MSA is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("Cash: ", cash_check, 6)
+	call find_variable("Cash: ", cash_check)
 	If cash_check = "PENDIN" then MsgBox "Cash is pending for this household, please explain in additional notes."
 		
 'calling the main dialog	

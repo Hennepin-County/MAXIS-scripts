@@ -92,7 +92,7 @@ EMConnect ""
 Do
 	Do
 		Dialog REVW_MONT_closures_dialog
-		If ButtonPressed = 0 then StopScript 'Cancel button
+		cancel_confirmation
 		If worker_number <> "" then worker_number = ucase(worker_number)
 		If len(worker_number) <> 3 then MsgBox "You must enter the last three digits of your " & county_worker_code & "# (and just the last three digits)."
 	Loop until len(worker_number) = 3
@@ -100,7 +100,7 @@ Do
 Loop until worker_signature <> ""
 
 transmit 'It transmits to check for MAXIS.
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'THIS PART DOES THE REPT REVW----------------------------------------------------------------------------------------------------
 If revw_check = checked then 
@@ -266,9 +266,9 @@ If revw_check = checked then
 			Else
 				call write_variable_in_CASE_NOTE("---Programs closing for no review---")
 			End if
-			If cash_review_status <> "" then call write_editbox_in_case_note("Cash", cash_review_status, 5)
-			If FS_review_status <> "" then call write_editbox_in_case_note("SNAP", FS_review_status, 5)
-			If HC_review_status <> "" then call write_editbox_in_case_note("HC", HC_review_status, 5)
+			If cash_review_status <> "" then call write_bullet_and variable_in_case_note("Cash", cash_review_status)
+			If FS_review_status <> "" then call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
+			If HC_review_status <> "" then call write_bullet_and_variable_in_case_note("HC", HC_review_status)
 			If last_day_to_turn_in_cash_docs <> "" then call write_variable_in_CASE_NOTE("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
 			If last_day_to_turn_in_SNAP_docs <> "" then call write_variable_in_CASE_NOTE("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
 			If last_day_to_turn_in_HC_docs <> "" then call write_variable_in_CASE_NOTE("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
@@ -414,6 +414,4 @@ If mont_check = 1 then
   End if
 End If  
 
-
-MsgBox "Success! All cases that are coded in REPT/REVW and/or REPT/MONT as either an ''N'' or an ''I'' have been case noted for why they're closing, and what documents need to get turned in."
-script_end_procedure("")
+script_end_procedure("Success! All cases that are coded in REPT/REVW and/or REPT/MONT as either an ''N'' or an ''I'' have been case noted for why they're closing, and what documents need to get turned in.")

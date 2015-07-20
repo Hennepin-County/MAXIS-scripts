@@ -138,7 +138,7 @@ EndDialog
 '----------THE SCRIPT----------
 EMConnect ""
 
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 DIALOG xfer_menu_dialog
 Cancel_confirmation
@@ -155,7 +155,7 @@ IF XFERRadioGroup = 0 THEN
 			IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X102 in the worker number"
 			Loop until case_number <> "" and len(worker_to_transfer_to) = 7
 			transmit
-			Call check_for_MAXIS(True)
+			Call check_for_MAXIS(False)
 		  call navigate_to_MAXIS_screen("case", "note")
 		  PF9
 		  EMReadScreen mode_check, 7, 20, 3

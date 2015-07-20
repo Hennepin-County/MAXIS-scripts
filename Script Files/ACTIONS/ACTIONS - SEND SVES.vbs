@@ -81,7 +81,7 @@ If ButtonPressed = cancel then StopScript
 If member_number = "" then member_number = "01"
 
 'Makes sure we're in MAXIS
-call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'Goes to MEMB to get info
 call navigate_to_MAXIS_screen("stat", "memb")

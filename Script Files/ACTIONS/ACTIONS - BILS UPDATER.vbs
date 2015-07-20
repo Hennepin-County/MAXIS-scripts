@@ -161,7 +161,7 @@ Do
 	Dialog BILS_case_number_dialog	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
 	If ButtonPressed = cancel then stopscript
 	transmit
-	Call check_for_MAXIS(True)
+	Call check_for_MAXIS(False)
 
 	If isnumeric(case_number) = False then MsgBox "Enter a valid MAXIS case number."
 Loop until isnumeric(case_number) = True
@@ -260,7 +260,7 @@ Do
 		Dialog BILS_updater_dialog
 		If ButtonPressed = cancel then stopscript
 		transmit
-		Call check_for_MAXIS(True)
+		Call check_for_MAXIS(False)
 		IF isdate(budget_begin) = False OR isdate(budget_end) = False THEN MsgBox "Your budget range includes dates that are not valid. Please double check your budget months and years before continuing to ensure the script works properly."
 	LOOP UNTIL isdate(budget_begin) = True AND isdate(budget_end) = True
 	'Checking to see if the user added verifications. BILS requires that, without it it'll red up and error out.

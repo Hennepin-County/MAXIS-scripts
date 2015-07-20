@@ -170,18 +170,9 @@ TIKL_checkbox = checked
 HH_memb_row = 5 
 
 'Show dialog
-Do
-	Dialog new_HIRE_dialog
-	If ButtonPressed = cancel then stopscript
-	EMReadScreen STAT_check, 4, 20, 21
-	If STAT_check = "STAT" then
-		If ButtonPressed = prev_panel_button then call panel_navigation_prev
-		If ButtonPressed = next_panel_button then call MAXIS_dialog_navigation
-		If ButtonPressed = prev_memb_button then call memb_navigation_prev
-		If ButtonPressed = next_memb_button then call MAXIS_dialog_navigation
-	End if
-	transmit
-Loop until ButtonPressed = OK
+Dialog new_HIRE_dialog
+MAXIS_dialog_navigation
+cancel_confirmation
 
 'If new job is known, script ends.
 If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
@@ -279,4 +270,3 @@ MsgBox "Success! MAXIS updated for new HIRE message, a case note made, and a TIK
 
 'Exits script and logs stats if appropriate
 script_end_procedure("")
-

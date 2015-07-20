@@ -103,10 +103,8 @@ If len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
 
 
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS
 EMConnect ""
 
 'Finds a case number
@@ -114,11 +112,10 @@ call MAXIS_case_number_finder(case_number)
 
 'Shows the case number dialog
 Dialog case_number_and_footer_month_dialog
-If ButtonPressed = 0 then stopscript
+cancel_confirmation
 
-'It sends an enter to force the screen to refresh, in order to check for MAXIS. If MAXIS isn't found the script will stop.
-transmit
-Call check_for_MAXIS(True)
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
 EMReadScreen footer_month_year_check, 5, 20, 55
@@ -130,10 +127,8 @@ If left(footer_month_year_check, 2) <> footer_month or right(footer_month_year_c
 	transmit
 End if
 
-'Now it enters stat/jobs. It'll check to make sure it gets past the SELF menu and gets onto the JOBS panel.
+'NAV to stat/jobs
 call navigate_to_MAXIS_screen("stat", "jobs")
-EMReadScreen SELF_check, 27, 2, 28
-If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to navigate past the SELF menu. Is your case in background? Wait a few seconds and try again.")
 
 'Declaring some variables to create defaults for the new_job_reported_dialog.
 create_JOBS_checkbox = 1
@@ -148,21 +143,19 @@ Do
 				Do
 					Do
 						Dialog new_job_reported_dialog
-						If ButtonPressed = cancel then stopscript
-						EMReadScreen STAT_check, 4, 20, 21
-						If STAT_check = "STAT" then call MAXIS_dialog_navigation
-						transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-						Call check_for_MAXIS(True)
-					If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
-						If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
-							MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
-							pass_through_inc_date_loop = False
+						MAXIS_dialog_navigation
+						cancel_confirmation
+						Call check_for_MAXIS(False)
+						If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
+							If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
+								MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
+								pass_through_inc_date_loop = False
+							Else
+								pass_through_inc_date_loop = True
+							End if
 						Else
-							pass_through_inc_date_loop = True
+							If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
 						End if
-					Else
-						If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
-					End if
 					Loop until income_start_date = "" or pass_through_inc_date_loop = True
 					If employer = "" then MsgBox "You must type an employer!"
 				Loop until employer <> ""
@@ -249,15 +242,8 @@ call create_MAXIS_friendly_date(date, 10, 5, 18)
 
 'Writing in the rest of the TIKL.
 call write_variable_in_TIKL("Verification of job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
-
 transmit
 PF3
 MsgBox "Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."
 
 script_end_procedure("")
-
-
-
-
-
-
