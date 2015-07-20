@@ -153,42 +153,27 @@ Dim col
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
 
-'Grabbing case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+'Grabbing case number and footer year/month
+call MAXIS_case_number_finder(case_number)
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing footer month
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
 
 'Showing case number dialog
 Do
 	Dialog case_number_dialog
-	If ButtonPressed = 0 then stopscript
+	cancel_confirmation
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
-transmit
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+call check_for_MAXIS(False)
 
-'Jumping to STAT
+'NAV to MEMB
 call navigate_to_MAXIS_screen("stat", "memb")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
+
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -210,80 +195,53 @@ HRF_month = retro_month_name & "/" & pro_month_name
 'The case note dialog, complete with panel navigation, reading the ELIG/GRH screen, and navigation to case note, as well as logic for certain sections to be required.
 Do
 	Do
-		Do
-			Do
-				Do
-					Do
-						Dialog HRF_dialog
-						If ButtonPressed = 0 then 
-							dialog cancel_dialog
-							If ButtonPressed = yes_cancel_button then stopscript
-						End if
-					Loop until ButtonPressed <> no_cancel_button
-					If HRF_status = "(select one...)" then MsgBox "You must indicate a HRF status, either ''complete'' or ''incomplete''!"
-				Loop until HRF_status <> "(select one...)"
-				EMReadScreen STAT_check, 4, 20, 21
-				If STAT_check = "STAT" then
-					If ButtonPressed = prev_panel_button then Call MAXIS_dialog_navigation
-					If ButtonPressed = next_panel_button then Call MAXIS_dialog_navigation
-					If ButtonPressed = prev_memb_button then Call MAXIS_dialog_navigation
-					If ButtonPressed = next_memb_button then Call MAXIS_dialog_navigation
-				End if
-				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-				EMReadScreen check_for_MAXIS(True), 5, 1, 39
-				If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-			Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
-			If buttonpressed <> -1 then call MAXIS_dialog_navigation
-		Loop until ButtonPressed = -1
-		If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-	Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
-	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then
-		If grab_GRH_info_check = 1 then
-			call navigate_to_MAXIS_screen("elig", "grh")
-			EMReadScreen GRPR_check, 4, 3, 47
-			If GRPR_check <> "GRPR" then
-				MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
-			Else
-				EMWriteScreen "GRSM", 20, 71
-				transmit
-				EMReadScreen GRSM_line_01, 69, 10, 3
-				EMReadScreen GRSM_line_02, 69, 11, 3
-				EMReadScreen GRSM_line_03, 69, 12, 3
-				EMReadScreen GRSM_line_04, 69, 13, 3
-				EMReadScreen GRSM_Obligation, 9, 18, 31
-			End if		
-		End if
-		call navigate_to_MAXIS_screen("case", "note")
-		PF9
-		EMReadScreen case_note_check, 17, 2, 33
-		EMReadScreen mode_check, 1, 20, 09
-		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
+		Dialog HRF_dialog
+		MAXIS_dialog_navigation
+		Call check_for_MAXIS(False)
+		cancel_confirmation
+		If HRF_status = "(select one...)" then MsgBox "You must indicate a HRF status, either ''complete'' or ''incomplete''!"
+	Loop until HRF_status <> "(select one...)"
+	If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
+Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
+	If grab_GRH_info_check = 1 then
+		call navigate_to_MAXIS_screen("elig", "grh")
+		EMReadScreen GRPR_check, 4, 3, 47
+		If GRPR_check <> "GRPR" then
+			MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
+		Else
+			EMWriteScreen "GRSM", 20, 71
+			transmit
+			EMReadScreen GRSM_line_01, 69, 10, 3
+			EMReadScreen GRSM_line_02, 69, 11, 3
+			EMReadScreen GRSM_line_03, 69, 12, 3
+			EMReadScreen GRSM_line_04, 69, 13, 3
+			EMReadScreen GRSM_Obligation, 9, 18, 31
+		End if		
 	End if
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+	
 
 'Enters the case note
-EMSendKey "<home>" & "***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***" & "<newline>"
-call write_editbox_in_case_note("Earned income", earned_income, 6)
-If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
-If YTD <> "" then call write_editbox_in_case_note("YTD", YTD, 6)
-If changes <> "" then call write_editbox_in_case_note("Changes", changes, 6)
-if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
-if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
+Call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE("***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
+call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+If unearned_income <> "" then call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+If YTD <> "" then call write_bullet_and_variable_in_case_note("YTD", YTD)
+If changes <> "" then call write_bullet_and_variable_in_case_note("Changes", changes)
+if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-If date_check_sent_to_facility <> "" then call write_editbox_in_case_note("Date check sent to facility", date_check_sent_to_facility, 6)
-call Call write_variable_in_CASE_NOTE("---")
+if verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+If date_check_sent_to_facility <> "" then call write_bullet_and_variable_in_case_note("Date check sent to facility", date_check_sent_to_facility)
+call write_variable_in_CASE_NOTE("---")
 If GRPR_check = "GRPR" then
-	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_01)
-	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_02)
-	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_03)
-	call Call write_variable_in_CASE_NOTE("   " & GRSM_line_04)
-	CALL Call write_variable_in_CASE_NOTE("Client Obligation: $" & GRSM_Obligation)
-	call Call write_variable_in_CASE_NOTE("---")
+	call write_variable_in_CASE_NOTE("   " & GRSM_line_01)
+	call write_variable_in_CASE_NOTE("   " & GRSM_line_02)
+	call write_variable_in_CASE_NOTE("   " & GRSM_line_03)
+	call write_variable_in_CASE_NOTE("   " & GRSM_line_04)
+	call write_variable_in_CASE_NOTE("Client Obligation: $" & GRSM_Obligation)
+	call write_variable_in_CASE_NOTE("---")
 End if
-call Call write_variable_in_CASE_NOTE(worker_signature)
+call write_variable_in_CASE_NOTE(worker_signature)
 
 call script_end_procedure("")
-

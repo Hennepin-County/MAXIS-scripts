@@ -243,7 +243,7 @@ PF3
 Do
   Do
     dialog asset_assessment_dialog
-    If buttonpressed = 0 then stopscript
+    cancel_confirmation
     transmit
     EMReadScreen function_check, 4, 20, 21
     If function_check <> "ASET" then MsgBox "You do not appear to be in the ASET function anymore. You might be locked out of your case, or have nagigated away. Reenter the ASET function before proceeding."
@@ -258,7 +258,7 @@ Loop until mode_check = "Mode: A"
 If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
 If sent_3340A_check = 1 then actions_taken = "Sent 3340-A. " & actions_taken
 
-EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT***" & "<newline>"
+Call write_editbox_in_person_note("***" & asset_assessment_type & " ASSET ASSESSMENT***")
 call write_editbox_in_person_note("Effective date", effective_date, 5) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
 If MA_LTC_first_month_of_documented_need <> "" then call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need, 5)
 If month_MA_LTC_rules_applied <> "" then call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied, 5)
@@ -320,22 +320,22 @@ call write_new_line_in_person_note(total_marital_asset_list_line_15)
 
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
 
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT***" & "<newline>"
-call write_editbox_in_case_note("Effective date", effective_date, 5) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-If MA_LTC_first_month_of_documented_need <> "" then call write_editbox_in_case_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need, 5)
-If month_MA_LTC_rules_applied <> "" then call write_editbox_in_case_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied, 5)
-call write_editbox_in_case_note("LTC spouse", LTC_spouse, 5)
-call write_editbox_in_case_note("Community spouse", community_spouse, 5)
-call write_editbox_in_case_note("Asset summary", asset_summary, 5)
-call write_editbox_in_case_note("Total counted assets", total_counted_assets, 5)
-call write_editbox_in_case_note("Half of total", half_of_total, 5)
-call Call write_variable_in_CASE_NOTE("* " & CSAA_type & " CSAA: " & CSAA)
-call write_editbox_in_case_note("Asset calculation", asset_calculation, 5)
-call write_editbox_in_case_note("Actions taken", actions_taken, 5)
-call Call write_variable_in_CASE_NOTE("---")
-If worker_signature <> "" then call Call write_variable_in_CASE_NOTE(worker_signature)
+call start_a_blank_CASE_NOTE
+
+Call write_variable_in_CASE_NOTE("***" & asset_assessment_type & " ASSET ASSESSMENT***")
+call write_bullet_and_variable_in_case_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+If MA_LTC_first_month_of_documented_need <> "" then call write_bullet_and_variable_in_case_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
+If month_MA_LTC_rules_applied <> "" then call write_bullet_and_variable_in_case_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
+call write_bullet_and_variable_in_case_note("LTC spouse", LTC_spouse)
+call write_bullet_and_variable_in_case_note("Community spouse", community_spouse)
+call write_bullet_and_variable_in_case_note("Asset summary", asset_summary)
+call write_bullet_and_variable_in_case_note("Total counted assets", total_counted_assets)
+call write_bullet_and_variable_in_case_note("Half of total", half_of_total)
+call write_variable_in_CASE_NOTE("* " & CSAA_type & " CSAA: " & CSAA)
+call write_bullet_and_variable_in_case_note("Asset calculation", asset_calculation)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+call write_variable_in_CASE_NOTE("---")
+If worker_signature <> "" then call write_variable_in_CASE_NOTE(worker_signature)
 Do
   EMGetCursor row, col
   If row < 17 then 
@@ -345,18 +345,18 @@ Do
 Loop until row = 17
 EMSendKey ">>>>SPAA PASTED ON NEXT PAGE>>>>"
 PF8
-call Call write_variable_in_CASE_NOTE(SPAA_line_01)
-call Call write_variable_in_CASE_NOTE(SPAA_line_02)
-call Call write_variable_in_CASE_NOTE(SPAA_line_03)
-call Call write_variable_in_CASE_NOTE(SPAA_line_05)
-call Call write_variable_in_CASE_NOTE(SPAA_line_07)
-call Call write_variable_in_CASE_NOTE(SPAA_line_08)
-call Call write_variable_in_CASE_NOTE(SPAA_line_09)
-call Call write_variable_in_CASE_NOTE(SPAA_line_10)
-call Call write_variable_in_CASE_NOTE(SPAA_line_11)
-call Call write_variable_in_CASE_NOTE(SPAA_line_13)
-call Call write_variable_in_CASE_NOTE(SPAA_line_14)
-call Call write_variable_in_CASE_NOTE(SPAA_line_15)
+call write_variable_in_CASE_NOTE(SPAA_line_01)
+call write_variable_in_CASE_NOTE(SPAA_line_02)
+call write_variable_in_CASE_NOTE(SPAA_line_03)
+call write_variable_in_CASE_NOTE(SPAA_line_05)
+call write_variable_in_CASE_NOTE(SPAA_line_07)
+call write_variable_in_CASE_NOTE(SPAA_line_08)
+call write_variable_in_CASE_NOTE(SPAA_line_09)
+call write_variable_in_CASE_NOTE(SPAA_line_10)
+call write_variable_in_CASE_NOTE(SPAA_line_11)
+call write_variable_in_CASE_NOTE(SPAA_line_13)
+call write_variable_in_CASE_NOTE(SPAA_line_14)
+call write_variable_in_CASE_NOTE(SPAA_line_15)
 Do
   EMGetCursor row, col
   If row < 17 then 
@@ -366,25 +366,19 @@ Do
 Loop until row = 17
 EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
 PF8
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_17)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_03)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_04)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_05)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_06)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_07)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_08)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_09)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_10)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_11)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_12)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_13)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_14)
-call Call write_variable_in_CASE_NOTE(total_marital_asset_list_line_15)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_17)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_03)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_04)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_05)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_06)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_07)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_08)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_09)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_10)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_11)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_12)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_13)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_14)
+call write_variable_in_CASE_NOTE(total_marital_asset_list_line_15)
 
 script_end_procedure("")
-
-
-
-
-
-

@@ -76,10 +76,7 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
     PushButton 20, 25, 70, 15, "Jump to STAT/BILS", BILS_button
     PushButton 100, 25, 70, 15, "Stay in ELIG/HC", ELIG_button
     CancelButton 135, 55, 50, 15
-EndDialog
-  
-
-
+EndDialog 
 
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -94,7 +91,7 @@ application_signed_check = 1 'The script should default to having the applicatio
 
 Sub approval_summary
   PF3
-  maxis_check_function
+  _function
   
 'First it goes to HCMI check to see if it's coded. If so it'll autofill the designated provider info
 
@@ -246,21 +243,20 @@ Sub approval_summary
     If other_deductions <> "__________" then deductions = deductions & "Other deductions ($" & replace(other_deductions, "_", "") & "). "
   End if
   
-
   
   EMReadScreen BBUD_check, 4, 3, 47
   If BBUD_check = "BBUD" then
     EMReadScreen income, 10, 12, 32
     income = "$" & trim(income)
     Dialog BBUD_dialog
-    If ButtonPressed = 0 then stopscript
+    cancel_confirmation
     If ButtonPressed = BILS_button then
       PF3
       EMReadScreen check_for_MAXIS(True), 5, 1, 39
       If check_for_MAXIS(True) <> "MAXIS" then
         Do
           Dialog BBUD_Dialog
-          If buttonpressed = 0 then stopscript
+          cancel_confirmation
         Loop until check_for_MAXIS(True) = "MAXIS"
       End if
       back_to_SELF
@@ -308,10 +304,10 @@ EndDialog
 
    Do
 	      Dialog COLA_dialog
-		maxis_check_function
+		_function
 	      If buttonpressed = 0 then stopscript
 		If buttonpressed = BBUD_button then
-			maxis_check_function
+			_function
 			back_to_self
 			Call navigate_to_MAXIS_screen("ELIG", "HC")
  			 EMReadScreen person_check, 2, 8, 31
@@ -334,7 +330,7 @@ EndDialog
 			  transmit
 		End if
 		If buttonpressed = BILS_button_COLADLG then
-			maxis_check_function
+			call check_for_MAXIS(False)
 			back_to_self
 			Call navigate_to_MAXIS_screen("STAT", "BILS")
 			EMReadScreen BILS_check, 4, 2, 54
@@ -347,26 +343,23 @@ EndDialog
   EMWriteScreen case_number, 18, 43
   EMWriteScreen "note", 21, 70
   transmit
-  
   PF9
   
-  EMSendKey "<home>"
   EMSendKey "**Approved COLA updates 01/15: " & elig_type & "-" & budget_type & " " & recipient_amt
   If budget_type = "L" then EMSendKey " LTC sd**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " recip amt**"
-  EMSendKey "<newline>"
-  EMSendKey "* Income: " & income & "<newline>"
-  EMSendKey "* Deductions: " & deductions & "<newline>"
-  If designated_provider <> "" then call write_editbox_in_case_note("Designated Provider", designated_provider, 6)
-  EMSendKey "---" & "<newline>"
-  If updated_RSPL_check = 1 then EMSendKey "* Updated RSPL in MMIS." & "<newline>"
-  If designated_provider_check = 1 then EMSendKey "* Client has designated provider." & "<newline>"
-  If approved_check = 1 then EMSendKey "* Approved new MAXIS results." & "<newline>"
-  If DHS_3050_check = 1 then EMSendKey "* Sent DHS-3050 LTC communication form to facility." & "<newline>"
-  If other <> "" then EMSendKey "* Other: " & other & "<newline>"
-  EMSendKey "---" & "<newline>"
-  EMSendKey worker_sig
+  Call write_bullet_and_variable_in_CASE_NOTE("Income", income)
+  Call write_bullet_and_variable_in_CASE_NOTE("Deductions", deductions)
+  If designated_provider <> "" then call write_bullet_and_variable_in_CASE_NOTE("Designated Provider", designated_provider)
+  Call write_variable_in_CASE_NOTE("---")
+  If updated_RSPL_check = 1 then call write_variable_in_CASE_NOTE ("* Updated RSPL in MMIS.")
+  If designated_provider_check = 1 then write_variable_in_CASE_NOTE "* Client has designated provider.")
+  If approved_check = 1 then call write_variable_in_CASE_NOTE "* Approved new MAXIS results.")
+  If DHS_3050_check = 1 then call write_variable_in_CASE_NOTE ("* Sent DHS-3050 LTC communication form to facility.")
+  If other <> "" then call write_variable_in_CASE_NOTE("Other: " & other)
+  Call write_variable_in_CASE_NOTE("---")
+  Call write_variable_in_CASE_NOTE(worker_sig)
 End sub
 
 ' Function for script--------------------------------------------------------------------------------------------------------
@@ -382,13 +375,9 @@ EMWriteScreen "15", 20, 46
 
 'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "unea")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then 
-  MsgBox "Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background, contact a Support Team member."
-  StopScript
-End if
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
 
 'THE FOLLOWING DIALOG WILL DYNAMICALLY CHANGE DEPENDING ON THE HH COMP. IT WILL ALLOW A WORKER TO SELECT WHICH HH MEMBERS NEED TO BE INCLUDED IN THE SCRIPT.
 EMReadScreen HH_member_01, 18, 5, 3                                       'THIS GATHERS THE HH MEMBERS DIRECTLY FROM A MAXIS SCREEN.
@@ -406,7 +395,7 @@ EMReadScreen HH_member_12, 18, 16, 3
 EMReadScreen HH_member_13, 18, 17, 3
 EMReadScreen HH_member_14, 18, 18, 3
 EMReadScreen HH_member_15, 18, 19, 3
-dialog_size_variable = 50                                                 'DEFAULT IS 50, BUT IT CHANGES DEPENDING ON THE AMOUNT OF HH MEMBERS.
+dialog_size_variable = 50             'DEFAULT IS 50, BUT IT CHANGES DEPENDING ON THE AMOUNT OF HH MEMBERS.
 If HH_member_03 <> "                  " then dialog_size_variable = 65     
 If HH_member_04 <> "                  " then dialog_size_variable = 80
 If HH_member_05 <> "                  " then dialog_size_variable = 95
@@ -458,14 +447,11 @@ BeginDialog HH_memb_dialog, 0, 0, 191, dialog_size_variable, "HH member dialog"
 EndDialog
 
 'NOW IT SHOWS THE DIALOG FROM THE LAST SCREEN
-Do
-  Dialog HH_memb_dialog
-  If buttonpressed = 0 then stopscript
-  transmit
-  EMReadScreen check_for_MAXIS(True), 5, 1, 39
-  IF check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. You may have navigated away, or are passworded out. Clear up the issue, and try again."
-Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
+ Dialog HH_memb_dialog
+ cancel_confirmation
+ Call check_for_MAXIS(False)
 
+ 
 'DETERMINING WHICH HH MEMBERS TO LOOK AT
 If client_01_check = 1 then HH_member_array = HH_member_array & left(HH_member_01, 2) & " "
 If client_02_check = 1 then HH_member_array = HH_member_array & left(HH_member_02, 2) & " "
@@ -621,34 +607,21 @@ earned_income_spouse = replace(earned_income_spouse, "$________/biweekly", "amt 
 earned_income_spouse = replace(earned_income_spouse, "$________/semimonthly", "amt unknown")
 
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dialog COLA_income_dialog
+cancel_confirmation
 
-Do
-  Do
-    Dialog COLA_income_dialog
-    If ButtonPressed = 0 then stopscript
-    transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-    EMReadScreen check_for_MAXIS(True), 5, 1, 39
-    If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-  Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
-  call navigate_to_MAXIS_screen("case", "note")
-  PF9
-  EMReadScreen case_note_check, 17, 2, 33
-  EMReadScreen mode_check, 1, 20, 09
-  If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+Call check_for_MAXIS(False)
 
-'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-EMSendKey "===COLA 2015 INCOME SUMMARY==="
-EMSendKey "<newline>"
-If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
-If earned_income <> "" then call write_editbox_in_case_note("Earned income", earned_income, 6)
-If medicare_part_B <> "" then call write_editbox_in_case_note("Medicare Part B premium", medicare_part_B, 6)
-If unearned_income_spouse <> "" then call write_editbox_in_case_note("Spousal unearned income", unearned_income_spouse, 6)
-If earned_income_spouse <> "" then call write_editbox_in_case_note("Spousal earned income", earned_income_spouse, 6)
-If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-call Call write_variable_in_CASE_NOTE("---")
-call Call write_variable_in_CASE_NOTE(worker_signature)
+call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE ("===COLA 2015 INCOME SUMMARY===")
+If unearned_income <> "" then call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+If earned_income <> "" then call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+If medicare_part_B <> "" then call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
+If unearned_income_spouse <> "" then call write_bullet_and_variable_in_case_note("Spousal unearned income", unearned_income_spouse)
+If earned_income_spouse <> "" then call write_bullet_and_variable_in_case_note("Spousal earned income", earned_income_spouse)
+If other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 End function
 
 'CONNECTS TO MAXIS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -671,7 +644,7 @@ BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
 EndDialog
 
 Dialog COLA_case_number_dialog
-If ButtonPressed = 0 then stopscript
+cancel_confirmation
 
 If approval_summary_check = 1 then call approval_summary
 If income_summary_check = 1 then call income_summary

@@ -123,27 +123,21 @@ footer_year = datepart("yyyy", date)
 footer_year = "" & footer_year - 2000
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
 
 'Searching for case number.
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+Call MAXIS_case_number_finder(case_number)
 
-'Showing the case number dialog, transmits to check for MAXIS.
+'Showing the case number dialog
 Do
   Dialog case_number_dialog
-  If buttonpressed = 0 then stopscript
+  cancel_confirmation
   If case_number = "" then MsgBox "You must type a case number!"
 Loop until case_number <> ""
 
 'Now it checks to make sure MAXIS is running on this screen.
-transmit
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("MAXIS is not found. The script will now exit. Make sure you start this script on the window that has MAXIS.")
+Call check_for_MAXIS(False)
 
 'Navigating to STAT/HCRE so we can grab the app date
 call navigate_to_MAXIS_screen("stat", "hcre")
@@ -168,61 +162,50 @@ Else
 End if
 
 'The dialog
-Do
-  Do
-    Do
-      Do
-        Do
-          Dialog LTC_app_recd_dialog
-          If ButtonPressed = 0 then stopscript
-          If buttonpressed <> -1 then call MAXIS_dialog_navigation
-          If buttonpressed = prev_panel_button then Call MAXIS_dialog_navigation
-          If buttonpressed = next_panel_button then Call MAXIS_dialog_navigation
-          If buttonpressed = prev_memb_button then Call MAXIS_dialog_navigation
-          If buttonpressed = next_memb_button then Call MAXIS_dialog_navigation
-          If buttonpressed = prev_panel_button or buttonpressed = next_panel_button or buttonpressed = prev_memb_button or buttonpressed = next_memb_button then transmit 'it won't transmit otherwise
-        Loop until buttonpressed = -1
-        If isdate(appl_date) = False then MsgBox "You must enter a valid APPL date (MM/DD/YYYY). Please try again."
-      Loop until isdate(appl_date) = True
-      If len(actions_taken) < 3 then MsgBox "You must fill in the actions taken section. Please try again."
+DO
+	DO
+		DO
+			DO
+				Dialog LTC_app_recd_dialog
+				cancel_confirmation
+				If buttonpressed <> -1 then call MAXIS_dialog_navigation
+				If buttonpressed = prev_panel_button then Call MAXIS_dialog_navigation
+				If buttonpressed = next_panel_button then Call MAXIS_dialog_navigation
+				If buttonpressed = prev_memb_button then Call MAXIS_dialog_navigation
+				If buttonpressed = next_memb_button then Call MAXIS_dialog_navigation
+				If buttonpressed = prev_panel_button or buttonpressed = next_panel_button or buttonpressed = prev_memb_button or buttonpressed = next_memb_button then transmit 'it won't transmit otherwise
+			Loop until buttonpressed = -1
+			If isdate(appl_date) = False then MsgBox "You must enter a valid APPL date (MM/DD/YYYY). Please try again."
+		Loop until isdate(appl_date) = True
+		If len(actions_taken) < 3 then MsgBox "You must fill in the actions taken section. Please try again."
     Loop until worker_signature <> ""
-    If worker_signature = "" then MsgBox "You must sign your case note!"
-  Loop until worker_signature <> ""
-  transmit 'to check for password and MAXIS
-  EMReadScreen check_for_MAXIS(True), 5, 1, 39
-  If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "MAXIS appears to have passworded out, or you navigated away from it. Navigate back to MAXIS before trying again."
-Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS "
+	If worker_signature = "" then MsgBox "You must sign your case note!"
+Loop until worker_signature <> ""
+
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Navigating to case/note and starting a fresh note. Will close if unable to get to edit mode (in case worker is in inquiry for instance).
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-EMReadScreen edit_mode_check, 1, 20, 09
-If edit_mode_check <> "A" then script_end_procedure("Unable to get to edit mode in this case note. Are you in inquiry? Is the case out of county? Resolve these issues and try the script again.")
-
+call start_a_blank_CASE_NOTE
 'Writing the case note
-EMSendKey "***LTC intake***" + "<newline>"
-If appl_date <> "" then call write_editbox_in_case_note("Application date", appl_date, 6)
-If appl_type <> "" then call write_editbox_in_case_note("Application type received", appl_type, 6)
-If forms_needed <> "" then call write_editbox_in_case_note("Forms Needed", forms_needed, 6)
-If HH_comp <> "" then call write_editbox_in_case_note("HH comp", HH_comp, 6)
-If CFR <> "" then call write_editbox_in_case_note("CFR", CFR, 6)
-If pre_FACI_ADDR <> "" then call write_editbox_in_case_note("Pre FACI address", pre_FACI_ADDR, 20)
-If basis_of_elig <> "" then call write_editbox_in_case_note("Basis of eligibility", basis_of_elig, 6)
-If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
-If retro_request <> "" then call write_editbox_in_case_note("Retro request", retro_request, 6)
-If AREP <> "" then call write_editbox_in_case_note("AREP", AREP, 6)
-If SWKR <> "" then call write_editbox_in_case_note("PHN/SWKR", SWKR, 6)
-If INSA <> "" then call write_editbox_in_case_note("INSA/MEDI", INSA, 6)
-If adult_signatures <> "" then call write_editbox_in_case_note("Adult signatures", adult_signatures, 6)
-If LTCC <> "" then call write_editbox_in_case_note("LTCC info", LTCC, 6)
-call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-call Call write_variable_in_CASE_NOTE("---")
-call Call write_variable_in_CASE_NOTE(worker_signature)
+Call write_variable_in_CASE_NOTE("***LTC intake***")
+If appl_date <> "" then call write_bullet_and_variable_in_case_note("Application date", appl_date)
+If appl_type <> "" then call write_bullet_and_variable_in_case_note("Application type received", appl_type)
+If forms_needed <> "" then call write_bullet_and_variable_in_case_note("Forms Needed", forms_needed)
+If HH_comp <> "" then call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
+If CFR <> "" then call write_bullet_and_variable_in_case_note("CFR", CFR)
+If pre_FACI_ADDR <> "" then call write_bullet_and_variable_in_case_note("Pre FACI address", pre_FACI_ADDR)
+If basis_of_elig <> "" then call write_bullet_and_variable_in_case_note("Basis of eligibility", basis_of_elig)
+If FACI <> "" then call write_bullet_and_variable_in_case_note("FACI", FACI)
+If retro_request <> "" then call write_bullet_and_variable_in_case_note("Retro request", retro_request)
+If AREP <> "" then call write_bullet_and_variable_in_case_note("AREP", AREP)
+If SWKR <> "" then call write_bullet_and_variable_in_case_note("PHN/SWKR", SWKR)
+If INSA <> "" then call write_bullet_and_variable_in_case_note("INSA/MEDI", INSA)
+If adult_signatures <> "" then call write_bullet_and_variable_in_case_note("Adult signatures", adult_signatures)
+If LTCC <> "" then call write_bullet_and_variable_in_case_note("LTCC info", LTCC)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

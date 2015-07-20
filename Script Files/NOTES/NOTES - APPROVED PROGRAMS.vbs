@@ -427,14 +427,13 @@ cash_approval_array = trim(cash_approval_array)
 cash_approval_array = split(cash_approval_array)
 
 'Case notes
-call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9
+call start_a_blank_CASE_NOTE
 IF snap_approved_check = checked THEN approved_programs = approved_programs & "SNAP/"
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
 IF emer_approved_check = checked THEN approved_programs = approved_programs & "EMER/"
 EMSendKey "---Approved " & approved_programs & "<backspace>" & " " & type_of_approval & "---" & "<newline>"
-IF benefit_breakdown <> "" THEN call write_editbox_in_case_note("Benefit Breakdown", benefit_breakdown, 6)
+IF benefit_breakdown <> "" THEN call write_bullet_and_variable_in_case_note("Benefit Breakdown", benefit_breakdown)
 IF autofill_snap_check = checked THEN
 	FOR EACH snap_approval_result in snap_approval_array
 		bene_amount = left(snap_approval_result, 4)
@@ -444,7 +443,7 @@ IF autofill_snap_check = checked THEN
 		benefit_month = left(right(snap_approval_result, 4), 2)
 		benefit_year = right(snap_approval_result, 2)
 		snap_header = ("SNAP for " & benefit_month & "/" & benefit_year)
-		call write_editbox_in_case_note(snap_header, FormatCurrency(bene_amount) & report_status, 6)
+		call write_variable_in_case_note(snap_header, FormatCurrency(bene_amount) & report_status)
 	NEXT
 END IF
 IF autofill_cash_check = checked THEN
@@ -454,8 +453,8 @@ IF autofill_cash_check = checked THEN
 			mfip_food_amt = left(right(cash_approval_result, 12), 8)
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_editbox_in_case_note(("MFIP Cash Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt), 6)
-			call write_editbox_in_case_note(("MFIP Food Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt), 6)
+			call write_bullet_and_variable_in_case_note(("MFIP Cash Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
+			call write_bullet_and_variable_in_case_note(("MFIP Food Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
 		ELSEIF left(cash_approval_result, 4) = "DWP_" THEN
 			dwp_shel_amt = right(left(cash_approval_result, 12), 8)
 			dwp_pers_amt = left(right(cash_approval_result, 12), 8)

@@ -138,25 +138,18 @@ If sponsor_deeming_amount_SNAP < 0 then sponsor_deeming_amount_SNAP = 0
 If sponsor_deeming_amount_other_programs < 0 then sponsor_deeming_amount_other_programs = 0
 
 'Case note the findings
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-EMSendKey "~~~Sponsor deeming income calculation~~~" & "<newline>"
-If primary_sponsor_earned_income <> 0 then call write_editbox_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income, 6)
-If spousal_sponsor_earned_income <> 0 then call write_editbox_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income, 6)
-If primary_sponsor_unearned_income <> 0 then call write_editbox_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income, 6)
-If spousal_sponsor_unearned_income <> 0 then call write_editbox_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income, 6)
-If SNAP_EI_disregard <> 0 then call write_editbox_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard, 6)
-call write_editbox_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit, 6)
-call write_editbox_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants, 6)
-call write_editbox_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP, 6)
-call write_editbox_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs, 6)
-call Call write_variable_in_CASE_NOTE("---")
-call Call write_variable_in_CASE_NOTE(worker_signature)
+call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE("~~~Sponsor deeming income calculation~~~")
+If primary_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income)
+If spousal_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income)
+If primary_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income)
+If spousal_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income)
+If SNAP_EI_disregard <> 0 then call write_bullet_and_variable_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard)
+call write_bullet_and_variable_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit)
+call write_bullet_and_variable_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants)
+call write_bullet_and_variable_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP)
+call write_bullet_and_variable_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

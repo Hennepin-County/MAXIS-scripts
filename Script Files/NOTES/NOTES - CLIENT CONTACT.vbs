@@ -113,8 +113,8 @@ DO
 		Loop until (isnumeric(case_number) = True) or (isnumeric(case_number) = False and len(case_number) = 8)
 		transmit
 		If isnumeric(case_number) = True then
-			EMReadScreen MAXIS_check, 5, 1, 39
-			If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your screen to MAXIS and try again. You might be passworded out."
+			EMReadScreen , 5, 1, 39
+			If  <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your screen to MAXIS and try again. You might be passworded out."
 		Else
 			MMIS_row = 1
 			MMIS_col = 1
@@ -125,7 +125,7 @@ DO
 			End if
 			If MMIS_row <> 1 then MsgBox "You are not in MMIS. Navigate your screen to MMIS and try again. You might be passworded out."
 		End if
-	Loop until MAXIS_check = "MAXIS" or MMIS_row = 1
+	Loop until  = "MAXIS" or MMIS_row = 1
 	If isnumeric(case_number) = True then 
 		call navigate_to_MAXIS_screen("case", "note")
 		PF9

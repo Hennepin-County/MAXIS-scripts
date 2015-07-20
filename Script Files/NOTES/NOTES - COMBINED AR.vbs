@@ -161,35 +161,24 @@ Dim col
 
 'Connecting to BlueZone
 EMConnect ""
-
 'Grabbing the case number
 call MAXIS_case_number_finder(case_number)
-
 'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
 
 'Shows case number dialog
 Do
 	Dialog case_number_dialog
-	If ButtonPressed = 0 then stopscript
+	cancel_confirmation
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
-'Checks for MAXIS
-transmit
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then call script_end_procedure("You are not in MAXIS, or you are locked out of your case.")
+'Checks for an active MAXIS session
+call check_for_MAXIS(False)
 
 'Navigates to STAT
 call navigate_to_MAXIS_screen("STAT", "REVW")
-
-'Checks for error prone, and moves past it
-ERRR_screen_check
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)

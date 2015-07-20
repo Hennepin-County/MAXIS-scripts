@@ -426,22 +426,23 @@ If budget_type = "B" then recipient_amt_name = "recipient amt: "
 'Logic to add a slash to the MEDI reimbursement variable if it isn't blank
 If MEDI_reimbursement_prog <> "" then MEDI_reimbursement_prog = "/" & MEDI_reimbursement_prog
 
+
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
 'Writing the case note
-EMSendKey "<home>" & "***" & recert_month & " ER " & review_status & ": " & MA_type & MEDI_reimbursement_prog & ", " & recipient_amt_name & recipient_amt & "***" & "<newline>"
-call write_editbox_in_case_note("HH comp", HH_comp, 6)
-call write_editbox_in_case_note("Citizenship", US_citizen, 6)
-call write_editbox_in_case_note("AREP", AREP, 6)
-call write_editbox_in_case_note("FACI", FACI, 6)
-call write_editbox_in_case_note("Income", income, 6)
-call write_editbox_in_case_note("Total countable income", net_income_amt, 6)
-call write_editbox_in_case_note("Assets", assets, 6)
-call write_editbox_in_case_note("Recipient amt", recipient_amt, 6)
-call write_editbox_in_case_note("Deducts", deductions, 6)
-If other_notes <> "" then call write_editbox_in_case_note("Notes", other_notes, 6)
+Call write_varaible_in_case_note("***" & recert_month & " ER " & review_status & ": " & MA_type & MEDI_reimbursement_prog & ", " & recipient_amt_name & recipient_amt & "***")
+call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
+call write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
+call write_bullet_and_variable_in_case_note("AREP", AREP)
+call write_bullet_and_variable_in_case_note("FACI", FACI)
+call write_bullet_and_variable_in_case_note("Income", income)
+call write_bullet_and_variable_in_case_note("Total countable income", net_income_amt)
+call write_bullet_and_variable_in_case_note("Assets", assets)
+call write_bullet_and_variable_in_case_note("Recipient amt", recipient_amt)
+call write_bullet_and_variable_in_case_note("Deducts", deductions)
+If other_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", other_notes)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call Call write_variable_in_CASE_NOTE("---")
-call Call write_variable_in_CASE_NOTE(worker_sig)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_sig)
 
 script_end_procedure("")
-
-
