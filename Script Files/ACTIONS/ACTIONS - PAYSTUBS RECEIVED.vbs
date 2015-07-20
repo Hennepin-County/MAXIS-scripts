@@ -587,4 +587,3 @@ End if
 
 MsgBox "Success! Your JOBS panel has been updated with the paystubs you've entered in. Send your case through background, review the results, and take action as appropriate. Don't forget to case note!" 
 script_end_procedure("")
-

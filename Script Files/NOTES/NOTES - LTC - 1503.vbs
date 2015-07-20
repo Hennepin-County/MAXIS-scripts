@@ -47,7 +47,6 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-
 next_month = dateadd("m", + 1, date)
 
 footer_month = datepart("m", next_month)
@@ -56,105 +55,85 @@ footer_year = datepart("yyyy", next_month)
 footer_year = "" & footer_year - 2000
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-
-BeginDialog case_number_dialog, 0, 0, 161, 60, "Case number"
-  Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 95, 0, 60, 15, case_number
-  Text 15, 25, 50, 10, "Footer month:"
-  EditBox 65, 20, 25, 15, footer_month
-  Text 95, 25, 20, 10, "Year:"
-  EditBox 120, 20, 25, 15, footer_year
+BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
+  EditBox 65, 10, 65, 15, case_number
+  EditBox 65, 30, 30, 15, MAXIS_footer_month
+  EditBox 100, 30, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 40, 50, 15
-    CancelButton 85, 40, 50, 15
+    OkButton 25, 55, 50, 15
+    CancelButton 80, 55, 50, 15
+  Text 10, 30, 50, 15, "Footer month:"
+  Text 10, 10, 50, 15, "Case number: "
 EndDialog
 
+
 BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
-  Text 5, 10, 20, 10, "FACI:"
-  EditBox 30, 5, 135, 15, FACI
-  Text 5, 30, 55, 10, "Length of stay:"
-  DropListBox 60, 25, 70, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
-  Text 140, 30, 95, 10, "Recommended level of care:"
-  DropListBox 240, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
-  Text 5, 50, 50, 10, "Admitted from:"
-  DropListBox 60, 45, 125, 15, "acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-MR", admitted_from
-  Text 190, 50, 70, 10, "If hospital, list here:"
-  EditBox 260, 45, 95, 15, hospital_admitted_from
-  Text 5, 70, 40, 10, "Admit date:"
-  EditBox 45, 65, 65, 15, admit_date
-  Text 120, 70, 100, 10, "Discharge date (if applicible):"
-  EditBox 225, 65, 65, 15, discharge_date
+  EditBox 55, 5, 135, 15, FACI
+  DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
+  DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
+  DropListBox 215, 25, 135, 15, "acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-MR", admitted_from
+  EditBox 145, 45, 205, 15, hospital_admitted_from
+  EditBox 75, 65, 65, 15, admit_date
+  EditBox 275, 65, 75, 15, discharge_date
   CheckBox 15, 85, 155, 10, "If you've processed this 1503, check here.", processed_1503_check
-  GroupBox 5, 100, 355, 75, "actions/proofs"
-  CheckBox 15, 115, 65, 10, "Updated RLVA?", updated_RLVA_check
-  CheckBox 90, 115, 65, 10, "Updated FACI?", updated_FACI_check
-  CheckBox 165, 115, 55, 10, "Need 3543?", need_3543_check
-  CheckBox 230, 115, 100, 10, "Need asset assessment?", need_asset_assessment_check
-  Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
+  CheckBox 15, 115, 60, 10, "Updated RLVA?", updated_RLVA_check
+  CheckBox 85, 115, 60, 10, "Updated FACI?", updated_FACI_check
+  CheckBox 150, 115, 50, 10, "Need 3543?", need_3543_check
+  CheckBox 205, 115, 55, 10, "Need 3531?", need_3531_check
+  CheckBox 265, 115, 95, 10, "Need asset assessment?", need_asset_assessment_check
   EditBox 130, 130, 225, 15, verifs_needed
-  CheckBox 15, 155, 50, 10, "Sent 3050?", sent_3050_check
-  CheckBox 165, 155, 105, 10, "Sent verif req? If so, to who:", sent_verif_request_check
-  ComboBox 275, 150, 80, 15, "client"+chr(9)+"AREP"+chr(9)+"Client & AREP", sent_request_to
-  Text 5, 185, 25, 10, "Notes:"
-  EditBox 30, 180, 330, 15, notes
-  Text 5, 205, 75, 10, "Sign your case note:"
-  EditBox 85, 200, 75, 15, worker_sig
+  CheckBox 15, 155, 85, 10, "Sent 3050 back to LTCF", sent_3050_check
+  CheckBox 165, 155, 100, 10, "Sent verif req? If so, to who:", sent_verif_request_check
+  ComboBox 270, 150, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Client & AREP", sent_request_to
+  EditBox 30, 180, 325, 15, notes
+  EditBox 170, 200, 75, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 250, 200, 50, 15
+    CancelButton 305, 200, 50, 15
   CheckBox 10, 230, 260, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", TIKL_check
   CheckBox 10, 245, 155, 10, "Check here to have the script update HCMI.", HCMI_update_check
   CheckBox 10, 260, 150, 10, "Check here to have the script update FACI.", FACI_update_check
-  ButtonGroup ButtonPressed
-    OkButton 200, 210, 50, 15
-    CancelButton 260, 210, 50, 15
+  Text 105, 205, 60, 10, "Worker signature:"
+  Text 5, 185, 25, 10, "Notes:"
+  Text 5, 50, 135, 10, "If hospital, list name & dates of admission:"
+  GroupBox 5, 100, 355, 75, "actions/proofs"
+  Text 5, 30, 95, 10, "Recommended level of care:"
+  Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
+  Text 160, 30, 50, 10, "Admitted from:"
+  Text 5, 10, 47, 10, "Facility name:"
+  Text 5, 70, 65, 10, "Date of admission:"
+  Text 165, 70, 105, 10, "Date of discharge (if applicible):"
+  Text 200, 10, 50, 10, "Length of stay:"
+  GroupBox 5, 220, 260, 55, "Script actions"
 EndDialog
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS
 EMConnect ""
+'Grabs the case number and footer month/year
+call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-
-'Grabs the case number
-call find_variable("Case Nbr: ", case_number, 8)
-Dialog case_number_dialog
-If buttonpressed = 0 then stopscript
+'The initial dialog----------------------------------------------------------------------------------------------------
+DO
+	Dialog case_number_dialog
+	cancel_confirmation
+	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
+LOOP UNTIL IsNumeric(case_number) = TRUE
 
 'Checks for MAXIS
-transmit 'to check for MAXIS
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen. The script will now stop")
+call check_for_MAXIS(True)
 
-'Navigates to STAT to make sure the case is out of background
-call navigate_to_screen("stat", "____")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then script_end_procedure("Unable to get to STAT. Your case could be in background. Wait a few moments then try again.")
 
-'THE DIALOG
-
+'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do
-  Do
-    Do
-      Dialog DHS_1503_dialog
-      If buttonpressed = 0 then stopscript
-      If isdate(admit_date) = False then MsgBox "You did not type a valid date (MM/DD/YYYY) in the admit date box. This is required for the script to work correctly."
-    Loop until isdate(admit_date) = True
-    PF3
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
-  Loop until MAXIS_check = "MAXIS" 
-  call navigate_to_screen("case", "note")
-  PF9
-  EMReadScreen NOTE_mode_check, 7, 20, 3
-  If NOTE_mode_check <> "Mode: A" then MsgBox "A valid case note could not be found. Are you in the right case number? Did you accidentally start the script in inquiry? Check the case number, the screen, and try again."
-Loop until NOTE_mode_check = "Mode: A"
+	Dialog DHS_1503_dialog
+	cancel_confirmation
+	IF worker_signature = "" THEN MsgBox "You must sign your case note."
+LOOP UNTIL worker_signature <> ""  
 
-'DATE/TIME EQUATIONS
-admit_date_DD = datepart("d", admit_date)
-If len(admit_date_DD) = 1 then admit_date_DD = "0" & admit_date_DD
-admit_date_MM = datepart("m", admit_date)
-If len(admit_date_MM) = 1 then admit_date_MM = "0" & admit_date_MM
-admit_date_YY = datepart("yyyy", admit_date)
-If len(admit_date_YY) = 4 then admit_date_YYYY = admit_date_YYYY - 2000
-
+'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
   If length_of_stay = "30 days or less" then TIKL_multiplier = 30
   If length_of_stay = "31 to 90 days" then TIKL_multiplier = 90
@@ -169,108 +148,86 @@ If TIKL_check = 1 then
 End if
 
 
-'CASE NOTING
-
-
+'The CASE NOTE----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
 If processed_1503_check = 1 then 
-  EMSendKey "***Processed 1503 from " & FACI & "***" & "<newline>"
+  call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI & "***")
 Else
-  EMSendKey "***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***" & "<newline>"
+  call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***")
 End if
-Call write_editbox_in_case_note("Length of stay", length_of_stay, 6)
-Call write_editbox_in_case_note("Recommended level of care", level_of_care, 6)
-Call write_editbox_in_case_note("Admitted from", admitted_from, 6)
-If hospital_admitted_from <> "" then Call write_editbox_in_case_note("Hospital admitted from", hospital_admitted_from, 6)
-Call write_editbox_in_case_note("Admit date", admit_date, 6)
-If discharge_date <> "" then Call write_editbox_in_case_note("Discharge date", discharge_date, 6)
-Call write_new_line_in_case_note("---")
+Call write_bullet_and_variable_in_case_note("Length of stay", length_of_stay)
+Call write_bullet_and_variable_in_case_note("Recommended level of care", level_of_care)
+Call write_bullet_and_variable_in_case_note("Admitted from", admitted_from)
+If hospital_admitted_from <> "" then Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_admitted_from)
+Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
+If discharge_date <> "" then Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
+Call write_variable_in_CASE_NOTE("---")
 If updated_RLVA_check = 1 and updated_FACI_check = 1 then 
-Call write_new_line_in_case_note("* Updated RLVA and FACI.")
+Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
 Else
-  If updated_RLVA_check = 1 then Call write_new_line_in_case_note("* Updated RLVA.")
-  If updated_FACI_check = 1 then Call write_new_line_in_case_note("* Updated FACI.")
+  If updated_RLVA_check = 1 then Call write_variable_in_case_note("* Updated RLVA.")
+  If updated_FACI_check = 1 then Call write_variable_in_case_note("* Updated FACI.")
 End if
-If need_3543_check = 1 then Call write_new_line_in_case_note("* A 3543 is needed.")
-If sent_3050_check = 1 then call write_new_line_in_case_note("* Sent 3050.")
-If verifs_needed <> "" then Call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-If sent_verif_request_check = 1 then Call write_editbox_in_case_note("Sent verif request to", sent_request_to, 6)
-If processed_1503_check = 1 then Call write_new_line_in_case_note("* Completed & Returned 1503 to LTCF.")
-If TIKL_check = 1 then Call write_new_line_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")
-Call write_new_line_in_case_note("---")
-Call write_editbox_in_case_note("Notes", notes, 6)
-Call write_new_line_in_case_note("---")
-Call write_new_line_in_case_note(worker_sig)
+If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed for the client.")
+If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
+If need_asset_assessment_check = 1 then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
+If sent_3050_check = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
+If verifs_needed <> "" then Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
+If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
+If TIKL_check = 1 then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")
+Call write_variable_in_case_note("---")
+Call write_bullet_and_variable_in_case_note("Notes", notes)
+Call write_variable_in_case_note("---")
+Call write_variable_in_case_note(worker_signature)
 transmit
 
-'TIKLING
-
+'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
-  call navigate_to_screen("dail", "writ")
+  call navigate_to_MAXIS_screen("dail", "writ")
   EMWriteScreen TIKL_date_MM, 5, 18
   EMWriteScreen TIKL_date_DD, 5, 21
   EMWriteScreen TIKL_date_YY, 5, 24
   EMSetCursor 9, 3
-  EMSendKey "Have " & worker_sig & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired."
+  write_variable_in_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.")
   transmit
   PF3
 End if
 
-'UPDATING FACI
-
-If FACI_update_check = 1 then
-  call navigate_to_screen("stat", "faci")
-  EMReadScreen ERRR_check, 4, 2, 52
-  If ERRR_check = "ERRR" then transmit
-  EMWriteScreen "nn", 20, 79
-  transmit
-  EMWriteScreen FACI, 6, 43
-  If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
-  If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-  If level_of_care = "NF" then EMWriteScreen "42", 7, 43
-  EMWriteScreen "n", 8, 43
-  EMWriteScreen admit_date_MM, 14, 47
-  EMWriteScreen admit_date_DD, 14, 50
-  EMWriteScreen datepart("yyyy", admit_date), 14, 53
-  If isdate(discharge_date) = "True" then
-    discharge_date_month = datepart("m", discharge_date)
-    If len(discharge_date_month) = 1 then discharge_date_month = "0" & discharge_date_month
-    EMWriteScreen discharge_date_month, 14, 71
-    discharge_date_day = datepart("d", discharge_date)
-    If len(discharge_date_day) = 1 then discharge_date_day = "0" & discharge_date_day
-    EMWriteScreen discharge_date_day, 14, 74
-    EMWriteScreen datepart("yyyy", discharge_date), 14, 77
-    transmit
-  End if
-End if
-
-'UPDATING HCMI
-
-If HCMI_update_check = 1 then 
-  If FACI_update_check = 1 then
-    EMWriteScreen "hcmi", 20, 71
-    transmit
-  Else
-    call navigate_to_screen("stat", "hcmi")
-  End if
-  EMReadScreen ERRR_check, 4, 2, 52
-  If ERRR_check = "ERRR" then transmit
-  EMReadScreen current_panel_number, 1, 2, 78
-  If current_panel_number = "0" then
-    EMWriteScreen "nn", 20, 79
-    transmit
-  Else
-    PF9
-  End if
+'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
+'HCMI
+If HCMI_update_check = 1 THEN
+  call navigate_to_MAXIS_screen("stat", "hcmi")
+  Call create_panel_if_nonexistent
   EMWriteScreen "dp", 10, 57
   transmit
   transmit
+  transmit
+END IF
+
+
+'FACI
+If FACI_update_check = 1 then
+  call navigate_to_MAXIS_screen("stat", "faci")
+  Call create_panel_if_nonexistent
+  EMWriteScreen FACI, 6, 43
+  If level_of_care = "NF" then EMWriteScreen "42", 7, 43
+  If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
+  If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
+  If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+  If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+  if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+  If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
+  If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+  If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+  If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+  EMWriteScreen "n", 8, 43
+  Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
+  If discharge_date<> "" then
+    Call create_MAXIS_friendly_date_with_YYYY(discharge_date, 0, 14, 71)
+    transmit
+	transmit
+  End if
 End if
 
 script_end_procedure("")
-
-
-
-
-
-
-

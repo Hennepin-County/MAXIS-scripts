@@ -368,8 +368,6 @@ EMSendKey "Case was denied " & denial_date & ". If required proofs have not been
 'SAVES THE TIKL
 PF3
 
-'SUCCESS NOTICE
-MsgBox "Success! Case noted and TIKL sent."
-script_end_procedure("")
+script_end_procedure("Success! Case noted and TIKL sent. Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
 
 

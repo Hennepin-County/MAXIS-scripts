@@ -89,9 +89,12 @@ BeginDialog verifs_needed_dialog, 0, 0, 351, 360, "Verifs needed"
   Text 215, 320, 70, 10, "Sign your case note:"
  EndDialog
 
-BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 415, "Verifs needed (LTC) dialog"
+ 
+BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 435, "Verifs needed (LTC) dialog"
   EditBox 55, 5, 70, 15, case_number
   EditBox 250, 5, 60, 15, verif_due_date
+  ButtonGroup ButtonPressed
+    PushButton 315, 10, 30, 10, "CD+10", CD_plus_10_button
   EditBox 30, 40, 315, 15, FACI
   EditBox 30, 60, 130, 15, JOBS
   EditBox 205, 60, 140, 15, BUSI_RBIC
@@ -103,22 +106,21 @@ BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 415, "Verifs needed (LTC) dialo
   EditBox 75, 180, 270, 15, SECU_other_membs
   EditBox 30, 200, 315, 15, CARS
   EditBox 30, 220, 315, 15, REST
-  EditBox 30, 240, 315, 15, OTHR
+  EditBox 50, 240, 295, 15, OTHR
   EditBox 30, 260, 315, 15, SHEL
   EditBox 30, 280, 315, 15, INSA
-  EditBox 75, 300, 270, 15, medical_expenses
-  EditBox 50, 320, 295, 15, other_proofs
-  CheckBox 5, 340, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
-  CheckBox 5, 355, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
-  CheckBox 5, 370, 165, 10, "Sent form to AREP?", sent_arep_checkbox
-  CheckBox 5, 385, 95, 10, "Signature page needed?", signature_page_needed_check
-  CheckBox 5, 400, 130, 10, "Check here to TIKL out for this case.", TIKL_check
-  EditBox 285, 365, 60, 15, worker_signature
+  EditBox 70, 300, 275, 15, medical_expenses
+  EditBox 50, 320, 295, 15, veterans_info
+  EditBox 50, 340, 295, 15, other_proofs
+  CheckBox 5, 360, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
+  CheckBox 5, 375, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
+  CheckBox 5, 390, 165, 10, "Sent form to AREP?", sent_arep_checkbox
+  CheckBox 5, 405, 95, 10, "Signature page needed?", signature_page_needed_check
+  CheckBox 5, 420, 130, 10, "Check here to TIKL out for this case.", TIKL_check
+  EditBox 285, 385, 60, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 240, 385, 50, 15
-    CancelButton 295, 385, 50, 15
-    PushButton 315, 10, 30, 10, "CD+10", CD_plus_10_button
-  Text 5, 10, 50, 10, "Case number:"
+    OkButton 240, 405, 50, 15
+    CancelButton 295, 405, 50, 15
   Text 150, 10, 100, 10, "Verifs due by (MM/DD/YYYY):"
   Text 5, 25, 300, 10, "If you aren't requesting something, leave that section blank. That way it doesn't case note."
   Text 5, 45, 25, 10, "FACI:"
@@ -132,92 +134,88 @@ BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 415, "Verifs needed (LTC) dialo
   Text 5, 185, 70, 10, "SECU other membs:"
   Text 5, 205, 25, 10, "CARS:"
   Text 5, 225, 25, 10, "REST:"
-  Text 5, 245, 25, 10, "OTHR:"
+  Text 5, 245, 45, 10, "Burial/OTHR:"
   Text 5, 265, 25, 10, "SHEL:"
   Text 5, 285, 25, 10, "INSA:"
   Text 5, 305, 65, 10, "Medical expenses:"
-  Text 5, 325, 45, 10, "Other proofs:"
-  Text 205, 370, 70, 10, "Sign your case note:"
+  Text 5, 345, 45, 10, "Other proofs:"
+  Text 220, 390, 60, 10, "worker signature:"
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 325, 45, 10, "Veteran info:"
 EndDialog
 
 
-
 'THE SCRIPT--------------------------------------------------------------------------------------------------
-
 'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
 LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel)
 If LTC_case = vbCancel then stopscript
 
 'Connects to BlueZone
 EMConnect ""
-
 'Calls a MAXIS case number
 call MAXIS_case_number_finder(case_number)
 
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
 Do
 	Do
-		Do
-			Do
-				If LTC_case = vbYes then dialog verifs_needed_LTC_dialog									'Shows dialog if LTC
-				If LTC_case = vbNo then dialog verifs_needed_dialog											'Shows dialog if not LTC
-				If buttonpressed = cancel then stopscript													'quits if cancel is pressed
-				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
-			Loop until buttonpressed = OK																	'Loops until you press OK
-			If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
-		Loop until case_number <> ""														'Loops until that case number exists
-		transmit							'transmits to see if there's a password screen
-		EMReadScreen MAXIS_check, 5, 1, 39	'Checks to see if MAXIS is up. If MAXIS isn't up, it'll yell at you (next line).
-		If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "	'If MAXIS is found, it will move on. Otherwise, it loops.
-	call navigate_to_screen("case", "note")			'Goes to case/note.
-	PF9												'PF9s, which creates a new case note.
-	EMReadScreen mode_check, 7, 20, 3				'Reads the case note "mode". The mode needs to have become A or E (add or edit) to continue (next line).
-	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"		'Exits when mode is A or E.
+		If LTC_case = vbYes then dialog verifs_needed_LTC_dialog									'Shows dialog if LTC
+		If LTC_case = vbNo then dialog verifs_needed_dialog											'Shows dialog if not LTC
+		cancel_confirmation													'quits if cancel is pressed
+		If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
+	Loop until buttonpressed = OK																	'Loops until you press OK
+	If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
+Loop until case_number <> ""														'Loops until that case number exists	
 
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)
+
+
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
+call start_a_blank_CASE_NOTE
 IF postponed_check = checked THEN
-	call write_new_line_in_case_note(">>>POSTPONED VERIFICATIONS REQUESTED FOR EXPEDITED SNAP<<<")
+	call write_variable_in_case_note(">>>POSTPONED VERIFICATIONS REQUESTED FOR EXPEDITED SNAP<<<")
 ELSE
-	call write_new_line_in_case_note(">>>Verifications Requested<<<")
+	call write_variable_in_case_note(">>>Verifications Requested<<<")
 END IF
-If verif_due_date <> "" then call write_editbox_in_case_note("Verif due date", verif_due_date, 6)
-If ADDR <> "" then call write_editbox_in_case_note("ADDR", ADDR, 6)
-If FACI <> "" then call write_editbox_in_case_note("FACI", FACI, 6)
-If SCHL <> "" then call write_editbox_in_case_note("SCHL/STIN/STEC", SCHL, 6)
-If DISA <> "" then call write_editbox_in_case_note("DISA", DISA, 6)
-If JOBS <> "" then call write_editbox_in_case_note("JOBS", JOBS, 6)
-If BUSI <> "" then call write_editbox_in_case_note("BUSI", BUSI, 6)
-If BUSI_RBIC <> "" then call write_editbox_in_case_note("BUSI/RBIC", BUSI_RBIC, 6)
-If UNEA <> "" then call write_editbox_in_case_note("UNEA", UNEA, 6)
-If UNEA_01 <> "" then call write_editbox_in_case_note("UNEA (MEMB 01)", UNEA_01, 6)
-If UNEA_other_membs <> "" then call write_editbox_in_case_note("UNEA (other membs)", UNEA_other_membs, 6)
-If ACCT <> "" then call write_editbox_in_case_note("ACCT", ACCT, 6)
-If ACCT_01 <> "" then call write_editbox_in_case_note("ACCT (MEMB 01)", ACCT_01, 6)
-If ACCT_other_membs <> "" then call write_editbox_in_case_note("ACCT (other membs)", ACCT_other_membs, 6)
-If SECU_01 <> "" then call write_editbox_in_case_note("SECU (MEMB 01)", SECU_01, 6)
-If SECU_other_membs <> "" then call write_editbox_in_case_note("SECU (other membs)", SECU_other_membs, 6)
-If CARS <> "" then call write_editbox_in_case_note("CARS", CARS, 6)
-If REST <> "" then call write_editbox_in_case_note("REST", REST, 6)
-If OTHR <> "" then call write_editbox_in_case_note("OTHR", OTHR, 6)
-If other_assets <> "" then call write_editbox_in_case_note("Other assets", other_assets, 6)
-If SHEL <> "" then call write_editbox_in_case_note("SHEL", SHEL, 6)
-If INSA <> "" then call write_editbox_in_case_note("INSA", INSA, 6)
-If medical_expenses <> "" then call write_editbox_in_case_note("Medical expenses", medical_expenses, 6)
-If other_proofs <> "" then call write_editbox_in_case_note("Other proofs", other_proofs, 6)
-If signature_page_needed_check = checked then call write_new_line_in_case_note("* Signature page is needed.")
-If verif_A_check = checked then call write_new_line_in_case_note("* DHS-2919A (Verification Request Form - A) sent to client.")
-If verif_B_check = checked then call write_new_line_in_case_note("* DHS-2919B (Verification Request Form - B) sent to client.")
+If verif_due_date <> "" then call write_bullet_and_variable_in_case_note("Verif due date", verif_due_date)
+If ADDR <> "" then call write_bullet_and_variable_in_case_note("ADDR", ADDR)
+If FACI <> "" then call write_bullet_and_variable_in_case_note("FACI", FACI)
+If SCHL <> "" then call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+If DISA <> "" then call write_bullet_and_variable_in_case_note("DISA", DISA)
+If JOBS <> "" then call write_bullet_and_variable_in_case_note("JOBS", JOBS)
+If BUSI <> "" then call write_bullet_and_variable_in_case_note("BUSI", BUSI)
+If BUSI_RBIC <> "" then call write_bullet_and_variable_in_case_note("BUSI/RBIC", BUSI_RBIC)
+If UNEA <> "" then call write_bullet_and_variable_in_case_note("UNEA", UNEA)
+If UNEA_01 <> "" then call write_bullet_and_variable_in_case_note("UNEA (MEMB 01)", UNEA_01)
+If UNEA_other_membs <> "" then call write_bullet_and_variable_in_case_note("UNEA (other membs)", UNEA_other_membs)
+If ACCT <> "" then call write_bullet_and_variable_in_case_note("ACCT", ACCT)
+If ACCT_01 <> "" then call write_bullet_and_variable_in_case_note("ACCT (MEMB 01)", ACCT_01)
+If ACCT_other_membs <> "" then call write_bullet_and_variable_in_case_note("ACCT (other membs)", ACCT_other_membs)
+If SECU_01 <> "" then call write_bullet_and_variable_in_case_note("SECU (MEMB 01)", SECU_01)
+If SECU_other_membs <> "" then call write_bullet_and_variable_in_case_note("SECU (other membs)", SECU_other_membs)
+If CARS <> "" then call write_bullet_and_variable_in_case_note("CARS", CARS)
+If REST <> "" then call write_bullet_and_variable_in_case_note("REST", REST)
+If OTHR <> "" then call write_bullet_and_variable_in_case_note("Burial/OTHR", OTHR)
+If other_assets <> "" then call write_bullet_and_variable_in_case_note("Other assets", other_assets)
+If SHEL <> "" then call write_bullet_and_variable_in_case_note("SHEL", SHEL)
+If INSA <> "" then call write_bullet_and_variable_in_case_note("INSA", INSA)
+IF veterans_info <> "" then call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
+If medical_expenses <> "" then call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
+If other_proofs <> "" then call write_bullet_and_variable_in_case_note("Other proofs", other_proofs)
+If signature_page_needed_check = checked then call write_variable_in_case_note("* Signature page is needed.")
+If verif_A_check = checked then call write_variable_in_case_note("* DHS-2919A (Verification Request Form - A) sent to client.")
+If verif_B_check = checked then call write_variable_in_case_note("* DHS-2919B (Verification Request Form - B) sent to client.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
+'THE TIKL----------------------------------------------------------------------------------------------------
 'If TIKL_check isn't checked this is the end
 If TIKL_check = unchecked then script_end_procedure("")
 
 'Navigating to DAIL/WRIT
-call navigate_to_screen("dail", "writ")
+call navigate_to_MAXIS_screen("dail", "writ")
 
 'If the date in Verif due date is a date, it'll fill that date in on the TIKL.
 If IsDate(verif_due_date) = True then call create_MAXIS_friendly_date(verif_due_date, 0, 5, 18)

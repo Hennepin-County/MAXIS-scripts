@@ -93,8 +93,9 @@ BeginDialog NOTES_0_G_scripts_main_menu_dialog, 0, 0, 516, 355, "Notes (0-G) scr
   Text 75, 315, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
   Text 55, 330, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
   Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-  Text 60, 300, 350, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
+  Text 60, 300, 380, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
 EndDialog
+
 
 
 'Variables to declare

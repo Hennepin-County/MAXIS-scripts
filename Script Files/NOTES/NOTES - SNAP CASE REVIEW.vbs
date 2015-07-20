@@ -153,4 +153,4 @@ If SNAP_status = "error exists" THEN
 		Call write_variable_in_CASE_NOTE(worker_signature)	
 END If
 
-Script_end_procedure("")
+script_end_procedure("")
