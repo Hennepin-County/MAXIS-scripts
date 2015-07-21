@@ -176,28 +176,12 @@ BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
   Text 30, 115, 120, 10, "future months and send through BG."
 EndDialog
 
-
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS & grabbing the case number & footer month/year
 EMConnect ""
+Call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Finds the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Default footer month is the month the worker is in, and if that isn't found, it's the current month.
-call find_variable("Month: ", footer_month, 5)
-footer_year = right(footer_month, 2)
-footer_month = left(footer_month, 2)
-If isnumeric(footer_month) = False or isnumeric(footer_year) = False then
-  footer_month = datepart("m", date)
-  If len(footer_month) = 1 then footer_month = "0" & footer_month
-  footer_year = right(datepart("yyyy", date), 2)
-End if
 
 'Default member is member 01
 HH_member = "01"
@@ -216,7 +200,7 @@ Do
             Do
               Do
                 Dialog paystubs_received_dialog
-                If ButtonPressed = 0 then stopscript
+                cancel_confirmation
                 If pay_frequency = "(select one)" then MsgBox "You must select a pay frequency."
               Loop until pay_frequency <> "(select one)"
               If JOBS_verif_code = "(select one)" then MsgBox "You must select a JOBS verif code."
@@ -273,10 +257,6 @@ EMReadScreen STAT_footer_year_check, 2, 20, 58
 If STAT_check <> "STAT" or trim(replace(STAT_case_number, "_", "")) <> case_number or STAT_footer_month_check <> footer_month or STAT_footer_year_check <> footer_year then back_to_SELF
 
 call navigate_to_MAXIS_screen("stat", "jobs")
-
-'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" then stopscript
 
 'Navigates to the JOBS panel for the right person
 If HH_member <> "01" then 
@@ -580,4 +560,3 @@ End if
 
 MsgBox "Success! Your JOBS panel has been updated with the paystubs you've entered in. Send your case through background, review the results, and take action as appropriate. Don't forget to case note!" 
 script_end_procedure("")
-

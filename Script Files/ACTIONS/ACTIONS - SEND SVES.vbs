@@ -66,7 +66,6 @@ BeginDialog send_SVES_dialog, 0, 0, 271, 85, "Send SVES Dialog"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
@@ -244,11 +243,8 @@ If case_note_checkbox = unchecked then script_end_procedure("")
 'Now it sends the SVES.
 transmit
 
-
-
 'Now it case notes
-call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9
+call start_a_blank_CASE_NOTE
 call write_variable_in_case_note("~~~SVES/QURY sent for MEMB " & member_number & "~~~")
 If SSN_radiobutton = 1 then
 	call write_variable_in_case_note("* Used SSN for QURY.")
@@ -262,9 +258,3 @@ call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

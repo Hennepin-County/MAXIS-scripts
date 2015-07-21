@@ -181,15 +181,7 @@ Dialog MA_EPD_dialog
 If ButtonPressed = 0 then stopscript
 
 'SECTION 04: NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
-
-
-back_to_SELF
-
-EMWriteScreen "elig", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen "hc", 21, 70
-transmit
+Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 row = 1
 col = 1
@@ -268,13 +260,5 @@ Do
   transmit
 loop until col > 76
 
-MsgBox "Success! Please make sure to check eligibility for any medicare reimbursement programs such as QMB or SLMB."
-
-
+MsgBox "Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB."
 script_end_procedure("")
-
-
-
-
-
-

@@ -120,28 +120,16 @@ Dim row
 Dim col
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connecting to BlueZone
+'Connecting to BlueZone & grabs the case number and footer month/year
 EMConnect ""
+Call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Grabbing footer month
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
 
 'Showing case number dialog
 Do
   Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+  cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
@@ -150,8 +138,7 @@ Call check_for_MAXIS(False)
 
 'Jumping to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
+
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -200,6 +187,7 @@ Function approved_version
 	transmit
 	Next
 End Function
+
 'This finds the number of members on a DWP/MFIP grant
 Function cash_members_finder
 	call find_variable("Caregivers......", caregivers, 4)
@@ -210,7 +198,7 @@ End Function
 
 'Pulling the elig amounts for all open progs on case / curr
 call navigate_to_MAXIS_screen("case", "curr")
- call find_variable("MFIP: ", MFIP_check)
+  call find_variable("MFIP: ", MFIP_check, 6)
    If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
    call navigate_to_MAXIS_screen("elig", "mfip")    
 	  call approved_version
@@ -231,7 +219,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	End if
 	If MFIP_check = "PENDIN" then msgbox "MFIP is pending, please enter amounts manually to avoid errors."
 
-	call find_variable("FS: ", fs_check)
+	call find_variable("FS: ", fs_check, 6)
 	If fs_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "fs")
 		call approved_version
@@ -245,7 +233,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	If fs_check = "APP CL" then msgbox "SNAP is set to close, please enter amounts manually to avoid errors."
 	If fs_check = "PENDIN" then msgbox "SNAP is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("DWP: ", DWP_check)
+	call find_variable("DWP: ", DWP_check, 6)
 	If DWP_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "dwp")
 		call approved_version
@@ -264,7 +252,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	 End if
 	If DWP_check = "PENDIN" then msgbox "DWP is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("GA: ", GA_check)
+	call find_variable("GA: ", GA_check, 6)
 	If GA_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "GA")
 		call approved_version
@@ -281,7 +269,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
 	If GA_check = "PENDIN" then msgbox "GA is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("MSA: ", MSA_check)
+	call find_variable("MSA: ", MSA_check, 6)
 	If MSA_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "msa")
 		call approved_version
@@ -296,7 +284,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	If MSA_check = "APP CL" then MsgBox "MSA is set to close, please enter amounts manually to avoid errors."
 	If MSA_check = "PENDIN" then MsgBox "MSA is pending, please enter amounts manually to avoid errors."
 	
-	call find_variable("Cash: ", cash_check)
+	call find_variable("Cash: ", cash_check, 6)
 	If cash_check = "PENDIN" then MsgBox "Cash is pending for this household, please explain in additional notes."
 		
 'calling the main dialog	
@@ -309,9 +297,7 @@ Do
 Loop until worker_signature <> "" and completed_by <> "" and worker_phone <> ""
 
 
-
-  
-  '****writing the word document
+'****writing the word document
 Set objWord = CreateObject("Word.Application")
 Const wdDialogFilePrint = 88
 Const end_of_doc = 6
@@ -398,21 +384,12 @@ objSelection.TypeParagraph()
 objSelection.TypeText "Worker phone: "
 objSelection.TypeText worker_phone
 
-Do	
-	call navigate_to_MAXIS_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'Enters the case note
+Call start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE("PA verification request completed and sent to requesting agency.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 'Starts the print dialog
-objword.dialogs(wdDialogFilePrint).Show
-
-
-
+objword.dialogs(wdDialogFilePrint).ShowS

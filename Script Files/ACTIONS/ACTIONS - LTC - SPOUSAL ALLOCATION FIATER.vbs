@@ -93,8 +93,8 @@ EndDialog
 
 BeginDialog case_number_dialog, 0, 0, 216, 80, "Case number"
   EditBox 120, 0, 60, 15, case_number
-  EditBox 100, 20, 25, 15, footer_month
-  EditBox 155, 20, 25, 15, footer_year
+  EditBox 100, 20, 25, 15, MAXIS_footer_month
+  EditBox 155, 20, 25, 15, MAXIS_footer_year
   EditBox 115, 40, 25, 15, spousal_allocation_footer_month
   EditBox 175, 40, 25, 15, spousal_allocation_footer_year
   ButtonGroup ButtonPressed
@@ -108,42 +108,20 @@ BeginDialog case_number_dialog, 0, 0, 216, 80, "Case number"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to MAXIS
+'Connects to MAXIS, grabs case number and footer month/year
 EMConnect ""
+call MAXIS_case_number_finder(case_number)
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabs case number from MAXIS
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Grabs footer month/year from MAXIS
-call find_variable("Month: ", footer_month, 2)
-call find_variable("Month: " & footer_month & " ", footer_year, 2)
-spousal_allocation_footer_month = footer_month
-spousal_allocation_footer_year = footer_year
+spousal_allocation_footer_month = MAXIS_footer_month
+spousal_allocation_footer_year = MAXIS_footer_year
 
 'Shows case number dialog
 dialog case_number_dialog
 cancel_confirmation
-if ButtonPressed = 0 then stopscript
 
-'Navigates back to the SELF menu
-back_to_self
-
-'Enters into STAT for the client
-EMWriteScreen "stat", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen "memb", 21, 70
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
-transmit
-
-'Checks to see we're past SELF. If not past SELF (due to error) the script will stop
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" then script_end_procedure("You don't appear to have gone past SELF. This case might be in background. Wait for it to come out of background and try again.")
+'NAV to stat/MEMB
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 'Checks for which HH member is the spouse. The spouse is coded as "02" on STAT/MEMB.
 Do
@@ -304,8 +282,9 @@ HH_memb_row = 6
 dialog spousal_maintenance_dialog
 MAXIS_dialog_navigation
 cancel_confirmation
-Call check_for_MAXIS(False)
 
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Navigates to ELIG/HC.
 Call navigate_to_MAXIS_screen("ELIG", "HC__")
@@ -317,7 +296,6 @@ If person_check <> "_" then
   EMWriteScreen "x", 9, 26
 End if
 If person_check = "_" then EMWriteScreen "x", 8, 26
-
 'Gets into ELIG/HC for that particular member.
 transmit
 
