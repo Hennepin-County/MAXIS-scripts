@@ -156,12 +156,7 @@ IF XFERRadioGroup = 0 THEN
 			Loop until case_number <> "" and len(worker_to_transfer_to) = 7
 			transmit
 			Call check_for_MAXIS(False)
-		  call navigate_to_MAXIS_screen("case", "note")
-		  PF9
-		  EMReadScreen mode_check, 7, 20, 3
-		  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-		Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
-
+		  call start_a_blank_CASE_NOTE
 		'Cleaning up for case note
 		  IF SNAP_active_check = 1 THEN active_programs = active_programs & "SNAP/"
 		  IF hc_active_check = 1 THEN active_programs = active_programs & "HC/"
@@ -174,15 +169,13 @@ IF XFERRadioGroup = 0 THEN
 		  IF Mcremnsure_pend_check = 1 THEN pend_programs = pend_programs & "Mcre,Mnsure/"
 
 		'Case notes
-		EMSendKey "***Transfer within county***" & "<newline>"
+		Call write_variable_in_case_note("***Transfer within county***")
 		call write_variable_in_case_note("* Transfer to: " & unit_drop_down) 
 		IF active_programs <> "" THEN
-		  EMSendKey "* Active Programs: " & active_programs & "<backspace>"
-		  EMSendKey "<newline>"
+		  Call write_variable_in_case_note("* Active Programs: " & active_programs)
 		END IF
 		IF pend_programs <> "" THEN 
-		  EMSendKey "* Pending Programs: " & pend_programs & "<backspace>"
-		  EMSendKey "<newline>"
+		  Call write_variable_in_case_note("* Pending Programs: " & pend_programs)
 		END IF
 		IF preg_y_n <> "" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
 		call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason) 
@@ -213,7 +206,7 @@ IF XFERRadioGroup = 0 THEN
 				DO
 					DO
 						DIALOG out_of_county_dlg
-							IF ButtonPressed = 0 THEN stopscript
+							cancel_confirmation
 							IF ButtonPressed = nav_to_xfer_button THEN 
 								CALL navigate_to_MAXIS_screen("SPEC", "XFER")
 								EMWriteScreen "X", 9, 16

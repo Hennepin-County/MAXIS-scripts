@@ -159,12 +159,12 @@ call MAXIS_case_number_finder(case_number)
 'Ask for case number, validate that it's numeric.
 Do
 	Dialog BILS_case_number_dialog	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
-	If ButtonPressed = cancel then stopscript
-	transmit
-	Call check_for_MAXIS(False)
-
+	cancel_confirmation
 	If isnumeric(case_number) = False then MsgBox "Enter a valid MAXIS case number."
 Loop until isnumeric(case_number) = True
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Gets to STAT/BUDG
 call navigate_to_MAXIS_screen("STAT", "BUDG")
@@ -258,9 +258,7 @@ End if
 Do
 	DO
 		Dialog BILS_updater_dialog
-		If ButtonPressed = cancel then stopscript
-		transmit
-		Call check_for_MAXIS(False)
+		cancel_confirmation
 		IF isdate(budget_begin) = False OR isdate(budget_end) = False THEN MsgBox "Your budget range includes dates that are not valid. Please double check your budget months and years before continuing to ensure the script works properly."
 	LOOP UNTIL isdate(budget_begin) = True AND isdate(budget_end) = True
 	'Checking to see if the user added verifications. BILS requires that, without it it'll red up and error out.
@@ -279,7 +277,10 @@ Do
 		dialog_validation_complete = True
 	End if
 Loop until dialog_validation_complete = True
- 
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
 call navigate_to_MAXIS_screen("stat", "bils") 'In case the worker navigated out.
 
 'Cleaning up date field
