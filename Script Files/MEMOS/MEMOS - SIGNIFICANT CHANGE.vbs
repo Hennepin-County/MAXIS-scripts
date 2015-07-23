@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "MEMO - SIGNIFICANT CHANGE.vbs"
+name_of_script = "MEMOS - SIGNIFICANT CHANGE.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
