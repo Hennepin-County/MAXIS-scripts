@@ -76,7 +76,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
             PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
             PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-            PushButton 105, 35, 30, 15, "M - Z", h_through_z_notes_button
+            PushButton 105, 35, 30, 15, "M - Z", m_through_z_notes_button
             PushButton 135, 35, 30, 15, "LTC", ltc_notes_button
           	PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
           	PushButton 5, 70, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
