@@ -197,37 +197,42 @@ End if
 'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
 'HCMI
 If HCMI_update_check = 1 THEN
-  call navigate_to_MAXIS_screen("stat", "hcmi")
-  Call create_panel_if_nonexistent
-  EMWriteScreen "dp", 10, 57
-  transmit
-  transmit
-  transmit
+	call navigate_to_MAXIS_screen("stat", "hcmi") 
+	EMWriteScreen "dp", 10, 57
+	transmit
+	transmit
+	transmit
 END IF
 
 
 'FACI
 If FACI_update_check = 1 then
-  call navigate_to_MAXIS_screen("stat", "faci")
-  Call create_panel_if_nonexistent
-  EMWriteScreen FACI, 6, 43
-  If level_of_care = "NF" then EMWriteScreen "42", 7, 43
-  If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
-  If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
-  If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-  if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
-  If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-  EMWriteScreen "n", 8, 43
-  Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
-  If discharge_date<> "" then
-    Call create_MAXIS_friendly_date_with_YYYY(discharge_date, 0, 14, 71)
-    transmit
-	transmit
-  End if
+	call navigate_to_MAXIS_screen("stat", "faci")
+	EMReadScreen panel_max_check, 1, 2, 73
+	IF panel_max_check = "5" THEN 
+		EMWriteScreen "01", 20, 79
+		transmit
+		EMWriteScreen "nn", 20, 79
+	ELSE
+		EMWriteScreen "nn", 20, 79
+	END IF 
+	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
+	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
+	If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
+	If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
+	If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	EMWriteScreen "n", 8, 43
+	Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
+	If discharge_date<> "" then
+		Call create_MAXIS_friendly_date_with_YYYY(discharge_date, 0, 14, 71)
+		transmit
+		transmit
+	End if
 End if
 
 script_end_procedure("")
