@@ -93,29 +93,29 @@ DO
 								Dialog EVF_received
 								'asks if you want to cancel and if "yes" is selected sends StopScript
 								cancel_confirmation 
-							'checks that there is a date in the date received box
-							IF IsDate (date_received) = FALSE THEN MsgBox "You must enter a date in mm/dd/yy for date received."
+								'checks that there is a date in the date received box
+								IF IsDate (date_received) = FALSE THEN MsgBox "You must enter a date in mm/dd/yy for date received."
 							LOOP UNTIL IsDate (date_received) = TRUE
-						'checks if signed by client was selected
-						IF Signed_by_client = "select" THEN MsgBox "You must select if signed by the client."
+							'checks if signed by client was selected
+							IF Signed_by_client = "select" THEN MsgBox "You must select if signed by the client."
 						LOOP UNTIL Signed_by_client <> "select"
-					'checks if completed by employer was selected
-					IF complete = "select" THEN MsgBox "You must select if completed by the employer."
+						'checks if completed by employer was selected
+						IF complete = "select" THEN MsgBox "You must select if completed by the employer."
 					LOOP UNTIL complete <> "select"
-				'checks if faxed to employer was selected
-				IF faxed = "select" THEN MsgBox "You must select if faxed to the employer."
+					'checks if faxed to employer was selected
+					IF faxed = "select" THEN MsgBox "You must select if faxed to the employer."
 				LOOP UNTIL faxed <> "select"
-			'checks that there is a faxed date entered if the EVF was faxed
-			IF faxed = "yes" and IsDate (Date_faxed) = FALSE THEN MsgBox "You must enter a date in mm/dd/yy for date faxed."
+				'checks that there is a faxed date entered if the EVF was faxed
+				IF faxed = "yes" and IsDate (Date_faxed) = FALSE THEN MsgBox "You must enter a date in mm/dd/yy for date faxed."
 			LOOP UNTIL faxed = "yes" and IsDate (Date_faxed) = TRUE or faxed = "no"
-		'checks that there is a faxed number entered if the EVF was faxed
-		IF faxed = "yes" and fax_number = "" THEN MsgBox "You must enter a fax number."
+			'checks that there is a faxed number entered if the EVF was faxed
+			IF faxed = "yes" and fax_number = "" THEN MsgBox "You must enter a fax number."
 		LOOP UNTIL faxed = "yes" and fax_number <> "" or faxed = "no"
-	'checks that notes were entered				
-	IF notes = "" THEN MsgBox "You must enter action taken/notes."
+		'checks that notes were entered				
+		IF notes = "" THEN MsgBox "You must enter action taken/notes."
 	LOOP UNTIL notes <> ""
-'checks that the case note was signed
-IF worker_signature = "" THEN MsgBox "You must sign your case note!" 
+	'checks that the case note was signed
+	IF worker_signature = "" THEN MsgBox "You must sign your case note!" 
 LOOP UNTIL worker_signature <> "" 
 
 
