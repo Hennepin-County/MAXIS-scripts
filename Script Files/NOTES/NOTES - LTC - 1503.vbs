@@ -72,7 +72,7 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
   DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
   DropListBox 215, 25, 135, 15, "acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-MR", admitted_from
-  EditBox 145, 45, 205, 15, hospital_admitted_from
+  EditBox 155, 45, 195, 15, hospital_admitted_from
   EditBox 75, 65, 65, 15, admit_date
   EditBox 275, 65, 75, 15, discharge_date
   CheckBox 15, 85, 155, 10, "If you've processed this 1503, check here.", processed_1503_check
@@ -95,12 +95,12 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   CheckBox 10, 260, 150, 10, "Check here to have the script update FACI.", FACI_update_check
   Text 105, 205, 60, 10, "Worker signature:"
   Text 5, 185, 25, 10, "Notes:"
-  Text 5, 50, 135, 10, "If hospital, list name & dates of admission:"
+  Text 5, 50, 150, 10, "If hospital, list name and dates of admission:"
   GroupBox 5, 100, 355, 75, "actions/proofs"
   Text 5, 30, 95, 10, "Recommended level of care:"
   Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
   Text 160, 30, 50, 10, "Admitted from:"
-  Text 5, 10, 47, 10, "Facility name:"
+  Text 5, 10, 50, 10, "Facility name:"
   Text 5, 70, 65, 10, "Date of admission:"
   Text 165, 70, 105, 10, "Date of discharge (if applicible):"
   Text 200, 10, 50, 10, "Length of stay:"
@@ -122,9 +122,6 @@ DO
 	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
 LOOP UNTIL IsNumeric(case_number) = TRUE
 
-'Checks for MAXIS
-call check_for_MAXIS(True)
-
 
 'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do
@@ -132,6 +129,12 @@ Do
 	cancel_confirmation
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
 LOOP UNTIL worker_signature <> ""  
+
+'Checks for MAXIS
+call check_for_MAXIS(False)
+'checking to make sure case is out of background
+MAXIS_background_check
+
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -145,6 +148,58 @@ If TIKL_check = 1 then
   If len(TIKL_date_MM) = 1 then TIKL_date_MM = "0" & TIKL_date_MM
   TIKL_date_YY = datepart("yyyy", TIKL_date)
   If len(TIKL_date_YY) = 4 then TIKL_date_YY = TIKL_date_YY - 2000
+End if
+
+'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
+'FACI
+If FACI_update_check = 1 then
+	call navigate_to_MAXIS_screen("stat", "faci")
+	EMReadScreen panel_max_check, 1, 2, 78
+	IF panel_max_check = "5" THEN 
+		script_end_procedure ("This case has reached the maximum amount of FACI panels.  Please review your case, delete an appropriate FACI panel, and run the script again.  Thank you.")
+	ELSE
+		EMWriteScreen "nn", 20, 79
+		transmit
+	END IF 
+	EMWriteScreen FACI, 6, 43
+	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
+	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
+	If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
+	If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
+	If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	EMWriteScreen "n", 8, 43
+	Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
+	If discharge_date<> "" then
+		Call create_MAXIS_friendly_date_with_YYYY(discharge_date, 0, 14, 71)
+		transmit
+		transmit
+	End if
+End if
+
+
+'HCMI
+If HCMI_update_check = 1 THEN
+	call navigate_to_MAXIS_screen("stat", "hcmi") 
+	EMWriteScreen "dp", 10, 57
+	transmit
+	transmit
+END IF
+
+'THE TIKL----------------------------------------------------------------------------------------------------
+If TIKL_check = 1 then
+  call navigate_to_MAXIS_screen("dail", "writ")
+  EMWriteScreen TIKL_date_MM, 5, 18
+  EMWriteScreen TIKL_date_DD, 5, 21
+  EMWriteScreen TIKL_date_YY, 5, 24
+  EMSetCursor 9, 3
+  write_variable_in_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.")
+  transmit
+  PF3
 End if
 
 
@@ -180,59 +235,5 @@ Call write_variable_in_case_note("---")
 Call write_bullet_and_variable_in_case_note("Notes", notes)
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
-transmit
-
-'THE TIKL----------------------------------------------------------------------------------------------------
-If TIKL_check = 1 then
-  call navigate_to_MAXIS_screen("dail", "writ")
-  EMWriteScreen TIKL_date_MM, 5, 18
-  EMWriteScreen TIKL_date_DD, 5, 21
-  EMWriteScreen TIKL_date_YY, 5, 24
-  EMSetCursor 9, 3
-  write_variable_in_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.")
-  transmit
-  PF3
-End if
-
-'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
-'HCMI
-If HCMI_update_check = 1 THEN
-	call navigate_to_MAXIS_screen("stat", "hcmi") 
-	EMWriteScreen "dp", 10, 57
-	transmit
-	transmit
-	transmit
-END IF
-
-
-'FACI
-If FACI_update_check = 1 then
-	call navigate_to_MAXIS_screen("stat", "faci")
-	EMReadScreen panel_max_check, 1, 2, 73
-	IF panel_max_check = "5" THEN 
-		EMWriteScreen "01", 20, 79
-		transmit
-		EMWriteScreen "nn", 20, 79
-	ELSE
-		EMWriteScreen "nn", 20, 79
-	END IF 
-	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
-	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
-	If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
-	If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-	If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-	if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-	If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
-	If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-	If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-	If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-	EMWriteScreen "n", 8, 43
-	Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
-	If discharge_date<> "" then
-		Call create_MAXIS_friendly_date_with_YYYY(discharge_date, 0, 14, 71)
-		transmit
-		transmit
-	End if
-End if
 
 script_end_procedure("")
