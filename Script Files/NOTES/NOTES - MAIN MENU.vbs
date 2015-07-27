@@ -51,17 +51,23 @@ DIM ButtonPressed
 DIM SIR_instructions_button, dialog_name
 DIM number_through_c_notes_button, d_through_f_notes_button, g_through_l_notes_button, m_through_z_notes_button, ltc_notes_button
 
-DIM APPLYMN_APPLICATION_RECEIVED_button, APPROVED_PROGRAMS_button, BABY_BORN_button, BURIAL_ASSETS_button, CAF_button
-DIM CHANGE_REPORT_FORM_RECEIVED_button, CITIZENSHIP_IDENTITY_VERIFIED_button, CLIENT_CONTACT_button, CLOSED_PROGRAMS_button, COMBINED_AR_button
-DIM CSR_button
+DIM APPLYMN_APPLICATION_RECEIVED_button, APPROVED_PROGRAMS_button
+DIM BABY_BORN_button, BURIAL_ASSETS_button
+DIM CAF_button, CHANGE_REPORT_FORM_RECEIVED_button, CITIZENSHIP_IDENTITY_VERIFIED_button, CLIENT_CONTACT_button, CLOSED_PROGRAMS_button, COMBINED_AR_button, CSR_button
 
-DIM DENIED_PROGRAMS_button, DOCUMENTS_RECEIVED_button, DRUG_FELON_button, DWP_BUDGET_button, EMERGENCY_button
-DIM EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button, FSET_sanction_button, GAS_CARDS_ISSUED_button
-DIM GRH_HRF_button
+DIM DENIED_PROGRAMS_button, DOCUMENTS_RECEIVED_button, DRUG_FELON_button, DWP_BUDGET_button
+DIM EMERGENCY_button, EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EMPLOYMENT_VERIFICATION_button, EXPEDITED_SCREENING_button
+DIM FRAUD_INFO_button, FSET_sanction_button
 
-DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, LEP_SAVE_button
-DIM LEP_SPONSOR_INCOME_button, MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button
-DIM OVERPAYMENT_button, SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button, VERIFICATIONS_NEEDED_button
+DIM GAS_CARDS_ISSUED_button, GOOD_CAUSE_CLAIMED_button, GRH_HRF_button
+DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button
+DIM LEP_EMA_button, LEP_SAVE_button, LEP_SPONSOR_INCOME_button, LOBBY_NO_SHOW_button
+
+DIM MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, MFIP_SANCTION_CURED_button, MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button
+DIM OVERPAYMENT_button
+DIM REIN_PROGS_button
+DIM SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button
+DIM VERIFICATIONS_NEEDED_button
 
 DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2015_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button							
 DIM LTC_RENEWAL_button, LTC_TRANSFER_PENALTY_button, LTC_1503_button, LTC_5181_button
@@ -106,7 +112,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
         EndDialog
 	ELSEIF dialog_name = "D-F" THEN
         BeginDialog dialog_name, 0, 0, 516, 265, "D - F NOTES Scripts"
-		  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+          Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
           GroupBox 5, 20, 170, 35, "NOTES Sub-Menus"
           ButtonGroup ButtonPressed
             PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
@@ -121,9 +127,10 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 5, 115, 50, 10, "DWP budget", DWP_BUDGET_button
             PushButton 5, 130, 45, 10, "Emergency", EMERGENCY_button
             PushButton 5, 145, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
-            PushButton 5, 160, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-            PushButton 5, 175, 40, 10, "Fraud info", FRAUD_INFO_button
-            PushButton 5, 190, 55, 10, "FSET sanction ", FSET_sanction_button
+            PushButton 5, 160, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button	
+            PushButton 5, 175, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
+            PushButton 5, 190, 40, 10, "Fraud info", FRAUD_INFO_button
+            PushButton 5, 205, 55, 10, "FSET sanction ", FSET_sanction_button
             CancelButton 460, 245, 50, 15
           Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
           Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
@@ -131,9 +138,10 @@ FUNCTION create_NOTES_main_menu(dialog_name)
           Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
           Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
           Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
-          Text 85, 160, 220, 10, "--- Template for screening a client for expedited status."
-          Text 50, 175, 200, 10, "--- Template for noting fraud info."
-          Text 65, 190, 395, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
+          Text 100, 160, 370, 10, "--- New 08/2015 -- Template for noting information about an employment verification received by the agency."  
+          Text 85, 175, 220, 10, "--- Template for screening a client for expedited status."
+          Text 50, 190, 200, 10, "--- Template for noting fraud info."
+          Text 65, 205, 395, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
         EndDialog
 	ELSEIF dialog_name = "G-L" THEN 
         BeginDialog dialog_name, 0, 0, 516, 265, "Notes (G-L) scripts main menu dialog"
@@ -156,6 +164,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 5, 175, 45, 10, "LEP - EMA", LEP_EMA_button
             PushButton 5, 190, 45, 10, "LEP - SAVE", LEP_SAVE_button
             PushButton 5, 205, 80, 10, "LEP - Sponsor income", LEP_SPONSOR_INCOME_button
+            PushButton 5, 220, 60, 10, "Lobby No Show", LOBBY_NO_SHOW_button
             CancelButton 455, 245, 50, 15
           Text 75, 70, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
           Text 85, 85, 375, 10, "--- Template for requests of good cause to not receive child support."
@@ -167,6 +176,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
           Text 55, 175, 255, 10, "--- Template for EMA applications."
           Text 55, 190, 255, 10, "--- Template for the SAVE system for verifying immigration status."
           Text 90, 205, 345, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
+          Text 70, 220, 400, 10, "--- New 08/2015 -- Template for case noting a client's no-showing their in-office appointment."
         EndDialog
 	ELSEIF dialog_name = "M-Z" THEN 
         BeginDialog dialog_name, 0, 0, 516, 265, "Notes (M-Z) scripts main menu dialog"
@@ -292,6 +302,7 @@ IF ButtonPressed = DRUG_FELON_button								THEN CALL run_from_GitHub(script_rep
 IF ButtonPressed = DWP_BUDGET_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DWP BUDGET.vbs")
 IF ButtonPressed = EMERGENCY_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")						
 IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
+IF ButtonPressed = EMPLOYMENT_VERIFICATION_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EFV RECEIVED.vbs")
 IF ButtonPressed = EXPEDITED_SCREENING_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPEDITED SCREENING.vbs")				
 IF ButtonPressed = FRAUD_INFO_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FRAUD INFO.vbs")
 IF ButtonPressed = FSET_sanction_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FSET SANCTION.vbs")
@@ -306,6 +317,7 @@ IF ButtonPressed = HRF_button										THEN CALL run_from_GitHub(script_reposito
 IF ButtonPressed = LEP_EMA_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP EMA.vbs")
 IF ButtonPressed = LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
 IF ButtonPressed = LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
+IF ButtonPressed = LOBBY_NO_SHOW_button 							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LOBBY NO SHOW.vbs")
 
 IF ButtonPressed = MEDICAL_OPINION_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
 IF ButtonPressed = MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
