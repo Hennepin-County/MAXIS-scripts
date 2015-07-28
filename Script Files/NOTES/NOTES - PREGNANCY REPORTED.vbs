@@ -81,41 +81,32 @@ EndDialog
 'Connects to BLUEZONE
 EMConnect ""
 
-
 'Grabs the MAXIS case number            
 CALL MAXIS_case_number_finder(case_number)
 
-
 'Shows dialog
 DO
-	DO
-		DO
-		
-			Dialog preg_dialog
-			IF ButtonPressed = 0 THEN StopScript
-			IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-			LOOP UNTIL worker_signature <> ""
-			IF report_method = "Select One..." THEN MsgBox "You must select how the pregnancy was reported!"
-		IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-	LOOP UNTIL IsNumeric(case_number) = TRUE
-LOOP UNTIL report_method <> "Select One..."
-
+	err_msg = ""		
+	Dialog preg_dialog
+		IF ButtonPressed = 0 THEN StopScript
+		IF report_method = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
+		IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+		IF due_date = "" OR (due_date <> "" AND IsDate(due_date) = False) THEN err_msg = err_msg & vbCr & "* You must enter a due date in a MM/DD/YY format."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+LOOP UNTIL err_msg = ""
 
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(True)
 
-
 'Script calculates the Conception date based off the due date entered in the dialog box
 conception_date = DateAdd("d", -280, due_date)
-
 
 'The script reads what member number was manually entered, and navigates to that member's stat/preg panel
 CALL navigate_to_MAXIS_screen("STAT", "PREG")
 EMWriteScreen member_preg, 20, 76
 EMWriteScreen "nn", 20, 79
-
 transmit
-
 
 'Writes the auto-calucated conception date in the Conception Date field and the Due date in that field
 CALL create_MAXIS_friendly_date(conception_date, 0, 6, 53)
@@ -126,14 +117,12 @@ EMWriteScreen "n", 8, 75
 'If under Program Pregnancy applied for, FW has check MA or MA/CASH then script will write Y in the Verified field on stat/preg
 IF ma_checkbox = checked and cash_checkbox = checked THEN EMWritescreen "Y", 6, 75
 
-
 'If under Program Pregnancy applied for, FW has checked CASH then script will write N in the Verified field on stat/preg
 IF cash_checkbox = checked THEN EMWritescreen "N", 6, 75
-
+transmit
 
 'Opens new case note
-CALL start_a_blank_case_note
-
+start_a_blank_case_note
 
 'Writes the Case Note
 CALL write_variable_in_case_note ("---Pregnancy Reported---")
@@ -141,15 +130,13 @@ CALL write_bullet_and_variable_in_case_note("Household Member Pregnant", member_
 CALL write_bullet_and_variable_in_case_note("Conception Date", conception_date)
 CALL write_bullet_and_variable_in_case_note("Pregnancy Due Date", due_date)
 CALL write_bullet_and_variable_in_case_note("Pregnancy Reported Via", report_method)
-IF ma_checkbox = checked THEN call_write_variable_in_CASE_NOTE(" *Program Pregnancy Reported for: MA")         'HAVING TROUBLES STARTING HERE....
-IF cash_checkbox = checked THEN call_write_variable_in_CASE_NOTE(" *Program Pregnancy Reported for: CASH")
-IF ma_checkbox and cash_checkbox = checked THEN call_write_variable_in_case_note(" *Programs Pregnancy Reported for: MA & CASH")
-IF mmis_checkbox = checked THEN call_write_variable_in_CASE_NOTE(" *Updated in MMIS")
-IF verification_checkbox = checked THEN call_write_variable_in_CASE_NOTE(" *Sent verification request for CASH")
+IF ma_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Program Pregnancy Reported for: MA")         'HAVING TROUBLES STARTING HERE....
+IF cash_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Program Pregnancy Reported for: CASH")
+IF ma_checkbox and cash_checkbox = checked THEN CALL write_variable_in_case_note("* Programs Pregnancy Reported for: MA & CASH")
+IF mmis_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated in MMIS")
+IF verification_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent verification request for CASH")
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Comments/Notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-
 script_end_procedure("")
-
