@@ -48,12 +48,15 @@ END IF
 
 'CONNECTS TO BlueZone
 EMConnect ""
+'grabbing current footer month/year
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
 BeginDialog LTC_GRH_list_generator_dialog, 0, 0, 156, 115, "LTC-GRH list generator dialog"
   DropListBox 65, 5, 85, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
-  EditBox 55, 25, 20, 15, footer_month
-  EditBox 130, 25, 20, 15, footer_year
+  EditBox 55, 25, 20, 15, MAXIS_footer_month
+  EditBox 130, 25, 20, 15, MAXIS_footer_year
   EditBox 75, 45, 75, 15, worker_number
   ButtonGroup ButtonPressed
     OkButton 20, 95, 50, 15
@@ -86,11 +89,11 @@ If right(REPT_panel, 4) = "REVS" then
 	EMWriteScreen current_month_plus_one, 20, 43
 	EMWriteScreen current_month_plus_one_year, 20, 46
 	transmit
-	EMWriteScreen footer_month, 20, 55
-	EMWriteScreen footer_year, 20, 58
+	EMWriteScreen MAXIS_footer_month, 20, 55
+	EMWriteScreen MAXIS_footer_year, 20, 58
 	transmit
-	footer_month = current_month_plus_one
-	footer_year = current_month_plus_one_year
+	MAXIS_footer_month = current_month_plus_one
+	MAXIS_footer_year = current_month_plus_one_year
 End if
 
 'CHECKS TO MAKE SURE WE'VE MOVED PAST SELF MENU. IF WE HAVEN'T, THE SCRIPT WILL STOP. AN ERROR MESSAGE SHOULD DISPLAY ON THE BOTTOM OF THE MENU.
@@ -134,22 +137,20 @@ For each worker in worker_number_array
 	worker_ID = worker_county_code & trim(worker)
 
 	If REPT_panel = "REPT/ACTV" then 'THE REPT PANEL HAS THE worker NUMBER IN DIFFERENT COLUMNS. THIS WILL DETERMINE THE CORRECT COLUMN FOR THE worker NUMBER TO GO
-		worker_ID_col = 13
+		worker_ID_col = 17
 	Else
 		worker_ID_col = 6
 	End if
-	EMReadScreen default_worker_number, 7, 21, worker_ID_col 'CHECKING THE CURRENT worker NUMBER. IF IT DOESN'T NEED TO CHANGE IT WON'T. OTHERWISE, THE SCRIPT WILL INPUT THE CORRECT NUMBER.
+	EMReadScreen default_worker_number, 3, 21, worker_ID_col 'CHECKING THE CURRENT worker NUMBER. IF IT DOESN'T NEED TO CHANGE IT WON'T. OTHERWISE, THE SCRIPT WILL INPUT THE CORRECT NUMBER.
 	If ucase(worker_ID) <> default_worker_number then
 		EMWriteScreen worker_ID, 21, worker_ID_col
+		stopscript
 		transmit
 	End if
 
 
 	'THIS DO...LOOP DUMPS THE CASE NUMBER AND NAME OF EACH CLIENT INTO A SPREADSHEET
 	Do
-
-
-
 		'This Do...loop checks for the password prompt.
 		Do
 			EMReadScreen password_prompt, 38, 2, 23
@@ -194,8 +195,8 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	back_to_self
 
 	'NAVIGATES TO STAT/FACI for the correct footer month
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
 	call navigate_to_MAXIS_screen("STAT", "FACI")
 

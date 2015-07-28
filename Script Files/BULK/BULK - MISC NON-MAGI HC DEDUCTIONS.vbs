@@ -57,14 +57,15 @@ Function combine_CEI_data_to_array(info_array)
 	If case_number_06 <> "" then info_array = info_array & case_number_06 & "~" & CEI_amount_06 & "~" & Mo_Yr_06 & "~" & date_06 & "|"
 End function
 
-'CONNECTS TO MAXIS
+'CONNECTS TO MAXIS & grabs footer month/year
 EMConnect ""
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
 BeginDialog misc_non_magi_hcdeduction_list_generator_dialog, 0, 0, 156, 115, "MISC NON-MAGI HC DEDUCTION list generator dialog"
   DropListBox 65, 5, 85, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
-  EditBox 55, 25, 20, 15, footer_month
-  EditBox 130, 25, 20, 15, footer_year
+  EditBox 55, 25, 20, 15, MAXIS_footer_month
+  EditBox 130, 25, 20, 15, MAXIS_footer_year
   EditBox 75, 45, 75, 15, worker_number
   ButtonGroup ButtonPressed
     OkButton 20, 95, 50, 15
@@ -80,14 +81,11 @@ DO
 	'DISPLAYS DIALOG
 	Dialog misc_non_magi_hcdeduction_list_generator_dialog 
 		If buttonpressed = cancel then stopscript
-		IF footer_month = "" OR footer_year = "" THEN MsgBox "Please provide a footer month & year."
+		IF MAXIS_footer_month = "" OR MAXIS_footer_year = "" THEN MsgBox "Please provide a footer month & year."
 		IF worker_number = "" THEN MsgBox "Please provide a worker number."
-LOOP UNTIL footer_month <> "" AND footer_year <> "" AND worker_number <> "" AND ButtonPressed = -1
+LOOP UNTIL MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" AND worker_number <> "" AND ButtonPressed = -1
 
-'CHECKS FOR PASSWORD PROMPT/MAXIS STATUS
-transmit
-'EMReadScreen maxis, 5, 1, 39
-'MsgBox maxis
+'checks for active MAXIS session
 CALL check_for_MAXIS(True)
 
 'NAVIGATES BACK TO SELF TO FORCE THE FOOTER MONTH, THEN NAVIGATES TO THE SELECTED SCREEN
@@ -102,11 +100,11 @@ If right(REPT_panel, 4) = "REVS" then
 	EMWriteScreen current_month_plus_one, 20, 43
 	EMWriteScreen current_month_plus_one_year, 20, 46
 	transmit
-	EMWriteScreen footer_month, 20, 55
-	EMWriteScreen footer_year, 20, 58
+	EMWriteScreen MAXIS_footer_month, 20, 55
+	EMWriteScreen MAXIS_footer_year, 20, 58
 	transmit
-	footer_month = current_month_plus_one
-	footer_year = current_month_plus_one_year
+	MAXIS_footer_month = current_month_plus_one
+	MAXIS_footer_year = current_month_plus_one_year
 End if
 
 'CHECKS TO MAKE SURE WE'VE MOVED PAST SELF MENU. IF WE HAVEN'T, THE SCRIPT WILL STOP. AN ERROR MESSAGE SHOULD DISPLAY ON THE BOTTOM OF THE MENU.
@@ -262,6 +260,4 @@ do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no mor
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 loop
 
-MsgBox "Success! Your list has been created."
-
-script_end_procedure("")
+script_end_procedure("Success! Your list has been created.")

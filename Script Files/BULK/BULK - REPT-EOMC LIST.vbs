@@ -287,4 +287,4 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
-call script_end_procedure("")
+script_end_procedure("")
