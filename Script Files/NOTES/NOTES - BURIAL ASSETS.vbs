@@ -50,7 +50,7 @@ END IF
 BeginDialog opening_dialog_01, 0, 0, 311, 425, "LTC Burial Assets"
   EditBox 80, 20, 70, 15, case_number
   EditBox 70, 40, 80, 15, hh_member
-  EditBox 120, 60, 100, 15, worker_sig
+  EditBox 120, 60, 100, 15, worker_signature
   DropListBox 155, 110, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
   EditBox 90, 130, 80, 15, account_identifier
   EditBox 195, 150, 95, 15, why_not_seperated
@@ -327,11 +327,11 @@ DO
 		  IF len(case_number) > 8 THEN MSGBOX "You must provide a valid case number -- less than 8 digits."
 		  IF isnumeric(case_number) = FALSE THEN MSGBOX "Please provide a valid case number -- no letters or special characters."
 		  IF hh_member = "" THEN MSGBOX "Please provide a household member."
-		  IF worker_sig = "" THEN MSGBOX "Please sign your case note."
+		  IF worker_signature = "" THEN MSGBOX "Please sign your case note."
             LOOP UNTIL isnumeric(case_number) = TRUE
           LOOP UNTIL len(case_number) < 9
         LOOP UNTIL hh_member <> ""
-      LOOP UNTIL worker_sig <> ""
+      LOOP UNTIL worker_signature <> ""
     LOOP UNTIL isnumeric(counted_value_designated) = TRUE OR counted_value_designated = ""
   LOOP UNTIL isnumeric(insurance_counted_value) = TRUE OR insurance_counted_value = ""
 Do
@@ -784,7 +784,7 @@ CALL write_variable_in_case_note( "* Actions taken: " & case_action) ' & "<newli
 case_note_page_four
 CALL write_variable_in_case_note("---")
 case_note_page_four
-CALL write_variable_in_case_note(worker_sig)
+CALL write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
 
