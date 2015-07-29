@@ -266,7 +266,7 @@ If revw_check = checked then
 			Else
 				call write_variable_in_CASE_NOTE("---Programs closing for no review---")
 			End if
-			If cash_review_status <> "" then call write_bullet_and variable_in_case_note("Cash", cash_review_status)
+			If cash_review_status <> "" then call write_bullet_and_variable_in_case_note("Cash", cash_review_status)
 			If FS_review_status <> "" then call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
 			If HC_review_status <> "" then call write_bullet_and_variable_in_case_note("HC", HC_review_status)
 			If last_day_to_turn_in_cash_docs <> "" then call write_variable_in_CASE_NOTE("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")

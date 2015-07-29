@@ -214,31 +214,15 @@ case_number_array = array(case_number_01, case_number_02, case_number_03, case_n
   'End crazy array splitting
 
 'Checking for MAXIS
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 For each case_number in case_number_array
 
 	If case_number <> "" then	'skip blanks
 
 		'Getting to case note
-		Call navigate_to_MAXIS_screen("case", "note")
-
-		'If there was an error after trying to go to CASE/NOTE, the script will shut down.
-		EMReadScreen SELF_error_check, 27, 2, 28 
-		If SELF_error_check = "Select Function Menu (SELF)" then
-			MsgBox "Script stopped on case " & case_number & "."	'Does this outside of script_end_procedure because I don't want the case number being logged in stats.
-			script_end_procedure("A SELF error occurred, probably because a case was in background or privileged. Process manually.")
-		End if
-
-		'Opening a new case/note
-		PF9
-
-		'Checking to make sure we're on edit mode and not inquiry. If inquiry, script will stop.
-		EMReadScreen mode_check, 7, 20, 3
-		If mode_check <> "Mode: A" and mode_check <> "Mode: E" then script_end_procedure("Unable to start a case note. Is this inquiry mode? Is this case out of county? Right case number? Check these out and try again!")
-
-		'Writing the case note
-		EMSendKey "<home>" & "-->Returned mail received<--" & "<newline>"
+		Call start_a_blank_CASE_NOTE
+		call write_variable_in_CASE_NOTE("-->Returned mail received<--")
 		call write_variable_in_CASE_NOTE("* No forwarding address was indicated.")
 		call write_variable_in_CASE_NOTE("* Sending verification request to last known address. TIKLed for 10-day return.")
 		call write_variable_in_CASE_NOTE("---")
@@ -265,9 +249,3 @@ Next
 
 'Script ends
 script_end_procedure("Success! Using " & EDMS_choice & ", send the appropriate returned mail paperwork. Send the completed forms to the most recent address(es). The script has case noted that returned mail was received and TIKLed out for 10-day return for each case indicated.")
-
-
-
-
-
-

@@ -76,7 +76,6 @@ BeginDialog baby_born_dialog, 0, 0, 211, 250, "NOTES - BABY BORN"
 EndDialog
 
 
-
 'THE SCRIPT---------------------------------------------------------------------------------------------------------------
 'connecting to MAXIS
 EMConnect ""
@@ -93,11 +92,10 @@ Do
 Loop until case_number <> "" and worker_signature <> "" and father_in_household <> "Select One" and other_health_insurance <> "Select One"    
 
 'checking to see if still in an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
  
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE 	'Function to start new case note
-
 call write_variable_in_CASE_NOTE("***Baby Born***")
 call write_bullet_and_variable_in_CASE_NOTE("Baby's Name", babys_name)
 call write_bullet_and_variable_in_CASE_NOTE("Date of Birth", date_of_birth)

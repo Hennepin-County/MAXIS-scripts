@@ -62,7 +62,7 @@ phone_look_up = replace(phone_look_up, "-", "")
 
 '========== Checks REPT/ACTV ==========
 IF search_where = "REPT/ACTV" THEN 
-  Call navigate_to_screen("rept", "actv")
+  Call navigate_to_MAXIS_screen("rept", "actv")
   IF case_load_look_up <> "" and ucase(user_number) <> ucase(case_load_look_up) THEN
     EMWriteScreen case_load_look_up, 21, 13
     transmit
@@ -83,7 +83,7 @@ END IF
 
 '========== Checks REPT/INAC ==========
 IF search_where = "REPT/INAC" THEN
-  Call navigate_to_screen("rept", "inac")
+  Call navigate_to_MAXIS_screen("rept", "inac")
   IF case_load_look_up <> "" and ucase(user_number) <> ucase(case_load_look_up) THEN
     EMWriteScreen case_load_look_up, 21, 16
     transmit
@@ -105,7 +105,7 @@ END IF
 
 '========== Checks REPT/PND1 ==========
 IF search_where = "REPT/PND1" THEN
-  Call navigate_to_screen("rept", "pnd1")
+  Call navigate_to_MAXIS_screen("rept", "pnd1")
   IF case_load_look_up <> "" and ucase(user_number) <> ucase(case_load_look_up) THEN
     EMWriteScreen case_load_look_up, 21, 13
     transmit
@@ -127,7 +127,7 @@ END IF
 
 '========== Checks REPT/PND2 ==========
 IF search_where = "REPT/PND2" THEN
-  Call navigate_to_screen("rept", "pnd2")
+  Call navigate_to_MAXIS_screen("rept", "pnd2")
   IF case_load_look_up <> "" and ucase(user_number) <> ucase(case_load_look_up) THEN
     EMWriteScreen case_load_look_up, 21, 13
     transmit
@@ -149,7 +149,7 @@ END IF
 
 '========== Checks REPT/REVW ==========
 IF search_where = "REPT/REVW" THEN
-  Call navigate_to_screen("rept", "REVW")
+  Call navigate_to_MAXIS_screen("rept", "REVW")
   IF case_load_look_up <> "" and ucase(user_number) <> ucase(case_load_look_up) THEN
     EMWriteScreen case_load_look_up, 21, 6
     transmit

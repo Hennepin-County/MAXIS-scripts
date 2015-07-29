@@ -473,9 +473,9 @@ IF autofill_cash_check = checked THEN
 		END IF
 	NEXT
 END IF
-IF other_notes <> "" THEN call write_variable_in_CASE_NOTE("Approval Notes", other_notes)
-IF programs_pending <> "" THEN call write_variable_in_CASE_NOTE("Programs Pending", programs_pending)
-If docs_needed <> "" then call write_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
+IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)
+IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
+If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -486,16 +486,3 @@ If closed_progs_check = checked then run_from_github(script_repository & "NOTES/
 If denied_progs_check = checked then run_script(script_repository & "NOTES/NOTES - DENIED PROGRAMS.vbs")
 
 script_end_procedure("")
-
-	
-
-
-
-
-
-
-	
-
-
-
-

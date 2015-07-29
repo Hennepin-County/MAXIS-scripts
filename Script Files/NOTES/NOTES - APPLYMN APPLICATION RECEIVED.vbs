@@ -84,13 +84,13 @@ cancel_confirmation
 
 'checking for an active MAXIS session	
 Call check_for_MAXIS(True)
-	
-call navigate_to_MAXIS_screen("case", "note")
+
 
 'Case notes information
+Call start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("ApplyMN app rec'd on " & app_date & " at " & app_time & " " & AM_PM)
-call write_variable_in_case_note("Confirmation #", confirmation_number, 6) 'x is the header, y is the variable for the edit box which will be put in the case note.
-call write_variable_in_case_note("Applying for", progs_applied_for, 6) 'x is the header, y is the variable for the edit box which will be put in the case note.
+call write_variable_in_case_note("Confirmation #" & confirmation_number) 'x is the header, y is the variable for the edit box which will be put in the case note.
+call write_variable_in_case_note("Applying for " &  progs_applied_for) 'x is the header, y is the variable for the edit box which will be put in the case note.
 If EBT_status <> "N/A" then call write_variable_in_CASE_NOTE("* Client is " & EBT_status & ".")
 call write_variable_in_CASE_NOTE("* " & actions_taken)
 call write_variable_in_CASE_NOTE("---")

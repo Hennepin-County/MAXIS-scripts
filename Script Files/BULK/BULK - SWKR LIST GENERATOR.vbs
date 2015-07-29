@@ -203,6 +203,4 @@ do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no mor
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 loop
 
-MsgBox "Success! Your list has been created."
-
-script_end_procedure("")
+script_end_procedure("Success! Your list has been created.")
