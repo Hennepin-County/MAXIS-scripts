@@ -195,7 +195,7 @@ WITH (new RegExp)         	'Uses RegExp to bring in special string functions to 
     transfer_amount = .Replace(transfer_amount, "")    	 	'This replaces the non-digits of the variable with nothing. 
 END WITH
 
-'transfer_amount = FormatCurrency(transfer_amount, 1)
+'transfer_amount = FormatCurrency(transfer_amount,,,-1)
 
 
 'partial penalty amount
@@ -218,31 +218,34 @@ DO
 							DO
 								DO
 									DO
-										DO	
-											Dialog LTC_transfer_penalty_dialog
-											cancel_confirmation 	'asks user if they really want to cancel.  If yes, then script stops.  If no, loops back to dialog.
-											IF (len(baseline_date) < 8 or IsDate(baseline_date) = FALSE) THEN Msgbox "You must enter a valid baseline date in the MM/DD/YYYY format.  See policy reference at the bottom of the dialog box if you are unsure of how to determined the baseline date."
-										LOOP UNTIL len(baseline_date) >= 8 or IsDate(baseline_date) = TRUE 
-										IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-									LOOP UNTIL worker_signature <> ""
-									If type_of_transfer_list = "Select one..." then MsgBox "You must select the type of transfer."
-								LOOP UNTIL type_of_transfer_list <> "Select one..."
-								if (type_of_transfer_list = "Other" AND other_information = "") Then MsgBox "You have selected ""Other"" as your transfer reason.  You must complete the 'other transfer info' field."
-							LOOP until (type_of_transfer_list = "Other" AND other_information <> "") OR type_of_transfer_list <> "Other"
-							If (transfer_date = "" or IsDate(transfer_date) = FALSE) then MsgBox "You must enter a valid transfer date."
-						LOOP UNTIL transfer_date <> "" OR IsDate(transfer_date) = True 
-						If (date_of_application = "" or IsDate(date_of_application) = FALSE) then MsgBox "You must enter a valid application date."
-					LOOP UNTIL date_of_application <> "" OR IsDate(date_of_application) = TRUE
-					If (transfer_amount = "" or IsNumeric(transfer_amount) = FALSE) then MsgBox "You must enter a valid transfer penalty amount." 
-				LOOP UNTIL transfer_amount <> "" or IsNumeric(transfer_amount) = TRUE
-				If (date_client_was_otherwise_eligible = "" or IsDate(date_client_was_otherwise_eligible) = FALSE) then MsgBox "You must enter a valid date that the client was otherwise eligible for MA."
-			LOOP UNTIL date_client_was_otherwise_eligible <> "" or IsDate(date_client_was_otherwise_eligible) = TRUE
-			If period_begins = "" then MsgBox "You must enter the start date of the transfer penalty."
-		LOOP UNTIL period_begins <> "" 
-		IF last_full_month_of_period = "" then MsgBox "You must enter the last full month of the transfer penalty."
-	LOOP UNTIL last_full_month_of_period <> ""
-	IF (partial_penalty_amount = "" or IsNumeric(partial_penalty_amount) = False) then MsgBox "You must enter the partial penalty amount, even if the amount is 0."
-LOOP UNTIL partial_penalty_amount <> "" or IsNumeric(partial_penalty_amount) = TRUE
+										DO
+											DO	
+												Dialog LTC_transfer_penalty_dialog
+												cancel_confirmation 	'asks user if they really want to cancel.  If yes, then script stops.  If no, loops back to dialog.
+												IF (len(baseline_date) < 8 or IsDate(baseline_date) = FALSE) THEN Msgbox "You must enter a valid baseline date in the MM/DD/YYYY format.  See policy reference at the bottom of the dialog box if you are unsure of how to determined the baseline date."
+											LOOP UNTIL len(baseline_date) >= 8 or IsDate(baseline_date) = TRUE 
+											IF worker_signature = "" THEN MsgBox "You must sign your case note!"
+										LOOP UNTIL worker_signature <> ""
+										If type_of_transfer_list = "Select one..." then MsgBox "You must select the type of transfer."
+									LOOP UNTIL type_of_transfer_list <> "Select one..."
+									if (type_of_transfer_list = "Other" AND other_information = "") Then MsgBox "You have selected ""Other"" as your transfer reason.  You must complete the 'other transfer info' field."
+								LOOP until (type_of_transfer_list = "Other" AND other_information <> "") OR type_of_transfer_list <> "Other"
+								If (transfer_date = "" or IsDate(transfer_date) = FALSE) then MsgBox "You must enter a valid transfer date."
+							LOOP UNTIL transfer_date <> "" OR IsDate(transfer_date) = True 
+							If (date_of_application = "" or IsDate(date_of_application) = FALSE) then MsgBox "You must enter a valid application date."
+						LOOP UNTIL date_of_application <> "" OR IsDate(date_of_application) = TRUE
+						If (transfer_amount = "" or IsNumeric(transfer_amount) = FALSE) then MsgBox "You must enter a valid transfer penalty amount." 
+					LOOP UNTIL transfer_amount <> "" or IsNumeric(transfer_amount) = TRUE
+					If (date_client_was_otherwise_eligible = "" or IsDate(date_client_was_otherwise_eligible) = FALSE) then MsgBox "You must enter a valid date that the client was otherwise eligible for MA."
+				LOOP UNTIL date_client_was_otherwise_eligible <> "" or IsDate(date_client_was_otherwise_eligible) = TRUE
+				If period_begins = "" then MsgBox "You must enter the start date of the transfer penalty."
+			LOOP UNTIL period_begins <> "" 
+			IF last_full_month_of_period = "" then MsgBox "You must enter the last full month of the transfer penalty."
+		LOOP UNTIL last_full_month_of_period <> ""
+		IF (partial_penalty_amount = "" or IsNumeric(partial_penalty_amount) = False) then MsgBox "You must enter the partial penalty amount, even if the amount is 0."
+	LOOP UNTIL partial_penalty_amount <> "" or IsNumeric(partial_penalty_amount) = TRUE
+	If case_action = "" then MsgBox "You must case note the case action."
+LOOP Until case_action <> ""
 
 
 'ensures that worker has not "passworded" out of MAXIS
