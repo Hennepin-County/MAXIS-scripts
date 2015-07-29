@@ -137,7 +137,7 @@ For each worker in worker_number_array
 	worker_ID = worker_county_code & trim(worker)
 
 	If REPT_panel = "REPT/ACTV" then 'THE REPT PANEL HAS THE worker NUMBER IN DIFFERENT COLUMNS. THIS WILL DETERMINE THE CORRECT COLUMN FOR THE worker NUMBER TO GO
-		worker_ID_col = 17
+		worker_ID_col = 13
 	Else
 		worker_ID_col = 6
 	End if
