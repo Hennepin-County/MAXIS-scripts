@@ -47,7 +47,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
+'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM name_of_script
 'DIM start_time
 'DIM case_number
@@ -141,6 +141,7 @@ call MAXIS_case_number_finder(case_number)							'function autofills case number
 'checking for an active MAXIS session
 Call check_for_MAXIS(True) 
 
+
 'calls up dialog for worker to enter case number and applicable month and year.
 DO
 	Dialog case_number_dialog									
@@ -189,14 +190,7 @@ If SAPSNF_check <> "" THEN transfer_date = (SAPSNF_month & "/" & SAPSNF_day & "/
 
 'Transfer amount
 EMReadScreen transfer_amount, 10, 10, 11
-WITH (new RegExp)         	'Uses RegExp to bring in special string functions to remove the unneeded strings
-    .Global = True          'I don't know what this means but David made it work so we're going with it
-    .Pattern = "\D"         'Again, no clue. Just do it.
-    transfer_amount = .Replace(transfer_amount, "")    	 	'This replaces the non-digits of the variable with nothing. 
-END WITH
-
-'transfer_amount = FormatCurrency(transfer_amount,,,-1)
-
+transfer_amount = Replace(transfer_amount, "_", "")
 
 'partial penalty amount
 EMReadScreen partial_penalty_amount, 11, 10, 66
@@ -206,6 +200,11 @@ If partial_penalty_amount <> "          " THEN partial_penalty_amount = trim(par
 EMReadScreen penalty_end_month, 2, 12, 46
 EMReadScreen penalty_end_year, 2, 12, 49
 If penalty_end_month <> "" and penalty_end_year <> "" Then last_full_month_of_period = penalty_end_month & "/" & penalty_end_year
+
+
+'Dollar bill symbol will be added to numeric variables---------------------------------------------------------------------------------------------------- 
+IF transfer_amount <> "" THEN transfer_amount = "$" & transfer_amount
+IF partial_penalty_amount <> "" THEN partial_penalty_amount = "$" & partial_penalty_amount
 
 'The main transfer dialog----------------------------------------------------------------------------------------------------
 DO
@@ -258,9 +257,6 @@ If baseline_date <> "" then lookback_period = dateadd("m", -60, cdate(baseline_d
 'Lookback period end date
 If baseline_date <> "" then end_of_lookback = dateadd ("d", -1, cdate (baseline_date))
 
-'Dollar bill symbol will be added to numeric variables 
-IF transfer_amount <> "" THEN transfer_amount = "$" & transfer_amount
-IF partial_penalty_amount <> "" THEN partial_penalty_amount = "$" & partial_penalty_amount
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE												'navigates to CASE/NOTE and put case into edit mode
