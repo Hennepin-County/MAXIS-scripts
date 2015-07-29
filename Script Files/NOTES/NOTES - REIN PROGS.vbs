@@ -1,5 +1,5 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - MAIN MENU (H-Z).vbs"
+'GATHERING STATS----------------------------------------------------------------------------------------------------
+name_of_script = "NOTES - REIN PROGS.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -46,8 +46,92 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'If a script_repository is not declared then set it to be master, because the user is likely a scriptwriter.
-IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files/"
 
-'This runs the new MAIN MENU script. This entire file will be removed once all agencies update their Power Pads.
-CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MAIN MENU.vbs")
+
+'DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog Rein_dialog, 0, 0, 256, 260, "Rein"
+  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 25, 60, 15, rein_date
+  CheckBox 30, 65, 50, 10, "SNAP", SNAP_checkbox
+  CheckBox 90, 65, 50, 10, "CASH", CASH_checkbox
+  CheckBox 155, 65, 50, 10, "HC", HC_checkbox
+  CheckBox 30, 110, 50, 10, "SNAP", SNAP_rein_checkbox
+  CheckBox 90, 110, 50, 10, "CASH", CASH_rein_checkbox
+  CheckBox 155, 110, 50, 10, "HC", HC_rein_checkbox
+  EditBox 100, 135, 50, 15, Progs_closed_date
+  EditBox 100, 160, 115, 15, reason_rein
+  EditBox 100, 185, 115, 15, Actions_taken
+  EditBox 100, 210, 75, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 125, 235, 50, 15
+    CancelButton 190, 235, 50, 15
+  Text 30, 30, 45, 10, "Date of REIN:"
+  Text 10, 140, 85, 10, "Programs last closed on:"
+  Text 45, 185, 50, 10, "Actions Taken:"
+  Text 40, 160, 65, 10, "Reason for REIN:"
+  Text 10, 10, 75, 10, "Maxis case number:"
+  GroupBox 5, 95, 220, 35, "Programs to REIN: "
+  Text 35, 215, 65, 10, "Worker Signature:"
+  GroupBox 5, 50, 215, 35, "Programs closed:"
+EndDialog
+
+
+'script code-----------------------------------------------------------------------------------------------
+
+'Connect to Bluezone
+EMConnect ""
+
+'Grabs Maxis Case number
+CALL MAXIS_case_number_finder(case_number)
+
+'Shows dialog
+DO
+	DO
+	
+		Dialog REIN_dialog
+		IF ButtonPressed = 0 THEN StopScript
+		IF worker_signature = "" THEN MsgBox "You must sign your case note!"
+		LOOP UNTIL worker_signature <> ""
+	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+LOOP UNTIL IsNumeric(case_number) = TRUE
+	
+
+'Checks Maxis for password prompt
+CALL check_for_MAXIS(True)
+
+
+'Navigates to case note
+CALL navigate_to_screen("CASE", "NOTE")
+
+'Sends a PF9
+PF9
+
+'Writes the case note
+CALL write_variable_in_case_note ("***REIN Programs***")
+CALL write_bullet_and_variable_in_case_note("Date of REIN", rein_date)
+CALL write_variable_in_case_note ("~~~Programs closed~~~")
+IF SNAP_checkbox = 1 THEN call write_variable_in_case_note("* SNAP")
+IF CASH_checkbox = 1 THEN call write_variable_in_case_note("* CASH")
+IF HC_checkbox = 1 THEN call write_variable_in_case_note("* HC")
+CALL write_variable_in_case_note ("~~~Programs to REIN~~~")
+IF SNAP_REIN_checkbox = 1 THEN call write_variable_in_case_note("* SNAP")
+IF CASH_REIN_checkbox = 1 THEN call write_variable_in_case_note("* CASH")
+IF HC_REIN_checkbox = 1 THEN call write_variable_in_case_note("* HC")
+CALL write_variable_in_case_note ("---")
+CALL write_bullet_and_variable_in_case_note("Programs closed on", progs_closed_date)
+CALL write_bullet_and_variable_in_case_note("Reason for Reinstatement", reason_rein)
+CALL write_bullet_and_variable_in_case_note("Actions Taken", actions_taken)
+CALL write_variable_in_case_note ("---")
+CALL write_variable_in_case_note (worker_signature)
+
+
+CALL script_end_procedure("")
+
+
+
+
+
+
+
+
+

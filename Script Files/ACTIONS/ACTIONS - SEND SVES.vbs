@@ -271,3 +271,9 @@ call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
+
+
+
+
+
+
