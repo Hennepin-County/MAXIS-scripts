@@ -48,23 +48,23 @@ END IF
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+MAXIS_footer_month = datepart("m", next_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = datepart("yyyy", next_month)
+MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
-  Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 95, 0, 60, 15, case_number
-  Text 15, 25, 50, 10, "Footer month:"
-  EditBox 65, 20, 25, 15, footer_month
-  Text 95, 25, 20, 10, "Year:"
-  EditBox 120, 20, 25, 15, footer_year
+BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
+  EditBox 80, 5, 60, 15, case_number					
+  EditBox 80, 25, 25, 15, MAXIS_footer_month					
+  EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 40, 50, 15
-    CancelButton 85, 40, 50, 15
+    OkButton 35, 45, 50, 15
+    CancelButton 90, 45, 50, 15
+  Text 10, 30, 65, 10, "Footer month/year:"
+  Text 10, 10, 45, 10, "Case number: "
 EndDialog
+
 
 BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
   Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
@@ -90,7 +90,7 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   EditBox 50, 205, 375, 15, other_notes
   CheckBox 5, 225, 100, 10, "Sent forms to AREP?", sent_arep_checkbox
   DropListBox 60, 240, 75, 15, "complete"+chr(9)+"incomplete", review_status
-  EditBox 215, 240, 65, 15, worker_sig
+  EditBox 215, 240, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 320, 240, 50, 15
     CancelButton 375, 240, 50, 15
@@ -139,19 +139,6 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   Text 145, 245, 65, 10, "Sign the case note:"
 EndDialog
 
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
 
 'VARIABLES WHICH NEED DECLARING----------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -162,22 +149,11 @@ HH_member_array = array("01") 'Because this script will only be used on member 0
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'Connecting to BlueZone
+'Connecting to BlueZone & grabbing case number & footer month
 EMConnect ""
+call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
 
 'Showing the case number dialog
 Do
@@ -186,17 +162,11 @@ Do
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
-'Checking for MAXIS
-transmit
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("You are not in MAXIS, or you are locked out of your case.")
-
-'Jumping to STAT
-call navigate_to_MAXIS_screen("stat", "memb")
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" then script_end_procedure("Couldn't get past the SELF menu. Is your case in background?") 'This is error-proofing.
+'checking for an active MAXIS session
+Call check_for_MAXIS (FALSE)
 
 'This grabs the HH comp in greater detail than the shared function as of 07/11/2013. This includes age/gender/marital status of client.
+call navigate_to_MAXIS_screen("stat", "memb")
 EMReadScreen client_age, 3, 8, 76
 client_age = trim(client_age)
 EMReadScreen client_gender, 1, 9, 42
@@ -229,12 +199,11 @@ call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 
 'Determining the resert month by combining footer month and year, elig/HC searching will need this
-recert_month = footer_month & "/" & footer_year
+recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-'Jumping to elig/HC
-call navigate_to_MAXIS_screen("elig", "hc")
 
 'Checking to see if person 01 has HC. If not it tries person 02
+call navigate_to_MAXIS_screen("elig", "hc")
 EMReadScreen person_check, 2, 8, 31
 If person_check = "NO" then
   MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
@@ -257,8 +226,8 @@ transmit
 'Searching for the footer month/year
 row = 4 'because the first several rows can contain other "MM/YY" data which can interfere with the search
 col = 1
-EMSearch footer_month & "/" & footer_year & " ", row, col
-If row = 0 then script_end_procedure("A " & footer_month & "/" & footer_year & " span could not be found. Try this again. You may need to run the case through background.")
+EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year & " ", row, col
+If row = 0 then script_end_procedure("A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background.")
 
 'Reading info from ELIG/HC, going into the budget breakdown to grab even more info
 EMReadScreen elig_type, 2, 12, col - 2
@@ -364,59 +333,17 @@ End if
 If recipient_amt = "$" then recipient_amt = "$0"
 If right(deductions, 2) = "; " then deductions = left(deductions, len(deductions) - 2)
 
-'Shows the dialog
+'Shows the recert dialog
 Do
-  Do
-    Do
-      Do
-        Do
-          Dialog LTC_recert_dialog
-          If ButtonPressed = 0 then 
-            dialog cancel_dialog
-            If ButtonPressed = yes_cancel_button then stopscript
-          End if
-        Loop until ButtonPressed <> no_cancel_button
-        EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then Call MAXIS_dialog_navigation
-          If ButtonPressed = next_panel_button then Call MAXIS_dialog_navigation
-          If ButtonPressed = prev_memb_button then Call MAXIS_dialog_navigation
-          If ButtonPressed = next_memb_button then Call MAXIS_dialog_navigation
-        End if
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen check_for_MAXIS(True), 5, 1, 39
-        If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
-      If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "arep")
-      If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
-      If ButtonPressed = BUSI_button then call navigate_to_MAXIS_screen("stat", "BUSI")
-      If ButtonPressed = JOBS_button then call navigate_to_MAXIS_screen("stat", "JOBS")
-      If ButtonPressed = RBIC_button then call navigate_to_MAXIS_screen("stat", "RBIC")
-      If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
-      If ButtonPressed = ACCT_button then call navigate_to_MAXIS_screen("stat", "ACCT")
-      If ButtonPressed = CARS_button then call navigate_to_MAXIS_screen("stat", "CARS")
-      If ButtonPressed = CASH_button then call navigate_to_MAXIS_screen("stat", "CASH")
-      If ButtonPressed = OTHR_button then call navigate_to_MAXIS_screen("stat", "OTHR")
-      If ButtonPressed = REST_button then call navigate_to_MAXIS_screen("stat", "REST")
-      If ButtonPressed = SECU_button then call navigate_to_MAXIS_screen("stat", "SECU")
-      If ButtonPressed = TRAN_button then call navigate_to_MAXIS_screen("stat", "TRAN")
-      If ButtonPressed = HCRE_button then call navigate_to_MAXIS_screen("stat", "HCRE")
-      If ButtonPressed = REVW_button then call navigate_to_MAXIS_screen("stat", "REVW")
-      If ButtonPressed = MEMB_button then call navigate_to_MAXIS_screen("stat", "MEMB")
-      If ButtonPressed = MEMI_button then call navigate_to_MAXIS_screen("stat", "MEMI")
-      If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
-    Loop until ButtonPressed = -1
-    If worker_sig = "" then MsgBox "You must sign your case note."
-  Loop until worker_sig <> ""
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
-    call navigate_to_MAXIS_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+    Dialog LTC_recert_dialog
+    cancel_confirmation
+	MAXIS_dialog_navigation
+LOOP until ButtonPressed = -1
+
+'Functions to confirm proceeding to case note & for an active MAXIS session
+proceed_confirmation(TRUE)   
+Call check_for_MAXIS(False)
+
 
 'Logic to fix the naming in the "recipient amt" variable (not everyone likes calling it "recipient amt"
 If budget_type = "L" then recipient_amt_name = "spenddown: "
@@ -428,9 +355,9 @@ If MEDI_reimbursement_prog <> "" then MEDI_reimbursement_prog = "/" & MEDI_reimb
 
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
+start_a_blank_CASE_NOTE
 'Writing the case note
-Call write_varaible_in_case_note("***" & recert_month & " ER " & review_status & ": " & MA_type & MEDI_reimbursement_prog & ", " & recipient_amt_name & recipient_amt & "***")
+Call write_variable_in_case_note("***" & recert_month & " ER " & review_status & ": " & MA_type & MEDI_reimbursement_prog & ", " & recipient_amt_name & recipient_amt & "***")
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
 call write_bullet_and_variable_in_case_note("AREP", AREP)
@@ -441,8 +368,8 @@ call write_bullet_and_variable_in_case_note("Assets", assets)
 call write_bullet_and_variable_in_case_note("Recipient amt", recipient_amt)
 call write_bullet_and_variable_in_case_note("Deducts", deductions)
 If other_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", other_notes)
-IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+IF Sent_arep_checkbox = 1 THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE(worker_sig)
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
