@@ -1,4 +1,6 @@
 'Option Explicit
+name_of_script = "NOTES - CHANGE REPORT FORM RECEIVED.vbs"
+start_timer = timer
 
 'DIMMING VARIABLES
 'DIM url, req, fso, crf_received_dialog, case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
@@ -108,13 +110,13 @@ DO
 	IF changes_continue = "Select One..." THEN MsgBox "You Must Select 'The changes client reports field'"
 LOOP UNTIL changes_continue <> "Select One..."
 
-
 'Checks Maxis for password prompt
-CALL check_for_MAXIS(True)
+CALL check_for_MAXIS(FALSE)
+
+
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Navigates to case note
 Call start_a_blank_CASE_NOTE
-
-'Writes the case note
 CALL write_variable_in_case_note ("***Change Report Form Received***")
 CALL write_bullet_and_variable_in_case_note("Date Form Received", date_received)
 CALL write_bullet_and_variable_in_case_note("Address", address_notes)
@@ -131,7 +133,6 @@ CALL write_bullet_and_variable_in_case_note("Verifs Requested", verifs_requested
 IF changes_continue <> "select one..." THEN CALL write_bullet_and_variable_in_case_note("The changes client reports", changes_continue)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
-
 
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 IF tikl_nav_check = 1 THEN

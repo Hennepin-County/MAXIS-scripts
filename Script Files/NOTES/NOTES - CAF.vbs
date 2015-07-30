@@ -279,7 +279,7 @@ Do
   cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
-transmit
+
 
 'checking for an active MAXIS session
 call check_for_MAXIS(True)
@@ -385,7 +385,7 @@ Do
 			  "-Sign your case note." & chr(13) & chr(13) & _
 			  "Check these items after pressing ''OK''."	
 		End if
-	Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
+	Loop until (actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> "")		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 

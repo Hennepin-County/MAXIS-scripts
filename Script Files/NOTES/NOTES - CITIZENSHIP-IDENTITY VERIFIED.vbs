@@ -89,7 +89,7 @@ BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
   ComboBox 170, 180, 85, 15, "(select or type here)"+chr(9)+"Elect. verif."+chr(9)+"Birth Certificate"+chr(9)+"Nat. papers"+chr(9)+"US passport", cit_proof_08
   ComboBox 260, 180, 85, 15, "(select or type here)"+chr(9)+"Elect. verif."+chr(9)+"Drivers License"+chr(9)+"State ID"+chr(9)+"School ID"+chr(9)+"Parent Signature"+chr(9)+"US passport", ID_proof_08
   Text 5, 205, 65, 10, "Sign the case note:"
-  EditBox 75, 200, 95, 15, worker_sig
+  EditBox 75, 200, 95, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 195, 200, 50, 15
     CancelButton 250, 200, 50, 15
@@ -125,7 +125,7 @@ Do
 Loop until can_move_on = True
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)	
+Call check_for_MAXIS(False)
 
 'Case noting----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
@@ -189,6 +189,6 @@ If HH_memb_08 <> "" then
 	IF ID_proof_08 <> "(select or type here)" then Call write_variable_in_CASE_NOTE(ID_proof_08)
 End if
 Call write_variable_in_CASE_NOTE("--------------------------------------------------------------------------------")
-Call write_variable_in_CASE_NOTE(worker_sig)
+Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")

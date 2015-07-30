@@ -83,7 +83,7 @@ BeginDialog closed_dialog, 0, 0, 421, 240 - dialog_shrink_amt, "Closed progs dia
   Text 20, 215, 380, 20, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their reamining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
 EndDialog
 
-
+'The script----------------------------------------------------------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
 
@@ -93,42 +93,31 @@ cash_check = 0
 HC_check = 0
 
 'Autofills case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If isnumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 
 'Dialog starts. Checks for MAXIS, includes nav button for SPEC/WCOM, validates the date of closure, confirms that date 
 '    of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE.
-Do
-  Do
-    Do
-      Do
-        Do
-          Do
-            Dialog closed_dialog
-            If buttonpressed = 0 then stopscript
-            transmit
-            EMReadScreen check_for_MAXIS(True), 5, 1, 39
-            If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
-          Loop until check_for_MAXIS(True) = "MAXIS"
-          If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
-        Loop until ButtonPressed = -1
-        If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."
-        IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
-	  IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN MsgBox "Please check the box for client death."
-      Loop until isdate(closure_date) = True AND ((death_check = 1 AND isdate(hc_close_for_death_date) = TRUE) OR (death_check <> 1 AND hc_close_for_death_date = ""))
-      If datepart("d", dateadd("d", 1, closure_date)) <> 1 then MsgBox "Please use the last date of eligibility, which for an open case, should be the last day of the month. If this is a denial, use the denial script."
+DO
+	DO
+		DO
+			DO
+				Dialog closed_dialog
+				cancel_confirmation
+				Call check_for_MAXIS(False)
+				If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
+			Loop until ButtonPressed = -1
+			If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."
+			IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
+			IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN MsgBox "Please check the box for client death."
+		Loop until isdate(closure_date) = True AND ((death_check = 1 AND isdate(hc_close_for_death_date) = TRUE) OR (death_check <> 1 AND hc_close_for_death_date = ""))
+		If datepart("d", dateadd("d", 1, closure_date)) <> 1 then MsgBox "Please use the last date of eligibility, which for an open case, should be the last day of the month. If this is a denial, use the denial script."
     Loop until datepart("d", dateadd("d", 1, closure_date)) = 1
-    If SNAP_check = 0 and HC_check = 0 and cash_check = 0 then MsgBox "You need to select a program to close."
-  Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1
-  call navigate_to_MAXIS_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "You do not appear to be able to edit a case note. This case could have errored out, or might be in another county. Or you could be on inquiry. Check the case number, and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+	If SNAP_check = 0 and HC_check = 0 and cash_check = 0 then MsgBox "You need to select a program to close."
+Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1
 
+
+'LOGIC and calculations----------------------------------------------------------------------------------------------------
 'Converting dates for intake/REIN/reapp date calculations
 closure_date = cdate(closure_date)                                                       'just running a cdate on the closure_date variable
 closure_month_first_day = dateadd("d", 1, closure_date)                                  'This is the first day of the closure month
@@ -171,6 +160,7 @@ End if
 progs_closed = left(progs_closed, len(progs_closed) - 1)
 
 'The dialog navigated to CASE/NOTE. This will write the info into the case note.
+start_a_blank_CASE_NOTE
 IF death_check = 1 THEN
 	case_note_header = "---Closed " & progs_closed & " due to client death---"
 ELSE
@@ -207,5 +197,3 @@ call write_variable_in_case_note(worker_signature)
 If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
 
 script_end_procedure("")
-
-

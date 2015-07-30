@@ -54,22 +54,22 @@ footer_year = datepart("yyyy", next_month)
 footer_year = "" & footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
+BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
-  CheckBox 10, 80, 30, 10, "GRH", GRH_check
-  CheckBox 50, 80, 30, 10, "MSA", cash_check
-  CheckBox 95, 80, 35, 10, "SNAP", SNAP_check
-  CheckBox 145, 80, 30, 10, "HC", HC_check
+  EditBox 80, 25, 30, 15, footer_month
+  EditBox 120, 25, 30, 15, footer_year
+  CheckBox 10, 60, 30, 10, "GRH", GRH_check
+  CheckBox 50, 60, 30, 10, "MSA", cash_check
+  CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
+  CheckBox 145, 60, 30, 10, "HC", HC_check
   ButtonGroup ButtonPressed
-	OkButton 35, 100, 50, 15
-	CancelButton 95, 100, 50, 15
-  Text 25, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 110, 30, 25, 10, "Year:"
-  GroupBox 5, 65, 170, 30, "Programs recertifying"
+    OkButton 35, 80, 50, 15
+    CancelButton 95, 80, 50, 15
+  Text 10, 10, 50, 10, "Case number:"
+  Text 10, 30, 65, 10, "Footer month/year:"
+  GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
+
 
 BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 70, 35, 50, 15, recert_datestamp
@@ -138,19 +138,6 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   Text 5, 60, 55, 10, "Interview Date:"
 EndDialog
 
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-	PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-	PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-	PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-	PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -158,19 +145,16 @@ Dim row
 Dim col
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-'Connecting to BlueZone
+'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
-'Grabbing the case number
 call MAXIS_case_number_finder(case_number)
-'Grabbing the footer month/year
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
 'Shows case number dialog
 Do
 	Dialog case_number_dialog
-	cancel_confirmation
+	If buttonpressed = 0 then StopScript
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
@@ -207,64 +191,16 @@ recert_month = footer_month & "/" & footer_year
 
 'Showing the case note dialog
 Do
-	Do
-		Do
-			Do
-				Do
-					Dialog combined_AR_dialog
-					If ButtonPressed = 0 then 
-						dialog cancel_dialog
-						If ButtonPressed = yes_cancel_button then stopscript
-					End if
-				Loop until ButtonPressed <> no_cancel_button
-				EMReadScreen STAT_check, 4, 20, 21
-				If STAT_check = "STAT" then
-					If ButtonPressed = prev_panel_button then Call MAXIS_dialog_navigation 
-					If ButtonPressed = next_panel_button then Call MAXIS_dialog_navigation
-					If ButtonPressed = prev_memb_button then Call MAXIS_dialog_navigation
-					If ButtonPressed = next_memb_button then Call MAXIS_dialog_navigation
-				End if
-				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-				EMReadScreen check_for_MAXIS(True), 5, 1, 39
-				If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-			Loop until check_for_MAXIS(True) = "MAXIS" or check_for_MAXIS(True) = "AXIS " 
-			If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "arep")
-			If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
-			If ButtonPressed = BUSI_button then call navigate_to_MAXIS_screen("stat", "BUSI")
-			If ButtonPressed = JOBS_button then call navigate_to_MAXIS_screen("stat", "JOBS")
-			If ButtonPressed = RBIC_button then call navigate_to_MAXIS_screen("stat", "RBIC")
-			If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
-			If ButtonPressed = ACCT_button then call navigate_to_MAXIS_screen("stat", "ACCT")
-			If ButtonPressed = CARS_button then call navigate_to_MAXIS_screen("stat", "CARS")
-			If ButtonPressed = CASH_button then call navigate_to_MAXIS_screen("stat", "CASH")
-			If ButtonPressed = OTHR_button then call navigate_to_MAXIS_screen("stat", "OTHR")
-			If ButtonPressed = REST_button then call navigate_to_MAXIS_screen("stat", "REST")
-			If ButtonPressed = SECU_button then call navigate_to_MAXIS_screen("stat", "SECU")
-			If ButtonPressed = TRAN_button then call navigate_to_MAXIS_screen("stat", "TRAN")
-			If ButtonPressed = HCRE_button then call navigate_to_MAXIS_screen("stat", "HCRE")
-			If ButtonPressed = REVW_button then call navigate_to_MAXIS_screen("stat", "REVW")
-			If ButtonPressed = MEMB_button then call navigate_to_MAXIS_screen("stat", "MEMB")
-			If ButtonPressed = MEMI_button then call navigate_to_MAXIS_screen("stat", "MEMI")
-			IF ButtonPressed = SHEL_button THEN CALL navigate_to_MAXIS_screen("STAT", "SHEL")
-			IF ButtonPressed = HEST_button THEN CALL navigate_to_MAXIS_screen("STAT", "HEST")
-			If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
-			If ButtonPressed = ELIG_FS_button then call navigate_to_MAXIS_screen("elig", "FS__")
-			If ButtonPressed = ELIG_GA_button then call navigate_to_MAXIS_screen("elig", "GA__")
-			If ButtonPressed = ELIG_MSA_button then call navigate_to_MAXIS_screen("elig", "MSA_")
-		Loop until ButtonPressed = -1
-		If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
-	Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""
-	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then
-		call navigate_to_MAXIS_screen("case", "note")
-		PF9
-		EMReadScreen case_note_check, 17, 2, 33
-		EMReadScreen mode_check, 1, 20, 09
-		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-	End if
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+	DO
+		Dialog combined_AR_dialog
+		cancel_confirmation
+		MAXIS_dialog_navigation
+	Loop until ButtonPressed = -1
+	If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
+Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""			
 
-'The case note
+'The case note----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***Combined AR received " & recert_datestamp & " for " & recert_month & ": " & review_status & "***")
 CALL write_bullet_and_variable_in_case_note("Interview Date", interview_date)
 CALL write_bullet_and_variable_in_case_note("HH comp", HH_comp)
@@ -283,10 +219,4 @@ CALL write_bullet_and_variable_in_case_note("Notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-CALL script_end_procedure("")
-
-
-
-
-
-
+script_end_procedure("")

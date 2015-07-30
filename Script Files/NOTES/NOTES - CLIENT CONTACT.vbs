@@ -79,7 +79,7 @@ BeginDialog client_contact_dialog, 0, 0, 386, 300, "Client contact"
   Text 5, 90, 50, 10, "Actions taken: "
   GroupBox 0, 105, 380, 75, "Helpful info for call centers (or front desks) to pass on to clients"
   Text 10, 125, 50, 10, "Verifs needed: "
-  Text 10, 145, 105, 10, "Instructions/message for client:"
+  Text 10, 145, 105, 10, "Instructions/message:"
   Text 10, 165, 45, 10, "Case status: "
   GroupBox 5, 250, 130, 45, "Call Center:"
   Text 240, 260, 70, 10, "Sign your case note: "
@@ -87,67 +87,30 @@ EndDialog
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
-
+'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
-
-
-'updating case number insert w/function name             
 CALL MAXIS_case_number_finder(case_number)
 
 'updates the "when contact was made" variable to show the current date & time
 when_contact_was_made = date & ", " & time
 
-
-DO
+Do
 	Do
 		Do
-			Do
-				DO
-				Dialog client_contact_dialog
-				If buttonpressed = 0 then stopscript
-				IF contact_reason = "" or contact_type = "" Then MsgBox("You must enter a reason for contact, as well as a type (phone, etc.).")
-			Loop until contact_reason <> "" and contact_type <> ""
-			IF worker_signature = "" THEN MsgBox "Please sign your note"
-			LOOP UNTIL worker_signature <>""
-			If (isnumeric(case_number) = False and len(case_number) <> 8) then MsgBox "You must enter either a valid MAXIS or MCRE case number."
-		Loop until (isnumeric(case_number) = True) or (isnumeric(case_number) = False and len(case_number) = 8)
-		transmit
-		If isnumeric(case_number) = True then
-			EMReadScreen , 5, 1, 39
-			If  <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your screen to MAXIS and try again. You might be passworded out."
-		Else
-			MMIS_row = 1
-			MMIS_col = 1
-			EMSearch "MMIS", MMIS_row, MMIS_col
-			If MMIS_row <> 1 then
-				EMReadScreen OSLT_check, 4, 1, 52 'Because cases that are on the "OSLT" screen in MMIS don't contain the characters "MMIS" in the top line.
-				If OSLT_check = "OSLT" then MMIS_row = 1
-			End if
-			If MMIS_row <> 1 then MsgBox "You are not in MMIS. Navigate your screen to MMIS and try again. You might be passworded out."
-		End if
-	Loop until  = "MAXIS" or MMIS_row = 1
-	If isnumeric(case_number) = True then 
-		call navigate_to_MAXIS_screen("case", "note")
-		PF9
-		EMReadScreen mode_check, 7, 20, 3
-		If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
-	Else
-		call MMIS_RKEY_finder
-		EMWriteScreen "c", 2, 19
-		EMWriteScreen case_number, 9, 19
-		transmit
-		EMReadScreen RKEY_check, 4, 1, 52 'CHECKING FOR RKEY, IF RENEWAL IS DUE A WARNING MESSAGE WILL NEED TO BE MOVED PAST.
-		If RKEY_check = "RKEY" then transmit
-		PF4
-		PF11
-		EMReadScreen MMIS_edit_mode_check, 5, 5, 2
-		If MMIS_edit_mode_check <> "'''''" then script_end_procedure("MMIS edit mode not found. Are you in inquiry? Is MMIS not functioning? Shut down this script and try again. If it continues to not work, email your script administrator the case number, and a screenshot of MMIS.")
-	End if
-Loop until (mode_check = "Mode: A" or mode_check = "Mode: E") or (MMIS_edit_mode_check = "'''''") 
+			Dialog client_contact_dialog
+			cancel_confirmation
+			IF contact_reason = "" or contact_type = "" Then MsgBox("You must enter a reason for contact, as well as a type (phone, etc.).")
+		Loop until contact_reason <> "" and contact_type <> ""
+		IF worker_signature = "" THEN MsgBox "Please sign your note"
+	LOOP UNTIL worker_signature <>""
+	If (isnumeric(case_number) = False and len(case_number) <> 8) then MsgBox "You must enter either a valid MAXIS or MCRE case number."
+Loop until (isnumeric(case_number) = True) or (isnumeric(case_number) = False and len(case_number) = 8)
 
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
-
-'Writing case note w/updated functions
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)
 CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
 CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number)
