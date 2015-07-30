@@ -79,36 +79,28 @@ BeginDialog Fraud_Dialog, 0, 0, 211, 245, "Fraud Info"
 EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS session and finding case number
 EMConnect ""
-
-'Finds the case number
 CALL MAXIS_case_number_finder(case_number)
-
-CALL check_for_MAXIS(True)
 
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	DO
-		Dialog fraud_dialog
-		IF buttonpressed = 0 THEN stopscript
-		IF case_number = "" THEN MsgBox "You must have a case number to continue!"
-		IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
-		IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
-	LOOP until case_number <> "" and worker_signature <> "" and (overpayment_yn = "Yes" or overpayment_yn ="No")
-	CALL check_for_MAXIS(TRUE)
-	CALL navigate_to_MAXIS_screen("case", "note")
-	PF9
-	EMReadscreen mode_check, 7, 20, 3
-	IF mode_check <> "Mode: A" AND mode_check <> "Mode: E" THEN MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-LOOP until mode_check = "Mode: A" OR mode_check = "Mode: E"
+	Dialog fraud_dialog
+	IF buttonpressed = 0 THEN stopscript
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
+	IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
+LOOP until case_number <> "" and worker_signature <> "" and (overpayment_yn = "Yes" or overpayment_yn ="No")
+	
+'checking for an active MAXIS session
+CALL check_for_MAXIS(False)
 
 'debatable to include?
 IF overpayment_yn = "Yes" THEN overpayment_yn = " Yes. See overpayment case note for more details."
 
-
 'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***Fraud Referral Info***")
 CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", referral_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Referral Reason", referral_reason)
@@ -119,10 +111,3 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 Script_end_procedure("")
-
-	
-
-
-
-
-

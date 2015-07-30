@@ -432,4 +432,4 @@ IF MMIS_update_check = checked then call write_variable_in_case_note("* MMIS upd
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-CALL script_end_procedure("")
+script_end_procedure("")

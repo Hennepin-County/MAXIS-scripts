@@ -205,10 +205,8 @@ Do
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 
-'Navigates to a blank case note
+'The case note----------------------------------------------------------------------------------------------------
 call start_a_blank_case_note
-
-'The case note
 CALL write_variable_in_case_note("***" & recert_month & " HC ER received " & recert_datestamp & ": " & recert_status & "***")
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
@@ -227,10 +225,4 @@ If MADE_check = checked then call write_variable_in_case_note("* Emailed MADE.")
 If MAEPD_premium <> "" or MADE_check = checked then call write_variable_in_case_note("---")		'Does this for MAEPD <> blank because if it's blank and there's no MADE_check, it means there's nothing in this section after the ---, and we don't want two in a row now, do we?
 call write_variable_in_case_note(worker_signature)
 
-call script_end_procedure("")
-
-
-
-
-
-
+script_end_procedure("")

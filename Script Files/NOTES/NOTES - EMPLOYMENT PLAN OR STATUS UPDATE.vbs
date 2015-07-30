@@ -4,8 +4,8 @@ start_time = timer
 
 'Option Explicit
 
-DIM beta_agency
-DIM FuncLib_URL, req, fso
+'DIM beta_agency
+'DIM FuncLib_URL, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -100,10 +100,8 @@ BeginDialog employment_plan_dialog, 0, 0, 311, 265, "Employment Plan Received"
   Text 5, 100, 30, 15, "Job:"
   Text 5, 120, 35, 15, "School:"
   Text 5, 140, 50, 15, "Disa end date:"
-  
 EndDialog
 
-EndDialog
 
 BeginDialog status_update_dialog, 0, 0, 246, 195, "Status Update"
   ButtonGroup ButtonPressed
@@ -128,18 +126,16 @@ BeginDialog status_update_dialog, 0, 0, 246, 195, "Status Update"
   Text 145, 70, 35, 20, "Effective Date:"
 EndDialog
 
-'-grabbing case number
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS & grabbing case number
 EMConnect ""
-
 call MAXIS_case_number_finder(case_number)
 
 '---------------Calling the case number dialog
 DO
 	DO
-		DO
-			Dialog case_number_dialog
-			IF ButtonPressed = 0 THEN stopscript
-		LOOP UNTIL ButtonPressed = OK
+		Dialog case_number_dialog
+		IF ButtonPressed = 0 THEN stopscript
 		IF isnumeric(case_number) = FALSE THEN MsgBox "You must enter a case number. Please try again."
 	LOOP UNTIL isnumeric(case_number) = True
 	IF isdate(document_date) = FALSE THEN  MsgBox "Please enter a valid document date."
@@ -151,10 +147,8 @@ IF update_type = "Employment Plan" THEN
 		DO	
 			DO
 				DO
-					DO 
-						Dialog employment_plan_dialog
-						IF ButtonPressed = 0 THEN stopscript
-					LOOP UNTIL ButtonPressed = OK
+					Dialog employment_plan_dialog
+					IF ButtonPressed = 0 THEN stopscript
 					IF actions_taken = "" THEN MsgBox "Please complete the actions taken field."
 				LOOP UNTIL actions_taken <> ""
 				IF worker_signature = "" THEN MsgBox "Please sign your case note."
@@ -169,10 +163,8 @@ END IF
 IF update_type = "Status Update" THEN
 	DO
 		DO
-			DO
-				Dialog status_update_dialog
-				IF ButtonPressed = 0 THEN stopscript
-			LOOP UNTIL ButtonPressed = OK
+			Dialog status_update_dialog
+			IF ButtonPressed = 0 THEN stopscript
 			IF sanction_imposed_check = unchecked and actions_taken <> "" and received_sent = "Received" THEN MsgBox "Please complete the actions taken field."
 		LOOP until sanction_imposed_check = checked OR actions_taken <> "" OR received_sent = "Sent"
 		IF worker_signature = "" THEN MsgBox "Please sign your case note."
@@ -180,7 +172,7 @@ IF update_type = "Status Update" THEN
 END IF
 
 '----Writing the note
-call check_for_MAXIS(true)
+call check_for_MAXIS(false)
 
 call start_a_blank_CASE_NOTE
 'Writing the employment plan note

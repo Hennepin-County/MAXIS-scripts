@@ -49,7 +49,7 @@ END IF
 BeginDialog dup_dlg, 0, 0, 141, 95, "Duplicate Assistance WCOM"
   EditBox 75, 5, 60, 15, case_number
   EditBox 75, 25, 60, 15, worker_signature
-  EditBox 75, 45, 25, 15, MAXIS_footer_year
+  EditBox 75, 45, 25, 15, MAXIS_footer_month
   EditBox 110, 45, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 30, 70, 50, 15
@@ -78,24 +78,24 @@ Do
 		Do
 			dialog dup_dlg
 			cancel_confirmation
-			If footer_month = "" or footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
+			If MAXIS_footer_month = "" or MAXIS_footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
 			If case_number = "" THEN MsgBox "Please enter a case number."
 			If worker_signature = "" THEN MsgBox "Please sign your note."
-		Loop until footer_month <> "" & footer_year <> ""
+		Loop until MAXIS_footer_month <> "" & MAXIS_footer_year <> ""
 	Loop until case_number <> ""
 Loop until worker_signature <> ""
 
 'Converting dates into useable forms
-If len(footer_month) < 2 THEN footer_month = "0" & footer_month
-If len(footer_year) > 2 THEN footer_year = right(footer_year, 2)
+If len(MAXIS_footer_month) < 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+If len(MAXIS_footer_year) > 2 THEN MAXIS_footer_year = right(MAXIS_footer_year, 2)
 
 
 'Navigating to the spec wcom screen
 CALL Check_for_MAXIS(False)
 back_to_self
 Emwritescreen case_number, 18, 43
-Emwritescreen footer_month, 20, 43
-Emwritescreen footer_year, 20, 46
+Emwritescreen MAXIS_footer_month, 20, 43
+Emwritescreen MAXIS_footer_year, 20, 46
 transmit
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
 

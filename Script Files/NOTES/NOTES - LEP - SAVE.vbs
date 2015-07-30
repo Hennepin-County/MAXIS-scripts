@@ -172,10 +172,5 @@ EMWaitReady 1, 1
 EMSendKey "<PF3>"
 EMWaitReady 1, 1
 MsgBox "TIKL sent for " & TIKL_date & ", 90 days prior to document expiration."
+
 script_end_procedure("")
-
-
-
-
-
-

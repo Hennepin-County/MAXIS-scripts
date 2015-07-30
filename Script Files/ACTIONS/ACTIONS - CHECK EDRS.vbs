@@ -58,11 +58,8 @@ BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
 EndDialog
 
 
-
-
-
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
-
 'Hunts for Maxis case number to autofill it
 Call MAXIS_case_number_finder(case_number)
 
@@ -134,6 +131,4 @@ ELSE
 	MSGBOX "SSN number has a match"        'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
 END IF
 
-
 script_end_procedure("")
-

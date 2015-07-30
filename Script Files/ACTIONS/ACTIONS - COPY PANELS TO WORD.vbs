@@ -485,3 +485,5 @@ For each panel_to_scan in all_panels_selected_array
 		NEXT
 	END IF
 NEXT
+
+script_end_procedure("")

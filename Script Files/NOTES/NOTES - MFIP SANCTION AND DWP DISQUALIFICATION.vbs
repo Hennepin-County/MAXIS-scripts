@@ -142,11 +142,8 @@ IF Vendor_Information <> "" THEN CALL write_bullet_and_variable_in_case_note("Ve
 IF Update_Sent_ES_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Employment Services.")
 IF Update_Sent_CCA_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Child Care Assistance.")
 IF FIAT_Checkbox = 1 THEN CALL write_variable_in_case_note("* Case has been FIATed.")
-
 'case note worker signature
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
-
-

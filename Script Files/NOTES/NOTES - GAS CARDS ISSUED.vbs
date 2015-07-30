@@ -1,5 +1,8 @@
 'Option Explicit
 
+name_of_script = "NOTES - GAS CARDS ISSUED.vbs"
+start_time = timer
+
 'DIM card_amt, amt_given_yr_to_date, check, worker_signature, url, req, fso, gas_card_dialog, client_signed_stmt_check, ButtonPressed, case_number, client_signed_stmt, beta_agency, date_cards_given, case_number_finder, thirty_days_from_now
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -118,4 +121,4 @@ END IF
 CALL write_variable_in_case_note ("---")   
 CALL write_variable_in_CASE_NOTE(worker_signature)    'Writes worker signature in note
 
-CALL script_end_procedure("")
+script_end_procedure("")

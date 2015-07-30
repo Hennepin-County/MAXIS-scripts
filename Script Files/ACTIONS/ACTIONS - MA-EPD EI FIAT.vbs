@@ -260,5 +260,4 @@ Do
   transmit
 loop until col > 76
 
-MsgBox "Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB."
-script_end_procedure("")
+script_end_procedure("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")

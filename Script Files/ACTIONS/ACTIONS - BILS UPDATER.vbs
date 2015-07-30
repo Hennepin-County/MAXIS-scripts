@@ -282,6 +282,7 @@ Loop until dialog_validation_complete = True
 Call check_for_MAXIS(False)
 
 call navigate_to_MAXIS_screen("stat", "bils") 'In case the worker navigated out.
+PF9			'Edits panel
 
 'Cleaning up date field
 budget_begin = replace(budget_begin, ".", "/")		'in case worker used periods instead of slashes
@@ -292,10 +293,6 @@ budget_end = replace(budget_end, "-", "/")
 'Adding the "01" in to the begin and end dates for the budget selector
 budget_begin = replace(budget_begin, "/", "/01/")
 budget_end = replace(budget_end, "/", "/01/")
-
-
-'Edits panel
-PF9
 
 'Using working_date as a variable, it will now determine each footer month between the budget period start and end
 working_date = budget_begin											'starting with the first month

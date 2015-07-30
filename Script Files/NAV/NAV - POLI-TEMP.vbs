@@ -88,3 +88,5 @@ EMWriteScreen panel_title, 21, 71
 
 'Transmits
 transmit
+
+script_end_procedure("")

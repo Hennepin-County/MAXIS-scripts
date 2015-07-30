@@ -165,9 +165,10 @@ BeginDialog denied_dialog, 0, 0, 401, 340 - dialog_shrink_amt, "Denied progs dia
   Text 5, 325 - dialog_shrink_amt, 65, 10, "Worker signature: "
 EndDialog
 
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 'SCRIPT CONNECTS, THEN FINDS THE CASE NUMBER
-
 EMConnect ""
+Call MAXIS_case_number_finder(case_number)
 
 'Resets the check boxes in case this script was run in succession with the closed progs script. In that script, the variables are named the same and when run one 
 'right after another from the Docs Received headquarters it is autofilling these check boxes.------------------------------------------------------------
@@ -177,46 +178,33 @@ HC_check = 0
 updated_MMIS_check = 0
 WCOM_check = 0
 
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If isnumeric(case_number) = False then case_number = ""
-
-
 
 'NOW THE DIALOG STARTS. FIRST IT ALLOWS NAVIGATION TO SPEC/WCOM, THEN IT MAKES SURE PROGRAMS ARE SELECTED FOR DENIAL, AND THAT THE REQUIRED DATE FIELDS FOR THOSE PROGRAMS CONTAIN VALID DATES. 
 '  THEN IT CHECKS FOR MAXIS STATUS, AND NAVIGATES TO CASE NOTE.
 Do
-  Do
-    Do
-      Do
+    DO
         Do
-          Do
-            Dialog denied_dialog
-            If buttonpressed = 0 then stopscript
-            If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
-            If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
-          Loop until buttonpressed = -1
-          If (isdate(SNAP_denial_date) = False and isdate(HC_denial_date) = False and isdate(cash_denial_date) = False and isdate(emer_denial_date) = False) or isdate(application_date) = False then MsgBox "You need to enter a valid date of denial and application date (MM/DD/YYYY)."
-          If isdate(SNAP_denial_date) = False then SNAP_denial_date = ""
-          If isdate(HC_denial_date) = False then HC_denial_date = ""
-          If isdate(cash_denial_date) = False then cash_denial_date = ""
-          If isdate(emer_denial_date) = False then emer_denial_date = ""
-          If isdate(application_date) = False then application_date = ""
+			Do
+				Dialog denied_dialog
+				cancel_confirmation
+				If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
+				If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
+			Loop until buttonpressed = -1
+			If (isdate(SNAP_denial_date) = False and isdate(HC_denial_date) = False and isdate(cash_denial_date) = False and isdate(emer_denial_date) = False) or isdate(application_date) = False then MsgBox "You need to enter a valid date of denial and application date (MM/DD/YYYY)."
+			If isdate(SNAP_denial_date) = False then SNAP_denial_date = ""
+			If isdate(HC_denial_date) = False then HC_denial_date = ""
+			If isdate(cash_denial_date) = False then cash_denial_date = ""
+			If isdate(emer_denial_date) = False then emer_denial_date = ""
+			If isdate(application_date) = False then application_date = ""
         Loop until (isdate(SNAP_denial_date) = True or isdate(HC_denial_date) = True or isdate(cash_denial_date) = True or isdate(emer_denial_date) = True) and isdate(application_date) = True 
-        If ((SNAP_check = 1 and isdate(SNAP_denial_date) = False) or (SNAP_check = 0 and isdate(SNAP_denial_date) = True)) or ((HC_check = 1 and isdate(HC_denial_date) = False) or (HC_check = 0 and isdate(HC_denial_date) = True)) or ((cash_check = 1 and isdate(cash_denial_date) = False) or (cash_check = 0 and isdate(cash_denial_date) = True)) or ((emer_check = 1 and isdate(emer_denial_date) = False) or (emer_check = 0 and isdate(emer_denial_date) = True)) then MsgBox "It looks like you might have checked a program, but not filled in a date. Or vice versa. Look at the programs selected, and make sure there are dates there."
-      Loop until ((SNAP_check = 1 and isdate(SNAP_denial_date) = True) or (SNAP_check = 0 and isdate(SNAP_denial_date) = False)) and ((HC_check = 1 and isdate(HC_denial_date) = True) or (HC_check = 0 and isdate(HC_denial_date) = False)) and ((cash_check = 1 and isdate(cash_denial_date) = True) or (cash_check = 0 and isdate(cash_denial_date) = False)) and ((emer_check = 1 and isdate(emer_denial_date) = True) or (emer_check = 0 and isdate(emer_denial_date) = False))
-      If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
-    Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
-    transmit
-    EMReadScreen check_for_MAXIS(True), 5, 1, 39
-    If check_for_MAXIS(True) <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
-  Loop until check_for_MAXIS(True) = "MAXIS"
-  call navigate_to_MAXIS_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "You do not appear to be able to edit a case note. This case could have errored out, or might be in another county. Or you could be on inquiry. Check the case number, and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+		If ((SNAP_check = 1 and isdate(SNAP_denial_date) = False) or (SNAP_check = 0 and isdate(SNAP_denial_date) = True)) or ((HC_check = 1 and isdate(HC_denial_date) = False) or (HC_check = 0 and isdate(HC_denial_date) = True)) or ((cash_check = 1 and isdate(cash_denial_date) = False) or (cash_check = 0 and isdate(cash_denial_date) = True)) or ((emer_check = 1 and isdate(emer_denial_date) = False) or (emer_check = 0 and isdate(emer_denial_date) = True)) then MsgBox "It looks like you might have checked a program, but not filled in a date. Or vice versa. Look at the programs selected, and make sure there are dates there."
+	Loop until ((SNAP_check = 1 and isdate(SNAP_denial_date) = True) or (SNAP_check = 0 and isdate(SNAP_denial_date) = False)) and ((HC_check = 1 and isdate(HC_denial_date) = True) or (HC_check = 0 and isdate(HC_denial_date) = False)) and ((cash_check = 1 and isdate(cash_denial_date) = True) or (cash_check = 0 and isdate(cash_denial_date) = False)) and ((emer_check = 1 and isdate(emer_denial_date) = True) or (emer_check = 0 and isdate(emer_denial_date) = False))
+	If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
+Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
+
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'IT CONVERTS THE DATE FIELDS TO ACTUAL DATES FOR CALCULATION PURPOSES.
 If isdate(SNAP_denial_date) = true then SNAP_denial_date = cdate(SNAP_denial_date)
@@ -307,6 +295,7 @@ If emer_intake_date > intake_date and emer_check = 1 then intake_date = emer_int
 
 
 'NOW IT CASE NOTES THE DATA.
+start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("---Denied " & progs_denied & "---")
 If SNAP_denial_date <> "" then call write_bullet_and_variable_in_CASE_NOTE("SNAP denial date", SNAP_denial_date)
 If HC_denial_date <> "" then call write_bullet_and_variable_in_CASE_NOTE("HC denial date", HC_denial_date)
@@ -344,8 +333,7 @@ If TIKL_check = 0 then script_end_procedure("")
 
 'IF PROGRAMS ARE STILL OPEN, BUT THE "TIKL TO SEND TO CLS" PARAMETER WAS SET, THE SCRIPT NEEDS TO STOP, AS THE CASE CAN'T GO TO CLS.
 If open_prog_check = 1 then 
-  MsgBox "Because you checked the open programs box, the script will not TIKL to send to CLS."
-  script_end_procedure("")
+  script_end_procedure("Because you checked the open programs box, the script will not TIKL to send to CLS.")
 End if
 
 'IT NAVIGATES TO DAIL/WRIT.
@@ -364,12 +352,7 @@ EMWriteScreen TIKL_day, 5, 21
 EMWriteScreen TIKL_year, 5, 24
 EMSetCursor 9, 3
 EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
-
 'SAVES THE TIKL
 PF3
 
-'SUCCESS NOTICE
-MsgBox "Success! Case noted and TIKL sent."
-script_end_procedure("")
-
-
+script_end_procedure("Success! Case noted and TIKL sent.")

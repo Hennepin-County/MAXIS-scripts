@@ -335,13 +335,15 @@ If right(deductions, 2) = "; " then deductions = left(deductions, len(deductions
 
 'Shows the recert dialog
 Do
-    Dialog LTC_recert_dialog
-    cancel_confirmation
-	MAXIS_dialog_navigation
-LOOP until ButtonPressed = -1
+	DO
+		Dialog LTC_recert_dialog
+		cancel_confirmation
+		MAXIS_dialog_navigation
+	LOOP until ButtonPressed = -1
+	If worker_signature = "" then MsgBox "Please sign your case note."
+LOOP until worker_signature <> ""
 
-'Functions to confirm proceeding to case note & for an active MAXIS session
-proceed_confirmation(TRUE)   
+'Functions to confirm an active MAXIS session
 Call check_for_MAXIS(False)
 
 

@@ -118,9 +118,3 @@ EMSendKey "<PF3>"
 MsgBox "MAXIS updated for student income status. A case note has been made, and a TIKL has been sent for 10 days from now. A financial aid form should be sent to the client."
 
 script_end_procedure("")
-
-
-
-
-
-

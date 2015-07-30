@@ -56,8 +56,8 @@ footer_year = "" & footer_year - 2000
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 97, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 140, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_check
   CheckBox 50, 60, 30, 10, "HC", HC_check
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_check
@@ -158,25 +158,10 @@ Dim col
 application_signed_check = 1 'The script should default to having the application signed.
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-'Connecting to BlueZone
+'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
-
-'Grabbing the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Grabbing the footer month
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	If IsNumeric(MAXIS_footer_month) = True then
-		footer_month = MAXIS_footer_month
-		call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-		If row <> 0 then footer_year = MAXIS_footer_year
-	End if
-End if
+CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 Do
@@ -218,7 +203,6 @@ Do
 		Dialog emergency_dialog
 		MAXIS_dialog_navigation
 		cancel_confirmation
-		Call check_for_MAXIS(False) 
 	Loop until ButtonPressed = -1
 	If ButtonPressed = -1 then dialog case_note_dialog
     If income = "" or actions_taken = "" or worker_signature = "" then MsgBox "You need to fill in the income and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."

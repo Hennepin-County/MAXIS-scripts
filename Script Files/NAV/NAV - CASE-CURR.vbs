@@ -71,3 +71,5 @@ Call check_for_MAXIS(True)
 
 'Navigates to CASE/CURR
 call navigate_to_MAXIS_screen("CASE", "CURR")
+
+script_end_procedure("")

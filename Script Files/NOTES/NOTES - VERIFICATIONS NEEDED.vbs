@@ -167,7 +167,7 @@ Do
 Loop until case_number <> ""														'Loops until that case number exists	
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
@@ -221,4 +221,4 @@ call navigate_to_MAXIS_screen("dail", "writ")
 If IsDate(verif_due_date) = True then call create_MAXIS_friendly_date(verif_due_date, 0, 5, 18)
 
 'Script ends
-script_end_procedure("Success! Case note made. You may TIKL when ready. If you filled in a verif due date, it should be autofilled in this TIKL."))
+script_end_procedure("Success! Case note made. You may TIKL when ready. If you filled in a verif due date, it should be autofilled in this TIKL.")

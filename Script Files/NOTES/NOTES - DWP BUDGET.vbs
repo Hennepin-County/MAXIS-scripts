@@ -75,13 +75,9 @@ BeginDialog DWP_budget_dialog, 0, 0, 426, 165, "DWP Budget Dialog"
 EndDialog
 
 
-'Connecting to BlueZone
-
 'THE SCRIPT----------------------------------------------------------------------
-'Connects to BlueZone
+'Connects to BlueZone & grabbing the case number
 EMConnect ""
-
-'Finds the case number
 CALL MAXIS_case_number_finder(case_number)
 
 'Displays the dialog
@@ -97,17 +93,12 @@ LOOP UNTIL worker_signature <> ""
 'Calculates personal needs info
 personal_needs = "$" & personal_needs * 70
 
-
 'Checks to make sure worker is not passworded out
 CALL check_for_MAXIS(False)
 
-'Navigates to CASE/NOTE
-CALL navigate_to_MAXIS_screen("CASE","NOTE")
 
-'Adding new blank case note
-PF9
-
-'Writing to CASE/NOTE
+'Writing to CASE/NOTE----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***DWP ES Referral and Budget Info***")
 IF ES_appointment_date <> "" THEN CALL write_bullet_and_variable_in_case_note("ES Appointment Date", ES_appointment_date)
 IF ES_deadline_date <> "" THEN CALL write_bullet_and_variable_in_case_note("ES Deadline Date", ES_deadline_date)
@@ -120,19 +111,4 @@ IF months_eligible <> "" THEN CALL write_bullet_and_variable_in_case_note("Month
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-'End script
-CALL script_end_procedure("")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+script_end_procedure("")

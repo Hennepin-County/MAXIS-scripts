@@ -71,3 +71,5 @@ Call check_for_MAXIS(True)
 
 'Navigates to CASE/NOTE
 call navigate_to_MAXIS_screen("CASE", "NOTE")
+
+script_end_procedure("")
