@@ -139,12 +139,6 @@ BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
 
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -174,7 +168,6 @@ call check_for_MAXIS(False)
 'NAV to MEMB
 call navigate_to_MAXIS_screen("stat", "memb")
 
-
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
@@ -192,13 +185,17 @@ retro_month_name = monthname(datepart("m", (dateadd("m", -2, HRF_computer_friend
 pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = retro_month_name & "/" & pro_month_name
 
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
 'The case note dialog, complete with panel navigation, reading the ELIG/GRH screen, and navigation to case note, as well as logic for certain sections to be required.
 Do
 	Do
-		Dialog HRF_dialog
-		MAXIS_dialog_navigation
-		Call check_for_MAXIS(False)
-		cancel_confirmation
+		DO
+			Dialog HRF_dialog
+			cancel_confirmation
+			MAXIS_dialog_navigation
+		LOOP UNTIL ButtonPressed = -1
 		If HRF_status = "(select one...)" then MsgBox "You must indicate a HRF status, either ''complete'' or ''incomplete''!"
 	Loop until HRF_status <> "(select one...)"
 	If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
