@@ -406,8 +406,8 @@ Do
       If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
       If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
     Loop until ButtonPressed = -1
-    If worker_sig = "" then MsgBox "You must sign your case note."
-  Loop until worker_sig <> ""
+    If worker_signature = "" then MsgBox "You must sign your case note."
+  Loop until worker_signature <> ""
   If ButtonPressed = -1 then dialog case_note_dialog
   If buttonpressed = yes_case_note_button then
     call navigate_to_screen("case", "note")
