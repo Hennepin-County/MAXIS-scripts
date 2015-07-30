@@ -47,21 +47,6 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CUSTOM FUNCTIONS
-
-Function PIC_paystubs_info_adder(pay_date, gross_amt, hours)
-	If isdate(pay_date) = True then
-		CALL create_MAXIS_friendly_date(pay_date, 0, PIC_row, 13)
-		EMWriteScreen gross_amt, PIC_row, 25
-		EMWriteScreen hours, PIC_row, 35
-		PIC_row = PIC_row + 1
-		IF PIC_row = 14 THEN
-			PF20
-			PF20
-			PIC_row = 9
-		END IF 
-	End If
-End function
-
 Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, total_prospective_pay, total_prospective_hours) 'Creates variables for total_prospective_pay and total_prospective_hours
   If isdate(pay_date) = True then
     total_prospective_pay = total_prospective_pay + abs(gross_amt)
@@ -394,7 +379,19 @@ Do
 			PIC_row = 9
 			'Uses function to add each PIC pay date, income, and hours. Doesn't add any if they show "01/01/2000" as those are dummy numbers
 			FOR i = 0 to (number_of_paystubs - 1)
-				IF paystubs_array(i, 0) <> "01/01/2000" THEN CALL PIC_paystubs_info_adder(paystubs_array(i, 0), paystubs_array(i, 1), paystubs_array(i, 2))
+				IF paystubs_array(i, 0) <> "01/01/2000" THEN 
+					If isdate(paystubs_array(i, 0)) = True then
+						CALL create_MAXIS_friendly_date(paystubs_array(i, 0), 0, PIC_row, 13)
+						EMWriteScreen paystubs_array(i, 1), PIC_row, 25
+						EMWriteScreen paystubs_array(i, 2), PIC_row, 35
+						PIC_row = PIC_row + 1
+						IF PIC_row = 14 THEN
+							PF20
+							PF20
+							PIC_row = 9
+						END IF 
+					End If
+				END IF
 			NEXT
 			
 			'Transmits in order to format the PIC
