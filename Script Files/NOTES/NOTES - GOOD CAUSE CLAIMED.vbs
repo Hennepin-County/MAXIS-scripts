@@ -1,4 +1,4 @@
-Option Explicit
+'Option Explicit
 DIM beta_agency
 DIM url, req, fso, name_of_script, start_time, Funclib_url,run_another_script_fso, fso_command, text_from_the_other_script, run_locally, default_directory
 
