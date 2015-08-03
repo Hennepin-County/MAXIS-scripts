@@ -90,7 +90,7 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   EditBox 50, 205, 375, 15, other_notes
   CheckBox 5, 225, 100, 10, "Sent forms to AREP?", sent_arep_checkbox
   DropListBox 60, 240, 75, 15, "complete"+chr(9)+"incomplete", review_status
-  EditBox 215, 240, 65, 15, worker_sig
+  EditBox 215, 240, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 320, 240, 50, 15
     CancelButton 375, 240, 50, 15
@@ -406,8 +406,8 @@ Do
       If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
       If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
     Loop until ButtonPressed = -1
-    If worker_sig = "" then MsgBox "You must sign your case note."
-  Loop until worker_sig <> ""
+    If worker_signature = "" then MsgBox "You must sign your case note."
+  Loop until worker_signature <> ""
   If ButtonPressed = -1 then dialog case_note_dialog
   If buttonpressed = yes_case_note_button then
     call navigate_to_screen("case", "note")
@@ -440,7 +440,7 @@ call write_editbox_in_case_note("Deducts", deductions, 6)
 If other_notes <> "" then call write_editbox_in_case_note("Notes", other_notes, 6)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_sig)
+call write_new_line_in_case_note(worker_signature)
 
 script_end_procedure("")
 
