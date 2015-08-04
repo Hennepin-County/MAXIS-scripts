@@ -65,23 +65,24 @@ DIM interview_time
 DIM recert_forms_confirm
 DIM result_of_msgbox
 
+'------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
+'------------------As such, it does NOT include protections to be ran independently.
 
-'DAIL SCRUBBER START----------------------------------------------------------------------------------------------------
 EMConnect ""
 
 'Reading date and time of recert appt. from TIKL
-~*~*~CLIENT HAD RECERT INTERVIEW APPOINTMENT. IF MISSED SEND NOMI.
-EMReadScreen interview_date
-EMReadScreen interview_time   
-PF3 
+Dail message ~*~*~CLIENT HAD RECERT INTERVIEW APPOINTMENT. IF MISSED SEND NOMI.
+EMReadScreen interview_date, 10, *****
+EMReadScreen interview_time, 8?, *****  
 
-'navigates to CASE/NOTE
+
+'navigates to CASE/NOTE to user can see if interview has been completed or not
 EMSendKey "n" 
 transmit
 
-
-recert_forms_confirm = MsgBox("The SNAP NOMI recertification SPEC/MEMO is not to be used when the SNAP recipient never contacts the agency and no CAF is received.  Press Yes if forms provided OR contact was made by the recipient.") & _ 
-	VbNewLine & ("Press No if no forms provided") & vbNewLine &("Cancel to end the script.", vbYesNoCancel)
+'Msgbox asking the user to confirm if the client has sent a CAF or if no contact has been made by the client
+recert_forms_confirm = MsgBox("The SNAP NOMI recertification SPEC/MEMO is not to be sent when the SNAP recipient does not contact the agency about their recertification, and no CAF is received.  Press Yes if forms provided, OR contact was made by the recipient.") & _ 
+	VbNewLine & ("Press No if no forms provided") & vbNewLine & ("Cancel to end the script.", vbYesNoCancel)
 	If recert_forms_confirm = vbCancel then stopscript
 	If recert_forms_confirm = vbYes then result_of_msgbox = TRUE
 	If recert_forms_confirm = vbNo then result_of_msgbox = FALSE
