@@ -114,8 +114,8 @@ IF worker_county_code = "x151" THEN county_FSET_offices = array("Marshall WorkFo
 'IF worker_county_code = "x154" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x155" THEN county_FSET_offices = array("Olmstead County Family Support & Assistance")
 IF worker_county_code = "x156" THEN county_FSET_offices = array("Rural MN CEP Fergus Falls")
-IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkForce Center: Theif River Falls")
-IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one...", "Pine County Health & Human Services", "Pine Technical & Community College E&T Center")
+IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkForce Center: Thief River Falls")
+IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one...", "Pine County Public Health Building", "Pine Technical & Community College E&T Center")
 IF worker_county_code = "x159" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Pipestone")
 IF worker_county_code = "x160" THEN county_FSET_offices = array("Select one...", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston")
 IF worker_county_code = "x161" THEN county_FSET_offices = array("Minnesota Workforce Center Alexandria")
@@ -650,18 +650,18 @@ IF interview_location  = "Rural MN CEP Fergus Falls" THEN
 END IF
 
 'CO #57 PENNINGTON COUNTY address
-IF interview_location  = "Minnesota WorkForce Center: Theif River Falls" THEN
-    SNAPET_name = "Minnesota WorkForce Center: Theif River Falls"
+IF interview_location  = "Minnesota WorkForce Center: Thief River Falls" THEN
+    SNAPET_name = "Minnesota WorkForce Center: Thief River Falls"
     SNAPET_address_01 = "1301 State Hwy 1"
-    SNAPET_city = "Theif River Falls"
+    SNAPET_city = "Thief River Falls"
     SNAPET_ST = "MN"
     SNAPET_zip = "56701"
 END IF
 
 'CO #58 PINE COUNTY address
-IF interview_location  = "Pine County Health & Human Services" THEN
-    SNAPET_name = "Pine County Health & Human Services"
-    SNAPET_address_01 = "130 Oriole St E Ste 1"
+IF interview_location  = "Pine County Public Health Building" THEN
+    SNAPET_name = "Pine County Public Health Building"
+    SNAPET_address_01 = "1610 Hwy 23 N"
     SNAPET_city = "Sandstone"
     SNAPET_ST = "MN"
     SNAPET_zip = "55072"
@@ -716,7 +716,7 @@ END IF
 IF interview_location  = "Minnesota Workforce Center: Red Lake" THEN
     SNAPET_name = "Minnesota Workforce Center: Red Lake"
     SNAPET_address_01 = "1301 Highway 1 East"
-    SNAPET_city = "Theif River Falls"
+    SNAPET_city = "Thief River Falls"
     SNAPET_ST = "MN"
     SNAPET_zip = "56701"
 END IF
