@@ -303,27 +303,14 @@ gross_spousal_earned_income_04 = trim(gross_spousal_earned_income_04)
 HH_memb_row = 6
 
 'Shows the spousal maintenance dialog
-Do
-  Do
-    dialog spousal_maintenance_dialog
-    cancel_confirmation
-	If ButtonPressed = 0 then stopscript
-    EMReadScreen STAT_check, 4, 20, 21
-    If STAT_check = "STAT" then call stat_navigation
-    transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-  If ButtonPressed <> -1 then call navigation_buttons
-Loop until ButtonPressed = -1
+dialog spousal_maintenance_dialog
+cancel_confirmation
 
-'Jumps back to the SELF menu
-back_to_self
+'checks for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Navigates to ELIG/HC.
-EMWriteScreen "elig", 16, 43
-EMWriteScreen "hc", 21, 70
-transmit
+Call navigate_to_MAXIS_screen("ELIG", "HC")
 
 'Checks to see if MEMB 01 has HC, and puts an "x" there. If not it'll try MEMB 02. 
 EMReadScreen person_check, 1, 8, 26
@@ -486,7 +473,6 @@ For amt_of_months_to_do = 1 to budget_months
 	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
 	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
-
   'Gets out of earned income
   PF3
 
@@ -506,10 +492,8 @@ For amt_of_months_to_do = 1 to budget_months
   'Checks to see if the ACT maint needs check box popped up. If it did, it'll transmit to get past that
   EMReadScreen ACT_maint_needs_check, 3, 17, 4
   If ACT_maint_needs_check = "ACT" then transmit
-
   'Transmits to jump to the next month.
   transmit
-
   'For an unknown (as of 06/24/2013) reason, some cases seem to stay in the first budget month and not move on. This is a fix for that.
   EMReadScreen ending_bdgt_month, 5, 6, 14
   If starting_bdgt_month = ending_bdgt_month then transmit
