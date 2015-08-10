@@ -48,9 +48,9 @@ END IF
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 210, "Memos scripts main menu dialog"
+BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 240, "Memos scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 390, 190, 50, 15
+    CancelButton 390, 220, 50, 15
     PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 25, 65, 10, "12 month contact", TWELVE_MONTH_CONTACT_button
     PushButton 5, 50, 65, 10, "Appointment letter", APPOINTMENT_LETTER_button
@@ -61,19 +61,22 @@ BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 210, "Memos scripts main 
     PushButton 5, 135, 55, 10, "MNsure memo", MNSURE_MEMO_button
     PushButton 5, 150, 25, 10, "NOMI", NOMI_button
     PushButton 5, 165, 55, 10, "Overdue baby", OVERDUE_BABY_button
-    PushButton 5, 185, 70, 10, "SNAP E and T letter", SNAP_E_AND_T_LETTER_button
+    PushButton 5, 190, 65, 10, "Significant change", SIGNIFICANT_CHANGE_button
+    PushButton 5, 205, 70, 10, "SNAP E and T letter", SNAP_E_AND_T_LETTER_button
   Text 5, 5, 235, 10, "Memos scripts main menu: select the script to run from the choices below."
   Text 75, 25, 375, 20, "--- Sends a MEMO to the client reminding them of their reporting responsibilities (required for SNAP 2-year certification periods, per POLI/TEMP TE02.08.165)."
   Text 75, 50, 300, 10, "--- Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
-  Text 115, 65, 340, 20, "--- NEW 07/2015!!! Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
+  Text 115, 65, 340, 20, "--- NEW 07/2015!!! -- Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
   Text 140, 90, 310, 10, "--- Sends a MEMO to a facility indicating that an overpayment is due because a client left."
   Text 80, 105, 200, 10, "--- Sends a MEMO to a LTC client regarding asset transfers."
   Text 70, 120, 185, 10, "--- Sends a MEMO to a client regarding MFIP orientation."
   Text 65, 135, 160, 10, "--- Sends a MEMO to a client regarding MNsure."
   Text 35, 150, 375, 10, "--- Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
   Text 65, 165, 355, 20, "--- Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
-  Text 80, 185, 300, 10, "--- Sends a MEMO informing client that they have an Employment and Training appointment."
+  Text 75, 190, 340, 10, "--- NEW 08/2015!!! -- Sends a MEMO when a client reports significant change requiring additional action."
+  Text 80, 205, 300, 10, "--- Sends a MEMO informing client that they have an Employment and Training appointment."
 EndDialog
+
 
 
 'Variables to declare
@@ -107,6 +110,7 @@ IF ButtonPressed = MFIP_ORIENTATION_button 		THEN CALL run_from_GitHub(script_re
 IF ButtonPressed = MNSURE_MEMO_button 			THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - MNSURE MEMO.vbs")
 IF ButtonPressed = NOMI_button 					THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - NOMI.vbs")
 IF ButtonPressed = OVERDUE_BABY_button			THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - OVERDUE BABY.vbs")
+IF ButtonPressed = SIGNIFICANT_CHANGE_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - SIGNIFICANT CHANGE.vbs")
 IF ButtonPressed = SNAP_E_AND_T_LETTER_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - SNAP E AND T LETTER.vbs")
 
 'Logging usage stats
