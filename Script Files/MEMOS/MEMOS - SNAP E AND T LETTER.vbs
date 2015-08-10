@@ -613,7 +613,7 @@ IF interview_location  = "Central MN Jobs and Training Services Litchfield" THEN
     SNAPET_zip = "55355"
 END IF
 
-'CO #50 MOWER COUNTY address
+'CO #50 MOWER COUNTY address
 IF interview_location  = "Workforce Development Inc. (Austin)" THEN
     SNAPET_name = "Workforce Development Inc. (Austin)"
     SNAPET_address_01 = "1600 8th Avenue NW"
