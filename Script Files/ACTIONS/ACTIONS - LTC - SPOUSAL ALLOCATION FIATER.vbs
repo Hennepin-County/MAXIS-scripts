@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+	IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN 'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
@@ -91,61 +91,46 @@ BeginDialog spousal_maintenance_dialog, 0, 0, 256, 185, "Spousal Maintenance Dia
   Text 130, 150, 60, 10, "Utility allowance:"
 EndDialog
 
-BeginDialog case_number_dialog, 0, 0, 216, 80, "Case number"
-  EditBox 120, 0, 60, 15, case_number
-  EditBox 100, 20, 25, 15, footer_month
-  EditBox 155, 20, 25, 15, footer_year
-  EditBox 115, 40, 25, 15, spousal_allocation_footer_month
-  EditBox 175, 40, 25, 15, spousal_allocation_footer_year
+BeginDialog case_number_dialog, 0, 0, 211, 140, "Case number"
+  EditBox 100, 5, 75, 15, case_number
+  EditBox 100, 25, 25, 15, MAXIS_footer_month
+  EditBox 150, 25, 25, 15, MAXIS_footer_year
+  EditBox 100, 45, 25, 15, spousal_allocation_footer_month
+  EditBox 150, 45, 25, 15, spousal_allocation_footer_year
   ButtonGroup ButtonPressed
-    OkButton 55, 60, 50, 15
-    CancelButton 115, 60, 50, 15
-  Text 30, 5, 85, 10, "Enter your case number:"
-  Text 30, 25, 70, 10, "MAXIS footer month:"
-  Text 130, 25, 20, 10, "Year:"
-  Text 5, 45, 105, 10, "Spousal allocation footer month:"
-  Text 150, 45, 20, 10, "Year:"
+    OkButton 65, 65, 50, 15
+    CancelButton 125, 65, 50, 15
+  Text 40, 10, 45, 10, "Case number:"
+  Text 20, 30, 70, 10, "MAXIS footer month:"
+  Text 130, 30, 20, 10, "Year:"
+  Text 15, 50, 80, 10, "Allocation budget month:"
+  Text 130, 50, 20, 10, "Year:"
+  GroupBox 5, 85, 200, 50, "If LTC spouse is open on CASH programs"
+  Text 10, 100, 190, 30, "You will need to process the spousal allocation manually.  The script currently does not support budgeting public assistance CASH programs into the spousal allocation."
 EndDialog
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Connects to MAXIS
 EMConnect ""
 
-'Grabs case number from MAXIS
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+'Grabs case number & footer year/footer month from MAXIS
+call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabs footer month/year from MAXIS
-call find_variable("Month: ", footer_month, 2)
-call find_variable("Month: " & footer_month & " ", footer_year, 2)
-spousal_allocation_footer_month = footer_month
-spousal_allocation_footer_year = footer_year
 
 'Shows case number dialog
 dialog case_number_dialog
 cancel_confirmation
 if ButtonPressed = 0 then stopscript
 
-'Navigates back to the SELF menu
-back_to_self
 
 'Enters into STAT for the client
-EMWriteScreen "stat", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen "memb", 21, 70
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
-transmit
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
-'Checks to see we're past SELF. If not past SELF (due to error) the script will stop
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" then script_end_procedure("You don't appear to have gone past SELF. This case might be in background. Wait for it to come out of background and try again.")
-ERRR_screen_check
-	
+'checking for an active MAXIS session
+Call check_for_MAXIS(FALSE)
 
 'Checks for which HH member is the spouse. The spouse is coded as "02" on STAT/MEMB.
 Do
@@ -157,8 +142,7 @@ Do
 Loop until cint(current_memb) = cint(total_membs)
 
 'Jumps to STAT/SHEL.
-EMWriteScreen "shel", 20, 71
-transmit
+Call navigate_to_MAXIS_screen("STAT", "SHEL")
 
 'Reads the info off of STAT/SHEL into variables for each type of shelter expense. This is used to autofill the allocation dialog.
 EMReadScreen rent_verif, 2, 11, 67
@@ -196,8 +180,7 @@ coop_condo_maint_fees = "" & coop_condo_maint_fees
 If coop_condo_maint_fees = "0" then coop_condo_maint_fees = ""
 
 'Jumps to STAT/HEST
-EMWriteScreen "hest", 20, 71
-transmit
+Call navigate_to_MAXIS_screen("STAT", "HEST")
 
 'Reads the info off of STAT/HEST into variables for the utility expenses. This is used to autofill the allocation dialog.
 EMReadScreen utility_allowance, 6, 13, 75
@@ -240,8 +223,17 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "1" then
     earned_income_number = 1
-    EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38
+    EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38	
+	If gross_spousal_earned_income_type_01 = "J" THEN gross_spousal_earned_income_type_01 = "01"
     If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
+	If gross_spousal_earned_income_type_01 = "E" THEN gross_spousal_earned_income_type_01 = "03"
+    If gross_spousal_earned_income_type_01 = "G" then gross_spousal_earned_income_type_01 = "04"
+	If gross_spousal_earned_income_type_01 = "F" THEN gross_spousal_earned_income_type_01 = "05"
+    If gross_spousal_earned_income_type_01 = "S" then gross_spousal_earned_income_type_01 = "06"
+	If gross_spousal_earned_income_type_01 = "O" THEN gross_spousal_earned_income_type_01 = "07"
+    If gross_spousal_earned_income_type_01 = "I" then gross_spousal_earned_income_type_01 = "08"
+	If gross_spousal_earned_income_type_01 = "M" THEN gross_spousal_earned_income_type_01 = "09"
+    If gross_spousal_earned_income_type_01 = "C" then gross_spousal_earned_income_type_01 = "10"
     EMReadScreen gross_spousal_earned_income_01, 8, 17, 67
     transmit
   End if
@@ -249,7 +241,16 @@ If spousal_reference_number <> "" then
   If current_panel_number = "2" then
     earned_income_number = earned_income_number + 1
     EMReadScreen gross_spousal_earned_income_type_02, 2, 5, 37
-    If gross_spousal_earned_income_type_02 = "W" then gross_spousal_earned_income_type_02 = "02"
+    If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
+	If gross_spousal_earned_income_type_02 = "W" then gross_spousal_earned_income_type_02 = "02"
+	If gross_spousal_earned_income_type_02 = "E" THEN gross_spousal_earned_income_type_02 = "03"
+	If gross_spousal_earned_income_type_02 = "G" then gross_spousal_earned_income_type_02 = "04"
+	If gross_spousal_earned_income_type_02 = "F" THEN gross_spousal_earned_income_type_02 = "05"
+	If gross_spousal_earned_income_type_02 = "S" then gross_spousal_earned_income_type_02 = "06"
+	If gross_spousal_earned_income_type_02 = "O" THEN gross_spousal_earned_income_type_02 = "07"
+	If gross_spousal_earned_income_type_02 = "I" then gross_spousal_earned_income_type_02 = "08"
+	If gross_spousal_earned_income_type_02 = "M" THEN gross_spousal_earned_income_type_02 = "09"
+	If gross_spousal_earned_income_type_02 = "C" then gross_spousal_earned_income_type_02 = "10"
     EMReadScreen gross_spousal_earned_income_02, 8, 17, 67
     transmit
   End if
@@ -257,7 +258,16 @@ If spousal_reference_number <> "" then
   If current_panel_number = "3" then
     earned_income_number = earned_income_number + 1
     EMReadScreen gross_spousal_earned_income_type_03, 2, 5, 37
-    If gross_spousal_earned_income_type_03 = "W" then gross_spousal_earned_income_type_03 = "02"
+    If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
+	If gross_spousal_earned_income_type_03 = "W" then gross_spousal_earned_income_type_03 = "02"
+	If gross_spousal_earned_income_type_03 = "E" THEN gross_spousal_earned_income_type_03 = "03"
+	If gross_spousal_earned_income_type_03 = "G" then gross_spousal_earned_income_type_03 = "04"
+	If gross_spousal_earned_income_type_03 = "F" THEN gross_spousal_earned_income_type_03 = "05"
+	If gross_spousal_earned_income_type_03 = "S" then gross_spousal_earned_income_type_03 = "06"
+	If gross_spousal_earned_income_type_03 = "O" THEN gross_spousal_earned_income_type_03 = "07"
+	If gross_spousal_earned_income_type_03 = "I" then gross_spousal_earned_income_type_03 = "08"
+	If gross_spousal_earned_income_type_03 = "M" THEN gross_spousal_earned_income_type_03 = "09"
+	If gross_spousal_earned_income_type_03 = "C" then gross_spousal_earned_income_type_03 = "10"
     EMReadScreen gross_spousal_earned_income_03, 8, 17, 67
     transmit
   End if
@@ -265,7 +275,16 @@ If spousal_reference_number <> "" then
   If current_panel_number = "4" then
     earned_income_number = earned_income_number + 1
     EMReadScreen gross_spousal_earned_income_type_04, 2, 5, 37
-    If gross_spousal_earned_income_type_04 = "W" then gross_spousal_earned_income_type_04 = "02"
+	If gross_spousal_earned_income_type_04 = "J" THEN gross_spousal_earned_income_type_04 = "01"
+	If gross_spousal_earned_income_type_04 = "W" then gross_spousal_earned_income_type_04 = "02"
+	If gross_spousal_earned_income_type_04 = "E" THEN gross_spousal_earned_income_type_04 = "03"
+	If gross_spousal_earned_income_type_04 = "G" then gross_spousal_earned_income_type_04 = "04"
+	If gross_spousal_earned_income_type_04 = "F" THEN gross_spousal_earned_income_type_04 = "05"
+	If gross_spousal_earned_income_type_04 = "S" then gross_spousal_earned_income_type_04 = "06"
+	If gross_spousal_earned_income_type_04 = "O" THEN gross_spousal_earned_income_type_04 = "07"
+	If gross_spousal_earned_income_type_04 = "I" then gross_spousal_earned_income_type_04 = "08"
+	If gross_spousal_earned_income_type_04 = "M" THEN gross_spousal_earned_income_type_04 = "09"
+	If gross_spousal_earned_income_type_04 = "C" then gross_spousal_earned_income_type_04 = "10"
     EMReadScreen gross_spousal_earned_income_04, 8, 17, 67
     transmit
   End if
@@ -308,6 +327,132 @@ cancel_confirmation
 
 'checks for an active MAXIS session
 Call check_for_MAXIS(False)
+
+'changes unearned income coding types as coding from UNEA panel and spousal allocation screen are not the same 
+'unearned income 01
+IF gross_spousal_unearned_income_type_01 = "11" THEN gross_spousal_unearned_income_type_01 = "09"
+IF gross_spousal_unearned_income_type_01 = "12" THEN gross_spousal_unearned_income_type_01 = "10"
+IF gross_spousal_unearned_income_type_01 = "13" THEN gross_spousal_unearned_income_type_01 = "11"
+IF gross_spousal_unearned_income_type_01 = "14" THEN gross_spousal_unearned_income_type_01 = "12"
+IF gross_spousal_unearned_income_type_01 = "15" THEN gross_spousal_unearned_income_type_01 = "13"
+IF gross_spousal_unearned_income_type_01 = "16" THEN gross_spousal_unearned_income_type_01 = "14"
+IF gross_spousal_unearned_income_type_01 = "17" THEN gross_spousal_unearned_income_type_01 = "15"
+IF gross_spousal_unearned_income_type_01 = "18" THEN gross_spousal_unearned_income_type_01 = "16"
+IF gross_spousal_unearned_income_type_01 = "19" THEN gross_spousal_unearned_income_type_01 = "17"
+IF gross_spousal_unearned_income_type_01 = "20" THEN gross_spousal_unearned_income_type_01 = "18"
+IF gross_spousal_unearned_income_type_01 = "21" THEN gross_spousal_unearned_income_type_01 = "19"
+IF gross_spousal_unearned_income_type_01 = "22" THEN gross_spousal_unearned_income_type_01 = "20"
+IF gross_spousal_unearned_income_type_01 = "23" THEN gross_spousal_unearned_income_type_01 = "21"
+IF gross_spousal_unearned_income_type_01 = "24" THEN gross_spousal_unearned_income_type_01 = "22"
+IF gross_spousal_unearned_income_type_01 = "25" THEN gross_spousal_unearned_income_type_01 = "23"
+IF gross_spousal_unearned_income_type_01 = "26" THEN gross_spousal_unearned_income_type_01 = "24"
+IF gross_spousal_unearned_income_type_01 = "27" THEN gross_spousal_unearned_income_type_01 = "25"
+IF gross_spousal_unearned_income_type_01 = "28" THEN gross_spousal_unearned_income_type_01 = "26"
+IF gross_spousal_unearned_income_type_01 = "29" THEN gross_spousal_unearned_income_type_01 = "27"
+IF gross_spousal_unearned_income_type_01 = "31" THEN gross_spousal_unearned_income_type_01 = "29"
+IF gross_spousal_unearned_income_type_01 = "32" THEN gross_spousal_unearned_income_type_01 = "30"
+IF gross_spousal_unearned_income_type_01 = "35" THEN gross_spousal_unearned_income_type_01 = "04"
+IF gross_spousal_unearned_income_type_01 = "36" THEN gross_spousal_unearned_income_type_01 = "05"
+IF gross_spousal_unearned_income_type_01 = "37" THEN gross_spousal_unearned_income_type_01 = "07"
+IF gross_spousal_unearned_income_type_01 = "38" THEN gross_spousal_unearned_income_type_01 = "34"
+IF gross_spousal_unearned_income_type_01 = "39" THEN gross_spousal_unearned_income_type_01 = "35"
+IF gross_spousal_unearned_income_type_01 = "40" THEN gross_spousal_unearned_income_type_01 = "36"
+IF gross_spousal_unearned_income_type_01 = "43" THEN gross_spousal_unearned_income_type_01 = "43"
+IF gross_spousal_unearned_income_type_01 = "44" THEN gross_spousal_unearned_income_type_01 = "27"
+
+'unearned income 02
+IF gross_spousal_unearned_income_type_02 = "11" THEN gross_spousal_unearned_income_type_02 = "09"
+IF gross_spousal_unearned_income_type_02 = "12" THEN gross_spousal_unearned_income_type_02 = "10"
+IF gross_spousal_unearned_income_type_02 = "13" THEN gross_spousal_unearned_income_type_02 = "11"
+IF gross_spousal_unearned_income_type_02 = "14" THEN gross_spousal_unearned_income_type_02 = "12"
+IF gross_spousal_unearned_income_type_02 = "15" THEN gross_spousal_unearned_income_type_02 = "13"
+IF gross_spousal_unearned_income_type_02 = "16" THEN gross_spousal_unearned_income_type_02 = "14"
+IF gross_spousal_unearned_income_type_02 = "17" THEN gross_spousal_unearned_income_type_02 = "15"
+IF gross_spousal_unearned_income_type_02 = "18" THEN gross_spousal_unearned_income_type_02 = "16"
+IF gross_spousal_unearned_income_type_02 = "19" THEN gross_spousal_unearned_income_type_02 = "17"
+IF gross_spousal_unearned_income_type_02 = "20" THEN gross_spousal_unearned_income_type_02 = "18"
+IF gross_spousal_unearned_income_type_02 = "21" THEN gross_spousal_unearned_income_type_02 = "19"
+IF gross_spousal_unearned_income_type_02 = "22" THEN gross_spousal_unearned_income_type_02 = "20"
+IF gross_spousal_unearned_income_type_02 = "23" THEN gross_spousal_unearned_income_type_02 = "21"
+IF gross_spousal_unearned_income_type_02 = "24" THEN gross_spousal_unearned_income_type_02 = "22"
+IF gross_spousal_unearned_income_type_02 = "25" THEN gross_spousal_unearned_income_type_02 = "23"
+IF gross_spousal_unearned_income_type_02 = "26" THEN gross_spousal_unearned_income_type_02 = "24"
+IF gross_spousal_unearned_income_type_02 = "27" THEN gross_spousal_unearned_income_type_02 = "25"
+IF gross_spousal_unearned_income_type_02 = "28" THEN gross_spousal_unearned_income_type_02 = "26"
+IF gross_spousal_unearned_income_type_02 = "29" THEN gross_spousal_unearned_income_type_02 = "27"
+IF gross_spousal_unearned_income_type_02 = "31" THEN gross_spousal_unearned_income_type_02 = "29"
+IF gross_spousal_unearned_income_type_02 = "32" THEN gross_spousal_unearned_income_type_02 = "30"
+IF gross_spousal_unearned_income_type_02 = "35" THEN gross_spousal_unearned_income_type_02 = "04"
+IF gross_spousal_unearned_income_type_02 = "36" THEN gross_spousal_unearned_income_type_02 = "05"
+IF gross_spousal_unearned_income_type_02 = "37" THEN gross_spousal_unearned_income_type_02 = "07"
+IF gross_spousal_unearned_income_type_02 = "38" THEN gross_spousal_unearned_income_type_02 = "34"
+IF gross_spousal_unearned_income_type_02 = "39" THEN gross_spousal_unearned_income_type_02 = "35"
+IF gross_spousal_unearned_income_type_02 = "40" THEN gross_spousal_unearned_income_type_02 = "36"
+IF gross_spousal_unearned_income_type_02 = "43" THEN gross_spousal_unearned_income_type_02 = "43"
+IF gross_spousal_unearned_income_type_02 = "44" THEN gross_spousal_unearned_income_type_02 = "27"
+
+'unearned income 03
+IF gross_spousal_unearned_income_type_03 = "11" THEN gross_spousal_unearned_income_type_03 = "09"
+IF gross_spousal_unearned_income_type_03 = "12" THEN gross_spousal_unearned_income_type_03 = "10"
+IF gross_spousal_unearned_income_type_03 = "13" THEN gross_spousal_unearned_income_type_03 = "11"
+IF gross_spousal_unearned_income_type_03 = "14" THEN gross_spousal_unearned_income_type_03 = "12"
+IF gross_spousal_unearned_income_type_03 = "15" THEN gross_spousal_unearned_income_type_03 = "13"
+IF gross_spousal_unearned_income_type_03 = "16" THEN gross_spousal_unearned_income_type_03 = "14"
+IF gross_spousal_unearned_income_type_03 = "17" THEN gross_spousal_unearned_income_type_03 = "15"
+IF gross_spousal_unearned_income_type_03 = "18" THEN gross_spousal_unearned_income_type_03 = "16"
+IF gross_spousal_unearned_income_type_03 = "19" THEN gross_spousal_unearned_income_type_03 = "17"
+IF gross_spousal_unearned_income_type_03 = "20" THEN gross_spousal_unearned_income_type_03 = "18"
+IF gross_spousal_unearned_income_type_03 = "21" THEN gross_spousal_unearned_income_type_03 = "19"
+IF gross_spousal_unearned_income_type_03 = "22" THEN gross_spousal_unearned_income_type_03 = "20"
+IF gross_spousal_unearned_income_type_03 = "23" THEN gross_spousal_unearned_income_type_03 = "21"
+IF gross_spousal_unearned_income_type_03 = "24" THEN gross_spousal_unearned_income_type_03 = "22"
+IF gross_spousal_unearned_income_type_03 = "25" THEN gross_spousal_unearned_income_type_03 = "23"
+IF gross_spousal_unearned_income_type_03 = "26" THEN gross_spousal_unearned_income_type_03 = "24"
+IF gross_spousal_unearned_income_type_03 = "27" THEN gross_spousal_unearned_income_type_03 = "25"
+IF gross_spousal_unearned_income_type_03 = "28" THEN gross_spousal_unearned_income_type_03 = "26"
+IF gross_spousal_unearned_income_type_03 = "29" THEN gross_spousal_unearned_income_type_03 = "27"
+IF gross_spousal_unearned_income_type_03 = "31" THEN gross_spousal_unearned_income_type_03 = "29"
+IF gross_spousal_unearned_income_type_03 = "32" THEN gross_spousal_unearned_income_type_03 = "30"
+IF gross_spousal_unearned_income_type_03 = "35" THEN gross_spousal_unearned_income_type_03 = "04"
+IF gross_spousal_unearned_income_type_03 = "36" THEN gross_spousal_unearned_income_type_03 = "05"
+IF gross_spousal_unearned_income_type_03 = "37" THEN gross_spousal_unearned_income_type_03 = "07"
+IF gross_spousal_unearned_income_type_03 = "38" THEN gross_spousal_unearned_income_type_03 = "34"
+IF gross_spousal_unearned_income_type_03 = "39" THEN gross_spousal_unearned_income_type_03 = "35"
+IF gross_spousal_unearned_income_type_03 = "40" THEN gross_spousal_unearned_income_type_03 = "36"
+IF gross_spousal_unearned_income_type_03 = "43" THEN gross_spousal_unearned_income_type_03 = "43"
+IF gross_spousal_unearned_income_type_03 = "44" THEN gross_spousal_unearned_income_type_03 = "27"
+
+'unearned income 04
+IF gross_spousal_unearned_income_type_04 = "11" THEN gross_spousal_unearned_income_type_04 = "09"
+IF gross_spousal_unearned_income_type_04 = "12" THEN gross_spousal_unearned_income_type_04 = "10"
+IF gross_spousal_unearned_income_type_04 = "13" THEN gross_spousal_unearned_income_type_04 = "11"
+IF gross_spousal_unearned_income_type_04 = "14" THEN gross_spousal_unearned_income_type_04 = "12"
+IF gross_spousal_unearned_income_type_04 = "15" THEN gross_spousal_unearned_income_type_04 = "13"
+IF gross_spousal_unearned_income_type_04 = "16" THEN gross_spousal_unearned_income_type_04 = "14"
+IF gross_spousal_unearned_income_type_04 = "17" THEN gross_spousal_unearned_income_type_04 = "15"
+IF gross_spousal_unearned_income_type_04 = "18" THEN gross_spousal_unearned_income_type_04 = "16"
+IF gross_spousal_unearned_income_type_04 = "19" THEN gross_spousal_unearned_income_type_04 = "17"
+IF gross_spousal_unearned_income_type_04 = "20" THEN gross_spousal_unearned_income_type_04 = "18"
+IF gross_spousal_unearned_income_type_04 = "21" THEN gross_spousal_unearned_income_type_04 = "19"
+IF gross_spousal_unearned_income_type_04 = "22" THEN gross_spousal_unearned_income_type_04 = "20"
+IF gross_spousal_unearned_income_type_04 = "23" THEN gross_spousal_unearned_income_type_04 = "21"
+IF gross_spousal_unearned_income_type_04 = "24" THEN gross_spousal_unearned_income_type_04 = "22"
+IF gross_spousal_unearned_income_type_04 = "25" THEN gross_spousal_unearned_income_type_04 = "23"
+IF gross_spousal_unearned_income_type_04 = "26" THEN gross_spousal_unearned_income_type_04 = "24"
+IF gross_spousal_unearned_income_type_04 = "27" THEN gross_spousal_unearned_income_type_04 = "25"
+IF gross_spousal_unearned_income_type_04 = "28" THEN gross_spousal_unearned_income_type_04 = "26"
+IF gross_spousal_unearned_income_type_04 = "29" THEN gross_spousal_unearned_income_type_04 = "27"
+IF gross_spousal_unearned_income_type_04 = "31" THEN gross_spousal_unearned_income_type_04 = "29"
+IF gross_spousal_unearned_income_type_04 = "32" THEN gross_spousal_unearned_income_type_04 = "30"
+IF gross_spousal_unearned_income_type_04 = "35" THEN gross_spousal_unearned_income_type_04 = "04"
+IF gross_spousal_unearned_income_type_04 = "36" THEN gross_spousal_unearned_income_type_04 = "05"
+IF gross_spousal_unearned_income_type_04 = "37" THEN gross_spousal_unearned_income_type_04 = "07"
+IF gross_spousal_unearned_income_type_04 = "38" THEN gross_spousal_unearned_income_type_04 = "34"
+IF gross_spousal_unearned_income_type_04 = "39" THEN gross_spousal_unearned_income_type_04 = "35"
+IF gross_spousal_unearned_income_type_04 = "40" THEN gross_spousal_unearned_income_type_04 = "36"
+IF gross_spousal_unearned_income_type_04 = "43" THEN gross_spousal_unearned_income_type_04 = "43"
+IF gross_spousal_unearned_income_type_04 = "44" THEN gross_spousal_unearned_income_type_04 = "27"
+
 
 'Navigates to ELIG/HC.
 Call navigate_to_MAXIS_screen("ELIG", "HC")
@@ -386,8 +531,6 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_01 <> "" then
     If gross_spousal_unearned_income_excluded_check_01 = 1 then EMWriteScreen "Y", 8, 58
     If gross_spousal_unearned_income_excluded_check_01 <> 1 then EMWriteScreen "N", 8, 58
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 9, 8
   EMWriteScreen gross_spousal_unearned_income_type_02, 9, 8
@@ -397,8 +540,6 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_02 <> "" then
     If gross_spousal_unearned_income_excluded_check_02 = 1 then EMWriteScreen "Y", 9, 58
     If gross_spousal_unearned_income_excluded_check_02 <> 1 then EMWriteScreen "N", 9, 58
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 10, 8
   EMWriteScreen gross_spousal_unearned_income_type_03, 10, 8
@@ -408,8 +549,6 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_03 <> "" then
     If gross_spousal_unearned_income_excluded_check_03 = 1 then EMWriteScreen "Y", 10, 58
     If gross_spousal_unearned_income_excluded_check_03 <> 1 then EMWriteScreen "N", 10, 58
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 11, 8
   EMWriteScreen gross_spousal_unearned_income_type_04, 11, 8
@@ -419,14 +558,13 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_unearned_income_type_04 <> "" then
     If gross_spousal_unearned_income_excluded_check_04 = 1 then EMWriteScreen "Y", 11, 58
     If gross_spousal_unearned_income_excluded_check_04 <> 1 then EMWriteScreen "N", 11, 58
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
 
   'Gets out of unearned and heads into earned income
   PF3
   EMWriteScreen "x", 6, 5
   transmit
+
 
   'Blanks out what's already there, then writes the earned income type, and income amount, and whether or not it's excluded. Repeats for up to four income types.
   EMWriteScreen "__", 8, 8
@@ -437,8 +575,6 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_01 <> "" then
     If gross_spousal_earned_income_excluded_check_01 = 1 then EMWriteScreen "Y", 8, 59
     If gross_spousal_earned_income_excluded_check_01 <> 1 then EMWriteScreen "N", 8, 59
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 9, 8
   EMWriteScreen gross_spousal_earned_income_type_02, 9, 8
@@ -448,8 +584,6 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_02 <> "" then
     If gross_spousal_earned_income_excluded_check_02 = 1 then EMWriteScreen "Y", 9, 59
     If gross_spousal_earned_income_excluded_check_02 <> 1 then EMWriteScreen "N", 9, 59
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 10, 8
   EMWriteScreen gross_spousal_earned_income_type_03, 10, 8
@@ -459,8 +593,6 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_03 <> "" then
     If gross_spousal_earned_income_excluded_check_03 = 1 then EMWriteScreen "Y", 10, 59
     If gross_spousal_earned_income_excluded_check_03 <> 1 then EMWriteScreen "N", 10, 59
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   EMWriteScreen "__", 11, 8
   EMWriteScreen gross_spousal_earned_income_type_04, 11, 8
@@ -470,8 +602,6 @@ For amt_of_months_to_do = 1 to budget_months
   If gross_spousal_earned_income_type_04 <> "" then
     If gross_spousal_earned_income_excluded_check_04 = 1 then EMWriteScreen "Y", 11, 59
     If gross_spousal_earned_income_excluded_check_04 <> 1 then EMWriteScreen "N", 11, 59
-	'changes income coding type from 'other retirement' (code 17) in UNEA, to 'other retirement (code 15) in the LTC spousal allocation determination screen
-	IF gross_spousal_unearned_income_type_01 = "17" THEN EMWriteScreen "15", 8, 8
   End if
   'Gets out of earned income
   PF3
