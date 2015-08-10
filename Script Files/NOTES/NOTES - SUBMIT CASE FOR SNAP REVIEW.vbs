@@ -1,11 +1,11 @@
-OPTION EXPLICIT
+'OPTION EXPLICIT
 
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - SUBMIT CASE FOR SNAP REVIEW.vbs"
 start_time = timer
 
 'variables to declare for FuncLib
-DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso, row
+'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso, row
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -52,15 +52,15 @@ END IF
 'END OF CUSTOM FUNCTIONS======================================================================================
 
 'DECLARING VARIABLES
-DIM submitting_case_HENNEPIN_dialog
-DIM submitting_case_dialog
-DIM ButtonPressed
-DIM case_number
-DIM expedited_SNAP_check
-DIM optional_info
-DIM worker_signature
-DIM err_msg
-DIM worker_county_code
+'DIM submitting_case_HENNEPIN_dialog
+'DIM submitting_case_dialog
+'DIM ButtonPressed
+'DIM case_number
+'DIM expedited_SNAP_check
+'DIM optional_info
+'DIM worker_signature
+'DIM err_msg
+'DIM worker_county_code
 
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
