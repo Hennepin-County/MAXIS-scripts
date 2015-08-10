@@ -65,10 +65,11 @@ DIM LEP_EMA_button, LEP_SAVE_button, LEP_SPONSOR_INCOME_button, LOBBY_NO_SHOW_bu
 
 DIM MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, MFIP_SANCTION_CURED_button, MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button
 DIM OVERPAYMENT_button
-DIM PREGNANCY_REPORTED_button
+DIM PREGNANCY_REPORTED_button, PROOF_OF_RELATIONSHIP_button
 DIM REIN_PROGS_button
-DIM SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button
+DIM SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button, SUBMIT_CASE_FOR_SNAP_REVIEW_button
 DIM VERIFICATIONS_NEEDED_button
+
 
 DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2015_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button							
 DIM LTC_RENEWAL_button, LTC_TRANSFER_PENALTY_button, LTC_1503_button, LTC_5181_button
@@ -138,10 +139,10 @@ FUNCTION create_NOTES_main_menu(dialog_name)
           Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
           Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
           Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
-          Text 100, 160, 370, 10, "--- New 08/2015 -- Template for noting information about an employment verification received by the agency."  
+          Text 100, 160, 370, 10, "--- New 08/2015!!! -- Template for noting information about an employment verification received by the agency."  
           Text 85, 175, 220, 10, "--- Template for screening a client for expedited status."
           Text 50, 190, 200, 10, "--- Template for noting fraud info."
-          Text 65, 205, 395, 10, "--- NEW 07/2015 Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
+          Text 65, 205, 395, 10, "--- NEW 07/2015!!! -- Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
         EndDialog
 	ELSEIF dialog_name = "G-L" THEN 
         BeginDialog dialog_name, 0, 0, 516, 265, "Notes (G-L) scripts main menu dialog"
@@ -176,43 +177,47 @@ FUNCTION create_NOTES_main_menu(dialog_name)
           Text 55, 175, 255, 10, "--- Template for EMA applications."
           Text 55, 190, 255, 10, "--- Template for the SAVE system for verifying immigration status."
           Text 90, 205, 345, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
-          Text 70, 220, 400, 10, "--- New 08/2015 -- Template for case noting a client's no-showing their in-office appointment."
+          Text 70, 220, 400, 10, "--- NEW 08/2015!!! -- Template for case noting a client's no-showing their in-office appointment."
         EndDialog
 	ELSEIF dialog_name = "M-Z" THEN 
-        BeginDialog dialog_name, 0, 0, 516, 265, "Notes (M-Z) scripts main menu dialog"
-          Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-          GroupBox 5, 20, 170, 35, "NOTES Sub-Menus"
-          ButtonGroup ButtonPressed
-            PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
-            PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
-            PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-            PushButton 105, 35, 30, 15, "M - Z", m_through_z_notes_button
-            PushButton 135, 35, 30, 15, "LTC", ltc_notes_button
-            PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-            PushButton 5, 70, 110, 10, "Medical Opinion Form Received", MEDICAL_OPINION_FORM_RECEIVED_button
-            PushButton 5, 85, 80, 10, "MFIP Sanction Cured", MFIP_SANCTION_CURED_button
-            PushButton 5, 100, 125, 10, "MFIP sanction/DWP disqualification", MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button
-            PushButton 5, 115, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
-            PushButton 5, 130, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
-            PushButton 5, 145, 50, 10, "Overpayment", OVERPAYMENT_button
-            PushButton 5, 160, 75, 10, "Pregnancy Reported", PREGNANCY_REPORTED_button
-            PushButton 5, 175, 30, 10, "REIN", REIN_PROGS_button
-            PushButton 5, 190, 80, 10, "Shelter Form Received", SHELTER_FORM_RECEIVED_button
-            PushButton 5, 205, 70, 10, "SNAP case review", SNAP_case_review_button
-            PushButton 5, 220, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
-            CancelButton 460, 245, 50, 15
-          Text 120, 70, 335, 10, "--- Template for case noting information about a Medical Opinion Form."
-          Text 90, 85, 350, 10, "--- NEW 07/2015 -- Template for noting the curing of an MFIP sanction."
-          Text 135, 100, 290, 10, "--- Template for MFIP sanctions and DWP disqualifications, both CS and ES."
-          Text 120, 115, 260, 10, "--- Template for actions taken on medical mileage reimbursements."
-          Text 120, 130, 250, 10, "--- Template for when MNsure documents have been requested."
-          Text 60, 145, 240, 10, "--- Template for noting basic information about overpayments."
-          Text 85, 160, 405, 10, "--- New 08/2015!!! -- Template for case noting a pregnancy. This script can update STAT/PREG."
-          Text 40, 175, 415, 10, "--- NEW 07/2015  Template for noting program reinstatement information."
-          Text 90, 190, 350, 10, "--- Template for case noting information about a Shelter Form received."
-          Text 80, 205, 350, 10, "--- NEW 07/2015  Template for SNAP reviewers to use that will case note the status  SNAP quality review."
-          Text 85, 220, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
-        EndDialog
+		BeginDialog dialog_name, 0, 0, 516, 265, "Notes (M-Z) scripts main menu dialog"
+			Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+			GroupBox 5, 20, 170, 35, "NOTES Sub-Menus"
+			ButtonGroup ButtonPressed
+				PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+				PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
+				PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
+				PushButton 105, 35, 30, 15, "M - Z", m_through_z_notes_button
+				PushButton 135, 35, 30, 15, "LTC", ltc_notes_button
+				PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+				PushButton 5, 70, 110, 10, "Medical Opinion Form Received", MEDICAL_OPINION_FORM_RECEIVED_button
+				PushButton 5, 85, 80, 10, "MFIP Sanction Cured", MFIP_SANCTION_CURED_button
+				PushButton 5, 100, 125, 10, "MFIP sanction/DWP disqualification", MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button
+				PushButton 5, 115, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
+				PushButton 5, 130, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
+				PushButton 5, 145, 50, 10, "Overpayment", OVERPAYMENT_button
+				PushButton 5, 160, 75, 10, "Pregnancy Reported", PREGNANCY_REPORTED_button
+				PushButton 5, 175, 70, 10, "Proof of relationship", PROOF_OF_RELATIONSHIP_button
+				PushButton 5, 190, 30, 10, "REIN", REIN_PROGS_button
+				PushButton 5, 205, 80, 10, "Shelter Form Received", SHELTER_FORM_RECEIVED_button
+				PushButton 5, 220, 70, 10, "SNAP case review", SNAP_CASE_REVIEW_button
+				PushButton 5, 235, 100, 10, "Submit case for SNAP review", SUBMIT_CASE_FOR_SNAP_REVIEW_button
+				PushButton 5, 250, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
+				CancelButton 460, 245, 50, 15
+			Text 120, 70, 335, 10, "--- Template for case noting information about a Medical Opinion Form."
+			Text 90, 85, 350, 10, "--- NEW 07/2015!!! -- Template for noting the curing of an MFIP sanction."
+			Text 135, 100, 290, 10, "--- Template for MFIP sanctions and DWP disqualifications, both CS and ES."
+			Text 120, 115, 260, 10, "--- Template for actions taken on medical mileage reimbursements."
+			Text 120, 130, 250, 10, "--- Template for when MNsure documents have been requested."
+			Text 60, 145, 240, 10, "--- Template for noting basic information about overpayments."
+			Text 85, 160, 405, 10, "--- NEW 08/2015!!! -- Template for case noting a pregnancy. This script can update STAT/PREG."
+			Text 85, 175, 415, 10, "--- NEW 08/2015!!! -- Template for documenting proof of relationship between a member 01 and someone else in the household."
+			Text 40, 190, 415, 10, "--- NEW 07/2015!!! --  Template for noting program reinstatement information."
+			Text 90, 205, 350, 10, "--- Template for case noting information about a Shelter Form received."
+			Text 80, 220, 365, 10, "--- NEW 07/2015!!! --  Template for SNAP reviewers to use that will case note the status  SNAP quality review."
+			Text 110, 235, 350, 10, "--- NEW 08/2015!!! -- Template for when a worker sends a case to be reviewed by a supervisor or coworker."
+			Text 85, 250, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
+		EndDialog
 	ELSEIF dialog_name = "LTC" THEN 
         BeginDialog dialog_name, 0, 0, 516, 265, "Notes (LTC) scripts main menu dialog"
           Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*).		"
@@ -326,8 +331,10 @@ IF ButtonPressed = MILEAGE_REIMBURSEMENT_REQUEST_button				THEN CALL run_from_Gi
 IF ButtonPressed = MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
 IF ButtonPressed = OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - OVERPAYMENT.vbs")
 IF ButtonPressed = PREGNANCY_REPORTED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - PREGNANCY REPORTED.vbs")
+IF ButtonPressed = PROOF_OF_RELATIONSHIP_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - PROOF OF RELATIONSHIP.vbs")
 IF ButtonPressed = REIN_PROGS_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - REIN PROGS.vbs")
 IF ButtonPressed = SHELTER_FORM_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SHELTER FORM RECEIVED.vbs")
+IF ButtonPressed = SUBMIT_CASE_FOR_SNAP_REVIEW_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SUBMIT CASE FOR SNAP REVIEW.vbs")
 IF ButtonPressed = SNAP_CASE_REVIEW_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SNAP CASE REVIEW.vbs")
 IF ButtonPressed = VERIFICATIONS_NEEDED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - VERIFICATIONS NEEDED.vbs")
 
