@@ -739,7 +739,7 @@ If ongoing_case_manager_check = 1 THEN
 END IF
 	
 'Checking to see that we're in MAXIS
-call check_for_MAXIS(True)
+call check_for_MAXIS(FALSE)
 
 'function to navigate user to case note and make a new one
 Call start_a_blank_CASE_NOTE

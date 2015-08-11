@@ -282,7 +282,7 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 
 'checking for an active MAXIS session
-call check_for_MAXIS(True)
+call check_for_MAXIS(FALSE)
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")

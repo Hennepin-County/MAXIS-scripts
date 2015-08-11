@@ -301,7 +301,7 @@ case_number = trim(case_number)
 case_number = replace(case_number, "_", "")
 If IsNumeric(case_number) = False THEN case_number = ""
 
-check_for_maxis(true)
+check_for_maxis(FALSE)
 
 DO
   DO

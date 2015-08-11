@@ -148,7 +148,7 @@ worker_signature <> "" AND _
 ((cash_approved_check = checked AND autofill_cash_check = checked AND (datediff("M", cash_start, cash_end) >= 0) AND (datediff("M", date, cash_start) < 2) AND (datediff("M", date, cash_end) < 2)) OR (autofill_cash_check = 0))
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)  
+Call check_for_MAXIS(FALSE)  
 
 total_snap_months = (datediff("m", snap_start, snap_end)) + 1
 total_cash_months = (datediff("m", cash_start, cash_end)) + 1

@@ -102,7 +102,7 @@ Do
 Loop until worker_signature <> ""
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 
 'LOGIC AND CALCULATIONS----------------------------------------------------------------------------------------------------
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.

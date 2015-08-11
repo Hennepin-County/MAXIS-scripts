@@ -197,7 +197,7 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 
 'Checking for MAXIS, NAV to HCRE
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 Call navigate_to_MAXIS_screen("stat", "hcre")
 
 'Creating a custom dialog for determining who the HH members are

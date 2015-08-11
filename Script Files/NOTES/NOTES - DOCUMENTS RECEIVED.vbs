@@ -170,7 +170,7 @@ Do
 Loop until case_number <> ""														'Loops until that case number exists	
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).

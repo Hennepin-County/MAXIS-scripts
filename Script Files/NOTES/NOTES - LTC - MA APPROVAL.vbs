@@ -117,7 +117,7 @@ Dialog case_number_dialog
 cancel_confirmation
 
 'Sends transmit to check for MAXIS
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 
 
 'Checks to make sure it's in HCMI, due to error prone cases
