@@ -215,7 +215,7 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 
 'Checking to see that we're in MAXIS
-call check_for_MAXIS(True)
+call check_for_MAXIS(FALSE)
 
 'Navigating to STAT, grabbing the HH members
 call navigate_to_MAXIS_screen("stat", "hcre")

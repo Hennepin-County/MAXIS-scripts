@@ -92,21 +92,15 @@ DO
 LOOP UNTIL card_amt <> "Select One..."
 
 
-'Checks Maxis for password prompt
-CALL check_for_MAXIS(True)
-
-
-'Navigates to case note
-CALL navigate_to_MAXIS_screen("CASE", "NOTE")
-
-'Sends a PF9 adds note
-PF9
+'Checks for active MAXIS session
+CALL check_for_MAXIS(FALSE)
 
 amt_given_yr_to_date = "$" & amt_given_yr_to_date
 card_amt = "$" & card_amt
 
 
 'Writes the case note
+start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note ("*$$*GAS CARDS ISSUED*$$*")                                                                           'Writes title in Case note
 CALL write_bullet_and_variable_in_case_note("Gas Cards issued on", date_cards_given)                                                    'Writes date cards were issued on next line
 CALL write_bullet_and_variable_in_case_note("Amount of Fuel Cards Given", card_amt)                                                     'Write the amt given this

@@ -139,7 +139,7 @@ EMConnect ""														'Connecting to Bluezone
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'function autofills the footer month and footer year
 call MAXIS_case_number_finder(case_number)							'function autofills case number that worker already has on MAXIS screen
 'checking for an active MAXIS session
-Call check_for_MAXIS(True) 
+Call check_for_MAXIS(FALSE) 
 
 
 'calls up dialog for worker to enter case number and applicable month and year.
