@@ -48,7 +48,6 @@ END IF
 
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-
 BeginDialog MOF_recd, 0, 0, 186, 220, "Medical Opinion Form Received"
   EditBox 55, 5, 100, 15, case_number
   EditBox 55, 25, 95, 15, date_recd
@@ -75,42 +74,31 @@ BeginDialog MOF_recd, 0, 0, 186, 220, "Medical Opinion Form Received"
 EndDialog
 
 
-
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
-
+'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-
-'Finds the case number
-CALL find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-IF IsNumeric(case_number) = False then case_number = ""
-
-CALL check_for_MAXIS(True)
+Call MAXIS_case_number_finder(case_number)
 
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	DO
-		Dialog MOF_recd
-		IF buttonpressed = 0 THEN stopscript
-		IF case_number = "" THEN MsgBox "You must have a case number to continue!"
-		IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
-		IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
-	LOOP until case_number <> "" and worker_signature <> ""
-	CALL check_for_MAXIS(TRUE)
-	Back_to_self
-	CALL navigate_to_MAXIS_screen("STAT", "PROG")  'checking for stat to remind worker about WREG/ABAWD
-	EMReadScreen SNAP_ACTV, 4, 10, 74
-	CALL navigate_to_MAXIS_screen("case", "note")
-	PF9
-	EMReadscreen mode_check, 7, 20, 3
-	IF mode_check <> "Mode: A" AND mode_check <> "Mode: E" THEN MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-LOOP until mode_check = "Mode: A" OR mode_check = "Mode: E"
+	Dialog MOF_recd
+	IF buttonpressed = 0 THEN stopscript
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
+	IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
+LOOP until case_number <> "" and worker_signature <> ""
 
+
+'checking for an active MAXIS session
+CALL check_for_MAXIS(FALSE)
+
+CALL navigate_to_MAXIS_screen("STAT", "PROG")  'checking for stat to remind worker about WREG/ABAWD
+EMReadScreen SNAP_ACTV, 4, 10, 74
 
 
 'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***Medical Opinion Form Rec'd " & date_recd & "***")
 IF client_release = checked THEN CALL write_variable_in_CASE_NOTE ("* Client signed release on MOF.")
 CALL write_bullet_and_variable_in_CASE_NOTE("Diagnosis", diagnosis)
@@ -123,4 +111,5 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 IF SNAP_ACTV = "ACTV" or "PEND" THEN MSGBOX "Please remember to update WREG and client's ABAWD status accordingly."  'Adds message box to remind worker to update WREG and ABAWD is SNAP is ACTV or pending
+
 Script_end_procedure("")

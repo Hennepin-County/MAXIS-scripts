@@ -162,12 +162,11 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
-CALL check_for_MAXIS(True)
+CALL check_for_MAXIS(FALSE)
 
 'Navigating to STAT, checks for abended cases
 call navigate_to_MAXIS_screen("stat", "memb")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then call script_end_procedure("Can't get into STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
+
 
 'Creating a custom dialog for determining who the HH members are
 CALL HH_member_custom_dialog(HH_member_array)

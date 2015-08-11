@@ -157,12 +157,11 @@ EndDialog
 Dialog case_and_PMI_number_dialog
 If ButtonPressed = 0 then stopscript
 
+'connecting to MAXIS, checking for active session, and navigating to ASET panels
 EMConnect ""
-PF3
-EMReadScreen check_for_MAXIS(True), 5, 1, 39
-If check_for_MAXIS(True) <> "MAXIS" and check_for_MAXIS(True) <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
-back_to_self
+Call check_for_MAXIS(FALSE)
 call navigate_to_MAXIS_screen("aset", "____")
+
 
 EMWriteScreen "________", 13, 62
 If community_spouse_check = 1 then 
