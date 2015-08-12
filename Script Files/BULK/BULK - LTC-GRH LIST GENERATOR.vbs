@@ -123,6 +123,9 @@ objExcel.Cells(1, 5).ColumnWidth = 35
 ObjExcel.Cells(1, 6).Value = "Waiver type on first DISA panel found"
 objExcel.Cells(1, 6).Font.Bold = TRUE
 objExcel.Cells(1, 6).ColumnWidth = 35
+ObjExcel.Cells(1, 7).Value = "GRH DOC Amount"
+objExcel.Cells(1, 7).Font.Bold = TRUE
+objExcel.Cells(1, 7).ColumnWidth = 35
 
 'Splitting array for use by the for...next statement
 worker_number_array = split(worker_number, ",")
@@ -230,7 +233,9 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
 	If currently_in_FACI = True then
 		EMReadScreen FACI_name, 30, 6, 43
+		EMReadScreen GRH_DOC, 8, 13, 45
 		ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_name, "_", ""))
+		ObjExcel.Cells(excel_row, 7).Value = trim(replace(GRH_DOC, "_", ""))
 	End if
 
 	'NAVIGATES TO AREP, READS THE NAME, AND ADDS TO SPREADSHEET

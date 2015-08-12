@@ -159,3 +159,4 @@ Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Panel(s) updated", memb & pare & abps & sibl & other & other_option)
 Call write_variable_in_CASE_NOTE(worker_signature)
 
+script_end_procedure("")

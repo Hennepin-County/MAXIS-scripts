@@ -46,79 +46,75 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-BeginDialog SigChange_Dialog, 0, 0, 291, 245, "Significant Change"
-  EditBox 75, 0, 60, 15, case_number
-  DropListBox 75, 20, 65, 15, "Select one..."+chr(9)+"Requested"+chr(9)+"Pending"+chr(9)+"Approved"+chr(9)+"Denied", Sig_change_status
-  DropListBox 75, 35, 215, 15, "Select one..."+chr(9)+"Income didn't decline at least 50% in the benefit month. "+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change. "+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason
-  EditBox 75, 60, 35, 15, Month_requested
-  EditBox 190, 60, 35, 15, Last_month_used
-  EditBox 75, 85, 210, 15, What_income
-  EditBox 75, 105, 210, 15, Income_verified
-  EditBox 75, 135, 210, 15, Verifs_needed
-  EditBox 75, 155, 210, 15, Action_taken
-  EditBox 75, 175, 110, 15, Worker_signature
-  CheckBox 70, 200, 10, 10, "", Tikl_future_month
-  CheckBox 190, 200, 10, 10, "", Spec_memo_denial
+BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
+  EditBox 75, 5, 60, 15, case_number
+  DropListBox 75, 25, 65, 15, "Select one..."+chr(9)+"Requested"+chr(9)+"Pending"+chr(9)+"Approved"+chr(9)+"Denied", Sig_change_status_dropdown
+  DropListBox 75, 45, 215, 15, "Select one..."+chr(9)+"Income didn't decline at least 50% in the benefit month."+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change."+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason_dropdown
+  DropListBox 75, 75, 55, 15, "Select one..."+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", Month_requested_dropdown
+  EditBox 160, 75, 25, 15, Month_Requested_Year
+  EditBox 75, 95, 35, 15, Last_month_used
+  EditBox 75, 120, 210, 15, Income_decreased
+  EditBox 75, 140, 210, 15, Income_verified
+  EditBox 75, 165, 210, 15, Verifs_needed
+  EditBox 75, 185, 210, 15, Action_taken
+  CheckBox 5, 210, 110, 10, "Tikl Future Month Requested", Tikl_future_month_checkbox
+  EditBox 215, 210, 70, 15, Worker_signature
   ButtonGroup ButtonPressed
-    OkButton 5, 220, 50, 15
-    CancelButton 65, 220, 50, 15
-  Text 5, 5, 45, 10, "Case Number"
-  Text 5, 20, 65, 10, "Significant Change"
-  Text 15, 35, 55, 10, "Reason if denied"
-  Text 5, 60, 65, 10, "Month Requested"
-  Text 125, 60, 55, 10, "Last Month Used"
-  Text 5, 80, 65, 20, "What Income has decreased by 50%"
-  Text 5, 105, 55, 20, "Income Change Verified?"
-  Text 5, 140, 70, 10, "Verifications Needed"
-  Text 5, 155, 50, 10, "Action Taken"
-  Text 5, 170, 55, 20, "Worker Signature"
-  Text 5, 200, 60, 10, "Tikl Future Month?"
-  Text 105, 200, 85, 10, "Spec/Memo Denial Letter"
-  Text 125, 220, 160, 20, "* See Combined Manual 0008.06.15 and TEMP  Manual TE02.13.11 for determining eligibility."
+    OkButton 175, 235, 50, 15
+    CancelButton 235, 235, 50, 15
+  Text 5, 10, 45, 10, "Case Number"
+  Text 5, 30, 65, 10, "Significant Change"
+  Text 5, 45, 60, 10, "Reason if denied"
+  Text 15, 60, 245, 10, "*If Significant Change is denied a Denial Letter will be sent automatically"
+  Text 5, 80, 65, 10, "Month Requested"
+  Text 5, 100, 55, 10, "Last Month Used"
+  Text 5, 120, 65, 15, "What Income has decreased?"
+  Text 5, 140, 55, 15, "Income Change Verified?"
+  Text 5, 170, 70, 10, "Verifications Needed"
+  Text 5, 190, 50, 10, "Action Taken"
+  Text 150, 215, 60, 10, "Worker Signature"
+  Text 5, 230, 160, 20, "* See Combined Manual 0008.06.15 and TEMP  Manual TE02.13.11 for determining eligibility."
+  Text 140, 80, 20, 10, "Year"
+  Text 190, 80, 70, 10, "*Enter 4 digit year"
 EndDialog
 
-'THE SCRIPT------------------------------------------------------------------------------------------------------------------
-'Connects to Bluezone
-EMConnect "" 
-'Brings Bluezone to foreground
-EMFocus
-'Password Check
-call check_for_MAXIS(True)
-'Searches for case number
-call MAXIS_case_number_finder(case_number)
-'This Do Loop makes sure a variable is filled for Sig Change status, month requested, and worker signature
 
-DO
-	DO
-		DO
-			DO
-				DO 
-					Dialog Sigchange_dialog
-					cancel_confirmation
-					call check_for_MAXIS (False)
-					IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number" 
-				LOOP UNTIL IsNumeric(case_number) = TRUE 
-				IF Sig_change_status = "Select one..." THEN MsgBox "You must select a Significant Change status type" 
-			LOOP UNTIL Sig_change_status <> "Select one..." 
-			IF Month_requested = "" THEN Msgbox "You must enter a month requested" 
-		LOOP UNTIL Month_requested <> ""
-		IF worker_signature = "" THEN MsgBox "You must sign your case note"
-	LOOP UNTIL worker_signature <> ""
-	If Sig_change_status = "Denied" AND Denial_reason = "Select one..." THEN
-		Msgbox "You have selected Denied, you must select a denial reason"
-	ELSE IF Sig_change_status <> "Denied" THEN EXIT DO
-	END IF 
-LOOP UNTIL Denial_reason <> "Select one..."
+'THE SCRIPT------------------------------------------------------------------------------------------------------------------
+
+EMConnect "" 'Connects to Bluezone
+
+EMFocus 'Brings Bluezone to foreground
+
+call check_for_MAXIS(True) 'Password Check- Script will shut down if passworded out
+
+call MAXIS_case_number_finder(case_number) 'Searches for case number
+
+
+
+'This is the new Do Loop process that makes mandatory fields in the dialog box  
+Do	
+	err_msg = ""
+	Dialog SigChange_Dialog
+	cancel_confirmation 'Are you sure you want to quit? message
+	call check_for_MAXIS (False) 'Password check- If passworded out, dialog box wont close
+	IF case_number = "" OR (case_number <> "" AND IsNumeric(case_number) = FALSE) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number" 'Makes sure there is a numeric case number
+	IF Sig_change_status_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must select a Significant Change status type" 'Selecting the status of the sig change request is a mandatory field
+	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You have selected Denied, you must select a denial reason" 'If your status is Denied then you have to select a denial reason (this will pull into the spec/Memo denial letter)
+	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown <> "Select one..." AND Month_requested_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must enter a month requested" 'I made the month requested a mandatory field only if it is denied because it pulls into the Spec/Memo, also clients do not always state the month they are requesting
+	IF Month_requested_dropdown <> "Select one..." AND (Month_requested_year = "" OR IsNumeric(Month_Requested_Year) = FALSE) THEN err_msg = err_msg & vbNewLine & "*You must enter a valid year" 'This just makes you put in a numeric year if you select a month requested. Basicallly if you know the month then you should know the year
+	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note" 'Mandatory field
+	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 'Msgbox starts out with Notice!!! then makes new line (this should give it a space it before the error messages because each message starts out with new line) and then adds a couple lines to space after the error messages before the saying that "Please resolve for script to continue" "
+LOOP UNTIL err_msg = ""
+
 	
 'TIKL to review/process sig change request for future month (check box selected)
-If TIKL_future_month = checked THEN 
+If TIKL_future_month_checkbox = checked THEN 
 	'navigates to DAIL/WRIT 
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
 	
 	TIKL_date = dateadd("m", 1, date)		'Creates a TIKL_date variable with the current date + 1 month (to determine what the month will be next month)
 	TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
 	
-	'The following will generate a TIKL formatted date for 10 days from now.
 	Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
 	'Writes TIKL to worker
 	Call write_variable_in_TIKL("A Significant Change was requested for this month. Please review and process")
@@ -127,7 +123,7 @@ If TIKL_future_month = checked THEN
 	PF3
 END If
 
-If Spec_memo_denial = checked THEN
+If Sig_change_status_dropdown = "Denied" THEN
 	'Navigating to SPEC/MEMO
 	call navigate_to_screen("SPEC", "MEMO")
 
@@ -145,30 +141,32 @@ If Spec_memo_denial = checked THEN
 	'Writes the MEMO.
 	EMSetCursor 3, 15
 	call write_variable_in_SPEC_MEMO("************************************************************")
-	call write_variable_in_SPEC_MEMO("Your request for Significant Change for the month of " & Month_requested & " has been received")
+	call write_variable_in_SPEC_MEMO("Your request for Significant Change for the month of " & Month_requested_dropdown & " " & Month_requested_year & " has been received.")
 	call write_variable_in_SPEC_MEMO("Your household is not eligible to receive a significant change supplement for the month requested.")
-	call write_variable_in_SPEC_MEMO("This is because " & Denial_reason)
+	call write_variable_in_SPEC_MEMO("This is because " & Denial_reason_dropdown)
 	call write_variable_in_SPEC_MEMO("Please contact your worker if you have any questions")
 	call write_variable_in_SPEC_MEMO("************************************************************")
 
 	'Exits the MEMO
 	PF4
-END IF
+END If
 	
 'Starts the case note
 call start_a_blank_case_note
 
 'Writes the case note
-call write_bullet_and_variable_in_CASE_NOTE ("Significant Change", Sig_change_status)
-call write_bullet_and_variable_in_CASE_NOTE ("Month Requested", Month_requested)
+call write_bullet_and_variable_in_CASE_NOTE ("Significant Change", Sig_change_status_dropdown)
+IF Sig_change_status_dropdown = "Denied" THEN call write_bullet_and_variable_in_CASE_NOTE ("Denial Reason", Denial_reason_dropdown)
+IF Month_requested_dropdown <> "Select one..." THEN call write_bullet_and_variable_in_CASE_NOTE ("Month Requested", Month_requested_dropdown & " " & Month_requested_year)
 call write_bullet_and_variable_in_CASE_NOTE ("Last Month Used", Last_month_used)
-call write_bullet_and_variable_in_CASE_NOTE ("What Income has decreased by 50%", What_income)
+call write_bullet_and_variable_in_CASE_NOTE ("What Income has decreased?", Income_decreased)
 call write_bullet_and_variable_in_CASE_NOTE ("Income Change Verified?", Income_verified)
 call write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", Verifs_needed)
 call write_bullet_and_variable_in_CASE_NOTE ("Action Taken", Action_taken)
+IF Tikl_future_month_checkbox = "1" THEN write_new_line_in_case_note ("* Tikl set to review Significant Change for future month")
+IF Sig_change_status_dropdown = "Denied" THEN write_new_line_in_case_note ("* Denial letter sent via Spec/Memo")
 call write_variable_in_CASE_NOTE (Worker_signature)
 
 script_end_procedure("Success!")
-
 
 

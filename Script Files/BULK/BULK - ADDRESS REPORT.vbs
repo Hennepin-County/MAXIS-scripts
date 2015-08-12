@@ -88,7 +88,7 @@ DO
 	If x_number <> "" and all_workers_check = 1 THEN MsgBox "You need to enter your worker number OR check to run the entire agency, not both options."
 LOOP until (x_number = "" AND all_workers_check = 1) OR (x_number <> "" AND all_workers_check = 0)
 
-x_number = right(x_number, 3)
+x_number = right(x_number, 3)  'grabs right 3 numbers entered into worker number field to combine it with worker_county_code from global variables file, note if running locally you will need to account for this. 
 
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
@@ -116,6 +116,7 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add() 
 objExcel.DisplayAlerts = True
 
+'Creating columns
 objExcel.Cells(1, 1).Value = "WORKER NUMBER"
 objExcel.Cells(1, 1).Font.Bold = True
 objExcel.Cells(1, 2).Value = "CASE NUMBER"
@@ -132,6 +133,16 @@ objExcel.Cells(1, 7).Value = "STATE"
 objExcel.Cells(1, 7).Font.Bold = True
 objExcel.Cells(1, 8).Value = "ZIP CODE"
 objExcel.Cells(1, 8).Font.Bold = True
+objExcel.Cells(1, 9).Value = "MAILING ADDRESS LINE 1"
+objExcel.Cells(1, 9).Font.Bold = True
+objExcel.Cells(1, 10).Value = "MAILING ADDRESS LINE 2"
+objExcel.Cells(1, 10).Font.Bold = True
+objExcel.Cells(1, 11).Value = "MAILING CITY"
+objExcel.Cells(1, 11).Font.Bold = True
+objExcel.Cells(1, 12).Value = "MAILING STATE"
+objExcel.Cells(1, 12).Font.Bold = True
+objExcel.Cells(1, 13).Value = "MAILING ZIP CODE"
+objExcel.Cells(1, 13).Font.Bold = True
 
 excel_row = 2
 
@@ -193,6 +204,7 @@ Do
 	If priv_check = "SELF" then 
 		objExcel.Cells(excel_row, 4) = "Privileged"
 	Else
+		'Reading and cleaning up Residence address
 		EMReadScreen addr_line_1, 22, 6, 43
 		EMReadScreen addr_line_2, 22, 7, 43
 		EMReadScreen city, 15, 8, 43
@@ -203,11 +215,28 @@ Do
 		city = replace(city, "_", "")
 		State = replace(State, "_", "")
 		Zip_code = replace(Zip_code, "_", "")
+		'Reading and cleaning up mailing address
+		EMReadScreen mailing_addr_line_1, 22, 13, 43
+		EMReadScreen mailing_addr_line_2, 22, 14, 43
+		EMReadScreen mailing_city, 15, 15, 43
+		EMReadScreen mailing_State, 2, 16, 43
+		EMReadScreen mailing_Zip_code, 5, 16, 52
+		mailing_addr_line_1 = replace(mailing_addr_line_1, "_", "")
+		mailing_addr_line_2 = replace(mailing_addr_line_2, "_", "")
+		mailing_city = replace(mailing_city, "_", "")
+		mailing_State = replace(mailing_State, "_", "")
+		mailing_Zip_code = replace(mailing_Zip_code, "_", "")
+		'Writing both addresses into excel 
 		objExcel.Cells(excel_row, 4) = addr_line_1
 		objExcel.Cells(excel_row, 5) = addr_line_2
 		objExcel.Cells(excel_row, 6) = city
 		objExcel.Cells(excel_row, 7) = State
 		objExcel.Cells(excel_row, 8) = Zip_code
+		objExcel.Cells(excel_row, 9) = mailing_addr_line_1
+		objExcel.Cells(excel_row, 10) = mailing_addr_line_2
+		objExcel.Cells(excel_row, 11) = mailing_city
+		objExcel.Cells(excel_row, 12) = mailing_State
+		objExcel.Cells(excel_row, 13) = mailing_Zip_code
 	End IF
 	
 	'Clearing variables for next loop.
@@ -216,16 +245,22 @@ Do
 	city = ""
 	State = ""
 	Zip_code = ""
+	mailing_addr_line_1 = ""
+	mailing_addr_line_2 = ""
+	mailing_city = ""
+	mailing_State = ""
+	mailing_Zip_code = ""
 	
 	excel_row = excel_row + 1
 
 Loop until case_number = ""
 	
-	
-FOR i = 1 to 8
+'formatting excel columns to fit
+FOR i = 1 to 13
 	objExcel.Columns(i).AutoFit()
 NEXT
-	
+
+'making excel document visible. 
 objExcel.Visible = True
 
 script_end_procedure("Success!!")
