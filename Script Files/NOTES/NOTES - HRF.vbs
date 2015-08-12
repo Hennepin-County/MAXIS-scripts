@@ -136,12 +136,6 @@ BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
 
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -155,7 +149,6 @@ EMConnect ""
 
 'Grabbing case number & footer month/year
 call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
 'Showing case number dialog
@@ -167,9 +160,9 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 'Checking for an active MAXIS seesion
 Call check_for_MAXIS(False)
+
 'NAV to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
-
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -195,37 +188,37 @@ Do
     call check_for_MAXIS(False)
 	If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
 Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
-    If grab_MFIP_info_check = 1 then
-      call navigate_to_MAXIS_screen("elig", "mfip")
-      EMReadScreen MFPR_check, 4, 3, 47
-      If MFPR_check <> "MFPR" then
-        MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
-      Else
-        EMWriteScreen "MFSM", 20, 71
-        transmit
-        EMReadScreen MFSM_line_01, 37, 12, 44
-        EMReadScreen MFSM_line_02, 37, 14, 44
-        EMReadScreen MFSM_line_03, 37, 15, 44
-        EMReadScreen MFSM_line_04, 37, 16, 44
-      End if
-    End if
-	
+If ButtonPressed = -1 then dialog case_note_dialog
+If buttonpressed = yes_case_note_button then
+   If grab_MFIP_info_check = 1 then
+		call navigate_to_MAXIS_screen("elig", "mfip")
+		EMReadScreen MFPR_check, 4, 3, 47
+		If MFPR_check <> "MFPR" then
+			MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
+		Else
+			EMWriteScreen "MFSM", 20, 71
+			transmit
+			EMReadScreen MFSM_line_01, 37, 12, 44
+			EMReadScreen MFSM_line_02, 37, 14, 44
+			EMReadScreen MFSM_line_03, 37, 15, 44
+			EMReadScreen MFSM_line_04, 37, 16, 44
+		End if
+	End if
+END IF
 
 'Enters the case note
-Call start_a_blank_CASE_NOTE
-Call write_bullet_and_variable_in_case_note("***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
+start_a_blank_CASE_NOTE
+Call write_variable_in_case_note("***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
-If unearned_income <> "" then call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
-If YTD <> "" then call write_bullet_and_variable_in_case_note("YTD", YTD)
-If changes <> "" then call write_bullet_and_variable_in_case_note("Changes", changes)
-if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
-if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+call write_bullet_and_variable_in_case_note("YTD", YTD)
+call write_bullet_and_variable_in_case_note("Changes", changes)
+call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 If ten_percent_sanction_check = 1 then call write_variable_in_CASE_NOTE("* 10% sanction.")
 If thirty_percent_sanction_check = 1 then call write_variable_in_CASE_NOTE("* 30% sanction.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-if verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 call write_variable_in_CASE_NOTE("---")
 If MFPR_check = "MFPR" then

@@ -55,16 +55,17 @@ footer_year = "" & footer_year - 2000
 
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 191, 75, "PA Verification Request"
+BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
   ButtonGroup ButtonPressed
-    OkButton 75, 50, 50, 15
-    CancelButton 130, 50, 50, 15
-  EditBox 105, 10, 70, 15, case_number
-  EditBox 105, 30, 20, 15, footer_month
-  EditBox 130, 30, 20, 15, footer_year
-  Text 30, 10, 50, 15, "Case Number"
-  Text 30, 30, 60, 15, "Footer Month"
+    OkButton 40, 50, 50, 15
+    CancelButton 95, 50, 50, 15
+  EditBox 75, 5, 70, 15, case_number
+  EditBox 75, 25, 30, 15, MAXIS_footer_month
+  EditBox 115, 25, 30, 15, MAXIS_footer_year
+  Text 10, 10, 50, 10, "Case Number"
+  Text 10, 30, 65, 10, "Footer month/year:"
 EndDialog
+
 
 BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   ButtonGroup ButtonPressed
@@ -105,14 +106,6 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
  
 EndDialog
 
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
-
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -134,7 +127,7 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
-Call check_for_MAXIS(False)
+Call check_for_MAXIS(True)
 
 'Jumping to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
@@ -290,7 +283,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 'calling the main dialog	
 Do
 	Dialog PA_verif_dialog
-	If ButtonPressed = 0 then stopscript
+	cancel_confirmation
 	If worker_signature = ""  then MsgBox "Please sign your case note."
 	If completed_by = "" then MsgBox "Please fill out the completed by field."
 	If worker_phone = "" then MsgBox "Please fill out the worker phone field."
@@ -386,7 +379,7 @@ objSelection.TypeText worker_phone
 
 
 'Enters the case note
-Call start_a_blank_CASE_NOTE
+start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE("PA verification request completed and sent to requesting agency.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)

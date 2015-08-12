@@ -215,7 +215,7 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 
 'Checking to see that we're in MAXIS
-call check_for_MAXIS(FALSE)
+call check_for_MAXIS(True)
 
 'Navigating to STAT, grabbing the HH members
 call navigate_to_MAXIS_screen("stat", "hcre")
@@ -259,53 +259,53 @@ Do
 	cancel_confirmation 
 	MAXIS_dialog_navigation
 Loop until ButtonPressed = next_page_button
+Do
 	Do
-		Do
-			Dialog HCAPP_dialog_02
-			cancel_confirmation
-			MAXIS_dialog_navigation					
-		Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
-		If ButtonPressed = previous_page_button then exit do
-		If actions_taken = "" or HCAPP_datestamp = "" or worker_signature = "" or HCAPP_status = "Select one..." then MsgBox "You need to fill in the datestamp and actions taken sections, and the HCAPP status, as well as sign your case note. Check these items after pressing ''OK''."
-	Loop until actions_taken <> "" and HCAPP_datestamp <> "" and HCAPP_status <> "Select one..." and worker_signature <> "" 
-	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then
-			
-		If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
-			call navigate_to_MAXIS_screen("rept", "pnd2")
-			EMGetCursor PND2_row, PND2_col
-			EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
-			If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
-			EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
-			If PND2_HC_status_check = "P" then
-				EMWriteScreen "x", PND2_row, 3
-				transmit
-				person_delay_row = 7
-				Do
-					EMReadScreen person_delay_check, 1, person_delay_row, 39
-					If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
-					person_delay_row = person_delay_row + 2
-				Loop until person_delay_check = " " or person_delay_row > 20
-				PF3
-			End if
-			PF3
-			EMReadScreen PND2_check, 4, 2, 52
-			If PND2_check = "PND2" then
-				MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
-				PF10
-				client_delay_check = 0
-			End if
-		End if
-				
-		If TIKL_check = 1 then
-			call navigate_to_MAXIS_screen("dail", "writ")
-			call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18) 
-			EMSetCursor 9, 3
-			EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
+		Dialog HCAPP_dialog_02
+		cancel_confirmation
+		MAXIS_dialog_navigation					
+	Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
+	If ButtonPressed = previous_page_button then exit do
+	If actions_taken = "" or HCAPP_datestamp = "" or worker_signature = "" or HCAPP_status = "Select one..." then MsgBox "You need to fill in the datestamp and actions taken sections, and the HCAPP status, as well as sign your case note. Check these items after pressing ''OK''."
+Loop until actions_taken <> "" and HCAPP_datestamp <> "" and HCAPP_status <> "Select one..." and worker_signature <> "" 
+If ButtonPressed = -1 then dialog case_note_dialog
+If buttonpressed = yes_case_note_button then
+		
+	If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
+		call navigate_to_MAXIS_screen("rept", "pnd2")
+		EMGetCursor PND2_row, PND2_col
+		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
+		If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
+		EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
+		If PND2_HC_status_check = "P" then
+			EMWriteScreen "x", PND2_row, 3
 			transmit
+			person_delay_row = 7
+			Do
+				EMReadScreen person_delay_check, 1, person_delay_row, 39
+				If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+				person_delay_row = person_delay_row + 2
+			Loop until person_delay_check = " " or person_delay_row > 20
 			PF3
 		End if
-	END if
+		PF3
+		EMReadScreen PND2_check, 4, 2, 52
+		If PND2_check = "PND2" then
+			MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
+			PF10
+			client_delay_check = 0
+		End if
+	End if
+			
+	If TIKL_check = 1 then
+		call navigate_to_MAXIS_screen("dail", "writ")
+		call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18) 
+		EMSetCursor 9, 3
+		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
+		transmit
+		PF3
+	End if
+END if
 
 'SECTION 08: THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE

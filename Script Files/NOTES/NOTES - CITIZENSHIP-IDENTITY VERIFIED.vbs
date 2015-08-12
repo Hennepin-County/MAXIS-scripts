@@ -127,9 +127,8 @@ Loop until can_move_on = True
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
 
-'Case noting----------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
-'body of the case note
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("***CITIZENSHIP/IDENTITY***")
 Call write_variable_in_CASE_NOTE("--------------------------------------------------------------------------------")
 Call write_variable_in_CASE_NOTE("    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF")
