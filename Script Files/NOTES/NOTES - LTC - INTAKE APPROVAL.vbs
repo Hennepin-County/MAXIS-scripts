@@ -227,14 +227,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 
 
 'Going to ELIG/HC for the correct footer month
-back_to_self
-EMWriteScreen "elig", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
-EMWriteScreen "hc", 21, 70
-transmit
+Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 'Checks for person 01 and navigates to it
 EMReadScreen person_check, 2, 8, 31

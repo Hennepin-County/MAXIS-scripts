@@ -133,7 +133,6 @@ BeginDialog LTC_transfer_penalty_dialog, 0, 0, 316, 295, "Dialog"
 EndDialog
 
 
-
 'SCRIPT BODY----------------------------------------------------------------------------------------------------
 EMConnect ""														'Connecting to Bluezone
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'function autofills the footer month and footer year

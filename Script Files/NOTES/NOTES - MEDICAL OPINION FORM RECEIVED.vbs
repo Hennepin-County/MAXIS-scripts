@@ -110,6 +110,6 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", action_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-IF SNAP_ACTV = "ACTV" or "PEND" THEN MSGBOX "Please remember to update WREG and client's ABAWD status accordingly."  'Adds message box to remind worker to update WREG and ABAWD is SNAP is ACTV or pending
+IF SNAP_ACTV = "ACTV" or SNAP_ACTV = "PEND" THEN MSGBOX "Please remember to update WREG and client's ABAWD status accordingly."  'Adds message box to remind worker to update WREG and ABAWD is SNAP is ACTV or pending
 
 Script_end_procedure("")

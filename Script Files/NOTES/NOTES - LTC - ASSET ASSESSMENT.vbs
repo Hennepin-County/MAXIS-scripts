@@ -254,6 +254,11 @@ Do
   If mode_check <> "Mode: A" then MsgBox "A person note could not be found. You might have accidentally navigated away from the ASET function. Get back into the asset assessment before trying again."
 Loop until mode_check = "Mode: A"
 
+'navigates to person note
+PF5 
+'puts person note into edit mode
+PF9
+
 If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
 If sent_3340A_check = 1 then actions_taken = "Sent 3340-A. " & actions_taken
 
@@ -319,8 +324,7 @@ call write_new_line_in_person_note(total_marital_asset_list_line_15)
 
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
 
-call start_a_blank_CASE_NOTE
-
+start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("***" & asset_assessment_type & " ASSET ASSESSMENT***")
 call write_bullet_and_variable_in_case_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
 If MA_LTC_first_month_of_documented_need <> "" then call write_bullet_and_variable_in_case_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)

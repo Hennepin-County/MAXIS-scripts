@@ -87,14 +87,14 @@ Loop until case_number <> ""
 Call check_for_MAXIS(False)
 
 'the CASE NOTE----------------------------------------------------------------------------------------------------
-call start_a_blank_CASE_NOTE
+start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE(">>>>>MILEAGE REIMBURSEMENT REQUEST - ACTIONS TAKEN<<<<<")
-If date_docs_recd <> "" then call write_bullet_and_variable_in_case_note("Date received", date_docs_recd)
-If total_reimbursement <> "" then call write_bullet_and_variable_in_case_note("Total Amount", "$" & total_reimbursement)
-If date_to_accounting <> "" then call write_bullet_and_variable_in_case_note("Date Sent to Accounting", date_to_accounting)
-If docs_reqd <> "" then call write_bullet_and_variable_in_case_note("Docs requested", docs_reqd)
-If other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
-If actions_taken <> "" then call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+call write_bullet_and_variable_in_case_note("Date received", date_docs_recd)
+call write_bullet_and_variable_in_case_note("Total Amount", "$" & total_reimbursement)
+call write_bullet_and_variable_in_case_note("Date Sent to Accounting", date_to_accounting)
+call write_bullet_and_variable_in_case_note("Docs requested", docs_reqd)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 If worker_county_code = "x179" then call write_variable_in_CASE_NOTE("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.")	'Should only do this for Wabasha County, unless other counties request it.
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)

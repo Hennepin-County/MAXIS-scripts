@@ -46,10 +46,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
 'SECTION 02: DIALOGS
-
-
 BeginDialog overpayment_dialog, 0, 0, 266, 260, "Overpayment dialog"
   EditBox 60, 5, 70, 15, case_number
   EditBox 120, 25, 140, 15, programs_cited
@@ -101,6 +98,8 @@ If Claim_number = "" Then
 	Claim_number = "Not available at this time"
 end if
 
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE("**OVERPAYMENT/CLAIM ESTABLISHED**")
 call write_bullet_and_variable_in_case_note("Program(s) overpayment cited for", programs_cited) 
 call write_bullet_and_variable_in_case_note("Claim Number(s)", Claim_number) 
