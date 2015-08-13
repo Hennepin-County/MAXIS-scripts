@@ -1,3 +1,5 @@
+msgbox "locally run"
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
@@ -51,46 +53,50 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
+'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
+county_FSET_offices = array("")
+
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
 
-'IF worker_county_code = "x101" THEN county_FSET_offices = array("Select one",
+IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center",
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
-IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
-'IF worker_county_code = "x105" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x106" THEN county_FSET_offices = array("Select one",
-IF worker_county_code = "x107" THEN county_FSET_offices = array("Minnesota WorkForce Center: Blue Earth")
+IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
+'IF worker_county_code = "x105" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x106" THEN county_FSET_offices = array("Select one...",
+IF worker_county_code = "x107" THEN county_FSET_offices = array("Blue Earth County Employment Services")
 IF worker_county_code = "x108" THEN county_FSET_offices = array("Minnesota Valley Action Council New Ulm")
 IF worker_county_code = "x109" THEN county_FSET_offices = array("Carlton County Human Services")
-'IF worker_county_code = "x110" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x111" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x110" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x111" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x112" THEN county_FSET_offices = array("Chippewa County Workforce Center")
-'IF worker_county_code = "x113" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x114" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x115" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x116" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x117" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x113" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x114" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x115" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x116" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x117" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x118" THEN county_FSET_offices = array("Rural MN CEP Brainerd")
-IF worker_county_code = "x119" THEN county_FSET_offices = array("Select one", "Northern Service Center", "Burnsville Workforce Center")
+IF worker_county_code = "x119" THEN county_FSET_offices = array("Select one...", "Northern Service Center", "Burnsville Workforce Center")
 IF worker_county_code = "x120" THEN county_FSET_offices = array("Workforce Development Inc. (Kasson)")
 IF worker_county_code = "x121" THEN county_FSET_offices = array("Alexandria Workforce Center")
 IF worker_county_code = "x122" THEN county_FSET_offices = array("Fairmont Workforce Center Fairbault County")
 IF worker_county_code = "x123" THEN county_FSET_offices = array("Workforce Development Office")
-'IF worker_county_code = "x124" THEN county_FSET_offices = array("Select one", 
+'IF worker_county_code = "x124" THEN county_FSET_offices = array("Select one...", 
 IF worker_county_code = "x125" THEN county_FSET_offices = array("Workforce Development Inc. (Redwing)")
 IF worker_county_code = "x126" THEN county_FSET_offices = array("Grant County Social Services")
-IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one", "Century Plaza", "Sabathani Community Center")
+IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one...", "Century Plaza", "Sabathani Community Center")
 IF worker_county_code = "x128" THEN county_FSET_offices = array("Workforce Development Inc.")
-'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x130" THEN county_FSET_offices = array("Cambridge MN Workforce Center")
 IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
-'IF worker_county_code = "x132" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x133" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x134" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x132" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x133" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x134" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x135" THEN county_FSET_offices = array("Kittson County Social Services")
-'IF worker_county_code = "x136" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x136" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x137" THEN county_FSET_offices = array("Lace qui Parle Co. Family Services")
 IF worker_county_code = "x138" THEN county_FSET_offices = array("AEOA")
 IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
@@ -102,49 +108,49 @@ IF worker_county_code = "x144" THEN county_FSET_offices = array("Marshall County
 IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
 IF worker_county_code = "x146" THEN county_FSET_offices = array("Central MN Jobs and Training Services Hutchinson")
 IF worker_county_code = "x147" THEN county_FSET_offices = array("Central MN Jobs and Training Services Litchfield")
-'IF worker_county_code = "x148" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x149" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x148" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x149" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x150" THEN county_FSET_offices = array("Workforce Development Inc. (Austin)")
 IF worker_county_code = "x151" THEN county_FSET_offices = array("Marshall WorkForce Center")
-'IF worker_county_code = "x152" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x153" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x154" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x152" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x153" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x154" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x155" THEN county_FSET_offices = array("Olmstead County Family Support & Assistance")
 IF worker_county_code = "x156" THEN county_FSET_offices = array("Rural MN CEP Fergus Falls")
-IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkForce Center: Theif River Falls")
-IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one", "Pine County Health & Human Services", "Pine Technical & Community College E&T Center")
+IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkForce Center: Thief River Falls")
+IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one...", "Pine County Public Health Building", "Pine Technical & Community College E&T Center")
 IF worker_county_code = "x159" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Pipestone")
-IF worker_county_code = "x160" THEN county_FSET_offices = array("Select one", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston")
+IF worker_county_code = "x160" THEN county_FSET_offices = array("Select one...", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston")
 IF worker_county_code = "x161" THEN county_FSET_offices = array("Minnesota Workforce Center Alexandria")
-'IF worker_county_code = "x162" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x162" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x163" THEN county_FSET_offices = array("Minnesota Workforce Center: Red Lake")
 IF worker_county_code = "x164" THEN county_FSET_offices = array("Southwest Health & Human Services")
 IF worker_county_code = "x165" THEN county_FSET_offices = array("Central MN Jobs and Training Services Olivia")
-'IF worker_county_code = "x166" THEN county_FSET_offices = array("Select one", 
+'IF worker_county_code = "x166" THEN county_FSET_offices = array("Select one...", 
 IF worker_county_code = "x167" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Luverne") 
 IF worker_county_code = "x168" THEN county_FSET_offices = array("Roseau County Social Services")
-IF worker_county_code = "x169" THEN county_FSET_offices = array("Select one", "MN Workforce Center: Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota Workforce Center: Hibbing")
-'IF worker_county_code = "x170" THEN county_FSET_offices = array("Select one", 
+IF worker_county_code = "x169" THEN county_FSET_offices = array("Select one...", "MN Workforce Center: Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota Workforce Center: Hibbing")
+'IF worker_county_code = "x170" THEN county_FSET_offices = array("Select one...", 
 IF worker_county_code = "x171" THEN county_FSET_offices = array("Central MN Jobs and Training Services Monticello")
-'IF worker_county_code = "x172" THEN county_FSET_offices = array("Select one",
-'IF worker_county_code = "x173" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x172" THEN county_FSET_offices = array("Select one...",
+'IF worker_county_code = "x173" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x174" THEN county_FSET_offices = array("Steele County Employment Services")
 IF worker_county_code = "x175" THEN county_FSET_offices = array("Stevens County Human Services")
 IF worker_county_code = "x176" THEN county_FSET_offices = array("SW MN Private Industry Council")
-IF worker_county_code = "x177" THEN county_FSET_offices = array("Select one", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples")
+IF worker_county_code = "x177" THEN county_FSET_offices = array("Select one...", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples")
 IF worker_county_code = "x178" THEN county_FSET_offices = array("Rural MN CEP Wadena")
 IF worker_county_code = "x179" THEN county_FSET_offices = array("Workforce Development Inc.")
 IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
 IF worker_county_code = "x181" THEN county_FSET_offices = array("Minnesota Valley Action Council Waseca")
-IF worker_county_code = "x182" THEN county_FSET_offices = array("Select one", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury")
-'IF worker_county_code = "x183" THEN county_FSET_offices = array("Select one",
+IF worker_county_code = "x182" THEN county_FSET_offices = array("Select one...", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury")
+'IF worker_county_code = "x183" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x184" THEN county_FSET_offices = array("Wilkin County Family Services")
-'IF worker_county_code = "x185" THEN county_FSET_offices = array("Select one",
+'IF worker_county_code = "x185" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x186" THEN county_FSET_offices = array("Central MN Jobs and Training Services Monticello")
 IF worker_county_code = "x187" THEN county_FSET_offices = array("Yellow Medicine County Family Services")
 
-
-call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
+'If the array isn't blank, then create a new array called FSET_list containing these items as a droplist. This will be used by the dialog.
+IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
 
 If worker_county_code = "x127" THEN 
 	SNAPET_contact = "the EZ Info Line"
@@ -152,16 +158,16 @@ If worker_county_code = "x127" THEN
 END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-' FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work
+' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
-BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
   EditBox 205, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
-  EditBox 205, 25, 20, 15, appointment_time_prefix_editbox
-  EditBox 225, 25, 20, 15, appointment_time_post_editbox
-  DropListBox 250, 25, 45, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
-  DropListBox 115, 50, 180, 15, "county_office_list", interview_location
+  EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
+  EditBox 215, 25, 20, 15, appointment_time_post_editbox
+  DropListBox 235, 25, 60, 15, "Select one..."+chr(9)+"AM"+chr(9)+"PM", AM_PM
+  DropListBox 115, 50, 180, 15, FSET_list, interview_location
   EditBox 60, 70, 65, 15, SNAPET_contact
   EditBox 185, 70, 65, 15, SNAPET_phone
   EditBox 120, 90, 65, 15, worker_signature
@@ -172,7 +178,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 301, 110, "SNAP E&T Appointmen
   Text 60, 95, 60, 10, "Worker Signature:"
   Text 10, 10, 50, 10, "Case Number:"
   Text 130, 10, 70, 10, "HH Member Number:"
-  Text 135, 30, 60, 15, "Appointment Time:"
+  Text 130, 30, 60, 10, "Appointment Time:"
   Text 10, 75, 50, 10, "Contact name: "
   Text 5, 30, 60, 10, "Appointment Date:"
   Text 135, 75, 50, 10, "Contact phone:"
@@ -186,7 +192,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment 
   EditBox 70, 25, 55, 15, appointment_date
   EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 215, 25, 20, 15, appointment_time_post_editbox
-  DropListBox 240, 25, 55, 15, "Select one.."+chr(9)+"AM"+chr(9)+"PM", AM_PM
+  DropListBox 240, 25, 55, 15, "Select one..."+chr(9)+"AM"+chr(9)+"PM", AM_PM
   EditBox 65, 45, 190, 15, SNAPET_name
   EditBox 65, 65, 190, 15, SNAPET_address_01
   EditBox 65, 85, 95, 15, SNAPET_city
@@ -212,10 +218,8 @@ EndDialog
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone default screen
 EMConnect ""
-
 'Searches for a case number
 call MAXIS_case_number_finder(case_number)
 
@@ -230,73 +234,84 @@ DO
 							DO
 								DO
 									DO
-										DO	
-											'Counties listed here (starting iwth x101 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)
-											If worker_county_code = "x101" OR _  	
-											  worker_county_code = "x105" OR _
-											  worker_county_code = "x106" OR _
-											  worker_county_code = "x110" OR _
-											  worker_county_code = "x111" OR _
-											  worker_county_code = "x113" OR _
-											  worker_county_code = "x114" OR _
-											  worker_county_code = "x115" OR _
-											  worker_county_code = "x116" OR _
-											  worker_county_code = "x117" OR _
-											  worker_county_code = "x124" OR _
-											  worker_county_code = "x129" OR _
-											  worker_county_code = "x132" OR _
-											  worker_county_code = "x133" OR _
-											  worker_county_code = "x134" OR _
-											  worker_county_code = "x136" OR _
-											  worker_county_code = "x148" OR _
-											  worker_county_code = "x149" OR _
-											  worker_county_code = "x152" OR _
-											  worker_county_code = "x153" OR _
-											  worker_county_code = "x154" OR _
-											  worker_county_code = "x162" OR _
-											  worker_county_code = "x170" OR _
-											  worker_county_code = "x172" OR _
-											  worker_county_code = "x173" OR _
-											  worker_county_code = "x183" OR _
-											  worker_county_code = "x185" THEN											  
-												Dialog SNAPET_manual_address_dialog 
-											ELSE 
-												Dialog SNAPET_automated_adress_dialog
-												'next 5 lines are tricking the script to read <> "" since they are declared as "_"
-												SNAPET_name = "_"
-												SNAPET_address_01 = "_"
-												SNAPET_city = "_"
-												SNAPET_ST = "_"
-												SNAPET_zip = "_"
-											END IF
-											cancel_confirmation 'asks if they really want to cancel script	
-											IF case_number = "" then MsgBox "You did not enter a case number. Please try again."
-										LOOP UNTIL case_number <> ""
-										If isdate(appointment_date) = FALSE then MsgBox "You did not enter a valid appointment date. Please try again."
-									LOOP UNTIL isdate(appointment_date) = True
-									IF member_number = "" then MsgBox "You did not specify a household member number.  Please try again."
-								LOOP UNTIL isnumeric(member_number) = true
-								IF SNAPET_name = "" then MsgBox "Please specify the agency name."
-							LOOP UNTIL SNAPET_name <> ""
-							IF SNAPET_address_01 = "" then MsgBox "Please enter the address for the SNAP ET agency."
-						LOOP UNTIL SNAPET_address_01 <> ""
-						IF appointment_time_prefix_editbox = "" then MsgBox "Please specify an appointment time."
-					LOOP UNTIL appointment_time_prefix_editbox <> ""
-					IF appointment_time_post_editbox = "" then MsgBox "Please specify an appointment time."
-				LOOP UNTIL appointment_time_post_editbox <> ""	
-				If AM_PM = "Select One..." THEN MsgBox "Please choose either a.m. or p.m."
-			LOOP UNTIL AM_PM <> "Select One..."					
-			IF worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-		LOOP UNTIL worker_signature <> ""
-		IF SNAPET_contact = "" THEN MsgBox "You must specify the E&T contact name.  Please try again."
-	LOOP UNTIL SNAPET_contact <> ""
-	IF SNAPET_phone = "" THEN MsgBox "You must enter a contact phone number.  Please try again."
-LOOP UNTIL SNAPET_phone <> ""	
+										DO
+											DO	
+												'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
+												worker_county_code = "x105" OR _
+												worker_county_code = "x106" OR _
+												worker_county_code = "x110" OR _
+												worker_county_code = "x111" OR _
+												worker_county_code = "x113" OR _
+												worker_county_code = "x114" OR _
+												worker_county_code = "x115" OR _
+												worker_county_code = "x116" OR _
+												worker_county_code = "x117" OR _
+												worker_county_code = "x124" OR _
+												worker_county_code = "x129" OR _
+												worker_county_code = "x132" OR _
+												worker_county_code = "x133" OR _
+												worker_county_code = "x134" OR _
+												worker_county_code = "x136" OR _
+												worker_county_code = "x148" OR _
+												worker_county_code = "x149" OR _
+												worker_county_code = "x152" OR _
+												worker_county_code = "x153" OR _
+												worker_county_code = "x154" OR _
+												worker_county_code = "x162" OR _
+												worker_county_code = "x170" OR _
+												worker_county_code = "x172" OR _
+												worker_county_code = "x173" OR _
+												worker_county_code = "x183" OR _
+												worker_county_code = "x185" OR _ 
+												worker_county_code = "" THEN											  
+													Dialog SNAPET_manual_address_dialog 
+												ELSE 
+													Dialog SNAPET_automated_adress_dialog
+													'next 5 lines are tricking the script to read <> "" since they are declared as "_"
+													SNAPET_name = "_"
+													SNAPET_address_01 = "_"
+													SNAPET_city = "_"
+													SNAPET_ST = "_"
+													SNAPET_zip = "_"
+												END IF
+												cancel_confirmation 'asks if they really want to cancel script	
+												IF case_number = "" then MsgBox "You did not enter a case number. Please try again."
+											LOOP UNTIL case_number <> ""
+											If isdate(appointment_date) = FALSE then MsgBox "You did not enter a valid appointment date. Please try again."
+										LOOP UNTIL isdate(appointment_date) = True
+										IF len(member_number) <> 2 then MsgBox "You did not enter a valid household member number.  Please try again."
+									LOOP UNTIL len(member_number) = 2
+									IF SNAPET_name = "" then MsgBox "Please specify the agency name."
+								LOOP UNTIL SNAPET_name <> ""
+								IF SNAPET_address_01 = "" then MsgBox "Please enter the address for the SNAP E&T agency."
+							LOOP UNTIL SNAPET_address_01 <> ""
+							IF appointment_time_prefix_editbox = "" then MsgBox "Please specify an appointment time."
+						LOOP UNTIL appointment_time_prefix_editbox <> ""
+						IF appointment_time_post_editbox = "" then MsgBox "Please specify an appointment time."
+					LOOP UNTIL appointment_time_post_editbox <> ""	
+					If AM_PM = "Select One..." THEN MsgBox "Please choose either a.m. or p.m."
+				LOOP UNTIL AM_PM <> "Select One..."					
+				IF worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+			LOOP UNTIL worker_signature <> ""
+			IF SNAPET_contact = "" THEN MsgBox "You must specify the E&T contact name.  Please try again."
+		LOOP UNTIL SNAPET_contact <> ""
+		IF SNAPET_phone = "" THEN MsgBox "You must enter a contact phone number.  Please try again."
+	LOOP UNTIL SNAPET_phone <> ""	
+	If interview_location = "Select one..." then MsgBox "You must select the E&T office location."
+Loop until interview_location <> "Select one..."
 
-'checking for active MAXIS session
-Call check_for_MAXIS(True)
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
+'CO #01 AITKIN COUNTY address
+IF interview_location = "Aitkin Workforce Center" THEN 
+	SNAPET_name = "Aitkin Workforce Center"
+	SNAPET_address_01 = "20 3rd Street NE"
+	SNAPET_city = "Aitkin"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56431"
+END IF
 
 'CO #02 Anoka County address
 IF interview_location = "Minnesota WorkForce Center Blaine" THEN 
@@ -313,13 +328,14 @@ IF interview_location = "Rural MN CEP Detroit Lakes" THEN
 	SNAPET_address_01 = "1803 Roosevelt Ave"
 	SNAPET_city = "Detroit Lakes"
 	SNAPET_ST = "MN"
-	SNAPET_zip = "556501"
+	SNAPET_zip = "56501"
 END IF
 
 'CO #04 BELTRAMI COUNTY addresses
 IF interview_location = "RMCEP" THEN 
 	SNAPET_name = "RMCEP"
 	SNAPET_address_01 = "616 America Ave NW Suite 210"
+	SNAPET_city = "Bemedji"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56601"
 ElseIf interview_location = "MCT" THEN 
@@ -343,12 +359,12 @@ ElseIf interview_location = "Red Lake Oshkiimaajitahdah" THEN
 END IF
 
 'CO #7 BLUE EARTH COUNTY address
-IF interview_location = "Minnesota WorkForce Center: Blue Earth" THEN 
-	SNAPET_name = "Minnesota WorkForce Center"
-	SNAPET_address_01 = "301 N. Main Street"
-	SNAPET_city = "Blue Earth"
+IF interview_location = "Blue Earth County Employment Services" THEN 
+	SNAPET_name = "Blue Earth County Employment Services"
+	SNAPET_address_01 = "421 E Hickory Street, Suite 400"
+	SNAPET_city = "Mankato"
 	SNAPET_ST = "MN"
-	SNAPET_zip = "56013"
+	SNAPET_zip = "56001"
 END IF
 
 'CO #8 BROWN COUNTY address
@@ -583,7 +599,7 @@ END IF
 IF interview_location  = "Fairmont Workforce Center Martin County" THEN
     SNAPET_name = "Fairmont Workforce Center Martin County"
     SNAPET_address_01 = "412 S. State Street"
-    SNAPET_city = "412 S. State Street"
+    SNAPET_city = "Fairmont"
     SNAPET_ST = "MN"
     SNAPET_zip = "56013"
 END IF
@@ -606,7 +622,7 @@ IF interview_location  = "Central MN Jobs and Training Services Litchfield" THEN
     SNAPET_zip = "55355"
 END IF
 
-'CO #50 MOWER COUNTY address
+'CO #50 MOWER COUNTY address
 IF interview_location  = "Workforce Development Inc. (Austin)" THEN
     SNAPET_name = "Workforce Development Inc. (Austin)"
     SNAPET_address_01 = "1600 8th Avenue NW"
@@ -616,8 +632,8 @@ IF interview_location  = "Workforce Development Inc. (Austin)" THEN
 END IF
 
 'CO #51 MURRAY COUNTY address
-IF interview_location  = "Marshall WorkForce Center                                                      " THEN
-    SNAPET_name = "Marshall WorkForce Center                                                       "
+IF interview_location  = "Marshall WorkForce Center" THEN
+    SNAPET_name = "Marshall WorkForce Center"
     SNAPET_address_01 = "607 W. Main Street"
     SNAPET_city = "Marshall"
     SNAPET_ST = "MN"
@@ -643,27 +659,27 @@ IF interview_location  = "Rural MN CEP Fergus Falls" THEN
 END IF
 
 'CO #57 PENNINGTON COUNTY address
-IF interview_location  = "Minnesota WorkForce Center: Theif River Falls" THEN
-    SNAPET_name = "Minnesota WorkForce Center: Theif River Falls"
+IF interview_location  = "Minnesota WorkForce Center: Thief River Falls" THEN
+    SNAPET_name = "Minnesota WorkForce Center: Thief River Falls"
     SNAPET_address_01 = "1301 State Hwy 1"
-    SNAPET_city = "Theif River Falls"
+    SNAPET_city = "Thief River Falls"
     SNAPET_ST = "MN"
     SNAPET_zip = "56701"
 END IF
 
 'CO #58 PINE COUNTY address
-IF interview_location  = "Pine County Health & Human Services" THEN
-    SNAPET_name = "Pine County Health & Human Services"
-    SNAPET_address_01 = "130 Oriole St E Ste 1"
-    SNAPET_city = "130 Oriole St E Ste 1"
+IF interview_location  = "Pine County Public Health Building" THEN
+    SNAPET_name = "Pine County Public Health Building"
+    SNAPET_address_01 = "1610 Hwy 23 N"
+    SNAPET_city = "Sandstone"
     SNAPET_ST = "MN"
     SNAPET_zip = "55072"
-ELSEIF interview_location  = "Pine County Health & Human Services" THEN
-    SNAPET_name = "Pine County Health & Human Services"
-    SNAPET_address_01 = "130 Oriole St E Ste 1"
-    SNAPET_city = "130 Oriole St E Ste 1"
+ELSEIF interview_location  = "Pine Technical & Community College E&T Center" THEN
+    SNAPET_name = "Pine Technical & Community College E&T Center"
+    SNAPET_address_01 = "900 4th St SE"
+    SNAPET_city = "Pine City"
     SNAPET_ST = "MN"
-    SNAPET_zip = "55072"
+    SNAPET_zip = "55063"
 END IF
 
 'CO #59 PIPESTONE COUNTY address
@@ -709,7 +725,7 @@ END IF
 IF interview_location  = "Minnesota Workforce Center: Red Lake" THEN
     SNAPET_name = "Minnesota Workforce Center: Red Lake"
     SNAPET_address_01 = "1301 Highway 1 East"
-    SNAPET_city = "Theif River Falls"
+    SNAPET_city = "Thief River Falls"
     SNAPET_ST = "MN"
     SNAPET_zip = "56701"
 END IF
@@ -948,15 +964,15 @@ EMWriteScreen SNAPET_contact, 16, 28
 PF4		'saves and sends memo
 
 'Navigates to a blank case note
-call start_a_blank_CASE_NOTE
-
+start_a_blank_CASE_NOTE
 'Writes the case note
-CALL write_variable_in_CASE_NOTE("***SNAP E&T Appointment Letter Sent***")
+CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
+Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
 CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
-CALL write_variable_in_CASE_NOTE("---")
-CALL write_variable_in_CASE_NOTE(worker_signature)
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 
 MsgBox "If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!"
 

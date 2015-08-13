@@ -385,6 +385,6 @@ call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 'Starts the print dialog
-objword.dialogs(wdDialogFilePrint).ShowS
+objword.dialogs(wdDialogFilePrint).Show
 
 script_end_procedure("")
