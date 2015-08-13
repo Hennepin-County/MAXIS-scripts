@@ -180,7 +180,7 @@ IF update_type = "Status Update" THEN
 END IF
 
 '----Writing the note
-call check_for_MAXIS(true)
+call check_for_MAXIS(False)
 
 call start_a_blank_CASE_NOTE
 'Writing the employment plan note

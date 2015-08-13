@@ -83,7 +83,7 @@ Dialog apply_MN_dialog
 cancel_confirmation
 
 'checking for an active MAXIS session	
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 
 'Case notes information
