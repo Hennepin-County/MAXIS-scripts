@@ -116,8 +116,8 @@ BeginDialog status_update_dialog, 0, 0, 246, 195, "Status Update"
   EditBox 45, 70, 20, 15, hh_member
   EditBox 110, 70, 20, 15, ES_status
   EditBox 185, 70, 45, 15, effective_date
-  EditBox 60, 105, 175, 15, actions_taken
-  EditBox 60, 125, 175, 15, other_notes
+  EditBox 60, 105, 175, 15, other_notes
+  EditBox 60, 125, 175, 15, actions_taken
   EditBox 75, 145, 80, 15, worker_signature
   Text 90, 30, 65, 10, "Compliance Date:"
   Text 10, 70, 30, 15, "Member:"
@@ -173,7 +173,7 @@ IF update_type = "Status Update" THEN
 				Dialog status_update_dialog
 				IF ButtonPressed = 0 THEN stopscript
 			LOOP UNTIL ButtonPressed = OK
-			IF sanction_imposed_check = unchecked and actions_taken <> "" and received_sent = "Received" THEN MsgBox "Please complete the actions taken field."
+			IF sanction_imposed_check = unchecked and actions_taken = "" THEN MsgBox "Please indicate what actions were taken."
 		LOOP until sanction_imposed_check = checked OR actions_taken <> "" OR received_sent = "Sent"
 		IF worker_signature = "" THEN MsgBox "Please sign your case note."
 	LOOP until worker_signature <> ""
@@ -210,6 +210,7 @@ IF update_type = "Status Update" THEN
 		call write_variable_in_CASE_NOTE("Status update received to change ES status of member: " & hh_member & " on " & document_date)
 		call write_variable_in_CASE_NOTE("New ES Status: " & ES_status & " Effective: " & effective_date)
 	END IF
+	IF received_sent = "Received" and sanction_cured_check = unchecked and sanction_imposed_check = unchecked THEN call write_variable_in_CASE_NOTE("Status update received on " & document_date)
 END IF
 IF actions_taken <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
