@@ -9,7 +9,7 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+	IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN	'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN		'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
@@ -58,7 +58,7 @@ county_FSET_offices = array("")
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
 
-'IF worker_county_code = "x101" THEN county_FSET_offices = array("Select one...",
+IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center",
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
 IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
@@ -182,7 +182,6 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointmen
 EndDialog
 
 
-
 'This dialog is for counties that have not provided FSET office address(s)
 BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
@@ -234,8 +233,7 @@ DO
 									DO
 										DO
 											DO	
-												'Counties listed here (starting with x101 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)
-												If worker_county_code = "x101" OR _  	
+												'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
 												worker_county_code = "x105" OR _
 												worker_county_code = "x106" OR _
 												worker_county_code = "x110" OR _
@@ -300,9 +298,17 @@ DO
 Loop until interview_location <> "Select one..."
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
+'CO #01 AITKIN COUNTY address
+IF interview_location = "Aitkin Workforce Center" THEN 
+	SNAPET_name = "Aitkin Workforce Center"
+	SNAPET_address_01 = "20 3rd Street NE"
+	SNAPET_city = "Aitkin"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56431"
+END IF
 
 'CO #02 Anoka County address
 IF interview_location = "Minnesota WorkForce Center Blaine" THEN 
