@@ -46,24 +46,23 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 
-MAXIS_next_month = dateadd("m", + 1, date)
-MAXIS_footer_month = datepart("m", next_month)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = datepart("yyyy", next_month)
-MAXIS_footer_year = "" & footer_year - 2000
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+next_month = dateadd("m", + 1, date)
+footer_month = datepart("m", next_month)
+If len(footer_month) = 1 then footer_month = "0" & footer_month
+footer_year = datepart("yyyy", next_month)
+footer_year = "" & footer_year - 2000
 
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
+  EditBox 65, 25, 25, 15, footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
+  EditBox 120, 25, 25, 15, footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
@@ -190,6 +189,12 @@ BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
 
+BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
+  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
+  ButtonGroup ButtonPressed
+    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
+    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
+EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -200,11 +205,20 @@ application_signed_check = 1 'The script should default to having the applicatio
 
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to MAXIS & grabbing the case number & footer month/year
-EMConnect ""
-call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'Connecting to MAXIS
+EMConnect ""
+
+'Grabbing the case number
+call MAXIS_case_number_finder(case_number)
+
+'Grabbing the footer month/year
+call find_variable("Month: ", MAXIS_footer_month, 2)
+If row <> 0 then 
+	footer_month = MAXIS_footer_month
+	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+	If row <> 0 then footer_year = MAXIS_footer_year
+End if
 
 'Showing the case number
 Do
@@ -212,13 +226,15 @@ Do
 	If ButtonPressed = 0 then stopscript
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
-
+transmit
 
 'Checking to see that we're in MAXIS
 call check_for_MAXIS(True)
 
 'Navigating to STAT, grabbing the HH members
-call navigate_to_MAXIS_screen("stat", "hcre")
+call navigate_to_screen("stat", "hcre")
+EMReadScreen STAT_check, 4, 20, 21
+If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -254,61 +270,132 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 
 'SECTION 07: CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Do
-	Dialog HCAPP_dialog_01
-	cancel_confirmation 
-	MAXIS_dialog_navigation
-Loop until ButtonPressed = next_page_button
+
 Do
 	Do
-		Dialog HCAPP_dialog_02
-		cancel_confirmation
-		MAXIS_dialog_navigation					
-	Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
-	If ButtonPressed = previous_page_button then exit do
-	If actions_taken = "" or HCAPP_datestamp = "" or worker_signature = "" or HCAPP_status = "Select one..." then MsgBox "You need to fill in the datestamp and actions taken sections, and the HCAPP status, as well as sign your case note. Check these items after pressing ''OK''."
-Loop until actions_taken <> "" and HCAPP_datestamp <> "" and HCAPP_status <> "Select one..." and worker_signature <> "" 
-If ButtonPressed = -1 then dialog case_note_dialog
-If buttonpressed = yes_case_note_button then
-		
-	If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
-		call navigate_to_MAXIS_screen("rept", "pnd2")
-		EMGetCursor PND2_row, PND2_col
-		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
-		If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
-		EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
-		If PND2_HC_status_check = "P" then
-			EMWriteScreen "x", PND2_row, 3
-			transmit
-			person_delay_row = 7
+		Do
 			Do
-				EMReadScreen person_delay_check, 1, person_delay_row, 39
-				If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
-				person_delay_row = person_delay_row + 2
-			Loop until person_delay_check = " " or person_delay_row > 20
+				Do
+					Dialog HCAPP_dialog_01
+					If ButtonPressed = 0 then 
+						dialog cancel_dialog
+						If ButtonPressed = yes_cancel_button then stopscript
+					End if
+				Loop until ButtonPressed <> no_cancel_button
+				EMReadScreen STAT_check, 4, 20, 21
+				If STAT_check = "STAT" then
+					If ButtonPressed = prev_panel_button then call panel_navigation_prev
+					If ButtonPressed = next_panel_button then call panel_navigation_next
+					If ButtonPressed = prev_memb_button then call memb_navigation_prev
+					If ButtonPressed = next_memb_button then call memb_navigation_next
+				End if
+				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
+				EMReadScreen MAXIS_check, 5, 1, 39
+				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+			If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
+			If ButtonPressed = ABPS_button then call navigate_to_screen("stat", "ABPS")
+			If ButtonPressed = AREP_button then call navigate_to_screen("stat", "AREP")
+			If ButtonPressed = ALTP_button then call navigate_to_screen("stat", "ALTP")
+			If ButtonPressed = SCHL_button then call navigate_to_screen("stat", "SCHL")
+			If ButtonPressed = STIN_button then call navigate_to_screen("stat", "STIN")
+			If ButtonPressed = STEC_button then call navigate_to_screen("stat", "STEC")
+			If ButtonPressed = DISA_button then call navigate_to_screen("stat", "DISA")
+			If ButtonPressed = PDED_button then call navigate_to_screen("stat", "PDED")
+			If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
+			If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
+			If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
+			If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
+			If ButtonPressed = COEX_button then call navigate_to_screen("stat", "COEX")
+			If ButtonPressed = DCEX_button then call navigate_to_screen("stat", "DCEX")
+			If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
+			If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
+			If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
+		Loop until ButtonPressed = next_page_button
+		Do
+			Do
+				Do
+					Dialog HCAPP_dialog_02
+					If ButtonPressed = 0 then 
+						dialog cancel_dialog
+						If ButtonPressed = yes_cancel_button then stopscript
+					End if
+				Loop until ButtonPressed <> no_cancel_button
+				EMReadScreen STAT_check, 4, 20, 21
+				If STAT_check = "STAT" then
+					If ButtonPressed = prev_panel_button then call panel_navigation_prev
+					If ButtonPressed = next_panel_button then call panel_navigation_next
+					If ButtonPressed = prev_memb_button then call memb_navigation_prev
+					If ButtonPressed = next_memb_button then call memb_navigation_next
+				End if
+				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
+				EMReadScreen MAXIS_check, 5, 1, 39
+				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
+			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
+			If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
+			If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
+			If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
+			If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
+			If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
+			If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
+			If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
+			If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
+			If ButtonPressed = INSA_button then call navigate_to_screen("stat", "INSA")
+			If ButtonPressed = MEDI_button then call navigate_to_screen("stat", "MEDI")
+			If ButtonPressed = ACCI_button then call navigate_to_screen("stat", "ACCI")
+			If ButtonPressed = BILS_button then call navigate_to_screen("stat", "BILS")
+			If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
+			If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
+			If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
+			If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
+		Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
+		If ButtonPressed = previous_page_button then exit do
+		If actions_taken = "" or HCAPP_datestamp = "" or worker_signature = "" or HCAPP_status = "Select one..." then MsgBox "You need to fill in the datestamp and actions taken sections, and the HCAPP status, as well as sign your case note. Check these items after pressing ''OK''."
+	Loop until actions_taken <> "" and HCAPP_datestamp <> "" and HCAPP_status <> "Select one..." and worker_signature <> "" 
+	If ButtonPressed = -1 then dialog case_note_dialog
+	If buttonpressed = yes_case_note_button then
+		If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
+			call navigate_to_screen("rept", "pnd2")
+			EMGetCursor PND2_row, PND2_col
+			EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
+			If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
+			EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
+			If PND2_HC_status_check = "P" then
+				EMWriteScreen "x", PND2_row, 3
+				transmit
+				person_delay_row = 7
+				Do
+					EMReadScreen person_delay_check, 1, person_delay_row, 39
+					If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+					person_delay_row = person_delay_row + 2
+				Loop until person_delay_check = " " or person_delay_row > 20
+				PF3
+			End if
+			PF3
+			EMReadScreen PND2_check, 4, 2, 52
+			If PND2_check = "PND2" then
+				MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
+				PF10
+				client_delay_check = 0
+			End if
+		End if
+		If TIKL_check = 1 then
+			call navigate_to_screen("dail", "writ")
+			call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18) 
+			EMSetCursor 9, 3
+			EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
+			transmit
 			PF3
 		End if
-		PF3
-		EMReadScreen PND2_check, 4, 2, 52
-		If PND2_check = "PND2" then
-			MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
-			PF10
-			client_delay_check = 0
-		End if
+		call navigate_to_screen("case", "note")
+		PF9
+		EMReadScreen case_note_check, 17, 2, 33
+		EMReadScreen mode_check, 1, 20, 09
+		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
 	End if
-			
-	If TIKL_check = 1 then
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18) 
-		EMSetCursor 9, 3
-		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-		transmit
-		PF3
-	End if
-END if
+Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
 'SECTION 08: THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***HCAPP received " & HCAPP_datestamp & ": " & HCAPP_status & "***")
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)

@@ -1,45 +1,59 @@
-Option Explicit
-DIM name_of_script, start_time, worker_signature
-DIM beta_agency, url, req, fso
-DIM Auto_Approved_COLA_DAIL_Message_Dialog, SNAP_COLA_Message_Checkbox, GRH_COLA_Message_Checkbox, MSA_COLA_Message_Checkbox, x_number
-DIM on_dail, read_col, read_row, is_right_line, SNAP_COLA_Check, COLA_auto_approved_first_line, cola_message, pick_row
-DIM ButtonPressed, worker_sig_dlg, delete_dail_check, bulk_check, error_msg, current_user
-DIM delete_confirm, dail_row, original_message, case_note_auto_approval, MAXIS_case_number, is_this_a_cola_message
-DIM objExcel, objWorkbook, excel_row, last_page, check_for_case_number_row, look_for_case_number
+'Option Explicit
+'DIM name_of_script, start_time, worker_signature
+'DIM beta_agency, url, req, fso
+'DIM Auto_Approved_COLA_DAIL_Message_Dialog, SNAP_COLA_Message_Checkbox, GRH_COLA_Message_Checkbox, MSA_COLA_Message_Checkbox, x_number
+'DIM on_dail, read_col, read_row, is_right_line, SNAP_COLA_Check, COLA_auto_approved_first_line, cola_message, pick_row
+'DIM ButtonPressed, worker_sig_dlg, delete_dail_check, bulk_check, error_msg, current_user
+'DIM delete_confirm, dail_row, original_message, case_note_auto_approval, MAXIS_case_number, is_this_a_cola_message
+'DIM objExcel, objWorkbook, excel_row, last_page, check_for_case_number_row, look_for_case_number
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "DAIL - AUTO APPROVED COLA"
+name_of_script = "BULK - COLA AUTO APPROVED DAIL NOTER.vbs"
 start_time = timer
 
-'LOADING ROUTINE FUNCTIONS FROM GITHUB REPOSITORY---------------------------------------------------------------------------
-If beta_agency = "" or beta_agency = True then
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-Else
-	url = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
-SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-req.open "GET", url, FALSE									'Attempts to open the URL
-req.send													'Sends request
-IF req.Status = 200 THEN									'200 means great success
-	SET fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	Execute req.responseText								'Executes the script code
-ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-	MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-			vbCr & _
-			"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-			vbCr & _
-			"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-			vbTab & "- The name of the script you are running." & vbCr &_
-			vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-			vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-			vbTab & vbTab & "responsible for network issues." & vbCr &_
-			vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-			vbCr & _
-			"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-			vbCr &_
-			"URL: " & url
-			script_end_procedure("Script ended due to error connecting to GitHub.")
-END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 
 'DIALOGS----------------------------------------------------------------------------------------------
@@ -82,10 +96,9 @@ DO
 		IF UCASE(left(x_number, 1)) <> "X" or len(x_number) <> 7 THEN MsgBox "Please enter a valid X number."
 LOOP UNTIL worker_signature <> "" AND UCASE(left(x_number, 1)) = "X" AND len(x_number) = 7
 
-CALL check_for_MAXIS(FALSE)
 
 IF bulk_check = checked THEN
-
+	CALL check_for_MAXIS(FALSE)
 	'Creating the Excel file for tracking
 	SET objExcel = CreateObject("Excel.Application")
 	objExcel.Visible = FALSE
@@ -105,14 +118,15 @@ IF bulk_check = checked THEN
 	
 	EMWriteScreen "_", 7, 39	'"ALL"
 	EMWriteScreen "X", 8, 39	'"COLA"
+	EMWriteScreen "X", 13, 39	'"INFO" because GRH auto-approved is an INFO message rather than COLA
 	pick_row = 9
 	DO
 		EMWriteScreen "_", pick_row, 39		'Deselects all the other options
 		pick_row = pick_row + 1
+		IF pick_row = 13 then pick_row = pick_row + 1 'Skips info row when clearing all other picked rows. 
 	LOOP UNTIL pick_row = 21
 	transmit
-	
-	
+
 	dail_row = 6
 	excel_row = 2
 	DO
@@ -126,31 +140,39 @@ IF bulk_check = checked THEN
 				EMReadScreen MAXIS_case_number, 8, check_for_case_number_row, 73
 				MAXIS_case_number = trim(MAXIS_case_number)
 			ELSE
-				check_for_case_number_row = check_for_case_number_row - 1
+				check_for_case_number_row = check_for_case_number_row - 1   
 			END IF
 		LOOP UNTIL look_for_case_number = "CASE NBR"
 		
 		'Making sure this is a COLA message and not a client's name.
 		DO
 			EMReadScreen is_this_a_cola_message, 5, dail_row, 6
-			IF is_this_a_cola_message <> "COLA " THEN dail_row = dail_row + 1
+			IF is_this_a_cola_message <> "COLA " THEN
+				IF is_this_a_cola_message <> "INFO " THEN dail_row = dail_row + 1
 				IF dail_row = 19 THEN 
-				PF8 
-				EMReadScreen last_page, 21, 24, 2
-				dail_row = 6
+					PF8 
+					EMReadScreen last_page, 21, 24, 2
+					dail_row = 6
 				END IF
-
-		LOOP UNTIL is_this_a_cola_message = "COLA " or last_page = "THIS IS THE LAST PAGE"
-IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
+			END IF
+		LOOP UNTIL is_this_a_cola_message = "COLA " or is_this_a_cola_message = "INFO " or last_page = "THIS IS THE LAST PAGE"
+		IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
 
 		
 		EMReadScreen cola_message, 60, dail_row, 20
-		
+
 		IF trim(cola_message) = "SNAP: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "GRH: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "NEW MSA ELIG AUTO-APPROVED" THEN
 			EMWriteScreen "N", dail_row, 3
 			transmit
-			PF9
 			
+			'Reading the top case note header to see if it matches. If it does it will end the script as the script has derailed and needs to be stopped. 
+			EMReadScreen double_message_catch, 55, 5, 25
+			IF trim(double_message_catch) = trim(cola_message) Then
+				catch_msgbox = ("Looks like this already was case noted, are you sure about this?", vbYesNo)
+				IF catch_msgbox = vbNo then script_end_procedure("An error has occurred and the script is re-reading a dail causing it to duplicate a case note. Please check with your Alpha Script User.")
+			END IF
+			
+			PF9
 			'This is error_msg to determine if you do not have write access to the case.
 			EMReadScreen error_msg, 3, 24, 2
 			IF error_msg <> "YOU" THEN
@@ -176,27 +198,26 @@ IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
 					IF original_message = case_note_auto_approval THEN
 						EMWriteScreen "D", dail_row, 3
 						transmit
-EMReadScreen current_user, 7, 21, 73
-IF UCASE(current_user) <> UCASE(x_number) THEN transmit
-
-						 
-					ELSEIF original_message = "-------------------------------" THEN
-						script_end_procedure("The original DAIL could not be found.")
+						EMReadScreen current_user, 7, 21, 73
+						IF UCASE(current_user) <> UCASE(x_number) THEN transmit
+					ELSEIF original_message = "-------------------------------" THEN script_end_procedure("The original DAIL could not be found.")
+		
 					ELSE
 						dail_row = dail_row + 1
 					END IF
 				LOOP UNTIL original_message = case_note_auto_approval
+			ELSE
+				dail_row = dail_row + 1
 			END IF
 		ELSE
-			dail_row = dail_row + 1
+			dail_row = dail_row + 1  'accounting for when dail message isn't deleted and remains on top. without this it will re-read same message and case note infinitely. 
 		END IF 
 
-			IF dail_row = 19 THEN 
+		IF dail_row = 19 THEN 
 			PF8 
 			EMReadScreen last_page, 21, 24, 2
 			dail_row = 6
-			END IF
-		
+		END IF
 		
 		objExcel.Cells(excel_row, 1).Value = MAXIS_case_number
 		objExcel.Cells(excel_row, 2).Value = cola_message
@@ -207,17 +228,22 @@ script_end_procedure("Success!")
 	
 
 ELSE
+	EMGetCursor read_row, read_col   'must be read first otherwise read for DAIL changes cursor and the maxis check changes cursor
+	
+	CALL check_for_MAXIS(FALSE)
+	
 	'The code below is a safeguard to make sure the worker is on DAIL and the cursor is set to a COLA DAIL.
 	EMReadScreen on_dail, 4, 2, 48
 	IF on_dail <> "DAIL" THEN script_end_procedure("You are not in DAIL. Please navigate to DAIL and run the script again.")
 	
-	EMGetCursor read_row, read_col
-	
 	EMReadScreen is_right_line, 4, read_row, 6
-	IF is_right_line <> "COLA" THEN script_end_procedure("You are not on the correct line. Please select a COLA message on your DAIL.")
+	IF is_right_line <> "COLA" THEN			'must be nested otherwise does OR does not work.
+		IF is_right_line <> "INFO" THEN script_end_procedure("You are not on the correct line. Please select a COLA/INFO message on your DAIL.")
+	END IF
 
 	'Now the script needs to read the specific COLA message to determine what action to take next.
 	EMReadScreen cola_message, 60, read_row, 20
+
 	IF trim(cola_message) = "SNAP: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "GRH: NEW VERSION AUTO-APPROVED" OR trim(cola_message) = "NEW MSA ELIG AUTO-APPROVED" THEN
 		
 		'IF the COLA message is for an auto-approved SNAP case, the script will case note that the SNAP was auto-approved and give the worker the option to delete the DAIL.
@@ -225,13 +251,19 @@ ELSE
 		'replacing TRANSMIT with CALL check_for_MAXIS(True) because there is already a TRANSMIT at the start of that function
 		transmit
 		
+		'Reading the top case note header to see if it matches. If it does it will end the script as the script has derailed and needs to be stopped. 
+		EMReadScreen double_message_catch, 55, 5, 25
+		IF trim(double_message_catch) = trim(cola_message) Then
+			catch_msgbox = ("Looks like this already was case noted, are you sure about this?", vbYesNo)
+			IF catch_msgbox = vbNo then script_end_procedure("An error has occurred and the script is re-reading a dail causing it to duplicate a case note. Please check with your Alpha Script User.")
+		END IF
+		
 		PF9
 		case_note_auto_approval = trim(cola_message)
 		CALL write_variable_in_case_note(case_note_auto_approval)
 		CALL write_variable_in_case_note("Case was auto approved due to COLA changes")
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note(worker_signature)
-		
 		'Navigating back to DAIL/DAIL
 		PF3
 		PF3
@@ -246,7 +278,6 @@ ELSE
 					transmit
 					EMReadScreen current_user, 7, 21, 73
 					IF UCASE(current_user) <> UCASE(x_number) THEN transmit
-
 				ELSEIF original_message = "-------------------------------" THEN
 					script_end_procedure("The original DAIL could not be found.")
 				ELSE
@@ -256,8 +287,8 @@ ELSE
 		END IF
 	
 	ELSE
-		script_end_procedure("This COLA message is not yet supported by the script.")	
+		script_end_procedure("This COLA/INFO message is not yet supported by the script.")	
 	END IF 
-script_end_procedure("Success!")
+	script_end_procedure("Success!")
 END IF
 	

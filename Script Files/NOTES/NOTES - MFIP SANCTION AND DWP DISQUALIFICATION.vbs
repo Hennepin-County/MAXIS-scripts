@@ -1,8 +1,19 @@
+'OPTION EXPLICIT
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 start_time = timer
 
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+'DIM name_of_script
+'DIM start_time
+'DIM FuncLib_URL
+'DIM run_locally
+'DIM default_directory
+'DIM beta_agency
+'DIM req
+'DIM fso
+
+''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
@@ -46,93 +57,65 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-------------------------------
-'MFIP Sanction/DWP Disqualification Dialog Box
-BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 296, 285, "MFIP Sanction - DWP Disqualification"
-  Text 5, 10, 70, 10, "MAXIS Case Number:"
-  EditBox 75, 5, 90, 15, case_number
-  Text 170, 10, 80, 10, "HH Member's Number:"
-  EditBox 255, 5, 35, 15, HH_Member_Number
-  Text 5, 30, 95, 10, "Type of Sanction (ES or CS):"
-  EditBox 110, 25, 85, 15, Type_Sanction
-  Text 5, 50, 140, 10, "Effective Date of Sanction/Disqualification:"
-  EditBox 150, 45, 90, 15, Date_Sanction
-  Text 5, 70, 75, 10, "Number of occurrences:"
-  EditBox 90, 65, 30, 15, Number_Occurrences
-  Text 155, 70, 70, 10, "Sanction Percentage:"
-  DropListBox 230, 65, 60, 15, "Select One:"+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage
-  Text 5, 90, 145, 10, "Sanction information received from and how:"
-  EditBox 150, 85, 140, 15, Sanction_Notification_Received
-  Text 5, 110, 170, 10, "Last day to cure (10 day cut-off or last day of month):"
-  EditBox 180, 105, 70, 15, Last_Day_Cure
-  Text 5, 130, 80, 10, "Reason for the sanction:"
-  EditBox 90, 125, 200, 15, Reason_for_Sanction
-  Text 5, 150, 85, 10, "Impact to other programs:"
-  EditBox 95, 145, 195, 15, Impact_Other_Programs
-  Text 5, 165, 145, 20, "Communicated with client to cure sanction by sending (i.e., SPEC/MEMO):"
-  EditBox 155, 165, 135, 15, Memo_to_Client
-  Text 5, 190, 105, 25, "Vendor information (if vendoring due to the sanction, vendor #, etc.):"
-  EditBox 115, 190, 175, 15, Vendor_Information
-  CheckBox 5, 220, 225, 10, "Check here if you sent a status update to Employment Services.", Update_Sent_ES_Checkbox
-  CheckBox 5, 235, 220, 10, "Check here if you sent a status update to Child Care Assistance.", Update_Sent_CCA_Checkbox
-  CheckBox 5, 250, 125, 10, "Check here if you FIATed this case.", Fiat_Checkbox
-  Text 5, 270, 70, 10, "Sign your case note:"
-  EditBox 80, 265, 90, 15, worker_signature
+'DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog MFIP_sanction_cured_dialog, 0, 0, 396, 190, "MFIP Sanction Cured"
+  EditBox 90, 5, 85, 15, case_number
+  EditBox 90, 25, 85, 15, sanction_lifted_month
+  EditBox 315, 25, 70, 15, compliance_date
+  DropListBox 90, 50, 215, 15, "Select One..."+chr(9)+"Client complied with Employment Services"+chr(9)+"Client complied with Child Support"+chr(9)+"Client complied with Employment Services AND Child Support ", cured_reason
+  EditBox 90, 75, 295, 15, action_taken
+  DropListBox 90, 100, 85, 20, "Select One..."+chr(9)+"Letter"+chr(9)+"Phone Call"+chr(9)+"Email"+chr(9)+"Client Not Notified", notified_via
+  EditBox 90, 120, 295, 15, other_notes
+  EditBox 90, 145, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 185, 265, 50, 15
-    CancelButton 240, 265, 50, 15
+    OkButton 280, 165, 50, 15
+    CancelButton 335, 165, 50, 15
+  Text 195, 30, 115, 10, "Date Client Came into Compliance:"
+  Text 40, 80, 50, 15, "Action Taken:"
+  Text 25, 100, 70, 10, "Notified Client Via:"
+  Text 10, 30, 75, 10, "Month Sanction Lifted:"
+  Text 15, 150, 70, 10, "Sign Your Case Note:"
+  Text 5, 50, 80, 10, "Sanction Cured Reason:"
+  Text 5, 125, 80, 10, "Other Notes/Comments:"
+  Text 15, 10, 70, 10, "Maxis Case Number:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------
-'Connects to BlueZone & grabs case number
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------
+'Connect to Bluezone
 EMConnect ""
+'Grabs Maxis Case number
 CALL MAXIS_case_number_finder(case_number)
 
 'Shows dialog
 DO
 	DO
 		DO
-			DO
-				DO
-					DO
-						Dialog MFIP_Sanction_DWP_Disq_Dialog
-						cancel_confirmation
-						IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-					LOOP UNTIL worker_signature <> ""
-					IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!"
-				LOOP UNTIL IsNumeric(case_number) = TRUE
-				IF IsDate(Date_Sanction) = FALSE THEN MsgBox "You must type a valid date of sanction!"
-			LOOP UNTIL IsDate(Date_Sanction) = TRUE
-			IF Sanction_Percentage = "Select One:" THEN MsgBox "You must select a sanction percentage!"
-		LOOP UNTIL Sanction_Percentage <> "Select One:"
-		IF HH_Member_Number = "" THEN MsgBox "You must enter a HH member number!"
-	LOOP UNTIL HH_Member_Number <> ""
-	IF Type_Sanction = "" THEN MsgBox "You must enter a sanction type!"
-LOOP UNTIL Type_Sanction <> ""
+			Dialog MFIP_sanction_cured_dialog
+			IF ButtonPressed = 0 THEN StopScript
+			IF worker_signature = "" THEN MsgBox "You must sign your case note!"
+			LOOP UNTIL worker_signature <> ""
+		IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+	IF cured_reason = "Select One..." THEN MsgBox "You must select 'Reason for Sanction being Cured!'"
+	IF notified_via = "Select One..." THEN MsgBox "You must select 'Notified Client Via!'"
+	LOOP UNTIL cured_reason <> "Select One..."
+LOOP UNTIL IsNumeric(case_number) = TRUE	
 
 
-'Checks MAXIS for password prompt
-check_for_MAXIS(FALSE)
+'Checks Maxis for password prompt
+CALL check_for_MAXIS(False)
 
 
-'THE CASE NOTE----------------------------------------------------------------------------------------------------
+'The case note----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-CAll write_variable_in_case_note("***" & Sanction_Percentage & " " & ucase(Type_Sanction) & " SANCTION " & "MEMBER " & HH_Member_Number & " EFF " & Date_Sanction & "***")
-CALL write_bullet_and_variable_in_case_note("HH Member's Number", HH_Member_Number)
-CALL write_bullet_and_variable_in_case_note("Type of Sanction", Type_Sanction)
-CALL write_bullet_and_variable_in_case_note("Effective date of sanction/disqualification", Date_Sanction)
-CALL write_bullet_and_variable_in_case_note("Number of occurrences", Number_Occurrences)
-CALL write_bullet_and_variable_in_case_note("Sanction Percent is", Sanction_Percentage)
-CALL write_bullet_and_variable_in_case_note("Sanction information received from", Sanction_Notification_Received)
-CALL write_bullet_and_variable_in_case_note("Last day to cure", Last_Day_Cure)
-CALL write_bullet_and_variable_in_case_note ("Reason for the sanction", Reason_for_Sanction)
-CALL write_bullet_and_variable_in_case_note ("Impact to other programs", Impact_Other_Programs)
-CALL write_bullet_and_variable_in_case_note ("Communicated with client to cure sanction by sending", Memo_to_Client)
-CALL write_bullet_and_variable_in_case_note("Vendoring information", Vendor_Information)
-IF Update_Sent_ES_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Employment Services.")
-IF Update_Sent_CCA_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Child Care Assistance.")
-IF FIAT_Checkbox = 1 THEN CALL write_variable_in_case_note("* Case has been FIATed.")
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
+CALL write_variable_in_case_note ("~~$~~MFIP SANCTION CURED~~$~~")                                         'Writes title in Case note
+CALL write_bullet_and_variable_in_case_note("Month Sanction Cured", sanction_lifted_month)                 'Writes Month the Sanction was lifted
+CALL write_bullet_and_variable_in_case_note("Client Came Into Compliance On", compliance_date)             'Writes the Date the Client came into Compliance
+CALL write_bullet_and_variable_in_case_note("Sanction Cured Reason", cured_reason)                         'Writes the reason why the sanction was cured
+CALL write_bullet_and_variable_in_case_note("Actions Taken", action_taken)                                 'Writes any actions taken
+CALL write_bullet_and_variable_in_case_note("Client was notified Via", notified_via)                       'Writes the way the client was notified that their sanction was lifted
+CALL write_bullet_and_variable_in_case_note("Other Notes/Comments", other_notes)                           'Writes any other notes/comments
+CALL write_variable_in_case_note ("---")   
+CALL write_variable_in_CASE_NOTE(worker_signature)                                                         'Writes worker signature in note
 
-script_end_procedure("")
+CALL script_end_procedure("")

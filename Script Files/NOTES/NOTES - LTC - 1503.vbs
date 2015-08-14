@@ -150,6 +150,8 @@ If TIKL_check = 1 then
   If len(TIKL_date_YY) = 4 then TIKL_date_YY = TIKL_date_YY - 2000
 End if
 
+
+'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
 'FACI
 If FACI_update_check = 1 then
 	call navigate_to_MAXIS_screen("stat", "faci")
@@ -189,6 +191,7 @@ If HCMI_update_check = 1 THEN
 	transmit
 END IF
 
+
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
   call navigate_to_MAXIS_screen("dail", "writ")
@@ -212,9 +215,9 @@ End if
 Call write_bullet_and_variable_in_case_note("Length of stay", length_of_stay)
 Call write_bullet_and_variable_in_case_note("Recommended level of care", level_of_care)
 Call write_bullet_and_variable_in_case_note("Admitted from", admitted_from)
-If hospital_admitted_from <> "" then Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_admitted_from)
+Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_admitted_from)
 Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
-If discharge_date <> "" then Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
+Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
 Call write_variable_in_CASE_NOTE("---")
 If updated_RLVA_check = 1 and updated_FACI_check = 1 then 
 Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
@@ -226,7 +229,7 @@ If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed
 If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
 If need_asset_assessment_check = 1 then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
 If sent_3050_check = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
-If verifs_needed <> "" then Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
 If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
 If TIKL_check = 1 then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")

@@ -100,7 +100,7 @@ Sub approval_summary
   EMWriteScreen "stat", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
-  EMWriteScreen "01", 20, 43
+  EMWriteScreen "07", 20, 43
   EMWriteScreen "15", 20, 46
   EMWriteScreen "hcmi", 21, 70
   transmit
@@ -159,7 +159,7 @@ Sub approval_summary
   EMWriteScreen "elig", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
-  EMWriteScreen "01", 20, 43
+  EMWriteScreen "07", 20, 43
   EMWriteScreen "15", 20, 46
   EMWriteScreen "hc", 21, 70
   transmit
@@ -174,9 +174,9 @@ Sub approval_summary
   
   row = 3
   col = 1
-  EMSearch "01/15", row, col
+  EMSearch "07/15", row, col
   If row = 0 then 
-    MsgBox "A 01/15 span could not be found. Try this again. You may need to run the case through background."
+    MsgBox "A 07/15 span could not be found. Try this again. You may need to run the case through background."
     stopscript
   End if
 
@@ -370,7 +370,7 @@ EMConnect ""
 
 'FORCING THE CASE INTO FOOTER MONTH 01/15
 back_to_self
-EMWriteScreen "01", 20, 43
+EMWriteScreen "07", 20, 43
 EMWriteScreen "15", 20, 46
 
 'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------

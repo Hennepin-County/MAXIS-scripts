@@ -41,12 +41,6 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
-'LOADING ROUTINE FUNCTIONS
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Project Krabappel\KRABAPPEL FUNCTIONS FILE.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
 
 '========================================================================TRANSFER CASES========================================================================
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
@@ -163,9 +157,9 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 			cfr_month = DatePart("M", date)
 				IF len(cfr_month) = 1 THEN cfr_month = "0" & cfr_month
 			EMWriteScreen cfr_month, 11, 53		'For CASH
-			EMWriteScreen right(DatePart("YYYY", date), 2), 11, 56
+			EMWriteScreen right(DatePart("YYYY", date), 2), 11, 59
 			EMWriteScreen cfr_month, 14, 53		'FOR HC
-			EMWriteScreen right(DatePart("YYYY", date), 2), 14, 56
+			EMWriteScreen right(DatePart("YYYY", date), 2), 14, 59
 			transmit
 			transmit
 		End if
@@ -264,13 +258,33 @@ For cases_to_make = 1 to how_many_cases_to_make
 
 	'Grabs APPL screen variables (APPL date, primary applicant name (memb 01))
 	APPL_starting_excel_row = 4		'Starting row for APPL function pieces
-	APPL_date = ObjExcel.Cells(APPL_starting_excel_row, 3).Value
-	APPL_last_name = ObjExcel.Cells(APPL_starting_excel_row + 1, 3).Value
-	APPL_first_name = ObjExcel.Cells(APPL_starting_excel_row + 2, 3).Value
-	APPL_middle_initial = ObjExcel.Cells(APPL_starting_excel_row + 3, 3).Value
+	APPL_month = ObjExcel.Cells(APPL_starting_excel_row, 3).Value
+	APPL_day = objExcel.Cells(APPL_starting_excel_row + 1, 3).Value
+	APPL_last_name = ObjExcel.Cells(APPL_starting_excel_row + 2, 3).Value
+	APPL_first_name = ObjExcel.Cells(APPL_starting_excel_row + 3, 3).Value
+	APPL_middle_initial = ObjExcel.Cells(APPL_starting_excel_row + 4, 3).Value
 
+	IF APPL_month = "CM" THEN 
+		month_modifier = 0
+	ELSEIF APPL_month = "CM -1" THEN 
+		month_modifier = -1
+	ELSEIF APPL_month = "CM -2" THEN 
+		month_modifier = -2
+	ELSEIF APPL_month = "CM -3" THEN 
+		month_modifier = -3
+	ELSEIF APPL_month = "CM -4" THEN 
+		month_modifier = -4
+	ELSEIF APPL_month = "CM -5" THEN 
+		month_modifier = -5
+	END IF
+	
+	APPL_date = DateAdd("M", month_modifier, date)
+	APPL_date = DatePart("M", APPL_date) & "/" & APPL_day & "/" & DatePart("YYYY", APPL_date)
+	APPL_date = DateAdd("D", 0, APPL_date)	
+	
 	'Gets the footer month and year of the application off of the spreadsheet, enters into SELF and transmits (can only enter an application on APPL in the footer month of app)
-	footer_month = left(APPL_date, 2)
+	footer_month = DatePart("M", APPL_date)
+	IF len(footer_month) = 1 THEN footer_month = "0" & footer_month
 	If right(footer_month, 1) = "/" then footer_month = "0" & left(footer_month, 1)		'Does this to account for single digit months
 	footer_year = right(APPL_date, 2)
 	EMWriteScreen footer_month, 20, 43
@@ -293,20 +307,28 @@ For cases_to_make = 1 to how_many_cases_to_make
 		reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
 
 		'Gets MEMB info for the current household member using the current_excel_col field. Starts by declaring the MEMB starting row
-		MEMB_starting_excel_row = 5
+		MEMB_starting_excel_row = 6
 		MEMB_last_name = ObjExcel.Cells(MEMB_starting_excel_row, current_excel_col).Value
 		MEMB_first_name = ObjExcel.Cells(MEMB_starting_excel_row + 1, current_excel_col).Value
 		MEMB_mid_init = ObjExcel.Cells(MEMB_starting_excel_row + 2, current_excel_col).Value
-		MEMB_age = ObjExcel.Cells(MEMB_starting_excel_row + 3, current_excel_col).Value
-		MEMB_DOB_verif = ObjExcel.Cells(MEMB_starting_excel_row + 4, current_excel_col).Value
-		MEMB_gender = ObjExcel.Cells(MEMB_starting_excel_row + 5, current_excel_col).Value
-		MEMB_ID_verif = ObjExcel.Cells(MEMB_starting_excel_row + 6, current_excel_col).Value
-		MEMB_rel_to_appl = left(ObjExcel.Cells(MEMB_starting_excel_row + 7, current_excel_col).Value, 2)
-		MEMB_spoken_lang = left(ObjExcel.Cells(MEMB_starting_excel_row + 8, current_excel_col).Value, 2)
-		MEMB_interpreter_yn = ObjExcel.Cells(MEMB_starting_excel_row + 9, current_excel_col).Value
-		MEMB_alias_yn = ObjExcel.Cells(MEMB_starting_excel_row + 10, current_excel_col).Value
-		MEMB_hisp_lat_yn = ObjExcel.Cells(MEMB_starting_excel_row + 11, current_excel_col).Value
+		MEMB_dob_mm_dd = ObjExcel.Cells(MEMB_starting_excel_row + 3, current_excel_col).Value
+		MEMB_age = ObjExcel.Cells(MEMB_starting_excel_row + 4, current_excel_col).Value
+		MEMB_DOB_verif = ObjExcel.Cells(MEMB_starting_excel_row + 5, current_excel_col).Value
+		MEMB_gender = ObjExcel.Cells(MEMB_starting_excel_row + 6, current_excel_col).Value
+		MEMB_ID_verif = ObjExcel.Cells(MEMB_starting_excel_row + 7, current_excel_col).Value
+		MEMB_rel_to_appl = left(ObjExcel.Cells(MEMB_starting_excel_row + 8, current_excel_col).Value, 2)
+		MEMB_spoken_lang = left(ObjExcel.Cells(MEMB_starting_excel_row + 9, current_excel_col).Value, 2)
+		MEMB_interpreter_yn = ObjExcel.Cells(MEMB_starting_excel_row + 10, current_excel_col).Value
+		MEMB_alias_yn = ObjExcel.Cells(MEMB_starting_excel_row + 11, current_excel_col).Value
+		MEMB_hisp_lat_yn = ObjExcel.Cells(MEMB_starting_excel_row + 12, current_excel_col).Value
 
+		'Gets MEMI info from spreadsheet
+		MEMI_starting_excel_row = 19
+		MEMI_marital_status = ObjExcel.Cells(MEMI_starting_excel_row, current_excel_col).Value
+		MEMI_spouse = ObjExcel.Cells(MEMI_starting_excel_row + 1, current_excel_col).Value
+		MEMI_last_grade_completed = ObjExcel.Cells(MEMI_starting_excel_row + 2, current_excel_col).Value
+		MEMI_cit_yn = ObjExcel.Cells(MEMI_starting_excel_row + 3, current_excel_col).Value
+		
 		DO	'This DO-LOOP is to check that the CL's SSN created via random number generation is unique. If the SSN matches an SSN on file, the script creates a new SSN and re-enters the CL's information on MEMB. The checking for duplicates part is on the bottom, as that occurs when the worker presses transmit.
 			DO
 				Randomize
@@ -332,9 +354,17 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen ssn_mid, 7, 46
 			EMWriteScreen ssn_end, 7, 49
 			EMWriteScreen "P", 7, 68			'All SSNs should pend in the training region
-			EMWriteScreen "01", 8, 42			'At this time, everyone will have a January 1st birthday. The year will be determined by the age on the spreadsheet
-			EMWriteScreen "01", 8, 45
-			EMWriteScreen datepart("yyyy", date) - abs(MEMB_age), 8, 48
+			'Generating the DOB
+				year_of_birth = datepart("yyyy", date) - abs(MEMB_age)
+				IF MEMB_dob_mm_dd = "" THEN 
+					client_dob = "01/01/" & year_of_birth
+				ELSE
+					client_dob = DatePart("M", MEMB_dob_mm_dd) & "/" & DatePart("D", MEMB_dob_mm_dd) & "/" & year_of_birth
+				END IF
+				client_dob = DateAdd("D", 0, client_dob)
+				IF DateDiff("D", date, client_dob) =< (365 * (abs(MEMB_age) + 1)) THEN client_dob = DateAdd("YYYY", -1, client_dob)
+				CALL create_MAXIS_friendly_date_with_YYYY(client_dob, 0, 8, 42)				
+			'Continuing as normal
 			EMWriteScreen MEMB_DOB_verif, 8, 68
 			EMWriteScreen MEMB_gender, 9, 42
 			EMWriteScreen MEMB_ID_verif, 9, 68
@@ -343,7 +373,10 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen MEMB_spoken_lang, 13, 42
 			EMWriteScreen MEMB_interpreter_yn, 14, 68
 			EMWriteScreen MEMB_alias_yn, 15, 42
-			EMWriteScreen MEMB_alien_ID, 15, 68
+			IF MEMI_cit_yn = "N" THEN 
+				MEMB_alien_ID = "A" & ssn_first & ssn_mid & ssn_end
+				EMWriteScreen MEMB_alien_ID, 15, 68
+			END IF
 			EMWriteScreen MEMB_hisp_lat_yn, 16, 68
 			EMWriteScreen "X", 17, 34			'Enters race as unknown at this time
 			transmit
@@ -369,13 +402,6 @@ For cases_to_make = 1 to how_many_cases_to_make
 		EMWriteScreen "Y", 6, 67
 		transmit
 
-		'Gets MEMI info from spreadsheet
-		MEMI_starting_excel_row = 17
-		MEMI_marital_status = ObjExcel.Cells(MEMI_starting_excel_row, current_excel_col).Value
-		MEMI_spouse = ObjExcel.Cells(MEMI_starting_excel_row + 1, current_excel_col).Value
-		MEMI_last_grade_completed = ObjExcel.Cells(MEMI_starting_excel_row + 2, current_excel_col).Value
-		MEMI_cit_yn = ObjExcel.Cells(MEMI_starting_excel_row + 3, current_excel_col).Value
-
 		'Updates MEMI with the info
 		EMWriteScreen MEMI_marital_status, 7, 49
 		EMWriteScreen MEMI_spouse, 8, 49
@@ -393,7 +419,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 	transmit
 
 	'Gets ADDR info from spreadsheet, gets from column 3 because it's case based
-	ADDR_starting_excel_row = 21
+	ADDR_starting_excel_row = 23
 	ADDR_line_one = ObjExcel.Cells(ADDR_starting_excel_row, 3).Value
 	ADDR_line_two = ObjExcel.Cells(ADDR_starting_excel_row + 1, 3).Value
 	ADDR_city = ObjExcel.Cells(ADDR_starting_excel_row + 2, 3).Value
@@ -479,10 +505,15 @@ For each case_number in case_number_array
 		'reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
 		
 		'Reading the info
-		TYPE_starting_excel_row = 36
+		TYPE_starting_excel_row = 38
 		TYPE_cash_yn = objExcel.Cells(TYPE_starting_excel_row, current_excel_col).Value
 		TYPE_hc_yn = objExcel.Cells(TYPE_starting_excel_row + 1, current_excel_col).Value
 		TYPE_fs_yn = objExcel.Cells(TYPE_starting_excel_row + 2, current_excel_col).Value
+		
+		HCRE_starting_excel_row = 337
+		HCRE_appl_addnd_date_input = ObjExcel.Cells(HCRE_starting_excel_row, current_excel_col).Value
+		HCRE_retro_months_input = ObjExcel.Cells(HCRE_starting_excel_row + 1, current_excel_col).Value
+		HCRE_recvd_by_service_date_input = ObjExcel.Cells(HCRE_starting_excel_row + 2, current_excel_col).Value
 		
 		'Writing the info
 		EMWriteScreen TYPE_cash_yn, current_MAXIS_row, 28
@@ -500,7 +531,7 @@ For each case_number in case_number_array
 	transmit
 	
 	'Gathers the mig worker variable from Excel. Since it's the only one, we won't use a PROG starting row variable. And since it's case based, we'll only look in col 3
-	PROG_mig_worker = objExcel.Cells(39, 3).Value
+	PROG_mig_worker = objExcel.Cells(41, 3).Value
 	
 	'Enters in the APPL date on PROG for any programs applied for, and the interview date will always be the APPL date at this time.
 	If cash_application = True then
@@ -517,16 +548,18 @@ For each case_number in case_number_array
 	
 	'Enters migrant worker info
 	EMWriteScreen PROG_mig_worker, 18, 67
+	DO
+		transmit
+		EMReadScreen still_on_prog, 4, 2, 50
+	LOOP UNTIL still_on_prog <> "PROG"
 	
-	'If the case is HC, it needs to transmit one more time, to get off of the HCRE screen (we'll add it later)
-	If HC_application = True then transmit
+	'If the case is HC, the script will handle HCRE
+	If HC_application = True then CALL write_panel_to_MAXIS_HCRE(appl_date, hcre_appl_addnd_date_input, hcre_retro_months_input, hcre_recvd_by_service_date_input)
 	
-	'Transmits (gets to REVW)
-	transmit
 	
 	'Now we're on REVW and it needs to take different actions for each program. We need to know 6 month and 12 month dates though, for the sake of figuring out review months.
 	'Scanning info from REPT section of spreadsheet
-	REVW_starting_excel_row = 40
+	REVW_starting_excel_row = 42
 	REVW_ar_or_ir = objExcel.Cells(REVW_starting_excel_row, 3).Value	'Will return either a blank, an "IR", or an "AR"
 	REVW_exempt = objExcel.Cells(REVW_starting_excel_row + 1, 3).Value	'Case based, so we'll only look at col 3
 	
@@ -604,11 +637,11 @@ For each case_number in case_number_array
 		reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
 		
 		'--------------READS ENTIRE EXCEL SHEET FOR THIS HH MEMB
-		ABPS_starting_excel_row = 42
+		ABPS_starting_excel_row = 44
 		ABPS_supp_coop = ObjExcel.Cells(ABPS_starting_excel_row, current_excel_col).Value
 		ABPS_gc_status = ObjExcel.Cells(ABPS_starting_excel_row + 1, current_excel_col).Value
 
-		ACCT_starting_excel_row = 44
+		ACCT_starting_excel_row = 46
 		ACCT_type = left(ObjExcel.Cells(ACCT_starting_excel_row, current_excel_col).Value, 2)
 		ACCT_numb = ObjExcel.Cells(ACCT_starting_excel_row + 1, current_excel_col).Value
 		ACCT_location = ObjExcel.Cells(ACCT_starting_excel_row + 2, current_excel_col).Value
@@ -626,7 +659,7 @@ For each case_number in case_number_array
 		ACCT_interest_date_mo = ObjExcel.Cells(ACCT_starting_excel_row + 14, current_excel_col).Value
 		ACCT_interest_date_yr = ObjExcel.Cells(ACCT_starting_excel_row + 15, current_excel_col).Value
 
-		ACUT_starting_excel_row = 60
+		ACUT_starting_excel_row = 62
 		ACUT_shared = ObjExcel.Cells(ACUT_starting_excel_row, current_excel_col).Value
 		ACUT_heat = ObjExcel.Cells(ACUT_starting_excel_row + 1, current_excel_col).Value
 		ACUT_heat_verif = ObjExcel.Cells(ACUT_starting_excel_row + 2, current_excel_col).Value
@@ -646,7 +679,7 @@ For each case_number in case_number_array
 		ACUT_other_verif = ObjExcel.Cells(ACUT_starting_excel_row + 16, current_excel_col).Value
 		ACUT_phone = ObjExcel.Cells(ACUT_starting_excel_row + 17, current_excel_col).Value
 
-		BILS_starting_excel_row = 78
+		BILS_starting_excel_row = 80
 		BILS_bill_1_ref_num = objExcel.Cells(BILS_starting_excel_row, current_excel_col).Value
 		BILS_bill_1_serv_date = objExcel.Cells(BILS_starting_excel_row + 1, current_excel_col).Value
 		BILS_bill_1_serv_type = left(objExcel.Cells(BILS_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -711,7 +744,7 @@ For each case_number in case_number_array
 		BILS_bill_9_verif = objExcel.Cells(BILS_starting_excel_row + 61, current_excel_col).Value
 		BILS_bill_9_BILS_type = objExcel.Cells(BILS_starting_excel_row + 62, current_excel_col).Value
 		
-		BUSI_starting_excel_row = 141
+		BUSI_starting_excel_row = 143
 		BUSI_type = left(ObjExcel.Cells(BUSI_starting_excel_row, current_excel_col).Value, 2)
 		BUSI_start_date = ObjExcel.Cells(BUSI_starting_excel_row + 1, current_excel_col).Value
 		BUSI_end_date = ObjExcel.Cells(BUSI_starting_excel_row + 2, current_excel_col).Value
@@ -747,7 +780,7 @@ For each case_number in case_number_array
 		BUSI_hc_exp_est_b = ObjExcel.Cells(BUSI_starting_excel_row + 32, current_excel_col).Value
 		BUSI_hc_hours_est = ObjExcel.Cells(BUSI_starting_excel_row + 33, current_excel_col).Value
 
-		CARS_starting_excel_row = 175
+		CARS_starting_excel_row = 177
 		CARS_type = LEFT(ObjExcel.Cells(CARS_starting_excel_row, current_excel_col).Value, 1)
 		CARS_year = ObjExcel.Cells(CARS_starting_excel_row + 1, current_excel_col).Value
 		CARS_make = ObjExcel.Cells(CARS_starting_excel_row + 2, current_excel_col).Value
@@ -764,10 +797,10 @@ For each case_number in case_number_array
 		CARS_joint_owner = ObjExcel.Cells(CARS_starting_excel_row + 13, current_excel_col).Value
 		CARS_share_ratio = ObjExcel.Cells(CARS_starting_excel_row + 14, current_excel_col).Value
 
-		CASH_starting_excel_row = 190
+		CASH_starting_excel_row = 192
 		CASH_amount = ObjExcel.Cells(CASH_starting_excel_row, current_excel_col).Value
 
-		COEX_starting_excel_row = 191
+		COEX_starting_excel_row = 193
 		COEX_support_retro = ObjExcel.Cells(COEX_starting_excel_row, current_excel_col).Value
 		COEX_support_prosp = ObjExcel.Cells(COEX_starting_excel_row + 1, current_excel_col).Value
 		COEX_support_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -786,7 +819,7 @@ For each case_number in case_number_array
 		COEX_HC_expense_tax_dep = ObjExcel.Cells(COEX_starting_excel_row + 15, current_excel_col).Value
 		COEX_HC_expense_other = ObjExcel.Cells(COEX_starting_excel_row + 16, current_excel_col).Value
 		
-		DCEX_starting_excel_row = 208
+		DCEX_starting_excel_row = 210
 		DCEX_provider = ObjExcel.Cells(DCEX_starting_excel_row, current_excel_col).Value
 		DCEX_reason = left(ObjExcel.Cells(DCEX_starting_excel_row + 1, current_excel_col).Value, 1)
 		DCEX_subsidy = left(ObjExcel.Cells(DCEX_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -815,7 +848,7 @@ For each case_number in case_number_array
 		DCEX_child_number6_pro = ObjExcel.Cells(DCEX_starting_excel_row + 25, current_excel_col).Value
 		DCEX_child_number6_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 26, current_excel_col).Value, 1)
 		
-		DFLN_starting_excel_row = 235
+		DFLN_starting_excel_row = 237
 		DFLN_conv_1_dt = ObjExcel.Cells(DFLN_starting_excel_row, current_excel_col).Value
 		DFLN_conv_1_juris = ObjExcel.Cells(DFLN_starting_excel_row + 1, current_excel_col).Value
 		DFLN_conv_1_state = ObjExcel.Cells(DFLN_starting_excel_row + 2, current_excel_col).Value
@@ -829,21 +862,21 @@ For each case_number in case_number_array
 		DFLN_rnd_test_2_provider = ObjExcel.Cells(DFLN_starting_excel_row + 10, current_excel_col).Value
 		DFLN_rnd_test_2_result = left(ObjExcel.Cells(DFLN_starting_excel_row + 11, current_excel_col).Value, 2)
 
-		DIET_starting_excel_row = 247
-		DIET_mfip_1 = ObjExcel.Cells(DIET_starting_excel_row, current_excel_col).Value
+		DIET_starting_excel_row = 249
+		DIET_mfip_1 = left(ObjExcel.Cells(DIET_starting_excel_row, current_excel_col).Value, 2)
 		DIET_mfip_1_ver = ObjExcel.Cells(DIET_starting_excel_row + 1, current_excel_col).Value
-		DIET_mfip_2 = ObjExcel.Cells(DIET_starting_excel_row + 2, current_excel_col).Value
+		DIET_mfip_2 = left(ObjExcel.Cells(DIET_starting_excel_row + 2, current_excel_col).Value, 2)
 		DIET_mfip_2_ver = ObjExcel.Cells(DIET_starting_excel_row + 3, current_excel_col).Value
-		DIET_msa_1 = ObjExcel.Cells(DIET_starting_excel_row + 4, current_excel_col).Value
+		DIET_msa_1 = left(ObjExcel.Cells(DIET_starting_excel_row + 4, current_excel_col).Value, 2)
 		DIET_msa_1_ver = ObjExcel.Cells(DIET_starting_excel_row + 5, current_excel_col).Value
-		DIET_msa_2 = ObjExcel.Cells(DIET_starting_excel_row + 6, current_excel_col).Value
+		DIET_msa_2 = left(ObjExcel.Cells(DIET_starting_excel_row + 6, current_excel_col).Value, 2)
 		DIET_msa_2_ver = ObjExcel.Cells(DIET_starting_excel_row + 7, current_excel_col).Value
-		DIET_msa_3 = ObjExcel.Cells(DIET_starting_excel_row + 8, current_excel_col).Value
+		DIET_msa_3 = left(ObjExcel.Cells(DIET_starting_excel_row + 8, current_excel_col).Value, 2)
 		DIET_msa_3_ver = ObjExcel.Cells(DIET_starting_excel_row + 9, current_excel_col).Value
-		DIET_msa_4 = ObjExcel.Cells(DIET_starting_excel_row + 10, current_excel_col).Value
+		DIET_msa_4 = left(ObjExcel.Cells(DIET_starting_excel_row + 10, current_excel_col).Value, 2)
 		DIET_msa_4_ver = ObjExcel.Cells(DIET_starting_excel_row + 11, current_excel_col).Value
 
-		DISA_starting_excel_row = 259
+		DISA_starting_excel_row = 261
 		DISA_begin_date = ObjExcel.Cells(DISA_starting_excel_row, current_excel_col).Value
 		DISA_end_date = ObjExcel.Cells(DISA_starting_excel_row + 1, current_excel_col).Value
 		DISA_cert_begin = ObjExcel.Cells(DISA_starting_excel_row + 2, current_excel_col).Value
@@ -861,48 +894,48 @@ For each case_number in case_number_array
 		DISA_waiver = left(ObjExcel.Cells(DISA_starting_excel_row + 14, current_excel_col).Value, 1)
 		DISA_drug_alcohol = ObjExcel.Cells(DISA_starting_excel_row + 15, current_excel_col).Value
 
-		DSTT_starting_excel_row = 275
+		DSTT_starting_excel_row = 277
 		DSTT_ongoing_income = ObjExcel.Cells(DSTT_starting_excel_row, current_excel_col).Value
 		DSTT_HH_income_stop_date = ObjExcel.Cells(DSTT_starting_excel_row + 1, current_excel_col).Value
 		DSTT_income_expected_amt = ObjExcel.Cells(DSTT_starting_excel_row + 2, current_excel_col).Value
 
-		EATS_starting_excel_row = 278
+		EATS_starting_excel_row = 280
 		EATS_together = ObjExcel.Cells(EATS_starting_excel_row, current_excel_col).Value
 		EATS_boarder = ObjExcel.Cells(EATS_starting_excel_row + 1, current_excel_col).Value
 		EATS_group_one = ObjExcel.Cells(EATS_starting_excel_row + 2, current_excel_col).Value
 		EATS_group_two = ObjExcel.Cells(EATS_starting_excel_row + 3, current_excel_col).Value
 		EATS_group_three = ObjExcel.Cells(EATS_starting_excel_row + 4, current_excel_col).Value
 
-		EMMA_starting_excel_row = 283
-		EMMA_medical_emergency = ObjExcel.Cells(EMMA_starting_excel_row, current_excel_col).Value
-		EMMA_health_consequence = ObjExcel.Cells(EMMA_starting_excel_row + 1, current_excel_col).Value
-		EMMA_verification = ObjExcel.Cells(EMMA_starting_excel_row + 2, current_excel_col).Value
+		EMMA_starting_excel_row = 285
+		EMMA_medical_emergency = left(ObjExcel.Cells(EMMA_starting_excel_row, current_excel_col).Value, 2)
+		EMMA_health_consequence = left(ObjExcel.Cells(EMMA_starting_excel_row + 1, current_excel_col).Value, 2)
+		EMMA_verification = left(ObjExcel.Cells(EMMA_starting_excel_row + 2, current_excel_col).Value, 2)
 		EMMA_begin_date = ObjExcel.Cells(EMMA_starting_excel_row + 3, current_excel_col).Value
 		EMMA_end_date = ObjExcel.Cells(EMMA_starting_excel_row + 4, current_excel_col).Value
 
-		EMPS_starting_excel_row = 288
+		EMPS_starting_excel_row = 290
 		EMPS_orientation_date = ObjExcel.Cells(EMPS_starting_excel_row, current_excel_col).Value
 		EMPS_orientation_attended = ObjExcel.Cells(EMPS_starting_excel_row + 1, current_excel_col).Value
-		EMPS_good_cause = ObjExcel.Cells(EMPS_starting_excel_row + 2, current_excel_col).Value
+		EMPS_good_cause = left(ObjExcel.Cells(EMPS_starting_excel_row + 2, current_excel_col).Value, 2)
 		EMPS_sanc_begin = ObjExcel.Cells(EMPS_starting_excel_row + 3, current_excel_col).Value
 		EMPS_sanc_end = ObjExcel.Cells(EMPS_starting_excel_row + 4, current_excel_col).Value
 		EMPS_memb_at_home = ObjExcel.Cells(EMPS_starting_excel_row + 5, current_excel_col).Value
 		EMPS_care_family = ObjExcel.Cells(EMPS_starting_excel_row + 6, current_excel_col).Value
 		EMPS_crisis = ObjExcel.Cells(EMPS_starting_excel_row + 7, current_excel_col).Value
-		EMPS_hard_employ = ObjExcel.Cells(EMPS_starting_excel_row + 8, current_excel_col).Value
+		EMPS_hard_employ = left(ObjExcel.Cells(EMPS_starting_excel_row + 8, current_excel_col).Value, 2)
 		EMPS_under1 = ObjExcel.Cells(EMPS_starting_excel_row + 9, current_excel_col).Value
 		EMPS_DWP_date = ObjExcel.Cells(EMPS_starting_excel_row + 10, current_excel_col).Value
 
-		FACI_starting_excel_row = 299
+		FACI_starting_excel_row = 301
 		FACI_vendor_number = ObjExcel.Cells(FACI_starting_excel_row, current_excel_col).Value
 		FACI_name = ObjExcel.Cells(FACI_starting_excel_row + 1, current_excel_col).Value
-		FACI_type = ObjExcel.Cells(FACI_starting_excel_row + 2, current_excel_col).Value
+		FACI_type = left(ObjExcel.Cells(FACI_starting_excel_row + 2, current_excel_col).Value, 2)
 		FACI_FS_eligible = ObjExcel.Cells(FACI_starting_excel_row + 3, current_excel_col).Value
-		FACI_FS_facility_type = ObjExcel.Cells(FACI_starting_excel_row + 4, current_excel_col).Value
+		FACI_FS_facility_type = left(ObjExcel.Cells(FACI_starting_excel_row + 4, current_excel_col).Value, 1)
 		FACI_date_in = ObjExcel.Cells(FACI_starting_excel_row + 5, current_excel_col).Value
 		FACI_date_out = ObjExcel.Cells(FACI_starting_excel_row + 6, current_excel_col).Value
 
-		FMED_starting_excel_row = 310
+		FMED_starting_excel_row = 308
 		FMED_medical_mileage = objExcel.Cells(FMED_starting_excel_row, current_excel_col).Value
 		FMED_1_type = left(objExcel.Cells(FMED_starting_excel_row + 1, current_excel_col).Value, 2)
 		FMED_1_verif = left(objExcel.Cells(FMED_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -933,12 +966,7 @@ For each case_number in case_number_array
 		FMED_4_end = objExcel.Cells(FMED_starting_excel_row + 27, current_excel_col).Value
 		FMED_4_amount = objExcel.Cells(FMED_starting_excel_row + 28, current_excel_col).Value
 		
-		HCRE_starting_excel_row = 339
-		HCRE_appl_addnd_date_input = ObjExcel.Cells(HCRE_starting_excel_row, current_excel_col).Value
-		HCRE_retro_months_input = ObjExcel.Cells(HCRE_starting_excel_row + 1, current_excel_col).Value
-		HCRE_recvd_by_service_date_input = ObjExcel.Cells(HCRE_starting_excel_row + 2, current_excel_col).Value
-
-		HEST_starting_excel_row = 342
+		HEST_starting_excel_row = 340
 		HEST_FS_choice_date = ObjExcel.Cells(HEST_starting_excel_row, current_excel_col).Value
 		HEST_first_month = ObjExcel.Cells(HEST_starting_excel_row + 1, current_excel_col).Value
 		HEST_heat_air_retro = ObjExcel.Cells(HEST_starting_excel_row + 2, current_excel_col).Value
@@ -948,15 +976,25 @@ For each case_number in case_number_array
 		HEST_phone_retro = ObjExcel.Cells(HEST_starting_excel_row + 6, current_excel_col).Value
 		HEST_phone_pro = ObjExcel.Cells(HEST_starting_excel_row + 7, current_excel_col).Value
 
-		IMIG_starting_excel_row = 350
-		IMIG_imigration_status = ObjExcel.Cells(IMIG_starting_excel_row, current_excel_col).Value
+		IMIG_starting_excel_row = 348
+		IMIG_imigration_status = left(ObjExcel.Cells(IMIG_starting_excel_row, current_excel_col).Value, 2)
 		IMIG_entry_date = ObjExcel.Cells(IMIG_starting_excel_row + 1, current_excel_col).Value
 		IMIG_status_date = ObjExcel.Cells(IMIG_starting_excel_row + 2, current_excel_col).Value
-		IMIG_status_ver = ObjExcel.Cells(IMIG_starting_excel_row + 3, current_excel_col).Value
-		IMIG_status_LPR_adj_from = ObjExcel.Cells(IMIG_starting_excel_row + 4, current_excel_col).Value
-		IMIG_nationality = ObjExcel.Cells(IMIG_starting_excel_row + 5, current_excel_col).Value
+		IMIG_status_ver = left(ObjExcel.Cells(IMIG_starting_excel_row + 3, current_excel_col).Value, 2)
+		IMIG_status_LPR_adj_from = left(ObjExcel.Cells(IMIG_starting_excel_row + 4, current_excel_col).Value, 2)
+		IMIG_nationality = left(ObjExcel.Cells(IMIG_starting_excel_row + 5, current_excel_col).Value, 2)
+		IMIG_40_soc_sec = ObjExcel.Cells(IMIG_starting_excel_row + 6, current_excel_col).Value
+		IMIG_40_soc_sec_verif = ObjExcel.Cells(IMIG_starting_excel_row + 7, current_excel_col).Value
+		IMIG_battered_spouse_child = ObjExcel.Cells(IMIG_starting_excel_row + 8, current_excel_col).Value
+		IMIG_battered_spouse_child_verif = ObjExcel.Cells(IMIG_starting_excel_row + 9, current_excel_col).Value
+		IMIG_military_status = left(ObjExcel.Cells(IMIG_starting_excel_row + 10, current_excel_col).Value, 1)
+		IMIG_military_status_verif = ObjExcel.Cells(IMIG_starting_excel_row + 11, current_excel_col).Value
+		IMIG_hmong_lao_nat_amer = left(ObjExcel.Cells(IMIG_starting_excel_row + 12, current_excel_col).Value, 2)
+		IMIG_st_prog_esl_ctzn_coop = ObjExcel.Cells(IMIG_starting_excel_row + 13, current_excel_col).Value
+		IMIG_st_prog_esl_ctzn_coop_verif = ObjExcel.Cells(IMIG_starting_excel_row + 14, current_excel_col).Value
+		IMIG_fss_esl_skills_training = ObjExcel.Cells(IMIG_starting_excel_row + 15, current_excel_col).Value
 
-		INSA_starting_excel_row = 356
+		INSA_starting_excel_row = 364
 		INSA_pers_coop_ohi = ObjExcel.Cells(INSA_starting_excel_row, current_excel_col).Value
 		INSA_good_cause_status = left(ObjExcel.Cells(INSA_starting_excel_row + 1, current_excel_col).Value, 1)
 		INSA_good_cause_cliam_date = ObjExcel.Cells(INSA_starting_excel_row + 2, current_excel_col).Value
@@ -967,7 +1005,7 @@ For each case_number in case_number_array
 		INSA_prescrip_end_date = ObjExcel.Cells(INSA_starting_excel_row + 7, current_excel_col).Value
 		INSA_persons_covered = ObjExcel.Cells(INSA_starting_excel_row + 8, current_excel_col).Value
 
-		JOBS_1_starting_excel_row = 365
+		JOBS_1_starting_excel_row = 373
 		JOBS_1_inc_type = left(ObjExcel.Cells(JOBS_1_starting_excel_row, current_excel_col).Value, 1)
 		JOBS_1_inc_verif = left(ObjExcel.Cells(JOBS_1_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_1_employer_name = ObjExcel.Cells(JOBS_1_starting_excel_row + 2, current_excel_col).Value
@@ -976,7 +1014,7 @@ For each case_number in case_number_array
 		JOBS_1_wkly_hrs = ObjExcel.Cells(JOBS_1_starting_excel_row + 5, current_excel_col).Value
 		JOBS_1_hrly_wage = ObjExcel.Cells(JOBS_1_starting_excel_row + 6, current_excel_col).Value
 	    
-		JOBS_2_starting_excel_row = 372
+		JOBS_2_starting_excel_row = 380
 		JOBS_2_inc_type = left(ObjExcel.Cells(JOBS_2_starting_excel_row, current_excel_col).Value, 1)
 		JOBS_2_inc_verif = left(ObjExcel.Cells(JOBS_2_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_2_employer_name = ObjExcel.Cells(JOBS_2_starting_excel_row + 2, current_excel_col).Value
@@ -985,7 +1023,7 @@ For each case_number in case_number_array
 		JOBS_2_wkly_hrs = ObjExcel.Cells(JOBS_2_starting_excel_row + 5, current_excel_col).Value
 		JOBS_2_hrly_wage = ObjExcel.Cells(JOBS_2_starting_excel_row + 6, current_excel_col).Value
 	    
-		JOBS_3_starting_excel_row = 379
+		JOBS_3_starting_excel_row = 387
 		JOBS_3_inc_type = left(ObjExcel.Cells(JOBS_3_starting_excel_row, current_excel_col).Value, 1)
 		JOBS_3_inc_verif = left(ObjExcel.Cells(JOBS_3_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_3_employer_name = ObjExcel.Cells(JOBS_3_starting_excel_row + 2, current_excel_col).Value
@@ -994,23 +1032,25 @@ For each case_number in case_number_array
 		JOBS_3_wkly_hrs = ObjExcel.Cells(JOBS_3_starting_excel_row + 5, current_excel_col).Value
 		JOBS_3_hrly_wage = ObjExcel.Cells(JOBS_3_starting_excel_row + 6, current_excel_col).Value
 
-		MEDI_starting_excel_row = 386
+		MEDI_starting_excel_row = 394
 		MEDI_claim_number_suffix = ObjExcel.Cells(MEDI_starting_excel_row, current_excel_col).Value
 		MEDI_part_A_premium = ObjExcel.Cells(MEDI_starting_excel_row + 1, current_excel_col).Value
 		MEDI_part_B_premium = ObjExcel.Cells(MEDI_starting_excel_row + 2, current_excel_col).Value
 		MEDI_part_A_begin_date = ObjExcel.Cells(MEDI_starting_excel_row + 3, current_excel_col).Value
 		MEDI_part_B_begin_date = ObjExcel.Cells(MEDI_starting_excel_row + 4, current_excel_col).Value
+		MEDI_apply_prem_to_spdn = ObjExcel.Cells(MEDI_starting_excel_row + 5, current_excel_col).Value
+		MEDI_apply_prem_end_date = ObjExcel.Cells(MEDI_starting_excel_row + 6, current_excel_col).Value
 
-		MMSA_starting_excel_row = 391
+		MMSA_starting_excel_row = 401
 		MMSA_liv_arr = left(ObjExcel.Cells(MMSA_starting_excel_row, current_excel_col).Value, 1)
 		MMSA_cont_elig = ObjExcel.Cells(MMSA_starting_excel_row + 1, current_excel_col).Value
 		MMSA_spous_inc = ObjExcel.Cells(MMSA_starting_excel_row + 2, current_excel_col).Value
 		MMSA_shared_hous = ObjExcel.Cells(MMSA_starting_excel_row + 3, current_excel_col).Value
 
-		MSUR_starting_excel_row = 395
+		MSUR_starting_excel_row = 405
 		MSUR_begin_date = ObjExcel.Cells(MSUR_starting_excel_row, current_excel_col).Value
 
-		OTHR_starting_excel_row = 396
+		OTHR_starting_excel_row = 406
 		OTHR_type = left(ObjExcel.Cells(OTHR_starting_excel_row, current_excel_col).Value, 1)
 		OTHR_cash_value = ObjExcel.Cells(OTHR_starting_excel_row + 1, current_excel_col).Value
 		OTHR_cash_value_ver = left(ObjExcel.Cells(OTHR_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -1024,7 +1064,7 @@ For each case_number in case_number_array
 		OTHR_joint = ObjExcel.Cells(OTHR_starting_excel_row + 10, current_excel_col).Value
 		OTHR_share_ratio = ObjExcel.Cells(OTHR_starting_excel_row + 11, current_excel_col).Value
 
-		PARE_starting_excel_row = 408
+		PARE_starting_excel_row = 418
 		PARE_child_1 = ObjExcel.Cells(PARE_starting_excel_row, current_excel_col).Value
 		PARE_child_1_relation = left(ObjExcel.Cells(PARE_starting_excel_row + 1, current_excel_col).Value, 1)
 		PARE_child_1_verif = left(ObjExcel.Cells(PARE_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1044,31 +1084,31 @@ For each case_number in case_number_array
 		PARE_child_6_relation = left(ObjExcel.Cells(PARE_starting_excel_row + 16, current_excel_col).Value, 1)
 		PARE_child_6_verif = left(ObjExcel.Cells(PARE_starting_excel_row + 17, current_excel_col).Value, 2)
 
-		PBEN_1_starting_excel_row = 426
+		PBEN_1_starting_excel_row = 436
 		PBEN_1_referal_date = ObjExcel.Cells(PBEN_1_starting_excel_row, current_excel_col).Value
-		PBEN_1_type = ObjExcel.Cells(PBEN_1_starting_excel_row + 1, current_excel_col).Value
+		PBEN_1_type = left(ObjExcel.Cells(PBEN_1_starting_excel_row + 1, current_excel_col).Value, 2)
 		PBEN_1_appl_date = ObjExcel.Cells(PBEN_1_starting_excel_row + 2, current_excel_col).Value
-		PBEN_1_appl_ver = ObjExcel.Cells(PBEN_1_starting_excel_row + 3, current_excel_col).Value
+		PBEN_1_appl_ver = left(ObjExcel.Cells(PBEN_1_starting_excel_row + 3, current_excel_col).Value, 1)
 		PBEN_1_IAA_date = ObjExcel.Cells(PBEN_1_starting_excel_row + 4, current_excel_col).Value
-		PBEN_1_disp = ObjExcel.Cells(PBEN_1_starting_excel_row + 5, current_excel_col).Value
+		PBEN_1_disp = left(ObjExcel.Cells(PBEN_1_starting_excel_row + 5, current_excel_col).Value, 1)
 
-		PBEN_2_starting_excel_row = 432
+		PBEN_2_starting_excel_row = 442
 		PBEN_2_referal_date = ObjExcel.Cells(PBEN_2_starting_excel_row, current_excel_col).Value
-		PBEN_2_type = ObjExcel.Cells(PBEN_2_starting_excel_row + 1, current_excel_col).Value
+		PBEN_2_type = left(ObjExcel.Cells(PBEN_2_starting_excel_row + 1, current_excel_col).Value, 2)
 		PBEN_2_appl_date = ObjExcel.Cells(PBEN_2_starting_excel_row + 2, current_excel_col).Value
-		PBEN_2_appl_ver = ObjExcel.Cells(PBEN_2_starting_excel_row + 3, current_excel_col).Value
+		PBEN_2_appl_ver = left(ObjExcel.Cells(PBEN_2_starting_excel_row + 3, current_excel_col).Value, 1)
 		PBEN_2_IAA_date = ObjExcel.Cells(PBEN_2_starting_excel_row + 4, current_excel_col).Value
-		PBEN_2_disp = ObjExcel.Cells(PBEN_2_starting_excel_row + 5, current_excel_col).Value
+		PBEN_2_disp = left(ObjExcel.Cells(PBEN_2_starting_excel_row + 5, current_excel_col).Value, 1)
 
-		PBEN_3_starting_excel_row = 438
+		PBEN_3_starting_excel_row = 448
 		PBEN_3_referal_date = ObjExcel.Cells(PBEN_3_starting_excel_row, current_excel_col).Value
-		PBEN_3_type = ObjExcel.Cells(PBEN_3_starting_excel_row + 1, current_excel_col).Value
+		PBEN_3_type = left(ObjExcel.Cells(PBEN_3_starting_excel_row + 1, current_excel_col).Value, 2)
 		PBEN_3_appl_date = ObjExcel.Cells(PBEN_3_starting_excel_row + 2, current_excel_col).Value
-		PBEN_3_appl_ver = ObjExcel.Cells(PBEN_3_starting_excel_row + 3, current_excel_col).Value
+		PBEN_3_appl_ver = left(ObjExcel.Cells(PBEN_3_starting_excel_row + 3, current_excel_col).Value, 1)
 		PBEN_3_IAA_date = ObjExcel.Cells(PBEN_3_starting_excel_row + 4, current_excel_col).Value
-		PBEN_3_disp = ObjExcel.Cells(PBEN_3_starting_excel_row + 5, current_excel_col).Value
+		PBEN_3_disp = left(ObjExcel.Cells(PBEN_3_starting_excel_row + 5, current_excel_col).Value, 1)
 
-		PDED_starting_excel_row = 444
+		PDED_starting_excel_row = 454
 		PDED_wid_deduction = ObjExcel.Cells(PDED_starting_excel_row, current_excel_col).Value
 		PDED_adult_child_disregard = ObjExcel.Cells(PDED_starting_excel_row + 1, current_excel_col).Value
 		PDED_wid_disregard = ObjExcel.Cells(PDED_starting_excel_row + 2, current_excel_col).Value
@@ -1084,54 +1124,54 @@ For each case_number in case_number_array
 		PDED_excess_need = ObjExcel.Cells(PDED_starting_excel_row + 12, current_excel_col).Value
 		PDED_restaurant_meals = ObjExcel.Cells(PDED_starting_excel_row + 13, current_excel_col).Value
 
-		PREG_starting_excel_row = 458
+		PREG_starting_excel_row = 468
 		PREG_conception_date = ObjExcel.Cells(PREG_starting_excel_row, current_excel_col).Value
 		PREG_conception_date_ver = ObjExcel.Cells(PREG_starting_excel_row + 1, current_excel_col).Value
 		PREG_third_trimester_ver = ObjExcel.Cells(PREG_starting_excel_row + 2, current_excel_col).Value
 		PREG_due_date = ObjExcel.Cells(PREG_starting_excel_row + 3, current_excel_col).Value
 		PREG_multiple_birth = ObjExcel.Cells(PREG_starting_excel_row + 4, current_excel_col).Value
 
-		RBIC_starting_excel_row = 463
-		RBIC_type = ObjExcel.Cells(RBIC_starting_excel_row, current_excel_col).Value
+		RBIC_starting_excel_row = 473
+		RBIC_type = left(ObjExcel.Cells(RBIC_starting_excel_row, current_excel_col).Value, 2)
 		RBIC_start_date = ObjExcel.Cells(RBIC_starting_excel_row + 1, current_excel_col).Value
 		RBIC_end_date = ObjExcel.Cells(RBIC_starting_excel_row + 2, current_excel_col).Value
 		RBIC_group_1 = ObjExcel.Cells(RBIC_starting_excel_row + 3, current_excel_col).Value
 		RBIC_retro_income_group_1 = ObjExcel.Cells(RBIC_starting_excel_row + 4, current_excel_col).Value
 		RBIC_prosp_income_group_1 = ObjExcel.Cells(RBIC_starting_excel_row + 5, current_excel_col).Value
-		RBIC_ver_income_group_1 = ObjExcel.Cells(RBIC_starting_excel_row + 6, current_excel_col).Value
+		RBIC_ver_income_group_1 = left(ObjExcel.Cells(RBIC_starting_excel_row + 6, current_excel_col).Value, 1)
 		RBIC_group_2 = ObjExcel.Cells(RBIC_starting_excel_row + 7, current_excel_col).Value
 		RBIC_retro_income_group_2 = ObjExcel.Cells(RBIC_starting_excel_row + 8, current_excel_col).Value
 		RBIC_prosp_income_group_2 = ObjExcel.Cells(RBIC_starting_excel_row + 9, current_excel_col).Value
-		RBIC_ver_income_group_2 = ObjExcel.Cells(RBIC_starting_excel_row + 10, current_excel_col).Value
+		RBIC_ver_income_group_2 = left(ObjExcel.Cells(RBIC_starting_excel_row + 10, current_excel_col).Value, 1)
 		RBIC_group_3 = ObjExcel.Cells(RBIC_starting_excel_row + 11, current_excel_col).Value
 		RBIC_retro_income_group_3 = ObjExcel.Cells(RBIC_starting_excel_row + 12, current_excel_col).Value
 		RBIC_prosp_income_group_3 = ObjExcel.Cells(RBIC_starting_excel_row + 13, current_excel_col).Value
-		RBIC_ver_income_group_3 = ObjExcel.Cells(RBIC_starting_excel_row + 14, current_excel_col).Value
+		RBIC_ver_income_group_3 = left(ObjExcel.Cells(RBIC_starting_excel_row + 14, current_excel_col).Value, 1)
 		RBIC_retro_hours = ObjExcel.Cells(RBIC_starting_excel_row + 15, current_excel_col).Value
 		RBIC_prosp_hours = ObjExcel.Cells(RBIC_starting_excel_row + 16, current_excel_col).Value
-		RBIC_exp_type_1 = ObjExcel.Cells(RBIC_starting_excel_row + 17, current_excel_col).Value
+		RBIC_exp_type_1 = left(ObjExcel.Cells(RBIC_starting_excel_row + 17, current_excel_col).Value, 2)
 		RBIC_exp_retro_1 = ObjExcel.Cells(RBIC_starting_excel_row + 18, current_excel_col).Value
 		RBIC_exp_prosp_1 = ObjExcel.Cells(RBIC_starting_excel_row + 19, current_excel_col).Value
-		RBIC_exp_ver_1 = ObjExcel.Cells(RBIC_starting_excel_row + 20, current_excel_col).Value
-		RBIC_exp_type_2 = ObjExcel.Cells(RBIC_starting_excel_row + 21, current_excel_col).Value
+		RBIC_exp_ver_1 = left(ObjExcel.Cells(RBIC_starting_excel_row + 20, current_excel_col).Value, 1)
+		RBIC_exp_type_2 = left(ObjExcel.Cells(RBIC_starting_excel_row + 21, current_excel_col).Value, 2)
 		RBIC_exp_retro_2 = ObjExcel.Cells(RBIC_starting_excel_row + 22, current_excel_col).Value
 		RBIC_exp_prosp_2 = ObjExcel.Cells(RBIC_starting_excel_row + 23, current_excel_col).Value
-		RBIC_exp_ver_2 = ObjExcel.Cells(RBIC_starting_excel_row + 24, current_excel_col).Value
+		RBIC_exp_ver_2 = left(ObjExcel.Cells(RBIC_starting_excel_row + 24, current_excel_col).Value, 1)
 
-		REST_starting_excel_row = 488
-		REST_type = ObjExcel.Cells(REST_starting_excel_row, current_excel_col).Value
-		REST_type_ver = ObjExcel.Cells(REST_starting_excel_row + 1, current_excel_col).Value
+		REST_starting_excel_row = 498
+		REST_type = left(ObjExcel.Cells(REST_starting_excel_row, current_excel_col).Value, 1)
+		REST_type_ver = left(ObjExcel.Cells(REST_starting_excel_row + 1, current_excel_col).Value, 2)
 		REST_market = ObjExcel.Cells(REST_starting_excel_row + 2, current_excel_col).Value
-		REST_market_ver = ObjExcel.Cells(REST_starting_excel_row + 3, current_excel_col).Value
+		REST_market_ver = left(ObjExcel.Cells(REST_starting_excel_row + 3, current_excel_col).Value, 2)
 		REST_owed = ObjExcel.Cells(REST_starting_excel_row + 4, current_excel_col).Value
-		REST_owed_ver = ObjExcel.Cells(REST_starting_excel_row + 5, current_excel_col).Value
+		REST_owed_ver = left(ObjExcel.Cells(REST_starting_excel_row + 5, current_excel_col).Value, 2)
 		REST_date = ObjExcel.Cells(REST_starting_excel_row + 6, current_excel_col).Value
-		REST_status = ObjExcel.Cells(REST_starting_excel_row + 7, current_excel_col).Value
+		REST_status = left(ObjExcel.Cells(REST_starting_excel_row + 7, current_excel_col).Value, 1)
 		REST_joint = ObjExcel.Cells(REST_starting_excel_row + 8, current_excel_col).Value
 		REST_share_ratio = ObjExcel.Cells(REST_starting_excel_row + 9, current_excel_col).Value
 		REST_agreement_date = ObjExcel.Cells(REST_starting_excel_row + 10, current_excel_col).Value
 
-		SCHL_starting_excel_row = 499
+		SCHL_starting_excel_row = 509
 		appl_date = ObjExcel.Cells(4, 3).Value
 		SCHL_status = left(ObjExcel.Cells(SCHL_starting_excel_row, current_excel_col).Value, 1)
 		SCHL_ver = left(ObjExcel.Cells(SCHL_starting_excel_row + 1, current_excel_col).Value, 2)
@@ -1144,13 +1184,13 @@ For each case_number in case_number_array
 		SCHL_FS_eligibility_status = left(ObjExcel.Cells(SCHL_starting_excel_row + 8, current_excel_col).Value, 2)
 		SCHL_higher_ed = ObjExcel.Cells(SCHL_starting_excel_row + 9, current_excel_col).Value
 
-		SECU_starting_excel_row = 509
-		SECU_type = ObjExcel.Cells(SECU_starting_excel_row, current_excel_col).Value
+		SECU_starting_excel_row = 519
+		SECU_type = left(ObjExcel.Cells(SECU_starting_excel_row, current_excel_col).Value, 2)
 		SECU_pol_numb = ObjExcel.Cells(SECU_starting_excel_row + 1, current_excel_col).Value
 		SECU_name = ObjExcel.Cells(SECU_starting_excel_row + 2, current_excel_col).Value
 		SECU_cash_val = ObjExcel.Cells(SECU_starting_excel_row + 3, current_excel_col).Value
 		SECU_date = ObjExcel.Cells(SECU_starting_excel_row + 4, current_excel_col).Value
-		SECU_cash_ver = ObjExcel.Cells(SECU_starting_excel_row + 5, current_excel_col).Value
+		SECU_cash_ver = left(ObjExcel.Cells(SECU_starting_excel_row + 5, current_excel_col).Value, 1)
 		SECU_face_val = ObjExcel.Cells(SECU_starting_excel_row + 6, current_excel_col).Value
 		SECU_withdraw = ObjExcel.Cells(SECU_starting_excel_row + 7, current_excel_col).Value
 		SECU_cash_count = ObjExcel.Cells(SECU_starting_excel_row + 8, current_excel_col).Value
@@ -1161,55 +1201,55 @@ For each case_number in case_number_array
 		SECU_joint = ObjExcel.Cells(SECU_starting_excel_row + 13, current_excel_col).Value
 		SECU_share_ratio = ObjExcel.Cells(SECU_starting_excel_row + 14, current_excel_col).Value
 
-		SHEL_starting_excel_row = 524
+		SHEL_starting_excel_row = 534
 		SHEL_subsidized = ObjExcel.Cells(SHEL_starting_excel_row, current_excel_col).Value
 		SHEL_shared = ObjExcel.Cells(SHEL_starting_excel_row + 1, current_excel_col).Value
 		SHEL_paid_to = ObjExcel.Cells(SHEL_starting_excel_row + 2, current_excel_col).Value
 		SHEL_rent_retro = ObjExcel.Cells(SHEL_starting_excel_row + 3, current_excel_col).Value
-		SHEL_rent_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 4, current_excel_col).Value
+		SHEL_rent_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 4, current_excel_col).Value, 2)
 		SHEL_rent_pro = ObjExcel.Cells(SHEL_starting_excel_row + 5, current_excel_col).Value
-		SHEL_rent_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 6, current_excel_col).Value
+		SHEL_rent_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 6, current_excel_col).Value, 2)
 		SHEL_lot_rent_retro = ObjExcel.Cells(SHEL_starting_excel_row + 7, current_excel_col).Value
-		SHEL_lot_rent_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 8, current_excel_col).Value
+		SHEL_lot_rent_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 8, current_excel_col).Value, 2)
 		SHEL_lot_rent_pro = ObjExcel.Cells(SHEL_starting_excel_row + 9, current_excel_col).Value
-		SHEL_lot_rent_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 10, current_excel_col).Value
+		SHEL_lot_rent_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 10, current_excel_col).Value, 2)
 		SHEL_mortgage_retro = ObjExcel.Cells(SHEL_starting_excel_row + 11, current_excel_col).Value
-		SHEL_mortgage_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 12, current_excel_col).Value
+		SHEL_mortgage_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 12, current_excel_col).Value, 2)
 		SHEL_mortgage_pro = ObjExcel.Cells(SHEL_starting_excel_row + 13, current_excel_col).Value
-		SHEL_mortgage_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 14, current_excel_col).Value
+		SHEL_mortgage_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 14, current_excel_col).Value, 2)
 		SHEL_insur_retro = ObjExcel.Cells(SHEL_starting_excel_row + 15, current_excel_col).Value
-		SHEL_insur_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 16, current_excel_col).Value
+		SHEL_insur_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 16, current_excel_col).Value, 2)
 		SHEL_insur_pro = ObjExcel.Cells(SHEL_starting_excel_row + 17, current_excel_col).Value
-		SHEL_insur_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 18, current_excel_col).Value
+		SHEL_insur_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 18, current_excel_col).Value, 2)
 		SHEL_taxes_retro = ObjExcel.Cells(SHEL_starting_excel_row + 19, current_excel_col).Value
-		SHEL_taxes_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 20, current_excel_col).Value
+		SHEL_taxes_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 20, current_excel_col).Value, 2)
 		SHEL_taxes_pro = ObjExcel.Cells(SHEL_starting_excel_row + 21, current_excel_col).Value
-		SHEL_taxes_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 22, current_excel_col).Value
+		SHEL_taxes_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 22, current_excel_col).Value, 2)
 		SHEL_room_retro = ObjExcel.Cells(SHEL_starting_excel_row + 23, current_excel_col).Value
-		SHEL_room_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 24, current_excel_col).Value
+		SHEL_room_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 24, current_excel_col).Value, 2)
 		SHEL_room_pro = ObjExcel.Cells(SHEL_starting_excel_row + 25, current_excel_col).Value
-		SHEL_room_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 26, current_excel_col).Value
+		SHEL_room_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 26, current_excel_col).Value, 2)
 		SHEL_garage_retro = ObjExcel.Cells(SHEL_starting_excel_row + 27, current_excel_col).Value
-		SHEL_garage_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 28, current_excel_col).Value
+		SHEL_garage_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 28, current_excel_col).Value, 2)
 		SHEL_garage_pro = ObjExcel.Cells(SHEL_starting_excel_row + 29, current_excel_col).Value
-		SHEL_garage_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 30, current_excel_col).Value
+		SHEL_garage_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 30, current_excel_col).Value, 2)
 		SHEL_subsidy_retro = ObjExcel.Cells(SHEL_starting_excel_row + 31, current_excel_col).Value
-		SHEL_subsidy_retro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 32, current_excel_col).Value
+		SHEL_subsidy_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 32, current_excel_col).Value, 2)
 		SHEL_subsidy_pro = ObjExcel.Cells(SHEL_starting_excel_row + 33, current_excel_col).Value
-		SHEL_subsidy_pro_ver = ObjExcel.Cells(SHEL_starting_excel_row + 34, current_excel_col).Value
+		SHEL_subsidy_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 34, current_excel_col).Value, 2)
 
-		SIBL_starting_excel_row = 559
+		SIBL_starting_excel_row = 569
 		SIBL_group_1 = ObjExcel.Cells(SIBL_starting_excel_row, current_excel_col).Value
 		SIBL_group_2 = ObjExcel.Cells(SIBL_starting_excel_row + 1, current_excel_col).Value
 		SIBL_group_3 = ObjExcel.Cells(SIBL_starting_excel_row + 2, current_excel_col).Value
 
-		SPON_starting_excel_row = 562
-		SPON_type = ObjExcel.Cells(SPON_starting_excel_row, current_excel_col).Value
+		SPON_starting_excel_row = 572
+		SPON_type = left(ObjExcel.Cells(SPON_starting_excel_row, current_excel_col).Value, 2)
 		SPON_ver = ObjExcel.Cells(SPON_starting_excel_row + 1, current_excel_col).Value
 		SPON_name = ObjExcel.Cells(SPON_starting_excel_row + 2, current_excel_col).Value
 		SPON_state = ObjExcel.Cells(SPON_starting_excel_row + 3, current_excel_col).Value
 
-		STEC_starting_excel_row = 566
+		STEC_starting_excel_row = 576
 		STEC_type_1 = left(ObjExcel.Cells(STEC_starting_excel_row, current_excel_col).Value, 2)
 		STEC_amt_1 = ObjExcel.Cells(STEC_starting_excel_row + 1, current_excel_col).Value
 		STEC_actual_from_thru_months_1 = ObjExcel.Cells(STEC_starting_excel_row + 2, current_excel_col).Value
@@ -1223,7 +1263,7 @@ For each case_number in case_number_array
 		STEC_earmarked_amt_2 = ObjExcel.Cells(STEC_starting_excel_row + 10, current_excel_col).Value
 		STEC_earmarked_from_thru_months_2 = ObjExcel.Cells(STEC_starting_excel_row + 11, current_excel_col).Value
 
-		STIN_starting_excel_row = 578
+		STIN_starting_excel_row = 588
 		STIN_type_1 = left(ObjExcel.Cells(STIN_starting_excel_row, current_excel_col).Value, 2)
 		STIN_amt_1 = ObjExcel.Cells(STIN_starting_excel_row + 1, current_excel_col).Value
 		STIN_avail_date_1 = ObjExcel.Cells(STIN_starting_excel_row + 2, current_excel_col).Value
@@ -1235,7 +1275,7 @@ For each case_number in case_number_array
 		STIN_months_covered_2 = ObjExcel.Cells(STIN_starting_excel_row + 8, current_excel_col).Value
 		STIN_ver_2 = left(ObjExcel.Cells(STIN_starting_excel_row + 9, current_excel_col).Value, 1)
 
-		STWK_starting_excel_row = 588
+		STWK_starting_excel_row = 598
 		STWK_empl_name = ObjExcel.Cells(STWK_starting_excel_row, current_excel_col).Value
 		STWK_wrk_stop_date = ObjExcel.Cells(STWK_starting_excel_row + 1, current_excel_col).Value
 		STWK_wrk_stop_date_verif = left(ObjExcel.Cells(STWK_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -1249,7 +1289,7 @@ For each case_number in case_number_array
 		STWK_fs_pwe = ObjExcel.Cells(STWK_starting_excel_row + 10, current_excel_col).Value
 		STWK_maepd_ext = left(ObjExcel.Cells(STWK_starting_excel_row + 11, current_excel_col).Value, 1)
 
-		UNEA_1_starting_excel_row = 600
+		UNEA_1_starting_excel_row = 610
 		UNEA_1_inc_type = left(ObjExcel.Cells(UNEA_1_starting_excel_row, current_excel_col).Value, 2)
 		UNEA_1_inc_verif = left(ObjExcel.Cells(UNEA_1_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_1_claim_suffix = ObjExcel.Cells(UNEA_1_starting_excel_row + 2, current_excel_col).Value
@@ -1257,7 +1297,7 @@ For each case_number in case_number_array
 		UNEA_1_pay_freq = ObjExcel.Cells(UNEA_1_starting_excel_row + 4, current_excel_col).Value
 		UNEA_1_inc_amount = ObjExcel.Cells(UNEA_1_starting_excel_row + 5, current_excel_col).Value
 	    
-		UNEA_2_starting_excel_row = 606
+		UNEA_2_starting_excel_row = 616
 		UNEA_2_inc_type = left(ObjExcel.Cells(UNEA_2_starting_excel_row, current_excel_col).Value, 2)
 		UNEA_2_inc_verif = left(ObjExcel.Cells(UNEA_2_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_2_claim_suffix = ObjExcel.Cells(UNEA_2_starting_excel_row + 2, current_excel_col).Value
@@ -1265,7 +1305,7 @@ For each case_number in case_number_array
 		UNEA_2_pay_freq = ObjExcel.Cells(UNEA_2_starting_excel_row + 4, current_excel_col).Value
 		UNEA_2_inc_amount = ObjExcel.Cells(UNEA_2_starting_excel_row + 5, current_excel_col).Value
 	    
-		UNEA_3_starting_excel_row = 612
+		UNEA_3_starting_excel_row = 622
 		UNEA_3_inc_type = left(ObjExcel.Cells(UNEA_3_starting_excel_row, current_excel_col).Value, 2)
 		UNEA_3_inc_verif = left(ObjExcel.Cells(UNEA_3_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_3_claim_suffix = ObjExcel.Cells(UNEA_3_starting_excel_row + 2, current_excel_col).Value
@@ -1273,7 +1313,7 @@ For each case_number in case_number_array
 		UNEA_3_pay_freq = ObjExcel.Cells(UNEA_3_starting_excel_row + 4, current_excel_col).Value
 		UNEA_3_inc_amount = ObjExcel.Cells(UNEA_3_starting_excel_row + 5, current_excel_col).Value
 		
-		WKEX_starting_excel_row = 618
+		WKEX_starting_excel_row = 628
 		WKEX_program = objExcel.Cells(WKEX_starting_excel_row, current_excel_col).Value
 		WKEX_fed_tax_retro = objExcel.Cells(WKEX_starting_excel_row + 1, current_excel_col).Value
 		WKEX_fed_tax_prosp = objExcel.Cells(WKEX_starting_excel_row + 2, current_excel_col).Value
@@ -1324,7 +1364,7 @@ For each case_number in case_number_array
 		WKEX_HC_Exp_Othr = objExcel.Cells(WKEX_starting_excel_row + 47, current_excel_col).Value
 		WKEX_HC_Exp_Othr_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 48, current_excel_col).Value
 
-		WREG_starting_excel_row = 667
+		WREG_starting_excel_row = 677
 		WREG_fs_pwe = ObjExcel.Cells(WREG_starting_excel_row, current_excel_col).Value
 		WREG_fset_status = left(ObjExcel.Cells(WREG_starting_excel_row + 1, current_excel_col).Value, 2)
 		WREG_defer_fs = ObjExcel.Cells(WREG_starting_excel_row + 2, current_excel_col).Value
@@ -1343,6 +1383,9 @@ For each case_number in case_number_array
 		EMReadScreen SSN_first, 3, 7, 42
 		EMReadScreen SSN_mid, 2, 7, 46
 		EMReadScreen SSN_last, 4, 7, 49
+		
+		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
+		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 		
 		'ACCT
 		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
@@ -1411,14 +1454,11 @@ For each case_number in case_number_array
 		'FMED
 		IF FMED_medical_mileage <> "" OR FMED_1_type <> "" OR FMED_2_type <> "" OR FMED_3_type <> "" OR FMED_4_type <> "" THEN CALL write_panel_to_MAXIS_FMED(FMED_medical_mileage, FMED_1_type, FMED_1_verif, FMED_1_ref_num, FMED_1_category, FMED_1_begin, FMED_1_end, FMED_1_amount, FMED_2_type, FMED_2_verif, FMED_2_ref_num, FMED_2_category, FMED_2_begin, FMED_2_end, FMED_2_amount, FMED_3_type, FMED_3_verif, FMED_3_ref_num, FMED_3_category, FMED_3_begin, FMED_3_end, FMED_3_amount, FMED_4_type, FMED_4_verif, FMED_4_ref_num, FMED_4_category, FMED_4_begin, FMED_4_end, FMED_4_amount)
 		
-		'HCRE
-		If HCRE_appl_addnd_date_input <> "" then call write_panel_to_MAXIS_HCRE(HCRE_appl_addnd_date_input,HCRE_retro_months_input,HCRE_recvd_by_service_date_input)
-		
 		'HEST
 		If HEST_FS_choice_date <> "" then call write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
 		
 		'IMIG
-		If IMIG_imigration_status <> "" then call write_panel_to_MAXIS_IMIG(IMIG_imigration_status, IMIG_entry_date, IMIG_status_date, IMIG_status_ver, IMIG_status_LPR_adj_from, IMIG_nationality)
+		If IMIG_imigration_status <> "" THEN CALL write_panel_to_MAXIS_IMIG(IMIG_imigration_status, IMIG_entry_date, IMIG_status_date, IMIG_status_ver, IMIG_status_LPR_adj_from, IMIG_nationality, IMIG_40_soc_sec, IMIG_40_soc_sec_verif, IMIG_battered_spouse_child, IMIG_battered_spouse_child_verif, IMIG_military_status, IMIG_military_status_verif, IMIG_hmong_lao_nat_amer, IMIG_st_prog_esl_ctzn_coop, IMIG_st_prog_esl_ctzn_coop_verif, IMIG_fss_esl_skills_training)
 		
 		'INSA
 		If INSA_pers_coop_ohi <> "" then call write_panel_to_MAXIS_INSA(INSA_pers_coop_ohi,INSA_good_cause_status,INSA_good_cause_cliam_date,INSA_good_cause_evidence,INSA_coop_cost_effect,INSA_insur_name,INSA_prescrip_drug_cover,INSA_prescrip_end_date, INSA_persons_covered)
@@ -1433,7 +1473,7 @@ For each case_number in case_number_array
 		If JOBS_3_inc_type <> "" then call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
 		
 		'MEDI
-		If MEDI_claim_number_suffix <> "" then call write_panel_to_MAXIS_MEDI(SSN_first, SSN_mid, SSN_last, MEDI_claim_number_suffix, MEDI_part_A_premium, MEDI_part_B_premium, MEDI_part_A_begin_date, MEDI_part_B_begin_date)
+		If MEDI_claim_number_suffix <> "" then call write_panel_to_MAXIS_MEDI(SSN_first, SSN_mid, SSN_last, MEDI_claim_number_suffix, MEDI_part_A_premium, MEDI_part_B_premium, MEDI_part_A_begin_date, MEDI_part_B_begin_date, MEDI_apply_prem_to_spdn, MEDI_apply_prem_end_date)
 		
 		'MMSA
 		If MMSA_liv_arr <> "" then call write_panel_to_MAXIS_MMSA(MMSA_liv_arr, MMSA_cont_elig, MMSA_spous_inc, MMSA_shared_hous)
@@ -1457,7 +1497,20 @@ For each case_number in case_number_array
 		If PBEN_3_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_3_referal_date, PBEN_3_type, PBEN_3_appl_date, PBEN_3_appl_ver, PBEN_3_IAA_date, PBEN_3_disp)
 		
 		'PDED
-		If PDED_ <> "" then call write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
+		If PDED_wid_deduction <> "" OR _
+			PDED_adult_child_disregard <> "" OR _
+			PDED_wid_disregard <> "" OR _
+			PDED_unea_income_deduction_reason <> "" OR _
+			PDED_unea_income_deduction_value <> "" OR _
+			PDED_earned_income_deduction_reason <> "" OR _
+			PDED_earned_income_deduction_value <> "" OR _
+			PDED_ma_epd_inc_asset_limit <> "" OR _
+			PDED_guard_fee <> "" OR _
+			PDED_rep_payee_fee <> "" OR _
+			PDED_other_expense <> "" OR _
+			PDED_shel_spcl_needs <> "" OR _
+			PDED_excess_need <> "" OR _
+			PDED_restaurant_meals <> "" THEN CALL write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
 		
 		'PREG
 		If PREG_conception_date <> "" then call write_panel_to_MAXIS_PREG(PREG_conception_date, PREG_conception_date_ver, PREG_third_trimester_ver,PREG_due_date, PREG_multiple_birth)
@@ -1505,13 +1558,11 @@ For each case_number in case_number_array
 		IF WKEX_program <> "" THEN CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
 		
 		'WREG
-		If WREG_fs_pwe <> "" then call write_panel_to_MAXIS_WREG(WREG_fs_pwe, WREG_fset_status, WREG_defer_fs, WREG_fset_orientation_date, WREG_fset_sanction_date, WREG_num_sanctions, WREG_abawd_status, WREG_ga_basis)
+		If WREG_fs_pwe <> "" OR WREG_ga_basis <> "" then call write_panel_to_MAXIS_WREG(WREG_fs_pwe, WREG_fset_status, WREG_defer_fs, WREG_fset_orientation_date, WREG_fset_sanction_date, WREG_num_sanctions, WREG_abawd_status, WREG_ga_basis)
 	
-		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
-		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 	Next
 
-	DO			'---
+	DO			
 		PF3		'---Navigates to STAT/WRAP
 		EMReadScreen benefit_month, 2, 20, 55
 		future_month = DatePart("M", DateAdd("M", 1, date))
@@ -1529,7 +1580,6 @@ For each case_number in case_number_array
 			reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
 				
 			'Rereading the values for BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for that person so the script can update the HC Expenses and Income. 
-			BUSI_starting_excel_row = 141
 			BUSI_type = left(ObjExcel.Cells(BUSI_starting_excel_row, current_excel_col).Value, 2)
 			BUSI_start_date = ObjExcel.Cells(BUSI_starting_excel_row + 1, current_excel_col).Value
 			BUSI_end_date = ObjExcel.Cells(BUSI_starting_excel_row + 2, current_excel_col).Value
@@ -1565,7 +1615,6 @@ For each case_number in case_number_array
 			BUSI_hc_exp_est_b = ObjExcel.Cells(BUSI_starting_excel_row + 32, current_excel_col).Value
 			BUSI_hc_hours_est = ObjExcel.Cells(BUSI_starting_excel_row + 33, current_excel_col).Value
 			
-			COEX_starting_excel_row = 191
 			COEX_support_retro = ObjExcel.Cells(COEX_starting_excel_row, current_excel_col).Value
 			COEX_support_prosp = ObjExcel.Cells(COEX_starting_excel_row + 1, current_excel_col).Value
 			COEX_support_verif = left(ObjExcel.Cells(COEX_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -1584,7 +1633,6 @@ For each case_number in case_number_array
 			COEX_HC_expense_tax_dep = ObjExcel.Cells(COEX_starting_excel_row + 15, current_excel_col).Value
 			COEX_HC_expense_other = ObjExcel.Cells(COEX_starting_excel_row + 16, current_excel_col).Value
 			
-			DCEX_starting_excel_row = 208
 			DCEX_provider = ObjExcel.Cells(DCEX_starting_excel_row, current_excel_col).Value
 			DCEX_reason = left(ObjExcel.Cells(DCEX_starting_excel_row + 1, current_excel_col).Value, 1)
 			DCEX_subsidy = left(ObjExcel.Cells(DCEX_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -1613,7 +1661,6 @@ For each case_number in case_number_array
 			DCEX_child_number6_pro = ObjExcel.Cells(DCEX_starting_excel_row + 25, current_excel_col).Value
 			DCEX_child_number6_ver = left(ObjExcel.Cells(DCEX_starting_excel_row + 26, current_excel_col).Value, 1)
 			
-			JOBS_1_starting_excel_row = 365
 			JOBS_1_inc_type = left(ObjExcel.Cells(JOBS_1_starting_excel_row, current_excel_col).Value, 1)
 			JOBS_1_inc_verif = left(ObjExcel.Cells(JOBS_1_starting_excel_row + 1, current_excel_col).Value, 1)
 			JOBS_1_employer_name = ObjExcel.Cells(JOBS_1_starting_excel_row + 2, current_excel_col).Value
@@ -1622,7 +1669,6 @@ For each case_number in case_number_array
 			JOBS_1_wkly_hrs = ObjExcel.Cells(JOBS_1_starting_excel_row + 5, current_excel_col).Value
 			JOBS_1_hrly_wage = ObjExcel.Cells(JOBS_1_starting_excel_row + 6, current_excel_col).Value
 	
-			JOBS_2_starting_excel_row = 372
 			JOBS_2_inc_type = left(ObjExcel.Cells(JOBS_2_starting_excel_row, current_excel_col).Value, 1)
 			JOBS_2_inc_verif = left(ObjExcel.Cells(JOBS_2_starting_excel_row + 1, current_excel_col).Value, 1)
 			JOBS_2_employer_name = ObjExcel.Cells(JOBS_2_starting_excel_row + 2, current_excel_col).Value
@@ -1631,7 +1677,6 @@ For each case_number in case_number_array
 			JOBS_2_wkly_hrs = ObjExcel.Cells(JOBS_2_starting_excel_row + 5, current_excel_col).Value
 			JOBS_2_hrly_wage = ObjExcel.Cells(JOBS_2_starting_excel_row + 6, current_excel_col).Value
 	
-			JOBS_3_starting_excel_row = 379
 			JOBS_3_inc_type = left(ObjExcel.Cells(JOBS_3_starting_excel_row, current_excel_col).Value, 1)
 			JOBS_3_inc_verif = left(ObjExcel.Cells(JOBS_3_starting_excel_row + 1, current_excel_col).Value, 1)
 			JOBS_3_employer_name = ObjExcel.Cells(JOBS_3_starting_excel_row + 2, current_excel_col).Value
@@ -1640,7 +1685,6 @@ For each case_number in case_number_array
 			JOBS_3_wkly_hrs = ObjExcel.Cells(JOBS_3_starting_excel_row + 5, current_excel_col).Value
 			JOBS_3_hrly_wage = ObjExcel.Cells(JOBS_3_starting_excel_row + 6, current_excel_col).Value
 			
-			UNEA_1_starting_excel_row = 600
 			UNEA_1_inc_type = left(ObjExcel.Cells(UNEA_1_starting_excel_row, current_excel_col).Value, 2)
 			UNEA_1_inc_verif = left(ObjExcel.Cells(UNEA_1_starting_excel_row + 1, current_excel_col).Value, 1)
 			UNEA_1_claim_suffix = ObjExcel.Cells(UNEA_1_starting_excel_row + 2, current_excel_col).Value
@@ -1648,7 +1692,6 @@ For each case_number in case_number_array
 			UNEA_1_pay_freq = ObjExcel.Cells(UNEA_1_starting_excel_row + 4, current_excel_col).Value
 			UNEA_1_inc_amount = ObjExcel.Cells(UNEA_1_starting_excel_row + 5, current_excel_col).Value
 	
-			UNEA_2_starting_excel_row = 606
 			UNEA_2_inc_type = left(ObjExcel.Cells(UNEA_2_starting_excel_row, current_excel_col).Value, 2)
 			UNEA_2_inc_verif = left(ObjExcel.Cells(UNEA_2_starting_excel_row + 1, current_excel_col).Value, 1)
 			UNEA_2_claim_suffix = ObjExcel.Cells(UNEA_2_starting_excel_row + 2, current_excel_col).Value
@@ -1656,7 +1699,6 @@ For each case_number in case_number_array
 			UNEA_2_pay_freq = ObjExcel.Cells(UNEA_2_starting_excel_row + 4, current_excel_col).Value
 			UNEA_2_inc_amount = ObjExcel.Cells(UNEA_2_starting_excel_row + 5, current_excel_col).Value
 	
-			UNEA_3_starting_excel_row = 612
 			UNEA_3_inc_type = left(ObjExcel.Cells(UNEA_3_starting_excel_row, current_excel_col).Value, 2)
 			UNEA_3_inc_verif = left(ObjExcel.Cells(UNEA_3_starting_excel_row + 1, current_excel_col).Value, 1)
 			UNEA_3_claim_suffix = ObjExcel.Cells(UNEA_3_starting_excel_row + 2, current_excel_col).Value
@@ -1664,7 +1706,6 @@ For each case_number in case_number_array
 			UNEA_3_pay_freq = ObjExcel.Cells(UNEA_3_starting_excel_row + 4, current_excel_col).Value
 			UNEA_3_inc_amount = ObjExcel.Cells(UNEA_3_starting_excel_row + 5, current_excel_col).Value
 			
-			WKEX_starting_excel_row = 618
 			WKEX_program = objExcel.Cells(WKEX_starting_excel_row, current_excel_col).Value
 			WKEX_fed_tax_retro = objExcel.Cells(WKEX_starting_excel_row + 1, current_excel_col).Value
 			WKEX_fed_tax_prosp = objExcel.Cells(WKEX_starting_excel_row + 2, current_excel_col).Value
@@ -1716,7 +1757,9 @@ For each case_number in case_number_array
 			WKEX_HC_Exp_Othr_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 48, current_excel_col).Value
 		
 			'---Below are all the panels that need to be updated for each benefit month.
+			'BUSI
 			If BUSI_type <> "" then call write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
+			'COEX
 			IF COEX_support_retro <> "" AND _
 				COEX_support_prosp <> "" AND _
 				COEX_support_verif <> "" AND _
@@ -1734,18 +1777,21 @@ For each case_number in case_number_array
 				COEX_HC_expense_alimony <> "" AND _
 				COEX_HC_expense_tax_dep <> "" AND _
 				COEX_HC_expense_other <> "" THEN CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif, COEX_change_in_circumstances, COEX_HC_expense_support, COEX_HC_expense_alimony, COEX_HC_expense_tax_dep, COEX_HC_expense_other)
+			'DCEX
 			If DCEX_provider <> "" then call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
+			'JOBS
 			IF JOBS_1_inc_type <> "" THEN call write_panel_to_MAXIS_JOBS("01", JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
 			If JOBS_2_inc_type <> "" then call write_panel_to_MAXIS_JOBS("02", JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
 			If JOBS_3_inc_type <> "" then call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
+			'UNEA
 			If UNEA_1_inc_type <> "" then call write_panel_to_MAXIS_UNEA("01", UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
 			If UNEA_2_inc_type <> "" then call write_panel_to_MAXIS_UNEA("02", UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
 			If UNEA_3_inc_type <> "" then call write_panel_to_MAXIS_UNEA("03", UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
+			'WKEX
 			IF WKEX_program <> "" THEN CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
 		NEXT		
 	LOOP UNTIL benefit_month = future_month
-	
-	
+		
 	'Gets back to self
 	back_to_self
 
@@ -1763,19 +1809,23 @@ FOR EACH case_number IN case_number_array
 	EMWriteScreen footer_month, 20, 43
 	EMWriteScreen footer_year, 20, 46
 	transmit
-
+	
+	appl_date_month = footer_month
+	appl_date_year = footer_year
+	
 	If cash_application = True then 
 		'=====DETERMINING CASH PROGRAM =========
 		'This scans CASE CURR to find what type of cash program to approve.
 		call navigate_to_screen("case", "curr")
-		call find_variable("MFIP: ", MFIP_check, 7)
-		If MFIP_check = "PENDING" then cash_type = "MFIP"
-		call find_variable("DWP: ", DWP_check, 7)
-		If DWP_check = "PENDING" then cash_type = "DWP"
-		call find_variable("MSA: ", MSA_check, 7)
-		If MSA_check = "PENDING" then cash_type = "MSA"
-		call find_variable("GA: ", GA_check, 7)
-		If GA_check = "PENDING" then cash_type = "GA"
+		DO
+			EMReadScreen cash_type, 4, 10, 3
+			cash_type = trim(cash_type)
+			IF cash_type = "FS" OR cash_type = "" THEN 
+				PF3
+				EMWriteScreen "CURR", 20, 70
+				transmit
+			END IF
+		LOOP UNTIL (cash_type <> "" AND cash_type <> "FS")
 		
 		'========= MFIP Approval section ==============
 		If cash_type = "MFIP" then
@@ -1820,12 +1870,12 @@ FOR EACH case_number IN case_number_array
 				transmit
 				'======= This handles the WF1 referral =========
 				EMReadScreen work_screen_check, 4, 2, 51
-				msgbox work_screen_check
+				'msgbox work_screen_check
 					IF work_screen_check = "WORK" Then
 						work_row = 7
 						DO 
 							EMReadScreen WORK_ref_nbr, 2, work_row, 3 
-							msgbox WORK_ref_nbr
+							'msgbox WORK_ref_nbr
 							EMWriteScreen "x", work_row, 47
 							work_row = work_row + 1
 						LOOP UNTIL WORK_ref_nbr = "  "
@@ -1842,72 +1892,125 @@ FOR EACH case_number IN case_number_array
 			END IF	
 		END IF
 		'============ DWP APPROVAL ====================
+'============ DWP APPROVAL ====================
 		IF cash_type = "DWP" then
-			'===== Needs to send a WF1 referral before approval can be done =======
-			Call navigate_to_screen("INFC", "WORK")
-			work_row = 7
-			EMReadScreen referral_sent, 2, 7, 72
-			IF referral_sent = "  " Then 'Makes sure the referral wasn't already sent, if it was it skips this
-				DO 
-					EMReadScreen WORK_ref_nbr, 2, work_row, 3 
-					EMWriteScreen "x", work_row, 47
-					work_row = work_row + 1
-				LOOP UNTIL WORK_ref_nbr = "  "
-				transmit
-				DO 'Pulling up the ES provider screen, and choosing the first option for each member
-					EMReadScreen ES_provider_screen, 2, 2, 37
-					EMWriteScreen "x", 5, 9
+			DO 'We need to put this all in a loop because MAXIS likes to have an error at the end that causes us to start over.
+				'===== Needs to send a WF1 referral before approval can be done =======
+				Call navigate_to_screen("INFC", "WORK")
+				work_row = 7
+				EMReadScreen referral_sent, 2, 7, 72
+				IF referral_sent = "  " Then 'Makes sure the referral wasn't already sent, if it was it skips this
+					DO 
+						EMReadScreen WORK_ref_nbr, 2, work_row, 3 
+						EMWriteScreen "x", work_row, 47
+						work_row = work_row + 1
+					LOOP UNTIL WORK_ref_nbr = "  "
 					transmit
-				LOOP UNTIL ES_provider_screen <> "ES"
-				transmit 'This transmit pulls up the "do you want to send" box
-				DO
-					EMReadScreen referral, 8, 11, 48
-				LOOP UNTIL referral = "Referral"
-				EMWriteScreen "Y", 11, 64
-				transmit
-			END IF
-			'Now it starts doing the approval
-			DO			
-				back_to_SELF
-				EMWriteScreen "ELIG", 16, 43
-				EMWriteScreen case_number, 18, 43
-				EMWriteScreen appl_date_month, 20, 43
-				EMWriteScreen appl_date_year, 20, 46
-				EMWriteScreen "DWP", 21, 70
-				'========== This TRANSMIT sends the case to the DWPR screen ==========
-				transmit
-				EMReadScreen no_version, 10, 24, 2
-			LOOP UNTIL no_version <> "NO VERSION"
-			EMReadScreen is_case_approved, 10, 3, 3
-			IF is_case_approved <> "UNAPPROVED" THEN
-				back_to_SELF
-			ELSE
-				EMWriteScreen "DWSM", 20, 71
-				transmit
-				DO
-				EMWriteScreen "APP", 20, 71 
-				transmit
-					EMReadScreen not_allowed, 11, 24, 18 '<========  need to check these locations
-					EMReadScreen locked_by_background, 6, 24, 19 '<============= need to check location
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" 
-				'====== Now on vendor payment screen, the script does not set up any vendoring. ======
-				'====== This loop takes it through vendor screens for all months in package =====
-				DO
-					PF3
-					EMReadScreen approval_screen, 8, 15, 60
-					IF approval_screen = "approval" Then
-						EMWriteScreen "Y", 16, 51 'Approve the package
+					DO 'Pulling up the ES provider screen, and choosing the first option for each member
+						EMReadScreen ES_provider_screen, 2, 2, 37
+						EMWriteScreen "x", 5, 9
 						transmit
+					LOOP UNTIL ES_provider_screen <> "ES"
+					transmit 'This transmit pulls up the "do you want to send" box
+					DO
+						EMReadScreen referral, 8, 11, 48
+					LOOP UNTIL referral = "Referral"
+					EMWriteScreen "Y", 11, 64
+					transmit
+				END IF
+				'Now it starts doing the approval
+				DO			
+					back_to_SELF
+					EMWriteScreen "ELIG", 16, 43
+					EMWriteScreen case_number, 18, 43
+					EMWriteScreen appl_date_month, 20, 43
+					EMWriteScreen appl_date_year, 20, 46
+					EMWriteScreen "DWP", 21, 70
+					'========== This TRANSMIT sends the case to the DWPR screen ==========
+					transmit
+					EMReadScreen no_version, 10, 24, 2
+				LOOP UNTIL no_version <> "NO VERSION"
+				EMReadScreen is_case_approved, 10, 3, 3
+				IF is_case_approved <> "UNAPPROVED" THEN
+					back_to_SELF
+				ELSE
+					EMWriteScreen "DWSM", 20, 71
+					transmit
+					DO
+					EMWriteScreen "APP", 20, 71 
+					transmit
+						EMReadScreen not_allowed, 11, 24, 18 
+						EMReadScreen locked_by_background, 6, 24, 19 
+					LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" 
+					'====== Now on vendor payment screen, the script does not set up any vendoring. ======
+					'====== This loop takes it through vendor screens for all months in package, and scans the screen for the various package popups  =====
+					'====== and REI screens.  It will exit the loop upon finding a final approval screen. ========
+					DO
+						PF3 'bypasses current month vendor screen
+						EMReadScreen approval_screen, 8, 15, 60 'This checks for standard DWP approval
+						IF approval_screen = "approval" Then 
+							EMWriteScreen "Y", 16, 51 'Approve the package
+							transmit
+							transmit
+							EXIT DO
+						END IF
+						'Now it needs check if an REI screen has popped up, and handle it
+						row = 1
+						col = 1
+						EMSearch "REI", row, col
+						IF row <> 0 THEN
+							rei_row = 6
+							rei_col = 8
+							DO 'Need to find all REI options and answer them
+								EMSearch "(Y/N)", rei_row, rei_col
+								EMWriteScreen "N", rei_row, rei_col + 7
+								rei_row = rei_row +1
+							LOOP UNTIL rei_row = 1 'this exits when no more instances of y/n found
+							transmit 'This should return back to the vendor screen / trigger next popup
+						END IF
+						'The next series of IFs are checking for further package approvals, for MFIP transition
+						EMReadScreen HRF_check, 3, 11, 50 'Needs to check for the HRF popup, in the case of DWP - MFIP transition
+						IF HRF_check = "HRF" THEN
+							EMWriteScreen "N", 12, 54
+							Transmit
+						END IF
+						'This checks for the final package approval if in a combined DWP / MFIP screen
+						EMReadScreen combined_package_check, 7, 4, 59
+						IF combined_package_check = "PACKAGE" THEN
+							DO 'This gets to the last screen of the package
+								EMReadScreen next_screen_check, 1, 14, 33
+								IF next_screen_check = "+" THEN PF8
+							LOOP UNTIL next_screen_check <> "+"
+							EMWriteScreen "Y", 16, 51
+							Transmit
+							Transmit
+							EXIT DO
+						END IF					
+					LOOP 	
+					'Now it needs to handle the possibility of additional WF1 referrals due to combined package
+					EMReadScreen work_screen_check, 4, 2, 51
+					EMReadScreen back_to_ELIG_check, 4, 2, 52
+					IF back_to_ELIG_check = "ELIG" THEN EXIT DO
+					IF work_screen_check = "WORK" Then
+						work_row = 7
+						DO 
+							EMReadScreen WORK_ref_nbr, 2, work_row, 3 
+							EMWriteScreen "x", work_row, 47
+							work_row = work_row + 1
+						LOOP UNTIL WORK_ref_nbr = "  "
+						transmit
+						DO 'Pulling up the ES provider screen, and choosing the first option for each member
+						EMReadScreen ES_provider_screen, 2, 2, 37
+						EMWriteScreen "x", 5, 9
+						transmit
+						LOOP UNTIL ES_provider_screen <> "ES"
+						transmit 
 						transmit
 						EXIT DO
-					END IF
-					EMReadScreen REI_screen_check, 3, 8, 13 
-					IF REI_screen_check = "REI" THEN
-						EMWriteScreen "N", 11, 49 'says no to REI and moves on to next month
-						transmit
-					END IF
-				LOOP 
-			END IF
+					END If
+					IF work_screen_check = "r   " THEN transmit
+				END IF
+			LOOP
 		END IF
 		'========= MSA Approval =======================
 		IF cash_type = "MSA" Then
@@ -1926,31 +2029,52 @@ FOR EACH case_number IN case_number_array
 			IF is_case_approved <> "UNAPPROVED" THEN
 				back_to_SELF
 			ELSE
-				EMWriteScreen "MSSM", 20, 71
-				transmit
-				EMWriteScreen "APP", 20, 70
-				transmit
-				DO '======== Choosing not to REI ==========
-					EMReadScreen REI_screen, 5, 11, 42
-					IF REI_screen = "(Y/N)" Then
-						EMWriteScreen "N", 11, 49
+				DO
+					transmit
+					EMReadScreen at_MSSM, 4, 3, 44
+				LOOP UNTIL at_MSSM = "MSSM"
+				
+				EMWaitReady 2, 2000
+				DO
+					questionable_information = ""
+					EMWriteScreen "1", 17, 54
+					EMWriteScreen "__", 18, 54
+					EMWriteScreen "APP", 20, 70
+					transmit
+					
+					EMReadScreen error_message, 20, 24, 2
+					error_message = trim(error_message)
+					CALL find_variable("REI benefits", questionable_information, 1)
+				LOOP UNTIL error_message = "" OR questionable_information = "?"
+				'REI'ing all MSA and looping until all MSA approval is complete.
+				DO
+					look_for_rein_yn = ""
+					michael_bay_action_sequence = ""
+					row = 1
+					col = 1
+					CALL find_variable("(Y/", look_for_rein_yn, 1)
+					CALL find_variable("Action: ", michael_bay_action_sequence, 1)
+					IF look_for_rein_yn = "N" THEN 
+						EMSendKey "Y"
+						transmit
+					END IF
+					IF michael_bay_action_sequence = "_" THEN 
+						EMSendKey "1"
+						transmit
+					END IF
+					IF look_for_rein_yn = "" and michael_bay_action_sequence = "" THEN 
 						transmit
 						EXIT DO
 					END IF
-				LOOP
-				DO '=======Final package approval ========
-					EMReadScreen msa_package, 5, 16, 44
-					IF msa_package = "(Y/N)" THEN
-						EMWriteScreen "Y", 16, 51
-						transmit
-						transmit
-						EXIT DO
-					END If
 				LOOP
 			END IF
 		END IF	
 		'================= GA Approval ===============================================
 		IF cash_type = "GA" THEN
+			num_of_ga_months = DateDiff("M", appl_date, date) + 2
+			Dim ga_array ()		'Creating an array of GA approval for FIATing SNAP.
+			ReDim ga_array(num_of_ga_months, 1) 
+			ga_months = -1
 			DO
 				back_to_SELF
 				EMWriteScreen "FIAT", 16, 43
@@ -1964,14 +2088,15 @@ FOR EACH case_number IN case_number_array
 			'THIS DO LOOP fills out FIAT menu and all Fiat screens, saves results, 
 			'and repeats for each month in the package until it reaches final month.
 			DO
+				ga_months = ga_months + 1
 				DO
 					EMWriteScreen "10", 4, 34
 					EMWriteScreen "x", 12, 22
 					transmit
 					EMReadScreen gasp, 4, 3, 56
 				LOOP UNTIL gasp = "GASP"
-				DO '
-					EMWriteScreen "P", 8, 63
+				DO
+					EMWriteScreen "P", 8, 63			'We need to determine Retrospective vs. Prospective budgeting programatically. Then we need have the script pull earned and unearned income from JOBS, UNEA, BUSI, and RBIC.
 					IF GA_type = "personal needs" THEN 'THIS is for using for personal needs GA in a FACI setting.  Currently no logic to assign this variable
 						EMWriteScreen "5", 18, 77
 					ELSE 
@@ -1980,7 +2105,7 @@ FOR EACH case_number IN case_number_array
 					EMWriteScreen "x", 19, 27
 					EMWriteScreen "x", 19, 50
 					EMWriteScreen "x", 19, 70
-					transmit 'Takes it to case results
+						transmit 'Takes it to case results
 					EMReadScreen gacr, 4, 3, 45
 				LOOP UNTIL gacr = "GACR"
 				transmit
@@ -1992,6 +2117,12 @@ FOR EACH case_number IN case_number_array
 				DO 
 					EMReadScreen gasm, 4, 3, 51
 				LOOP UNTIL gasm = "GASM" 
+				CALL find_variable("Amount To Be Paid........$", ga_benefit_amount, 9)
+				ga_benefit_amount = trim(ga_benefit_amount)
+				CALL find_variable("Month: ", ga_benefit_month, 5)
+				ga_benefit_month = replace(ga_benefit_month, " ", "/")
+				ga_array(ga_months, 0) = ga_benefit_month
+				ga_array(ga_months, 1) = ga_benefit_amount
 				PF3 'exiting back to GASP screen after viewing budget
 				PF3 'pulls up do you want to retain this version?
 				DO 
@@ -2001,23 +2132,24 @@ FOR EACH case_number IN case_number_array
 				transmit 'brings it back to fiat submenu if not last month, offers elig popup if last month
 				DO
 					EMReadScreen elig_popup, 4, 10, 53
-					EMReadScreen fiat_menu, 4, 2,46
+					EMReadScreen fiat_menu, 4, 2, 46
 					IF elig_popup = "ELIG" THEN 'Exiting the FIAT loop and going to ELIG
 						EMWriteScreen "Y", 11, 52 
 						EMWriteScreen appl_date_month, 13, 37
 						EMWriteScreen appl_date_year, 13, 40
+						transmit
 						EXIT DO
 					END IF
 				LOOP UNTIL fiat_menu = "FIAT"
+							
 				'Adding 1 to the elig month
 				EMReadScreen elig_month, 2, 20, 54
 				EMReadScreen elig_year, 2, 20, 57
-				elig_month = CInt(elig_month) + 1
-				IF elig_month = 13 THEN 
-					elig_month = 1
-					elig_year = elig_year + 1
-				END IF
-				IF len(elig_month) = 1 THEN elig_month = "0" & elig_month
+				ga_bene_month = elig_month & "/" & elig_year
+				ga_bene_month = DateAdd("M", 1, ga_bene_month)
+				elig_month = DatePart ("M", ga_bene_month)
+				elig_year = right(DatePart("YYYY", ga_bene_month), 2)
+				IF len(elig_month) <> 2 THEN elig_month = "0" & elig_month
 				EMWriteScreen elig_month, 20, 54
 				EMWriteScreen elig_year, 20, 57
 				transmit
@@ -2026,31 +2158,121 @@ FOR EACH case_number IN case_number_array
 			DO 'Checking for the approval screen
 				EMReadScreen elig_gasm, 6, 15, 45
 			LOOP UNTIL elig_gasm = "Action"
+			EMWriteScreen appl_date_month, 20, 54
+			EMWriteScreen appl_date_year, 20, 57
+			transmit
+			
 			EMWriteScreen "1", 15, 53
 			EMWriteScreen "APP", 20, 70
 			transmit 
-			DO 'getting REI screen and selecting N
-				EMReadScreen rei_screen, 5, 11, 42
-			LOOP UNTIL rei_screen = "(Y/N)"
-			EMWriteScreen "N", 11, 49 
+			DO 'getting REI screen and selecting Y
+				total_package = ""
+				colon_inspection = ""
+				rei_screen = ""
+				CALL find_variable("Cash package ", total_package, 8)
+				CALL find_variable("Action", colon_inspection, 1)
+				CALL find_variable("(Y/", rei_screen, 1)
+				IF rei_screen = "N" THEN
+					EMSendKey "Y"
+					transmit
+				END IF
+				IF colon_inspection = ":" THEN 
+					EMSendKey "1"
+					transmit
+				END IF
+			LOOP UNTIL total_package = "approved"
 			transmit
-			DO 'initial package approval screen
-				EMReadScreen package_approval, 6, 16, 21
-			LOOP UNTIL package_approval = "Action"
-			EMWriteScreen "1", 16, 29
-			transmit
-			DO 'Final package approval screen
-				EMReadScreen package_approval, 5, 16, 44
-			LOOP UNTIL package_approval = "(Y/N)"
-			EMWriteScreen "Y", 16, 51
-			transmit
-			transmit
-			
+						
+			'Need to make the script FIAT and approve SNAP with GA.
+			IF SNAP_application = True THEN 
+				back_to_SELF
+				EMWriteScreen "FIAT", 16, 43
+				EMWriteScreen case_number, 18, 43
+				EMWriteScreen appl_date_month, 20, 43
+				EMWriteScreen appl_date_year, 20, 46
+				transmit
+				
+				FOR i = 0 to ga_months
+					EMWriteScreen left(ga_array(i, 0), 2), 20, 54
+					EMWriteScreen right(ga_array(i, 0), 2), 20, 57
+					transmit
+					DO
+						EMWriteScreen "22", 4, 34
+						EMWriteScreen "X", 14, 22
+						transmit
+						EMReadScreen error_message, 20, 24, 2
+						error_message = trim(error_message)
+						EMReadScreen ffsl, 4, 3, 52
+					LOOP UNTIL error_message = "" AND ffsl = "FFSL"
+					
+					EMWriteScreen "X", 6, 5
+					EMWriteScreen "X", 16, 5
+					EMWriteScreen "X", 17, 5
+					transmit		'takes the script to FFPR
+					DO
+						EMReadScreen ffpr, 4, 3, 47
+					LOOP UNTIL ffpr = "FFPR"
+					PF3
+					DO
+						EMReadScreen ffcr, 4, 3, 46
+					LOOP UNTIL ffcr = "FFCR"
+					PF3
+					DO
+						EMReadScreen ffb1, 4, 3, 51
+					LOOP UNTIL ffb1 = "FFB1"
+					EMWriteScreen "X", 10, 5
+					transmit
+					EMWriteScreen ga_array(i, 1), 9, 23
+					DO
+						transmit
+						EMReadScreen FFSM, 4, 3, 53
+					LOOP UNTIL FFSM = "FFSM"
+					PF3
+					DO
+						EMReadScreen FFSL, 4, 3, 52
+					LOOP UNTIL FFSL = "FFSL"
+					PF3
+					DO
+						this_version = ""
+						CALL find_variable("this FIAT ", this_version, 7)
+					LOOP UNTIL this_version = "version"
+					EMSendKey "Y"
+					transmit
+					ready_to_fiat_FS = ""
+					CALL find_variable("Do you want to go to ", ready_to_fiat_FS, 4)
+					IF ready_to_fiat_FS = "ELIG" THEN
+						EMWriteScreen "Y", 11, 52
+						EMWriteScreen appl_date_month, 13, 37
+						EMWriteScreen appl_date_year, 13, 40
+						transmit
+						DO
+							EMReadScreen FSSM, 4, 3, 54
+						LOOP UNTIL FSSM = "FSSM"
+						EMWriteScreen "APP", 19, 70
+						transmit
+						CALL find_variable("THIS IS AN EXPEDITED ", expedited_status, 4)
+						CALL find_variable("PLEASE EXAMINE THE FOLLOWING ", ups_delivery_confirmation, 7)
+						IF expedited_status = "CASE" THEN 
+							EMSendKey "Y"
+							transmit
+							EMSendKey "Y"
+							transmit
+							EMSendKey "Y"
+							transmit
+						END IF
+						IF ups_delivery_confirmation = "PACKAGE" THEN
+							EMSendKey "Y"
+							transmit
+						END IF
+						transmit
+					END IF
+				NEXT
+			END IF				
 		END IF
 	End if
 	'The script needs to FIAT GA into SNAP budget.
 	
-	If SNAP_application = True then 
+	If SNAP_application = True AND cash_type <> "GA" then 
 		DO
 			back_to_SELF
 			EMWriteScreen "ELIG", 16, 43
@@ -2082,13 +2304,16 @@ FOR EACH case_number IN case_number_array
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 16, 44
+					EMReadScreen what_is_next, 5, 15, 54
 				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
 				DO
 					EMReadScreen please_examine, 14, 4, 25
 				LOOP UNTIL please_examine = "PLEASE EXAMINE"
-				EMWriteScreen "Y", 16, 51
-				transmit
+				DO
+					EMSendKey "Y"
+					transmit
+					CALL find_variable("Package ", ups_delivery_confirmation, 8)
+				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
 			ELSE
 				DO
@@ -2096,29 +2321,32 @@ FOR EACH case_number IN case_number_array
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 16, 44
+					EMReadScreen what_is_next, 5, 15, 54
 				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
 				DO
 					EMReadScreen rei_benefit, 3, 15, 33
 				LOOP UNTIL rei_benefit = "REI"
-				EMWriteScreen "Y", 15, 60
+				EMSendKey "Y"
 				transmit
 				DO
 					EMReadScreen rei_confirm, 3, 14, 30
 				LOOP UNTIL rei_confirm = "REI"
-				EMWriteScreen "Y", 14, 62
+				EMSendKey "Y"
 				transmit
 				DO
 					EMReadScreen continue_with_approval, 5, 16, 44
 				LOOP UNTIL continue_with_approval = "(Y/N)"
-				EMWriteScreen "Y", 16, 51
-				transmit
+				DO
+					EMSendKey "Y"
+					transmit
+					CALL find_variable("Package ", ups_delivery_confirmation, 8)
+				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
 			END IF
 		END IF		
 	End if
-	
-	If HC_application = True then
+
+	If HC_application = True AND (HCRE_retro_months_input = "" OR HCRE_retro_months_input = "0") then			'IF the case is requesting retro, it should not approve. That is a scenario that needn't be auto-approved.
 		'Approve HC, please.
 		'=====THE SCRIPT NEEDS TO GET AROUND ELIG/HC RESULTS BEING STUCK IN BACKGROUND
 		DO
@@ -2333,37 +2561,35 @@ FOR EACH case_number IN case_number_array
 		
 		
 		'Here's the case noting bit.
-		ButtonPressed = 1
-		CALL HH_member_custom_dialog(HH_member_array)
-		
-		CALL autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-		CALL autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-		CALL autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-		
-		CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
-		
-		CALL autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
-		CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
-		
-		
-		CALL navigate_to_screen("CASE", "NOTE")
-		PF9
-		IF cash_application = True THEN all_programs = all_programs & "CASH/"
-		IF SNAP_application = True THEN all_programs = all_programs & "SNAP/"
-		IF HC_application = True THEN all_programs = all_programs & "HC/"
-		all_programs = left(all_programs, len(all_programs) - 1)
-		CALL write_variable_in_CASE_NOTE("~~~APPROVED: " & all_programs & "~~~")
-		CALL write_bullet_and_variable_in_case_note("Earned Income", earned_income)
-		CALL write_bullet_and_variable_in_case_note("Unearned Income", unearned_income)
-		CALL write_bullet_and_variable_in_case_note("Shelter Expenses", SHEL_HEST)
-		
-		'Reseting the variables for the next time.
-		HH_member_array = ""
-		earned_income = ""
-		unearned_income = ""
-		SHEL_HEST = ""
-		all_programs = ""
-		ButtonPressed = ""
+		'
+		'CALL autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
+		'CALL autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
+		'CALL autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
+		'
+		'CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
+		'
+		'CALL autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
+		'CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
+		'
+		'
+		'CALL navigate_to_screen("CASE", "NOTE")
+		'PF9
+		'IF cash_application = True THEN all_programs = all_programs & "CASH/"
+		'IF SNAP_application = True THEN all_programs = all_programs & "SNAP/"
+		'IF HC_application = True THEN all_programs = all_programs & "HC/"
+		'all_programs = left(all_programs, len(all_programs) - 1)
+		'CALL write_variable_in_CASE_NOTE("~~~APPROVED: " & all_programs & "~~~")
+		'CALL write_bullet_and_variable_in_case_note("Earned Income", earned_income)
+		'CALL write_bullet_and_variable_in_case_note("Unearned Income", unearned_income)
+		'CALL write_bullet_and_variable_in_case_note("Shelter Expenses", SHEL_HEST)
+		'
+		''Reseting the variables for the next time.
+		'HH_member_array = ""
+		'earned_income = ""
+		'unearned_income = ""
+		'SHEL_HEST = ""
+		'all_programs = ""
+		'ButtonPressed = ""
 	End if
 	
 	

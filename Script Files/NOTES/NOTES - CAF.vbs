@@ -46,6 +46,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 footer_month = datepart("m", date)
 If len(footer_month) = 1 then footer_month = "0" & footer_month
@@ -60,7 +61,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
-  DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program", CAF_type
+  DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
   ButtonGroup ButtonPressed
 	OkButton 35, 100, 50, 15
 	CancelButton 95, 100, 50, 15
@@ -267,25 +268,37 @@ application_signed_checkbox = checked 'The script should default to having the a
 
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
-'connecting to MAXIS
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
-call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+call find_variable("Case Nbr: ", case_number, 8)
+case_number = trim(case_number)
+case_number = replace(case_number, "_", "")
+If IsNumeric(case_number) = False then case_number = ""
 
+call find_variable("Month: ", MAXIS_footer_month, 2)
+If row <> 0 then 
+  footer_month = MAXIS_footer_month
+  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+  If row <> 0 then footer_year = MAXIS_footer_year
+End if
+
+case_number = trim(case_number)
+case_number = replace(case_number, "_", "")
+If IsNumeric(case_number) = False then case_number = ""
 
 Do
   Dialog case_number_dialog
-  cancel_confirmation
+  If ButtonPressed = 0 then stopscript
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+transmit
+call check_for_MAXIS(True)
 
-
-'checking for an active MAXIS session
-call check_for_MAXIS(FALSE)
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-call navigate_to_MAXIS_screen("stat", "hcre")
+call navigate_to_screen("stat", "hcre")
+EMReadScreen STAT_check, 4, 20, 21
+If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
 
 'Creating a custom dialog for determining who the HH members are
@@ -385,13 +398,15 @@ Do
 			  "-Sign your case note." & chr(13) & chr(13) & _
 			  "Check these items after pressing ''OK''."	
 		End if
-	Loop until (actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> "")		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
+	Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 
+check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
+
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then 
-	call navigate_to_MAXIS_screen("rept", "pnd2")
+	call navigate_to_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
 		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
@@ -424,7 +439,7 @@ End if
 'Going to TIKL, there's a custom function for this. Evaluate using it.
 If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
+		call navigate_to_screen("dail", "writ")
 		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
 		EMSetCursor 9, 3
 		If cash_checkbox = checked then EMSendKey "cash/"
@@ -435,7 +450,7 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 		PF3
 	End if
 	If HC_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
+		call navigate_to_screen("dail", "writ")
 		call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
 		EMSetCursor 9, 3
 		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
@@ -444,13 +459,28 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	End if
 End if
 If client_delay_TIKL_checkbox = checked then
-	call navigate_to_MAXIS_screen("dail", "writ")
+	call navigate_to_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 10, 5, 18) 
 	EMSetCursor 9, 3
 	EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
 	transmit
 	PF3
 End if
+'----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
+'----IF the DatePart("M", CAF_datestamp) = footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then 
+'---------the script generates a TIKL.
+footer_comparison_month = DatePart("M", CAF_datestamp)
+IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
+IF CAF_type = "Recertification" AND footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
+	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
+	CALL create_MAXIS_friendly_date(start_of_next_month, 0, 5, 18)
+	EMWriteScreen ("IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR " & CAF_datestamp), 9, 3
+	EMWriteScreen ("AND TIKL FOR " & denial_consider_date & " TO EVALUATE FOR POSSIBLE DENIAL."), 10, 3
+	transmit
+	PF3
+END IF	
 '--------------------END OF TIKL BUSINESS
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
@@ -524,4 +554,4 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure("Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd.")

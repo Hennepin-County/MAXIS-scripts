@@ -62,6 +62,7 @@ BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
     CancelButton 85, 40, 50, 15
 EndDialog
 
+
 BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
   Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
   ButtonGroup ButtonPressed
@@ -264,6 +265,7 @@ Do
 	Call check_for_MAXIS (FALSE)
 Loop until buttonpressed = -1
 
+
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 'if case is L budget
@@ -287,10 +289,10 @@ call write_bullet_and_variable_in_case_note ("Income", income)
 call write_bullet_and_variable_in_case_note ("Deductions", deductions)
 call write_variable_in_case_note ("")
 If updated_RSPD_check = 1 then call write_varaible_in_case_note("* Updated RSPD in MMIS.")
-If designated_provider <> "" then call write_bullet_and_variable_in_case_note ("Designated provider", designated_provider)
+call write_bullet_and_variable_in_case_note ("Designated provider", designated_provider)
 If approved_check = 1 then call write_variable_in_case_note ("* Approved new MAXIS results.")
 If DHS_3050_check = 1 then call write_variable_in_case_note ("* Sent DHS-3050 LTC communication form to facility.")
-If other <> "" then call write_bullet_and_variable_in_case_note ("Other", other)
+call write_bullet_and_variable_in_case_note ("Other", other)
 call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
 

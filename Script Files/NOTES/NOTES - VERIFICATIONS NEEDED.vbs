@@ -166,6 +166,7 @@ Do
 	If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
 Loop until case_number <> ""														'Loops until that case number exists	
 
+
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
 
@@ -204,12 +205,6 @@ call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
 call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
 call write_bullet_and_variable_in_case_note("Other proofs", other_proofs)
 Call write_variable_in_case_note("---")
-If signature_page_needed_check = checked then call write_variable_in_case_note("* Signature page is needed.")
-If verif_A_check = checked then call write_variable_in_case_note("* DHS-2919A (Verification Request Form - A) sent to client.")
-If verif_B_check = checked then call write_variable_in_case_note("* DHS-2919B (Verification Request Form - B) sent to client.")
-IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_variable_in_case_note("---")
-call write_variable_in_case_note(worker_signature)
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 'If TIKL_check isn't checked this is the end

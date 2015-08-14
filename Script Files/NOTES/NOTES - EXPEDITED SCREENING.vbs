@@ -144,7 +144,6 @@ End if
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
-'Body of the case note 
 Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)

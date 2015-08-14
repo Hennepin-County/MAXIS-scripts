@@ -57,9 +57,8 @@ BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   Text 10, 10, 50, 10, "Case number:"
   Text 10, 30, 50, 10, "Footer month:"
   Text 95, 30, 20, 10, "Year:"
-EndDialog
 
-
+  
 BeginDialog LTC_app_recd_dialog, 0, 0, 286, 415, "LTC application received dialog"
   EditBox 75, 35, 65, 15, appl_date
   EditBox 75, 55, 65, 15, appl_type
@@ -192,7 +191,7 @@ Call check_for_MAXIS(False)
 
 'UPDATING PND2----------------------------------------------------------------------------------------------------
 If update_PND2_check = 1 then 
-	call navigate_to_screen("rept", "pnd2")
+	call navigate_to_MAXIS_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
 	If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
@@ -217,6 +216,7 @@ If update_PND2_check = 1 then
 	End if
 End if
 
+
 'THE TIKL's----------------------------------------------------------------------------------------------------
 If TIKL_45_day_check = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
@@ -239,7 +239,6 @@ End if
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-'Writing the case note
 Call write_variable_in_CASE_NOTE("***LTC intake***")
 call write_bullet_and_variable_in_CASE_NOTE("Application date", appl_date)
 call write_bullet_and_variable_in_CASE_NOTE("Application type received", appl_type)

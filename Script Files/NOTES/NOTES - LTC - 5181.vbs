@@ -51,8 +51,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-'Declaring variables
+'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM start_time
 'DIM name_of_script
 'DIM url
@@ -177,15 +176,24 @@ END IF
 'DIM from_droplist
 'DIM to_droplist
 
+
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+
+next_month = dateadd("m", + 1, date)
+footer_month = datepart("m", next_month)
+If len(footer_month) = 1 then footer_month = "0" & footer_month
+footer_year = datepart("yyyy", next_month)
+footer_year = "" & footer_year - 2000
  
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
+  EditBox 65, 25, 25, 15, footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
+  EditBox 120, 25, 25, 15, footer_year
   ButtonGroup ButtonPressed
 	OkButton 25, 45, 50, 15
 	CancelButton 85, 45, 50, 15
@@ -369,10 +377,16 @@ EndDialog
 'Connecting to MAXIS
 EMConnect ""
 
-'Grabbing the case number & Grabbing the footer month/year
+'Grabbing the case number
 call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'Grabbing the footer month/year
+call find_variable("Month: ", MAXIS_footer_month, 2)
+If row <> 0 then 
+	footer_month = MAXIS_footer_month
+	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
+	If row <> 0 then footer_year = MAXIS_footer_year
+End if
 
 'Showing the case number
 Do
@@ -393,7 +407,7 @@ Do
 			Do
 				Dialog DHS_5181_dialog_1			'Displays the first dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
-				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_02_button
 			IF waiver_type_droplist = "Select one..." THEN MsgBox "Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
 		Loop until waiver_type_droplist <> "Select one..."
@@ -404,7 +418,7 @@ Do
 				Do
 					Dialog DHS_5181_dialog_2			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
 				If ButtonPressed = previous_to_page_01_button THEN exit do
 				If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") THEN Msgbox	"You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
@@ -416,13 +430,13 @@ Do
 				Do
 					Dialog DHS_5181_Dialog_3			'Displays the third dialog
 					cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
-					MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					'MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
 				If ButtonPressed = previous_to_page_02_button THEN exit do
 				If case_action_editbox = "" or worker_signature = "" OR (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") OR _
-				(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
-				(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
-				(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
+					(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
+					(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
+					(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
 					MsgBox "You need to:" & vbNewLine & vbNewLine & _
 					"-Complete a field next to an option that was checked, and/or" & vbNewLine & _	
 					"-Case note the 'case actions' section, and/or" & vbNewLine & _
@@ -435,7 +449,10 @@ Do
 		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
 	Loop until ButtonPressed = -1
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							  
+Loop until case_note_confirm = TRUE		
+
+
+
 
 'Dollar bill symbol will be added to numeric variables 
 IF estimated_monthly_waiver_costs_editbox <> "" THEN estimated_monthly_waiver_costs_editbox = "$" & estimated_monthly_waiver_costs_editbox
@@ -469,9 +486,9 @@ IF client_deceased_check = 1 THEN
 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
-		Call convert_date_into_MAXIS_footer_month(date_of_death_editbox, MAXIS_footer_month, MAXIS_footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
+		Call convert_date_into_MAXIS_footer_month(date_of_death_editbox, footer_month, footer_year)
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
 		Transmit
 	END IF
 	
@@ -489,7 +506,7 @@ END IF
 'Updates ADDR if selected on DIALOG 1 "have script update ADDR panel"
 IF update_addr_checkbox = 1 THEN 
 	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+	footer_month_as_date = footer_month & "/01/" & footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
 	difference_between_dates = DateDiff("m", date_of_admission_editbox, footer_month_as_date)
@@ -497,9 +514,9 @@ IF update_addr_checkbox = 1 THEN
 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(date_of_admission_editbox, MAXIS_footer_month, MAXIS_footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
+		CALL convert_date_into_MAXIS_footer_month(date_of_admission_editbox, footer_month, footer_year)
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
 		Transmit
 	END IF
 	
@@ -526,6 +543,7 @@ IF update_addr_checkbox = 1 THEN
 	EMWriteScreen facility_state, 8, 66
 	EMWriteScreen facility_county_code, 9, 66
 	EMWriteScreen facility_zip_code, 9, 43
+	
 	transmit
 	transmit
 	transmit
@@ -535,7 +553,7 @@ END If
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for move to LTCF
 IF LTCF_update_ADDR_checkbox = 1 THEN 
 		'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+	footer_month_as_date = footer_month & "/01/" & footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
 	difference_between_dates = DateDiff("m", client_moved_to_LTCF_editbox, footer_month_as_date)
@@ -543,9 +561,9 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(client_moved_to_LTCF_editbox, MAXIS_footer_month, MAXIS_footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
+		CALL convert_date_into_MAXIS_footer_month(client_moved_to_LTCF_editbox, footer_month, footer_year)
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
 		Transmit
 	END IF
 	
@@ -572,6 +590,7 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 	EMWriteScreen LTCF_state, 8, 66
 	EMWriteScreen LTCF_county_code, 9, 66
 	EMWriteScreen LTCF_zip_code, 9, 43
+	
 	transmit
 	transmit
 	transmit
@@ -581,7 +600,7 @@ END If
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
 IF update_addr_new_ADDR_checkbox = 1 THEN 
 	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+	footer_month_as_date = footer_month & "/01/" & footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
 	difference_between_dates = DateDiff("m", new_address_effective_date_editbox, footer_month_as_date)
@@ -590,8 +609,8 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
 		CALL convert_date_into_MAXIS_footer_month(new_address_effective_date_editbox, footer_month, footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
+		EMWriteScreen footer_month, 20, 43
+		EMWriteScreen footer_year, 20, 46
 		Transmit
 	END IF
 	
@@ -618,6 +637,7 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 	EMWriteScreen change_state, 8, 66
 	EMWriteScreen change_county_code, 9, 66
 	EMWriteScreen change_zip_code, 9, 43
+	
 	transmit
 	transmit
 	transmit
@@ -678,6 +698,7 @@ If ongoing_waiver_case_manager_check = 1 THEN
 	
 	'Writes in new case manager name
 	EMWriteScreen ongoing_waiver_case_manager_editbox, 6, 32
+	
 	transmit
 	transmit
 	PF3
@@ -696,16 +717,18 @@ If ongoing_case_manager_check = 1 THEN
 	
 	'Writes in new case manager name
 	EMWriteScreen ongoing_case_manager_editbox, 6, 32
+	
 	transmit
 	transmit
 	PF3
 END IF
 	
 'Checking to see that we're in MAXIS
-call check_for_MAXIS(FALSE)
+call check_for_MAXIS(True)
 
 'function to navigate user to case note and make a new one
-start_a_blank_CASE_NOTE
+Call start_a_blank_CASE_NOTE
+
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Information from DHS 5181 Dialog 1
 'Contact information
@@ -750,7 +773,6 @@ IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case man
 'changes completed by the assessor
 Call write_bullet_and_variable_in_case_note ("Client no longer meets LOC - Effective date should be no sooner than", client_no_longer_meets_LOC_efffective_date_editbox)					 
 IF from_droplist <> "Select one..." AND to_droplist <> "Select one.." THEN Call write_bullet_and_variable_in_case_note ("Waiver program changed from", from_droplist & " to: " & to_droplist & ". Effective date: " & waiver_program_change_effective_date_editbox)
-
 
 'Information from DHS 5181 Dialog 3
 'changes

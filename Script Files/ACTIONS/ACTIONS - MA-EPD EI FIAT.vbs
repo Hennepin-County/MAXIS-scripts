@@ -119,7 +119,7 @@ If jobs_current = "2" then
   EMWriteScreen "x", 19, 54
   transmit
   EMReadScreen income_job_02, 8, 11, 63
-  income_job_02 = trim(income_job_02)
+  income_job_02 = trim(replace(income_job_02, "_", ""))
   transmit
   transmit
   EMReadScreen jobs_current, 1, 2, 73
@@ -135,7 +135,7 @@ If jobs_current = "3" then
   EMWriteScreen "x", 19, 54
   transmit
   EMReadScreen income_job_03, 8, 11, 63
-  income_job_03 = trim(income_job_03)
+  income_job_03 = trim(replace(income_job_03, "_", ""))
   transmit
   transmit
   EMReadScreen jobs_current, 1, 2, 73

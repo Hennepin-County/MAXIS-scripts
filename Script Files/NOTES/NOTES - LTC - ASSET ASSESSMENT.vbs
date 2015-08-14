@@ -46,8 +46,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT----------------------------------------------------------------------------------------------------
-Function write_editbox_in_person_note(x, y, z) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT
+Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
   variable_array = split(y, " ")
   EMSendKey "* " & x & ": "
   For each x in variable_array 
@@ -59,8 +59,8 @@ Function write_editbox_in_person_note(x, y, z) 'x is the header, y is the variab
     EMReadScreen max_check, 51, 24, 2
     If max_check = "A MAXIMUM OF 4 PAGES ARE ALLOWED FOR EACH CASE NOTE" then exit for
     EMGetCursor row, col 
-    If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(z)
-    If (row = 5 and col = 3) then EMSendKey space(z)
+    If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(5)
+    If (row = 5 and col = 3) then EMSendKey space(5)
     EMSendKey x & " "
     If right(x, 1) = ";" then 
       EMSendKey "<backspace>" & "<backspace>" 
@@ -68,9 +68,9 @@ Function write_editbox_in_person_note(x, y, z) 'x is the header, y is the variab
       If row = 18 then
         EMSendKey "<PF8>"
         EMWaitReady 0, 0
-        EMSendKey space(z)
+        EMSendKey space(5)
       Else
-        EMSendKey "<newline>" & space(z)
+        EMSendKey "<newline>" & space(5)
       End if
     End if
   Next
@@ -407,9 +407,7 @@ PF3
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
 
 'CASE NOTE----------------------------------------------------------------------------------------------------
-call navigate_to_screen("case", "note")
 Call start_a_blank_case_note
-
 Call write_variable_in_CASE_NOTE ("***" & asset_assessment_type & " ASSET ASSESSMENT***")
 call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
 If MA_LTC_first_month_of_documented_need <> "" then call write_bullet_and_variable_in_CASE_NOTE("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)

@@ -109,6 +109,7 @@ Loop until (isnumeric(case_number) = True) or (isnumeric(case_number) = False an
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
 
+
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)

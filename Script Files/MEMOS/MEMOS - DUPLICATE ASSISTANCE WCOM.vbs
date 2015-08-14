@@ -46,30 +46,26 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-BeginDialog dup_dlg, 0, 0, 141, 95, "Duplicate Assistance WCOM"
-  EditBox 75, 5, 60, 15, case_number
-  EditBox 75, 25, 60, 15, worker_signature
-  EditBox 75, 45, 25, 15, MAXIS_footer_month
-  EditBox 110, 45, 25, 15, MAXIS_footer_year
+BeginDialog dup_dlg, 0, 0, 156, 95, "Duplicate Assistance WCOM"
+  EditBox 65, 5, 75, 15, case_number
+  EditBox 75, 25, 65, 15, worker_signature
+  EditBox 60, 45, 20, 15, footer_month
+  EditBox 130, 45, 20, 15, footer_year
   ButtonGroup ButtonPressed
-    OkButton 30, 70, 50, 15
-    CancelButton 85, 70, 50, 15
-  Text 5, 30, 60, 10, "Worker Signature: "
-  Text 5, 50, 65, 10, "Footer month/year:"
-  Text 5, 10, 50, 10, "Case Number: "
+    OkButton 25, 75, 50, 15
+    CancelButton 80, 75, 50, 15
+  Text 10, 10, 55, 10, "Case Number: "
+  Text 10, 30, 60, 10, "Worker Signature: "
+  Text 10, 45, 45, 20, "Footer Month (MM):"
+  Text 85, 45, 40, 20, "Footer Year (YY):"
 EndDialog
 
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS and grabbing footer month/year
 EMConnect ""
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 
 'warning box
-Msgbox "WARNING: If you have multiple waiting SNAP results this script may be unable to find the most recent one. Please process manually in those instances." & vbNewLine & vbNewLine & vbNewLine &_
-		"- If this case includes members who are residing in a battered women's shelter please review approval." & vbNewLine & vbNewLine &_
-		"- If this was an expedited case where client reported they did not receive benefits in another state please review approval" & vbNewLine & vbNewLine &_
+Msgbox "Warning: If you have multiple waiting SNAP results this script may be unable to find the most recent one. Please process manually in those instances." & vbNewLine & vbNewLine &_
+		"- If this case includes members who are residing in a battered women's shelter please review approval." & vbNewLine &_
+		"- If this was an expedited case where client reported they did not receive benefits in another state please review approval" & vbNewLine &_
 		"- See CM 001.21 for more details on these two situations and how they qualify for duplicate assistance."
 		
 'the dialog
@@ -78,25 +74,25 @@ Do
 		Do
 			dialog dup_dlg
 			cancel_confirmation
-			If MAXIS_footer_month = "" or MAXIS_footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
+			If footer_month = "" or footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
 			If case_number = "" THEN MsgBox "Please enter a case number."
 			If worker_signature = "" THEN MsgBox "Please sign your note."
-		Loop until MAXIS_footer_month <> "" & MAXIS_footer_year <> ""
+		Loop until footer_month <> "" & footer_year <> ""
 	Loop until case_number <> ""
 Loop until worker_signature <> ""
 
 'Converting dates into useable forms
-If len(MAXIS_footer_month) < 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
-If len(MAXIS_footer_year) > 2 THEN MAXIS_footer_year = right(MAXIS_footer_year, 2)
+If len(footer_month) < 2 THEN footer_month = "0" & footer_month
+If len(footer_year) > 2 THEN footer_year = right(footer_year, 2)
 
 
 'Navigating to the spec wcom screen
-CALL Check_for_MAXIS(False)
-back_to_self
+CALL Check_for_MAXIS(false)
+
 Emwritescreen case_number, 18, 43
-Emwritescreen MAXIS_footer_month, 20, 43
-Emwritescreen MAXIS_footer_year, 20, 46
-transmit
+Emwritescreen footer_month, 20, 43
+Emwritescreen footer_year, 20, 46
+
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
 
 'Searching for waiting SNAP notice

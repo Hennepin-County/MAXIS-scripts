@@ -1,18 +1,16 @@
-msgbox "locally run"
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
 
 'Option Explicit
 
-DIM beta_agency
-DIM FuncLib_URL, req, fso
+'DIM beta_agency
+'DIM FuncLib_URL, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN		'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -60,8 +58,7 @@ county_FSET_offices = array("")
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
-
-IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center",
+IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center")
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
 IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
@@ -302,6 +299,7 @@ Loop until interview_location <> "Select one..."
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
+
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
 'CO #01 AITKIN COUNTY address
@@ -974,6 +972,4 @@ CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-MsgBox "If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!"
-
-script_end_procedure("")
+script_end_procedure("If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!")

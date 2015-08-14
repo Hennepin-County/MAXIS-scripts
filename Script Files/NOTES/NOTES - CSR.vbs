@@ -56,97 +56,91 @@ footer_year = "" & footer_year - 2000
 
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 151, 150, "Case number dialog"
-  EditBox 75, 5, 70, 15, case_number
-  EditBox 75, 25, 30, 15, footer_month
-  EditBox 115, 25, 30, 15, footer_year
-  CheckBox 45, 60, 35, 10, "SNAP", SNAP_checkbox
-  CheckBox 90, 60, 30, 10, "HC", HC_checkbox
+BeginDialog case_number_dialog, 0, 0, 181, 115, "Case number dialog"
+  EditBox 80, 5, 70, 15, case_number
+  EditBox 65, 25, 30, 15, footer_month
+  EditBox 140, 25, 30, 15, footer_year
+  CheckBox 10, 60, 35, 10, "SNAP", SNAP_checkbox
+  CheckBox 95, 60, 30, 10, "HC", HC_checkbox
   CheckBox 10, 80, 100, 10, "Is this an exempt (*) IR?", paperless_checkbox
-  EditBox 75, 100, 70, 15, Edit4
   ButtonGroup ButtonPressed
-    OkButton 35, 125, 50, 15
-    CancelButton 95, 125, 50, 15
-  Text 5, 30, 65, 10, "Footer month/year:"
-  GroupBox 5, 45, 140, 30, "Programs recertifying"
-  Text 20, 10, 50, 10, "Case number:"
-  Text 10, 105, 60, 10, "Worker signature:"
+    OkButton 35, 95, 50, 15
+    CancelButton 95, 95, 50, 15
+  Text 25, 10, 50, 10, "Case number:"
+  Text 10, 30, 50, 10, "Footer month:"
+  Text 110, 30, 25, 10, "Year:"
+  GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
-
-BeginDialog CSR_dialog, 0, 0, 451, 330, "CSR dialog"
+BeginDialog CSR_dialog, 0, 0, 451, 350, "CSR dialog"
   EditBox 65, 15, 50, 15, CSR_datestamp
   DropListBox 170, 15, 75, 15, "select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
   EditBox 40, 35, 280, 15, HH_comp
   EditBox 65, 55, 380, 15, earned_income
   EditBox 70, 75, 375, 15, unearned_income
-  EditBox 40, 95, 405, 15, assets
-  EditBox 60, 115, 95, 15, SHEL_HEST
-  EditBox 220, 115, 95, 15, COEX_DCEX
-  EditBox 100, 135, 345, 15, FIAT_reasons
-  EditBox 50, 155, 395, 15, other_notes '10
-  EditBox 45, 175, 400, 15, changes
-  EditBox 60, 195, 385, 15, verifs_needed
-  EditBox 60, 215, 385, 15, actions_taken
-  EditBox 380, 235, 65, 15, worker_signature
-  CheckBox 190, 265, 110, 10, "Send forms to AREP?", sent_arep_checkbox
-  CheckBox 190, 280, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
-  CheckBox 190, 295, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
-  CheckBox 190, 310, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
-  EditBox 60, 290, 90, 15, MAEPD_premium
-  CheckBox 10, 310, 65, 10, "Emailed MADE?", MADE_checkbox '20
+  EditBox 65, 95, 380, 15, notes_on_abawd
+  EditBox 40, 115, 405, 15, assets
+  EditBox 60, 135, 95, 15, SHEL_HEST
+  EditBox 220, 135, 95, 15, COEX_DCEX
+  EditBox 100, 155, 345, 15, FIAT_reasons
+  EditBox 50, 175, 395, 15, other_notes '11
+  EditBox 45, 195, 400, 15, changes
+  EditBox 60, 215, 385, 15, verifs_needed
+  EditBox 60, 235, 385, 15, actions_taken
+  EditBox 380, 255, 65, 15, worker_signature
+  CheckBox 190, 285, 110, 10, "Send forms to AREP?", sent_arep_checkbox
+  CheckBox 190, 300, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
+  CheckBox 190, 315, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
+  CheckBox 190, 330, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
+  EditBox 60, 310, 90, 15, MAEPD_premium
+  CheckBox 10, 330, 65, 10, "Emailed MADE?", MADE_checkbox '21
   ButtonGroup ButtonPressed
-    OkButton 340, 255, 50, 15
-    CancelButton 395, 255, 50, 15
+    OkButton 340, 275, 50, 15
+    CancelButton 395, 275, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
-    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button 
+    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 120, 25, 10, "SHEL/", SHEL_button '30
-    PushButton 30, 120, 25, 10, "HEST:", HEST_button
-    PushButton 165, 120, 25, 10, "COEX/", COEX_button
-    PushButton 190, 120, 25, 10, "DCEX:", DCEX_button
-    PushButton 10, 250, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 250, 25, 10, "JOBS", JOBS_button
-    PushButton 35, 260, 25, 10, "UNEA", UNEA_button
-    PushButton 75, 250, 25, 10, "ACCT", ACCT_button
-    PushButton 100, 250, 25, 10, "CARS", CARS_button
-    PushButton 125, 250, 25, 10, "CASH", CASH_button '40
-    PushButton 150, 250, 25, 10, "OTHR", OTHR_button
-    PushButton 75, 260, 25, 10, "REST", REST_button
-    PushButton 100, 260, 25, 10, "SECU", SECU_button
-    PushButton 125, 260, 25, 10, "TRAN", TRAN_button
-    PushButton 190, 250, 25, 10, "MEMB", MEMB_button
-    PushButton 215, 250, 25, 10, "MEMI", MEMI_button
-    PushButton 240, 250, 25, 10, "REVW", REVW_button
-    PushButton 80, 310, 65, 10, "SIR mail", SIR_mail_button
+    PushButton 5, 140, 25, 10, "SHEL/", SHEL_button '31
+    PushButton 30, 140, 25, 10, "HEST:", HEST_button
+    PushButton 165, 140, 25, 10, "COEX/", COEX_button
+    PushButton 190, 140, 25, 10, "DCEX:", DCEX_button
+    PushButton 10, 270, 25, 10, "BUSI", BUSI_button
+    PushButton 35, 270, 25, 10, "JOBS", JOBS_button
+    PushButton 35, 280, 25, 10, "UNEA", UNEA_button
+    PushButton 75, 270, 25, 10, "ACCT", ACCT_button
+    PushButton 100, 270, 25, 10, "CARS", CARS_button
+    PushButton 125, 270, 25, 10, "CASH", CASH_button '41
+    PushButton 150, 270, 25, 10, "OTHR", OTHR_button
+    PushButton 75, 280, 25, 10, "REST", REST_button
+    PushButton 100, 280, 25, 10, "SECU", SECU_button
+    PushButton 125, 280, 25, 10, "TRAN", TRAN_button
+    PushButton 190, 270, 25, 10, "MEMB", MEMB_button
+    PushButton 215, 270, 25, 10, "MEMI", MEMI_button
+    PushButton 240, 270, 25, 10, "REVW", REVW_button
+    PushButton 80, 330, 65, 10, "SIR mail", SIR_mail_button
   GroupBox 255, 5, 50, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation:"  '50
+  GroupBox 330, 5, 115, 35, "STAT-based navigation:"   '51
   Text 5, 20, 55, 10, "CSR datestamp:"
   Text 125, 20, 40, 10, "CSR status:"
   Text 5, 40, 35, 10, "HH comp:"
   Text 5, 60, 55, 10, "Earned income:"
   Text 5, 80, 60, 10, "Unearned income:"
-  Text 5, 100, 30, 10, "Assets:"
-  Text 5, 140, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 160, 40, 10, "Other notes:"
-  Text 5, 180, 35, 10, "Changes?:" 
-  Text 5, 200, 50, 10, "Verifs needed:" '60
-  Text 5, 220, 50, 10, "Actions taken:"
-  GroupBox 5, 240, 175, 35, "Income and asset panels"
-  GroupBox 185, 240, 85, 25, "other STAT panels:"
-  Text 315, 240, 65, 10, "Worker signature:"
-  GroupBox 5, 280, 150, 45, "If MA-EPD..."
-  Text 10, 295, 50, 10, "New premium:"
-EndDialog
-
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
+  Text 5, 100, 60, 10, "Notes on WREG:"
+  Text 5, 120, 30, 10, "Assets:"
+  Text 5, 160, 95, 10, "FIAT reasons (if applicable):"
+  Text 5, 180, 40, 10, "Other notes:"
+  Text 5, 200, 35, 10, "Changes?:"
+  Text 5, 220, 50, 10, "Verifs needed:" '61
+  Text 5, 240, 50, 10, "Actions taken:"
+  GroupBox 5, 260, 175, 35, "Income and asset panels"
+  GroupBox 185, 260, 85, 25, "other STAT panels:"
+  Text 650, 650, 650, 650, spooky 'getting past 65 item limit
+  Text 315, 260, 65, 10, "Worker signature:"
+  GroupBox 5, 300, 150, 45, "If MA-EPD..."
+  Text 10, 315, 50, 10, "New premium:"
 EndDialog
 
 
@@ -196,6 +190,9 @@ call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 
 'Autofilling HH comp
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+
+'Autofilling WREG status
+call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
 
 'Autofilling assets
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
@@ -261,20 +258,21 @@ start_a_blank_CASE_NOTE
 call write_variable_in_case_note("***" & CSR_month & " CSR received " & CSR_datestamp & ": " & CSR_status & "***")
 call write_bullet_and_variable_in_case_note("Programs recertifying", programs_recertifying)
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
-If earned_income <> "" then call write_bullet_and_variable_in_case_note("Earned income", earned_income)
-If unearned_income <> "" then call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
-If assets <> "" then call write_bullet_and_variable_in_case_note("Assets", assets)
-If SHEL_HEST <> "" then call write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL_HEST)
-If COEX_DCEX <> "" then call write_bullet_and_variable_in_case_note("COEX/DCEX", COEX_DCEX)
-if FIAT_reasons <> "" then call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
-if other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
-If changes <> "" then call write_bullet_and_variable_in_case_note("Changes", changes)
+call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+call write_bullet_and_variable_in_case_note("ABAWD Notes", notes_on_abawd)
+call write_bullet_and_variable_in_case_note("Assets", assets)
+call write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL_HEST)
+call write_bullet_and_variable_in_case_note("COEX/DCEX", COEX_DCEX)
+call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+call write_bullet_and_variable_in_case_note("Changes", changes)
 If HRF_checkbox = checked then call write_variable_in_case_note("* CSR and cash supplement used as HRF.")
 If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-if verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-If MAEPD_premium <> "" then call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
+call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
 If MADE_checkbox = checked then call write_variable_in_case_note("* Emailed MADE through DHS-SIR.")
 call write_variable_in_case_note("---")
 If FSPR_check = "FSPR" then

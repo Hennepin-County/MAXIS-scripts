@@ -358,7 +358,6 @@ If MEDI_reimbursement_prog <> "" then MEDI_reimbursement_prog = "/" & MEDI_reimb
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-'Writing the case note
 Call write_variable_in_case_note("***" & recert_month & " ER " & review_status & ": " & MA_type & MEDI_reimbursement_prog & ", " & recipient_amt_name & recipient_amt & "***")
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
@@ -369,7 +368,7 @@ call write_bullet_and_variable_in_case_note("Total countable income", net_income
 call write_bullet_and_variable_in_case_note("Assets", assets)
 call write_bullet_and_variable_in_case_note("Recipient amt", recipient_amt)
 call write_bullet_and_variable_in_case_note("Deducts", deductions)
-If other_notes <> "" then call write_bullet_and_variable_in_case_note("Notes", other_notes)
+call write_bullet_and_variable_in_case_note("Notes", other_notes)
 IF Sent_arep_checkbox = 1 THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
