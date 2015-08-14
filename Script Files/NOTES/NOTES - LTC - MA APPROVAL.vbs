@@ -288,7 +288,7 @@ END if
 call write_bullet_and_variable_in_case_note ("Income", income)
 call write_bullet_and_variable_in_case_note ("Deductions", deductions)
 call write_variable_in_case_note ("")
-If updated_RSPD_check = 1 then call write_varaible_in_case_note("* Updated RSPD in MMIS.")
+If updated_RSPD_check = 1 then call write_variable_in_case_note("* Updated RSPD in MMIS.")
 call write_bullet_and_variable_in_case_note ("Designated provider", designated_provider)
 If approved_check = 1 then call write_variable_in_case_note ("* Approved new MAXIS results.")
 If DHS_3050_check = 1 then call write_variable_in_case_note ("* Sent DHS-3050 LTC communication form to facility.")
