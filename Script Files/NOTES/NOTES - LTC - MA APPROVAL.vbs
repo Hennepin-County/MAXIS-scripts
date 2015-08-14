@@ -62,6 +62,7 @@ BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
     CancelButton 85, 40, 50, 15
 EndDialog
 
+
 BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
   Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
   ButtonGroup ButtonPressed
@@ -118,7 +119,17 @@ Dialog case_number_dialog
 cancel_confirmation
 
 'Sends transmit to check for MAXIS
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
+
+'Going to ELIG/HC for the correct footer month
+back_to_self
+EMWriteScreen "elig", 16, 43
+EMWriteScreen "________", 18, 43
+EMWriteScreen case_number, 18, 43
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
+EMWriteScreen "hc", 21, 70
+transmit
 
 
 'Checks to make sure it's in HCMI, due to error prone cases
@@ -158,6 +169,9 @@ If row = 0 then script_end_procedure("A " & MAXIS_footer_month & "/" & MAXIS_foo
 'Grabbing the elig type and budget type
 EMReadScreen elig_type, 2, 12, col - 1
 EMReadScreen budget_type, 1, 13, col + 3
+If (budget_type <> "L" AND budget_type <> "S" AND budget_type <> "B") THEN
+	script_end_procedure ("This case is not a L, S or B budget case.  Use the ""Approved Programs"" script instead.")
+END if
 
 'Transmitting into the budget breakdown screen
 EMWriteScreen "x", 9, col + 3
@@ -252,46 +266,48 @@ If BBUD_check = "BBUD" then
     If BILS_check <> "BILS" then transmit
 End if
 
+'auto-fills and cleans up information to entered into the approval_dialog
+If recipient_amt = "$" or recipient_amt = "" then recipient_amt = "$0"
+If income = "$" or income = "" then income = "$0"
+If deductions = "$" or deductions = "" then deductions = "$0"
 
-'Cleans up the recipient_amt variable in case it's blank
-If recipient_amt = "$" then recipient_amt = "$0"
 
 'Shows the MA approval dialog, checks for MAXIS and allows navigation buttons
 Do
+	err_msg = ""
 	Dialog approval_dialog
 	cancel_confirmation
-	MAXIS_dialog_navigation
-	Call check_for_MAXIS (FALSE)
-Loop until buttonpressed = -1
+	MAXIS_dialog_navigation	
+	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP until err_msg = ""
 
+
+'checking for an active MAXIS session
+Call check_for_MAXIS (FALSE)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
+start_a_blank_CASE_NOTE
 'if case is L budget
 If (special_header_droplist = "HRF" AND budget_type = "L") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for HRF " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " LTC SD**")
 If (special_header_droplist = "Paperless IR" AND budget_type = "L") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " LTC SD**")
 If (special_header_droplist = "None" AND budget_type = "L") then Call write_variable_in_case_note("**Approved " & elig_type & "-" & budget_type & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " LTC SD**")
 'if case is S budget
 If (special_header_droplist = "HRF" AND budget_type = "S") then Call write_variable_in_CASE_NOTE("**Approved HRF " & elig_type & "-" & budget_type & " for HRF " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " SISEW waiver obl**")
-If (special_header_droplist = "PAPERLESS IR" AND budget_type = "S") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " SISEW waiver obl**")
+If (special_header_droplist = "Paperless IR" AND budget_type = "S") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " SISEW waiver obl**")
 If (special_header_droplist = "None" AND budget_type = "S") then Call write_variable_in_case_note("**Approved " & elig_type & "-" & budget_type & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " SISEW waiver obl**")
 'if case is B budget
 If (special_header_droplist = "HRF" AND budget_type = "B") then Call write_variable_in_CASE_NOTE("**Approved HRF " & elig_type & "-" & budget_type & " for HRF " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " recip amt**")
-If (special_header_droplist = "PAPERLESS IR" AND budget_type = "B") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " recip amt**")
+If (special_header_droplist = "Paperless IR" AND budget_type = "B") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " recip amt**")
 If (special_header_droplist = "None" AND budget_type = "B") then Call write_variable_in_case_note("**Approved " & elig_type & "-" & budget_type & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " recip amt**")
-If (budget_type <> "L" AND budget_type <> "S" AND budget_type <> "B") THEN
-	If special_header_droplist = "HRF" then Call write_variable_in_CASE_NOTE("**Approved HRF " & elig_type & "-" & budget_type & " for HRF " & MAXIS_footer_month & "/" & MAXIS_footer_year & "**")
-	If special_header_droplist = "PAPERLESS IR" then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "**")
-	If special_header_droplist = "None" then Call write_variable_in_case_note("**Approved " & elig_type & "-" & budget_type & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "**")
-END if
 call write_bullet_and_variable_in_case_note ("Income", income)
 call write_bullet_and_variable_in_case_note ("Deductions", deductions)
 call write_variable_in_case_note ("")
-If updated_RSPD_check = 1 then call write_variable_in_case_note ("* Updated RSPD in MMIS.")
-If designated_provider <> "" then call write_bullet_and_variable_in_case_note ("Designated provider", designated_provider)
+If updated_RSPD_check = 1 then call write_variable_in_case_note("* Updated RSPD in MMIS.")
+call write_bullet_and_variable_in_case_note ("Designated provider", designated_provider)
 If approved_check = 1 then call write_variable_in_case_note ("* Approved new MAXIS results.")
 If DHS_3050_check = 1 then call write_variable_in_case_note ("* Sent DHS-3050 LTC communication form to facility.")
-If other <> "" then call write_bullet_and_variable_in_case_note ("Other", other)
+call write_bullet_and_variable_in_case_note ("Other", other)
 call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
 
