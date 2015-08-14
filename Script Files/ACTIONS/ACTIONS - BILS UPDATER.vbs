@@ -149,7 +149,6 @@ BeginDialog BILS_updater_dialog, 0, 0, 416, 271, "BILS updater"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to MAXIS
 EMConnect ""
 
@@ -164,9 +163,12 @@ Do
 	If isnumeric(case_number) = False then MsgBox "Enter a valid MAXIS case number."
 Loop until isnumeric(case_number) = True
 
-'Gets to STAT/BUDG
-Call navigate_to_MAXIS_screen("STAT", "BUDG")
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
+'checking to make sure case is out of background & gets to STAT/BUDG
 Call MAXIS_background_check
+Call navigate_to_MAXIS_screen("STAT", "BUDG")
 
 'Determines budget begin/end dates. 
 EMReadScreen budget_begin, 5, 10, 35
@@ -190,7 +192,6 @@ ELSEIF BILS_panel_check = "0" THEN	'if panel does not exist, creates new panel
 		script_end_procedure ("This case is either not active on HC, or you do not have access to update this case.")
 	END IF
 END IF
-
 
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
 If updating_existing_BILS_check = checked then
@@ -294,6 +295,10 @@ Do
 Loop until dialog_validation_complete = True
 
 
+call navigate_to_MAXIS_screen("stat", "bils") 'In case the worker navigated out.
+PF9			'Edits panel
+
+
 'Cleaning up date field
 budget_begin = replace(budget_begin, ".", "/")		'in case worker used periods instead of slashes
 budget_end = replace(budget_end, ".", "/")
@@ -302,7 +307,9 @@ budget_end = replace(budget_end, "-", "/")
 
 'Adding the "01" in to the begin and end dates for the budget selector
 budget_begin = replace(budget_begin, "/", "/01/")
+
 budget_end = replace(budget_end, "/", "/01/") 
+
 
 'Using working_date as a variable, it will now determine each footer month between the budget period start and end
 working_date = budget_begin											'starting with the first month
