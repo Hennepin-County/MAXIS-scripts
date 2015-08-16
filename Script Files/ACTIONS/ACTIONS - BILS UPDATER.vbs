@@ -149,7 +149,6 @@ BeginDialog BILS_updater_dialog, 0, 0, 416, 271, "BILS updater"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to MAXIS
 EMConnect ""
 
@@ -164,10 +163,12 @@ Do
 	If isnumeric(case_number) = False then MsgBox "Enter a valid MAXIS case number."
 Loop until isnumeric(case_number) = True
 
-'Gets to STAT/BUDG
-Call navigate_to_MAXIS_screen("STAT", "BUDG")
-Call MAXIS_background_check
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
+'checking to make sure case is out of background & gets to STAT/BUDG
+Call MAXIS_background_check
+Call navigate_to_MAXIS_screen("STAT", "BUDG")
 
 'Determines budget begin/end dates. 
 EMReadScreen budget_begin, 5, 10, 35
@@ -175,8 +176,22 @@ budget_begin = replace(trim(budget_begin), " ", "/")	'MM/DD format, trims the EM
 EMReadScreen budget_end, 5, 10, 46
 budget_end = replace(trim(budget_end), " ", "/")	'MM/DD format, trims the EMReadScreen to ignore strings that are all spaces (implies no budget period established, case may be pending)
 
-'Gets to BILS
+
+'Gets to BILS, checks for ability to edit/creates new panel
 call navigate_to_MAXIS_screen("STAT", "BILS")
+'checking to see if BILS panel exists, if not, then one is created
+EMReadScreen BILS_panel_check, 1, 3, 73
+'if BILS panel is not able to update due to no HC or case not in agency, script will end 
+IF BILS_panel_check <> "0" THEN	'if panel exists then puts panel into edit mode 
+	PF9
+ELSEIF BILS_panel_check = "0" THEN	'if panel does not exist, creates new panel
+	EMWriteScreen "NN", 20, 79
+	Transmit
+	EMReadScreen error_msg_check, 47, 24, 2
+	IF error_msg_check = "HC STATUS IS INACTIVE, YOU CANNOT ADD OR UPDATE" Then 'if cannot add BILS panel, script will stop
+		script_end_procedure ("This case is either not active on HC, or you do not have access to update this case.")
+	END IF
+END IF
 
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
 If updating_existing_BILS_check = checked then
@@ -259,7 +274,7 @@ Do
 	DO
 		Dialog BILS_updater_dialog
 		cancel_confirmation
-		Call check_for_MAXIS(True)
+		Call check_for_MAXIS(False)
 		IF isdate(budget_begin) = False OR isdate(budget_end) = False THEN MsgBox "Your budget range includes dates that are not valid. Please double check your budget months and years before continuing to ensure the script works properly."
 	LOOP UNTIL isdate(budget_begin) = True AND isdate(budget_end) = True
 	'Checking to see if the user added verifications. BILS requires that, without it it'll red up and error out.
@@ -278,9 +293,11 @@ Do
 		dialog_validation_complete = True
 	End if
 Loop until dialog_validation_complete = True
- 
+
+
 call navigate_to_MAXIS_screen("stat", "bils") 'In case the worker navigated out.
-Call create_panel_if_nonexistent()
+PF9			'Edits panel
+
 
 'Cleaning up date field
 budget_begin = replace(budget_begin, ".", "/")		'in case worker used periods instead of slashes
@@ -290,11 +307,9 @@ budget_end = replace(budget_end, "-", "/")
 
 'Adding the "01" in to the begin and end dates for the budget selector
 budget_begin = replace(budget_begin, "/", "/01/")
-budget_end = replace(budget_end, "/", "/01/")
 
+budget_end = replace(budget_end, "/", "/01/") 
 
-'Edits panel
-PF9
 
 'Using working_date as a variable, it will now determine each footer month between the budget period start and end
 working_date = budget_begin											'starting with the first month
