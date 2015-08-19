@@ -9,33 +9,33 @@
 default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = TRUE
+run_locally = False
 
 '========================================================================================================================================
 
 'COUNTY NAME AND INFO==========================
 
 'This is used by almost every script which calls a specific agency worker number (like the REPT/ACTV nav and list gen scripts).
-worker_county_code = "x127"
+worker_county_code = "x102"
 
 'This is used for MEMO scripts, such as appointment letter
-county_name = "Hennepin County"
+county_name = "Anoka County"
 
 'This merely exists to help the installer determine which dropdown box to default. It is not used by any scripts.
-code_from_installer = "27 - Hennepin County"
+code_from_installer = "02 - Anoka County"
 
 'Creates a double array of county offices, first by office (using the ~), then by address line (using the |). Dynamically added with the installer.
-county_office_array = split("PO BOX 107| Minneapolis, MN 55440, ~")
+county_office_array = split("2100 3rd Ave Suite 400|Anoka, MN 55303~1201 89th Ave NE Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell RD NE|Lexington, MN 55014", "~")
 
 
 
 'ALL-COUNTY SCRIPT CONFIGURATION===============
 
 'This is used by scripts which tell the worker where to find a doc to send to a client (ie "Send form using Compass Pilot")
-EDMS_choice = "Diamond"
+EDMS_choice = "Compass Pilot"
 
 'This is used to allow some agencies to decline to case note intake/rein dates on denied progs and closed progs. We're hoping to convince these agencies to case note this info, so that we can drop this field.
-case_noting_intake_dates = False
+case_noting_intake_dates = True
 
 'This moves "verifs needed" to be at the top of the CAF case note template, instead of the bottom.
 move_verifs_needed = False
@@ -48,17 +48,17 @@ emer_percent_rule_amt = "30"
 emer_number_of_income_days = "30"
 
 'This is the X1/PW number to send closed cases to in the INAC scrubber.
-CLS_x1_number = ""
+CLS_x1_number = "X102CLS"
 
 
 
 'NAVIGATION SCRIPT CONFIGURATION================
 
 'If all users use "select a worker" nav scripts, this will be True. (Example: case banking county)
-all_users_select_a_worker = True
+all_users_select_a_worker = False
 
 'If the above is False, we need a list of workers who do use the "select a worker" nav scripts.
-users_using_select_a_user = array("X127GM1")
+users_using_select_a_user = array("VKC", "VKCARY", "PWVKC45")
 
 
 'COLLECTING STATISTICS=========================
@@ -80,12 +80,12 @@ beta_agency = True
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
 
 'Making a list of offices to be used in various scripts
-'For each office in county_office_array
-'	new_office_array = split(office, "|")									'Assigned earlier in the FUNCTIONS FILE script. Splits into an array, containing each line of the address.
-'	comma_location_in_address_line_02 = instr(new_office_array(1), ",")				'Finds the location of the first comma in the second line of the address (because everything before this is the city)
-'	city_for_array = left(new_office_array(1), comma_location_in_address_line_02 - 1)		'Pops this city into a variable
-'	county_office_list = county_office_list & chr(9) & city_for_array					'Adds the city to the variable called "county_office_list", which also contains a new line, so that it works correctly in dialogs.
-'Next
+For each office in county_office_array
+	new_office_array = split(office, "|")									'Assigned earlier in the FUNCTIONS FILE script. Splits into an array, containing each line of the address.
+	comma_location_in_address_line_02 = instr(new_office_array(1), ",")				'Finds the location of the first comma in the second line of the address (because everything before this is the city)
+	city_for_array = left(new_office_array(1), comma_location_in_address_line_02 - 1)		'Pops this city into a variable
+	county_office_list = county_office_list & chr(9) & city_for_array					'Adds the city to the variable called "county_office_list", which also contains a new line, so that it works correctly in dialogs.
+Next
 
 
 is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SETUP SCRIPT WILL OVERWRITE LINES BELOW WHICH DEPEND ON THIS, BY SEPARATING THE VARIABLES WE PREVENT ISSUES
