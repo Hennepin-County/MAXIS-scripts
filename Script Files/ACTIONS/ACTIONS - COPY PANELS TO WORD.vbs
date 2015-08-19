@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -164,19 +164,12 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
-maxis_check_function
+Call check_for_MAXIS(False)
 
 'Finds MAXIS case number
 call MAXIS_case_number_finder(case_number)
-
 'Finds MAXIS footer month
-row = 1
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Shows case number dialog
 Do
@@ -189,10 +182,9 @@ Loop until isnumeric(case_number) = True
 back_to_SELF
 
 Dialog all_MAXIS_panels_dialog
-	If buttonpressed = 0 then stopscript
+Cancel_confirmation
 
-call navigate_to_screen("STAT", "MEMI")
-ERRR_screen_check
+call navigate_to_MAXIS_screen("STAT", "MEMI")
 
 call HH_member_custom_dialog(HH_member_array)
 
@@ -306,7 +298,7 @@ For each panel_to_scan in all_panels_selected_array
 	panel_to_scan = "ADDR" OR _
 	panel_to_scan = "HCRE" OR _
 	panel_to_scan = "ABPS" THEN
-		call navigate_to_screen("STAT", panel_to_scan)
+		call navigate_to_MAXIS_screen("STAT", panel_to_scan)
 				call copy_screen_to_array(screentest)
 
 				'Adds current screen to Word doc
@@ -331,7 +323,7 @@ For each panel_to_scan in all_panels_selected_array
 			number_of_panels = ""
 
 			IF panel_to_scan = "MEMB" THEN 
-				call navigate_to_screen("STAT", "MEMB")
+				call navigate_to_MAXIS_screen("STAT", "MEMB")
 				EMWriteScreen hh_member, 20, 76
 				transmit
 					call copy_screen_to_array(screentest)
@@ -351,7 +343,7 @@ For each panel_to_scan in all_panels_selected_array
 					End if
 
 			ELSEIF panel_to_scan = "BILS" THEN
-				call navigate_to_screen("STAT", "BILS")
+				call navigate_to_MAXIS_screen("STAT", "BILS")
 					EMReadScreen total_bils_panel, 1, 3, 78
 					IF total_bils_panel = "0" THEN
 						call copy_screen_to_array(screentest)
@@ -405,7 +397,7 @@ For each panel_to_scan in all_panels_selected_array
 					END IF
 
 			ELSEIF panel_to_scan = "FMED" THEN
-				call navigate_to_screen("STAT", "FMED")
+				call navigate_to_MAXIS_screen("STAT", "FMED")
 					EMReadScreen more_fmed_screens, 7, 15, 68
 					IF more_fmed_screens = "       " THEN
 						call copy_screen_to_array(screentest)
@@ -459,7 +451,7 @@ For each panel_to_scan in all_panels_selected_array
 
 			ELSE
 				'Goes to the screen for the first HH memb
-				call navigate_to_screen("STAT", panel_to_scan)
+				call navigate_to_MAXIS_screen("STAT", panel_to_scan)
 				EMWriteScreen hh_member, 20, 76
 				EMWriteScreen "01", 20, 79
 				transmit
@@ -493,3 +485,5 @@ For each panel_to_scan in all_panels_selected_array
 		NEXT
 	END IF
 NEXT
+
+script_end_procedure("")

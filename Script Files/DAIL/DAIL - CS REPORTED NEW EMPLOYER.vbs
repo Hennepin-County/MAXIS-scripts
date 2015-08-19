@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -128,7 +128,7 @@ EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure("This case couldn't get to stat. MAXIS may have slowed down or be in background. Try again in a few seconds. If this continues to happen and MAXIS is up, send the case number to the script administrator.")
 
 'Checks for the error screen, and if found, transmits
-ERRR_screen_check
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 'Checking for the HH memb on the message. If not found, script will exit.
 EMReadScreen HH_memb_check, 31, 24, 02

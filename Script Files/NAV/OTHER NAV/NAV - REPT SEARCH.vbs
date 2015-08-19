@@ -7,7 +7,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -63,7 +63,7 @@ EndDialog
 
 EMConnect ""
 
-maxis_check_function
+call check_for_MAXIS(True)
 
 'Shows dialog, requires length to be 7, or if it's 3, will add the worker_county_code in.
 DO
@@ -78,7 +78,7 @@ search_length = len(person_look_up)
 
 '========== Checks REPT/ACTV ==========
 IF search_where = "REPT/ACTV" THEN 
-	Call navigate_to_screen("rept", "actv")
+	Call navigate_to_MAXIS_screen("rept", "actv")
 	IF case_load_look_up <> "" THEN
 		EMWriteScreen case_load_look_up, 21, 13
 		transmit
@@ -92,7 +92,7 @@ END IF
 
 '========== Checks REPT/INAC ==========
 IF search_where = "REPT/INAC" THEN
-	Call navigate_to_screen("rept", "inac")
+	Call navigate_to_MAXIS_screen("rept", "inac")
 	IF case_load_look_up <> "" THEN
 		EMWriteScreen case_load_look_up, 21, 16
 		transmit
@@ -119,7 +119,7 @@ END IF
 
 '========== Checks REPT/PND1 ==========
 IF search_where = "REPT/PND1" THEN
-	Call navigate_to_screen("rept", "pnd1")
+	Call navigate_to_MAXIS_screen("rept", "pnd1")
 	IF case_load_look_up <> "" THEN
 		EMWriteScreen case_load_look_up, 21, 13
 		transmit
@@ -146,7 +146,7 @@ END IF
 
 '========== Checks REPT/PND2 ==========
 IF search_where = "REPT/PND2" THEN
-	Call navigate_to_screen("rept", "pnd2")
+	Call navigate_to_MAXIS_screen("rept", "pnd2")
 		IF case_load_look_up <> "" THEN
 			EMWriteScreen case_load_look_up, 21, 13
 			transmit
@@ -173,7 +173,7 @@ END IF
 
 '========== Checks REPT/REVW ==========
 IF search_where = "REPT/REVW" THEN
-	Call navigate_to_screen("rept", "REVW")
+	Call navigate_to_MAXIS_screen("rept", "REVW")
 	IF case_load_look_up <> "" THEN
 		EMWriteScreen case_load_look_up, 21, 6
 		transmit

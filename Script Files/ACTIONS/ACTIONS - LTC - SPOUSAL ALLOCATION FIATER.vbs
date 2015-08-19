@@ -4,8 +4,8 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN 'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -91,6 +91,7 @@ BeginDialog spousal_maintenance_dialog, 0, 0, 256, 185, "Spousal Maintenance Dia
   Text 130, 150, 60, 10, "Utility allowance:"
 EndDialog
 
+
 BeginDialog case_number_dialog, 0, 0, 211, 140, "Case number"
   EditBox 100, 5, 75, 15, case_number
   EditBox 100, 25, 25, 15, MAXIS_footer_month
@@ -111,26 +112,26 @@ EndDialog
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to MAXIS
+'Connects to MAXIS, grabs case number and footer month/year
 EMConnect ""
-
-'Grabs case number & footer year/footer month from MAXIS
 call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+
+spousal_allocation_footer_month = MAXIS_footer_month
+spousal_allocation_footer_year = MAXIS_footer_year
 
 
 'Shows case number dialog
 dialog case_number_dialog
 cancel_confirmation
-if ButtonPressed = 0 then stopscript
-
 
 'Enters into STAT for the client
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(FALSE)
+
 
 'Checks for which HH member is the spouse. The spouse is coded as "02" on STAT/MEMB.
 Do
@@ -323,10 +324,13 @@ HH_memb_row = 6
 
 'Shows the spousal maintenance dialog
 dialog spousal_maintenance_dialog
+
+MAXIS_dialog_navigation
 cancel_confirmation
 
-'checks for an active MAXIS session
+'checking for an active MAXIS session
 Call check_for_MAXIS(False)
+
 
 'changes unearned income coding types as coding from UNEA panel and spousal allocation screen are not the same 
 'unearned income 01
@@ -457,6 +461,7 @@ IF gross_spousal_unearned_income_type_04 = "44" THEN gross_spousal_unearned_inco
 'Navigates to ELIG/HC.
 Call navigate_to_MAXIS_screen("ELIG", "HC")
 
+
 'Checks to see if MEMB 01 has HC, and puts an "x" there. If not it'll try MEMB 02. 
 EMReadScreen person_check, 1, 8, 26
 If person_check <> "_" then
@@ -464,7 +469,6 @@ If person_check <> "_" then
   EMWriteScreen "x", 9, 26
 End if
 If person_check = "_" then EMWriteScreen "x", 8, 26
-
 'Gets into ELIG/HC for that particular member.
 transmit
 

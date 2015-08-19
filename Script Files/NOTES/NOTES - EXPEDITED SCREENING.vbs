@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -102,7 +102,7 @@ Do
 Loop until worker_signature <> ""
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 
 'LOGIC AND CALCULATIONS----------------------------------------------------------------------------------------------------
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
@@ -143,33 +143,23 @@ Else
 End if
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-	call navigate_to_screen("case", "note")
-	PF9
-	
-	EMReadScreen case_note_check, 17, 2, 33
-	EMReadScreen mode_check, 1, 20, 09
-	If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then    'this will account for those cases when the script is run on an out of county case.
-		msgbox "The script can't open a case note. You may be in inquiry or entered a case number that is in another county." &_
-		vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
-		script_end_procedure("")
-	else	
-		'Body of the case note 
-		Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
-		call write_variable_in_CASE_NOTE("---")
-		call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
-		call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
-		call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
-		call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
-		call write_variable_in_CASE_NOTE("---")
-		If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
-		If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-		call write_variable_in_CASE_NOTE("---")
-		call write_variable_in_CASE_NOTE(worker_signature)
-		If expedited_status = "client appears expedited" then
-			MsgBox "This client appears expedited. A same day interview needs to be offered."
-		End if
-		If expedited_status = "client does not appear expedited" then
-			MsgBox "This client does not appear expedited. A same day interview does not need to be offered."
-		End if
-	End if
+Call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
+call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
+call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
+call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
+call write_variable_in_CASE_NOTE("---")
+If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
+If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
+If expedited_status = "client appears expedited" then
+	MsgBox "This client appears expedited. A same day interview needs to be offered."
+End if
+If expedited_status = "client does not appear expedited" then
+	MsgBox "This client does not appear expedited. A same day interview does not need to be offered."
+End if
+
 script_end_procedure("")

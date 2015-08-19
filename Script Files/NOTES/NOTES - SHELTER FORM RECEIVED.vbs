@@ -1,11 +1,14 @@
 'Option Explicit
 
+name_of_script = "NOTES - SHELTER FORM RECEIVED.vbs"
+start_time = timer
+
 'DIM beta_agency
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -48,54 +51,55 @@ END IF
 
 
 'DIM shelter_form_received_dialog		'declaring variables that are being used in the rest of the script
-'DIM date_moved_in_editbox
+'DIM date_moved_in
 'DIM ButtonPressed
-'DIM new_address_editbox
-'DIM cost_per_person_editbox
-'DIM how_many_residents_editbox
-'DIM total_cost_editbox
-'DIM other_notes_editbox
+'DIM new_address
+'DIM cost_per_person
+'DIM how_many_residents
+'DIM total_cost
+'DIM other_notes
 'DIM worker_signature
 'DIM utilities_paid_by_resident_listbox
-'DIM phonenumber_editbox
-'DIM subsidized_amount_editbox
-'DIM garage_amount_checkbox
-'DIM garage_amount_editbox
-'DIM signed_by_LLMgr_checkbox
-'DIM signed_by_client_checkbox
+'DIM phonenumber
+'DIM subsidized_amount
+'DIM garage_amount_check
+'DIM garage_amount
+'DIM signed_by_LLMgr_check
+'DIM signed_by_client_check
 'DIM case_number
-'DIM month_editbox
-'DIM year_editbox
+'DIM month
+'DIM year
 'DIM case_number_dialogbox
-'DIM subsidized_amount_checkbox
+'DIM subsidized_amount_check
 
-
-BeginDialog case_number_dialogbox, 0, 0, 191, 80, "Dialog"						   'dialog box where worker enters the case number (and at some point applicable month & year)
-  EditBox 75, 15, 80, 15, case_number																	   'once worker selects ok, it will move to the next dialog box.  If worker selects cancel, then
-  'EditBox 75, 35, 40, 15, month_editbox																 'script will end
-  'EditBox 120, 35, 35, 15, year_editbox
+'THE DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
+  EditBox 80, 5, 60, 15, case_number					
+  EditBox 80, 25, 25, 15, MAXIS_footer_month					
+  EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-	OkButton 80, 60, 50, 15
-	CancelButton 135, 60, 50, 15
-  'Text 10, 35, 60, 15, "Footer month:"
-  Text 10, 15, 60, 15, "Case number: "
+    OkButton 35, 45, 50, 15
+    CancelButton 90, 45, 50, 15
+  Text 10, 30, 65, 10, "Footer month/year:"
+  Text 10, 10, 45, 10, "Case number: "
 EndDialog
 
+
 BeginDialog Shelter_form_received_dialog, 0, 0, 206, 225, "Dialog"							'Dialogue box completed by worker with information provided by the client regarding the shelter form that was received 
-  EditBox 50, 5, 55, 15, date_moved_in_editbox
-  EditBox 155, 5, 55, 15, how_many_residents_editbox
-  EditBox 50, 25, 150, 15, new_address_editbox
-  EditBox 50, 45, 100, 15, phonenumber_editbox
-  EditBox 50, 65, 45, 15, total_cost_editbox
-  EditBox 150, 65, 50, 15, cost_per_person_editbox
-  CheckBox 10, 90, 75, 10, "Subsidized amount", subsidized_amount_checkbox
-  EditBox 95, 90, 40, 15, subsidized_amount_editbox
-  CheckBox 10, 105, 75, 10, "Garage amount", garage_amount_checkbox
-  EditBox 95, 105, 40, 15, garage_amount_editbox
+  EditBox 50, 5, 55, 15, date_moved_in
+  EditBox 155, 5, 55, 15, how_many_residents
+  EditBox 50, 25, 150, 15, new_address
+  EditBox 50, 45, 100, 15, phone_number
+  EditBox 50, 65, 45, 15, total_cost
+  EditBox 150, 65, 50, 15, cost_per_person
+  checkbox 10, 90, 75, 10, "Subsidized amount", subsidized_amount_check
+  EditBox 95, 90, 40, 15, subsidized_amount
+  checkbox 10, 105, 75, 10, "Garage amount", garage_amount_check
+  EditBox 95, 105, 40, 15, garage_amount
   DropListBox 55, 125, 90, 15, "(Select one...)"+chr(9)+"Heat/AC"+chr(9)+"Phone/Electric"+chr(9)+"Phone only"+chr(9)+"Electric only"+chr(9)+"All utilities included in rent"+chr(9)+"None", utilities_paid_by_resident_listbox
-  EditBox 50, 150, 120, 15, other_notes_editbox
-  CheckBox 20, 170, 75, 10, "Signed by LL/Mgr?", signed_by_LLMgr_checkbox
-  CheckBox 110, 170, 75, 10, "Signed by client?", signed_by_client_checkbox
+  EditBox 50, 150, 120, 15, other_notes
+  checkbox 20, 170, 75, 10, "Signed by LL/Mgr?", signed_by_LLMgr_check
+  checkbox 110, 170, 75, 10, "Signed by client?", signed_by_client_check
   EditBox 65, 190, 80, 15, worker_signature
   ButtonGroup ButtonPressed
 	OkButton 100, 210, 50, 15
@@ -112,19 +116,18 @@ BeginDialog Shelter_form_received_dialog, 0, 0, 206, 225, "Dialog"							'Dialog
   Text 100, 80, 30, 10, "Amount"
 EndDialog
 
-
-
-EMConnect ""				   'Connecting to Bluezone
-
-call MAXIS_case_number_finder(case_number)								'function autofills case number that worker already has on MAXIS screen
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to Bluezone & grabbing case number and footer year/month
+EMConnect ""				   
+call MAXIS_case_number_finder(case_number)	
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)			
 
 DO
 	Dialog case_number_dialogbox																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop' 
-	IF buttonpressed = cancel THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
+	IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
 	IF case_number = "" THEN MsgBox "You must enter a case number"
 LOOP UNTIL case_number <> ""
 
-Call check_for_MAXIS(true)																		 'ensures that worker has not "passworded" out of MAXIS
 
 DO
 	DO
@@ -133,46 +136,46 @@ DO
 				DO
 					DO
 						Dialog Shelter_form_received_dialog									   'calls up dialog for worker to enter information provided by client on the shelter form
-						IF buttonpressed = cancel THEN StopScript
+						cancel_confirmation
 						IF worker_signature = "" THEN MsgBox "You must sign your case note"
 					LOOP UNTIL worker_signature <> ""
-					IF date_moved_in_editbox = "" THEN MsgBox "You must enter the date the client moved in"
-				LOOP UNTIL date_moved_in_editbox <> ""
-				IF how_many_residents_editbox = "" THEN MsgBox "You must enter the amount of residents"
-			LOOP UNTIL how_many_residents_editbox <> ""
-			IF new_address_editbox = "" THEN MsgBox "You must enter the new address"
-		LOOP UNTIL new_address_editbox <> ""
-		IF total_cost_editbox = "" THEN MsgBox "You must enter the total shelter cost"
-	LOOP UNTIL total_cost_editbox <> ""
+					IF date_moved_in = "" THEN MsgBox "You must enter the date the client moved in"
+				LOOP UNTIL date_moved_in <> ""
+				IF how_many_residents = "" THEN MsgBox "You must enter the amount of residents"
+			LOOP UNTIL how_many_residents <> ""
+			IF new_address = "" THEN MsgBox "You must enter the new address"
+		LOOP UNTIL new_address <> ""
+		IF total_cost = "" THEN MsgBox "You must enter the total shelter cost"
+	LOOP UNTIL total_cost <> ""
 	IF utilities_paid_by_resident_listbox =	 "(Select one...)" THEN MsgBox "You must make a valid selection of utilities paid by the resident"
 LOOP UNTIL utilities_paid_by_resident_listbox <> "(Select one...)"
 
 
-Call check_for_MAXIS(true)																										 'ensures that worker has not "passworded" out of MAXIS
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)							
 
-Call navigate_to_screen ("case", "note")								'function to navigate user to case note
-PF9																																																			'brings case note into edit mode
 
 'Dollar bill symbol will be added to numeric variables 
-IF total_cost_editbox <> "" THEN total_cost_editbox = "$" & total_cost_editbox
-IF cost_per_person_editbox <> "" THEN cost_per_person_editbox = "$" & cost_per_person_editbox
-IF subsidized_amount_editbox <> "" THEN subsidized_amount_editbox = "$" & subsidized_amount_editbox
-IF garage_amount_editbox <> "" THEN garage_amount_editbox = "$" & garage_amount_editbox
+IF total_cost <> "" THEN total_cost = "$" & total_cost
+IF cost_per_person <> "" THEN cost_per_person = "$" & cost_per_person
+IF subsidized_amount <> "" THEN subsidized_amount = "$" & subsidized_amount
+IF garage_amount <> "" THEN garage_amount = "$" & garage_amount
 
-
-Call write_variable_in_case_note ("~~~Shelter form rec'd~~~")												'adding information to case note
-Call write_bullet_and_variable_in_case_note ("Date client moved in", date_moved_in_editbox )		
-Call write_bullet_and_variable_in_case_note ("Number of residents", how_many_residents_editbox)			
-Call write_bullet_and_variable_in_case_note ("New address", new_address_editbox)		  
-Call write_bullet_and_variable_in_case_note ("Phone number", phonenumber_editbox)				 
-Call write_bullet_and_variable_in_case_note ("Total cost", total_cost_editbox)					 
-Call write_bullet_and_variable_in_case_note ("Cost per person", cost_per_person_editbox)			 
-IF subsidized_amount_checkbox = 1 THEN Call write_bullet_and_variable_in_case_note ("Subsidized amount", subsidized_amount_editbox)			   
-IF garage_amount_checkbox = 1 THEN Call write_bullet_and_variable_in_case_note ("Garage amount", garage_amount_editbox)				  
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+Call write_variable_in_case_note ("~~~Shelter form rec'd~~~")												
+Call write_bullet_and_variable_in_case_note ("Date client moved in", date_moved_in )		
+Call write_bullet_and_variable_in_case_note ("Number of residents", how_many_residents)			
+Call write_bullet_and_variable_in_case_note ("New address", new_address)		  
+Call write_bullet_and_variable_in_case_note ("Phone number", phone_number)				 
+Call write_bullet_and_variable_in_case_note ("Total cost", total_cost)					 
+Call write_bullet_and_variable_in_case_note ("Cost per person", cost_per_person)			 
+IF subsidized_amount_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Subsidized amount", subsidized_amount)			   
+IF garage_amount_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Garage amount", garage_amount)				  
 Call write_bullet_and_variable_in_case_note ("Utilities paid by resident", utilities_paid_by_resident_listbox) 
-Call write_bullet_and_variable_in_case_note ("Other notes", other_notes_editbox)				
-IF signed_by_LLMgr_checkbox = 1 THEN Call write_variable_in_case_note ("* Signed by LL/Mgr.")			  
-IF signed_by_client_checkbox = 1 THEN Call write_variable_in_case_note ("* Signed by client.")
+Call write_bullet_and_variable_in_case_note ("Other notes", other_notes)				
+IF signed_by_LLMgr_check = 1 THEN Call write_variable_in_case_note ("* Signed by LL/Mgr.")			  
+IF signed_by_client_check = 1 THEN Call write_variable_in_case_note ("* Signed by client.")
 Call write_variable_in_case_note ("---")						 
 call write_variable_in_case_note (worker_signature)
 

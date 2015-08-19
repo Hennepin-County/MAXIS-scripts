@@ -51,14 +51,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
 county_FSET_offices = array("")
 
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
-
-IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center",
+IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center")
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
 IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
@@ -961,17 +961,14 @@ EMWriteScreen SNAPET_contact, 16, 28
 PF4		'saves and sends memo
 
 'Navigates to a blank case note
-call start_a_blank_CASE_NOTE
-
+start_a_blank_CASE_NOTE
 'Writes the case note
-CALL write_new_line_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
+CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
 Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
 CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
-CALL write_new_line_in_case_note("---")
-CALL write_new_line_in_case_note(worker_signature)
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 
-MsgBox "If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!"
-
-script_end_procedure("")
+script_end_procedure("If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!")

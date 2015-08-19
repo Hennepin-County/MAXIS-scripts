@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -58,31 +58,20 @@ BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
 EndDialog
 
 'SECTION 03: FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS
 EMConnect ""
-
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+'grabbing the case number
+call MAXIS_case_number_finder(case_number)
 
 If case_number = "" then
-  Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+	Dialog case_number_dialog
+	cancel_confirmation
 End if
 
 'SECTION 04: NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)
 
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found on this screen.")
-
-call navigate_to_screen("stat", "revw")
+call navigate_to_MAXIS_screen("stat", "revw")
 
 script_end_procedure("")
-
-
-
-
-
-

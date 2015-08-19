@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -93,20 +93,16 @@ EMConnect ""
 Do
 	Do
 		Dialog REVW_MONT_closures_dialog
-		If ButtonPressed = 0 then StopScript 'Cancel button
+		cancel_confirmation
 		If worker_number <> "" then worker_number = ucase(worker_number)
 		If len(worker_number) <> 3 then MsgBox "You must enter the last three digits of your " & county_worker_code & "# (and just the last three digits)."
 	Loop until len(worker_number) = 3
 	If worker_signature = "" then MsgBox "You must sign your case note."
 Loop until worker_signature <> ""
 
-transmit 'It transmits to check for MAXIS.
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS is not found. You may be passworded out. Try it again.")
-
 'THIS PART DOES THE REPT REVW----------------------------------------------------------------------------------------------------
 If revw_check = checked then 
-	call navigate_to_screen("rept", "revw")
+	call navigate_to_MAXIS_screen("rept", "revw")
 	EMReadScreen default_worker_number, 3, 21, 10
 	If worker_number <> ucase(default_worker_number) then
 		EMWriteScreen worker_county_code & worker_number, 21, 6
@@ -150,13 +146,12 @@ If revw_check = checked then
 	  
 	  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
 	For each case_number in case_number_array
-		CALL navigate_to_screen("rept", "revw")  'Reads MAGI code for each case. 
+		CALL navigate_to_MAXIS_screen("rept", "revw")  'Reads MAGI code for each case. 
 		EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
 		IF priv_check <> "PRIV" THEN 'Not privileged, we can go ahead and do everything
-			call navigate_to_screen("stat", "revw")
+			call navigate_to_MAXIS_screen("stat", "revw")
 			EMREADSCREEN MAGI_code, 4, 7, 54    
-			EMReadScreen ERRR_check, 4, 2, 52
-			If ERRR_check = "ERRR" then call navigate_to_screen("stat", "revw") 'In case of error prone cases
+			call navigate_to_MAXIS_screen("stat", "revw") 'In case of error prone cases
 			EMReadScreen cash_review_code, 1, 7, 40
 			EMReadScreen FS_review_code, 1, 7, 60
 			EMReadScreen HC_review_code, 1, 7, 73
@@ -319,7 +314,7 @@ If revw_check = checked then
 		  
 	Next
 	  
-	call navigate_to_screen("rept", "revw")
+	call navigate_to_MAXIS_screen("rept", "revw")
 	EMReadScreen default_worker_number, 3, 21, 10
 	If worker_number <> default_worker_number then
 		EMWriteScreen worker_county_code & worker_number, 21, 6
@@ -333,7 +328,7 @@ case_number_array = ""
 'THIS PART DOES THE REPT MONT----------------------------------------------------------------------------------------------------
 If mont_check = 1 then 
   'Navigating to MONT
-  call navigate_to_screen("rept", "mont")
+  call navigate_to_MAXIS_screen("rept", "mont")
   
   'Checking the current worker number. If it's not the selected one it will enter the selected one.
   EMReadScreen default_worker_number, 3, 21, 10
@@ -375,11 +370,10 @@ If mont_check = 1 then
   'Navigating to each case, and case noting the ones that are closing.
   For each case_number in case_number_array
     'Going to the case, checking for error prone
-    call navigate_to_screen("stat", "mont")
+    call navigate_to_MAXIS_screen("stat", "mont")
 	EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
 	IF priv_check <> "PRIV" THEN 'Not privileged, we can go ahead and do everything
-		EMReadScreen ERRR_check, 4, 2, 52
-		If ERRR_check = "ERRR" then call navigate_to_screen("stat", "mont") 'In case of error prone cases
+		call navigate_to_MAXIS_screen("stat", "mont") 'In case of error prone cases
 
 		'Reading the review codes, converting them to a status update for the case note
 		EMReadScreen cash_review_code, 1, 11, 43
@@ -393,12 +387,12 @@ If mont_check = 1 then
 		PF9
 
 		If HC_review_code = "I" or FS_review_code = "I" or GRH_review_code = "I" or cash_review_code = "I" then
-		  call write_new_line_in_case_note("---Incomplete HRF---")
+		  call write_variable_in_CASE_NOTE("---Incomplete HRF---")
 		Else
-		  call write_new_line_in_case_note("---HRF not provided---")
+		  call write_variable_in_CASE_NOTE("---HRF not provided---")
 		End if
-		call write_new_line_in_case_note("---")
-		call write_new_line_in_case_note(worker_signature & ", via automated script.")
+		call write_variable_in_CASE_NOTE("---")
+		call write_variable_in_CASE_NOTE(worker_signature & ", via automated script.")
 	ELSE 'Prived case, add the case number to the list
 		priv_case_list = priv_case_list & " " & case_number
 	END IF
@@ -418,7 +412,7 @@ If mont_check = 1 then
   
   Next
   
-  call navigate_to_screen("rept", "mont")
+  call navigate_to_MAXIS_screen("rept", "mont")
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
     EMWriteScreen worker_county_code & worker_number, 21, 6

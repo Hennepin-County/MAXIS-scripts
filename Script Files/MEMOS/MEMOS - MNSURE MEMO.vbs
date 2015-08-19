@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -66,29 +66,24 @@ BeginDialog MNsure_info_dialog, 0, 0, 196, 120, "MNsure Info Dialog"
 EndDialog
 
 
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
-EMFocus
 
 'Searches for a case number
 call MAXIS_case_number_finder(case_number)
 
 'Shows dialog, checks for MAXIS or WCOM status.
-
 Do
   Dialog MNsure_info_dialog
   cancel_confirmation
   If isdate(denial_effective_date) = False then MsgBox "You must put in a valid denial effective date (MM/DD/YYYY)."
 Loop until isdate(denial_effective_date) = True
 
-check_for_maxis(true)
+'checking for an active MAXIS session
+check_for_maxis(FALSE)
 
 CALL HH_member_custom_dialog(HH_member_array)
-
-check_for_maxis(true)
 
 'For the WCOM option it needs to go to SPEC/WCOM. Otherwise it goes to MEMO.
 If radiogroup1 = 0 then
@@ -144,13 +139,8 @@ If radiogroup1 = 0 then
 Else
 	'Navigating to SPEC/MEMO
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")  
-	'This checks to make sure we've moved passed SELF.
-	EMReadScreen SELF_check, 27, 2, 28
-	If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to get past SELF menu. Check for error messages and try again.")   
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 	EMWriteScreen "x", 5, 10
 	transmit
 	'Sends the home key to get to the top of the memo.
@@ -166,18 +156,10 @@ Else
 	PF3
 End if
 
-'Navigates to case note
-call navigate_to_screen("CASE", "NOTE")
-PF9
 
 'Enters case note
+start_a_blank_CASE_NOTE
 If radiogroup1 = 0 then EMSendKey "Added MNsure info to client notice via WCOM. -" & worker_signature
 If radiogroup1 = 1 then EMSendKey "Sent client MNsure info via MEMO. -" & worker_signature
 
 script_end_procedure("")
-
-
-
-
-
-

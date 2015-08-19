@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -51,7 +51,7 @@ If case_noting_intake_dates = False then dialog_shrink_amt = 105
 
 'LOADING SPECIALTY FUNCTIONS----------------------------------------------------------------------------------------------------
 function autofill_previous_denied_progs_note_info
-  call navigate_to_screen("case", "note")
+  call navigate_to_MAXIS_screen("case", "note")
   MAXIS_row = 1
   MAXIS_col = 1
   EMSearch "---Denied", MAXIS_row, MAXIS_col
@@ -107,7 +107,6 @@ End function
 
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
-
 'This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
 BeginDialog denied_dialog, 0, 0, 401, 360 - dialog_shrink_amt, "Denied progs dialog"
   EditBox 65, 5, 55, 15, case_number
@@ -167,9 +166,10 @@ BeginDialog denied_dialog, 0, 0, 401, 360 - dialog_shrink_amt, "Denied progs dia
   Text 5, 345 - dialog_shrink_amt, 65, 10, "Worker signature: "
 EndDialog
 
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 'SCRIPT CONNECTS, THEN FINDS THE CASE NUMBER
-
 EMConnect ""
+Call MAXIS_case_number_finder(case_number)
 
 'Resets the check boxes in case this script was run in succession with the closed progs script. In that script, the variables are named the same and when run one 
 'right after another from the Docs Received headquarters it is autofilling these check boxes.------------------------------------------------------------
@@ -179,41 +179,33 @@ HC_check = 0
 updated_MMIS_check = 0
 WCOM_check = 0
 
-call MAXIS_case_number_finder(case_number)
 
 'NOW THE DIALOG STARTS. FIRST IT ALLOWS NAVIGATION TO SPEC/WCOM, THEN IT MAKES SURE PROGRAMS ARE SELECTED FOR DENIAL, AND THAT THE REQUIRED DATE FIELDS FOR THOSE PROGRAMS CONTAIN VALID DATES. 
 '  THEN IT CHECKS FOR MAXIS STATUS, AND NAVIGATES TO CASE NOTE.
 Do
-  Do
-    Do
-      Do
+    DO
         Do
-          Do
-            Dialog denied_dialog
-            If buttonpressed = 0 then stopscript
-            If buttonpressed = SPEC_WCOM_button then call navigate_to_screen("spec", "wcom")
-            If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
-          Loop until buttonpressed = -1
-          If (isdate(SNAP_denial_date) = False and isdate(HC_denial_date) = False and isdate(cash_denial_date) = False and isdate(emer_denial_date) = False) or isdate(application_date) = False then MsgBox "You need to enter a valid date of denial and application date (MM/DD/YYYY)."
-          If isdate(SNAP_denial_date) = False then SNAP_denial_date = ""
-          If isdate(HC_denial_date) = False then HC_denial_date = ""
-          If isdate(cash_denial_date) = False then cash_denial_date = ""
-          If isdate(emer_denial_date) = False then emer_denial_date = ""
-          If isdate(application_date) = False then application_date = ""
+			Do
+				Dialog denied_dialog
+				cancel_confirmation
+				If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
+				If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
+			Loop until buttonpressed = -1
+			If (isdate(SNAP_denial_date) = False and isdate(HC_denial_date) = False and isdate(cash_denial_date) = False and isdate(emer_denial_date) = False) or isdate(application_date) = False then MsgBox "You need to enter a valid date of denial and application date (MM/DD/YYYY)."
+			If isdate(SNAP_denial_date) = False then SNAP_denial_date = ""
+			If isdate(HC_denial_date) = False then HC_denial_date = ""
+			If isdate(cash_denial_date) = False then cash_denial_date = ""
+			If isdate(emer_denial_date) = False then emer_denial_date = ""
+			If isdate(application_date) = False then application_date = ""
         Loop until (isdate(SNAP_denial_date) = True or isdate(HC_denial_date) = True or isdate(cash_denial_date) = True or isdate(emer_denial_date) = True) and isdate(application_date) = True 
-        If ((SNAP_check = 1 and isdate(SNAP_denial_date) = False) or (SNAP_check = 0 and isdate(SNAP_denial_date) = True)) or ((HC_check = 1 and isdate(HC_denial_date) = False) or (HC_check = 0 and isdate(HC_denial_date) = True)) or ((cash_check = 1 and isdate(cash_denial_date) = False) or (cash_check = 0 and isdate(cash_denial_date) = True)) or ((emer_check = 1 and isdate(emer_denial_date) = False) or (emer_check = 0 and isdate(emer_denial_date) = True)) then MsgBox "It looks like you might have checked a program, but not filled in a date. Or vice versa. Look at the programs selected, and make sure there are dates there."
-      Loop until ((SNAP_check = 1 and isdate(SNAP_denial_date) = True) or (SNAP_check = 0 and isdate(SNAP_denial_date) = False)) and ((HC_check = 1 and isdate(HC_denial_date) = True) or (HC_check = 0 and isdate(HC_denial_date) = False)) and ((cash_check = 1 and isdate(cash_denial_date) = True) or (cash_check = 0 and isdate(cash_denial_date) = False)) and ((emer_check = 1 and isdate(emer_denial_date) = True) or (emer_check = 0 and isdate(emer_denial_date) = False))
-      If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
-    Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
-    transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again."
-  Loop until MAXIS_check = "MAXIS"
-  call navigate_to_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "You do not appear to be able to edit a case note. This case could have errored out, or might be in another county. Or you could be on inquiry. Check the case number, and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+		If ((SNAP_check = 1 and isdate(SNAP_denial_date) = False) or (SNAP_check = 0 and isdate(SNAP_denial_date) = True)) or ((HC_check = 1 and isdate(HC_denial_date) = False) or (HC_check = 0 and isdate(HC_denial_date) = True)) or ((cash_check = 1 and isdate(cash_denial_date) = False) or (cash_check = 0 and isdate(cash_denial_date) = True)) or ((emer_check = 1 and isdate(emer_denial_date) = False) or (emer_check = 0 and isdate(emer_denial_date) = True)) then MsgBox "It looks like you might have checked a program, but not filled in a date. Or vice versa. Look at the programs selected, and make sure there are dates there."
+	Loop until ((SNAP_check = 1 and isdate(SNAP_denial_date) = True) or (SNAP_check = 0 and isdate(SNAP_denial_date) = False)) and ((HC_check = 1 and isdate(HC_denial_date) = True) or (HC_check = 0 and isdate(HC_denial_date) = False)) and ((cash_check = 1 and isdate(cash_denial_date) = True) or (cash_check = 0 and isdate(cash_denial_date) = False)) and ((emer_check = 1 and isdate(emer_denial_date) = True) or (emer_check = 0 and isdate(emer_denial_date) = False))
+	If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
+Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
+
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'IT CONVERTS THE DATE FIELDS TO ACTUAL DATES FOR CALCULATION PURPOSES.
 If isdate(SNAP_denial_date) = true then SNAP_denial_date = cdate(SNAP_denial_date)
@@ -369,17 +361,16 @@ IF edit_notice_check = 1 THEN
 END IF
 
 
-
 'NOW IT CASE NOTES THE DATA.
 call start_a_blank_case_note
 Call write_variable_in_case_note("----Denied " & progs_denied & "----")
-If SNAP_denial_date <> "" then call write_bullet_and_variable_in_case_note("SNAP denial date", SNAP_denial_date)
-If HC_denial_date <> "" then call write_bullet_and_variable_in_case_note("HC denial date", HC_denial_date)
-If cash_denial_date <> "" then call write_bullet_and_variable_in_case_note("cash denial date", cash_denial_date)
-If emer_denial_date <> "" then call write_bullet_and_variable_in_case_note("Emer denial date", emer_denial_date)
-call write_variable_in_case_note("Application date: " & application_date)
-call write_variable_in_case_note("Reason for denial: " & reason_for_denial)
-If verifs_needed <> "" then call write_variable_in_case_note("Verifs needed: " & verifs_needed)
+call write_bullet_and_variable_in_case_note("SNAP denial date", SNAP_denial_date)
+call write_bullet_and_variable_in_case_note("HC denial date", HC_denial_date)
+call write_bullet_and_variable_in_case_note("cash denial date", cash_denial_date)
+call write_bullet_and_variable_in_case_note("Emer denial date", emer_denial_date)
+call write_bullet_and_variable_in_case_note("Application date: ", application_date)
+call write_bullet_and_variable_in_case_note("Reason for denial: ", reason_for_denial)
+call write_bullet_and_variable_in_case_note("Verifs needed: ", verifs_needed)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If disabled_client_check = 1 then call write_variable_in_case_note("* Client is disabled.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
@@ -391,16 +382,16 @@ If case_noting_intake_dates = True then
 	If cash_check = 1 then call write_bullet_and_variable_in_case_note("Last cash REIN date", cash_last_REIN_date)
 	If emer_check = 1 then call write_bullet_and_variable_in_case_note("Last emer REIN date", emer_last_REIN_date)
 	If open_prog_check = 1 or HH_membs_on_HC_check = 1 then 
-		If open_progs <> "" then call write_variable_in_case_note("Open programs: " & open_progs)
-		If HH_membs_on_HC <> "" then call write_variable_in_case_note("HH members remaining on HC: " & HH_membs_on_HC)
+		If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs: ", open_progs)
+		If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC: ", HH_membs_on_HC)
 	Else
 		call write_variable_in_case_note("* All programs denied. Case becomes intake again on " & intake_date & ".")
 	End if
 Else
-	If open_progs <> "" then call write_variable_in_case_note("Open programs: " & open_progs)
-	If HH_membs_on_HC <> "" then call write_variable_in_case_note("HH members remaining on HC: " & HH_membs_on_HC)
+	If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs: ", open_progs)
+	If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC: ", HH_membs_on_HC)
 End if
-If other_notes <> "" then call write_variable_in_case_note("Other notes: " & other_notes)
+call write_bullet_and_variable_in_case_note("Other notes: ", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
@@ -418,7 +409,7 @@ If open_prog_check = 1 then
 End if
 
 'IT NAVIGATES TO DAIL/WRIT.
-call navigate_to_screen("dail", "writ")
+call navigate_to_MAXIS_screen("dail", "writ")
 
 'DETERMINES THE CORRECT FORMATTING FOR THE DATE CLIENT BECOMES AN INTAKE.
 TIKL_day = datepart("d", intake_date)
@@ -433,12 +424,10 @@ EMWriteScreen TIKL_day, 5, 21
 EMWriteScreen TIKL_year, 5, 24
 EMSetCursor 9, 3
 EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
-
 'SAVES THE TIKL
 PF3
 
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
-
 
 script_end_procedure("Success! Case noted and TIKL sent. Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")

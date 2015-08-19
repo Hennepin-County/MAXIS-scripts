@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -80,38 +80,31 @@ BeginDialog Fraud_Dialog, 0, 0, 211, 275, "Fraud Info"
 EndDialog
 
 
-
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS session and finding case number
 EMConnect ""
-
-'Finds the case number
 CALL MAXIS_case_number_finder(case_number)
-
-CALL check_for_MAXIS(True)
 
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	DO
-		err_msg = ""
-		Dialog fraud_dialog
-		cancel_confirmation
-		IF case_number = "" THEN err_msg = "You must have a case number to continue!"
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
-		IF overpayment_yn = "Select One..." THEN err_msg = err_msg & vbNewLine & "You must select an option for overpayment."
-		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
-	LOOP until err_msg = ""
-	CALL check_for_MAXIS(false)
-	CALL navigate_to_screen("case", "note")
-	PF9
-	EMReadscreen mode_check, 7, 20, 3
-	IF mode_check <> "Mode: A" AND mode_check <> "Mode: E" THEN MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-LOOP until mode_check = "Mode: A" OR mode_check = "Mode: E"
+	err_msg = ""
+	Dialog fraud_dialog
+	cancel_confirmation
+	IF case_number = "" THEN err_msg = "You must have a case number to continue!"
+	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
+	IF overpayment_yn = "Select One..." THEN err_msg = err_msg & vbNewLine & "You must select an option for overpayment."
+	IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+LOOP until err_msg = ""
+
+
+'checking for an active MAXIS session
+CALL check_for_MAXIS(False)
 
 IF overpayment_yn = "Yes" THEN overpayment_yn = " Yes. See overpayment case note for more details."
 
 'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***Fraud Referral Info***")
 CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", referral_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Referral Reason", referral_reason)
