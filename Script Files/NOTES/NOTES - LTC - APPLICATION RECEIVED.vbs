@@ -5,8 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN						
-			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -48,18 +47,18 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
-  EditBox 65, 10, 65, 15, case_number
-  EditBox 65, 30, 30, 15, MAXIS_footer_month
-  EditBox 100, 30, 30, 15, MAXIS_footer_year
+BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
+  EditBox 60, 5, 90, 15, case_number
+  EditBox 60, 25, 30, 15, MAXIS_footer_month
+  EditBox 120, 25, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 55, 50, 15
-    CancelButton 80, 55, 50, 15
-  Text 10, 30, 50, 15, "Footer month:"
-  Text 10, 10, 50, 15, "Case number: "
-EndDialog
+    OkButton 40, 50, 50, 15
+    CancelButton 100, 50, 50, 15
+  Text 10, 10, 50, 10, "Case number:"
+  Text 10, 30, 50, 10, "Footer month:"
+  Text 95, 30, 20, 10, "Year:"
 
-
+  
 BeginDialog LTC_app_recd_dialog, 0, 0, 286, 415, "LTC application received dialog"
   EditBox 75, 35, 65, 15, appl_date
   EditBox 75, 55, 65, 15, appl_type
@@ -129,19 +128,19 @@ HH_memb_row = 05
 'Connecting to BlueZone
 EMConnect ""
 
-'Searching for case number and footer month/year	
-call MAXIS_case_number_finder(case_number)
+'Searching for case number.
+Call MAXIS_case_number_finder(case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Showing the case number dialog, transmits to check for MAXIS.
+'Showing the case number dialog
 Do
   Dialog case_number_dialog
   cancel_confirmation
-  If case_number = "" then MsgBox "You must type a case number."
+  If case_number = "" then MsgBox "You must type a case number!"
 Loop until case_number <> ""
 
 'Now it checks to make sure MAXIS is running on this screen.
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'Navigating to STAT/HCRE so we can grab the app date
 call navigate_to_MAXIS_screen("stat", "hcre")
@@ -185,9 +184,14 @@ Do
 	IF TIKL_45_day_check = 1 and TIKL_60_day_check = 1 then MsgBox "You must choose to TIKL out for 45 or 60 days, not both."
 LOOP until (TIKL_45_day_check = 1 AND TIKL_60_day_check = 0) or (TIKL_45_day_check = 0 AND TIKL_60_day_check = 0) OR (TIKL_45_day_check = 0 AND TIKL_60_day_check = 1)
 
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
+
 'UPDATING PND2----------------------------------------------------------------------------------------------------
 If update_PND2_check = 1 then 
-	call navigate_to_screen("rept", "pnd2")
+	call navigate_to_MAXIS_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
 	If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
@@ -212,6 +216,7 @@ If update_PND2_check = 1 then
 	End if
 End if
 
+
 'THE TIKL's----------------------------------------------------------------------------------------------------
 If TIKL_45_day_check = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
@@ -233,24 +238,23 @@ End if
 
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-call start_a_blank_CASE_NOTE
-'Writing the case note
+start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("***LTC intake***")
-If appl_date <> "" then call write_bullet_and_variable_in_CASE_NOTE("Application date", appl_date)
-If appl_type <> "" then call write_bullet_and_variable_in_CASE_NOTE("Application type received", appl_type)
-If forms_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Forms Needed", forms_needed)
-If HH_comp <> "" then call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
-If CFR <> "" then call write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
-If pre_FACI_ADDR <> "" then call write_bullet_and_variable_in_CASE_NOTE("Pre FACI address", pre_FACI_ADDR)
-If basis_of_elig_droplist <> "" then call write_bullet_and_variable_in_CASE_NOTE("Basis of eligibility", basis_of_elig_droplist)
-If FACI <> "" then call write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
-If retro_request <> "" then call write_bullet_and_variable_in_CASE_NOTE("Retro request", retro_request)
-If AREP <> "" then call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
-If SWKR <> "" then call write_bullet_and_variable_in_CASE_NOTE("PHN/SWKR", SWKR)
-If INSA <> "" then call write_bullet_and_variable_in_CASE_NOTE("INSA/MEDI", INSA)
-If adult_signatures <> "" then call write_bullet_and_variable_in_CASE_NOTE("Adult signatures", adult_signatures)
-If LTCC <> "" then call write_bullet_and_variable_in_CASE_NOTE("LTCC info", LTCC)
-IF veteran_info <> "" then call write_bullet_and_variable_in_CASE_NOTE("Veteran information", veteran_info)
+call write_bullet_and_variable_in_CASE_NOTE("Application date", appl_date)
+call write_bullet_and_variable_in_CASE_NOTE("Application type received", appl_type)
+call write_bullet_and_variable_in_CASE_NOTE("Forms Needed", forms_needed)
+call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
+call write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
+call write_bullet_and_variable_in_CASE_NOTE("Pre FACI address", pre_FACI_ADDR)
+call write_bullet_and_variable_in_CASE_NOTE("Basis of eligibility", basis_of_elig_droplist)
+call write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
+call write_bullet_and_variable_in_CASE_NOTE("Retro request", retro_request)
+call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
+call write_bullet_and_variable_in_CASE_NOTE("PHN/SWKR", SWKR)
+call write_bullet_and_variable_in_CASE_NOTE("INSA/MEDI", INSA)
+call write_bullet_and_variable_in_CASE_NOTE("Adult signatures", adult_signatures)
+call write_bullet_and_variable_in_CASE_NOTE("LTCC info", LTCC)
+call write_bullet_and_variable_in_CASE_NOTE("Veteran information", veteran_info)
 call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 If transfer_reported_check = 1 THEN call write_variable_in_CASE_NOTE("* A transfer has been reported.")
 IF spousal_allocation_check = 1 THEN Call write_variable_in_CASE_NOTE("* Spousal allocation has been requested.")
@@ -260,4 +264,4 @@ IF TIKL_60_day_check = 1 Then call write_variable_in_CASE_NOTE("* Set TIKL for 6
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure ("")

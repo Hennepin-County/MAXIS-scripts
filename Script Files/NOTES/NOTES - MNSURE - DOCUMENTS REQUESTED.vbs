@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -69,52 +69,34 @@ BeginDialog MNsure_docs_reqd_dialog, 0, 0, 301, 105, "MNsure Docs Req'd Dialog"
 EndDialog
 
 
-
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS
 EMConnect ""
-
 'Finds the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 'Displays the dialog and navigates to case note
 Do
-  Do
-    Do
-      Dialog MNsure_docs_reqd_dialog
-      If buttonpressed = 0 then stopscript
-      If case_number = "" then MsgBox "You must have a case number to continue!"
-    Loop until case_number <> ""
-    transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-  call navigate_to_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+	Dialog MNsure_docs_reqd_dialog
+	cancel_confirmation
+	If case_number = "" then MsgBox "You must have a case number to continue!"
+Loop until case_number <> ""
 
-'Case notes
-EMSendKey ">>>>>MNSURE DOCS REQ'D<<<<<" & "<newline>"
-If MNsure_app_date <> "" then call write_editbox_in_case_note("MNsure application date", MNsure_app_date, 6)
-If MNsure_ID <> "" then call write_editbox_in_case_note("MNsure ID", MNsure_ID, 6)
-If application_case_number <> "" then call write_editbox_in_case_note("Application case number", application_case_number, 6)
-If docs_reqd <> "" then call write_editbox_in_case_note("Docs requested", docs_reqd, 6)
-If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-call write_editbox_in_case_note("Please note", "If these docs come into your ''My documents received'' queue in OnBase, please create a copy of the document and re-index it to the appropriate MNsure doc type, and send to the proper workflow. If you have questions, consult a member of the MNsure team.", 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
+
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE(">>>>>MNSURE DOCS REQ'D<<<<<")
+If MNsure_app_date <> "" then call write_bullet_and_variable_in_case_note("MNsure application date", MNsure_app_date)
+If MNsure_ID <> "" then call write_bullet_and_variable_in_case_note("MNsure ID", MNsure_ID)
+If application_case_number <> "" then call write_bullet_and_variable_in_case_note("Application case number", application_case_number)
+If docs_reqd <> "" then call write_bullet_and_variable_in_case_note("Docs requested", docs_reqd)
+If other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+call write_bullet_and_variable_in_case_note("Please note", "If these docs come into your ''My documents received'' queue in OnBase, please create a copy of the document and re-index it to the appropriate MNsure doc type, and send to the proper workflow. If you have questions, consult a member of the MNsure team.")
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

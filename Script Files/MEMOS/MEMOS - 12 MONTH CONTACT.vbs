@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -46,10 +46,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'<<DELETE REDUNDANCIES!
-
 'DIALOGS
-
 BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
   EditBox 95, 0, 60, 15, case_number
@@ -61,24 +58,20 @@ BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
 EndDialog
 
 
-'THE SCRIPT
-
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'grabbing case number & connecting to MAXIS
 EMConnect ""
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
+Call MAXIS_case_number_finder(case_number)
+
 dialog case_number_dialog
-If ButtonPressed = 0 then stopscript
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" then
-  MsgBox "MAXIS cannot be found. You may be passworded out. Please try again."
-  Stopscript
-End if
+cancel_confirmation
 
-'THE MEMO
+'checking for an active MAXIS session
+Call check_for_MAXIS(True)
 
-call navigate_to_screen("spec", "memo")
+
+'THE MEMO----------------------------------------------------------------------------------------------------
+call navigate_to_MAXIS_screen("spec", "memo")
 PF5
 EMReadScreen MEMO_edit_mode_check, 26, 2, 28
 If MEMO_edit_mode_check <> "Notice Recipient Selection" then
@@ -87,20 +80,14 @@ If MEMO_edit_mode_check <> "Notice Recipient Selection" then
 End if
 EMWriteScreen "x", 5, 10
 transmit
-EMSendKey "************************************************************"
-EMSendKey "This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker." & "<newline>"
-EMSendKey "************************************************************"
+Call write_variable_in_SPEC_MEMO ("************************************************************")
+Call write_variable_in_SPEC_MEMO ("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
+Call write_variable_in_SPEC_MEMO ("************************************************************")
 PF4
 
 'THE CASE NOTE
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
-EMSendKey "Sent 12 month contact letter via SPEC/MEMO on " & date & ". -" & worker_sig
+Call write_variable_in_CASE_NOTE("Sent 12 month contact letter via SPEC/MEMO on " & date & ". -" & worker_sig)
 
 script_end_procedure("")
-
-
-
-
-
-

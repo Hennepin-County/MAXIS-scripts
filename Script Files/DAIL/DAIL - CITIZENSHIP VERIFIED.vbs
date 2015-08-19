@@ -6,7 +6,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -284,28 +284,16 @@ BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
     CancelButton 250, 200, 50, 15
 EndDialog
 
-
-
 'Shows dialog and then seeks out case/note
-Do
-  Do
-    Dialog cit_ID_dialog
-    If buttonpressed = 0 then stopscript
-    transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
-  Loop until MAXIS_check = "MAXIS"
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen mode_check, 7, 20, 3
-    If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
-  End if
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+Dialog cit_ID_dialog
+cancel_confirmation
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Sends the case note
-EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
+Call start_a_blank_CASE_NOTE
+call write_variable_in_CASE_NOTE("***CITIZENSHIP/IDENTITY***")
 EMSendKey string(77, "-") 
 EMSendKey "    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF" & "<newline>"
 If HH_memb_01 <> "" then 
@@ -366,12 +354,6 @@ If HH_memb_08 <> "" then
 End if
 EMSetCursor 15, 3
 EMSendKey string(77, "-") & "<newline>"
-Call write_new_line_in_case_note(worker_sig)
+Call write_variable_in_CASE_NOTE(worker_sig)
 
 script_end_procedure("")
-
-
-
-
-
-

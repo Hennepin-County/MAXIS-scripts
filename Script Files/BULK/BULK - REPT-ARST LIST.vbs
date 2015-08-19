@@ -8,7 +8,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -146,7 +146,7 @@ Loop until buttonpressed = OK
 query_start_time = timer
 
 'Checking MAXIS
-MAXIS_check_function
+Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -546,7 +546,7 @@ EMWriteScreen footer_year, 20, 46
 transmit
 
 'Getting to REPT/ARST
-call navigate_to_screen("rept", "arst")
+call navigate_to_MAXIS_screen("rept", "arst")
 
 'Reading the accumulations timestamp to be used later when we provide stats to the user
 EMReadScreen accumulations_timestamp, 30, 19, 40
@@ -710,7 +710,7 @@ Next
 excel_row = 3
 
 'Navigates to REPT/USER
-call navigate_to_screen("REPT", "USER")
+call navigate_to_MAXIS_screen("REPT", "USER")
 
 'This do...loop will read the worker x1, navigate to REPT/USER, and get the worker's name
 Do
@@ -745,7 +745,4 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
-
-MsgBox "Success! The statistics have loaded."
-
-script_end_procedure("")
+script_end_procedure("Success! The statistics have loaded.")

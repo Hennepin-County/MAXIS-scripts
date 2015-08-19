@@ -4,7 +4,7 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN 'Shouldn't load FuncLib if it already loaded once
-    IF run_locally = FALSE or run_locally = "" THEN     'If the scripts are set to run locally, it skips this and uses an FSO below.
+    IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN     'If the scripts are set to run locally, it skips this and uses an FSO below.
         IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN            'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
             FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
         ELSEIF beta_agency = "" or beta_agency = True then                          'If you're a beta agency, you should probably use the beta branch.
@@ -250,11 +250,8 @@ elseif worker_county_code = "x188" then
 elseif worker_county_code = "x192" then 
     agency_office_array = array("Detroit Lakes", "Naytahwaush", "Bagley", "Mahnomen")
 end if
-
-
-
-
-
+'
+'
 
 county_office_list = ""     'Blanking this out because it may contain old info from the old global variables (from before this was integrated in this script)
 
@@ -448,7 +445,7 @@ ELSEIF worker_county_code = "x119" THEN
     agency_address.city = "West St Paul" 
     agency_address.zip = "55118" 
 ELSEIF worker_county_code = "x121" THEN
-    agency_address.street = "809  Elm Street, Ste 1186" 
+    agency_address.street = "809  Elm Street, Ste 1186" 
     agency_address.city = "Alexandria" 
     agency_address.zip = "56308" 
 ELSEIF worker_county_code = "x122" THEN
@@ -518,7 +515,7 @@ ELSEIF worker_county_code = "x134" THEN
     agency_address.city = "Willmar" 
     agency_address.zip = "56201" 
 ELSEIF worker_county_code = "x135" THEN
-    agency_address.street = " 410 5th Street S Suite 100" 
+    agency_address.street = " 410 5th Street S Suite 100" 
     agency_address.city = "Hallock" 
     agency_address.zip = "56728" 
 ELSEIF worker_county_code = "x136" THEN
@@ -566,7 +563,7 @@ ELSEIF worker_county_code = "x146" THEN
     agency_address.city = "Fairmont" 
     agency_address.zip = "56031" 
 ELSEIF worker_county_code = "x147" THEN
-    agency_address.street = "114 N Holcombe Ave;  Ste 180" 
+    agency_address.street = "114 N Holcombe Ave;  Ste 180" 
     agency_address.city = "LItchfield" 
     agency_address.zip = "55355" 
 ELSEIF worker_county_code = "x148" THEN
@@ -594,7 +591,7 @@ ELSEIF worker_county_code = "x154" THEN
     agency_address.city = "Ada" 
     agency_address.zip = "56510" 
 ELSEIF worker_county_code = "x155" THEN
-    agency_address.street = "2117 Campus Dr SE  Suite 100" 
+    agency_address.street = "2117 Campus Dr SE  Suite 100" 
     agency_address.city = "Rochester" 
     agency_address.zip = "55904" 
 ELSEIF worker_county_code = "x156" THEN
@@ -652,7 +649,7 @@ ELSEIF worker_county_code = "x165" THEN
 ELSEIF worker_county_code = "x166" THEN
     agency_address.street = "320 3rd St N.W." 
     agency_address.city = "Faribault" 
-    agency_address.zip = " 55021" 
+    agency_address.zip = " 55021" 
 ELSEIF worker_county_code = "x167" THEN
     agency_address.street = "2 Roundwind Road" 
     agency_address.city = "Luverne" 

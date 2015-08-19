@@ -1,11 +1,14 @@
 'Option Explicit
 
+name_of_script = "NOTES - GAS CARDS ISSUED.vbs"
+start_time = timer
+
 'DIM card_amt, amt_given_yr_to_date, check, worker_signature, url, req, fso, gas_card_dialog, client_signed_stmt_check, ButtonPressed, case_number, client_signed_stmt, beta_agency, date_cards_given, case_number_finder, thirty_days_from_now
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -89,21 +92,15 @@ DO
 LOOP UNTIL card_amt <> "Select One..."
 
 
-'Checks Maxis for password prompt
-CALL check_for_MAXIS(True)
-
-
-'Navigates to case note
-CALL navigate_to_screen("CASE", "NOTE")
-
-'Sends a PF9 adds note
-PF9
+'Checks for active MAXIS session
+CALL check_for_MAXIS(FALSE)
 
 amt_given_yr_to_date = "$" & amt_given_yr_to_date
 card_amt = "$" & card_amt
 
 
 'Writes the case note
+start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note ("*$$*GAS CARDS ISSUED*$$*")                                                                           'Writes title in Case note
 CALL write_bullet_and_variable_in_case_note("Gas Cards issued on", date_cards_given)                                                    'Writes date cards were issued on next line
 CALL write_bullet_and_variable_in_case_note("Amount of Fuel Cards Given", card_amt)                                                     'Write the amt given this
@@ -118,4 +115,4 @@ END IF
 CALL write_variable_in_case_note ("---")   
 CALL write_variable_in_CASE_NOTE(worker_signature)    'Writes worker signature in note
 
-CALL script_end_procedure("")
+script_end_procedure("")

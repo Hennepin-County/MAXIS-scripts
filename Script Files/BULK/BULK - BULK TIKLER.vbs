@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -129,7 +129,8 @@ EndDialog
 EMConnect ""
 
 'Checks for MAXIS
-maxis_check_function
+Call check_for_MAXIS(True)
+
 
 
 Do	
@@ -236,9 +237,9 @@ case_number_array = array(case_number_01, case_number_02, case_number_03, case_n
 For each case_number in case_number_array
 	If case_number <> "" then
 		back_to_self
-		call navigate_to_screen("DAIL", "WRIT")
+		call navigate_to_MAXIS_screen("DAIL", "WRIT")
 		call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)
-		call write_TIKL_function(tikl_text)
+		call write_variable_in_TIKL(tikl_text)
 		PF3
 	End if
 Next

@@ -131,7 +131,6 @@ EMWriteScreen MAXIS_footer_year, 20, 46
 EMWriteScreen "hc", 21, 70
 transmit
 
-
 'Checks to make sure it's in HCMI, due to error prone cases
 call navigate_to_MAXIS_screen("STAT", "HCMI")
 EMReadScreen HCMI_check, 4, 2, 55 

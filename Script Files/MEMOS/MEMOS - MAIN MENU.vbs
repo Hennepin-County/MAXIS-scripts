@@ -46,7 +46,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 240, "Memos scripts main menu dialog"
   ButtonGroup ButtonPressed
