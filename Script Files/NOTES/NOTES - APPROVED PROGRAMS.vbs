@@ -363,7 +363,7 @@ IF autofill_cash_check = checked THEN
 					IF cash_approval_versions = "1" THEN script_end_procedure("You do not have an approved version of CASH in the selected benefit month. Please approve before running the script.")
 					cash_approval_versions = int(cash_approval_versions)
 					cash_approval_to_check = cash_approval_versions - 1
-					EMWriteScreen cash_approval_to_check, 20, 79
+					EMWriteScreen cash_approval_to_check, 20, 78
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 15
 					IF cdate(cash_approval_date) = date THEN
@@ -397,7 +397,7 @@ IF autofill_cash_check = checked THEN
 					IF cash_approval_versions = "1" THEN script_end_procedure("You do not have an approved version of CASH in the selected benefit month. Please approve before running the script.")
 					cash_approval_versions = int(cash_approval_versions)
 					cash_approval_to_check = cash_approval_versions - 1
-					EMWriteScreen cash_approval_to_check, 20, 79
+					EMWriteScreen cash_approval_to_check, 20, 78
 					transmit
 					EMReadScreen cash_approval_date, 8, 3, 14
 					IF cdate(cash_approval_date) = date THEN
@@ -541,7 +541,7 @@ IF autofill_cash_check = checked THEN
 			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
 			curr_cash_bene_yr = right(cash_approval_result, 2)
 			cash_header = (cash_program & " Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr)
-			call write_variable_in_CASE_NOTE(cash_header, FormatCurrency(cash_bene_amt))
+			call write_bullet_and_variable_in_CASE_NOTE(cash_header, FormatCurrency(cash_bene_amt))
 		END IF
 	NEXT
 END IF
