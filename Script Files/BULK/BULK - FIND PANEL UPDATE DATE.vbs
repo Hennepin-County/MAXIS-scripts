@@ -246,6 +246,15 @@ FOR EACH maxis_worker IN workers_list
 			row = 1
 			col = 1 
 			EMSearch "PRIVILEGED", row, col
+			'SELF check protecting against background cases. 
+			DO
+				EMWriteScreen "STAT", 16, 43
+				EMWriteScreen "________", 18, 43
+				EMWriteScreen case_number, 18, 43
+				transmit
+				EMReadScreen self_check, 4, 2, 50
+				IF row = 24 THEN EXIT DO
+			LOOP until self_check <> "SELF"
 			
 			IF row <> 24 THEN 
 				IF JOBS_checkbox = 1 THEN 
