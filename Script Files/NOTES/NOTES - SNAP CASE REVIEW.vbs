@@ -3,15 +3,8 @@
 name_of_script = "NOTES - SNAP CASE REVIEW.vbs"
 start_time = timer
 
-'DIM name_of_script
-'DIM start_time
-'DIM FuncLib_URL
-'DIM run_locally
-'DIM default_directory
-'DIM beta_agency
-'DIM req
-'DIM fso
-'DIM row
+'declared varaibles for FuncLib
+'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso, row
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -57,50 +50,32 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
 
-'FUNCTION----------------------------------------------------------------------------------------------------
-FUNCTION MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)'Grabbing the footer month/year
-	back_to_self
-    Call find_variable("Benefit Period (MM YY): ", MAXIS_footer_month, 2)
-    If isnumeric(MAXIS_footer_month) = true then               'checking to see if a footer month 'number' is present 
-    footer_month = MAXIS_footer_month                
-    call find_variable("Benefit Period (MM YY): " & footer_month & " ", MAXIS_footer_year, 2)
-    If isnumeric(MAXIS_footer_year) = true then footer_year = MAXIS_footer_year 'checking to see if a footer year 'number' is present
-	Else 'If we don’t have one found, we’re going to assign the current month/year.
-		MAXIS_footer_month = DatePart("m", date)   'Datepart delivers the month number to the variable
-		If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month   'If it’s a single digit month, add a zero
-		MAXIS_footer_year = right(DatePart("yyyy", date), 2)   'We only need the right two characters of the year for MAXIS
-	End if
-END FUNCTION
 
 'DECLARING VARIABLES--------------------------------------------------------------------------------------------------------
-'DIM SNAP_quality_case_review_dialog
+'DIM case_number_dialog
 'DIM ButtonPressed
 'DIM case_number
 'DIM MAXIS_footer_month
 'DIM MAXIS_footer_year
-'DIM SNAP_status
-'DIM grant_amount
-'DIM worker_signature
-'DIM footer_month
-'DIM footer_year
+'DIM program_droplist
 
 
-'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog SNAP_quality_case_review_dialog, 0, 0, 246, 85, "SNAP quality case review dialog"
-  EditBox 65, 5, 65, 15, case_number
-  EditBox 185, 5, 25, 15, MAXIS_footer_month
-  EditBox 215, 5, 25, 15, MAXIS_footer_year
-  DropListBox 135, 25, 105, 15, "Select one..."+chr(9)+"correct & approved"+chr(9)+"error exists", SNAP_status
-  EditBox 135, 45, 105, 15, grant_amount
-  EditBox 65, 65, 65, 15, worker_signature
+'DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog SNAP_case_review_dialog, 0, 0, 276, 80, "SNAP case review dialog"
+  EditBox 70, 5, 70, 15, case_number					
+  DropListBox 190, 5, 80, 15, "Select one..."+chr(9)+"MFIP"+chr(9)+"SNAP", program_droplist
+  EditBox 70, 30, 25, 15, MAXIS_footer_month					
+  EditBox 100, 30, 25, 15, MAXIS_footer_year
+  DropListBox 190, 30, 80, 15, "Select one..."+chr(9)+"correct & approved"+chr(9)+"error exists", SNAP_status_droplist
+  EditBox 70, 55, 90, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 135, 65, 50, 15
-    CancelButton 190, 65, 50, 15
-  Text 5, 70, 60, 10, "Worker signature:"
-  Text 5, 30, 100, 10, "SNAP budget/issuance status:"
-  Text 5, 10, 45, 10, "Case number:"
-  Text 135, 10, 45, 10, "Footer month:"
-  Text 5, 50, 125, 10, "If approved, what is the grant amount:"
+    OkButton 165, 55, 50, 15
+    CancelButton 220, 55, 50, 15
+  Text 5, 35, 65, 10, "Footer month/year:"
+  Text 5, 10, 45, 10, "Case number: "
+  Text 145, 35, 45, 10, "SNAP status:"
+  Text 150, 10, 30, 10, "Program:"
+  Text 5, 60, 60, 10, "Worker signature:"
 EndDialog
 
 
@@ -112,45 +87,101 @@ CALL MAXIS_case_number_finder(case_number)
 'Grabbing the footer month/year
 Call MAXIS_footer_finder (MAXIS_footer_month, MAXIS_footer_year)
 
+'dialog with err_msg.  Alternative to large 'DO LOOP' as user will not be able to leave the loop until err_msg = "" as set at the begining of the dialog
+DO 
+	err_msg = ""
+	Dialog SNAP_case_review_dialog
+	If ButtonPressed = 0 then StopScript
+	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+	If program_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* You must a program type."
+	If MAXIS_footer_month AND MAXIS_footer_year = "" then err_msg = err_msg & vbNewLine & "* You must enter the footer month and footer year."
+	IF SNAP_status_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select a SNAP status type."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP until err_msg = ""
 
-DO
-	DO
-		Do
-			DO
-				Dialog SNAP_quality_case_review_dialog
-				cancel_confirmation
-				IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
-			LOOP UNTIL IsNumeric(case_number) = TRUE
-			If worker_signature = "" THEN MsgBox "You must sign the case note."
-		LOOP until worker_signature <> ""
-		If SNAP_status = "Select one..." THEN MsgBox "You must check either that the case is correct and approved, or an error exists."
-	LOOP UNTIL SNAP_status <> "Select one..."
-	If (SNAP_status = "correct & approved" AND grant_amount = "") OR (SNAP_status = "error exists" AND grant_amount <> "") THEN Msgbox "You must either select 'error exists', and leave the grant amount blank OR select 'correct & approved', and enter the grant amount. "
-LOOP until (SNAP_status = "correct & approved" AND grant_amount <> "") OR (SNAP_status = "error exists" AND grant_amount = "") 	
-
-
-'Dollar bill symbol will be added to numeric variables (in grant_amount)
-IF grant_amount <> "" THEN grant_amount = "$" & grant_amount
 
 'Checking to make sure user is still in active MAXIS session
-Call check_for_MAXIS(TRUE)
+Call check_for_MAXIS(FALSE)
 
-'The CASE NOTE----------------------------------------------------------------------------------------------------
-'navigates to case note and creates a new one
-Call start_a_blank_CASE_NOTE
-'Case note if case is incorrect
-If SNAP_status = "error exists" THEN
-	Call write_variable_in_CASE_NOTE("~~~SNAP case review complete, further action required~~~")
+If SNAP_status_droplist = "error exists" THEN 	'navigates right to case note, documents error, and ends script.
+	start_a_blank_CASE_NOTE
+	Call write_variable_in_CASE_NOTE("~~~" & program_droplist & " case review completed, further action required~~~")
 	Call write_variable_in_CASE_NOTE("* An error exists in the SNAP budget or issuance.")  
-	Call write_variable_in_CASE_NOTE("* The case has been returned to the worker and supervisor for correction.")
+	Call write_variable_in_CASE_NOTE("* The case has been returned to the worker and/or supervisor for correction.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	'Case note if case is correct
-	ELSEIF SNAP_status = "correct & approved" THEN 
-		Call write_variable_in_CASE_NOTE("~~~SNAP case review complete & app'd for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " of " & grant_amount & " SNAP grant~~~")
-		Call write_variable_in_CASE_NOTE("* SNAP case has been reviewed, and the budget and issuance is correct.")
-		Call write_variable_in_CASE_NOTE("---")
-		Call write_variable_in_CASE_NOTE(worker_signature)	
-END If
+
+	script_end_procedure("A SNAP error exists.  Please communicate this per your agency's procedure.")
+END IF
+
+
+'Navigates to the ELIG results for SNAP, if the worker desires to have the script auto-fills the case note with SNAP approval information.
+IF program_droplist = "SNAP" THEN
+	call navigate_to_MAXIS_screen("ELIG", "FS")
+	EMWriteScreen MAXIS_footer_month, 19, 54
+	EMWriteScreen MAXIS_footer_year, 19, 57
+	EMReadScreen program_check, 39, 24, 2
+	IF program_check = "NO VERSION OF ELIGIBILITY EXISTS FOR FS" THEN
+		script_end_procedure("SNAP is NOT active on this case.  Please review the case for accuracy, and take the appropriate action.") 
+	ELSE
+		EMWRiteScreen "FSSM", 19, 70
+		transmit
+		EMReadScreen approved_version, 8, 3, 3
+		IF approved_version = "APPROVED" THEN
+			EMReadScreen snap_bene_amt, 5, 13, 73
+			snap_bene_amt = LTrim(snap_bene_amt)
+		ELSEIF approved_version <> "APPROVED" THEN
+			script_end_procedure("There is an UNAPPROVED version of SNAP for this case.  Please review the case for accuracy, and approve if appropriate.")
+		END IF
+	END IF
+END IF
+
+'Navigates to the ELIG results for MFIP, if the worker desires to have the script auto-fills the case note with MFIP approval information.
+IF program_droplist = "MFIP" THEN
+	call navigate_to_MAXIS_screen("ELIG", "MFIP")
+	EMWriteScreen MAXIS_footer_month, 19, 54
+	EMWriteScreen MAXIS_footer_year, 19, 57
+	EMReadScreen program_check, 41, 24, 2
+	IF program_check = "NO VERSION OF ELIGIBILITY EXISTS FOR MFIP" Then 
+		script_end_procedure("MFIP is NOT active on this case.  Please review the case for accuracy, and take the appropriate action.")
+	ELSE
+		EMWRiteScreen "MFSM", 20, 71
+		transmit
+		EMReadScreen cash_approved_version, 8, 3, 3
+		IF cash_approved_version = "APPROVED" THEN
+			EMReadScreen mfip_net_grant_amount, 8, 13, 73
+			EMReadScreen mfip_bene_cash_amt, 8, 14, 73
+			EMReadScreen mfip_bene_food_amt, 8, 15, 73
+			EMReadScreen mfip_bene_housing_amt, 8, 16, 73
+			mfip_net_grant_amount = replace(mfip_net_grant_amount, " ", "0")
+			mfip_bene_cash_amt = replace(mfip_bene_cash_amt, " ", "0")
+			mfip_bene_food_amt = replace(mfip_bene_food_amt, " ", "0")
+			mfip_bene_housing_amt = replace(mfip_bene_housing_amt, " ", "0")
+		ELSEIF cash_approved_version <> "APPROVED" THEN
+			script_end_procedure("There is an UNAPPROVED version of MFIP for this case.  Please review the case for accuracy, and approve if appropriate.")
+		END IF
+	END IF 
+END IF 
+
+
+'CASE NOTE for correct and approved cases----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+IF program_droplist = "SNAP" or program_droplist = "EXP SNAP" THEN 
+	Call write_variable_in_CASE_NOTE("~~~SNAP case review complete & app'd for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " of " & FormatCurrency(snap_bene_amt) & "~~~")
+	Call write_bullet_and_variable_in_CASE_NOTE("SNAP grant amount", FormatCurrency(snap_bene_amt))
+	Call write_variable_in_CASE_NOTE("* SNAP case has been reviewed, and the budget and issuance is correct.")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+ELSEIF program_droplist = "MFIP" THEN
+	Call write_variable_in_CASE_NOTE("~~~MFIP case review complete & app'd for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " of " & FormatCurrency(mfip_net_grant_amount) & "~~~")
+	Call write_bullet_and_variable_in_CASE_NOTE("MFIP net grant amount", FormatCurrency(mfip_net_grant_amount))
+	call write_bullet_and_variable_in_CASE_NOTE("MFIP Cash portion", FormatCurrency(mfip_bene_cash_amt))
+	call write_bullet_and_variable_in_CASE_NOTE("MFIP Food portion",  FormatCurrency(mfip_bene_food_amt))
+	call write_bullet_and_variable_in_CASE_NOTE("MFIP Housing portion", FormatCurrency(mfip_bene_housing_amt))
+	Call write_variable_in_CASE_NOTE("* MFIP case has been reviewed, and the budget and issuance is correct.")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+END IF
 
 script_end_procedure("")

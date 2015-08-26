@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -102,7 +102,7 @@ Do
 Loop until worker_signature <> ""
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 
 'LOGIC AND CALCULATIONS----------------------------------------------------------------------------------------------------
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
@@ -144,7 +144,6 @@ End if
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
-'Body of the case note 
 Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)

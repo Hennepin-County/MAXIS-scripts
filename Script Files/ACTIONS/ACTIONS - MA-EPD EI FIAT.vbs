@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -84,24 +84,9 @@ call MAXIS_case_number_finder(case_number)
 memb_number = "01" 'Setting a default
 
 Dialog case_number_dialog
-If buttonpressed = 0 then stopscript
+Cancel_confirmation
 
-back_to_self
-
-EMWriteScreen "stat", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
-EMWriteScreen "jobs", 21, 70
-EMWriteScreen memb_number, 21, 75
-transmit
-
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" then stopscript
-
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit
+call navigate_to_MAXIS_screen("STAT", "JOBS")
 
 EMReadScreen jobs_total, 1, 2, 78
 EMReadScreen jobs_current, 1, 2, 73
@@ -134,7 +119,7 @@ If jobs_current = "2" then
   EMWriteScreen "x", 19, 54
   transmit
   EMReadScreen income_job_02, 8, 11, 63
-  income_job_02 = trim(income_job_02)
+  income_job_02 = trim(replace(income_job_02, "_", ""))
   transmit
   transmit
   EMReadScreen jobs_current, 1, 2, 73
@@ -150,7 +135,7 @@ If jobs_current = "3" then
   EMWriteScreen "x", 19, 54
   transmit
   EMReadScreen income_job_03, 8, 11, 63
-  income_job_03 = trim(income_job_03)
+  income_job_03 = trim(replace(income_job_03, "_", ""))
   transmit
   transmit
   EMReadScreen jobs_current, 1, 2, 73
@@ -196,15 +181,7 @@ Dialog MA_EPD_dialog
 If ButtonPressed = 0 then stopscript
 
 'SECTION 04: NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
-
-
-back_to_SELF
-
-EMWriteScreen "elig", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen "hc", 21, 70
-transmit
+Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 row = 1
 col = 1
@@ -283,13 +260,4 @@ Do
   transmit
 loop until col > 76
 
-MsgBox "Success! Please make sure to check eligibility for any medicare reimbursement programs such as QMB or SLMB."
-
-
-script_end_procedure("")
-
-
-
-
-
-
+script_end_procedure("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")

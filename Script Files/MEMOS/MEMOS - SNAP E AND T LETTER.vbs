@@ -9,7 +9,7 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+	IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN	'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN		'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
@@ -51,14 +51,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
 county_FSET_offices = array("")
 
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
-
-'IF worker_county_code = "x101" THEN county_FSET_offices = array("Select one...",
+IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center")
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
 IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
@@ -114,8 +114,8 @@ IF worker_county_code = "x151" THEN county_FSET_offices = array("Marshall WorkFo
 'IF worker_county_code = "x154" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x155" THEN county_FSET_offices = array("Olmstead County Family Support & Assistance")
 IF worker_county_code = "x156" THEN county_FSET_offices = array("Rural MN CEP Fergus Falls")
-IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkForce Center: Theif River Falls")
-IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one...", "Pine County Health & Human Services", "Pine Technical & Community College E&T Center")
+IF worker_county_code = "x157" THEN county_FSET_offices = array("Minnesota WorkForce Center: Thief River Falls")
+IF worker_county_code = "x158" THEN county_FSET_offices = array("Select one...", "Pine County Public Health Building", "Pine Technical & Community College E&T Center")
 IF worker_county_code = "x159" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Pipestone")
 IF worker_county_code = "x160" THEN county_FSET_offices = array("Select one...", "Polk County Social Services: Crookston", "Polk County Social Services: East Grand Forks", "Polk County Social Services: Fosston")
 IF worker_county_code = "x161" THEN county_FSET_offices = array("Minnesota Workforce Center Alexandria")
@@ -182,7 +182,6 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointmen
 EndDialog
 
 
-
 'This dialog is for counties that have not provided FSET office address(s)
 BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
@@ -234,8 +233,7 @@ DO
 									DO
 										DO
 											DO	
-												'Counties listed here (starting with x101 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)
-												If worker_county_code = "x101" OR _  	
+												'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
 												worker_county_code = "x105" OR _
 												worker_county_code = "x106" OR _
 												worker_county_code = "x110" OR _
@@ -300,9 +298,17 @@ DO
 Loop until interview_location <> "Select one..."
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
+'CO #01 AITKIN COUNTY address
+IF interview_location = "Aitkin Workforce Center" THEN 
+	SNAPET_name = "Aitkin Workforce Center"
+	SNAPET_address_01 = "20 3rd Street NE"
+	SNAPET_city = "Aitkin"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56431"
+END IF
 
 'CO #02 Anoka County address
 IF interview_location = "Minnesota WorkForce Center Blaine" THEN 
@@ -613,7 +619,7 @@ IF interview_location  = "Central MN Jobs and Training Services Litchfield" THEN
     SNAPET_zip = "55355"
 END IF
 
-'CO #50 MOWER COUNTY address
+'CO #50 MOWER COUNTY address
 IF interview_location  = "Workforce Development Inc. (Austin)" THEN
     SNAPET_name = "Workforce Development Inc. (Austin)"
     SNAPET_address_01 = "1600 8th Avenue NW"
@@ -650,18 +656,18 @@ IF interview_location  = "Rural MN CEP Fergus Falls" THEN
 END IF
 
 'CO #57 PENNINGTON COUNTY address
-IF interview_location  = "Minnesota WorkForce Center: Theif River Falls" THEN
-    SNAPET_name = "Minnesota WorkForce Center: Theif River Falls"
+IF interview_location  = "Minnesota WorkForce Center: Thief River Falls" THEN
+    SNAPET_name = "Minnesota WorkForce Center: Thief River Falls"
     SNAPET_address_01 = "1301 State Hwy 1"
-    SNAPET_city = "Theif River Falls"
+    SNAPET_city = "Thief River Falls"
     SNAPET_ST = "MN"
     SNAPET_zip = "56701"
 END IF
 
 'CO #58 PINE COUNTY address
-IF interview_location  = "Pine County Health & Human Services" THEN
-    SNAPET_name = "Pine County Health & Human Services"
-    SNAPET_address_01 = "130 Oriole St E Ste 1"
+IF interview_location  = "Pine County Public Health Building" THEN
+    SNAPET_name = "Pine County Public Health Building"
+    SNAPET_address_01 = "1610 Hwy 23 N"
     SNAPET_city = "Sandstone"
     SNAPET_ST = "MN"
     SNAPET_zip = "55072"
@@ -716,7 +722,7 @@ END IF
 IF interview_location  = "Minnesota Workforce Center: Red Lake" THEN
     SNAPET_name = "Minnesota Workforce Center: Red Lake"
     SNAPET_address_01 = "1301 Highway 1 East"
-    SNAPET_city = "Theif River Falls"
+    SNAPET_city = "Thief River Falls"
     SNAPET_ST = "MN"
     SNAPET_zip = "56701"
 END IF
@@ -955,17 +961,14 @@ EMWriteScreen SNAPET_contact, 16, 28
 PF4		'saves and sends memo
 
 'Navigates to a blank case note
-call start_a_blank_CASE_NOTE
-
+start_a_blank_CASE_NOTE
 'Writes the case note
-CALL write_new_line_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
+CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
 Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
 CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
-CALL write_new_line_in_case_note("---")
-CALL write_new_line_in_case_note(worker_signature)
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 
-MsgBox "If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!"
-
-script_end_procedure("")
+script_end_procedure("If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!")

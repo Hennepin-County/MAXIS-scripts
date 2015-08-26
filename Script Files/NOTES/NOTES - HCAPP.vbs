@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -46,8 +46,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 footer_month = datepart("m", next_month)
 If len(footer_month) = 1 then footer_month = "0" & footer_month
@@ -56,7 +56,6 @@ footer_year = "" & footer_year - 2000
 
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, case_number
@@ -432,4 +431,4 @@ IF MMIS_update_check = checked then call write_variable_in_case_note("* MMIS upd
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-CALL script_end_procedure("")
+script_end_procedure("")

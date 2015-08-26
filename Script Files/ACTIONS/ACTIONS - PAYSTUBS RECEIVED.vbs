@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -47,21 +47,6 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CUSTOM FUNCTIONS
-
-Function PIC_paystubs_info_adder(pay_date, gross_amt, hours)
-	If isdate(pay_date) = True then
-		CALL create_MAXIS_friendly_date(pay_date, 0, PIC_row, 13)
-		EMWriteScreen gross_amt, PIC_row, 25
-		EMWriteScreen hours, PIC_row, 35
-		PIC_row = PIC_row + 1
-		IF PIC_row = 14 THEN
-			PF20
-			PF20
-			PIC_row = 9
-		END IF 
-	End If
-End function
-
 Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, total_prospective_pay, total_prospective_hours) 'Creates variables for total_prospective_pay and total_prospective_hours
   If isdate(pay_date) = True then
     total_prospective_pay = total_prospective_pay + abs(gross_amt)
@@ -237,7 +222,7 @@ DO
 	EMReadScreen STAT_footer_year_check, 2, 20, 58
 	If STAT_check <> "STAT" or trim(replace(STAT_case_number, "_", "")) <> case_number or STAT_footer_month_check <> footer_month or STAT_footer_year_check <> footer_year then back_to_SELF
 	
-	call navigate_to_screen("stat", "jobs")
+	call navigate_to_MAXIS_screen("stat", "jobs")
 	
 	'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
 	EMReadScreen SELF_check, 4, 2, 50
@@ -394,7 +379,19 @@ Do
 			PIC_row = 9
 			'Uses function to add each PIC pay date, income, and hours. Doesn't add any if they show "01/01/2000" as those are dummy numbers
 			FOR i = 0 to (number_of_paystubs - 1)
-				IF paystubs_array(i, 0) <> "01/01/2000" THEN CALL PIC_paystubs_info_adder(paystubs_array(i, 0), paystubs_array(i, 1), paystubs_array(i, 2))
+				IF paystubs_array(i, 0) <> "01/01/2000" THEN 
+					If isdate(paystubs_array(i, 0)) = True then
+						CALL create_MAXIS_friendly_date(paystubs_array(i, 0), 0, PIC_row, 13)
+						EMWriteScreen paystubs_array(i, 1), PIC_row, 25
+						EMWriteScreen paystubs_array(i, 2), PIC_row, 35
+						PIC_row = PIC_row + 1
+						IF PIC_row = 14 THEN
+							PF20
+							PF20
+							PIC_row = 9
+						END IF 
+					End If
+				END IF
 			NEXT
 			
 			'Transmits in order to format the PIC

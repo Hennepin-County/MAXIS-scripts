@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -72,7 +72,7 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
   DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
   DropListBox 215, 25, 135, 15, "acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-MR", admitted_from
-  EditBox 155, 45, 195, 15, hospital_admitted_from
+  EditBox 145, 45, 205, 15, hospital_admitted_from
   EditBox 75, 65, 65, 15, admit_date
   EditBox 275, 65, 75, 15, discharge_date
   CheckBox 15, 85, 155, 10, "If you've processed this 1503, check here.", processed_1503_check
@@ -95,12 +95,12 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   CheckBox 10, 260, 150, 10, "Check here to have the script update FACI.", FACI_update_check
   Text 105, 205, 60, 10, "Worker signature:"
   Text 5, 185, 25, 10, "Notes:"
-  Text 5, 50, 150, 10, "If hospital, list name and dates of admission:"
+  Text 5, 50, 135, 10, "If hospital, list name & dates of admission:"
   GroupBox 5, 100, 355, 75, "actions/proofs"
   Text 5, 30, 95, 10, "Recommended level of care:"
   Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
   Text 160, 30, 50, 10, "Admitted from:"
-  Text 5, 10, 50, 10, "Facility name:"
+  Text 5, 10, 47, 10, "Facility name:"
   Text 5, 70, 65, 10, "Date of admission:"
   Text 165, 70, 105, 10, "Date of discharge (if applicible):"
   Text 200, 10, 50, 10, "Length of stay:"
@@ -150,6 +150,7 @@ If TIKL_check = 1 then
   If len(TIKL_date_YY) = 4 then TIKL_date_YY = TIKL_date_YY - 2000
 End if
 
+
 'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
 'FACI
 If FACI_update_check = 1 then
@@ -190,6 +191,7 @@ If HCMI_update_check = 1 THEN
 	transmit
 END IF
 
+
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
   call navigate_to_MAXIS_screen("dail", "writ")
@@ -213,9 +215,9 @@ End if
 Call write_bullet_and_variable_in_case_note("Length of stay", length_of_stay)
 Call write_bullet_and_variable_in_case_note("Recommended level of care", level_of_care)
 Call write_bullet_and_variable_in_case_note("Admitted from", admitted_from)
-If hospital_admitted_from <> "" then Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_admitted_from)
+Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_admitted_from)
 Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
-If discharge_date <> "" then Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
+Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
 Call write_variable_in_CASE_NOTE("---")
 If updated_RLVA_check = 1 and updated_FACI_check = 1 then 
 Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
@@ -227,7 +229,7 @@ If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed
 If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
 If need_asset_assessment_check = 1 then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
 If sent_3050_check = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
-If verifs_needed <> "" then Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
 If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
 If TIKL_check = 1 then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -48,23 +48,24 @@ END IF
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+MAXIS_footer_month = datepart("m", next_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = datepart("yyyy", next_month)
+MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 191, 75, "PA Verification Request"
+BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
   ButtonGroup ButtonPressed
-    OkButton 75, 50, 50, 15
-    CancelButton 130, 50, 50, 15
-  EditBox 105, 10, 70, 15, case_number
-  EditBox 105, 30, 20, 15, footer_month
-  EditBox 130, 30, 20, 15, footer_year
-  Text 30, 10, 50, 15, "Case Number"
-  Text 30, 30, 60, 15, "Footer Month"
+    OkButton 40, 50, 50, 15
+    CancelButton 95, 50, 50, 15
+  EditBox 75, 5, 70, 15, case_number
+  EditBox 75, 25, 30, 15, MAXIS_footer_month
+  EditBox 115, 25, 30, 15, MAXIS_footer_year
+  Text 10, 10, 50, 10, "Case Number"
+  Text 10, 30, 65, 10, "Footer month/year:"
 EndDialog
+
 
 BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   ButtonGroup ButtonPressed
@@ -109,14 +110,6 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
  
 EndDialog
 
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
-
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -124,43 +117,32 @@ Dim row
 Dim col
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connecting to BlueZone
+'Connecting to BlueZone & grabs the case number and footer month/year
 EMConnect ""
+Call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing case number
-call MAXIS_case_number_finder(case_number)
-
-'Grabbing footer month
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
 
 'Showing case number dialog
 Do
   Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+  cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 'Checking for MAXIS
 call check_for_MAXIS(False)
 
+
 'Jumping to STAT
-call navigate_to_screen("stat", "memb")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
+call navigate_to_MAXIS_screen("stat", "memb")
+
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
 'Pulling household and worker info for the letter
-call navigate_to_screen("stat", "addr") 
+call navigate_to_MAXIS_screen("stat", "addr") 
 EMReadScreen addr_line1, 21, 6, 43
 EMReadScreen addr_line2, 21, 7, 43
 EMReadScreen addr_city, 14, 8, 43
@@ -175,7 +157,7 @@ household_members = UBound(HH_member_array) + 1 'Total members in household
 household_members = cStr(household_members)
 
 'Collecting and formatting client name
-call navigate_to_screen("stat", "memb")
+call navigate_to_MAXIS_screen("stat", "memb")
 call find_variable("Last: ", last_name, 24)
 call find_variable("First: ", first_name, 11)
 client_name = first_name & " " & last_name
@@ -192,6 +174,20 @@ earned_income = trim(earned_income)
 if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
 other_income = earned_income & " " & unearned_income
 
+
+'This function looks for an approved version of elig
+Function approved_version 
+	EMReadScreen version, 2, 2, 12
+	For approved = version to 0 Step -1
+	EMReadScreen approved_check, 8, 3, 3
+	If approved_check = "APPROVED" then Exit Function
+	version = version -1
+	EMWriteScreen version, 20, 79
+	transmit
+	Next
+End Function
+
+
 'This finds the number of members on a DWP/MFIP grant
 Function cash_members_finder
 	call find_variable("Caregivers......", caregivers, 4)
@@ -201,10 +197,10 @@ Function cash_members_finder
 End Function
 
 'Pulling the elig amounts for all open progs on case / curr
-call navigate_to_screen("case", "curr")
- call find_variable("MFIP: ", MFIP_check, 6)
+call navigate_to_MAXIS_screen("case", "curr")
+  call find_variable("MFIP: ", MFIP_check, 6)
    If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
-   call navigate_to_screen("elig", "mfip")    
+		call navigate_to_MAXIS_screen("elig", "mfip")        
 	  	EMReadScreen version, 1, 2, 12 'Reading the version, the for loop finds most recent approved.
 		For approved = version to 0 Step -1
 			EMReadScreen approved_check, 8, 3, 3
@@ -229,13 +225,13 @@ call navigate_to_screen("case", "curr")
 		If subsidy = "50" then subsidy_check = 1
 		'Finding the number of members on cash grant
 		call cash_members_finder
-		Call navigate_to_screen("case", "curr")
+		Call navigate_to_MAXIS_screen("case", "curr")
 	End if
 	If MFIP_check = "PENDIN" then msgbox "MFIP is pending, please enter amounts manually to avoid errors."
 
 	call find_variable("FS: ", fs_check, 6)
 	If fs_check = "ACTIVE" then
-		call navigate_to_screen("elig", "fs")
+		call navigate_to_MAXIS_screen("elig", "fs")
 		EMReadScreen version, 2, 2, 12
 		For approved = version to 0 Step -1
 			EMReadScreen approved_check, 8, 3, 3
@@ -249,14 +245,14 @@ call navigate_to_screen("case", "curr")
 		EMWriteScreen "FSB2", 19, 70
 		transmit
 		EMReadScreen SNAP_grant, 7, 10, 75
-	    call navigate_to_screen ("case", "curr")
+	    call navigate_to_MAXIS_screen ("case", "curr")
 	End if
 	If fs_check = "APP CL" then msgbox "SNAP is set to close, please enter amounts manually to avoid errors."
 	If fs_check = "PENDIN" then msgbox "SNAP is pending, please enter amounts manually to avoid errors."
 	
 	call find_variable("DWP: ", DWP_check, 6)
 	If DWP_check = "ACTIVE" then
-		call navigate_to_screen("elig", "dwp")
+		call navigate_to_MAXIS_screen("elig", "dwp")
 		EMReadScreen version, 2, 2, 11
 		For approved = version to 0 Step -1
 			EMReadScreen approved_check, 8, 3, 3
@@ -276,13 +272,13 @@ call navigate_to_screen("case", "curr")
 		call find_variable("Children......", children, 5)
 		cash_members = cInt(caregivers) + cInt(children)
 		cash_members = cStr(cash_members)
-		call navigate_to_screen ("case", "curr")
+		call navigate_to_MAXIS_screen ("case", "curr")
 	 End if
 	If DWP_check = "PENDIN" then msgbox "DWP is pending, please enter amounts manually to avoid errors."
 	
 	call find_variable("GA: ", GA_check, 6)
 	If GA_check = "ACTIVE" then
-		call navigate_to_screen("elig", "GA")
+		call navigate_to_MAXIS_screen("elig", "GA")
 		EMReadScreen version, 2, 2, 12
 		For approved = version to 0 Step -1
 			EMReadScreen approved_check, 8, 3, 3
@@ -299,14 +295,14 @@ call navigate_to_screen("case", "curr")
 	    EMReadScreen ga_members, 1, 13, 32 'Reading file unit type to determine members on cash grant
 		If ga_members = "1" then cash_members = "1"
 		If ga_members = "6" then cash_members = "2"
-		call navigate_to_screen ("case", "curr")
+		call navigate_to_MAXIS_screen ("case", "curr")
 	End If
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
 	If GA_check = "PENDIN" then msgbox "GA is pending, please enter amounts manually to avoid errors."
 	
 	call find_variable("MSA: ", MSA_check, 6)
 	If MSA_check = "ACTIVE" then
-		call navigate_to_screen("elig", "msa")
+		call navigate_to_MAXIS_screen("elig", "msa")
 		EMReadScreen version, 2, 2, 11
 		For approved = version to 0 Step -1
 			EMReadScreen approved_check, 8, 3, 3
@@ -321,7 +317,7 @@ call navigate_to_screen("case", "curr")
 		transmit
 		EMReadScreen MSA_Grant, 7, 11, 74
 		EMReadScreen cash_members, 1, 14, 29
-		call navigate_to_screen ("case", "curr")
+		call navigate_to_MAXIS_screen ("case", "curr")
 	End If
 	If MSA_check = "APP CL" then MsgBox "MSA is set to close, please enter amounts manually to avoid errors."
 	If MSA_check = "PENDIN" then MsgBox "MSA is pending, please enter amounts manually to avoid errors."
@@ -332,16 +328,14 @@ call navigate_to_screen("case", "curr")
 'calling the main dialog	
 Do
 	Dialog PA_verif_dialog
-	If ButtonPressed = 0 then stopscript
+	cancel_confirmation
 	If worker_signature = ""  then MsgBox "Please sign your case note."
 	If completed_by = "" then MsgBox "Please fill out the completed by field."
 	If worker_phone = "" then MsgBox "Please fill out the worker phone field."
 Loop until worker_signature <> "" and completed_by <> "" and worker_phone <> ""
 
 
-
-  
-  '****writing the word document
+'****writing the word document
 Set objWord = CreateObject("Word.Application")
 Const wdDialogFilePrint = 88
 Const end_of_doc = 6
@@ -407,7 +401,7 @@ IF inqd_check = checked THEN
 	objSelection.TypeParagraph()
 	objSelection.TypeText "Issue Date	    Benefit               Amount                            Benefit Period"
 	objSelection.TypeParagraph()
-	call navigate_to_screen("MONY", "INQX")
+	call navigate_to_MAXIS_screen("MONY", "INQX")
 	start_date = dateadd("m", - number_of_months, date) 'Converting dates to determine how far back to look
 	start_month = datepart("m", start_date)
 	IF len(start_month) = 1 THEN start_month = "0" & start_month
@@ -433,8 +427,8 @@ IF inqd_check = checked THEN
 			objSelection.TypeText line & Chr(11)
 		END IF
 	NEXT
-END IF
-		
+END IF		
+
 objSelection.TypeText "Completed By: "
 objSelection.TypeText completed_by
 objSelection.TypeParagraph()
@@ -442,12 +436,13 @@ objSelection.TypeText "Worker phone: "
 objSelection.TypeText worker_phone
 
 'Enters the case note
-call start_a_blank_CASE_NOTE()
-call write_variable_in_case_note("PA verification request completed and sent to requesting agency.")
-call write_variable_in_case_note("---")
-call write_variable_in_case_note(worker_signature)
+start_a_blank_CASE_NOTE
+call write_variable_in_CASE_NOTE("PA verification request completed and sent to requesting agency.")
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
+
 
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show
 
-script_end_procedure()
+script_end_procedure("")

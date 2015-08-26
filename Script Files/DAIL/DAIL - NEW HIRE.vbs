@@ -8,7 +8,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -170,18 +170,9 @@ TIKL_checkbox = checked
 HH_memb_row = 5 
 
 'Show dialog
-Do
-	Dialog new_HIRE_dialog
-	If ButtonPressed = cancel then stopscript
-	EMReadScreen STAT_check, 4, 20, 21
-	If STAT_check = "STAT" then
-		If ButtonPressed = prev_panel_button then call panel_navigation_prev
-		If ButtonPressed = next_panel_button then call panel_navigation_next
-		If ButtonPressed = prev_memb_button then call memb_navigation_prev
-		If ButtonPressed = next_memb_button then call memb_navigation_next
-	End if
-	transmit
-Loop until ButtonPressed = OK
+Dialog new_HIRE_dialog
+MAXIS_dialog_navigation
+cancel_confirmation
 
 'If new job is known, script ends.
 If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
@@ -279,4 +270,3 @@ MsgBox "Success! MAXIS updated for new HIRE message, a case note made, and a TIK
 
 'Exits script and logs stats if appropriate
 script_end_procedure("")
-

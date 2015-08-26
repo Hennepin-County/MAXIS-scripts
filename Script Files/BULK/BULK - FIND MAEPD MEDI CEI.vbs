@@ -92,7 +92,7 @@ FUNCTION navigate_to_MMIS
 	'The following will select the correct version of MMIS. First it looks for C302, then EK01, then C402.
 	row = 1
 	col = 1
-	EMSearch "C302", row, col
+	EMSearch ("C3" & right(worker_county_code, 2)), row, col
 	If row <> 0 then 
 		If row <> 1 then 'It has to do this in case the worker only has one option (as many LTC and OSA workers don't have the option to decide between MAXIS and MCRE case access). The MMIS screen will show the text, but it's in the first row in these instances.
 			EMWriteScreen "x", row, 4
@@ -110,7 +110,7 @@ FUNCTION navigate_to_MMIS
 		Else 'Some OSAs have C402 (limited access). This will search for that.
 			row = 1
 			col = 1
-			EMSearch "C402", row, col
+			EMSearch ("C4" & right(worker_county_code, 2)), row, col
 			If row <> 0 then 
 				If row <> 1 then
 					EMWriteScreen "x", row, 4
@@ -126,7 +126,7 @@ FUNCTION navigate_to_MMIS
 						transmit
 					End if
 				Else
-					script_end_procedure("C402, C302, EKIQ, or EK01 not found. Your access to MMIS may be limited. Contact your script Alpha user if you have questions about using this script.")
+					script_end_procedure("C4" & right(worker_county_code, 2) & ", C3" & right(worker_county_code, 2) & ", EKIQ, or EK01 not found. Your access to MMIS may be limited. Contact your script Alpha user if you have questions about using this script.")
 				End if
 			End if
 		End if
@@ -154,7 +154,7 @@ FUNCTION navigate_to_MAXIS(maxis_mode)
 			IF prod_running = "RUNNING" THEN
 				x = "B"
 			ELSE
-				script_end_procedure("Please do not run this script in a session larger than 2.")
+				script_end_procedure("Please do not run this script in a session larger than S2.")
 			END IF
 		END IF
 	ELSEIF maxis_mode = "INQUIRY DB" THEN
@@ -330,10 +330,10 @@ DO
 							IF ((accrete_date = "") OR (accrete_date <> "" AND delete_date <> "99/99/99")) THEN
 								objExcel.Cells(excel_row, 4).Value = objExcel.Cells(excel_row, 4).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT, ")
 							END IF
-							PF3
+							CALL write_value_and_transmit("RKEY", 1, 8)
 						END IF
 					ELSE
-						PF3
+						CALL write_value_and_transmit("RKEY", 1, 8)
 					END IF
 					CALL navigate_to_MAXIS(production_or_inquiry)
 					hhmm_row = hhmm_row + 1

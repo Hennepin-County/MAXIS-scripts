@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -74,40 +74,30 @@ EndDialog
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+'Connecting to BlueZone, and finding case number
 EMConnect ""
+Call MAXIS_case_number_finder(case_number)
 
-'Searches for a case number
-row = 1
-col = 1
-EMSearch "Case Nbr: ", row, col
-EMReadScreen case_number, 8, row, col + 10
-case_number = trim(replace(case_number, "_", ""))
-If isnumeric(case_number) = False then case_number = ""
 
 'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
-  Do
-    Do
-      Do
-        Do
-          Do
-            Dialog sponsor_income_calculation_dialog
-            If ButtonPressed = 0 then stopscript
-            If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must enter a valid case number."
-          Loop until isnumeric(case_number) = True and len(case_number) <= 8
-          If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False then MsgBox "You must enter some income. You can enter a ''0'' if that is accurate."
-        Loop until isnumeric(primary_sponsor_earned_income) = True or isnumeric(spousal_sponsor_earned_income) = True or isnumeric(primary_sponsor_unearned_income) = True or isnumeric(spousal_sponsor_unearned_income) = True
-        If isnumeric(sponsor_HH_size) = False then MsgBox "You must enter a sponsor HH size."
-      Loop until isnumeric(sponsor_HH_size) = True
-      If isnumeric(number_of_sponsored_immigrants) = False then MsgBox "You must enter the number of sponsored immigrants."
+	Do
+		Do
+			Do
+				DO
+					Dialog sponsor_income_calculation_dialog
+					If ButtonPressed = 0 then stopscript
+					If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must enter a valid case number."
+				Loop until isnumeric(case_number) = True and len(case_number) <= 8
+				If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False then MsgBox "You must enter some income. You can enter a ''0'' if that is accurate."
+			Loop until isnumeric(primary_sponsor_earned_income) = True or isnumeric(spousal_sponsor_earned_income) = True or isnumeric(primary_sponsor_unearned_income) = True or isnumeric(spousal_sponsor_unearned_income) = True
+			If isnumeric(sponsor_HH_size) = False then MsgBox "You must enter a sponsor HH size."
+		Loop until isnumeric(sponsor_HH_size) = True
+		If isnumeric(number_of_sponsored_immigrants) = False then MsgBox "You must enter the number of sponsored immigrants."
     Loop until isnumeric(number_of_sponsored_immigrants) = True
-    If worker_signature = "" then MsgBox "You must sign your case note!"
-  Loop until worker_signature <> ""
-  transmit
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "MAXIS not found. You might be locked out of your case. Check BlueZone and try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+	If worker_signature = "" then MsgBox "You must sign your case note!"
+Loop until worker_signature <> ""
+
 
 'Determines the income limits
 If sponsor_HH_size = 1 then income_limit = 1265
@@ -138,25 +128,18 @@ If sponsor_deeming_amount_SNAP < 0 then sponsor_deeming_amount_SNAP = 0
 If sponsor_deeming_amount_other_programs < 0 then sponsor_deeming_amount_other_programs = 0
 
 'Case note the findings
-call navigate_to_screen("case", "note")
-PF9
-EMSendKey "~~~Sponsor deeming income calculation~~~" & "<newline>"
-If primary_sponsor_earned_income <> 0 then call write_editbox_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income, 6)
-If spousal_sponsor_earned_income <> 0 then call write_editbox_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income, 6)
-If primary_sponsor_unearned_income <> 0 then call write_editbox_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income, 6)
-If spousal_sponsor_unearned_income <> 0 then call write_editbox_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income, 6)
-If SNAP_EI_disregard <> 0 then call write_editbox_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard, 6)
-call write_editbox_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit, 6)
-call write_editbox_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants, 6)
-call write_editbox_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP, 6)
-call write_editbox_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs, 6)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE("~~~Sponsor deeming income calculation~~~")
+If primary_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income)
+If spousal_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income)
+If primary_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income)
+If spousal_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income)
+If SNAP_EI_disregard <> 0 then call write_bullet_and_variable_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard)
+call write_bullet_and_variable_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit)
+call write_bullet_and_variable_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants)
+call write_bullet_and_variable_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP)
+call write_bullet_and_variable_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

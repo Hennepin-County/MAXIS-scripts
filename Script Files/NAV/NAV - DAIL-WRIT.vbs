@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -62,15 +62,11 @@ call MAXIS_case_number_finder(case_number)										'Grabs the case number
 IF case_number = "" THEN 														'If there's no case number it asks for one
 	Do
 		Dialog case_number_dialog												'Shows the dialog
-		If buttonpressed = cancel then stopscript								'If cancel is pressed it ends
+		cancel_confirmation								'If cancel is pressed it ends
 		If case_number = "" then MsgBox "You must type a case number."			'Lets the worker know if a case number wasn't entered
 	Loop until case_number <> ""												'Loops until a case number is entered
 END IF
+
 call navigate_to_MAXIS_screen("DAIL", "WRIT")									'Goes to the screen
+
 script_end_procedure("")														'Script ends
-
-
-
-
-
-

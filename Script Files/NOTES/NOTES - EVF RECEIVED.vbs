@@ -46,6 +46,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+BeginDialog case_number_dlg, 0, 0, 206, 75, "Enter a Case Number"
+  EditBox 70, 10, 70, 15, case_number
+  EditBox 65, 30, 30, 15, benefit_month
+  EditBox 155, 30, 30, 15, benefit_year
+  ButtonGroup ButtonPressed
+    OkButton 100, 55, 50, 15
+    CancelButton 150, 55, 50, 15
+  Text 10, 15, 50, 10, "Case Number"
+  Text 10, 35, 50, 10, "Benefit Month"
+  Text 105, 35, 45, 10, "Benefit Year"
+EndDialog
 
 BeginDialog EVF_received, 0, 0, 276, 170, "Employment Verification Form Received"
   EditBox 140, 5, 60, 15, date_received
@@ -77,8 +88,28 @@ EMFocus
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
 Call check_for_MAXIS(false)
 
-'grabs the case number that is being worked on
+'grabs the case number and benefit month/year that is being worked on
 call MAXIS_case_number_finder(case_number)
+EMReadScreen at_self, 4, 2, 50
+IF at_self = "SELF" THEN 
+	EMReadScreen benefit_month, 2, 20, 43
+	IF len(benefit_month) <> 2 THEN benefit_month = "0" & benefit_month
+	EMReadScreen benefit_year, 2, 20, 46
+ELSE
+	CALL find_variable("Month: ", benefit_month, 2)
+	IF benefit_month <> "  " THEN CALL find_variable("Month: " & benefit_month & " ", benefit_year, 2)
+END IF
+
+' >>>>> GATHERING & CONFIRMING THE MAXIS CASE NUMBER <<<<<
+DO
+	err_msg = ""
+	DIALOG case_number_dlg
+		IF ButtonPressed = 0 THEN stopscript
+		IF case_number = "" OR (case_number <> "" AND len(case_number) > 8) OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+LOOP UNTIL err_msg = ""
+
+CALL check_for_MAXIS(False)
 
 'starts the EVF received case note dialog
 DO
@@ -142,7 +173,4 @@ call write_bullet_and_variable_in_CASE_NOTE("Action Taken/Notes", notes)
 call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-
-
-
-
+script_end_procedure("")
