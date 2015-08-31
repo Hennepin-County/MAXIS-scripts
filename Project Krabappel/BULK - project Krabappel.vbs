@@ -1383,10 +1383,7 @@ For each case_number in case_number_array
 		EMReadScreen SSN_first, 3, 7, 42
 		EMReadScreen SSN_mid, 2, 7, 46
 		EMReadScreen SSN_last, 4, 7, 49
-		
-		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
-		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
-		
+
 		'ACCT
 		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
 		
@@ -1486,6 +1483,9 @@ For each case_number in case_number_array
 			
 		'PARE
 		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(appl_date, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+		
+		'ABPS
+		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 		
 		'PBEN 1
 		If PBEN_1_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_1_referal_date, PBEN_1_type, PBEN_1_appl_date, PBEN_1_appl_ver, PBEN_1_IAA_date, PBEN_1_disp)
