@@ -3,9 +3,7 @@ name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
 
 'Option Explicit
-
-'DIM beta_agency
-'DIM FuncLib_URL, req, fso
+'DIM beta_agency, FuncLib_URL, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -234,7 +232,7 @@ DO
 										DO
 											DO	
 												'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
-												worker_county_code = "x105" OR _
+												IF worker_county_code = "x105" OR _
 												worker_county_code = "x106" OR _
 												worker_county_code = "x110" OR _
 												worker_county_code = "x111" OR _
