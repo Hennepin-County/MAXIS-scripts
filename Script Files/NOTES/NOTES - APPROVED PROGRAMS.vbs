@@ -70,7 +70,7 @@ BeginDialog benefits_approved, 0, 0, 271, 260, "Benefits Approved"
   EditBox 55, 145, 210, 15, other_notes
   EditBox 75, 165, 190, 15, programs_pending
   EditBox 55, 185, 210, 15, docs_needed
-  'CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
+  CheckBox 10, 205, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
   CheckBox 10, 220, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
   EditBox 75, 235, 80, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -545,6 +545,7 @@ IF autofill_cash_check = checked THEN
 		END IF
 	NEXT
 END IF
+IF CASH_WCOM_checkbox = checked THEN call write_variable_in_CASE_NOTE(" * A WCOM for the CS disregard FIAT as been entered")
 IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* This case has been FIATed.")
 IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)
 IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
