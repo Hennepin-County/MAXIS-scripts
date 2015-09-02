@@ -53,11 +53,11 @@ BeginDialog DWP_budget_dialog, 0, 0, 426, 165, "DWP Budget Dialog"
   EditBox 370, 5, 45, 15, ES_deadline_date
   EditBox 55, 25, 365, 15, income_info
   EditBox 55, 45, 365, 15, shelter_info
-  EditBox 165, 65, 15, 15, personal_needs
+  EditBox 170, 65, 15, 15, personal_needs
   EditBox 75, 85, 160, 15, vendor_information
   EditBox 50, 105, 230, 15, other_notes
-  EditBox 60, 125, 120, 15, months_eligible
-  EditBox 255, 125, 70, 15, worker_signature
+  EditBox 65, 125, 120, 15, months_eligible
+  EditBox 260, 125, 70, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 315, 145, 50, 15
     CancelButton 370, 145, 50, 15
@@ -75,6 +75,7 @@ BeginDialog DWP_budget_dialog, 0, 0, 426, 165, "DWP Budget Dialog"
 EndDialog
 
 
+
 'THE SCRIPT----------------------------------------------------------------------
 'Connects to BlueZone & grabbing the case number
 EMConnect ""
@@ -82,13 +83,15 @@ CALL MAXIS_case_number_finder(case_number)
 
 'Displays the dialog
 DO
-	DO
-		Dialog DWP_budget_dialog
-		IF buttonpressed = cancel THEN stopscript
-		IF case_number = "" THEN MsgBox "You must have a case number to continue!"
-	LOOP UNTIL case_number <> ""
-	IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-LOOP UNTIL worker_signature <> ""
+	err_msg = ""
+	Dialog DWP_budget_dialog
+	cancel_confirmation
+	IF case_number = "" OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
+	If personal_needs = "" THEN err_msg = err_msg & vbNewLine & "*You must enter the number of DWP household members"
+	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note"
+	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
+LOOP UNTIL err_msg = ""
+
 
 'Calculates personal needs info
 personal_needs = "$" & personal_needs * 70
