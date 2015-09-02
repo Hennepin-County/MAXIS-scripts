@@ -54,6 +54,7 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts m
 	PushButton 375, 10, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 20, 50, 10, "BILS updater", BILS_UPDATER_button
     PushButton 5, 35, 50, 10, "Check EDRS", CHECK_EDRS_button
+    PushButton 5, 50, 105, 10, "Child Support Disregard FIATer", CS_FIAT_button
     PushButton 5, 50, 75, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
     PushButton 5, 65, 105, 10, "LTC-Spousal Allocation FIATer", LTC_SPOUSAL_ALLOCATION_FIATER_button
     PushButton 5, 80, 105, 10, "MA-EPD earned income FIATer", MA_EPD_EI_FIAT_button
@@ -75,6 +76,7 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 456, 215, "Actions scripts m
   Text 55, 160, 90, 10, "--- Sends a SVES/QURY."
   Text 65, 175, 380, 20, "--- SPEC/XFERs a case, and can send a memo to the new client. For in-agency as well as between agencies (out-of-county XFERs)."
   Text 95, 200, 185, 10, "--- Updates the default worker signature on your scripts."
+  Text 120, 50, 325, 10, "--- NEW 09/2015!!! FIATS in the CS disregard for MFIP and DWP as described in CM 17.15.03"
 EndDialog
 
 'Variables to declare
@@ -96,6 +98,7 @@ EMConnect ""
 
 If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - BILS UPDATER.vbs")
 If buttonpressed = CHECK_EDRS_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - CHECK EDRS.vbs")
+If buttonpressed = CS_FIAT_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - CS DISREGARD FIAT.vbs")
 If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - COPY PANELS TO WORD.vbs")
 If buttonpressed = LTC_SPOUSAL_ALLOCATION_FIATER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs")
 If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - MA-EPD EI FIAT.vbs")
