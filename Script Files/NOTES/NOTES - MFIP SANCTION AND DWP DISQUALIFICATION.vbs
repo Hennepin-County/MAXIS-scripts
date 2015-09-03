@@ -57,65 +57,207 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Dimming variables----------------------------------------------------------------------------------------------------
+'DIM MFIP_Sanction_DWP_Disq_Dialog
+'DIM case_number
+'DIM sanction_status_droplist
+'DIM HH_Member_Number
+'DIM sanction_type_droplist
+'DIM number_occurances_droplist
+'DIM Date_Sanction
+'DIM Sanction_Percentage_droplist
+'DIM sanction_information
+'DIM sanction_reason_droplist
+'DIM other_sanction_notes
+'DIM Memo_to_Client
+'DIM Impact_Other_Programs
+'DIM Vendor_Information
+'DIM Last_Day_Cure
+'DIM Update_Sent_ES_Checkbox
+'DIM FIAT_check
+'DIM Update_Sent_CCA_Checkbox
+'DIM mandatory_vendor_check
+'DIM TIKL_next_month
+'DIM Sent_SPEC_MEMO
+'DIM set_TIKL_check
+'DIM worker_signature
+'DIM ButtonPressed
+'DIM TIKL_date
+
+
+
+
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog MFIP_sanction_cured_dialog, 0, 0, 396, 190, "MFIP Sanction Cured"
-  EditBox 90, 5, 85, 15, case_number
-  EditBox 90, 25, 85, 15, sanction_lifted_month
-  EditBox 315, 25, 70, 15, compliance_date
-  DropListBox 90, 50, 215, 15, "Select One..."+chr(9)+"Client complied with Employment Services"+chr(9)+"Client complied with Child Support"+chr(9)+"Client complied with Employment Services AND Child Support ", cured_reason
-  EditBox 90, 75, 295, 15, action_taken
-  DropListBox 90, 100, 85, 20, "Select One..."+chr(9)+"Letter"+chr(9)+"Phone Call"+chr(9)+"Email"+chr(9)+"Client Not Notified", notified_via
-  EditBox 90, 120, 295, 15, other_notes
-  EditBox 90, 145, 100, 15, worker_signature
+'MFIP Sanction/DWP Disqualification Dialog Box
+BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 341, 295, "MFIP Sanction - DWP Disqualification"
+  EditBox 55, 5, 60, 15, case_number
+  EditBox 180, 5, 20, 15, HH_Member_Number
+  DropListBox 265, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
+  DropListBox 65, 25, 110, 15, "Select one..."+chr(9)+"CS"+chr(9)+"ES"+chr(9)+"No show to orientation"+chr(9)+"Minor mom truancy", sanction_type_droplist
+  DropListBox 265, 25, 65, 15, "Select one..."+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"7+", number_occurances_droplist
+  DropListBox 50, 45, 65, 15, "Select one..."+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
+  EditBox 265, 45, 65, 15, Date_Sanction
+  DropListBox 90, 65, 240, 15, "Select one..."+chr(9)+"Failed to attend ES overview"+chr(9)+"Failed to develop employment plan"+chr(9)+"Non-compliance with employment plan"+chr(9)+"< 20, failed education requirement"+chr(9)+"Failed to accept suitable employment"+chr(9)+"Quit suitable employment w/o good cause"+chr(9)+"Failure to attend MFIP orientation"+chr(9)+"Non-cooperation with child support", sanction_reason_droplist
+  EditBox 90, 85, 240, 15, sanction_information
+  EditBox 90, 105, 140, 15, ES_counselor_name
+  EditBox 265, 105, 60, 15, ES_counselor_phone
+  EditBox 90, 125, 240, 15, other_sanction_notes
+  EditBox 90, 145, 240, 15, Impact_Other_Programs
+  EditBox 90, 165, 240, 15, Vendor_Information
+  EditBox 175, 185, 60, 15, Last_Day_Cure
+  CheckBox 5, 210, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
+  CheckBox 5, 225, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
+  CheckBox 5, 240, 130, 10, "TIKL to change sanction status ", TIKL_next_month
+  CheckBox 145, 210, 80, 10, "Case has been FIAT'd", Fiat_check
+  CheckBox 145, 225, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
+  CheckBox 145, 240, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_SPEC_MEMO
+  EditBox 150, 275, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 280, 165, 50, 15
-    CancelButton 335, 165, 50, 15
-  Text 195, 30, 115, 10, "Date Client Came into Compliance:"
-  Text 40, 80, 50, 15, "Action Taken:"
-  Text 25, 100, 70, 10, "Notified Client Via:"
-  Text 10, 30, 75, 10, "Month Sanction Lifted:"
-  Text 15, 150, 70, 10, "Sign Your Case Note:"
-  Text 5, 50, 80, 10, "Sanction Cured Reason:"
-  Text 5, 125, 80, 10, "Other Notes/Comments:"
-  Text 15, 10, 70, 10, "Maxis Case Number:"
+    OkButton 230, 275, 50, 15
+    CancelButton 285, 275, 50, 15
+  Text 5, 70, 80, 10, "Reason for the sanction:"
+  Text 85, 280, 60, 10, "Worker signature:"
+  Text 5, 190, 170, 10, "Last day to cure (10 day cutoff or last day of month):"
+  Text 185, 30, 75, 10, "Number of occurences:"
+  Text 5, 170, 65, 10, "Vendor information:"
+  Text 5, 150, 85, 10, "Impact to other programs:"
+  Text 5, 90, 80, 10, "Sanction info from/how:"
+  Text 5, 110, 80, 10, "ES Counselor:"
+  Text 235, 110, 25, 10, "Phone:"
+  Text 5, 50, 40, 10, "Sanction %:"
+  Text 210, 10, 55, 10, "Sanction status:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 125, 50, 140, 10, "Effective Date of Sanction/Disqualification:"
+  Text 130, 10, 50, 10, "HH Member #:"
+  Text 5, 30, 60, 10, "Type of sanction:"
+  Text 5, 130, 70, 10, "Other sanction notes:"
+  Text 155, 250, 160, 10, "(See TE10.20 for info on when to use this notice)"
+  GroupBox 3, 203, 335, 60, ""
 EndDialog
 
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------
-'Connect to Bluezone
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone
 EMConnect ""
-'Grabs Maxis Case number
+
+'Asks for Case Number
 CALL MAXIS_case_number_finder(case_number)
 
+
+'Grabbing counselor name and phone from database if applicable
+IF collecting_ES_statistics = true THEN
+		'Setting constants
+		Const adOpenStatic = 3
+		Const adLockOptimistic = 3
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'Opening DB
+	objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & ES_database_path
+		'This looks for an existing case number and edits it if needed
+		set rs = objConnection.Execute("SELECT * FROM ESTrackingTbl WHERE ESCaseNbr = " & case_number & "")
+		IF NOT(rs.eof) THEN ES_counselor_name = rs("ESCounselor")
+	objConnection.Close
+	set rs = nothing
+END IF
+	
 'Shows dialog
 DO
 	DO
 		DO
-			Dialog MFIP_sanction_cured_dialog
-			IF ButtonPressed = 0 THEN StopScript
-			IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-			LOOP UNTIL worker_signature <> ""
-		IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-	IF cured_reason = "Select One..." THEN MsgBox "You must select 'Reason for Sanction being Cured!'"
-	IF notified_via = "Select One..." THEN MsgBox "You must select 'Notified Client Via!'"
-	LOOP UNTIL cured_reason <> "Select One..."
-LOOP UNTIL IsNumeric(case_number) = TRUE	
+			DO
+				DO
+					DO
+						DO
+							DO
+								DO	
+									DO
+										DO
+											DO								
+												Dialog MFIP_Sanction_DWP_Disq_Dialog
+												cancel_confirmation
+												IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number"
+											LOOP UNTIL IsNumeric(case_number) = TRUE
+											IF sanction_status_droplist = "Select one..." THEN MsgBox "You must select a sanction status type"
+										LOOP UNTIL Sanction_status_droplist <> "Select one..."
+										IF HH_Member_Number = "" THEN MsgBox "You must enter a HH member number"
+									LOOP UNTIL HH_Member_Number <> ""
+									IF sanction_type_droplist = "Select one..." THEN MsgBox "You must select a sanction type"
+								LOOP UNTIL sanction_type_droplist <> "Select one..."
+								IF number_occurances_droplist = "Select one..." THEN MsgBox "You must select a number of the sanction occurrence"
+							LOOP UNTIL number_occurances_droplist <> "Select one..."
+							IF IsDate(Date_Sanction) = FALSE THEN MsgBox "You must type a valid date of sanction"
+						LOOP UNTIL IsDate(Date_Sanction) = TRUE
+						IF Sanction_Percentage_droplist = "Select one..." THEN MsgBox "You must select a sanction percentage"
+					LOOP UNTIL Sanction_Percentage_droplist <> "Select one..."
+					IF sanction_information = "" THEN MsgBox "You must enter information about how the sanction information was received"
+				LOOP UNTIL sanction_information <> ""
+				IF IsDate(Date_Sanction) = FALSE THEN MsgBox "You must type a valid date of sanction"
+			LOOP UNTIL IsDate(Date_Sanction) = TRUE
+			IF sanction_reason_droplist = "Select One..." THEN MsgBox "You must select a sanction percentage"
+		LOOP UNTIL sanction_reason_droplist <> "Select One..."
+		IF Last_Day_Cure = "" THEN MsgBox "You must enter the last day to cure the sanction"
+	LOOP UNTIL Last_Day_Cure <> ""
+	IF worker_signature = "" THEN MsgBox "You must sign your case note"
+LOOP UNTIL worker_signature <> ""
 
 
-'Checks Maxis for password prompt
-CALL check_for_MAXIS(False)
+'Checks MAXIS for password prompt
+Call check_for_MAXIS(True)
 
+'TIKL to change sanction status (check box selected)
+If TIKL_next_month = checked THEN 
+	'navigates to DAIL/WRIT 
+	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
+	
+	TIKL_date = dateadd("m", 1, date)		'Creates a TIKL_date variable with the current date + 1 month (to determine what the month will be next month)
+	TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
+	
+	'The following will generate a TIKL formatted date for 10 days from now.
+	Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
+	'Writes TIKL to worker
+	Call write_variable_in_TIKL("A pending sanction was determined last month.  Please review case, and resolve or impose the sanction.")
+	'Saves TIKL and enters out of TIKL function
+	transmit
+	PF3
+END If
 
-'The case note----------------------------------------------------------------------------------------------------
-start_a_blank_CASE_NOTE
-CALL write_variable_in_case_note ("~~$~~MFIP SANCTION CURED~~$~~")                                         'Writes title in Case note
-CALL write_bullet_and_variable_in_case_note("Month Sanction Cured", sanction_lifted_month)                 'Writes Month the Sanction was lifted
-CALL write_bullet_and_variable_in_case_note("Client Came Into Compliance On", compliance_date)             'Writes the Date the Client came into Compliance
-CALL write_bullet_and_variable_in_case_note("Sanction Cured Reason", cured_reason)                         'Writes the reason why the sanction was cured
-CALL write_bullet_and_variable_in_case_note("Actions Taken", action_taken)                                 'Writes any actions taken
-CALL write_bullet_and_variable_in_case_note("Client was notified Via", notified_via)                       'Writes the way the client was notified that their sanction was lifted
-CALL write_bullet_and_variable_in_case_note("Other Notes/Comments", other_notes)                           'Writes any other notes/comments
-CALL write_variable_in_case_note ("---")   
-CALL write_variable_in_CASE_NOTE(worker_signature)                                                         'Writes worker signature in note
+'Navigates to case note
+CALL start_a_blank_CASE_NOTE
 
-CALL script_end_procedure("")
+'Writes case note
+'case noting the droplist and editboxes
+Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_type_droplist & " SANCTION " & sanction_status_droplist  & " for MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
+CALL write_bullet_and_variable_in_case_note("HH member number", HH_Member_Number)
+Call write_bullet_and_variable_in_case_note("Sanction status", sanction_status_droplist)
+CALL write_bullet_and_variable_in_case_note("Type of Sanction", sanction_type_droplist)
+CALL write_bullet_and_variable_in_case_note("Number of occurences", number_occurances_droplist)
+CALL write_bullet_and_variable_in_case_note("Sanction Percent is", Sanction_Percentage_droplist)
+CALL write_bullet_and_variable_in_case_note("Effective date of sanction/disqualification", Date_Sanction)
+CALL write_bullet_and_variable_in_case_note("Sanction information received from", sanction_information)
+CALL write_bullet_and_variable_in_case_note("ES Counselor", ES_counselor_name & " " & ES_counselor_phone)
+CALL write_bullet_and_variable_in_case_note ("Reason for the sanction", sanction_reason_droplist)
+CALL write_bullet_and_variable_in_case_note("Other sanction notes", other_sanction_notes)
+CALL write_bullet_and_variable_in_case_note ("Impact to other programs", Impact_Other_Programs)
+CALL write_bullet_and_variable_in_case_note("Vendoring information", Vendor_Information)
+CALL write_bullet_and_variable_in_case_note("Last day to cure", Last_Day_Cure)
+'case noting check boxes if checked
+IF Update_Sent_ES_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Employment Services.")
+IF Update_Sent_CCA_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Child Care Assistance.")
+IF TIKL_next_month = 1 THEN Call write_variable_in_case_note("* A TIKL was set to update the case from pending to imposed for the 1st of         the next month.")
+IF FIAT_check = 1 THEN CALL write_variable_in_case_note("* Case has been FIATed.")
+IF mandatory_vendor_check = 1 THEN CALL write_variable_in_case_note("* A mandatory vendor form has been mailed to the sanctioned individual.")
+IF Sent_SPEC_MEMO = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sanction for future closed month SPEC/MEMO to the sanctioned           individual.")
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
+
+'Updating database if applicable
+IF collecting_ES_statistics = true THEN
+	IF Sanction_Percentage_droplist = "100%" THEN ESActive = "No" 'updating ESActive when case is sanctioned out
+	Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only                               
+	CALL write_MAXIS_info_to_ES_database(case_number, HH_Member_Number, ESMembName, Sanction_Percentage_droplist, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
+END IF
+
+CALL script_end_procedure ("")
