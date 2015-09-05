@@ -938,7 +938,7 @@ first_name = trim(replace(first_name, "_", ""))
 'Updates the WREG panel with the appointment_date
 Call navigate_to_MAXIS_screen("STAT", "WREG")
 PF9
-Call create_MAXIS_friendly_date(appointment_date, 6, 9, 50)
+Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
 PF3
 
 
