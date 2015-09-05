@@ -935,6 +935,13 @@ EMReadScreen first_name, 11, 6, 63
 last_name = trim(replace(last_name, "_", ""))
 first_name = trim(replace(first_name, "_", ""))
 
+'Updates the WREG panel with the appointment_date
+Call navigate_to_MAXIS_screen("STAT", "WREG")
+PF9
+Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
+PF3
+
+
 'Navigates into SPEC/LETR
 call navigate_to_MAXIS_screen("SPEC", "LETR") 
 
@@ -966,7 +973,8 @@ Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_num
 CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
+Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date."
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-script_end_procedure("If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!")
+script_end_procedure("If you haven't made the E & T referral, please do so now.  Thank you!")
