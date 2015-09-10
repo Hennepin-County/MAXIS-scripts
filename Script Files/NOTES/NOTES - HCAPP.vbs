@@ -427,7 +427,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
-IF MMIS_update_check = checked then call write_variable_in_case_note("* MMIS updated.")
+IF MMIS_updated_check = checked then call write_variable_in_case_note("* MMIS updated.")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
