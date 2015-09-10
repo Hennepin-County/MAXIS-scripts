@@ -165,43 +165,24 @@ END IF
 	
 'Shows dialog
 DO
-	DO
-		DO
-			DO
-				DO
-					DO
-						DO
-							DO
-								DO	
-									DO
-										DO
-											DO								
-												Dialog MFIP_Sanction_DWP_Disq_Dialog
-												cancel_confirmation
-												IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number"
-											LOOP UNTIL IsNumeric(case_number) = TRUE
-											IF sanction_status_droplist = "Select one..." THEN MsgBox "You must select a sanction status type"
-										LOOP UNTIL Sanction_status_droplist <> "Select one..."
-										IF HH_Member_Number = "" THEN MsgBox "You must enter a HH member number"
-									LOOP UNTIL HH_Member_Number <> ""
-									IF sanction_type_droplist = "Select one..." THEN MsgBox "You must select a sanction type"
-								LOOP UNTIL sanction_type_droplist <> "Select one..."
-								IF number_occurances_droplist = "Select one..." THEN MsgBox "You must select a number of the sanction occurrence"
-							LOOP UNTIL number_occurances_droplist <> "Select one..."
-							IF IsDate(Date_Sanction) = FALSE THEN MsgBox "You must type a valid date of sanction"
-						LOOP UNTIL IsDate(Date_Sanction) = TRUE
-						IF Sanction_Percentage_droplist = "Select one..." THEN MsgBox "You must select a sanction percentage"
-					LOOP UNTIL Sanction_Percentage_droplist <> "Select one..."
-					IF sanction_information = "" THEN MsgBox "You must enter information about how the sanction information was received"
-				LOOP UNTIL sanction_information <> ""
-				IF IsDate(Date_Sanction) = FALSE THEN MsgBox "You must type a valid date of sanction"
-			LOOP UNTIL IsDate(Date_Sanction) = TRUE
-			IF sanction_reason_droplist = "Select One..." THEN MsgBox "You must select a sanction percentage"
-		LOOP UNTIL sanction_reason_droplist <> "Select One..."
-		IF Last_Day_Cure = "" THEN MsgBox "You must enter the last day to cure the sanction"
-	LOOP UNTIL Last_Day_Cure <> ""
-	IF worker_signature = "" THEN MsgBox "You must sign your case note"
-LOOP UNTIL worker_signature <> ""
+	err_msg = ""						
+	Dialog MFIP_Sanction_DWP_Disq_Dialog
+	cancel_confirmation
+	IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid numeric case number."
+	IF sanction_status_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction status type."
+	IF HH_Member_Number = "" THEN err_msg = err_msg & vbCr & "You must enter a HH member number."
+	IF sanction_type_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction type."
+	IF number_occurances_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a number of the sanction occurrence."		
+	IF IsDate(Date_Sanction) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid date of sanction."
+	IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
+	IF sanction_information = "" THEN err_msg = err_msg & vbCr & "You must enter information about how the sanction information was received."
+	IF IsDate(Date_Sanction) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid date of sanction."
+	IF sanction_reason_droplist = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
+	IF Last_Day_Cure = "" THEN err_msg = err_msg & vbCr & "You must enter the last day to cure the sanction."
+	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+LOOP UNTIL err_msg = ""
+
 
 
 'Checks MAXIS for password prompt
