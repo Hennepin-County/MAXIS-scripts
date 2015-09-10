@@ -245,6 +245,8 @@ ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
+is_not_blank_excel_string = chr(34) & "<>" & chr(34)
+
 'SNAP info
 If SNAP_check = checked then	
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "SNAP cases pending over 30 days:"	'Row header
