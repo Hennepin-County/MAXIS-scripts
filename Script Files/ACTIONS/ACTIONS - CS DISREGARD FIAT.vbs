@@ -418,7 +418,7 @@ ELSEIF MFIP_cash_status <> "" Then
 						PF8
 						fmsl_row = 9
 						EMReadScreen no_more_people, 14, 24, 12
-						IF no_more_people = no_more_people = "NO MORE PEOPLE" THEN EXIT DO
+						IF no_more_people = "NO MORE PEOPLE" THEN EXIT DO
 					END IF
 				END IF
 			LOOP 
