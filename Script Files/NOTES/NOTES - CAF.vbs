@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -288,7 +288,7 @@ If IsNumeric(case_number) = False then case_number = ""
 
 Do
   Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+  cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 transmit
@@ -296,7 +296,7 @@ call check_for_MAXIS(True)
 
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-call navigate_to_screen("stat", "hcre")
+call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
@@ -367,14 +367,16 @@ If CAF_type <> "Recertification" then TIKL_checkbox = checked
 
 
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 Do
 	Do
 		Do
+			err_msg = ""
 			Dialog CAF_dialog_01			'Displays the first dialog
 			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
 			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-		Loop until ButtonPressed = next_to_page_02_button
+			If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."
+			If err_msg <> "" THEN Msgbox err_msg
+		Loop until ButtonPressed = next_to_page_02_button and err_msg = ""
 		Do
 			Do
 				Dialog CAF_dialog_02			'Displays the second dialog
@@ -383,22 +385,19 @@ Do
 			Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
 			If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
 			Do
+				err_msg = ""
 				Dialog CAF_dialog_03			'Displays the third dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
-			Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
+				If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
+				If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+				If CAF_status = " " THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
+				If err_msg <> "" THEN Msgbox err_msg
+			Loop until (ButtonPressed = -1 and err_msg = "") or (ButtonPressed = previous_to_page_02_button and err_msg = "")		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
 		Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
 		If ButtonPressed = previous_to_page_01_button then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
-		If actions_taken = "" or CAF_datestamp = "" or worker_signature = "" or CAF_status = "" THEN 'Tells the worker what's required in a MsgBox.
-			MsgBox "You need to:" & chr(13) & chr(13) & _
-			  "-Fill in the datestamp, and/or" & chr(13) & _
-			  "-Actions taken sections, and/or" & chr(13) & _
-			  "-HCAPP Status, and/or" & chr(13) & _
-			  "-Sign your case note." & chr(13) & chr(13) & _
-			  "Check these items after pressing ''OK''."	
-		End if
-	Loop until actions_taken <> "" and CAF_datestamp <> "" and worker_signature <> "" and CAF_status <> ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
+	Loop until err_msg = ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 
@@ -406,7 +405,7 @@ check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has 
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then 
-	call navigate_to_screen("rept", "pnd2")
+	call navigate_to_MAXIS_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
 		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
@@ -439,18 +438,18 @@ End if
 'Going to TIKL, there's a custom function for this. Evaluate using it.
 If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-		call navigate_to_screen("dail", "writ")
+		call navigate_to_MAXIS_screen("dail", "writ")
 		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
 		EMSetCursor 9, 3
 		If cash_checkbox = checked then EMSendKey "cash/"
 		If SNAP_checkbox = checked then EMSendKey "SNAP/"
 		If EMER_checkbox = checked then EMSendKey "EMER/"
 		EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
-		transmit
+		transmit	
 		PF3
 	End if
 	If HC_checkbox = checked then
-		call navigate_to_screen("dail", "writ")
+		call navigate_to_MAXIS_screen("dail", "writ")
 		call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
 		EMSetCursor 9, 3
 		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
@@ -459,7 +458,7 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	End if
 End if
 If client_delay_TIKL_checkbox = checked then
-	call navigate_to_screen("dail", "writ")
+	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 10, 5, 18) 
 	EMSetCursor 9, 3
 	EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
