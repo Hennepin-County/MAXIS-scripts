@@ -91,7 +91,7 @@ IF script_repository = "" THEN script_repository = "https://raw.githubuserconten
 Do
 	dialog MEMOS_scripts_main_menu_dialog
 	If buttonpressed = cancel then stopscript
-	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Memos%20scripts.aspx")
+	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Memos%20scripts.aspx")
 Loop until buttonpressed <> SIR_instructions_button
 
 

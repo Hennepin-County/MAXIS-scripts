@@ -72,7 +72,7 @@ FUNCTION create_BULK_main_menu(dialog_name)
 		Text 60, 80, 175, 10, "--- Creates the same TIKL on up to 60 cases at once."
 		Text 110, 95, 335, 20, "--- Creates the same CASE/NOTE on potentially hundreds of cases listed on an Excel spreadsheet of your choice."
 		Text 85, 120, 240, 10, "--- Case notes recurring CEI premiums on multiple cases simultaneously."
-		Text 125, 135, 320, 20, "--- NEW 06/2015!!! Case notes all cases on DAIL/DAIL that have a message indicating that COLA was auto-approved, copies the messages to an Excel spreadsheet, and deletes the DAIL."
+		Text 125, 135, 320, 20, "--- Case notes all cases on DAIL/DAIL that have a message indicating that COLA was auto-approved, copies the messages to an Excel spreadsheet, and deletes the DAIL."
 		Text 70, 160, 375, 35, "--- Checks all cases on REPT/INAC (in the month before the current footer month, or prior) for MMIS discrepancies, active claims, DAIL messages, and ABPS panels in need of update (for Good Cause status), and adds them to a Word document. After that, it case notes all of the cases without DAIL messages or MMIS discrepancies. If your agency uses a closed-file worker number, it will SPEC/XFER the cases from your number into that number."
 		Text 70, 200, 375, 20, "--- Case notes that returned mail (without a forwarding address) was received for up to 60 cases simultaneously, and TIKLs for 10-day return of proofs."
 		Text 95, 225, 350, 20, "--- Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER. Case notes ''last day of REIN'' as well as ''date case becomes an intake.''"
@@ -132,7 +132,7 @@ DO
 	CALL create_BULK_main_menu(dialog_name)
 		IF ButtonPressed = 0 THEN stopscript
 		'Opening the SIR Instructions
-		IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/scriptwiki/Wiki%20Pages/Bulk%20scripts.aspx")
+		IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
 
 		'If the user selects the other sub-menu, the script do-loops with the new dialog_name
 		IF ButtonPressed = BULK_list_scripts_button THEN 
