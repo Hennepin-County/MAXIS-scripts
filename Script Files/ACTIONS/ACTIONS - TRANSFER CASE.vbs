@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -44,6 +44,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'VARIABLES TO DECLARE----------------------------------------------------------------------------
@@ -145,7 +146,7 @@ EMConnect ""
 maxis_check_function
 
 DIALOG xfer_menu_dialog
-	IF ButtonPressed = 0 THEN stopscript
+cancel_confirmation
 
 call find_variable("Case Nbr: ", case_number, 8)
 case_number = trim(case_number)
@@ -154,25 +155,22 @@ If IsNumeric(case_number) = False then case_number = ""
 	
 IF XFERRadioGroup = 0 THEN
 		'Displays the dialog and navigates to case note
-		Do
 		  Do
 			Do
+			  err_msg = ""
 			  Dialog within_county_dlg
-			  If buttonpressed = 0 then stopscript
-			  If case_number = "" then MsgBox "You must have a case number to continue."
-			  IF len(worker_to_transfer_to) <> 7 then Msgbox "Please include X1## in the worker number"
-			  IF preg_y_n = "Select one..." THEN MsgBox "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
-			  IF unit_drop_down = "Select one..." THEN MsgBox "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
-			Loop until case_number <> "" and len(worker_to_transfer_to) = 7 AND preg_y_n <> "Select one..." AND unit_drop_down <> "Select one..."
+			  cancel_confirmation
+			  If case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
+			  IF len(worker_to_transfer_to) <> 7 then err_msg = err_msg & vbCr & "Please include X1## in the worker number"
+			  IF preg_y_n = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
+			  IF unit_drop_down = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
+			  IF err_msg <> "" THEN Msgbox err_msg
+			Loop until err_msg = ""
 			transmit
 			EMReadScreen MAXIS_check, 5, 1, 39
 			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
 		  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-		  call navigate_to_screen("case", "note")
-		  PF9
-		  EMReadScreen mode_check, 7, 20, 3
-		  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-		Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+		  start_a_blank_CASE_NOTE
 
 		'Cleaning up for case note
 		  IF SNAP_active_check = 1 THEN active_programs = active_programs & "SNAP/"
@@ -227,7 +225,7 @@ IF XFERRadioGroup = 0 THEN
 				DO
 					DO
 						DIALOG out_of_county_dlg
-							IF ButtonPressed = 0 THEN stopscript
+							cancel_confirmation
 							IF ButtonPressed = nav_to_xfer_button THEN 
 								CALL navigate_to_screen("SPEC", "XFER")
 								EMWriteScreen "X", 9, 16
@@ -238,7 +236,7 @@ IF XFERRadioGroup = 0 THEN
 				LOOP UNTIL last_chance = vbYes
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
-				call navigate_to_screen("STAT", "PROG")
+				call navigate_to_MAXIS_screen("STAT", "PROG")
 					EMReadScreen cash_one_status, 4, 6, 74
 					EMReadScreen cash_two_status, 4, 7, 74
 					EMReadScreen snap_status, 4, 10, 74
@@ -264,7 +262,7 @@ IF XFERRadioGroup = 0 THEN
 			((manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 1 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 1))			
 
 			'----------Checks that the worker or agency is valid----------
-			call navigate_to_screen("REPT", "USER")
+			call navigate_to_MAXIS_screen("REPT", "USER")
 			EMWriteScreen transfer_to, 21, 12
 			transmit
 			EMReadScreen worker_found, 15, 24, 2
@@ -323,7 +321,7 @@ IF XFERRadioGroup = 0 THEN
 		
 		back_to_SELF
 
-		call navigate_to_screen("CASE", "NOTE")
+		call navigate_to_MAXIS_screen("CASE", "NOTE")
 		PF9
 		EMReadScreen write_access, 9, 24, 12
 		IF write_access = "READ ONLY" THEN MsgBox("You do not have access to modify this case. Please double check your case number and try again." & chr(13) & chr(13) & "Alternatively, you may be in INQUIRY MODE.")
@@ -332,7 +330,7 @@ IF XFERRadioGroup = 0 THEN
 
 	'----------Sending the CL a SPEC/MEMO notifying them of the details of the transfer----------
 	If SPEC_MEMO_check = checked then
-		call navigate_to_screen("SPEC", "MEMO")
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")
 		PF5
 		EMWriteScreen "X", 5, 10
 		transmit
@@ -376,7 +374,7 @@ IF XFERRadioGroup = 0 THEN
 	End if
 
 	'----------The case note of the reason for the XFER----------
-		call navigate_to_screen("CASE", "NOTE")
+		call navigate_to_MAXIS_screen("CASE", "NOTE")
 		PF9
 		IF SNAP_status = "ACTV" THEN active_programs = active_programs & "SNAP/"
 		IF hc_status = "ACTV" THEN active_programs = active_programs & "HC/"
