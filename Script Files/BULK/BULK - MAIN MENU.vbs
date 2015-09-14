@@ -148,6 +148,7 @@ LOOP UNTIL ButtonPressed <> SIR_instructions_button AND ButtonPressed <> BULK_li
 If ButtonPressed = ACTV_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-ACTV LIST.vbs")
 IF ButtonPressed = DAIL_REPORT_button THEN 						CALL run_from_GitHub(script_repository & "/BULK/BULK - DAIL REPORT.vbs")
 If ButtonPressed = EOMC_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-EOMC LIST.vbs")
+If ButtonPressed = INAC_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-INAC LIST.vbs")
 If ButtonPressed = PND1_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND1 LIST.vbs")
 If ButtonPressed = PND2_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND2 LIST.vbs")
 If ButtonPressed = REVS_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-REVS LIST.vbs")
