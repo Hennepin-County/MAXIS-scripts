@@ -2300,29 +2300,46 @@ FOR EACH case_number IN case_number_array
 			transmit
 			IF is_case_expedited <> "EXPEDITED" THEN
 				DO
+					not_allowed = ""
+					locked_by_background = ""
 					EMWriteScreen "APP", 19, 70
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 15, 54
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
+					row = 1
+					col = 1
+					EMSearch "(Y/N)  _", row, col
+				LOOP UNTIL (not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED") OR row <> 0
 				DO
-					EMReadScreen please_examine, 14, 4, 25
-				LOOP UNTIL please_examine = "PLEASE EXAMINE"
+					row = 1
+					col = 1
+					EMSearch "Do you want to continue with the approval?", row, col
+				LOOP UNTIL row <> 0
 				DO
-					EMSendKey "Y"
+					row = 1 
+					col = 1
+					EMSearch "(Y/N)  _", row, col	
+					IF row <> 0 THEN 
+						EMWriteScreen "Y", row, col + 7
+					ELSE
+						MsgBox "The script is struggling to find the correct space to confirm the approval. Please enter a Y in the correct space, and press OK for the script to continue." & vbCr & vbCr & "PLEASE DO NOT TRANSMIT!!"
+					END IF
 					transmit
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
 			ELSE
 				DO
+					not_allowed = ""
+					locked_by_background = ""
 					EMWriteScreen "APP", 19, 70
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 15, 54
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
+					row = 1
+					col = 1
+					EMSearch "(Y/N)  _", row, col
+				LOOP UNTIL (not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED") OR row <> 0
 				DO
 					EMReadScreen rei_benefit, 3, 15, 33
 				LOOP UNTIL rei_benefit = "REI"
@@ -2337,10 +2354,20 @@ FOR EACH case_number IN case_number_array
 					EMReadScreen continue_with_approval, 5, 16, 44
 				LOOP UNTIL continue_with_approval = "(Y/N)"
 				DO
-					EMSendKey "Y"
+					row = 1 
+					col = 1
+					EMSearch "(Y/N)  _", row, col
+					IF row <> 0 THEN 
+						EMWriteScreen "Y", row, col + 7
+						msgbox "Now?"
+					ELSE
+						MsgBox "The script is struggling to find the correct space to confirm the approval. Please enter a Y in the correct space, and press OK for the script to continue." & vbCr & vbCr & "PLEASE DO NOT TRANSMIT!!"
+	
+					END IF
 					transmit
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
+				msgbox "here"
 				transmit
 			END IF
 		END IF		
