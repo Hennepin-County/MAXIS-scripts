@@ -80,41 +80,41 @@ FUNCTION create_BULK_main_menu(dialog_name)
 		EndDialog
 	ELSEIF dialog_name = "BULK LISTS" THEN
 		BeginDialog dialog_name, 0, 0, 456, 315, "BULK List Generators"
-		ButtonGroup ButtonPressed
-			PushButton 5, 25, 55, 15, "OTHER BULK", other_BULK_scripts_button
-			PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
-			PushButton 10, 105, 25, 10, "ACTV", ACTV_LIST_button
-			PushButton 35, 105, 25, 10, "DAIL", DAIL_REPORT_button
-			PushButton 60, 105, 25, 10, "EOMC", EOMC_LIST_button
-			PushButton 85, 105, 25, 10, "PND1", PND1_LIST_button
-			PushButton 10, 115, 25, 10, "PND2", PND2_LIST_button
-			PushButton 35, 115, 25, 10, "REVS", REVS_LIST_button
-			PushButton 60, 115, 25, 10, "REVW", REVW_LIST_button
-			PushButton 85, 115, 25, 10, "MFCM", MFCM_LIST_button
-			PushButton 125, 75, 25, 10, "ADDR", ADDRESS_LIST_button
-			PushButton 125, 90, 25, 10, "ARST", ARST_LIST_button
-			PushButton 125, 110, 90, 10, "Check SNAP for GA/RCA", CHECK_SNAP_FOR_GA_RCA_button
-			PushButton 125, 135, 80, 10, "Find updated panels", FIND_PANEL_button
-			PushButton 125, 160, 65, 10, "LTC-GRH list gen", LTC_GRH_LIST_GENERATOR_button
-			PushButton 125, 185, 80, 10, "MA-EPD/Medi Pt B CEI", MAEPD_MEDICARE_LIST_button
-			PushButton 125, 210, 105, 10, "Misc. non-MAGI HC deductions", MISC_NON_MAGI_HC_DEDUCTIONS_button
-			PushButton 125, 225, 30, 10, "PDED", BULK_PDED_button
-			PushButton 125, 240, 55, 10, "SWKR list gen", SWKR_LIST_GENERATOR_button
-			CancelButton 400, 295, 50, 15
-		Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
-		Text 65, 30, 375, 10, "-- This will navigate you to the menu for the Other BULK scripts."
-		GroupBox 5, 60, 110, 70, "Case lists"
-		Text 10, 75, 100, 25, "Case list scripts pull a list of cases into an Excel spreadsheet."
-		GroupBox 120, 60, 330, 205, "Other bulk lists"
-		Text 155, 75, 285, 10, "-- Creates a list of all addresses for an entire caseload."
-		Text 155, 90, 215, 10, "--- Caseload stats by worker. Includes most MAXIS programs."
-		Text 225, 110, 205, 20, "--- Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
-		Text 210, 135, 225, 15, "--- NEW 08/2015!!! Creates a list of cases from one more more case loads showing when selected panels have been updated."
-		Text 195, 160, 250, 20, "--- Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload (or group of caseloads)."
-		Text 210, 185, 230, 20, "--- Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
-		Text 160, 225, 260, 10, "--- NEW 09/2015!! Creates a list of cases with PDED information."
-		Text 235, 210, 185, 10, "--- Creates a list of cases with non-MAGI HC deductions."
-		Text 185, 240, 260, 20, "--- Creates a list of SWKRs assigned to the various cases in a caseload (or group of caseloads)."
+ 		 ButtonGroup ButtonPressed
+		    PushButton 5, 25, 55, 15, "OTHER BULK", other_BULK_scripts_button
+		    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
+		    PushButton 10, 105, 25, 10, "ACTV", ACTV_LIST_button
+		    PushButton 35, 105, 25, 10, "DAIL", DAIL_REPORT_button
+		    PushButton 60, 105, 25, 10, "EOMC", EOMC_LIST_button
+		    PushButton 85, 105, 25, 10, "INAC", INAC_LIST_button
+		    PushButton 10, 115, 25, 10, "PND1", PND1_LIST_button
+		    PushButton 35, 115, 25, 10, "PND2", PND2_LIST_button
+		    PushButton 60, 115, 25, 10, "REVS", REVS_LIST_button
+		    PushButton 85, 115, 25, 10, "REVW", REVW_LIST_button
+		    PushButton 10, 125, 25, 10, "MFCM", MFCM_LIST_button
+		    PushButton 125, 75, 25, 10, "ADDR", ADDRESS_LIST_button
+		    PushButton 125, 90, 25, 10, "ARST", ARST_LIST_button
+		    PushButton 125, 110, 90, 10, "Check SNAP for GA/RCA", CHECK_SNAP_FOR_GA_RCA_button
+		    PushButton 125, 135, 80, 10, "Find updated panels", FIND_PANEL_button
+		    PushButton 125, 160, 65, 10, "LTC-GRH list gen", LTC_GRH_LIST_GENERATOR_button
+		    PushButton 125, 185, 80, 10, "MA-EPD/Medi Pt B CEI", MAEPD_MEDICARE_LIST_button
+		    PushButton 125, 210, 105, 10, "Misc. non-MAGI HC deductions", MISC_NON_MAGI_HC_DEDUCTIONS_button
+		    PushButton 125, 225, 30, 10, "PDED", BULK_PDED_button
+		    PushButton 125, 240, 55, 10, "SWKR list gen", SWKR_LIST_GENERATOR_button
+		    CancelButton 400, 295, 50, 15
+		  Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
+		  Text 65, 30, 375, 10, "-- This will navigate you to the menu for the Other BULK scripts."
+		  GroupBox 5, 60, 110, 85, "Case lists"
+		  Text 10, 75, 100, 25, "Case list scripts pull a list of cases into an Excel spreadsheet."
+		  GroupBox 120, 60, 330, 205, "Other bulk lists Text 155"
+		  Text 155, 90, 215, 10, "--- Caseload stats by worker. Includes most MAXIS programs."
+		  Text 225, 110, 205, 20, "--- Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
+		  Text 210, 135, 225, 15, "--- NEW 08/2015!!! Creates a list of cases from one more more case loads showing when selected panels have been updated."
+		  Text 195, 160, 250, 20, "--- Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload (or group of caseloads)."
+		  Text 210, 185, 230, 20, "--- Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
+		  Text 160, 225, 260, 10, "--- NEW 09/2015!! Creates a list of cases with PDED information."
+		  Text 235, 210, 185, 10, "--- Creates a list of cases with non-MAGI HC deductions."
+		  Text 185, 240, 260, 20, "--- Creates a list of SWKRs assigned to the various cases in a caseload (or group of caseloads)."
 		EndDialog
 	END IF
 
@@ -148,6 +148,7 @@ LOOP UNTIL ButtonPressed <> SIR_instructions_button AND ButtonPressed <> BULK_li
 If ButtonPressed = ACTV_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-ACTV LIST.vbs")
 IF ButtonPressed = DAIL_REPORT_button THEN 						CALL run_from_GitHub(script_repository & "/BULK/BULK - DAIL REPORT.vbs")
 If ButtonPressed = EOMC_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-EOMC LIST.vbs")
+If ButtonPressed = INAC_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-INAC LIST.vbs")
 If ButtonPressed = PND1_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND1 LIST.vbs")
 If ButtonPressed = PND2_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND2 LIST.vbs")
 If ButtonPressed = REVS_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-REVS LIST.vbs")
