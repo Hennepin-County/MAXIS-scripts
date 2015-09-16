@@ -175,9 +175,9 @@ Next
 'The script determines eligibility for the disregard based on whether the person is a child on the PARE panel. This is a running decision.
 'Household_array(i, 4) is the eligibility for CS Disregard.
 number_of_kids = 0
-pare_row = 8
 FOR i = 1 to number_of_people
 	CALL navigate_to_MAXIS_screen("STAT", "PARE")
+	pare_row = 8
 	Do
 		EmReadScreen child_reference, 2, pare_row, 24
 		If child_reference = Household_array(i, 0) Then
