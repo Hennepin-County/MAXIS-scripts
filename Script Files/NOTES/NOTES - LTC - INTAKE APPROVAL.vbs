@@ -5,8 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN
-			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -198,7 +197,7 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 
 
 'Checking for MAXIS, NAV to HCRE
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 Call navigate_to_MAXIS_screen("stat", "hcre")
 
 'Creating a custom dialog for determining who the HH members are
@@ -228,14 +227,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 
 
 'Going to ELIG/HC for the correct footer month
-back_to_self
-EMWriteScreen "elig", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
-EMWriteScreen "hc", 21, 70
-transmit
+Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 'Checks for person 01 and navigates to it
 EMReadScreen person_check, 2, 8, 31
@@ -485,30 +477,12 @@ End if
 Do
 	Do
 		Do
-			Do
-				Dialog intake_approval_dialog
-				cancel_confirmation
-				'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly
-				IF len(baseline_date) < 10 THEN MsgBox "You must enter the baseline date in format MM/DD/YYYY"
-			LOOP until len(baseline_date) >= 10
-			EMReadScreen STAT_check, 4, 20, 21
-			If STAT_check = "STAT" then
-			If ButtonPressed = prev_panel_button then Call MAXIS_dialog_navigation
-			If ButtonPressed = next_panel_button then Call MAXIS_dialog_navigation
-			If ButtonPressed = prev_memb_button then Call MAXIS_dialog_navigation
-			If ButtonPressed = next_memb_button then call MAXIS_dialog_navigation
-			End if
-			transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-			EMReadScreen MAXIS_check, 5, 1, 39
-			If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
-			If ButtonPressed = AREP_button then call navigate_to_MAXIS_screen("stat", "AREP")
-			If ButtonPressed = SWKR_button then call navigate_to_MAXIS_screen("stat", "SWKR")
-			If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
-			If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
-			If ButtonPressed = MEDI_button then call navigate_to_MAXIS_screen("stat", "MEDI")
-			If ButtonPressed = INSA_button then call navigate_to_MAXIS_screen("stat", "INSA")
-			If ButtonPressed = BILS_button then call navigate_to_MAXIS_screen("stat", "BILS")
-		Loop until ButtonPressed = -1 
+			Dialog intake_approval_dialog
+			MAXIS_dialog_navigation
+			cancel_confirmation
+			'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly
+			IF len(baseline_date) < 10 THEN MsgBox "You must enter the baseline date in format MM/DD/YYYY"
+		LOOP until len(baseline_date) >= 10
 		If actions_taken = "" THEN MsgBox "You need to complete the 'actions taken' field."
 		If application_date = "" THEN MsgBox "You need to fill in the application date."
 		IF worker_signature = "" then MsgBox "You need to sign your case note."
@@ -552,27 +526,27 @@ call write_bullet_and_variable_in_CASE_NOTE("Application date", application_date
 If LTCC_check = 1 then call write_bullet_and_variable_in_CASE_NOTE("LTCC date", LTCC_date)
 If DHS_5181_on_file_check = 1 then call write_variable_in_CASE_NOTE("* DHS-5181 on file.")
 If DHS_1503_on_file_check = 1 then call write_variable_in_CASE_NOTE("* DHS-1503 on file.")
-If retro_months <> "" then call write_bullet_and_variable_in_CASE_NOTE("Retro request", retro_months)
-If month_MA_starts <> "" then call write_bullet_and_variable_in_CASE_NOTE("Month MA starts", month_MA_starts)
-If month_MA_LTC_starts <> "" then call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC starts", month_MA_LTC_starts)
+call write_bullet_and_variable_in_CASE_NOTE("Retro request", retro_months)
+call write_bullet_and_variable_in_CASE_NOTE("Month MA starts", month_MA_starts)
+call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC starts", month_MA_LTC_starts)
 Call write_bullet_and_variable_in_case_note ("Baseline Date", baseline_date) 
 Call write_bullet_and_variable_in_case_note ("Lookback period", lookback_period & "-" & end_of_lookback)
 If community_check = 1 then call write_variable_in_CASE_NOTE("* Client is in the community.")
-If AREP_SWKR <> "" then call write_bullet_and_variable_in_CASE_NOTE("AREP/SWKR", AREP_SWKR)
-If FACI <> "" then call write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
-If CFR <> "" then call write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
-If income <> "" then call write_bullet_and_variable_in_CASE_NOTE("Income", income)
-If assets <> "" then call write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
-If total_countable_assets <> "" then call write_bullet_and_variable_in_CASE_NOTE("Total countable assets", total_countable_assets)
-If other_asset_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Other asset notes", other_asset_notes)
-If MEDI_INSA <> "" then call write_bullet_and_variable_in_CASE_NOTE("MEDI/INSA", MEDI_INSA)
+call write_bullet_and_variable_in_CASE_NOTE("AREP/SWKR", AREP_SWKR)
+call write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
+call write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
+call write_bullet_and_variable_in_CASE_NOTE("Income", income)
+call write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
+call write_bullet_and_variable_in_CASE_NOTE("Total countable assets", total_countable_assets)
+call write_bullet_and_variable_in_CASE_NOTE("Other asset notes", other_asset_notes)
+call write_bullet_and_variable_in_CASE_NOTE("MEDI/INSA", MEDI_INSA)
 If INSA_loaded_into_TPL_check = 1 then call write_variable_in_CASE_NOTE("* INSA loaded into TPL.")
 If LTC_partnership_check = 1 then call write_variable_in_CASE_NOTE("* There is a LTC partnership for this case.")
-If annuity_LTC_PRB <> "" then call write_bullet_and_variable_in_CASE_NOTE("Annuity (LTC) PRB", annuity_LTC_PRB)
-If home_equity_limit <> "" then call write_bullet_and_variable_in_CASE_NOTE("Home equity limit", home_equity_limit)
-If transfer <> "" then call write_bullet_and_variable_in_CASE_NOTE("Transfer", transfer)
-If deductions <> "" then call write_bullet_and_variable_in_CASE_NOTE("BILS/deductions", deductions)
-If other_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+call write_bullet_and_variable_in_CASE_NOTE("Annuity (LTC) PRB", annuity_LTC_PRB)
+call write_bullet_and_variable_in_CASE_NOTE("Home equity limit", home_equity_limit)
+call write_bullet_and_variable_in_CASE_NOTE("Transfer", transfer)
+call write_bullet_and_variable_in_CASE_NOTE("BILS/deductions", deductions)
+call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 If DHS_3050_1503_check = 1 then call write_variable_in_CASE_NOTE("* DHS-3050/1503 sent.")
 If DHS_3203_lien_doc_check = 1 then call write_variable_in_CASE_NOTE("* DHS-3203/lien doc sent.")
 If asset_transfer_letter_sent_check = 1 then call write_variable_in_CASE_NOTE("* Asset transfer letter sent.")

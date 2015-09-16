@@ -3,13 +3,11 @@ name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
 
 'Option Explicit
-
-'DIM beta_agency
-'DIM FuncLib_URL, req, fso
+'DIM beta_agency, FuncLib_URL, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+	IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN	'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN		'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
@@ -51,14 +49,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
 county_FSET_offices = array("")
 
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
-
-'IF worker_county_code = "x101" THEN county_FSET_offices = array("Select one...",
+IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center")
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
 IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
@@ -182,7 +180,6 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointmen
 EndDialog
 
 
-
 'This dialog is for counties that have not provided FSET office address(s)
 BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
@@ -234,9 +231,8 @@ DO
 									DO
 										DO
 											DO	
-												'Counties listed here (starting with x101 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)
-												If worker_county_code = "x101" OR _  	
-												worker_county_code = "x105" OR _
+												'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
+												IF worker_county_code = "x105" OR _
 												worker_county_code = "x106" OR _
 												worker_county_code = "x110" OR _
 												worker_county_code = "x111" OR _
@@ -300,9 +296,17 @@ DO
 Loop until interview_location <> "Select one..."
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
+'CO #01 AITKIN COUNTY address
+IF interview_location = "Aitkin Workforce Center" THEN 
+	SNAPET_name = "Aitkin Workforce Center"
+	SNAPET_address_01 = "20 3rd Street NE"
+	SNAPET_city = "Aitkin"
+	SNAPET_ST = "MN"
+	SNAPET_zip = "56431"
+END IF
 
 'CO #02 Anoka County address
 IF interview_location = "Minnesota WorkForce Center Blaine" THEN 
@@ -931,6 +935,13 @@ EMReadScreen first_name, 11, 6, 63
 last_name = trim(replace(last_name, "_", ""))
 first_name = trim(replace(first_name, "_", ""))
 
+'Updates the WREG panel with the appointment_date
+Call navigate_to_MAXIS_screen("STAT", "WREG")
+PF9
+Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
+PF3
+
+
 'Navigates into SPEC/LETR
 call navigate_to_MAXIS_screen("SPEC", "LETR") 
 
@@ -955,17 +966,15 @@ EMWriteScreen SNAPET_contact, 16, 28
 PF4		'saves and sends memo
 
 'Navigates to a blank case note
-call start_a_blank_CASE_NOTE
-
+start_a_blank_CASE_NOTE
 'Writes the case note
-CALL write_new_line_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
+CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
 Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
 CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
-CALL write_new_line_in_case_note("---")
-CALL write_new_line_in_case_note(worker_signature)
+Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date."
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 
-MsgBox "If you haven't updated WREG with the FSET Orientation Date, please do so now.  Thank you!"
-
-script_end_procedure("")
+script_end_procedure("If you haven't made the E & T referral, please do so now.  Thank you!")

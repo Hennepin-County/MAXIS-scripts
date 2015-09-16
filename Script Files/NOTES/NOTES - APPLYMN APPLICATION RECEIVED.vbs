@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -71,48 +71,29 @@ BeginDialog apply_MN_dialog, 0, 0, 291, 125, "Apply MN"
   Text 5, 110, 60, 10, "Worker signature:"
 EndDialog
 
-
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
 'Finds case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If isnumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
 
 'Shows dialog and navigates to case note
-Do
-  Do
-    Dialog apply_MN_dialog
-    If ButtonPressed = 0 then stopscript
-    transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" then MsgBox "You do not appear to be in MAXIS on the screen you started this script. Are you passworded out? Press OK, and navigate to MAXIS before proceeding."
-  Loop until MAXIS_check = "MAXIS"
-  call navigate_to_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script could not navigate to a case note on edit mode. Are you in inquiry? Or an old case note? Perhaps the case is out of county? Try backing out of case note and trying again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+Dialog apply_MN_dialog
+cancel_confirmation
+
+'checking for an active MAXIS session	
+Call check_for_MAXIS(False)
+
 
 'Case notes information
-EMSendKey "ApplyMN app rec'd on " & app_date & " at " & app_time & " " & AM_PM & "<newline>"
-call write_editbox_in_case_note("Confirmation #", confirmation_number, 6) 'x is the header, y is the variable for the edit box which will be put in the case note.
-call write_editbox_in_case_note("Applying for", progs_applied_for, 6) 'x is the header, y is the variable for the edit box which will be put in the case note.
-If EBT_status <> "N/A" then call write_new_line_in_case_note("* Client is " & EBT_status & ".")
-call write_new_line_in_case_note("* " & actions_taken)
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+Call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE("ApplyMN app rec'd on " & app_date & " at " & app_time & " " & AM_PM)
+call write_variable_in_case_note("Confirmation #" & confirmation_number) 'x is the header, y is the variable for the edit box which will be put in the case note.
+call write_variable_in_case_note("Applying for " &  progs_applied_for) 'x is the header, y is the variable for the edit box which will be put in the case note.
+If EBT_status <> "N/A" then call write_variable_in_CASE_NOTE("* Client is " & EBT_status & ".")
+call write_variable_in_CASE_NOTE("* " & actions_taken)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -97,8 +97,7 @@ Function write_new_line_in_person_note(x)
   End if
 End function
 
-'SECTION 02: DIALOGS
-
+'SECTION 02: DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog asset_assessment_dialog, 0, 0, 266, 261, "Asset assessment dialog"
   DropListBox 5, 5, 60, 15, "REQUIRED"+chr(9)+"REQUESTED", asset_assessment_type
   EditBox 195, 5, 65, 15, effective_date
@@ -153,7 +152,6 @@ EndDialog
 
 
 'SECTION 03: THE SCRIPT----------------------------------------------------------------------------------------------------
-
 Dialog case_and_PMI_number_dialog
 If ButtonPressed = 0 then stopscript
 
@@ -409,9 +407,7 @@ PF3
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
 
 'CASE NOTE----------------------------------------------------------------------------------------------------
-call navigate_to_screen("case", "note")
 Call start_a_blank_case_note
-
 Call write_variable_in_CASE_NOTE ("***" & asset_assessment_type & " ASSET ASSESSMENT***")
 call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
 If MA_LTC_first_month_of_documented_need <> "" then call write_bullet_and_variable_in_CASE_NOTE("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)

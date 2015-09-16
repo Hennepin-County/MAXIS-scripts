@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -78,9 +78,7 @@ If buttonpressed = cancel then stopscript
 query_start_time = timer
 
 'Checking for MAXIS
-PF3
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You appear to be locked out of MAXIS.")
+Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -167,8 +165,8 @@ End if
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_screen("rept", "pnd2")
-	EMWriteScreen worker, 21, 13
+	Call navigate_to_MAXIS_screen("rept", "pnd2")
+	EMWriteScreen worker, 21, 17
 	transmit
 
 	'Skips workers with no info
@@ -246,6 +244,8 @@ ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one,
 ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
+
+is_not_blank_excel_string = chr(34) & "<>" & chr(34)
 
 'SNAP info
 If SNAP_check = checked then	

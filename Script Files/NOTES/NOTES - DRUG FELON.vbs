@@ -1,12 +1,15 @@
 'Option Explicit
 
+name_of_script = "NOTES - DRUG FELON.vbs"
+start_time = timer
+
 'DIM beta_agency
 'DIM url, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -81,12 +84,10 @@ EndDialog
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone
+'Connects to BlueZone & grabbing case number
 EMConnect "" 
-
-'Grabs the MAXIS case number
 CALL MAXIS_case_number_finder(case_number)
+
 
 'Show dialog
 DO
@@ -102,16 +103,11 @@ DO
 LOOP UNTIL UA_results <> "select one..."
 
 'Checks MAXIS for password prompt
+Call check_for_MAXIS(FALSE)
 
-'Navigate to case note
-CALL navigate_to_screen("CASE", "NOTE")
-
-
-
-'Sends a PF9
-PF9
 
 'Writes the case note
+start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***Drug Felon***")
 CALL write_bullet_and_variable_in_case_note("Conviction date", conviction_date)
 CALL write_bullet_and_variable_in_case_note("Probation Officer", po_officer)
@@ -125,4 +121,4 @@ CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-CALL script_end_procedure("")
+script_end_procedure("")

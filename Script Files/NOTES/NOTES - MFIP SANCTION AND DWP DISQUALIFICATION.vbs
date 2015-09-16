@@ -16,7 +16,7 @@ start_time = timer
 ''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -85,9 +85,11 @@ END IF
 'DIM TIKL_date
 
 
+
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 'MFIP Sanction/DWP Disqualification Dialog Box
-BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 341, 275, "MFIP Sanction - DWP Disqualification"
+BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 341, 295, "MFIP Sanction - DWP Disqualification"
   EditBox 55, 5, 60, 15, case_number
   EditBox 180, 5, 20, 15, HH_Member_Number
   DropListBox 265, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
@@ -97,36 +99,40 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 341, 275, "MFIP Sanction - DWP 
   EditBox 265, 45, 65, 15, Date_Sanction
   DropListBox 90, 65, 240, 15, "Select one..."+chr(9)+"Failed to attend ES overview"+chr(9)+"Failed to develop employment plan"+chr(9)+"Non-compliance with employment plan"+chr(9)+"< 20, failed education requirement"+chr(9)+"Failed to accept suitable employment"+chr(9)+"Quit suitable employment w/o good cause"+chr(9)+"Failure to attend MFIP orientation"+chr(9)+"Non-cooperation with child support", sanction_reason_droplist
   EditBox 90, 85, 240, 15, sanction_information
-  EditBox 90, 105, 240, 15, other_sanction_notes
-  EditBox 90, 125, 240, 15, Impact_Other_Programs
-  EditBox 90, 145, 240, 15, Vendor_Information
-  EditBox 175, 165, 60, 15, Last_Day_Cure
-  CheckBox 5, 190, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
-  CheckBox 5, 205, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
-  CheckBox 5, 220, 130, 10, "TIKL to change sanction status ", TIKL_next_month
-  CheckBox 145, 190, 80, 10, "Case has been FIAT'd", Fiat_check
-  CheckBox 145, 205, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
-  CheckBox 145, 220, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_SPEC_MEMO
-  EditBox 150, 255, 75, 15, worker_signature
+  EditBox 90, 105, 140, 15, ES_counselor_name
+  EditBox 265, 105, 60, 15, ES_counselor_phone
+  EditBox 90, 125, 240, 15, other_sanction_notes
+  EditBox 90, 145, 240, 15, Impact_Other_Programs
+  EditBox 90, 165, 240, 15, Vendor_Information
+  EditBox 175, 185, 60, 15, Last_Day_Cure
+  CheckBox 5, 210, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
+  CheckBox 5, 225, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
+  CheckBox 5, 240, 130, 10, "TIKL to change sanction status ", TIKL_next_month
+  CheckBox 145, 210, 80, 10, "Case has been FIAT'd", Fiat_check
+  CheckBox 145, 225, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
+  CheckBox 145, 240, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_SPEC_MEMO
+  EditBox 150, 275, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 230, 255, 50, 15
-    CancelButton 285, 255, 50, 15
+    OkButton 230, 275, 50, 15
+    CancelButton 285, 275, 50, 15
   Text 5, 70, 80, 10, "Reason for the sanction:"
-  Text 85, 260, 60, 10, "Worker signature:"
-  Text 5, 170, 170, 10, "Last day to cure (10 day cutoff or last day of month):"
+  Text 85, 280, 60, 10, "Worker signature:"
+  Text 5, 190, 170, 10, "Last day to cure (10 day cutoff or last day of month):"
   Text 185, 30, 75, 10, "Number of occurences:"
-  Text 5, 150, 65, 10, "Vendor information:"
-  Text 5, 130, 85, 10, "Impact to other programs:"
+  Text 5, 170, 65, 10, "Vendor information:"
+  Text 5, 150, 85, 10, "Impact to other programs:"
   Text 5, 90, 80, 10, "Sanction info from/how:"
+  Text 5, 110, 80, 10, "ES Counselor:"
+  Text 235, 110, 25, 10, "Phone:"
   Text 5, 50, 40, 10, "Sanction %:"
   Text 210, 10, 55, 10, "Sanction status:"
   Text 5, 10, 45, 10, "Case number:"
   Text 125, 50, 140, 10, "Effective Date of Sanction/Disqualification:"
   Text 130, 10, 50, 10, "HH Member #:"
   Text 5, 30, 60, 10, "Type of sanction:"
-  Text 5, 110, 70, 10, "Other sanction notes:"
-  Text 155, 230, 160, 10, "(See TE10.20 for info on when to use this notice)"
-  GroupBox 0, 185, 335, 60, ""
+  Text 5, 130, 70, 10, "Other sanction notes:"
+  Text 155, 250, 160, 10, "(See TE10.20 for info on when to use this notice)"
+  GroupBox 3, 203, 335, 60, ""
 EndDialog
 
 
@@ -137,45 +143,46 @@ EMConnect ""
 'Asks for Case Number
 CALL MAXIS_case_number_finder(case_number)
 
+
+'Grabbing counselor name and phone from database if applicable
+IF collecting_ES_statistics = true THEN
+		'Setting constants
+		Const adOpenStatic = 3
+		Const adLockOptimistic = 3
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'Opening DB
+	objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & ES_database_path
+		'This looks for an existing case number and edits it if needed
+		set rs = objConnection.Execute("SELECT * FROM ESTrackingTbl WHERE ESCaseNbr = " & case_number & "")
+		IF NOT(rs.eof) THEN ES_counselor_name = rs("ESCounselor")
+	objConnection.Close
+	set rs = nothing
+END IF
+	
 'Shows dialog
 DO
-	DO
-		DO
-			DO
-				DO
-					DO
-						DO
-							DO
-								DO	
-									DO
-										DO
-											DO								
-												Dialog MFIP_Sanction_DWP_Disq_Dialog
-												cancel_confirmation
-												IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number"
-											LOOP UNTIL IsNumeric(case_number) = TRUE
-											IF sanction_status_droplist = "Select one..." THEN MsgBox "You must select a sanction status type"
-										LOOP UNTIL Sanction_status_droplist <> "Select one..."
-										IF HH_Member_Number = "" THEN MsgBox "You must enter a HH member number"
-									LOOP UNTIL HH_Member_Number <> ""
-									IF sanction_type_droplist = "Select one..." THEN MsgBox "You must select a sanction type"
-								LOOP UNTIL sanction_type_droplist <> "Select one..."
-								IF number_occurances_droplist = "Select one..." THEN MsgBox "You must select a number of the sanction occurrence"
-							LOOP UNTIL number_occurances_droplist <> "Select one..."
-							IF IsDate(Date_Sanction) = FALSE THEN MsgBox "You must type a valid date of sanction"
-						LOOP UNTIL IsDate(Date_Sanction) = TRUE
-						IF Sanction_Percentage_droplist = "Select one..." THEN MsgBox "You must select a sanction percentage"
-					LOOP UNTIL Sanction_Percentage_droplist <> "Select one..."
-					IF sanction_information = "" THEN MsgBox "You must enter information about how the sanction information was received"
-				LOOP UNTIL sanction_information <> ""
-				IF IsDate(Date_Sanction) = FALSE THEN MsgBox "You must type a valid date of sanction"
-			LOOP UNTIL IsDate(Date_Sanction) = TRUE
-			IF sanction_reason_droplist = "Select One..." THEN MsgBox "You must select a sanction percentage"
-		LOOP UNTIL sanction_reason_droplist <> "Select One..."
-		IF Last_Day_Cure = "" THEN MsgBox "You must enter the last day to cure the sanction"
-	LOOP UNTIL Last_Day_Cure <> ""
-	IF worker_signature = "" THEN MsgBox "You must sign your case note"
-LOOP UNTIL worker_signature <> ""
+	err_msg = ""						
+	Dialog MFIP_Sanction_DWP_Disq_Dialog
+	cancel_confirmation
+	IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid numeric case number."
+	IF sanction_status_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction status type."
+	IF HH_Member_Number = "" THEN err_msg = err_msg & vbCr & "You must enter a HH member number."
+	IF sanction_type_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction type."
+	IF number_occurances_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a number of the sanction occurrence."		
+	IF IsDate(Date_Sanction) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid date of sanction."
+	IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
+	IF sanction_information = "" THEN err_msg = err_msg & vbCr & "You must enter information about how the sanction information was received."
+	IF IsDate(Date_Sanction) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid date of sanction."
+	IF sanction_reason_droplist = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
+	IF Last_Day_Cure = "" THEN err_msg = err_msg & vbCr & "You must enter the last day to cure the sanction."
+	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+LOOP UNTIL err_msg = ""
+
 
 
 'Checks MAXIS for password prompt
@@ -203,7 +210,7 @@ CALL start_a_blank_CASE_NOTE
 
 'Writes case note
 'case noting the droplist and editboxes
-Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_status_droplist & " SANCTION" & " for " & "MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
+Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_type_droplist & " SANCTION " & sanction_status_droplist  & " for MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
 CALL write_bullet_and_variable_in_case_note("HH member number", HH_Member_Number)
 Call write_bullet_and_variable_in_case_note("Sanction status", sanction_status_droplist)
 CALL write_bullet_and_variable_in_case_note("Type of Sanction", sanction_type_droplist)
@@ -211,6 +218,7 @@ CALL write_bullet_and_variable_in_case_note("Number of occurences", number_occur
 CALL write_bullet_and_variable_in_case_note("Sanction Percent is", Sanction_Percentage_droplist)
 CALL write_bullet_and_variable_in_case_note("Effective date of sanction/disqualification", Date_Sanction)
 CALL write_bullet_and_variable_in_case_note("Sanction information received from", sanction_information)
+CALL write_bullet_and_variable_in_case_note("ES Counselor", ES_counselor_name & " " & ES_counselor_phone)
 CALL write_bullet_and_variable_in_case_note ("Reason for the sanction", sanction_reason_droplist)
 CALL write_bullet_and_variable_in_case_note("Other sanction notes", other_sanction_notes)
 CALL write_bullet_and_variable_in_case_note ("Impact to other programs", Impact_Other_Programs)
@@ -226,4 +234,11 @@ IF Sent_SPEC_MEMO = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sancti
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-script_end_procedure ("")
+'Updating database if applicable
+IF collecting_ES_statistics = true THEN
+	IF Sanction_Percentage_droplist = "100%" THEN ESActive = "No" 'updating ESActive when case is sanctioned out
+	Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only                               
+	CALL write_MAXIS_info_to_ES_database(case_number, HH_Member_Number, ESMembName, Sanction_Percentage_droplist, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
+END IF
+
+CALL script_end_procedure ("")
