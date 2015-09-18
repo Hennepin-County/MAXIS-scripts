@@ -2338,36 +2338,14 @@ FOR EACH case_number IN case_number_array
 					EMReadScreen locked_by_background, 6, 24, 19
 					row = 1
 					col = 1
-					EMSearch "(Y/N)  _", row, col
-				LOOP UNTIL (not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED") OR row <> 0
-				DO
-					EMReadScreen rei_benefit, 3, 15, 33
-				LOOP UNTIL rei_benefit = "REI"
-				EMSendKey "Y"
-				transmit
-				DO
-					EMReadScreen rei_confirm, 3, 14, 30
-				LOOP UNTIL rei_confirm = "REI"
-				EMSendKey "Y"
-				transmit
-				DO
-					EMReadScreen continue_with_approval, 5, 16, 44
-				LOOP UNTIL continue_with_approval = "(Y/N)"
-				DO
-					row = 1 
-					col = 1
-					EMSearch "(Y/N)  _", row, col
-					IF row <> 0 THEN 
-						EMWriteScreen "Y", row, col + 7
-						msgbox "Now?"
-					ELSE
-						MsgBox "The script is struggling to find the correct space to confirm the approval. Please enter a Y in the correct space, and press OK for the script to continue." & vbCr & vbCr & "PLEASE DO NOT TRANSMIT!!"
-	
-					END IF
-					transmit
+					EMSearch "(Y/N)", row, col
+					IF row <> 0 THEN
+						emsendkey "<tab>"
+						emsendkey "y"
+						transmit
+					End If
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
-				msgbox "here"
 				transmit
 			END IF
 		END IF		
