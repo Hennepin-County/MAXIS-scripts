@@ -373,6 +373,8 @@ ELSEIF MFIP_cash_status <> "" Then
 	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
 	applied_mfip_disregard = 0
 	FOR i = 1 to number_of_people
+		PF7
+		PF7 'This makes sure it is back at the top screen of FMSL
 		IF Household_array(i, 4) = True THEN
 			fmsl_row = 9
 			DO
