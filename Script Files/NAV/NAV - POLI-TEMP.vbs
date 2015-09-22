@@ -47,16 +47,16 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS--------------------------------------------------
-BeginDialog POLI_TEMP_dialog, 0, 0, 256, 60, "POLI/TEMP dialog"
-  OptionGroup RadioGroup1
-    RadioButton 5, 30, 175, 10, "Table of Contents (search by TEMP section code)", table_radio
-    RadioButton 5, 45, 150, 10, "Index of Topics (search by a word or topic)", index_radio
+BeginDialog POLI_TEMP_dialog, 0, 0, 211, 75, "POLI/TEMP dialog"
+  DropListBox 35, 25, 55, 45, "TABLE"+chr(9)+"INDEX", Temp_table_index
   ButtonGroup ButtonPressed
-    OkButton 195, 10, 50, 15
-    CancelButton 195, 30, 50, 15
-  Text 10, 10, 160, 10, "What area of POLI/TEMP do you want to go to?"
+    OkButton 95, 55, 50, 15
+    CancelButton 155, 55, 50, 15
+  Text 5, 10, 140, 15, "What area of POLI/TEMP you want to go?"
+  Text 5, 25, 30, 10, "Select:"
+  Text 95, 25, 105, 10, "TABLE - Search by TEMP code"
+  Text 95, 35, 115, 10, "INDEX - Search by a word or topic"
 EndDialog
-
 
 'THE SCRIPT
 
@@ -64,15 +64,22 @@ EndDialog
 Dialog POLI_TEMP_dialog
 If buttonpressed = cancel then stopscript
 
-'Determines which POLI/TEMP section to go to, using the radioboxes outcome to decide
-If radiogroup1 = table_radio then 
+'Determines which POLI/TEMP section to go to, using the dropdown list outcome to decide
+If Temp_table_index = "TABLE" then
 	panel_title = "TABLE"
-ElseIf radiogroup1 = index_radio then
+ElseIf Temp_table_index = "INDEX" then
 	panel_title = "INDEX"
 End if
 
 'Connects to BlueZone
 EMConnect ""
+
+'call screen back to SELF screen to proceed onward with POLI
+'navigating back to SELF menu, since back_to_SELF does not work in POLI function
+DO
+	PF3
+	EMReadScreen SELF_check, 4, 2, 50
+Loop until SELF_check = "SELF"
 
 'Checks to make sure we're in MAXIS
 call check_for_MAXIS(True)
