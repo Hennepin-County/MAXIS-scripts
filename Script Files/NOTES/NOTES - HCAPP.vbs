@@ -220,6 +220,8 @@ If row <> 0 then
 	If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
+footer_month = CStr(footer_month)
+
 'Showing the case number
 Do
 	Dialog case_number_and_footer_month_dialog
