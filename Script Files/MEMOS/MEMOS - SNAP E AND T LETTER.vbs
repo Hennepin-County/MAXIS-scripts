@@ -1,8 +1,8 @@
+'Option Explicit
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
 
-'Option Explicit
 'DIM beta_agency, FuncLib_URL, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -48,7 +48,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
 
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
 county_FSET_offices = array("")
@@ -218,82 +217,65 @@ EMConnect ""
 'Searches for a case number
 call MAXIS_case_number_finder(case_number)
 
-'Shows dialog, checks for password prompt
-DO
-	DO
-		DO
-			DO
-				DO
-					DO
-						DO
-							DO
-								DO
-									DO
-										DO
-											DO	
-												'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
-												IF worker_county_code = "x105" OR _
-												worker_county_code = "x106" OR _
-												worker_county_code = "x110" OR _
-												worker_county_code = "x111" OR _
-												worker_county_code = "x113" OR _
-												worker_county_code = "x114" OR _
-												worker_county_code = "x115" OR _
-												worker_county_code = "x116" OR _
-												worker_county_code = "x117" OR _
-												worker_county_code = "x124" OR _
-												worker_county_code = "x129" OR _
-												worker_county_code = "x132" OR _
-												worker_county_code = "x133" OR _
-												worker_county_code = "x134" OR _
-												worker_county_code = "x136" OR _
-												worker_county_code = "x148" OR _
-												worker_county_code = "x149" OR _
-												worker_county_code = "x152" OR _
-												worker_county_code = "x153" OR _
-												worker_county_code = "x154" OR _
-												worker_county_code = "x162" OR _
-												worker_county_code = "x170" OR _
-												worker_county_code = "x172" OR _
-												worker_county_code = "x173" OR _
-												worker_county_code = "x183" OR _
-												worker_county_code = "x185" OR _ 
-												worker_county_code = "" THEN											  
-													Dialog SNAPET_manual_address_dialog 
-												ELSE 
-													Dialog SNAPET_automated_adress_dialog
-													'next 5 lines are tricking the script to read <> "" since they are declared as "_"
-													SNAPET_name = "_"
-													SNAPET_address_01 = "_"
-													SNAPET_city = "_"
-													SNAPET_ST = "_"
-													SNAPET_zip = "_"
-												END IF
-												cancel_confirmation 'asks if they really want to cancel script	
-												IF case_number = "" then MsgBox "You did not enter a case number. Please try again."
-											LOOP UNTIL case_number <> ""
-											If isdate(appointment_date) = FALSE then MsgBox "You did not enter a valid appointment date. Please try again."
-										LOOP UNTIL isdate(appointment_date) = True
-										IF len(member_number) <> 2 then MsgBox "You did not enter a valid household member number.  Please try again."
-									LOOP UNTIL len(member_number) = 2
-									IF SNAPET_name = "" then MsgBox "Please specify the agency name."
-								LOOP UNTIL SNAPET_name <> ""
-								IF SNAPET_address_01 = "" then MsgBox "Please enter the address for the SNAP E&T agency."
-							LOOP UNTIL SNAPET_address_01 <> ""
-							IF appointment_time_prefix_editbox = "" then MsgBox "Please specify an appointment time."
-						LOOP UNTIL appointment_time_prefix_editbox <> ""
-						IF appointment_time_post_editbox = "" then MsgBox "Please specify an appointment time."
-					LOOP UNTIL appointment_time_post_editbox <> ""	
-					If AM_PM = "Select One..." THEN MsgBox "Please choose either a.m. or p.m."
-				LOOP UNTIL AM_PM <> "Select One..."					
-				IF worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-			LOOP UNTIL worker_signature <> ""
-			IF SNAPET_contact = "" THEN MsgBox "You must specify the E&T contact name.  Please try again."
-		LOOP UNTIL SNAPET_contact <> ""
-		IF SNAPET_phone = "" THEN MsgBox "You must enter a contact phone number.  Please try again."
-	LOOP UNTIL SNAPET_phone <> ""	
-	If interview_location = "Select one..." then MsgBox "You must select the E&T office location."
-Loop until interview_location <> "Select one..."
+'Main dialog 
+DO	
+	'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
+	err_msg = ""
+	'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
+	IF worker_county_code = "x105" OR _
+	worker_county_code = "x106" OR _
+	worker_county_code = "x110" OR _
+	worker_county_code = "x111" OR _
+	worker_county_code = "x113" OR _
+	worker_county_code = "x114" OR _
+	worker_county_code = "x115" OR _
+	worker_county_code = "x116" OR _
+	worker_county_code = "x117" OR _
+	worker_county_code = "x124" OR _
+	worker_county_code = "x129" OR _
+	worker_county_code = "x132" OR _
+	worker_county_code = "x133" OR _
+	worker_county_code = "x134" OR _
+	worker_county_code = "x136" OR _
+	worker_county_code = "x148" OR _
+	worker_county_code = "x149" OR _
+	worker_county_code = "x152" OR _
+	worker_county_code = "x153" OR _
+	worker_county_code = "x154" OR _
+	worker_county_code = "x162" OR _
+	worker_county_code = "x170" OR _
+	worker_county_code = "x172" OR _
+	worker_county_code = "x173" OR _
+	worker_county_code = "x183" OR _
+	worker_county_code = "x185" OR _ 
+	worker_county_code = "" THEN											  
+		Dialog SNAPET_manual_address_dialog 
+	ELSE 
+		Dialog SNAPET_automated_adress_dialog
+		'next 5 lines are tricking the script to read <> "" since they are declared as "_"
+		SNAPET_name = "_"
+		SNAPET_address_01 = "_"
+		SNAPET_city = "_"
+		SNAPET_ST = "_"
+		SNAPET_zip = "_"
+	END IF
+	'asks if they really want to cancel script	
+	cancel_confirmation 
+	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If isdate(appointment_date) = FALSE then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
+	IF len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid member number."		
+	IF SNAPET_name = "" then err_msg = err_msg & vbNewLine & "* Enter a E and T office location."
+	IF SNAPET_address_01 = "" then err_msg = err_msg & vbNewLine & "* Enter a street address."			
+	IF appointment_time_prefix_editbox = "" then err_msg = err_msg & vbNewLine & "* Enter a valid appointment time."
+	IF appointment_time_post_editbox = "" then err_msg = err_msg & vbNewLine & "* Enter a valid appointment time."
+	If AM_PM = "Select one..." then err_msg = err_msg & vbNewLine & "* Select either AM or PM for your appointment time."
+	IF SNAPET_contact = "" then err_msg = err_msg & vbNewLine & "* Enter a contact name."
+	IF SNAPET_phone = "" then err_msg = err_msg & vbNewLine & "* Enter a phone number."
+	If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location."
+	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP until err_msg = ""
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
@@ -924,7 +906,7 @@ IF interview_location  = "Yellow Medicine County Family Services" THEN
     SNAPET_ST = "MN"
     SNAPET_zip = "56241"
 END IF
-
+'END COUNTY ADDRESSES----------------------------------------------------------------------------------------------------
 
 'Pulls the member name.
 call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -941,16 +923,25 @@ PF9
 Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
 PF3
 
+'The CASE NOTE----------------------------------------------------------------------------------------------------
+'Navigates to a blank case note
+start_a_blank_CASE_NOTE
+CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
+Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
+CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
+CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
+CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
+Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date.")
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 
-'Navigates into SPEC/LETR
+'The SPEC/LETR----------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("SPEC", "LETR") 
-
 'Opens up the SNAP E&T Orientation LETR. If it's unable the script will stop.
 EMWriteScreen "x", 8, 12
 transmit
 EMReadScreen LETR_check, 4, 2, 49
 If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-
 
 'Writes the info into the LETR. 
 EMWriteScreen first_name & " " & last_name, 4, 28
@@ -965,16 +956,4 @@ call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-dig
 EMWriteScreen SNAPET_contact, 16, 28
 PF4		'saves and sends memo
 
-'Navigates to a blank case note
-start_a_blank_CASE_NOTE
-'Writes the case note
-CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
-Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
-CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
-CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
-CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
-Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date."
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
-
-script_end_procedure("If you haven't made the E & T referral, please do so now.  Thank you!")
+script_end_procedure("If you haven't made the E & T referral, please do so now.  Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
