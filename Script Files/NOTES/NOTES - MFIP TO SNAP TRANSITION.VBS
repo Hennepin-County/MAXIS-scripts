@@ -135,6 +135,9 @@ DO
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP Until err_msg = ""
 
+'Setting the correct footer month (for snap budget noting)
+footer_month = datepart("m", dateadd("d", 1, closure_date))
+if len(footer_month) = 1 THEN footer_month = "0" & footer_month
 
 Call check_for_maxis(true)
 call HH_member_custom_dialog(HH_member_array)
@@ -191,6 +194,7 @@ DO
 	IF actions_taken = "" THEN err_msg = err_msg & vbCr & "You must complete the actions taken field."
 	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."
 	IF verifs_check = unchecked THEN err_msg = err_msg & vbCr & "All needed verifications for MFIP must be on file before approving SNAP. Please update the checkbox."
+	IF MFIP_closure_reason = "" THEN err_msg = err_msg & vbCr & "You must explain the MFIP closure reason."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP UNTIL err_msg = ""
 
