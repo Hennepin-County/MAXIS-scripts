@@ -145,7 +145,7 @@ CALL MAXIS_case_number_finder(case_number)
 
 
 'Grabbing counselor name and phone from database if applicable
-IF collecting_ES_statistics = true THEN
+IF collecting_ES_statistics = true AND case_number <> "" THEN
 		'Setting constants
 		Const adOpenStatic = 3
 		Const adLockOptimistic = 3
