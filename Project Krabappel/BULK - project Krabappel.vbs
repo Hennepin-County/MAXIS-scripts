@@ -1383,10 +1383,7 @@ For each case_number in case_number_array
 		EMReadScreen SSN_first, 3, 7, 42
 		EMReadScreen SSN_mid, 2, 7, 46
 		EMReadScreen SSN_last, 4, 7, 49
-		
-		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
-		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
-		
+
 		'ACCT
 		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
 		
@@ -1486,6 +1483,9 @@ For each case_number in case_number_array
 			
 		'PARE
 		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(appl_date, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+		
+		'ABPS
+		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 		
 		'PBEN 1
 		If PBEN_1_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_1_referal_date, PBEN_1_type, PBEN_1_appl_date, PBEN_1_appl_ver, PBEN_1_IAA_date, PBEN_1_disp)
@@ -2300,45 +2300,50 @@ FOR EACH case_number IN case_number_array
 			transmit
 			IF is_case_expedited <> "EXPEDITED" THEN
 				DO
+					not_allowed = ""
+					locked_by_background = ""
 					EMWriteScreen "APP", 19, 70
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 15, 54
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
+					row = 1
+					col = 1
+					EMSearch "(Y/N)  _", row, col
+				LOOP UNTIL (not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED") OR row <> 0
 				DO
-					EMReadScreen please_examine, 14, 4, 25
-				LOOP UNTIL please_examine = "PLEASE EXAMINE"
+					row = 1
+					col = 1
+					EMSearch "Do you want to continue with the approval?", row, col
+				LOOP UNTIL row <> 0
 				DO
-					EMSendKey "Y"
+					row = 1 
+					col = 1
+					EMSearch "(Y/N)  _", row, col	
+					IF row <> 0 THEN 
+						EMWriteScreen "Y", row, col + 7
+					ELSE
+						MsgBox "The script is struggling to find the correct space to confirm the approval. Please enter a Y in the correct space, and press OK for the script to continue." & vbCr & vbCr & "PLEASE DO NOT TRANSMIT!!"
+					END IF
 					transmit
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
 			ELSE
 				DO
+					not_allowed = ""
+					locked_by_background = ""
 					EMWriteScreen "APP", 19, 70
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 15, 54
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
-				DO
-					EMReadScreen rei_benefit, 3, 15, 33
-				LOOP UNTIL rei_benefit = "REI"
-				EMSendKey "Y"
-				transmit
-				DO
-					EMReadScreen rei_confirm, 3, 14, 30
-				LOOP UNTIL rei_confirm = "REI"
-				EMSendKey "Y"
-				transmit
-				DO
-					EMReadScreen continue_with_approval, 5, 16, 44
-				LOOP UNTIL continue_with_approval = "(Y/N)"
-				DO
-					EMSendKey "Y"
-					transmit
+					row = 1
+					col = 1
+					EMSearch "(Y/N)", row, col
+					IF row <> 0 THEN
+						emsendkey "<tab>"
+						emsendkey "y"
+						transmit
+					End If
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit

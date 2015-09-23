@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -56,8 +56,8 @@ footer_year = "" & footer_year - 2000
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 97, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 140, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_check
   CheckBox 50, 60, 30, 10, "HC", HC_check
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_check
@@ -158,25 +158,10 @@ Dim col
 application_signed_check = 1 'The script should default to having the application signed.
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-'Connecting to BlueZone
+'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
-
-'Grabbing the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Grabbing the footer month
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	If IsNumeric(MAXIS_footer_month) = True then
-		footer_month = MAXIS_footer_month
-		call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-		If row <> 0 then footer_year = MAXIS_footer_year
-	End if
-End if
+CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 Do
@@ -185,17 +170,11 @@ Do
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
-'Checking for MAXIS
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You are not in MAXIS, or you are locked out of your case.")
+'Checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Jumping into STAT
-call navigate_to_screen("stat", "hcre")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
+call navigate_to_MAXIS_screen("stat", "hcre")
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -220,56 +199,14 @@ call autofill_editbox_from_MAXIS(HH_member_array, "HEST", monthly_expense) 'Does
 
 'Showing the case note
 Do
-  Do
-    Do
-      Do
-        Do
-          Dialog emergency_dialog
-          If ButtonPressed = 0 then 
-            dialog cancel_dialog
-            If ButtonPressed = yes_cancel_button then stopscript
-          End if
-        Loop until ButtonPressed <> no_cancel_button
-        EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then call panel_navigation_prev
-          If ButtonPressed = next_panel_button then call panel_navigation_next
-          If ButtonPressed = prev_memb_button then call memb_navigation_prev
-          If ButtonPressed = next_memb_button then call memb_navigation_next
-        End if
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If ButtonPressed = ADDR_button then call navigate_to_screen("stat", "ADDR")
-      If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
-      If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
-      If ButtonPressed = PROG_button then call navigate_to_screen("stat", "PROG")
-      If ButtonPressed = TYPE_button then call navigate_to_screen("stat", "TYPE")
-      If ButtonPressed = ELIG_EMER_button then call navigate_to_screen("elig", "emer")
-      If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
-      If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
-      If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
-      If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-      If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
-      If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
-      If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
-      If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
-      If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
-      If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
-      If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
-    Loop until ButtonPressed = -1
+	Do	
+		Dialog emergency_dialog
+		MAXIS_dialog_navigation
+		cancel_confirmation
+	Loop until ButtonPressed = -1
+	If ButtonPressed = -1 then dialog case_note_dialog
     If income = "" or actions_taken = "" or worker_signature = "" then MsgBox "You need to fill in the income and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-  Loop until income <> "" and actions_taken <> "" and worker_signature <> ""
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+ Loop until income <> "" and actions_taken <> "" and worker_signature <> ""
 
 'Logic to enter what the "crisis" variable is from the checkboxes indicated
 If eviction_check = 1 then crisis = crisis & "eviction, "
@@ -284,25 +221,24 @@ Else
 End if
 
 'Writing the case note
-EMSendKey "<home>" & "***Emergency app: "& replace(crisis, ".", "") & "***" & "<newline>"
-If interview_date <> "" then call write_editbox_in_case_note("Interview date", interview_date, 6)
-If HH_comp <> "" then call write_editbox_in_case_note("HH comp", HH_comp, 6)
-If crisis <> "" then call write_editbox_in_case_note("Crisis", crisis, 6)
-If cause_of_crisis <> "" then call write_editbox_in_case_note("Cause of crisis", cause_of_crisis, 6)
-If income <> "" then call write_editbox_in_case_note("Income, past " & emer_number_of_income_days & " days", income, 6)
-If income_under_200_FPG <> "" then call write_editbox_in_case_note("Income under 200% FPG", income_under_200_FPG, 6)
-If percent_rule_notes <> "" then call write_editbox_in_case_note(emer_percent_rule_amt & "% rule notes", percent_rule_notes, 6)
-If monthly_expense <> "" then call write_editbox_in_case_note("Monthly expense", monthly_expense, 6)
-If assets <> "" then call write_editbox_in_case_note("Assets", assets, 6)
-if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-If crisis_resolvable <> "" then call write_editbox_in_case_note("Crisis resolvable?", crisis_resolvable, 6)
-If discussion_of_crisis <> "" then call write_editbox_in_case_note("Discussion of crisis", discussion_of_crisis, 6)
-If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-If referrals <> "" then call write_editbox_in_case_note("Referrals", referrals, 6)
+call start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE("***Emergency app: "& replace(crisis, ".", "") & "***")
+If interview_date <> "" then call write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
+If HH_comp <> "" then call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
+If crisis <> "" then call write_bullet_and_variable_in_CASE_NOTE("Crisis", crisis)
+If cause_of_crisis <> "" then call write_bullet_and_variable_in_CASE_NOTE("Cause of crisis", cause_of_crisis)
+If income <> "" then call write_bullet_and_variable_in_CASE_NOTE("Income, past " & emer_number_of_income_days & " days", income)
+If income_under_200_FPG <> "" then call write_bullet_and_variable_in_CASE_NOTE("Income under 200% FPG", income_under_200_FPG)
+If percent_rule_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE(emer_percent_rule_amt & "% rule notes", percent_rule_notes)
+If monthly_expense <> "" then call write_bullet_and_variable_in_CASE_NOTE("Monthly expense", monthly_expense)
+If assets <> "" then call write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
+if verifs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
+If crisis_resolvable <> "" then call write_bullet_and_variable_in_CASE_NOTE("Crisis resolvable?", crisis_resolvable)
+If discussion_of_crisis <> "" then call write_bullet_and_variable_in_CASE_NOTE("Discussion of crisis", discussion_of_crisis)
+If actions_taken <> "" then call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+If referrals <> "" then call write_bullet_and_variable_in_CASE_NOTE("Referrals", referrals)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
-
-

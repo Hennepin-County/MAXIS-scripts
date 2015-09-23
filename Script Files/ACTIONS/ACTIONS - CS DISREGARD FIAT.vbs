@@ -175,9 +175,9 @@ Next
 'The script determines eligibility for the disregard based on whether the person is a child on the PARE panel. This is a running decision.
 'Household_array(i, 4) is the eligibility for CS Disregard.
 number_of_kids = 0
-pare_row = 8
 FOR i = 1 to number_of_people
 	CALL navigate_to_MAXIS_screen("STAT", "PARE")
+	pare_row = 8
 	Do
 		EmReadScreen child_reference, 2, pare_row, 24
 		If child_reference = Household_array(i, 0) Then
@@ -373,6 +373,8 @@ ELSEIF MFIP_cash_status <> "" Then
 	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
 	applied_mfip_disregard = 0
 	FOR i = 1 to number_of_people
+		PF7
+		PF7 'This makes sure it is back at the top screen of FMSL
 		IF Household_array(i, 4) = True THEN
 			fmsl_row = 9
 			DO
@@ -418,7 +420,7 @@ ELSEIF MFIP_cash_status <> "" Then
 						PF8
 						fmsl_row = 9
 						EMReadScreen no_more_people, 14, 24, 12
-						IF no_more_people = no_more_people = "NO MORE PEOPLE" THEN EXIT DO
+						IF no_more_people = "NO MORE PEOPLE" THEN EXIT DO
 					END IF
 				END IF
 			LOOP 

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -70,44 +70,33 @@ BeginDialog mileage_dialog, 0, 0, 306, 125, "Mileage Reimbursement"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
-
 'Finds the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call MAXIS_case_number_finder(case_number)
+
 
 'Displays the dialog and navigates to case note
 Do
-	Do
-		Do
-			Dialog Mileage_dialog
-			If buttonpressed = 0 then stopscript
-			If case_number = "" then MsgBox "You must have a case number to continue!"
-		Loop until case_number <> ""
-		transmit
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-	call navigate_to_screen("case", "note")
-	PF9
-	EMReadScreen mode_check, 7, 20, 3
-	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+	Dialog Mileage_dialog
+	cancel_confirmation
+	If case_number = "" then MsgBox "You must have a case number to continue!"
+Loop until case_number <> ""
 
-'Case notes
-EMSendKey ">>>>>MILEAGE REIMBURSEMENT REQUEST - ACTIONS TAKEN<<<<<" & "<newline>"
-If date_docs_recd <> "" then call write_editbox_in_case_note("Date received", date_docs_recd, 6)
-If total_reimbursement <> "" then call write_editbox_in_case_note("Total Amount", "$" & total_reimbursement, 6)
-If date_to_accounting <> "" then call write_editbox_in_case_note("Date Sent to Accounting", date_to_accounting, 6)
-If docs_reqd <> "" then call write_editbox_in_case_note("Docs requested", docs_reqd, 6)
-If other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-If actions_taken <> "" then call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-If worker_county_code = "x179" then call write_new_line_in_case_note("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.", 6)	'Should only do this for Wabasha County, unless other counties request it.
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
+'the CASE NOTE----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE(">>>>>MILEAGE REIMBURSEMENT REQUEST - ACTIONS TAKEN<<<<<")
+call write_bullet_and_variable_in_case_note("Date received", date_docs_recd)
+call write_bullet_and_variable_in_case_note("Total Amount", "$" & total_reimbursement)
+call write_bullet_and_variable_in_case_note("Date Sent to Accounting", date_to_accounting)
+call write_bullet_and_variable_in_case_note("Docs requested", docs_reqd)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+If worker_county_code = "x179" then call write_variable_in_CASE_NOTE("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.")	'Should only do this for Wabasha County, unless other counties request it.
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")

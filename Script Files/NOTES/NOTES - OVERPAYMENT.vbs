@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -46,10 +46,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
 'SECTION 02: DIALOGS
-
-
 BeginDialog overpayment_dialog, 0, 0, 266, 260, "Overpayment dialog"
   EditBox 60, 5, 70, 15, case_number
   EditBox 120, 25, 140, 15, programs_cited
@@ -81,51 +78,40 @@ BeginDialog overpayment_dialog, 0, 0, 266, 260, "Overpayment dialog"
 EndDialog
 
 
-'SECTION 03: THE SCRIPT
-
+'SECTION 03: THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS
 EMConnect ""
-
-
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-
+'grabbing case number
+Call MAXIS_case_number_finder(case_number)
 
 Do
-  Do
-    Do
-      Dialog overpayment_dialog
-      If buttonpressed = 0 then stopscript
-      If case_number = "" then MsgBox "You must have a case number to continue!"
-    Loop until case_number <> ""
-    transmit
-    EMReadScreen MAXIS_check, 5, 1, 39
-    If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-  call navigate_to_screen("case", "note")
-  PF9
-  EMReadScreen mode_check, 7, 20, 3
-  If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+	Dialog overpayment_dialog
+	cancel_confirmation
+	If case_number = "" then MsgBox "You must have a case number to continue!"
+Loop until case_number <> ""
+
+
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 If Claim_number = "" Then
 	Claim_number = "Not available at this time"
 end if
 
-call write_new_line_in_case_note("**OVERPAYMENT/CLAIM ESTABLISHED**")
-call write_editbox_in_case_note("Program(s) overpayment cited for", programs_cited, 6) 
-call write_editbox_in_case_note("Claim Number(s)", Claim_number, 6) 
-call write_editbox_in_case_note("Month(s) of overpayment", months_of_overpayment, 6) 
-call write_editbox_in_case_note("Discovery date", discovery_date, 6) 
-call write_editbox_in_case_note("Established date", established_date, 6) 
-call write_editbox_in_case_note("Reason for overpayment", reason_for_OP, 6) 
-call write_editbox_in_case_note("When/Why should this have been reported", reason_to_be_reported, 6) 
-call write_editbox_in_case_note("Supporting documents/verifications", supporting_docs, 6) 
-call write_editbox_in_case_note("Responsible parties", responsible_parties, 6) 
-call write_editbox_in_case_note("Total overpayment amount", total_amt_of_OP, 6) 
-call write_new_line_in_case_note("---")
-call write_new_line_in_case_note(worker_signature)
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+call write_variable_in_CASE_NOTE("**OVERPAYMENT/CLAIM ESTABLISHED**")
+call write_bullet_and_variable_in_case_note("Program(s) overpayment cited for", programs_cited) 
+call write_bullet_and_variable_in_case_note("Claim Number(s)", Claim_number) 
+call write_bullet_and_variable_in_case_note("Month(s) of overpayment", months_of_overpayment) 
+call write_bullet_and_variable_in_case_note("Discovery date", discovery_date) 
+call write_bullet_and_variable_in_case_note("Established date", established_date) 
+call write_bullet_and_variable_in_case_note("Reason for overpayment", reason_for_OP) 
+call write_bullet_and_variable_in_case_note("When/Why should this have been reported", reason_to_be_reported) 
+call write_bullet_and_variable_in_case_note("Supporting documents/verifications", supporting_docs) 
+call write_bullet_and_variable_in_case_note("Responsible parties", responsible_parties) 
+call write_bullet_and_variable_in_case_note("Total overpayment amount", total_amt_of_OP) 
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -103,10 +103,8 @@ If len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
 
 
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS
 EMConnect ""
 
 'Finds a case number
@@ -114,12 +112,10 @@ call MAXIS_case_number_finder(case_number)
 
 'Shows the case number dialog
 Dialog case_number_and_footer_month_dialog
-If ButtonPressed = 0 then stopscript
+cancel_confirmation
 
-'It sends an enter to force the screen to refresh, in order to check for MAXIS. If MAXIS isn't found the script will stop.
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("MAXIS not found. Are you in MAXIS on the screen you started the script? Check and try again. If it still doesn't work try shutting down BlueZone and starting it up again.")
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
 EMReadScreen footer_month_year_check, 5, 20, 55
@@ -131,10 +127,8 @@ If left(footer_month_year_check, 2) <> footer_month or right(footer_month_year_c
 	transmit
 End if
 
-'Now it enters stat/jobs. It'll check to make sure it gets past the SELF menu and gets onto the JOBS panel.
-call navigate_to_screen("stat", "jobs")
-EMReadScreen SELF_check, 27, 2, 28
-If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("Unable to navigate past the SELF menu. Is your case in background? Wait a few seconds and try again.")
+'NAV to stat/jobs
+call navigate_to_MAXIS_screen("stat", "jobs")
 
 'Declaring some variables to create defaults for the new_job_reported_dialog.
 create_JOBS_checkbox = 1
@@ -148,15 +142,10 @@ Do
 			Do
 				Do
 					Do
-						Do
-							Dialog new_job_reported_dialog
-							If ButtonPressed = cancel then stopscript
-							EMReadScreen STAT_check, 4, 20, 21
-							If STAT_check = "STAT" then call stat_navigation
-							transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-							EMReadScreen MAXIS_check, 5, 1, 39
-							If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again.")
-						Loop until ButtonPressed = OK
+						Dialog new_job_reported_dialog
+						MAXIS_dialog_navigation
+						cancel_confirmation
+						Call check_for_MAXIS(False)
 						If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
 							If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
 								MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
@@ -224,7 +213,7 @@ If create_JOBS_checkbox = checked then
 End if
 
 'Jumps to case note the info.
-call navigate_to_screen("case", "note")
+call navigate_to_MAXIS_screen("case", "note")
 PF9
 EMReadScreen edit_mode_check, 1, 20, 9
 If edit_mode_check = "D" then script_end_procedure("Unable to create a new case note. Your case may be in inquiry. If so shut down inquiry and try again. Or try closing BlueZone.")
@@ -246,22 +235,15 @@ call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
-call navigate_to_screen("dail", "writ")
+call navigate_to_MAXIS_screen("dail", "writ")
 
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)
 
 'Writing in the rest of the TIKL.
 call write_variable_in_TIKL("Verification of job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
-
 transmit
 PF3
 MsgBox "Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."
 
 script_end_procedure("")
-
-
-
-
-
-

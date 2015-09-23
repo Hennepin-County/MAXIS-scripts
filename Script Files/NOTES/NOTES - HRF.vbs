@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -136,12 +136,6 @@ BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
 
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -150,48 +144,30 @@ Dim col
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
 
-'Grabbing case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+'Grabbing case number & footer month/year
+call MAXIS_case_number_finder(case_number)
 
-'Grabbing footer month
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
 
 'Showing case number dialog
 Do
   Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
+  cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
-'Checking for MAXIS
-transmit
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then call script_end_procedure("You are not in MAXIS or you are locked out of your case.")
+'Checking for an active MAXIS seesion
+Call check_for_MAXIS(False)
 
-'Jumping to STAT
-call navigate_to_screen("stat", "memb")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background email your script administrator the case number and footer month.")
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit 'For error prone cases.
+'NAV to STAT
+call navigate_to_MAXIS_screen("stat", "memb")
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
 'Autofilling info for case note
-
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "MONT", HRF_datestamp)
@@ -206,82 +182,52 @@ HRF_month = retro_month_name & "/" & pro_month_name
 
 'The case note dialog, complete with panel navigation, reading the ELIG/MFIP screen, and navigation to case note, as well as logic for certain sections to be required.
 Do
-  Do
-    Do
-      Do
-        Do
-          Dialog HRF_dialog
-          If ButtonPressed = 0 then 
-            dialog cancel_dialog
-            If ButtonPressed = yes_cancel_button then stopscript
-          End if
-        Loop until ButtonPressed <> no_cancel_button
-        EMReadScreen STAT_check, 4, 20, 21
-        If STAT_check = "STAT" then
-          If ButtonPressed = prev_panel_button then call panel_navigation_prev
-          If ButtonPressed = next_panel_button then call panel_navigation_next
-          If ButtonPressed = prev_memb_button then call memb_navigation_prev
-          If ButtonPressed = next_memb_button then call memb_navigation_next
-        End if
-        transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-      Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-      If buttonpressed <> -1 then call navigation_buttons
-    Loop until ButtonPressed = -1
-    If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-  Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
-  If ButtonPressed = -1 then dialog case_note_dialog
-  If buttonpressed = yes_case_note_button then
-    If grab_MFIP_info_check = 1 then
-      call navigate_to_screen("elig", "mfip")
-      EMReadScreen MFPR_check, 4, 3, 47
-      If MFPR_check <> "MFPR" then
-        MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
-      Else
-        EMWriteScreen "MFSM", 20, 71
-        transmit
-        EMReadScreen MFSM_line_01, 37, 12, 44
-        EMReadScreen MFSM_line_02, 37, 14, 44
-        EMReadScreen MFSM_line_03, 37, 15, 44
-        EMReadScreen MFSM_line_04, 37, 16, 44
-      End if
-    End if
-    call navigate_to_screen("case", "note")
-    PF9
-    EMReadScreen case_note_check, 17, 2, 33
-    EMReadScreen mode_check, 1, 20, 09
-    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-  End if
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+    Dialog HRF_dialog
+	MAXIS_dialog_navigation
+    cancel_confirmation 
+    call check_for_MAXIS(False)
+	If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
+Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
+If ButtonPressed = -1 then dialog case_note_dialog
+If buttonpressed = yes_case_note_button then
+   If grab_MFIP_info_check = 1 then
+		call navigate_to_MAXIS_screen("elig", "mfip")
+		EMReadScreen MFPR_check, 4, 3, 47
+		If MFPR_check <> "MFPR" then
+			MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
+		Else
+			EMWriteScreen "MFSM", 20, 71
+			transmit
+			EMReadScreen MFSM_line_01, 37, 12, 44
+			EMReadScreen MFSM_line_02, 37, 14, 44
+			EMReadScreen MFSM_line_03, 37, 15, 44
+			EMReadScreen MFSM_line_04, 37, 16, 44
+		End if
+	End if
+END IF
 
 'Enters the case note
-EMSendKey "<home>" & "***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***" & "<newline>"
-call write_editbox_in_case_note("Earned income", earned_income, 6)
-If unearned_income <> "" then call write_editbox_in_case_note("Unearned income", unearned_income, 6)
-If YTD <> "" then call write_editbox_in_case_note("YTD", YTD, 6)
-If changes <> "" then call write_editbox_in_case_note("Changes", changes, 6)
-if FIAT_reasons <> "" then call write_editbox_in_case_note("FIAT reasons", FIAT_reasons, 6)
-if other_notes <> "" then call write_editbox_in_case_note("Other notes", other_notes, 6)
-If ten_percent_sanction_check = 1 then call write_new_line_in_case_note("* 10% sanction.")
-If thirty_percent_sanction_check = 1 then call write_new_line_in_case_note("* 30% sanction.")
+start_a_blank_CASE_NOTE
+Call write_variable_in_case_note("***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
+call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+call write_bullet_and_variable_in_case_note("YTD", YTD)
+call write_bullet_and_variable_in_case_note("Changes", changes)
+call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+If ten_percent_sanction_check = 1 then call write_variable_in_CASE_NOTE("* 10% sanction.")
+If thirty_percent_sanction_check = 1 then call write_variable_in_CASE_NOTE("* 30% sanction.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-if verifs_needed <> "" then call write_editbox_in_case_note("Verifs needed", verifs_needed, 6)
-call write_editbox_in_case_note("Actions taken", actions_taken, 6)
-call write_new_line_in_case_note("---")
+call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+call write_variable_in_CASE_NOTE("---")
 If MFPR_check = "MFPR" then
-  call write_new_line_in_case_note("   " & MFSM_line_01)
-  call write_new_line_in_case_note("   " & MFSM_line_02)
-  call write_new_line_in_case_note("   " & MFSM_line_03)
-  call write_new_line_in_case_note("   " & MFSM_line_04)
-  call write_new_line_in_case_note("---")
+  call write_variable_in_CASE_NOTE("   " & MFSM_line_01)
+  call write_variable_in_CASE_NOTE("   " & MFSM_line_02)
+  call write_variable_in_CASE_NOTE("   " & MFSM_line_03)
+  call write_variable_in_CASE_NOTE("   " & MFSM_line_04)
+  call write_variable_in_CASE_NOTE("---")
 End if
-call write_new_line_in_case_note(worker_signature)
+call write_variable_in_CASE_NOTE(worker_signature)
 
 call script_end_procedure("")
-
-
-
-
-
-

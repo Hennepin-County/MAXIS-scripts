@@ -85,7 +85,7 @@ BeginDialog documents_rec_GEN_dialog, 0, 0, 351, 405, "Documents received"
   Text 140, 45, 205, 10, "Note: What you enter above will become the case note header."
   Text 5, 30, 70, 10, "Documents received: "
   Text 145, 10, 75, 10, "Document date stamp:"
-  Text 5, 350, 70, 10, "Verif's still needed:"
+  Text 5, 355, 65, 10, "Verif's still needed:"
   GroupBox 0, 60, 350, 230, "Breakdown of Documents received"
   GroupBox 0, 300, 345, 70, "Additional information"
 EndDialog
@@ -144,7 +144,7 @@ EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
-LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel)
+LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel or VbDefaultButton2) 'defaults to no since that is most commonly chosen option
 If LTC_case = vbCancel then stopscript
 
 'Connects to BlueZone
@@ -168,36 +168,37 @@ Do
 Loop until case_number <> ""														'Loops until that case number exists	
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
+
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
 call start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
-If doc_date_stamp <> "" then call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
-If ADDR <> "" then call write_bullet_and_variable_in_case_note("ADDR", ADDR)
-If FACI <> "" then call write_bullet_and_variable_in_case_note("FACI", FACI)
-If SCHL <> "" then call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
-If DISA <> "" then call write_bullet_and_variable_in_case_note("DISA", DISA)
-If JOBS <> "" then call write_bullet_and_variable_in_case_note("JOBS", JOBS)
-If BUSI <> "" then call write_bullet_and_variable_in_case_note("BUSI", BUSI)
-If BUSI_RBIC <> "" then call write_bullet_and_variable_in_case_note("BUSI/RBIC", BUSI_RBIC)
-If UNEA <> "" then call write_bullet_and_variable_in_case_note("UNEA", UNEA)
-If ACCT <> "" then call write_bullet_and_variable_in_case_note("ACCT", ACCT)
-If SECU<> "" then call write_bullet_and_variable_in_case_note("SECU", SECU)
-If CARS <> "" then call write_bullet_and_variable_in_case_note("CARS", CARS)
-If REST <> "" then call write_bullet_and_variable_in_case_note("REST", REST)
-If OTHR <> "" then call write_bullet_and_variable_in_case_note("Burial/OTHR", OTHR)
-If other_assets <> "" then call write_bullet_and_variable_in_case_note("Other assets", other_assets)
-If SHEL <> "" then call write_bullet_and_variable_in_case_note("SHEL", SHEL)
-If INSA <> "" then call write_bullet_and_variable_in_case_note("INSA", INSA)
-If medical_expenses <> "" then call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
-IF veterans_info <> "" then call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
-If other_verifs <> "" then call write_bullet_and_variable_in_case_note("Other verifications", other_verifs)
+call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
+call write_bullet_and_variable_in_case_note("ADDR", ADDR)
+call write_bullet_and_variable_in_case_note("FACI", FACI)
+call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+call write_bullet_and_variable_in_case_note("DISA", DISA)
+call write_bullet_and_variable_in_case_note("JOBS", JOBS)
+call write_bullet_and_variable_in_case_note("BUSI", BUSI)
+call write_bullet_and_variable_in_case_note("BUSI/RBIC", BUSI_RBIC)
+call write_bullet_and_variable_in_case_note("UNEA", UNEA)
+call write_bullet_and_variable_in_case_note("ACCT", ACCT)
+call write_bullet_and_variable_in_case_note("SECU", SECU)
+call write_bullet_and_variable_in_case_note("CARS", CARS)
+call write_bullet_and_variable_in_case_note("REST", REST)
+call write_bullet_and_variable_in_case_note("Burial/OTHR", OTHR)
+call write_bullet_and_variable_in_case_note("Other assets", other_assets)
+call write_bullet_and_variable_in_case_note("SHEL", SHEL)
+call write_bullet_and_variable_in_case_note("INSA", INSA)
+call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
+call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
+call write_bullet_and_variable_in_case_note("Other verifications", other_verifs)
 Call write_variable_in_case_note("---")
-If notes <> "" then call write_bullet_and_variable_in_case_note("Notes on your doc's", notes)
-If actions_taken <> "" then call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
+call write_bullet_and_variable_in_case_note("Notes on your doc's", notes)
+call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 

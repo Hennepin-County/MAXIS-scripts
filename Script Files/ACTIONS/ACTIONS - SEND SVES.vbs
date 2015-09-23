@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -66,7 +66,6 @@ BeginDialog send_SVES_dialog, 0, 0, 271, 85, "Send SVES Dialog"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
@@ -81,10 +80,10 @@ If ButtonPressed = cancel then StopScript
 If member_number = "" then member_number = "01"
 
 'Makes sure we're in MAXIS
-call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'Goes to MEMB to get info
-call navigate_to_screen("stat", "memb")
+call navigate_to_MAXIS_screen("stat", "memb")
 
 'Goes to the right HH member
 EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
@@ -101,7 +100,7 @@ EMReadScreen SSN3, 4, 7, 49
 EMReadScreen PMI, 8, 4, 46
 
 If SSN_radiobutton = 1 then
-  call navigate_to_screen("infc", "sves")
+  call navigate_to_MAXIS_screen("infc", "sves")
   'checking for IRS non-disclosure agreement.
   EMReadScreen agreement_check, 9, 2, 24
   IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
@@ -112,7 +111,7 @@ If SSN_radiobutton = 1 then
   EMWriteScreen "qury",  20, 70
   transmit 'Now we will enter the QURY screen to type the case number.
 ElseIf UNEA_radiobutton = 1 then
-  call navigate_to_screen("stat", "unea")
+  call navigate_to_MAXIS_screen("stat", "unea")
 
   EMWriteScreen "unea", 20, 71 'It does this to move past error prone cases
   EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
@@ -181,7 +180,7 @@ ElseIf UNEA_radiobutton = 1 then
     EMReadScreen claim_number, 15, 6, 37
     claim_number = replace(claim_number, "_", "")
   End if
-  call navigate_to_screen("infc", "sves")
+  call navigate_to_MAXIS_screen("infc", "sves")
   'checking for IRS non-disclosure agreement.
   EMReadScreen agreement_check, 9, 2, 24
   IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
@@ -191,7 +190,7 @@ ElseIf UNEA_radiobutton = 1 then
 
   EMWriteScreen claim_number, 7, 38
 ElseIf BNDX_radiobutton = 1 then
-  call navigate_to_screen ("infc", "____")
+  call navigate_to_MAXIS_screen ("infc", "____")
   EMWriteScreen SSN1,  4, 63
   EMWriteScreen SSN2,  4, 66
   EMWriteScreen SSN3,  4, 68
@@ -253,11 +252,8 @@ If case_note_checkbox = unchecked then script_end_procedure("")
 'Now it sends the SVES.
 transmit
 
-
-
 'Now it case notes
-call navigate_to_screen("CASE", "NOTE")
-PF9
+start_a_blank_CASE_NOTE
 call write_variable_in_case_note("~~~SVES/QURY sent for MEMB " & member_number & "~~~")
 If SSN_radiobutton = 1 then
 	call write_variable_in_case_note("* Used SSN for QURY.")
@@ -271,9 +267,3 @@ call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-
