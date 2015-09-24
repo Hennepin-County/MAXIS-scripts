@@ -57,7 +57,7 @@ BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   Text 10, 10, 50, 10, "Case number:"
   Text 10, 30, 50, 10, "Footer month:"
   Text 95, 30, 20, 10, "Year:"
-
+EndDialog
   
 BeginDialog LTC_app_recd_dialog, 0, 0, 286, 415, "LTC application received dialog"
   EditBox 75, 35, 65, 15, appl_date
@@ -167,23 +167,17 @@ End if
 
 'The main dialog
 Do
-	Do
-		Do
-			Do
-				Do
-					Dialog LTC_app_recd_dialog
-					cancel_confirmation
-					If buttonpressed <> -1 then Call MAXIS_dialog_navigation
-				Loop until buttonpressed = -1 or buttonpressed = 0
-				If actions_taken = "" then MsgBox "You must fill in the actions taken section. Please try again."
-			Loop until actions_taken <> ""
-			If worker_signature = "" then MsgBox "You must sign your case note!"
-		Loop until worker_signature <> ""
-		If basis_of_elig_droplist = "Select one..." THEN MsgBox "You must select the client's MA basis of eligibility."
-	Loop until basis_of_elig_droplist <> "Select one..."
-	IF TIKL_45_day_check = 1 and TIKL_60_day_check = 1 then MsgBox "You must choose to TIKL out for 45 or 60 days, not both."
-LOOP until (TIKL_45_day_check = 1 AND TIKL_60_day_check = 0) or (TIKL_45_day_check = 0 AND TIKL_60_day_check = 0) OR (TIKL_45_day_check = 0 AND TIKL_60_day_check = 1)
-
+	err_msg = ""
+	Dialog LTC_app_recd_dialog
+		cancel_confirmation
+		If buttonpressed <> -1 then Call MAXIS_dialog_navigation
+	IF appl_date = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter an application date."
+	IF basis_of_elig_droplist = "Select one..." AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please select an MA basis of eligibility."
+	IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please discuss the actions taken."
+	IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+	IF (TIKL_45_day_check = 1 AND TIKL_60_day_check = 1) AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* You cannot TIKL for both 45 and 60 days. Please select one or neither."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+Loop UNTIL err_msg = "" AND ButtonPressed = -1
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
