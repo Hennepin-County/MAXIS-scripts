@@ -123,7 +123,7 @@ call MAXIS_case_number_finder(case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)			
 
 DO
-	Dialog case_number_dialogbox																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop' 
+	Dialog case_number_dialog																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop' 
 	IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
 	IF case_number = "" THEN MsgBox "You must enter a case number"
 LOOP UNTIL case_number <> ""
