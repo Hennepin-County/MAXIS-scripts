@@ -48,8 +48,8 @@ END IF
 
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
+
+footer_month = datepart("m", date)
 If len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = datepart("yyyy", next_month)
 footer_year = "" & footer_year - 2000
