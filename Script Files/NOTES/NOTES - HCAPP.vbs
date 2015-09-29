@@ -51,9 +51,7 @@ END IF
 
 footer_month = datepart("m", date)
 If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
-
+footer_year = right(datepart("yyyy", next_month), 2)
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
