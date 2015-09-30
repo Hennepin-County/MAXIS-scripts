@@ -228,7 +228,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		      PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
 		      PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
 		      PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-		      PushButton 5, 70, 30, 10, "REIN", REIN_button
+		      PushButton 5, 70, 30, 10, "REIN", REIN_PROGS_button
 		      PushButton 5, 85, 80, 10, "Shelter Form Received", SHELTER_FORM_RECEIVED_button
 		      PushButton 5, 100, 70, 10, "SNAP case review", SNAP_CASE_REVIEW_button
 		      PushButton 5, 115, 100, 10, "Submit case for SNAP review", SUBMIT_CASE_FOR_SNAP_REVIEW_button
