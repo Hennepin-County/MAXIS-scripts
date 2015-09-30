@@ -19,7 +19,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +30,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,7 +46,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-DIM ButtonPressed 
+DIM ButtonPressed
 DIM SIR_instructions_button, dialog_name
 DIM BULK_list_scripts_button, other_BULK_scripts_button
 DIM BULK_TIKLER_button, CASE_NOTE_FROM_EXCEL_LIST_button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
@@ -54,7 +54,7 @@ DIM ACTV_LIST_button, DAIL_REPORT_button, EOMC_LIST_button, PND1_LIST_button, PN
 DIM BULK_PDED_button, FIND_PANEL_button
 
 FUNCTION create_BULK_main_menu(dialog_name)
-	IF dialog_name = "OTHER BULK" THEN 
+	IF dialog_name = "OTHER BULK" THEN
 		BeginDialog dialog_name, 0, 0, 456, 315, "Other Bulk Scripts Main Menu"
 		ButtonGroup ButtonPressed
 			PushButton 5, 25, 55, 15, "BULK LISTS", BULK_list_scripts_button
@@ -135,9 +135,9 @@ DO
 		IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
 
 		'If the user selects the other sub-menu, the script do-loops with the new dialog_name
-		IF ButtonPressed = BULK_list_scripts_button THEN 
+		IF ButtonPressed = BULK_list_scripts_button THEN
 			dialog_name = "BULK LISTS"
-		ELSEIF ButtonPressed = other_BULK_scripts_button THEN 
+		ELSEIF ButtonPressed = other_BULK_scripts_button THEN
 			dialog_name = "OTHER BULK"
 		END IF
 
