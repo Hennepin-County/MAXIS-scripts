@@ -166,7 +166,7 @@ End if
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "pnd2")
-	EMWriteScreen rght(worker, 3), 21, 17		'<<< writing the last 3 of the worker number. When running for all workers, the script is writing X1 & county code & worker code
+	EMWriteScreen right(worker, 3), 21, 17		'<<< writing the last 3 of the worker number. When running for all workers, the script is writing X1 & county code & worker code
 	transmit
 
 	'Skips workers with no info
