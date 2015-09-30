@@ -187,17 +187,8 @@ End if
 'Gets out of case
 transmit
 
-'Presses PF3 until we're back on the DAIL
-Do
-	EMReadScreen DAIL_check, 4, 2, 48
-	If DAIL_check = "DAIL" then exit do
-	PF3
-Loop until DAIL_check = "DAIL"
-
-'Navigating to case note
-EMSendKey "n"
-transmit
-PF9
+'Navigating to case note and creating a new case note
+start_a_blank_CASE_NOTE
 
 'Sending case note
 EMSendKey "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer & "<newline>" 
@@ -209,8 +200,7 @@ PF3
 PF3
 
 'Opening a blank TIKL
-EMSendKey "w"
-transmit
+CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)
