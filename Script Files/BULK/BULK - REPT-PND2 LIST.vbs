@@ -19,7 +19,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +30,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -83,7 +83,7 @@ Call check_for_MAXIS(True)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet to "Case information"
@@ -98,7 +98,7 @@ ObjExcel.Cells(1, 3).Value = "NAME"
 objExcel.Cells(1, 3).Font.Bold = TRUE
 ObjExcel.Cells(1, 4).Value = "APPL DATE"
 objExcel.Cells(1, 4).Font.Bold = TRUE
-ObjExcel.Cells(1, 5).Value = "DAYS PENDING"	
+ObjExcel.Cells(1, 5).Value = "DAYS PENDING"
 objExcel.Cells(1, 5).Font.Bold = TRUE
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
@@ -166,7 +166,7 @@ End if
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "pnd2")
-	EMWriteScreen right(worker, 3), 21, 17
+	EMWriteScreen right(worker, 3), 21, 17		'<<< writing the last 3 of the worker number. When running for all workers, the script is writing X1 & county code & worker code
 	transmit
 
 	'Skips workers with no info
@@ -207,7 +207,7 @@ For each worker in worker_array
 				If EA_status <> "" and EA_check = checked then add_case_info_to_Excel = True
 				If GRH_status <> "" and GRH_check = checked then add_case_info_to_Excel = True
 
-				If add_case_info_to_Excel = True then 
+				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -231,7 +231,7 @@ For each worker in worker_array
 next
 
 'Resetting excel_row variable, now we need to start looking people up
-excel_row = 2 
+excel_row = 2
 
 'Setting variables for the stats area
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
@@ -248,7 +248,7 @@ ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 is_not_blank_excel_string = chr(34) & "<>" & chr(34)
 
 'SNAP info
-If SNAP_check = checked then	
+If SNAP_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "SNAP cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
@@ -260,7 +260,7 @@ If SNAP_check = checked then
 End if
 
 'cash info
-If cash_check = checked then	
+If cash_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "Cash cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
@@ -272,7 +272,7 @@ If cash_check = checked then
 End if
 
 'HC info
-If HC_check = checked then	
+If HC_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "HC cases pending over 45 days:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">45" & Chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
@@ -284,7 +284,7 @@ If HC_check = checked then
 End if
 
 'EA info
-If EA_check = checked then	
+If EA_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "EA cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
@@ -296,7 +296,7 @@ If EA_check = checked then
 End if
 
 'GRH info
-If GRH_check = checked then	
+If GRH_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "GRH cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
@@ -317,7 +317,7 @@ If SNAP_check = checked then
 
 	'Going to another sheet, to enter worker-specific statistics
 	ObjExcel.Worksheets.Add().Name = "SNAP stats by worker"
-	
+
 	'Headers
 	ObjExcel.Cells(1, 2).Value = "SNAP STATS BY WORKER"
 	ObjExcel.Cells(1, 2).Font.Bold = TRUE
@@ -331,8 +331,8 @@ If SNAP_check = checked then
 	objExcel.Cells(2, 4).Font.Bold = TRUE
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
-	
-	
+
+
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -343,13 +343,13 @@ If SNAP_check = checked then
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
 		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 	Next
-	
+
 	'Merging header cell.
 	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
-	
+
 	'Centering the cell
 	objExcel.Cells(1, 2).HorizontalAlignment = -4108
-	
+
 	'Autofitting columns
 	For col_to_autofit = 1 to 20
 		ObjExcel.columns(col_to_autofit).AutoFit()
@@ -361,7 +361,7 @@ If cash_check = checked then
 
 	'Going to another sheet, to enter worker-specific statistics
 	ObjExcel.Worksheets.Add().Name = "cash stats by worker"
-	
+
 	'Headers
 	ObjExcel.Cells(1, 2).Value = "CASH STATS BY WORKER"
 	ObjExcel.Cells(1, 2).Font.Bold = TRUE
@@ -375,8 +375,8 @@ If cash_check = checked then
 	objExcel.Cells(2, 4).Font.Bold = TRUE
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
-	
-	
+
+
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -387,13 +387,13 @@ If cash_check = checked then
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
 		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 	Next
-	
+
 	'Merging header cell.
 	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
-	
+
 	'Centering the cell
 	objExcel.Cells(1, 2).HorizontalAlignment = -4108
-	
+
 	'Autofitting columns
 	For col_to_autofit = 1 to 20
 		ObjExcel.columns(col_to_autofit).AutoFit()
@@ -405,7 +405,7 @@ If HC_check = checked then
 
 	'Going to another sheet, to enter worker-specific statistics
 	ObjExcel.Worksheets.Add().Name = "HC stats by worker"
-	
+
 	'Headers
 	ObjExcel.Cells(1, 2).Value = "HC STATS BY WORKER"
 	ObjExcel.Cells(1, 2).Font.Bold = TRUE
@@ -419,8 +419,8 @@ If HC_check = checked then
 	objExcel.Cells(2, 4).Font.Bold = TRUE
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
-	
-	
+
+
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -431,13 +431,13 @@ If HC_check = checked then
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
 		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 	Next
-	
+
 	'Merging header cell.
 	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
-	
+
 	'Centering the cell
 	objExcel.Cells(1, 2).HorizontalAlignment = -4108
-	
+
 	'Autofitting columns
 	For col_to_autofit = 1 to 20
 		ObjExcel.columns(col_to_autofit).AutoFit()
@@ -449,7 +449,7 @@ If EA_check = checked then
 
 	'Going to another sheet, to enter worker-specific statistics
 	ObjExcel.Worksheets.Add().Name = "EA stats by worker"
-	
+
 	'Headers
 	ObjExcel.Cells(1, 2).Value = "EA STATS BY WORKER"
 	ObjExcel.Cells(1, 2).Font.Bold = TRUE
@@ -463,8 +463,8 @@ If EA_check = checked then
 	objExcel.Cells(2, 4).Font.Bold = TRUE
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
-	
-	
+
+
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -475,13 +475,13 @@ If EA_check = checked then
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
 		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 	Next
-	
+
 	'Merging header cell.
 	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
-	
+
 	'Centering the cell
 	objExcel.Cells(1, 2).HorizontalAlignment = -4108
-	
+
 	'Autofitting columns
 	For col_to_autofit = 1 to 20
 		ObjExcel.columns(col_to_autofit).AutoFit()
@@ -493,7 +493,7 @@ If GRH_check = checked then
 
 	'Going to another sheet, to enter worker-specific statistics
 	ObjExcel.Worksheets.Add().Name = "GRH stats by worker"
-	
+
 	'Headers
 	ObjExcel.Cells(1, 2).Value = "GRH STATS BY WORKER"
 	ObjExcel.Cells(1, 2).Font.Bold = TRUE
@@ -507,8 +507,8 @@ If GRH_check = checked then
 	objExcel.Cells(2, 4).Font.Bold = TRUE
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
-	
-	
+
+
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -519,13 +519,13 @@ If GRH_check = checked then
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
 		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 	Next
-	
+
 	'Merging header cell.
 	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
-	
+
 	'Centering the cell
 	objExcel.Cells(1, 2).HorizontalAlignment = -4108
-	
+
 	'Autofitting columns
 	For col_to_autofit = 1 to 20
 		ObjExcel.columns(col_to_autofit).AutoFit()
