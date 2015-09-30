@@ -1,5 +1,5 @@
-Enter 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - CLIENT CONTACT.vbs"
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "NOTES - APPLICATION RECEIVED.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -180,13 +180,7 @@ If hc_pend = 1 THEN programs_applied_for = programs_applied_for & "HC"
 
 'Transfers the case to the assigned worker if this was selected in the second dialog box
 IF transfer_case = 1 THEN
-	'Transfers case
-	back_to_self
-	EMWriteScreen "spec", 16, 43
-	EMWriteScreen "________", 18, 43
-	EMWriteScreen case_number, 18, 43
-	EMWriteScreen "xfer", 21, 70
-	transmit
+	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
 	EMWriteScreen "x", 7, 16
 	transmit
 	PF9
@@ -209,4 +203,4 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 'Reminder to screen for XFS if SNAP is pending.
 IF fs_pend = 1 THEN MsgBox ("SNAP is pending, be sure to run the NOTES-Expedited Screening script as well to note potential XFS eligibility")
 
-script_end_procedure ""file contents here
+script_end_procedure ("")
