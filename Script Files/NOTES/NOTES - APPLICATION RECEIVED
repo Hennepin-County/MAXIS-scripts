@@ -57,25 +57,28 @@ BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
   Text 5, 30, 85, 10, "Worker Signature"
 EndDialog
 
-BeginDialog app_detail_dialog, 0, 0, 221, 185, "Detail of application"
+BeginDialog app_detail_dialog, 0, 0, 221, 205, "Detail of application"
   DropListBox 80, 5, 135, 45, "Select One"+chr(9)+"In Person"+chr(9)+"Droped Off"+chr(9)+"Mail"+chr(9)+"Online"+chr(9)+"Fax"+chr(9)+"Email", how_app_recvd
   DropListBox 80, 25, 135, 20, "Select One"+chr(9)+"CAF"+chr(9)+"ApplyMN"+chr(9)+"HC - Certain Populations"+chr(9)+"HCAPP"+chr(9)+"Addendum", app_type
   EditBox 80, 45, 135, 15, confirmation_number
-  EditBox 50, 65, 165, 15, worker_name
-  EditBox 120, 85, 95, 15, worker_number
-  EditBox 150, 105, 65, 15, pended_date
-  EditBox 5, 125, 210, 15, entered_notes
-  CheckBox 10, 145, 205, 15, "Check here to have script transfer case to assigned worker", transfer_case
+  EditBox 60, 65, 75, 15, time_of_app
+  DropListBox 145, 65, 70, 15, "AM"+chr(9)+"PM", AM_PM
+  EditBox 50, 85, 165, 15, worker_name
+  EditBox 120, 105, 95, 15, worker_number
+  EditBox 150, 125, 65, 15, pended_date
+  EditBox 5, 145, 210, 15, entered_notes
+  CheckBox 5, 165, 205, 15, "Check here to have script transfer case to assigned worker", transfer_case
   ButtonGroup ButtonPressed
-    OkButton 110, 165, 50, 15
-    CancelButton 165, 165, 50, 15
+    OkButton 110, 185, 50, 15
+    CancelButton 165, 185, 50, 15
+  Text 5, 10, 70, 10, "Application received"
   Text 5, 30, 65, 10, "Type of application"
   Text 5, 50, 60, 10, "Confirmation #"
-  Text 5, 10, 70, 10, "Application received"
-  Text 105, 110, 40, 10, "Pended on:"
-  Text 5, 70, 40, 10, "Assigned to:"
-  Text 5, 90, 110, 10, "Worker Number (X###### format)"
-  Text 5, 115, 25, 10, "Notes:"
+  Text 5, 70, 50, 10, "Time received"
+  Text 5, 90, 40, 10, "Assigned to:"
+  Text 5, 110, 110, 10, "Worker Number (X###### format)"
+  Text 5, 130, 25, 10, "Notes:"
+  Text 105, 130, 40, 10, "Pended on:"
 EndDialog
 
 'Grabs the case number
@@ -166,8 +169,8 @@ Do
 		Loop until (app_type <> "Select One" AND how_app_recvd <> "Select One" AND worker_name <> "")
 		If transfer_case = 1 AND (worker_number = "" OR len(worker_number) <> 7) then MsgBox "You must enter the MAXIS number of the worker if you would like the case to be transfered by the script, be sure that it is in X###### format."
 	Loop until (worker_number <> "" AND len(worker_number) = 7 OR transfer_case = 0)
-	If app_type = "ApplyMN" AND isnumeric(confirmation_number) = false then MsgBox "If an ApplyMN was received, you must enter the confirmation number"
-Loop until (app_type = "ApplyMN" and isnumeric(confirmation_number) = true) OR app_type <> "ApplyMN"
+	If app_type = "ApplyMN" AND isnumeric(confirmation_number) = false AND time_of_app = "" = true then MsgBox "If an ApplyMN was received, you must enter the confirmation number and time received"
+Loop until (app_type = "ApplyMN" and isnumeric(confirmation_number) = true) AND time_of_app <> "" OR app_type <> "ApplyMN"
 
 'Creates a variable that lists all the programs pending.
 If cash1_pend = 1 THEN programs_applied_for = programs_applied_for & "Cash, "
@@ -187,10 +190,16 @@ IF transfer_case = 1 THEN
 	EMWriteScreen worker_number, 18, 61
 	transmit
 End If
-	
+
+IF time_of_app <> "" Then
+	time_stamp = " at " & time_of_app & " " & AM_PM
+ELSE 
+	time_stamp = " "
+End If
+
 'Writes the case note 	
 CALL start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE ("APP PENDED - " & app_type & " rec'vd on " & date_of_app & " via " & how_app_recvd)
+CALL write_variable_in_CASE_NOTE ("APP PENDED - " & app_type & " rec'vd via " & how_app_recvd & " on " & date_of_app & time_stamp)
 IF isnumeric(confirmation_number) = true THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
