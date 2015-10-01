@@ -111,9 +111,6 @@ BeginDialog burial_assets_dialog_01, 0, 0, 286, 160, "Burial assets dialog (01)"
   Text 110, 80, 50, 10, "Funeral home:"
 EndDialog
 
-
-
-
 BeginDialog burial_assets_dialog_02, 0, 0, 305, 380, "Burial Assets Dialog (02)"
   CheckBox 10, 25, 110, 10, "Basic service funeral director", basic_service_funeral_director_check
   Text 50, 5, 30, 10, "SERVICE"
@@ -275,7 +272,7 @@ EndDialog
 'SECTION 2 -- Functions
 'check for 4th page of case note
 function case_note_page_four
-  line_one_for_part_one = "**BURIAL ASSETS (1 of 2) -- Memb: " + hh_member
+  line_one_for_part_one = "**BURIAL ASSETS (1 of 2) -- Memb: " + hh_member 
   line_one_for_part_two = "**BURIAL ASSETS (2 of 2) -- Memb: " + hh_member  
   EMReadScreen page_four, 20, 24, 2
   IF page_four = "A MAXIMUM OF 4 PAGES" THEN
@@ -291,7 +288,6 @@ function case_note_page_four
   END IF
 END function
 
-
 'SECTION 03 -- Script
 EMConnect ""
 
@@ -301,37 +297,29 @@ case_number = trim(case_number)
 case_number = replace(case_number, "_", "")
 If IsNumeric(case_number) = False THEN case_number = ""
 
-check_for_maxis(true)
-
+Do	
+	err_msg = ""
+	Dialog submitting_case_dialog
+	If ButtonPressed = 0 then StopScript
+	
 DO
-  DO
-    DO
-      DO
-        DO
-          DO
-            DO
-              Dialog opening_dialog_01
-		    IF ButtonPressed = 0 THEN
-			  confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
-		      IF confirm_cancel = vbYes THEN stopscript
-		      IF confirm_cancel = vbNo THEN EXIT DO
-		    END IF
-		  IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN 
-		    counted_value_designated = "INVALID"
-		    MSGBOX "Designated Account Counted Value is not a number. Do not include letters or special characters."
-		  END IF
-		  IF insurance_policy_number <> "none" AND isnumeric(insurance_counted_value) = FALSE THEN
-		    insurance_counted_value = "INVALID"
-		    MSGBOX "Insurance Counted Value is not a number. Do not include letters or special characters."
-		  END IF  
-		  IF len(case_number) > 8 THEN MSGBOX "You must provide a valid case number -- less than 8 digits."
-		  IF isnumeric(case_number) = FALSE THEN MSGBOX "Please provide a valid case number -- no letters or special characters."
-		  IF hh_member = "" THEN MSGBOX "Please provide a household member."
-		  IF worker_signature = "" THEN MSGBOX "Please sign your case note."
-            LOOP UNTIL isnumeric(case_number) = TRUE
-          LOOP UNTIL len(case_number) < 9
-        LOOP UNTIL hh_member <> ""
-      LOOP UNTIL worker_signature <> ""
+	err_msg = ""
+	Dialog opening_dialog_01
+	cancel_confirmation
+	IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN 
+	   counted_value_designated = "INVALID"
+	   MsgBox "Designated Account Counted Value is not a number. Do not include letters or special characters."
+	END IF
+	IF insurance_policy_number <> "none" AND isnumeric(insurance_counted_value) = FALSE THEN
+	  insurance_counted_value = "INVALID"
+	  MsgBox "Insurance Counted Value is not a number. Do not include letters or special characters."
+	END IF  
+	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
+    If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP until err_msg = ""	
+
     LOOP UNTIL isnumeric(counted_value_designated) = TRUE OR counted_value_designated = ""
   LOOP UNTIL isnumeric(insurance_counted_value) = TRUE OR insurance_counted_value = ""
 Do
@@ -357,21 +345,16 @@ Do
           cancel_confirmation
           transmit
           EMReadScreen MAXIS_check, 5, 1, 39
-          If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You don't appear to be in MAXIS. You might be locked out of your case. Please get back into MAXIS production before continuing."
-        Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
       Loop until buttonpressed = -1
     Loop until buttonpressed = -1
   Loop until buttonpressed = -1
 Loop until buttonpressed = -1
 Loop until buttonpressed = -1
 
-
-call navigate_to_screen ("case", "note")
-PF9
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
 'Converting DESIGNATED ACCOUNT INFORMATION
-
-
 'SECTION 03
 'Must convert non-numeric "values" to numeric for calculations to work
 If isnumeric(basic_service_funeral_director_value) = False then basic_service_funeral_director_value = 0
@@ -449,7 +432,6 @@ If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_statu
 If other_01 <> "" and other_01_type = "CAI" and other_01_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_01_value)
 If other_02 <> "" and other_02_type = "CAI" and other_02_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_02_value)
 
-
 'This adds all counted fields together.
 If basic_service_funeral_director_check = 1 and basic_service_funeral_director_status = "counted" then total_counted_amount = total_counted_amount + cint(basic_service_funeral_director_value)
 If embalming_check = 1 and embalming_status = "counted" then total_counted_amount = total_counted_amount + cint(embalming_value)
@@ -499,17 +481,13 @@ If total_BS_BSI_excluded_amount = "" then total_BS_BSI_excluded_amount = "0"
 If total_unavailable_CAI_amount = "" then total_unavailable_CAI_amount = "0"
 If total_counted_amount = "" then total_counted_amount = "0"
 
-
-
-
 'SECTION 04
-
 DIM MAXIS_service_row
 DIM MAXIS_col
 
-
 'NOTE: "Other" sections need to be included in correct sections. 
-CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member)
+start_a_blank_CASE_NOTE
+CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member & " for " & programs)
 IF type_of_designated_account <> "None" then
 	call write_variable_in_case_note("---Designated Account----")
 	call write_bullet_and_variable_in_case_note("Type of designated account", type_of_designated_account)
@@ -773,7 +751,6 @@ IF type_of_burial_agreement <> "None" THEN
 	case_note_page_four
 	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & total_unavailable_CAI_amount) ' & "<newline>"
 END IF
-
 
 case_note_page_four	
 CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
