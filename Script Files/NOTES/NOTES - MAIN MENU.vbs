@@ -88,7 +88,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 			PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
             PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
           	PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-          	PushButton 5, 70, 105, 10, "ApplyMN application received", APPLYMN_APPLICATION_RECEIVED_button
+          	PushButton 5, 70, 105, 10, "Application received", APPLICATION_RECEIVED_button
           	PushButton 5, 85, 70, 10, "Approved programs", APPROVED_PROGRAMS_button
           	PushButton 5, 100, 45, 10, "Baby born", BABY_BORN_button
           	PushButton 5, 115, 50, 10, "Burial assets", BURIAL_ASSETS_button
@@ -100,7 +100,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
           	PushButton 5, 205, 50, 10, "Combined AR", COMBINED_AR_button
           	PushButton 5, 220, 20, 10, "CSR", CSR_button
           	CancelButton 460, 245, 50, 15
-          Text 115, 70, 330, 10, "--- Template for documenting details about an ApplyMN application recevied."
+          Text 115, 70, 330, 10, "--- Template for documenting details about an application recevied."
           Text 80, 85, 325, 10, "--- Template for when you approve a client's programs."
           Text 55, 100, 270, 10, "--- Template for a baby born and added to household."
           Text 60, 115, 135, 10, "--- Template for burial assets."
@@ -316,7 +316,7 @@ LOOP UNTIL ButtonPressed <> SIR_instructions_button AND _
 			ButtonPressed <> LTC_notes_button
 
 'Available scripts
-IF ButtonPressed = APPLYMN_APPLICATION_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPLYMN APPLICATION RECEIVED.vbs")
+IF ButtonPressed = APPLICATION_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPLICATION RECEIVED.vbs")
 IF ButtonPressed = APPROVED_PROGRAMS_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPROVED PROGRAMS.vbs")
 IF ButtonPressed = BABY_BORN_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - BABY BORN.vbs")
 IF ButtonPressed = BURIAL_ASSETS_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - BURIAL ASSETS.vbs")
