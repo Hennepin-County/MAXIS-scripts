@@ -273,7 +273,6 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 	END IF
 
 	DIALOG dialog_name
-	
 END FUNCTION
 
 '=====THE SCRIPT=====
