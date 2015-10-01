@@ -51,7 +51,7 @@ DIM ButtonPressed
 DIM SIR_instructions_button, dialog_name
 DIM number_through_c_notes_button, d_through_f_notes_button, g_through_l_notes_button, m_through_q_notes_button, r_through_z_notes_button, ltc_notes_button
 
-DIM APPLYMN_APPLICATION_RECEIVED_button, APPROVED_PROGRAMS_button
+DIM APPLICATION_RECEIVED_button, APPROVED_PROGRAMS_button
 DIM BABY_BORN_button, BURIAL_ASSETS_button
 DIM CAF_button, CHANGE_REPORT_FORM_RECEIVED_button, CITIZENSHIP_IDENTITY_VERIFIED_button, CLIENT_CONTACT_button, CLOSED_PROGRAMS_button, COMBINED_AR_button, CSR_button
 
@@ -316,7 +316,7 @@ LOOP UNTIL ButtonPressed <> SIR_instructions_button AND _
 			ButtonPressed <> LTC_notes_button
 
 'Available scripts
-IF ButtonPressed = APPLICATION_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPLICATION RECEIVED.vbs")
+IF ButtonPressed = APPLICATION_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPLICATION RECEIVED.vbs")
 IF ButtonPressed = APPROVED_PROGRAMS_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - APPROVED PROGRAMS.vbs")
 IF ButtonPressed = BABY_BORN_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - BABY BORN.vbs")
 IF ButtonPressed = BURIAL_ASSETS_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - BURIAL ASSETS.vbs")
