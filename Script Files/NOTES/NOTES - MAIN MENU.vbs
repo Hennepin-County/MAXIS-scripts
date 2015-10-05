@@ -144,41 +144,43 @@ FUNCTION create_NOTES_main_menu(dialog_name)
         EndDialog
 	ELSEIF dialog_name = "G-L" THEN
     BeginDialog dialog_name, 0, 0, 516, 265, "Notes (G-L) scripts main menu dialog"
-	ButtonGroup ButtonPressed
-    CancelButton 455, 245, 50, 15
-    PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-    PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
-    PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
-    PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-    PushButton 105, 35, 30, 15, "M - Q", m_through_Q_notes_button
-    PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
-    PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
-    PushButton 5, 70, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
-    PushButton 5, 85, 75, 10, "Good Cause Claimed", GOOD_CAUSE_CLAIMED_button
-    PushButton 5, 100, 45, 10, "GRH - HRF", GRH_HRF_button
-    PushButton 5, 115, 50, 10, "HC Renewal", HC_RENEWAL_button
-    PushButton 5, 130, 30, 10, "HCAPP", HCAPP_button
-    PushButton 5, 145, 65, 10, "HH comp change", HH_COMP_CHANGE_button
-    PushButton 5, 160, 25, 10, "HRF", HRF_button
-    PushButton 5, 175, 50, 10, " Incarceration ", Incarceration_button
-    PushButton 5, 190, 45, 10, "LEP - EMA", LEP_EMA_button
-    PushButton 5, 205, 45, 10, "LEP - SAVE", LEP_SAVE_button
-    PushButton 5, 220, 80, 10, "LEP - Sponsor income", LEP_SPONSOR_INCOME_button
-    PushButton 5, 235, 60, 10, "Lobby No Show", LOBBY_NO_SHOW_button
-  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-  Text 75, 70, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
-  Text 85, 85, 375, 10, "--- Template for requests of good cause to not receive child support."
-  Text 55, 100, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
-  Text 60, 115, 140, 10, "--- Template for HC renewals.*"
-  Text 40, 130, 120, 10, "--- Template for HCAPPs.*"
-  Text 75, 145, 240, 10, "--- Template for when you update the HH comp of a case."
-  Text 35, 160, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
-  Text 55, 190, 255, 10, "--- Template for EMA applications."
-  Text 55, 205, 255, 10, "--- Template for the SAVE system for verifying immigration status."
-  Text 90, 220, 345, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
-  Text 70, 235, 400, 10, "--- NEW 08/2015!!! -- Template for case noting a client's no-showing their in-office appointment."
-  GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
-  Text 60, 175, 290, 10, "---Template to note details of an incarceration, and also updates STAT/FACI if necessary."
+		ButtonGroup ButtonPressed
+			CancelButton 455, 245, 50, 15
+			PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+			PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+			PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
+			PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
+			PushButton 105, 35, 30, 15, "M - Q", m_through_Q_notes_button
+			PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
+			PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
+			PushButton 5, 70, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
+			PushButton 5, 85, 75, 10, "Good Cause Claimed", GOOD_CAUSE_CLAIMED_button
+			PushButton 5, 100, 45, 10, "GRH - HRF", GRH_HRF_button
+			PushButton 5, 115, 50, 10, "HC Renewal", HC_RENEWAL_button
+			PushButton 5, 130, 30, 10, "HCAPP", HCAPP_button
+			PushButton 5, 145, 65, 10, "HH comp change", HH_COMP_CHANGE_button
+			PushButton 5, 160, 25, 10, "HRF", HRF_button
+			PushButton 5, 175, 80, 10, "IEVS Notice Received", IEVS_notice_recd_button
+			PushButton 5, 190, 50, 10, " Incarceration ", Incarceration_button
+			PushButton 5, 205, 45, 10, "LEP - EMA", LEP_EMA_button
+			PushButton 5, 220, 45, 10, "LEP - SAVE", LEP_SAVE_button
+			PushButton 5, 235, 80, 10, "LEP - Sponsor income", LEP_SPONSOR_INCOME_button
+			PushButton 5, 250, 60, 10, "Lobby No Show", LOBBY_NO_SHOW_button
+		Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+		Text 75, 70, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
+		Text 85, 85, 375, 10, "--- Template for requests of good cause to not receive child support."
+		Text 55, 100, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
+		Text 60, 115, 140, 10, "--- Template for HC renewals.*"
+		Text 40, 130, 120, 10, "--- Template for HCAPPs.*"
+		Text 75, 145, 240, 10, "--- Template for when you update the HH comp of a case."
+		Text 35, 160, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
+		Text 95, 175, 215, 10, "---- NEW 10/2015!!! Templace to case note when a IEVS notice is returned"
+		Text 60, 190, 290, 10, "---Template to note details of an incarceration, and also updates STAT/FACI if necessary."
+		Text 55, 205, 255, 10, "--- Template for EMA applications."
+		Text 55, 220, 255, 10, "--- Template for the SAVE system for verifying immigration status."
+		Text 90, 235, 345, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
+		Text 70, 250, 400, 10, "--- NEW 08/2015!!! -- Template for case noting a client's no-showing their in-office appointment."
+		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 	EndDialog
 	ELSEIF dialog_name = "M-Q" THEN
 	BeginDialog dialog_name, 0, 0, 516, 265, "Notes (M-Q) scripts main menu dialog"
@@ -341,6 +343,7 @@ IF ButtonPressed = HC_RENEWAL_button								THEN CALL run_from_GitHub(script_rep
 IF ButtonPressed = HCAPP_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HCAPP.vbs")
 IF ButtonPressed = HH_COMP_CHANGE_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HH COMP CHANGE.vbs")
 IF ButtonPressed = HRF_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HRF.vbs")
+IF ButtonPressed = IEVS_notice_recd_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES-IEVS NOTICE RECEIVED.vbs")
 If ButtonPressed = Incarceration_button								THEN CALL run_from_GitHub(script_repository & "NOTES - INCARCERATION.vbs")
 IF ButtonPressed = LEP_EMA_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - EMA.vbs")
 IF ButtonPressed = LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
