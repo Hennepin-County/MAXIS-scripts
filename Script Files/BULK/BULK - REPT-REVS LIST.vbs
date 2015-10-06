@@ -201,13 +201,16 @@ For each worker in worker_array
 			Do			
 				EMReadScreen case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
-				EMReadScreen cash_status, 1, MAXIS_row, 35		'Reading cash status
+				EMReadScreen cash_status, 2, MAXIS_row, 34		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 45		'Reading SNAP status
 				EMReadScreen HC_status, 1, MAXIS_row, 49			'Reading HC status
 				EMReadScreen exempt_IR_status, 1, MAXIS_row, 51		'Reading exempt IR status
 				EMReadScreen MAGI_status, 8, MAXIS_row, 54		'Reading MAGI status
 				EMReadScreen revw_recd_date, 8, MAXIS_row, 62		'Reading review received date
 				EMReadScreen interview_date, 8, MAXIS_row, 72		'Reading interview date
+				
+				'Certain MAXIS users have inadvertently bent the laws of MAXIS physics and have cash_status in column 34 instead of 35. Here-in lies the fix.
+				cash_status = trim(replace(cash_status, " ", ""))
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do

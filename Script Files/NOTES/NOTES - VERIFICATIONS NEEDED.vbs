@@ -205,6 +205,7 @@ call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
 call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
 call write_bullet_and_variable_in_case_note("Other proofs", other_proofs)
 Call write_variable_in_case_note("---")
+call write_variable_in_CASE_NOTE(worker_signature)
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 'If TIKL_check isn't checked this is the end

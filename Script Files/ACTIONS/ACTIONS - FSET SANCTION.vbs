@@ -1,6 +1,5 @@
 'OPTION EXPLICIT
-
-name_of_script = "NOTES - FSET SANCTION.vbs"
+name_of_script = "ACTIONS - FSET SANCTION.vbs"
 start_time = timer
 
 'DIM name_of_script

@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - EVF RECEIVED.vbs"
+name_of_script = "NOTES - IEVS NOTICE RECEIVED.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -58,34 +58,32 @@ BeginDialog case_number_dlg, 0, 0, 206, 75, "Enter a Case Number"
   Text 105, 35, 45, 10, "Benefit Year"
 EndDialog
 
-BeginDialog EVF_received, 0, 0, 276, 200, "Employment Verification Form Received"
-  EditBox 140, 4, 60, 16, date_received
-  EditBox 54, 28, 72, 16, client
-  EditBox 190, 28, 70, 16, employer
-  DropListBox 144, 52, 50, 16, "Select one"+chr(9)+"yes"+chr(9)+"no", signed_by_client
-  DropListBox 144, 70, 50, 16, "Select one"+chr(9)+"yes"+chr(9)+"no", complete
-  DropListBox 92, 92, 48, 16, "Select one"+chr(9)+"yes"+chr(9)+"no", info
-  EditBox 206, 88, 60, 16, info_date
-  EditBox 82, 110, 100, 16, request_info
-  EditBox 82, 132, 180, 16, notes
-  EditBox 82, 154, 96, 16, worker_signature
+BeginDialog IEVS_Match, 0, 0, 177, 126, "IEVS Match Received"
+  DropListBox 56, 4, 100, 14, "Select"+chr(9)+"Resolved"+chr(9)+"Notice Sent to Client"+chr(9)+"Notice Sent to Employer", OPTIONS
+  EditBox 50, 24, 20, 14, MEMB
+  DropListBox 112, 24, 48, 14, "Select one"+chr(9)+"1st"+chr(9)+"2nd"+chr(9)+"3rd"+chr(9)+"4th"+chr(9)+"year", Quarter
+  EditBox 44, 46, 110, 14, Employer
+  EditBox 44, 74, 110, 14, ADDR
   ButtonGroup ButtonPressed
-    OkButton 28, 176, 50, 16
-    CancelButton 200, 176, 50, 16
-  Text 12, 158, 60, 10, "Worker Signature:"
-  Text 72, 10, 62, 10, "Date EVF received:"
-  Text 82, 56, 56, 10, "Signed by client:"
-  Text 146, 94, 56, 10, "Date Requested:"
-  Text 14, 114, 64, 10, "Info Requested via:"
-  Text 4, 94, 86, 10, "Additional Info Requested"
-  Text 18, 34, 30, 14, "MEMB #:"
-  Text 136, 32, 52, 12, "Employer name:"
-  Text 56, 72, 80, 10, "Completed by employer:"
-  Text 10, 138, 68, 10, "Action taken / Notes:"
+    OkButton 20, 100, 40, 14
+    CancelButton 110, 100, 40, 14
+  Text 22, 8, 26, 12, "Options:"
+  Text 10, 30, 40, 14, "HH Memb:"
+  Text 80, 30, 30, 14, "Quarter:"
+  Text 10, 52, 34, 14, "Employer:"
+  Text 10, 78, 30, 14, "Address:"
 EndDialog
 
 
-
+BeginDialog Resolved_Non_Cooperation, 0, 0, 137, 76, "IEVS Resolved-Non Cooperation"
+  DropListBox 62, 6, 50, 14, "Select one"+chr(9)+"NC"+chr(9)+"CB"+chr(9)+"CC"+chr(9)+"CF"+chr(9)+"CA"+chr(9)+"CI"+chr(9)+"CP"+chr(9)+"BC"+chr(9)+"BN"+chr(9)+"BI"+chr(9)+"BP"+chr(9)+"BU"+chr(9)+"BE"+chr(9)+"BO", code
+  EditBox 40, 28, 90, 14, action
+  ButtonGroup ButtonPressed
+    OkButton 10, 50, 40, 14
+    CancelButton 90, 50, 40, 14
+  Text 12, 32, 24, 12, "Action:"
+  Text 20, 10, 38, 12, "Code used:"
+EndDialog
 
 'connects to BlueZone and brings it forward
 EMConnect ""
@@ -117,40 +115,40 @@ LOOP UNTIL err_msg = ""
 
 CALL check_for_MAXIS(False)
 
-'starts the EVF received case note dialog
+' Starts the IEVS Match Received case note dialog
 DO
 	err_msg = ""
-	'starts the EVF dialog
-	Dialog EVF_received
+	'starts the IEVS dialog
+	Dialog IEVS_Match
 	'asks if you want to cancel and if "yes" is selected sends StopScript
-	cancel_confirmation 
-	'checks that there is a date in the date received box
-	IF IsDate (date_received) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a date in mm/dd/yy for date received."
-	'checks if the client name has been entered
-	IF client = "" THEN err_msg = err_msg & vbCr & "You must enter the MEMB #."
-	'checks if the employer name has been entered
-	IF employer = "" THEN err_msg = err_msg & vbCr & "You must enter the employers name."
-	'checks if signed by client was selected
-	IF Signed_by_client = "Select one" THEN err_msg = err_msg & vbCr & "You must select if signed by the client."
-	'checks if completed by employer was selected
-	IF complete = "Select one" THEN err_msg = err_msg & vbCr & "You must select if completed by the employer."
-	'checks if additional info was requested 
-	IF info = "Select one" THEN err_msg = err_msg & vbCr & "You must select if additional info was requested."
-	'checks that there is a info request date entered if the it was requested
-	IF info = "yes" and IsDate (info_date) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a date in mm/dd/yy that additional info was requested."
-	'checks that there is a method of inquiry entered if additional info was requested
-	IF info = "yes" and request_info = "" THEN err_msg = err_msg & vbCr & "You must enter the method used to request additional info."
-	'checks that notes were entered				
-	IF notes = "" THEN err_msg = err_msg & vbCr & "You must enter action taken/notes."
-	'checks that the case note was signed
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!" 
+	cancel_confirmation
+	'checks if an Option has been selected
+	IF OPTIONS = "Select one" THEN err_msg = err_msg & vbCr & "You must select an option."					
+	'checks if a HH Memb has been entered
+	IF MEMB = "" THEN err_msg = err_msg & vbCr & "You must enter a HHLD MEMB."
+	'checks if Quarter was selected.
+	IF Quarter = "Select one" THEN err_msg = err_msg & vbCr & "You must select a time period for the IEVS Match."
+	'checks if Employer was entered.
+	IF Employer = "" THEN err_msg = err_msg & vbCr & "You must enter an employer."
+	'checks if Address was entered.
+	IF ADDR = "" THEN err_msg = err_msg & vbCr & "You must enter an address."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
-
-'assigns a value to the EVF_status variable based on the value of the complete variable
-IF complete = "yes" THEN EVF_status = "COMPLETE"
-IF complete = "no" THEN EVF_status = "INCOMPLETE"
-
+	
+'starts Resolved/Non Cooperation dialog if resolved/non coop selected
+IF OPTIONS = "Resolved" THEN 
+	DO
+		err_msg = ""			
+		Dialog Resolved_Non_Cooperation
+		'asks if you want to cancel and if "yes" is selected sends StopScript
+		cancel_confirmation
+		'checks if a code was selected
+		IF code = "Select one" THEN err_msg = err_msg & vbCr & "You must select a code used."
+		'checks if Action was completed
+		IF action = "" THEN err_msg = err_msg & vbCr & "You must enter an action taken."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+End IF
 
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
 call check_for_MAXIS (false)
@@ -159,37 +157,18 @@ call check_for_MAXIS (false)
 call start_a_blank_case_note
 
 'this enters the actual case note info 
-call write_variable_in_CASE_NOTE("***EVF received " & date_received & " is " & EVF_status & "***")
-call write_bullet_and_variable_in_CASE_NOTE("Date Received", date_received)
-call write_variable_in_CASE_NOTE("* MEMB #/Employer: MEMB " & client & " at " & employer)
-call write_bullet_and_variable_in_CASE_NOTE("Signed by client", signed_by_client)
-call write_bullet_and_variable_in_CASE_NOTE("Completed by employer", complete)
-	'case note changes based on if additional info was requested
-	IF info = "yes" then call write_variable_in_CASE_NOTE ("* Additional Info requested: " & info & " on " & info_date)
-	IF info = "no" then call write_variable_in_CASE_NOTE ("* Additional Info requested: " & info)
-call write_bullet_and_variable_in_CASE_NOTE("Request method used", request_info)
-call write_bullet_and_variable_in_CASE_NOTE("Action Taken/Notes", notes)
-	'case notes that a TIKL was set if additional information was requested
-	IF info = "yes" THEN call write_variable_in_CASE_NOTE ("***TIKLed for 10 day return.***")
+call write_variable_in_CASE_NOTE("***IEVS Notice received: " & OPTIONS & "***")
+call write_bullet_and_variable_in_CASE_NOTE("HHLD MEMB", MEMB)
+call write_bullet_and_variable_in_CASE_NOTE("Quarter", Quarter)
+call write_bullet_and_variable_in_CASE_NOTE("Employer", Employer)
+call write_bullet_and_variable_in_CASE_NOTE("Address", ADDR)
+IF OPTIONS = "Resolved" THEN call write_bullet_and_variable_in_CASE_NOTE("Code Used", code)
+IF OPTIONS = "Resolved" THEN call write_bullet_and_variable_in_CASE_NOTE("Action", action)
 call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
+'This next line is in as a reminder to the financial worker to not add any other information to the case note to remain in compliance with the FTI rules.
+call write_variable_in_CASE_NOTE ("**DO NOT ENTER ANY OTHER INFO**")
 
-'Checks if additional info is yes and sets a TIKL for the return of the info
-IF info = "yes" THEN 
-	call navigate_to_MAXIS_screen("dail", "writ")
-
-	'The following will generate a TIKL formatted date for 10 days from now.
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
-
-	'Writing in the rest of the TIKL.
-	call write_variable_in_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action. (TIKL auto-generated from script)." )
-	transmit
-	PF3
-
-
-	'Success message
-	MsgBox "Success! TIKL has been sent for 10 days from now for the additional information requested."
-
-End if
+IF code = "NC" THEN MsgBox "The client was non-cooperative, remember to add a DISQ panel for this client."
 
 script_end_procedure("")

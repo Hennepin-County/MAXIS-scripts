@@ -52,23 +52,24 @@ END IF
 
 'The Dialog--------------------------------------------------------------
 
-BeginDialog gas_card_dialog, 0, 0, 286, 110, "Gas Card Dialog"
-  EditBox 50, 5, 70, 15, case_number
-  EditBox 220, 5, 50, 15, date_cards_given
+BeginDialog gas_card_dialog, 0, 0, 286, 125, "Gas Card Dialog"
+  EditBox 55, 5, 70, 15, case_number
+  EditBox 225, 5, 50, 15, date_cards_given
   DropListBox 100, 25, 65, 15, "Select One..."+chr(9)+"10"+chr(9)+"20"+chr(9)+"30"+chr(9)+"40", card_amt
-  EditBox 155, 45, 45, 15, amt_given_yr_to_date
-  CheckBox 5, 65, 145, 10, "Client Signed Fuel Card Acknowledgement", client_signed_stmt_check
-  EditBox 75, 85, 75, 15, worker_signature
+  EditBox 160, 45, 45, 15, amt_given_yr_to_date
+  EditBox 95, 65, 75, 15, card_number
+  CheckBox 5, 90, 145, 10, "Client Signed Fuel Card Acknowledgement", client_signed_stmt_check
+  EditBox 80, 105, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 90, 50, 15
-    CancelButton 230, 90, 50, 15
-  Text 5, 10, 50, 10, "Case Number:"
+    OkButton 175, 105, 50, 15
+    CancelButton 230, 105, 50, 15
   Text 5, 50, 150, 10, "Total amount given this year (including today):"
   Text 150, 10, 70, 10, "Gas Cards issued on:"
   Text 5, 30, 95, 10, "Amount of Gas Cards given:"
-  Text 5, 90, 70, 10, "Gas Card Issued By:"
+  Text 10, 110, 70, 10, "Gas Card Issued By:"
+  Text 5, 70, 90, 10, "Gas Card Numbers Given:"
+  Text 5, 10, 50, 10, "Case Number:"
 EndDialog
-
 
 'Connects to BlueZone
 EMConnect ""
@@ -101,11 +102,12 @@ card_amt = "$" & card_amt
 
 'Writes the case note
 start_a_blank_CASE_NOTE
-CALL write_variable_in_case_note ("*$$*GAS CARDS ISSUED*$$*")                                                                           'Writes title in Case note
-CALL write_bullet_and_variable_in_case_note("Gas Cards issued on", date_cards_given)                                                    'Writes date cards were issued on next line
-CALL write_bullet_and_variable_in_case_note("Amount of Fuel Cards Given", card_amt)                                                     'Write the amt given this
-CALL write_bullet_and_variable_in_case_note("Total Amount Given This Year Including Today", amt_given_yr_to_date)   					'Writes amt given year to date
-IF client_signed_stmt_check = 1 THEN CALL write_variable_in_CASE_NOTE("* Client signed Fuel Card Acknowledgement Form")                 'Writes if the client signed stmt if that box was checked
+CALL write_variable_in_case_note ("=$= GAS CARDS ISSUED: TODAY " & card_amt & ", YTD TOTAL " & amt_given_yr_to_date & " =$=")       'Writes title in Case note
+CALL write_bullet_and_variable_in_case_note("Gas Cards issued on", date_cards_given)                                                'Writes date cards were issued on next line
+CALL write_bullet_and_variable_in_case_note("Amount of Fuel Cards Given", card_amt)                                                 'Write the amt given this
+CALL write_bullet_and_variable_in_case_note("Gas Card Numbers", card_number)                                                        'Writes the gas card numbers
+CALL write_bullet_and_variable_in_case_note("Total Amount Given This Year Including Today", amt_given_yr_to_date)   	       	    'Writes amt given year to date
+IF client_signed_stmt_check = 1 THEN CALL write_variable_in_CASE_NOTE("* Client signed Fuel Card Acknowledgement Form")             'Writes if the client signed stmt if that box was checked
 
 IF card_amt >= 40 THEN
 	thirty_days_from_now = DateAdd ("d", 30, date)
