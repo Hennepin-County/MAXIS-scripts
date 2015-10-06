@@ -59,7 +59,7 @@ DIM DENIED_PROGRAMS_button, DOCUMENTS_RECEIVED_button, DRUG_FELON_button, DWP_BU
 DIM EMERGENCY_button, EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EMPLOYMENT_VERIFICATION_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button
 
 DIM GAS_CARDS_ISSUED_button, GOOD_CAUSE_CLAIMED_button, GRH_HRF_button
-DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, Incarceration_button
+DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, IEVS_NOTICE_RECEIVED_button, INCARCERATION_button
 DIM LEP_EMA_button, LEP_SAVE_button, LEP_SPONSOR_INCOME_button, LOBBY_NO_SHOW_button
 
 DIM MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, MFIP_SANCTION_CURED_button, MFIP_TO_SNAP_TRANSITION_button, MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button, MNSURE_RETRO_HC_APPLICATION_button
@@ -160,7 +160,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 			PushButton 5, 130, 30, 10, "HCAPP", HCAPP_button
 			PushButton 5, 145, 65, 10, "HH comp change", HH_COMP_CHANGE_button
 			PushButton 5, 160, 25, 10, "HRF", HRF_button
-			PushButton 5, 175, 80, 10, "IEVS Notice Received", IEVS_notice_recd_button
+			PushButton 5, 175, 80, 10, "IEVS Notice Received", IEVS_NOTICE_RECEIVED_button
 			PushButton 5, 190, 50, 10, " Incarceration ", Incarceration_button
 			PushButton 5, 205, 45, 10, "LEP - EMA", LEP_EMA_button
 			PushButton 5, 220, 45, 10, "LEP - SAVE", LEP_SAVE_button
@@ -174,7 +174,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		Text 40, 130, 120, 10, "--- Template for HCAPPs.*"
 		Text 75, 145, 240, 10, "--- Template for when you update the HH comp of a case."
 		Text 35, 160, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
-		Text 95, 175, 215, 10, "---- NEW 10/2015!!! Templace to case note when a IEVS notice is returned"
+		Text 95, 175, 215, 10, "---- NEW 10/2015!!! Templace to case note when a IEVS notice is returned."
 		Text 60, 190, 290, 10, "---Template to note details of an incarceration, and also updates STAT/FACI if necessary."
 		Text 55, 205, 255, 10, "--- Template for EMA applications."
 		Text 55, 220, 255, 10, "--- Template for the SAVE system for verifying immigration status."
@@ -343,7 +343,7 @@ IF ButtonPressed = HC_RENEWAL_button								THEN CALL run_from_GitHub(script_rep
 IF ButtonPressed = HCAPP_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HCAPP.vbs")
 IF ButtonPressed = HH_COMP_CHANGE_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HH COMP CHANGE.vbs")
 IF ButtonPressed = HRF_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HRF.vbs")
-IF ButtonPressed = IEVS_notice_recd_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES-IEVS NOTICE RECEIVED.vbs")
+IF ButtonPressed = IEVS_NOTICE_RECEIVED_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - IEVS NOTICE RECEIVED.vbs")
 If ButtonPressed = Incarceration_button								THEN CALL run_from_GitHub(script_repository & "NOTES - INCARCERATION.vbs")
 IF ButtonPressed = LEP_EMA_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - EMA.vbs")
 IF ButtonPressed = LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
