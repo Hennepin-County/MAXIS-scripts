@@ -52,6 +52,7 @@ DIM BULK_list_scripts_button, other_BULK_scripts_button
 DIM BULK_TIKLER_button, CASE_NOTE_FROM_EXCEL_LIST_button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
 DIM ACTV_LIST_button, DAIL_REPORT_button, EOMC_LIST_button, PND1_LIST_button, PND2_LIST_button, REVS_LIST_button, REVW_LIST_button, MFCM_LIST_button, ADDRESS_LIST_button, ARST_LIST_button, CHECK_SNAP_FOR_GA_RCA_button, LTC_GRH_LIST_GENERATOR_button, MAEPD_MEDICARE_LIST_button, MISC_NON_MAGI_HC_DEDUCTIONS_button, SWKR_LIST_GENERATOR_button
 DIM BULK_PDED_button, FIND_PANEL_button
+DIM INAC_LIST_button
 
 FUNCTION create_BULK_main_menu(dialog_name)
 	IF dialog_name = "OTHER BULK" THEN 
