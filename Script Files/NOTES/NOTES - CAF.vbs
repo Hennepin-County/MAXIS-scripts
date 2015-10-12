@@ -214,6 +214,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   CheckBox 15, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
   CheckBox 90, 220, 95, 10, "Workforce referral made?", WF1_checkbox
   CheckBox 190, 220, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 280, 220, 115, 10, "Informed client of recert period?", recert_period_checkbox
   EditBox 55, 240, 230, 15, other_notes
   ComboBox 330, 240, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
   EditBox 55, 260, 390, 15, verifs_needed
@@ -223,27 +224,27 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   CheckBox 15, 345, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
   EditBox 395, 325, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 340, 345, 50, 15
-	CancelButton 395, 345, 50, 15
-	PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-	PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-	PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-	PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-	PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-	PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-	PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-	PushButton 335, 25, 45, 10, "next panel", next_panel_button
-	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-	PushButton 395, 25, 45, 10, "next memb", next_memb_button
-	PushButton 5, 50, 25, 10, "INSA/", INSA_button
-	PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
-	PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
-	PushButton 5, 90, 25, 10, "DIET:", DIET_button
-	PushButton 215, 90, 25, 10, "BILS:", BILS_button
-	PushButton 5, 110, 25, 10, "FMED:", FMED_button
-	PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-	PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
+    OkButton 340, 345, 50, 15
+    CancelButton 395, 345, 50, 15
+    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 50, 25, 10, "INSA/", INSA_button
+    PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
+    PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
+    PushButton 5, 90, 25, 10, "DIET:", DIET_button
+    PushButton 215, 90, 25, 10, "BILS:", BILS_button
+    PushButton 5, 110, 25, 10, "FMED:", FMED_button
+    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
+    PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
   GroupBox 5, 5, 130, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
@@ -545,6 +546,7 @@ IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* R/R explained
 IF updated_MMIS_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated MMIS.")
 IF WF1_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Workforce referral made.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
+IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
 IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
