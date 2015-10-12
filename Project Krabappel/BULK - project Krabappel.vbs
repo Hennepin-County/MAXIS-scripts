@@ -41,6 +41,13 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
+'LOADING GLOBAL VARIABLES--------------------------------------------------------------------
+'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+'Set fso_command = run_another_script_fso.OpenTextFile("H:\Project Krabappel\func lib.vbs")
+'text_from_the_other_script = fso_command.ReadAll
+'fso_command.Close
+'Execute text_from_the_other_script
+
 
 '========================================================================TRANSFER CASES========================================================================
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
@@ -167,7 +174,7 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 End function
 
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
-excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
+excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"	'Might want to predeclare with a default, and allow users to change it.
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
@@ -200,12 +207,9 @@ BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator
   Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
 EndDialog
 
-
 '--------- Project Krabappel --------------
 'Connects to BlueZone
 EMConnect ""
-
-
 
 Do
 	Do
@@ -624,7 +628,6 @@ End if
 '========================================================================PND2 PANELS========================================================================
 
 For each case_number in case_number_array
-	
 	
 	'Navigates to STAT/SUMM for each case
 	call navigate_to_screen("STAT", "SUMM")
@@ -1172,7 +1175,6 @@ For each case_number in case_number_array
 		REST_agreement_date = ObjExcel.Cells(REST_starting_excel_row + 10, current_excel_col).Value
 
 		SCHL_starting_excel_row = 509
-		appl_date = ObjExcel.Cells(4, 3).Value
 		SCHL_status = left(ObjExcel.Cells(SCHL_starting_excel_row, current_excel_col).Value, 1)
 		SCHL_ver = left(ObjExcel.Cells(SCHL_starting_excel_row + 1, current_excel_col).Value, 2)
 		SCHL_type = left(ObjExcel.Cells(SCHL_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1383,7 +1385,7 @@ For each case_number in case_number_array
 		EMReadScreen SSN_first, 3, 7, 42
 		EMReadScreen SSN_mid, 2, 7, 46
 		EMReadScreen SSN_last, 4, 7, 49
-
+		
 		'ACCT
 		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
 		
@@ -1482,9 +1484,9 @@ For each case_number in case_number_array
 		If OTHR_type <> "" then call write_panel_to_MAXIS_OTHR(OTHR_type, OTHR_cash_value, OTHR_cash_value_ver, OTHR_owed, OTHR_owed_ver, OTHR_date, OTHR_cash_count, OTHR_SNAP_count, OTHR_HC_count, OTHR_IV_count, OTHR_joint, OTHR_share_ratio)
 			
 		'PARE
-		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(appl_date, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
-		
-		'ABPS
+		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(appl_date, reference_number, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+
+		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
 		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 		
 		'PBEN 1
@@ -1564,15 +1566,19 @@ For each case_number in case_number_array
 
 	DO			
 		PF3		'---Navigates to STAT/WRAP
-		EMReadScreen benefit_month, 2, 20, 55
+		EMReadScreen at_wrap, 4, 2, 46
+		EMReadScreen at_self, 4, 2, 50
+		IF at_wrap = "WRAP" THEN EMReadScreen benefit_month, 2, 20, 55
+		IF at_self = "SELF" THEN EMReadScreen benefit_month, 2, 20, 43
 		future_month = DatePart("M", DateAdd("M", 1, date))
 		IF len(future_month) <> 2 THEN future_month = "0" & future_month
-		IF benefit_month <> future_month THEN
+		IF int(benefit_month) <> int(future_month) THEN
 			EMWriteScreen "Y", 16, 54
 			transmit
-		ELSE
+		ELSEIF int(benefit_month) = int(future_month) THEN 
 			EXIT DO
 		END IF
+		
 		
 		'---Now the script will update BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for future months.
 		For current_memb = 1 to total_membs
@@ -1791,7 +1797,6 @@ For each case_number in case_number_array
 			IF WKEX_program <> "" THEN CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
 		NEXT		
 	LOOP UNTIL benefit_month = future_month
-		
 	'Gets back to self
 	back_to_self
 
@@ -2072,7 +2077,7 @@ FOR EACH case_number IN case_number_array
 		'================= GA Approval ===============================================
 		IF cash_type = "GA" THEN
 			num_of_ga_months = DateDiff("M", appl_date, date) + 2
-			Dim ga_array ()		'Creating an array of GA approval for FIATing SNAP.
+			Dim ga_array		'Creating an array of GA approval for FIATing SNAP.
 			ReDim ga_array(num_of_ga_months, 1) 
 			ga_months = -1
 			DO
@@ -2340,6 +2345,7 @@ FOR EACH case_number IN case_number_array
 					col = 1
 					EMSearch "(Y/N)", row, col
 					IF row <> 0 THEN
+						emfocus
 						emsendkey "<tab>"
 						emsendkey "y"
 						transmit
