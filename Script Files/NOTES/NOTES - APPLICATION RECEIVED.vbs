@@ -97,10 +97,15 @@ Loop until case_number <> "" AND worker_signature <> ""
 call check_for_MAXIS(true)
 
 'Gathers Date of application and creates MAXIS friendly dates to be sure to navigate to the correct time frame
-call navigate_to_MAXIS_screen("CASE","CURR")
-EMReadScreen date_of_app, 8, 8, 29
-CALL create_maxis_friendly_date (maxis_date, 8, 8, 29)
-CALL convert_date_into_MAXIS_footer_month (date_of_app, footer_month, footer_year)
+
+call navigate_to_MAXIS_screen("REPT","PND2")
+dateofapp_row = 1 
+dateofapp_col = 1 
+EMSearch case_number, dateofapp_row, dateofapp_col
+EMReadScreen footer_month, 2, dateofapp_row, 38
+EMReadScreen app_day, 2, dateofapp_row, 41
+EMReadScreen footer_year, 2, dateofapp_row, 44
+date_of_app = footer_month & "/" & app_day & "/" & footer_year
 
 'Determines which programs are currently pending in the month of application
 call navigate_to_MAXIS_screen("STAT","PROG")
@@ -189,7 +194,14 @@ IF transfer_case = 1 THEN
 	PF9
 	EMWriteScreen worker_number, 18, 61
 	transmit
+	EMReadScreen worker_check, 9, 24, 2 
+	IF worker_check = "SERVICING" THEN 
+		MsgBox "The correct worker number was not entered, this X-Number is not a valid worker in MAXIS. You will need to transfer the case manually"
+		PF10
+		transfer_case = unchecked
+	End If
 End If
+
 
 IF time_of_app <> "" Then
 	time_stamp = " at " & time_of_app & " " & AM_PM
@@ -204,7 +216,7 @@ IF isnumeric(confirmation_number) = true THEN CALL write_bullet_and_variable_in_
 CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", worker_name)
-IF transfer_case = checked THEN CALL write_variable_in_CASE_NOTE ("Case transfered to " & worker_name & " in MAXIS")
+IF transfer_case = checked THEN CALL write_variable_in_CASE_NOTE ("* Case transfered to " & worker_name & " in MAXIS")
 IF entered_notes <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Notes", entered_notes)
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
