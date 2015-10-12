@@ -47,7 +47,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
+next_month = dateadd("m", 1, date)
 MAXIS_footer_month = datepart("m", next_month)
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = datepart("yyyy", next_month)
@@ -146,7 +146,10 @@ Dim col
 'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
 call MAXIS_case_number_finder(case_number)
-call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)  removed since typically CARs are run on current month + 1 anyway
+
+MAXIS_footer_month = cstr(MAXIS_footer_month)
+MAXIS_footer_year = cstr(MAXIS_footer_year)
 
 'Shows case number dialog
 Do
@@ -183,7 +186,9 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL)
 CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL)
 
 'Determines recert month
-recert_month = footer_month & "/" & footer_year
+recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
+
+recert_month = cstr(recert_month)
 
 'Showing the case note dialog
 Do
