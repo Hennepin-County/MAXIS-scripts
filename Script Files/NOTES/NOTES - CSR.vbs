@@ -314,6 +314,7 @@ call write_bullet_and_variable_in_case_note("Programs recertifying", programs_re
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+call write_bullet_and_variable_in_case_note("Notes on Income", notes_on_income)
 call write_bullet_and_variable_in_case_note("ABAWD Notes", notes_on_abawd)
 call write_bullet_and_variable_in_case_note("Assets", assets)
 call write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL_HEST)
