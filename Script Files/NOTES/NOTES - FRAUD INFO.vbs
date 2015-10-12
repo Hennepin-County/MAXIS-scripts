@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -57,58 +57,54 @@ END IF
 'DIM worker_signature
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog Fraud_Dialog, 0, 0, 211, 245, "Fraud Info"
+BeginDialog Fraud_Dialog, 0, 0, 211, 275, "Fraud Info"
   EditBox 65, 10, 90, 15, case_number
   EditBox 75, 30, 115, 15, referral_date
   EditBox 10, 65, 195, 15, referral_reason
   EditBox 10, 100, 195, 15, fraud_findings
   EditBox 10, 135, 195, 15, actions_taken
-  DropListBox 10, 170, 55, 15, "Select One..."+chr(9)+"Yes"+chr(9)+"No", overpayment_yn
-  EditBox 95, 200, 95, 15, worker_signature
+  DropListBox 10, 170, 55, 15, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"TBD", overpayment_yn
+  EditBox 100, 230, 95, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 95, 220, 50, 15
-    CancelButton 150, 220, 50, 15
+    OkButton 100, 250, 50, 15
+    CancelButton 155, 250, 50, 15
   Text 10, 15, 55, 10, "Case Number: "
   Text 10, 35, 65, 10, "Date referral made:"
   Text 10, 50, 110, 10, "Reason for referral (be specific):"
   Text 10, 85, 55, 10, "Fraud findings:"
   Text 10, 120, 50, 10, "Actions taken:"
   Text 10, 155, 50, 10, "Overpayment?"
-  Text 90, 155, 90, 35, "If yes for overpayment please use overpayment script to case note the specific details regarding it. "
-  Text 30, 205, 60, 10, "Worker Signature: "
+  Text 10, 190, 90, 35, "If yes for overpayment please use overpayment script to case note the specific details regarding it. "
+  Text 35, 235, 60, 10, "Worker Signature: "
+  Text 120, 155, 85, 50, "NOTE: You can type ; to seperate text with a new line in the case note. EX. 'This client; will need' would be written in two lines"
 EndDialog
 
+
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
-
+'connecting to MAXIS session and finding case number
 EMConnect ""
-
-'Finds the case number
 CALL MAXIS_case_number_finder(case_number)
-
-CALL check_for_MAXIS(True)
 
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	DO
-		Dialog fraud_dialog
-		IF buttonpressed = 0 THEN stopscript
-		IF case_number = "" THEN MsgBox "You must have a case number to continue!"
-		IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
-		IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
-	LOOP until case_number <> "" and worker_signature <> "" and (overpayment_yn = "Yes" or overpayment_yn ="No")
-	CALL check_for_MAXIS(TRUE)
-	CALL navigate_to_screen("case", "note")
-	PF9
-	EMReadscreen mode_check, 7, 20, 3
-	IF mode_check <> "Mode: A" AND mode_check <> "Mode: E" THEN MsgBox "For some reason, the script can't get to a case note. Did you start the script in inquiry by mistake? Navigate to MAXIS production, or shut down the script and try again."
-LOOP until mode_check = "Mode: A" OR mode_check = "Mode: E"
+	err_msg = ""
+	Dialog fraud_dialog
+	cancel_confirmation
+	IF case_number = "" THEN err_msg = "You must have a case number to continue!"
+	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
+	IF overpayment_yn = "Select One..." THEN err_msg = err_msg & vbNewLine & "You must select an option for overpayment."
+	IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+LOOP until err_msg = ""
 
-'debatable to include?
+
+'checking for an active MAXIS session
+CALL check_for_MAXIS(False)
+
 IF overpayment_yn = "Yes" THEN overpayment_yn = " Yes. See overpayment case note for more details."
 
-
 'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***Fraud Referral Info***")
 CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", referral_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Referral Reason", referral_reason)
@@ -119,10 +115,3 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 Script_end_procedure("")
-
-	
-
-
-
-
-

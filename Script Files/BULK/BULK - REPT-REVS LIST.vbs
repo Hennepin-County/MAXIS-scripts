@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -87,9 +87,7 @@ If buttonpressed = cancel then stopscript
 query_start_time = timer
 
 'Checking for MAXIS
-PF3
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then script_end_procedure("You appear to be locked out of MAXIS.")
+Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -181,7 +179,7 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_screen("rept", "revs")
+	Call navigate_to_MAXIS_screen("rept", "revs")
 	EMWriteScreen worker, 21, 6
 	transmit
 
@@ -203,13 +201,16 @@ For each worker in worker_array
 			Do			
 				EMReadScreen case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
-				EMReadScreen cash_status, 1, MAXIS_row, 35		'Reading cash status
+				EMReadScreen cash_status, 2, MAXIS_row, 34		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 45		'Reading SNAP status
 				EMReadScreen HC_status, 1, MAXIS_row, 49			'Reading HC status
 				EMReadScreen exempt_IR_status, 1, MAXIS_row, 51		'Reading exempt IR status
 				EMReadScreen MAGI_status, 8, MAXIS_row, 54		'Reading MAGI status
 				EMReadScreen revw_recd_date, 8, MAXIS_row, 62		'Reading review received date
 				EMReadScreen interview_date, 8, MAXIS_row, 72		'Reading interview date
+				
+				'Certain MAXIS users have inadvertently bent the laws of MAXIS physics and have cash_status in column 34 instead of 35. Here-in lies the fix.
+				cash_status = trim(replace(cash_status, " ", ""))
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do

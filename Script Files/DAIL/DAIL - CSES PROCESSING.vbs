@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -293,20 +293,7 @@ If row <> 0 then FS_active = "True"
 If row = 0 then FS_active = "False"
 
 'Now it gets to STAT/MEMB to associate the HH members with the PMIs
-EMWriteScreen "stat", 20, 22
-EMWriteScreen "memb", 20, 69
-transmit
-
-
-EMReadScreen stat_check, 4, 20, 21
-If stat_check <> "STAT" then
-  MsgBox "This case appears to have been abended. Press ''OK'', then transmit, then try this DAIL message again."
-  end_excel_and_script
-End if
-
-'The following checks for error prone cases.
-EMReadScreen ERRR_check, 4, 2, 52
-If ERRR_check = "ERRR" then transmit
+Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 
 'Now we're in STAT/MEMB, and the script will associate a PMI with that HH member.
 excel_row = 1 'setting the variable for the following Do...Loop

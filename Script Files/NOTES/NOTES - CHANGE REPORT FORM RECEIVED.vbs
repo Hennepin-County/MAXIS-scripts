@@ -1,4 +1,6 @@
 'Option Explicit
+name_of_script = "NOTES - CHANGE REPORT FORM RECEIVED.vbs"
+start_timer = timer
 
 'DIMMING VARIABLES
 'DIM url, req, fso, crf_received_dialog, case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
@@ -7,7 +9,7 @@
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -90,10 +92,8 @@ EndDialog
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------
-
 'Connect to Bluezone
 EMConnect ""
-
 'Grabs Maxis Case number
 CALL MAXIS_case_number_finder(case_number)
 
@@ -102,7 +102,7 @@ DO
 	DO
 		DO
 			Dialog crf_received_dialog
-			IF ButtonPressed = 0 THEN StopScript
+			cancel_confirmation
 			IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 		LOOP UNTIL worker_signature <> ""
 		IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
@@ -110,19 +110,13 @@ DO
 	IF changes_continue = "Select One..." THEN MsgBox "You Must Select 'The changes client reports field'"
 LOOP UNTIL changes_continue <> "Select One..."
 
-
-
 'Checks Maxis for password prompt
-CALL check_for_MAXIS(True)
+CALL check_for_MAXIS(FALSE)
 
 
+'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Navigates to case note
-CALL navigate_to_screen("CASE", "NOTE")
-
-'Sends a PF9
-PF9
-
-'Writes the case note
+Call start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note ("***Change Report Form Received***")
 CALL write_bullet_and_variable_in_case_note("Date Form Received", date_received)
 CALL write_bullet_and_variable_in_case_note("Address", address_notes)
@@ -140,12 +134,11 @@ IF changes_continue <> "select one..." THEN CALL write_bullet_and_variable_in_ca
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 IF tikl_nav_check = 1 THEN
-	CALL navigate_to_screen("DAIL", "WRIT")
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
 END IF
 
-CALL script_end_procedure("")
+script_end_procedure("")

@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -58,11 +58,8 @@ BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
 EndDialog
 
 
-
-
-
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
-
 'Hunts for Maxis case number to autofill it
 Call MAXIS_case_number_finder(case_number)
 
@@ -84,15 +81,10 @@ footer_year = right(datepart("YYYY", date), 2)
 IF LEN(memb_number) <> 2 THEN memb_number = "0" & memb_number
 
 'Error proof functions
-Maxis_check_function
-MAXIS_background_check
-
-
+Call check_for_MAXIS(False)
 
 'Navigate to stat/memb and check for ERRR message
-CALL Navigate_to_screen("STAT", "MEMB")
-ERRR_screen_check
-
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 'Navigating to selected memb panel
 EMwritescreen memb_number, 20, 76
 transmit
@@ -116,7 +108,7 @@ Middle_initial = replace(Middle_initial, "_", "")
 
 'Navigate back to self and to EDRS
 Back_to_self
-CALL Navigate_to_screen("INFC", "EDRS")
+CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 
 'Write in SSN number into EDRS
 EMwritescreen SSN_number, 2, 7
@@ -139,6 +131,4 @@ ELSE
 	MSGBOX "SSN number has a match"        'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
 END IF
 
-
 script_end_procedure("")
-

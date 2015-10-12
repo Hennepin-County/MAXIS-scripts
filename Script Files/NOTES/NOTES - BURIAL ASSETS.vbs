@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -50,7 +50,7 @@ END IF
 BeginDialog opening_dialog_01, 0, 0, 311, 425, "LTC Burial Assets"
   EditBox 80, 20, 70, 15, case_number
   EditBox 70, 40, 80, 15, hh_member
-  EditBox 120, 60, 100, 15, worker_sig
+  EditBox 120, 60, 100, 15, worker_signature
   DropListBox 155, 110, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
   EditBox 90, 130, 80, 15, account_identifier
   EditBox 195, 150, 95, 15, why_not_seperated
@@ -327,11 +327,11 @@ DO
 		  IF len(case_number) > 8 THEN MSGBOX "You must provide a valid case number -- less than 8 digits."
 		  IF isnumeric(case_number) = FALSE THEN MSGBOX "Please provide a valid case number -- no letters or special characters."
 		  IF hh_member = "" THEN MSGBOX "Please provide a household member."
-		  IF worker_sig = "" THEN MSGBOX "Please sign your case note."
+		  IF worker_signature = "" THEN MSGBOX "Please sign your case note."
             LOOP UNTIL isnumeric(case_number) = TRUE
           LOOP UNTIL len(case_number) < 9
         LOOP UNTIL hh_member <> ""
-      LOOP UNTIL worker_sig <> ""
+      LOOP UNTIL worker_signature <> ""
     LOOP UNTIL isnumeric(counted_value_designated) = TRUE OR counted_value_designated = ""
   LOOP UNTIL isnumeric(insurance_counted_value) = TRUE OR insurance_counted_value = ""
 Do
@@ -509,7 +509,7 @@ DIM MAXIS_col
 
 
 'NOTE: "Other" sections need to be included in correct sections. 
-EMSendKey "**BURIAL ASSETS -- Memb " + hh_member + "<newline>"
+CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member)
 IF type_of_designated_account <> "None" then
 	call write_variable_in_case_note("---Designated Account----")
 	call write_bullet_and_variable_in_case_note("Type of designated account", type_of_designated_account)
@@ -543,115 +543,97 @@ IF type_of_burial_agreement <> "None" THEN
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "     Basic service funeral director:", 44, "$" & basic_service_funeral_director_value, 59, basic_service_funeral_director_status)
 	End if	
-	new_page_check
+	
 	case_note_page_four
 	If embalming_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                          Embalming:", 44, "$" & embalming_value, 59, embalming_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If other_preparation_to_body_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "          Other preparation to body:", 44, "$" & other_preparation_to_body_value, 59, other_preparation_to_body_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If visitation_at_funeral_chapel_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "       Visitation at funeral chapel:", 44, "$" & visitation_at_funeral_chapel_value, 59, visitation_at_funeral_chapel_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If visitation_at_other_facility_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "       Visitation at other facility:", 44, "$" & visitation_at_other_facility_value, 59, visitation_at_other_facility_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If funeral_serv_at_funeral_chapel_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "     Funeral serv at funeral chapel:", 44, "$" & funeral_serv_at_funeral_chapel_value, 59, funeral_serv_at_funeral_chapel_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If funeral_serv_at_other_facility_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "     Funeral serv at other facility:", 44, "$" & funeral_serv_at_other_facility_value, 59, funeral_serv_at_other_facility_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If memorial_serv_at_funeral_chapel_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "    Memorial serv at funeral chapel:", 44, "$" & memorial_serv_at_funeral_chapel_value, 59, memorial_serv_at_funeral_chapel_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If memorial_serv_at_other_facility_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "    Memorial serv at other facility:", 44, "$" & memorial_serv_at_other_facility_value, 59, memorial_serv_at_other_facility_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If graveside_service_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                  Graveside service:", 44, "$" & graveside_service_value, 59, graveside_service_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If transfer_remains_to_funeral_home_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "   Transfer remains to funeral home:", 44, "$" & transfer_remains_to_funeral_home_value, 59, transfer_remains_to_funeral_home_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If funeral_coach_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                      Funeral coach:", 44, "$" & funeral_coach_value, 59, funeral_coach_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If funeral_sedan_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                      Funeral sedan:", 44, "$" & funeral_sedan_value, 59, funeral_sedan_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If service_vehicle_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                    Service vehicle:", 44, "$" & service_vehicle_value, 59, service_vehicle_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If forwarding_of_remains_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "              Forwarding of remains:", 44, "$" & forwarding_of_remains_value, 59, forwarding_of_remains_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If receiving_of_remains_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "               Receiving of remains:", 44, "$" & receiving_of_remains_value, 59, receiving_of_remains_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If direct_cremation_check = 1 then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                   Direct cremation:", 44, "$" & direct_cremation_value, 59, direct_cremation_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If other_01 <> "" and other_01_type = "service" then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If other_02 <> "" and other_02_type = "service" then 
 	  new_service_heading
 	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
 	End if
-	new_page_check
 	case_note_page_four
 	CALL write_variable_in_case_note("--------BURIAL SPACE/ITEMS---------------AMOUNT----------STATUS------------")
 	case_note_page_four
@@ -659,80 +641,67 @@ IF type_of_burial_agreement <> "None" THEN
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                  Markers headstone:", 44, "$" & markers_headstone_value, 59, markers_headstone_status)
 	End if	
-	new_page_check
 	case_note_page_four
 	If engraving_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                          Engraving:", 44, "$" & engraving_value, 59, engraving_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If opening_closing_of_space_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "           Opening closing of space:", 44, "$" & opening_closing_of_space_value, 59, opening_closing_of_space_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If perpetual_care_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                     Perpetual care:", 44, "$" & perpetual_care_value, 59, perpetual_care_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If casket_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                             Casket:", 44, "$" & casket_value, 59, casket_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If vault_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                              Vault:", 44, "$" & vault_value, 59, vault_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If cemetery_plot_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                      Cemetery plot:", 44, "$" & cemetery_plot_value, 59, cemetery_plot_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If crypt_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                              Crypt:", 44, "$" & crypt_value, 59, crypt_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If mausoleum_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                          Mausoleum:", 44, "$" & mausoleum_value, 59, mausoleum_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If urns_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                               Urns:", 44, "$" & urns_value, 59, urns_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If niches_check = 1 then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                             Niches:", 44, "$" & niches_value, 59, niches_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If other_01 <> "" and other_01_type = "BS-BSI" then 
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If other_02 <> "" and other_02_type = "BS-BSI" then 
 	  new_BS_BSI_heading
 	  other_02_length = len(other_02)
 	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
 	End if
-	new_page_check
 	case_note_page_four
 	CALL write_variable_in_case_note("--------CASH ADVANCE ITEMS---------------AMOUNT----------STATUS------------")
 	case_note_page_four
@@ -740,101 +709,81 @@ IF type_of_burial_agreement <> "None" THEN
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "        Certified death certificate:", 44, "$" & certified_death_certificate_value, 59, certified_death_certificate_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If motor_escort_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                       Motor escort:", 44, "$" & motor_escort_value, 59, motor_escort_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If clergy_honorarium_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                  Clergy honorarium:", 44, "$" & clergy_honorarium_value, 59, clergy_honorarium_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If music_honorarium_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                   Music honorarium:", 44, "$" & music_honorarium_value, 59, music_honorarium_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If flowers_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                            Flowers:", 44, "$" & flowers_value, 59, flowers_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If obituary_notice_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                    Obituary notice:", 44, "$" & obituary_notice_value, 59, obituary_notice_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If crematory_charges_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                  Crematory charges:", 44, "$" & crematory_charges_value, 59, crematory_charges_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If acknowledgement_card_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "               Acknowledgement card:", 44, "$" & acknowledgement_card_value, 59, acknowledgement_card_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If register_book_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                      Register book:", 44, "$" & register_book_value, 59, register_book_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If service_folders_prayer_cards_check = 1 then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "       Service folders prayer cards:", 44, "$" & service_folders_prayer_cards_value, 59, service_folders_prayer_cards_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If other_01 <> "" and other_01_type = "CAI" then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
 	End if
-	new_page_check
 	case_note_page_four
 	If other_02 <> "" and other_02_type = "CAI" then 
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
 	End if
-	new_page_check
 	case_note_page_four
-	EMSendKey "---------------------------------------------------------------------------" & "<newline>"
-	new_page_check
+	CALL write_variable_in_case_note( "---------------------------------------------------------------------------") ' & "<newline>"
 	case_note_page_four
-	EMSendKey "* Total service amount: $" & total_service_amount & "<newline>"
-	new_page_check
+	CALL write_variable_in_case_note( "* Total service amount: $" & total_service_amount) ' & "<newline>"
 	case_note_page_four
-	EMSendKey "* Total BS/BSI excluded amount: $" & total_BS_BSI_excluded_amount & "<newline>"
-	new_page_check
+	CALL write_variable_in_case_note( "* Total BS/BSI excluded amount: $" & total_BS_BSI_excluded_amount) ' & "<newline>"
 	case_note_page_four
-	EMSendKey "* Total unavailable CAI: $" & total_unavailable_CAI_amount & "<newline>"
+	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & total_unavailable_CAI_amount) ' & "<newline>"
 END IF
 
-new_page_check
+
 case_note_page_four	
-EMSendKey "---------------------------------------------------------------------------" & "<newline>"
-new_page_check
+CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
 case_note_page_four
-EMSendKey "* Total counted amount: $" & total_counted_amount & "<newline>"
-new_page_check
+CALL write_variable_in_case_note( "* Total counted amount: $" & total_counted_amount) ' & "<newline>"
 case_note_page_four
-EMSendKey "* Actions taken: " & case_action & "<newline>"
-new_page_check
+CALL write_variable_in_case_note( "* Actions taken: " & case_action) ' & "<newline>"
 case_note_page_four
-EMSendKey "---" & "<newline>"
-new_page_check
+CALL write_variable_in_case_note("---")
 case_note_page_four
-EMSendKey worker_sig & "<newline>"
+CALL write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
-

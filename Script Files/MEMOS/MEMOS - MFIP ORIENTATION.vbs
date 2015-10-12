@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -82,44 +82,44 @@ call MAXIS_case_number_finder(case_number)
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 Do
-	Do
-		Do 
-			Do
-				Do 
+	Do 
+		Do
+			Do 
+				Do
 					Do
 						Do
-							Do
-								Dialog MFIP_orientation_dialog
-								If ButtonPressed = cancel then stopscript
-								If buttonPressed = refresh_button then
-									IF interview_location <> "" then 
-										call assign_county_address_variables(county_address_line_01, county_address_line_02)
-										MFIP_address_line_01 = county_address_line_01
-										MFIP_address_line_02 = county_address_line_02
-									End if
+							Dialog MFIP_orientation_dialog
+							cancel_confirmation
+							If buttonPressed = refresh_button then
+								IF interview_location <> "" then 
+									call assign_county_address_variables(county_address_line_01, county_address_line_02)
+									MFIP_address_line_01 = county_address_line_01
+									MFIP_address_line_02 = county_address_line_02
 								End if
-							Loop until ButtonPressed = OK
-							If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-						Loop until isnumeric(case_number) = True and len(case_number) <= 8
-						If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
-					Loop until isdate(orientation_date) = True 
-					If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
-				Loop until orientation_time <> ""
-				If member_list = "" then MsgBox "You must enter at least one household member to attend the interview."
-			Loop until member_list <> ""
-			If worker_signature = "" then MsgBox "You must provide a signature for your case note."
-		Loop until worker_signature <> ""
-		If MFIP_address_line_01 = "" or MFIP_address_line_02 = "" then MsgBox "You must enter an orientation address. Select one from the list, or enter one manually. Please note that the list fills in from intake locations, and may not be accurate in all agencies."
-	Loop until MFIP_address_line_01 <> "" and MFIP_address_line_02 <> ""
-	transmit
-	EMReadScreen MAXIS_check, 5, 1, 39
-	IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You need to be in MAXIS for this to work. Please try again."
-Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+							End if
+						Loop until ButtonPressed = OK
+						If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+					Loop until isnumeric(case_number) = True and len(case_number) <= 8
+					If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
+				Loop until isdate(orientation_date) = True 
+				If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
+			Loop until orientation_time <> ""
+			If member_list = "" then MsgBox "You must enter at least one household member to attend the interview."
+		Loop until member_list <> ""
+		If worker_signature = "" then MsgBox "You must provide a signature for your case note."
+	Loop until worker_signature <> ""
+	If MFIP_address_line_01 = "" or MFIP_address_line_02 = "" then MsgBox "You must enter an orientation address. Select one from the list, or enter one manually. Please note that the list fills in from intake locations, and may not be accurate in all agencies."
+Loop until MFIP_address_line_01 <> "" and MFIP_address_line_02 <> ""
+transmit
+
+'checking for active MAXIS session
+Call check_for_MAXIS(False)
+
 
 'Creating an array from the member number list to get names for notice
 member_array = split(member_list, ",") 
 	for each member in member_array
-		call navigate_to_screen("STAT", "MEMB")
+		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		member = replace(member, " ", "")
 		if len(member) = 1 then member = "0" & member
 		EMWriteScreen member, 20, 76
@@ -131,14 +131,8 @@ member_array = split(member_list, ",")
 		if members_to_attend = "" then members_to_attend = member_name
 	next
 
-
-
 'Navigating to SPEC/MEMO
-call navigate_to_screen("SPEC", "MEMO")
-
-'This checks to make sure we've moved passed SELF.
-EMReadScreen SELF_check, 27, 2, 28
-If SELF_check = "Select Function Menu (SELF)" then script_end_procedure("An error has occurred preventing the script from moving past the SELF menu. Your case might be in background. Check for errors and try again.")
+call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 'Creates a new MEMO. If it's unable the script will stop.
 PF5
@@ -157,16 +151,11 @@ call write_variable_in_SPEC_MEMO(county_address_line_01)
 call write_variable_in_SPEC_MEMO(county_address_line_02) 
 call write_variable_in_SPEC_MEMO("If you cannot attend this orientation, please contact the agency office to reschedule.  Failure to attend an orientation will result in a sanction of your MFIP benefits.")
 call write_variable_in_SPEC_MEMO("************************************************************")
-
 'Exits the MEMO
 PF4
 
-'Navigates to CASE/NOTE
-call navigate_to_screen("case", "note")
-PF9
-
-'Writes the case note
-
+'Writes the case note----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
 call write_variable_in_case_note("* Financial Orientation letter sent via SPEC/MEMO. *")
 call write_variable_in_case_note("Orientation is scheduled on: " & orientation_date & " at " & orientation_time)
 call write_variable_in_case_note("Location: " & interview_location)
@@ -174,5 +163,4 @@ call write_bullet_and_variable_in_case_note("Household members needing to attend
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-'Script ends
-script_end_procedure("")
+script_end_procedure("")	'Script ends

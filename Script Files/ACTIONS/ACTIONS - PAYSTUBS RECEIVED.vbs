@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -47,21 +47,6 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CUSTOM FUNCTIONS
-
-Function PIC_paystubs_info_adder(pay_date, gross_amt, hours)
-	If isdate(pay_date) = True then
-		CALL create_MAXIS_friendly_date(pay_date, 0, PIC_row, 13)
-		EMWriteScreen gross_amt, PIC_row, 25
-		EMWriteScreen hours, PIC_row, 35
-		PIC_row = PIC_row + 1
-		IF PIC_row = 14 THEN
-			PF20
-			PF20
-			PIC_row = 9
-		END IF 
-	End If
-End function
-
 Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, total_prospective_pay, total_prospective_hours) 'Creates variables for total_prospective_pay and total_prospective_hours
   If isdate(pay_date) = True then
     total_prospective_pay = total_prospective_pay + abs(gross_amt)
@@ -113,7 +98,7 @@ End function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 '>>>>> This function creates the dialog that the user inputs all the pay stub information.
-FUNCTION create_paystubs_received_dialog(number_of_paystubs, paystubs_array)
+FUNCTION create_paystubs_received_dialog(worker_signature, number_of_paystubs, paystubs_array, explanation_of_income, employer_name, document_datestamp, pay_frequency, JOBS_verif_code)
 	'Declaring the multi-dimensional array for handling pay information
 	ReDim paystubs_array(number_of_paystubs - 1, 2)
 
@@ -199,8 +184,6 @@ BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
   Text 30, 115, 120, 10, "future months and send through BG."
 EndDialog
 
-'Declaring arguments that get pulled through the custom function create_paystubs_received_dialog
-DIM worker_signature, explanation_of_income, employer_name, document_datestamp, pay_frequency
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
@@ -239,7 +222,7 @@ DO
 	EMReadScreen STAT_footer_year_check, 2, 20, 58
 	If STAT_check <> "STAT" or trim(replace(STAT_case_number, "_", "")) <> case_number or STAT_footer_month_check <> footer_month or STAT_footer_year_check <> footer_year then back_to_SELF
 	
-	call navigate_to_screen("stat", "jobs")
+	call navigate_to_MAXIS_screen("stat", "jobs")
 	
 	'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
 	EMReadScreen SELF_check, 4, 2, 50
@@ -292,7 +275,7 @@ LOOP UNTIL ButtonPressed = -1 AND number_of_paystubs <> "" AND IsNumeric(number_
 'Shows the paystub dialog. Includes logic to prevent paydates from being entered incorrectly.
 
 DO
-	CALL create_paystubs_received_dialog(number_of_paystubs, paystubs_array)
+	CALL create_paystubs_received_dialog(worker_signature, number_of_paystubs, paystubs_array, explanation_of_income, employer_name, document_datestamp, pay_frequency, JOBS_verif_code)
 
 	err_msg = ""
 	'Checking dates to make sure all are on the same day of the week, in instances of weekly or biweekly income. This avoids a possible issue
@@ -365,57 +348,69 @@ Do
 			EMWriteScreen "x", 19, 38
 			transmit
 		
-		'Determining if there is a page 2 on the PIC
-		PF20
-		EMReadScreen complete_the_page, 17, 20, 6
-		IF complete_the_page <> "COMPLETE THE PAGE" THEN 
-			FOR a = 9 to 13
-				EMSetCursor a, 13
-				EMSendKey "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>"
+			'Determining if there is a page 2 on the PIC
+			PF20
+			EMReadScreen complete_the_page, 17, 20, 6
+			IF complete_the_page <> "COMPLETE THE PAGE" THEN 
+				FOR a = 9 to 13
+					EMSetCursor a, 13
+					EMSendKey "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>"
+				NEXT
+				PF19
+				PF19
+			END IF
+			'Clears existing info off PIC
+			EMSendKey "<home>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>"
+	
+			'The following will generate a MAXIS formatted date for today. 
+			current_day = DatePart("D", date)
+			If len(current_day) = 1 then current_day = "0" & current_day
+			current_month = DatePart("M", date)
+			If len(current_month) = 1 then current_month = "0" & current_month
+			current_year = right(DatePart("yyyy", date), 2)
+			'Puts current date and pay frequency in PIC.
+			CALL create_MAXIS_friendly_date(date, 0, 5, 34)
+			If pay_frequency = "One Time Per Month" then EMWriteScreen "1", 5, 64
+			If pay_frequency = "Two Times Per Month" then EMWriteScreen "2", 5, 64
+			If pay_frequency = "Every Other Week" then EMWriteScreen "3", 5, 64
+			If pay_frequency = "Every Week" then EMWriteScreen "4", 5, 64
+			'Sets PIC row for the next functions
+			DIM PIC_row
+			PIC_row = 9
+			'Uses function to add each PIC pay date, income, and hours. Doesn't add any if they show "01/01/2000" as those are dummy numbers
+			FOR i = 0 to (number_of_paystubs - 1)
+				IF paystubs_array(i, 0) <> "01/01/2000" THEN 
+					If isdate(paystubs_array(i, 0)) = True then
+						CALL create_MAXIS_friendly_date(paystubs_array(i, 0), 0, PIC_row, 13)
+						EMWriteScreen paystubs_array(i, 1), PIC_row, 25
+						EMWriteScreen paystubs_array(i, 2), PIC_row, 35
+						PIC_row = PIC_row + 1
+						IF PIC_row = 14 THEN
+							PF20
+							PF20
+							PIC_row = 9
+						END IF 
+					End If
+				END IF
 			NEXT
-			PF19
-			PF19
+			
+			'Transmits in order to format the PIC
+			transmit
+			transmit  
+			'Reads the contents of the PIC for case noting.
+			EMReadScreen PIC_line_01, 26, 5, 49
+			EMReadScreen PIC_line_02, 28, 8, 13
+			EMReadScreen PIC_line_03, 28, 9, 13
+			EMReadScreen PIC_line_04, 28, 10, 13
+			EMReadScreen PIC_line_05, 28, 11, 13
+			EMReadScreen PIC_line_06, 28, 12, 13
+			EMReadScreen PIC_line_07, 28, 13, 13
+			EMReadScreen PIC_line_08, 28, 14, 13
+			EMReadScreen PIC_line_09, 50, 16, 22
+			EMReadScreen PIC_line_10, 50, 17, 22
+			EMReadScreen PIC_line_11, 50, 18, 22
+			transmit
 		END IF
-		'Clears existing info off PIC
-		EMSendKey "<home>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>"
-
-		'The following will generate a MAXIS formatted date for today. 
-		current_day = DatePart("D", date)
-		If len(current_day) = 1 then current_day = "0" & current_day
-		current_month = DatePart("M", date)
-		If len(current_month) = 1 then current_month = "0" & current_month
-		current_year = right(DatePart("yyyy", date), 2)
-		'Puts current date and pay frequency in PIC.
-		CALL create_MAXIS_friendly_date(date, 0, 5, 34)
-		If pay_frequency = "One Time Per Month" then EMWriteScreen "1", 5, 64
-		If pay_frequency = "Two Times Per Month" then EMWriteScreen "2", 5, 64
-		If pay_frequency = "Every Other Week" then EMWriteScreen "3", 5, 64
-		If pay_frequency = "Every Week" then EMWriteScreen "4", 5, 64
-		'Sets PIC row for the next functions
-		DIM PIC_row
-		PIC_row = 9
-		'Uses function to add each PIC pay date, income, and hours. Doesn't add any if they show "01/01/2000" as those are dummy numbers
-		FOR i = 0 to (number_of_paystubs - 1)
-			IF paystubs_array(i, 0) <> "01/01/2000" THEN CALL PIC_paystubs_info_adder(paystubs_array(i, 0), paystubs_array(i, 1), paystubs_array(i, 2))
-		NEXT
-		
-		'Transmits in order to format the PIC
-		transmit
-		transmit  
-		'Reads the contents of the PIC for case noting.
-		EMReadScreen PIC_line_01, 26, 5, 49
-		EMReadScreen PIC_line_02, 28, 8, 13
-		EMReadScreen PIC_line_03, 28, 9, 13
-		EMReadScreen PIC_line_04, 28, 10, 13
-		EMReadScreen PIC_line_05, 28, 11, 13
-		EMReadScreen PIC_line_06, 28, 12, 13
-		EMReadScreen PIC_line_07, 28, 13, 13
-		EMReadScreen PIC_line_08, 28, 14, 13
-		EMReadScreen PIC_line_09, 50, 16, 22
-		EMReadScreen PIC_line_10, 50, 17, 22
-		EMReadScreen PIC_line_11, 50, 18, 22
-		transmit
-	END IF
   End if
   
   
@@ -469,7 +464,6 @@ Do
 			If pay_frequency = "Every Week" then first_prospective_pay_date = dateadd("d", -7, first_prospective_pay_date)
 		Loop until datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0
 	End if
-  
 	'This checks to make sure the earliest possible paydate is selected in each prospective month.
 	If pay_frequency = "Two Times Per Month" or pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then 
 		Do
@@ -514,7 +508,6 @@ Do
 			total_prospective_dates = total_prospective_dates + 1
 		End if
 	Loop until datediff("m", prospective_pay_date, footer_month & "/01/" & footer_year) <> 0
-
 	'Updates pay frequency
 	If pay_frequency = "One Time Per Month" then EMWriteScreen "1", 18, 35
 	If pay_frequency = "Two Times Per Month" then EMWriteScreen "2", 18, 35

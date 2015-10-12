@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -72,14 +72,14 @@ BeginDialog exp_screening_dialog, 0, 0, 181, 210, "Expedited Screening Dialog"
 EndDialog
 
 'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-If date >= cdate("10/01/2014") then			'these variables need to change in October 2014, and subsequently every October
+If date >= cdate("10/01/2015") then			'these variables need to change in October 2014, and subsequently every October
+	heat_AC_amt = 454
+	electric_amt = 141
+	phone_amt = 38
+Else
 	heat_AC_amt = 450
 	electric_amt = 150
 	phone_amt = 38
-Else
-	heat_AC_amt = 459
-	electric_amt = 140
-	phone_amt = 40
 End if
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ Do
 Loop until worker_signature <> ""
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(FALSE)
 
 'LOGIC AND CALCULATIONS----------------------------------------------------------------------------------------------------
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
@@ -142,9 +142,14 @@ Else
 	has_DISQ = True
 End if
 
+'Reads MONY/DISB to see if EBT account is open 
+IF expedited_status = "client appears expedited" THEN 
+	Call navigate_to_MAXIS_screen("MONY", "DISB")
+	EMReadScreen EBT_account_status, 1, 14, 27
+END IF 
+
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
-'Body of the case note 
 Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
@@ -154,6 +159,8 @@ call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & uti
 call write_variable_in_CASE_NOTE("---")
 If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
 If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+If expedited_status = "client appears expedited" AND EBT_account_status = "Y" then call write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
+If expedited_status = "client appears expedited" AND EBT_account_status = "N" then call write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 If expedited_status = "client appears expedited" then

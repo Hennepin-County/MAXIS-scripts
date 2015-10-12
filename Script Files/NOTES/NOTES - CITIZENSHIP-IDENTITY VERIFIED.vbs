@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -47,8 +47,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 
-'DIALOGS-------------------------------------------------------------------
-
+'DIALOG-------------------------------------------------------------------
 BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
   Text 5, 10, 50, 10, "Case number:"
   EditBox 60, 5, 75, 15, case_number
@@ -89,7 +88,7 @@ BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
   ComboBox 170, 180, 85, 15, "(select or type here)"+chr(9)+"Elect. verif."+chr(9)+"Birth Certificate"+chr(9)+"Nat. papers"+chr(9)+"US passport", cit_proof_08
   ComboBox 260, 180, 85, 15, "(select or type here)"+chr(9)+"Elect. verif."+chr(9)+"Drivers License"+chr(9)+"State ID"+chr(9)+"School ID"+chr(9)+"Parent Signature"+chr(9)+"US passport", ID_proof_08
   Text 5, 205, 65, 10, "Sign the case note:"
-  EditBox 75, 200, 95, 15, worker_sig
+  EditBox 75, 200, 95, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 195, 200, 50, 15
     CancelButton 250, 200, 50, 15
@@ -97,50 +96,34 @@ EndDialog
 
 
 'THE SCRIPT------------------------------------------------------------------------------------------
-
-'Connecting to BlueZone
+'Connecting to BlueZone & finding case number
 EMConnect ""
-
-'Checking for MAXIS
-maxis_check_function
-
-'Searching for case number
 call MAXIS_case_number_finder(case_number)
 
-'Show the dialog, determine if it's filled out correctly (at least one line must be filled out), then navigating to a blank case note.
+'Show the dialog, determine if it's filled out correctly (at least one line must be filled out)
 Do
-	Do
-		Do
-			Dialog cit_ID_dialog
-			If buttonpressed = 0 then stopscript
-			If (HH_memb_01 <> "" and (exempt_reason_01 = "(select or type here)" and (cit_proof_01 = "(select or type here)" or ID_proof_01 = "(select or type here)"))) or _
-			   (HH_memb_02 <> "" and (exempt_reason_02 = "(select or type here)" and (cit_proof_02 = "(select or type here)" or ID_proof_02 = "(select or type here)"))) or _
-			   (HH_memb_03 <> "" and (exempt_reason_03 = "(select or type here)" and (cit_proof_03 = "(select or type here)" or ID_proof_03 = "(select or type here)"))) or _
-			   (HH_memb_04 <> "" and (exempt_reason_04 = "(select or type here)" and (cit_proof_04 = "(select or type here)" or ID_proof_04 = "(select or type here)"))) or _
-			   (HH_memb_05 <> "" and (exempt_reason_05 = "(select or type here)" and (cit_proof_05 = "(select or type here)" or ID_proof_05 = "(select or type here)"))) or _
-			   (HH_memb_06 <> "" and (exempt_reason_06 = "(select or type here)" and (cit_proof_06 = "(select or type here)" or ID_proof_06 = "(select or type here)"))) or _
-			   (HH_memb_07 <> "" and (exempt_reason_07 = "(select or type here)" and (cit_proof_07 = "(select or type here)" or ID_proof_07 = "(select or type here)"))) or _
-			   (HH_memb_08 <> "" and (exempt_reason_08 = "(select or type here)" and (cit_proof_08 = "(select or type here)" or ID_proof_08 = "(select or type here)"))) then
-				can_move_on = False
-		      Else
-				can_move_on = True
-			End if
-			If can_move_on = False then MsgBox "You must select a cit and ID proof for each client whose name you've typed."
-		Loop until can_move_on = True
-		transmit
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS" then MsgBox "You are not in MAXIS. Navigate your ''S1'' screen to MAXIS and try again. You might be passworded out."
-	Loop until MAXIS_check = "MAXIS"
-	EMReadScreen mode_check, 7, 20, 3
-	If mode_check <> "Mode: A" and mode_check <> "Mode: E" then
-		call navigate_to_screen("case", "note")
-		PF9
-		EMReadScreen mode_check, 7, 20, 3
-		If mode_check <> "Mode: A" and mode_check <> "Mode: E" then MsgBox "The script doesn't appear to be able to find your case note. Are you in inquiry? If so, navigate to production on the screen where you clicked the script button, and try again. Otherwise, you might have forgotten to type a valid case number."
+	Dialog cit_ID_dialog
+	If buttonpressed = 0 then stopscript
+	If (HH_memb_01 <> "" and (exempt_reason_01 = "(select or type here)" and (cit_proof_01 = "(select or type here)" or ID_proof_01 = "(select or type here)"))) or _
+	   (HH_memb_02 <> "" and (exempt_reason_02 = "(select or type here)" and (cit_proof_02 = "(select or type here)" or ID_proof_02 = "(select or type here)"))) or _
+	   (HH_memb_03 <> "" and (exempt_reason_03 = "(select or type here)" and (cit_proof_03 = "(select or type here)" or ID_proof_03 = "(select or type here)"))) or _
+	   (HH_memb_04 <> "" and (exempt_reason_04 = "(select or type here)" and (cit_proof_04 = "(select or type here)" or ID_proof_04 = "(select or type here)"))) or _
+	   (HH_memb_05 <> "" and (exempt_reason_05 = "(select or type here)" and (cit_proof_05 = "(select or type here)" or ID_proof_05 = "(select or type here)"))) or _
+	   (HH_memb_06 <> "" and (exempt_reason_06 = "(select or type here)" and (cit_proof_06 = "(select or type here)" or ID_proof_06 = "(select or type here)"))) or _
+	   (HH_memb_07 <> "" and (exempt_reason_07 = "(select or type here)" and (cit_proof_07 = "(select or type here)" or ID_proof_07 = "(select or type here)"))) or _
+	   (HH_memb_08 <> "" and (exempt_reason_08 = "(select or type here)" and (cit_proof_08 = "(select or type here)" or ID_proof_08 = "(select or type here)"))) then
+		can_move_on = False
+      Else
+		can_move_on = True
 	End if
-Loop until mode_check = "Mode: A" or mode_check = "Mode: E"
+	If can_move_on = False then MsgBox "You must select a cit and ID proof for each client whose name you've typed."
+Loop until can_move_on = True
 
-'Case noting
+'checking for active MAXIS session
+Call check_for_MAXIS(False)
+
+'Case noting & navigating to a new case note
+Call start_a_blank_CASE_NOTE
 EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
 EMSendKey string(77, "-") 
 EMSendKey "    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF" & "<newline>"
@@ -202,13 +185,7 @@ If HH_memb_08 <> "" then
 End if
 EMSetCursor 15, 3
 EMSendKey string(77, "-") & "<newline>"
-Call write_new_line_in_case_note(worker_sig)
+Call write_variable_in_CASE_NOTE(worker_signature)
 
 'End the script
 script_end_procedure("")
-
-
-
-
-
-

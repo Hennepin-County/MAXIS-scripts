@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -122,9 +122,6 @@ DO
 	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
 LOOP UNTIL IsNumeric(case_number) = TRUE
 
-'Checks for MAXIS
-call check_for_MAXIS(True)
-
 
 'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do
@@ -132,6 +129,12 @@ Do
 	cancel_confirmation
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
 LOOP UNTIL worker_signature <> ""  
+
+'Checks for MAXIS
+call check_for_MAXIS(False)
+'checking to make sure case is out of background
+MAXIS_background_check
+
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -148,39 +151,46 @@ If TIKL_check = 1 then
 End if
 
 
-'The CASE NOTE----------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
-If processed_1503_check = 1 then 
-  call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI & "***")
-Else
-  call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***")
+'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
+'FACI
+If FACI_update_check = 1 then
+	call navigate_to_MAXIS_screen("stat", "faci")
+	EMReadScreen panel_max_check, 1, 2, 78
+	IF panel_max_check = "5" THEN 
+		script_end_procedure ("This case has reached the maximum amount of FACI panels.  Please review your case, delete an appropriate FACI panel, and run the script again.  Thank you.")
+	ELSE
+		EMWriteScreen "nn", 20, 79
+		transmit
+	END IF 
+	EMWriteScreen FACI, 6, 43
+	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
+	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
+	If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
+	If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
+	If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	EMWriteScreen "n", 8, 43
+	Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
+	If discharge_date<> "" then
+		Call create_MAXIS_friendly_date_with_YYYY(discharge_date, 0, 14, 71)
+		transmit
+		transmit
+	End if
 End if
-Call write_bullet_and_variable_in_case_note("Length of stay", length_of_stay)
-Call write_bullet_and_variable_in_case_note("Recommended level of care", level_of_care)
-Call write_bullet_and_variable_in_case_note("Admitted from", admitted_from)
-If hospital_admitted_from <> "" then Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_admitted_from)
-Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
-If discharge_date <> "" then Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
-Call write_variable_in_CASE_NOTE("---")
-If updated_RLVA_check = 1 and updated_FACI_check = 1 then 
-Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
-Else
-  If updated_RLVA_check = 1 then Call write_variable_in_case_note("* Updated RLVA.")
-  If updated_FACI_check = 1 then Call write_variable_in_case_note("* Updated FACI.")
-End if
-If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed for the client.")
-If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
-If need_asset_assessment_check = 1 then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
-If sent_3050_check = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
-If verifs_needed <> "" then Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
-If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
-If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
-If TIKL_check = 1 then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")
-Call write_variable_in_case_note("---")
-Call write_bullet_and_variable_in_case_note("Notes", notes)
-Call write_variable_in_case_note("---")
-Call write_variable_in_case_note(worker_signature)
-transmit
+
+
+'HCMI
+If HCMI_update_check = 1 THEN
+	call navigate_to_MAXIS_screen("stat", "hcmi") 
+	EMWriteScreen "dp", 10, 57
+	transmit
+	transmit
+END IF
+
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -194,40 +204,38 @@ If TIKL_check = 1 then
   PF3
 End if
 
-'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
-'HCMI
-If HCMI_update_check = 1 THEN
-  call navigate_to_MAXIS_screen("stat", "hcmi")
-  Call create_panel_if_nonexistent
-  EMWriteScreen "dp", 10, 57
-  transmit
-  transmit
-  transmit
-END IF
 
-
-'FACI
-If FACI_update_check = 1 then
-  call navigate_to_MAXIS_screen("stat", "faci")
-  Call create_panel_if_nonexistent
-  EMWriteScreen FACI, 6, 43
-  If level_of_care = "NF" then EMWriteScreen "42", 7, 43
-  If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
-  If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
-  If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-  if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
-  If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-  If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
-  EMWriteScreen "n", 8, 43
-  Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
-  If discharge_date<> "" then
-    Call create_MAXIS_friendly_date_with_YYYY(discharge_date, 0, 14, 71)
-    transmit
-	transmit
-  End if
+'The CASE NOTE----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
+If processed_1503_check = 1 then 
+  call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI & "***")
+Else
+  call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***")
 End if
+Call write_bullet_and_variable_in_case_note("Length of stay", length_of_stay)
+Call write_bullet_and_variable_in_case_note("Recommended level of care", level_of_care)
+Call write_bullet_and_variable_in_case_note("Admitted from", admitted_from)
+Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_admitted_from)
+Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
+Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
+Call write_variable_in_CASE_NOTE("---")
+If updated_RLVA_check = 1 and updated_FACI_check = 1 then 
+Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
+Else
+  If updated_RLVA_check = 1 then Call write_variable_in_case_note("* Updated RLVA.")
+  If updated_FACI_check = 1 then Call write_variable_in_case_note("* Updated FACI.")
+End if
+If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed for the client.")
+If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
+If need_asset_assessment_check = 1 then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
+If sent_3050_check = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
+Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
+If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
+If TIKL_check = 1 then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")
+Call write_variable_in_case_note("---")
+Call write_bullet_and_variable_in_case_note("Notes", notes)
+Call write_variable_in_case_note("---")
+Call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
