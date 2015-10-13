@@ -48,32 +48,36 @@ END IF
 
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog MOF_recd, 0, 0, 186, 240, "Medical Opinion Form Received"
+BeginDialog MOF_recd, 0, 0, 186, 265, "Medical Opinion Form Received"
   EditBox 55, 5, 100, 15, case_number
   EditBox 55, 25, 95, 15, date_recd
-  CheckBox 5, 45, 90, 10, "Client signed release?", client_release
-  EditBox 75, 60, 85, 15, last_exam_date
-  EditBox 90, 80, 85, 15, doctor_date
-  EditBox 45, 100, 130, 15, diagnosis
-  EditBox 70, 120, 105, 15, condition_will_last
-  EditBox 85, 140, 90, 15, ability_to_work
-  EditBox 50, 160, 125, 15, other_notes
-  EditBox 50, 180, 125, 15, action_taken
-  EditBox 70, 200, 105, 15, worker_signature
+  EditBox 80, 45, 90, 15, HH_Member
+  Text 5, 50, 70, 10, "HHLD Member name"
+  EditBox 75, 80, 100, 15, last_exam_date
+  EditBox 90, 100, 85, 15, doctor_date
+  EditBox 45, 120, 130, 15, diagnosis
+  EditBox 70, 140, 105, 15, condition_will_last
+  EditBox 85, 160, 90, 15, ability_to_work
+  EditBox 50, 180, 125, 15, other_notes
+  EditBox 50, 200, 125, 15, action_taken
+  EditBox 70, 220, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 70, 220, 50, 15
-    CancelButton 125, 220, 50, 15
+    OkButton 70, 240, 50, 15
+    CancelButton 125, 240, 50, 15
   Text 5, 10, 50, 10, "Case Number: "
   Text 5, 30, 50, 10, "Date received: "
-  Text 5, 85, 80, 10, "Date doctor signed form: "
-  Text 5, 105, 40, 10, "Diagnosis"
-  Text 5, 125, 65, 10, "Condition will last:"
-  Text 5, 145, 75, 10, "Client's ability to work: "
-  Text 5, 185, 45, 10, "Action taken: "
-  Text 5, 205, 60, 10, "Worker Signature: "
-  Text 5, 165, 40, 10, "Other notes: "
-  Text 5, 65, 65, 10, "Date of last exam: "
+  CheckBox 20, 65, 85, 10, "Client signed release?", client_release
+  Text 5, 85, 65, 10, "Date of last exam: "
+  Text 5, 105, 80, 10, "Date doctor signed form: "
+  Text 5, 125, 40, 10, "Diagnosis"
+  Text 5, 145, 65, 10, "Condition will last:"
+  Text 5, 165, 75, 10, "Client's ability to work: "
+  Text 5, 185, 40, 10, "Other notes: "
+  Text 5, 205, 45, 10, "Action taken: "
+  Text 5, 225, 60, 10, "Worker Signature: "
 EndDialog
+
+
 
 
 
@@ -85,12 +89,13 @@ Call MAXIS_case_number_finder(case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
+	Err_msg = ""
 	Dialog MOF_recd
 	IF buttonpressed = 0 THEN stopscript
-	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
-	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
-	IF overpayment_yn = "Select One..." THEN Msgbox "You must select an option for overpayment."
-LOOP until case_number <> "" and worker_signature <> ""
+	IF case_number = "" THEN err_msg = err_msg & vbNewLine & "*You must enter a case number"
+	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
+	If HH_Member = "" Then err_msg = err_msg & vbNewLine & "*You must enter the household member"
+LOOP until err_msg = ""
 
 
 'checking for an active MAXIS session
@@ -103,6 +108,7 @@ EMReadScreen SNAP_ACTV, 4, 10, 74
 'The case note---------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***Medical Opinion Form Rec'd " & date_recd & "***")
+Call write_bullet_and_variable_in_CASE_NOTE("Household Member", HH_Member)
 IF client_release = checked THEN CALL write_variable_in_CASE_NOTE ("* Client signed release on MOF.")
 CALL write_bullet_and_variable_in_CASE_NOTE("Date of last examination", last_exam_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Doctor signed form", doctor_date)
