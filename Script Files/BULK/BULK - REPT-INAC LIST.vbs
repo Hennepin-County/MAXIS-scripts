@@ -129,7 +129,7 @@ excel_row = 2
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "inac")
-	EMWriteScreen worker, 21, 16
+	EMWriteScreen worker, 21, 20
 	transmit
 
 	'Skips workers with no info
