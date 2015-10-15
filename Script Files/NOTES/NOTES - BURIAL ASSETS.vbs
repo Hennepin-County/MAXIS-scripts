@@ -299,51 +299,53 @@ insurance_policy_number = "none"			'establishing value of the variable
 
 'calling the 5 dialogs (with new error handling)
 DO
-						DO
-							err_msg = "" 					'established the perimeter that err_msg = ""
-							Dialog opening_dialog_01		'calls the initial dialog
-							cancel_confirmation				'if cancel is pressed, this function gives the user the option to proceed or back out of the cancel request
-							IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN err_msg = err_msg & vbNewLine & _
-							"Designated Account Counted Value is not a number. Do not include letters or special characters."
-							IF insurance_policy_number <> "none" AND isnumeric(insurance_counted_value) = FALSE THEN err_msg = err_msg & vbNewLine & _
-							"Insurance Counted Value is not a number. Do not include letters or special characters."
-							If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
-							IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
-							If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-							If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-							IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-						LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
-							Do
-								err_msg = ""
-								Dialog burial_assets_dialog_01
-								cancel_confirmation
-								IF buttonpressed = previous THEN EXIT DO
-								If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
-								If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
-								If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
-								If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
-								If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
-								IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-							LOOP until ButtonPressed = next_button AND err_msg = "" 
-						Do
-							Dialog burial_assets_dialog_02
-							cancel_confirmation
-							If buttonpressed = previous_button then exit do
-						Loop until ButtonPressed = next_button
+						
+				DO
+					err_msg = "" 					'established the perimeter that err_msg = ""
+					Dialog opening_dialog_01		'calls the initial dialog
+					cancel_confirmation				'if cancel is pressed, this function gives the user the option to proceed or back out of the cancel request
+					IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN err_msg = err_msg & vbNewLine & _
+					"Designated Account Counted Value is not a number. Do not include letters or special characters."
+					IF insurance_policy_number <> "none" AND isnumeric(insurance_counted_value) = FALSE THEN err_msg = err_msg & vbNewLine & _
+					"Insurance Counted Value is not a number. Do not include letters or special characters."
+					If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
+					IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
+					If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+					If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+				LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
+				DO 	
 					Do
-						Dialog burial_assets_dialog_03
+						err_msg = ""
+						Dialog burial_assets_dialog_01
 						cancel_confirmation
-						If buttonpressed = previous_button then exit do
-					Loop until ButtonPressed = next_button
+						If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
+						If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
+						If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
+						If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
+						If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+						IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+					LOOP until ButtonPressed = next_button AND err_msg = "" or ButtonPressed = previous
+				Do
+					Dialog burial_assets_dialog_02
+					cancel_confirmation
+					If buttonpressed = previous_button then exit do
+				Loop until ButtonPressed = next_button or ButtonPressed = previous
+				Do
+					Dialog burial_assets_dialog_03
+					cancel_confirmation
+					If buttonpressed = previous_button then exit do
+				Loop until ButtonPressed = next_button or ButtonPressed = previous
 				Do
 					Dialog burial_assets_dialog_04
 					cancel_confirmation
 					If buttonpressed = previous_button then exit do
-				Loop until ButtonPressed = -1
-			Loop until buttonpressed = -1
-		Loop until ButtonPressed = -1
-	Loop until ButtonPressed = -1
-Loop until ButtonPressed = -1
+				Loop until ButtonPressed = -1 or ButtonPressed = previous	
+	Loop until (ButtonPressed = -1 and err_msg = "") or (ButtonPressed = previous and err_msg = "")		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
+Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
+		IF buttonpressed = previous THEN EXIT DO
+		If ButtonPressed = previous then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
+	Loop until err_msg = ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
 
 
 Call check_for_MAXIS(False) 'checking for an active MAXIS session
