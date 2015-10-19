@@ -66,13 +66,10 @@ EndDialog
 
 
 'THE SCRIPT----------------------------------------------------------------------------------
-
 'inserting month - 1 into footer month section as this is likely the most commonly needed inac month. 
 inac_month = datepart("m", dateadd("m", -1, date))
 inac_year = right(dateadd("m", -1, date), 2)
 If len(inac_month) = 1 then inac_month = "0" & inac_month
-
-worker_county_code = "x102"
 
 'Connects to BlueZone
 EMConnect ""
@@ -82,7 +79,6 @@ Dialog pull_rept_data_into_Excel_dialog
 cancel_confirmation
 
 If len(inac_month) = 1 then inac_month = "0" & inac_month
-
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -133,7 +129,7 @@ excel_row = 2
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "inac")
-	EMWriteScreen worker, 21, 16
+	EMWriteScreen worker, 21, 20
 	transmit
 
 	'Skips workers with no info
