@@ -54,24 +54,22 @@ footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 25, 30, 15, footer_month
+  EditBox 110, 25, 30, 15, footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
-  DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
+  DropListBox 70, 80, 75, 15, "Select one..."+chr(9)+"Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
   ButtonGroup ButtonPressed
-	OkButton 35, 100, 50, 15
-	CancelButton 95, 100, 50, 15
+    OkButton 35, 100, 50, 15
+    CancelButton 95, 100, 50, 15
   Text 25, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 110, 30, 25, 10, "Year:"
+  Text 10, 30, 65, 10, "Footer month/year: "
   GroupBox 5, 45, 170, 30, "Programs applied for"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
-
 
 BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
@@ -134,7 +132,6 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   GroupBox 5, 230, 130, 25, "ELIG panels:"
   GroupBox 145, 230, 160, 25, "other STAT panels:"
 EndDialog
-
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -258,23 +255,15 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   Text 330, 330, 60, 10, "Worker signature:"
 EndDialog
 
-
-
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
 Dim col
 application_signed_checkbox = checked 'The script should default to having the application signed.
 
-
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
-
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+Call MAXIS_case_number_finder(case_number)
 
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
@@ -283,30 +272,27 @@ If row <> 0 then
   If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
+'initial dialog
 Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+	DO
+		Dialog case_number_dialog
+		cancel_confirmation
+		If CAF_type = "Select one..." Then MsgBox "You must select the CAF type."
+		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+	Loop until CAF_type <> "Select one..."	
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
-transmit
-call check_for_MAXIS(True)
 
+call check_for_MAXIS(False)	'checking for an active MAXIS session
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
-
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
 	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
 Else
@@ -317,7 +303,6 @@ call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)              
 If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", HH_comp)                                                 'Grabbing EATS info for SNAP cases, puts on HH_comp variable
 'Removing semicolons from HH_comp variable, it is not needed.
 HH_comp = replace(HH_comp, "; ", "")
-
 
 'I put these sections in here, just because SHEL should come before HEST, it just looks cleaner.
 call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST) 
@@ -362,10 +347,8 @@ If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "e
 programs_applied_for = trim(programs_applied_for)
 if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 
-
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type <> "Recertification" then TIKL_checkbox = checked
-
 
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Do
@@ -485,7 +468,6 @@ END IF
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 start_a_blank_CASE_NOTE
-
 
 'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
 If CAF_status <> "" then CAF_status = ": " & CAF_status
