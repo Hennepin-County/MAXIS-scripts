@@ -70,7 +70,7 @@ BeginDialog benefits_approved, 0, 0, 271, 280, "Benefits Approved"
   EditBox 55, 145, 210, 15, other_notes
   EditBox 75, 165, 190, 15, programs_pending
   EditBox 55, 185, 210, 15, docs_needed
-  'CheckBox 10, 210, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
+  CheckBox 10, 210, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
   CheckBox 10, 225, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
   CheckBox 10, 240, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
   EditBox 75, 255, 80, 15, worker_signature
@@ -499,11 +499,11 @@ cash_approval_array = split(cash_approval_array)
 'Case notes----------------------------------------------------------------------------------------------------
 call start_a_blank_CASE_NOTE
 IF snap_approved_check = checked THEN 
-	'IF postponed_verif_check = checked THEN 
-	'	approved_programs = approved_programs & "EXPEDITED SNAP/"
-	'ELSE
+	IF postponed_verif_check = checked THEN 
+		approved_programs = approved_programs & "EXPEDITED SNAP/"
+	ELSE
 		approved_programs = approved_programs & "SNAP/"
-	'END IF
+	END IF
 END IF
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
