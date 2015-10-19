@@ -54,24 +54,22 @@ footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 25, 30, 15, footer_month
+  EditBox 110, 25, 30, 15, footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
-  DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
+  DropListBox 70, 80, 75, 15, "Select one..."+chr(9)+"Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
   ButtonGroup ButtonPressed
-	OkButton 35, 100, 50, 15
-	CancelButton 95, 100, 50, 15
+    OkButton 35, 100, 50, 15
+    CancelButton 95, 100, 50, 15
   Text 25, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 110, 30, 25, 10, "Year:"
+  Text 10, 30, 65, 10, "Footer month/year: "
   GroupBox 5, 45, 170, 30, "Programs applied for"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
-
 
 BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
@@ -134,7 +132,6 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   GroupBox 5, 230, 130, 25, "ELIG panels:"
   GroupBox 145, 230, 160, 25, "other STAT panels:"
 EndDialog
-
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -214,6 +211,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   CheckBox 15, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
   CheckBox 90, 220, 95, 10, "Workforce referral made?", WF1_checkbox
   CheckBox 190, 220, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 280, 220, 115, 10, "Informed client of recert period?", recert_period_checkbox
   EditBox 55, 240, 230, 15, other_notes
   ComboBox 330, 240, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
   EditBox 55, 260, 390, 15, verifs_needed
@@ -223,27 +221,27 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   CheckBox 15, 345, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
   EditBox 395, 325, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 340, 345, 50, 15
-	CancelButton 395, 345, 50, 15
-	PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-	PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-	PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-	PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-	PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-	PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-	PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-	PushButton 335, 25, 45, 10, "next panel", next_panel_button
-	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-	PushButton 395, 25, 45, 10, "next memb", next_memb_button
-	PushButton 5, 50, 25, 10, "INSA/", INSA_button
-	PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
-	PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
-	PushButton 5, 90, 25, 10, "DIET:", DIET_button
-	PushButton 215, 90, 25, 10, "BILS:", BILS_button
-	PushButton 5, 110, 25, 10, "FMED:", FMED_button
-	PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-	PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
+    OkButton 340, 345, 50, 15
+    CancelButton 395, 345, 50, 15
+    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 50, 25, 10, "INSA/", INSA_button
+    PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
+    PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
+    PushButton 5, 90, 25, 10, "DIET:", DIET_button
+    PushButton 215, 90, 25, 10, "BILS:", BILS_button
+    PushButton 5, 110, 25, 10, "FMED:", FMED_button
+    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
+    PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
   GroupBox 5, 5, 130, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
@@ -257,23 +255,15 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   Text 330, 330, 60, 10, "Worker signature:"
 EndDialog
 
-
-
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
 Dim col
 application_signed_checkbox = checked 'The script should default to having the application signed.
 
-
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
-
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+Call MAXIS_case_number_finder(case_number)
 
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
@@ -282,30 +272,27 @@ If row <> 0 then
   If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
+'initial dialog
 Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+	DO
+		Dialog case_number_dialog
+		cancel_confirmation
+		If CAF_type = "Select one..." Then MsgBox "You must select the CAF type."
+		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+	Loop until CAF_type <> "Select one..."	
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
-transmit
-call check_for_MAXIS(True)
 
+call check_for_MAXIS(False)	'checking for an active MAXIS session
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
-
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
 	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
 Else
@@ -316,7 +303,6 @@ call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)              
 If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", HH_comp)                                                 'Grabbing EATS info for SNAP cases, puts on HH_comp variable
 'Removing semicolons from HH_comp variable, it is not needed.
 HH_comp = replace(HH_comp, "; ", "")
-
 
 'I put these sections in here, just because SHEL should come before HEST, it just looks cleaner.
 call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST) 
@@ -361,10 +347,8 @@ If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "e
 programs_applied_for = trim(programs_applied_for)
 if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 
-
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type <> "Recertification" then TIKL_checkbox = checked
-
 
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Do
@@ -485,7 +469,6 @@ END IF
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 start_a_blank_CASE_NOTE
 
-
 'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
 If CAF_status <> "" then CAF_status = ": " & CAF_status
 
@@ -545,6 +528,7 @@ IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* R/R explained
 IF updated_MMIS_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated MMIS.")
 IF WF1_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Workforce referral made.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
+IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
 IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)

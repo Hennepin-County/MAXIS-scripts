@@ -66,7 +66,7 @@ IF worker_county_code = "x108" THEN county_FSET_offices = array("Minnesota Valle
 IF worker_county_code = "x109" THEN county_FSET_offices = array("Carlton County Human Services")
 'IF worker_county_code = "x110" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x111" THEN county_FSET_offices = array("Select one...",
-IF worker_county_code = "x112" THEN county_FSET_offices = array("Chippewa County Workforce Center")
+IF worker_county_code = "x112" THEN county_FSET_offices = array("Montevideo Workforce Center")
 'IF worker_county_code = "x113" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x114" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x115" THEN county_FSET_offices = array("Select one...",
