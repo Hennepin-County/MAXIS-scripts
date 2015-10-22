@@ -250,7 +250,7 @@ IF CS_found <> True THEN script_end_procedure("A child support UNEA panel was no
 back_to_self
 
 'Checking out the sweet, sweet eligibility results, begining with D to the Dubs P
-IF DWP_cash_status <> "" Then
+IF DWP_cash_status <> "" AND DWP_cash_status <> "APP CLO"  Then
 	CALL navigate_to_MAXIS_screen("ELIG", "DWP")
 	FOR i = 1 to number_of_people
 		dwpr_row = 7
@@ -313,6 +313,7 @@ IF DWP_cash_status <> "" Then
 					Household_array(i, 6) = disregard_limit - applied_dwp_disregard
 					applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
 				End if
+				IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 				EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
 				MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 				Transmit
@@ -323,7 +324,7 @@ IF DWP_cash_status <> "" Then
 		End if
 	Next
 '...next, for MFIP cases...
-ELSEIF MFIP_cash_status <> "" Then
+ELSEIF MFIP_cash_status <> "" AND MFIP_cash_status <> "APP CLO" Then
 	CALL navigate_to_MAXIS_screen("FIAT", "")
 	EMwritescreen "03", 4, 34
 	EMwritescreen "x", 9, 22
@@ -395,6 +396,7 @@ ELSEIF MFIP_cash_status <> "" Then
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
 							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						END IF
+						IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 						EMWriteScreen Household_array(i, 6), 21, 44
 						transmit
 						transmit
@@ -408,6 +410,7 @@ ELSEIF MFIP_cash_status <> "" Then
 							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
 						END IF
+						IF Household_array(i, 5) < 0.01 THEN Household_array(i, 5) = 0
 						EMWriteScreen FormatNumber(Household_array(i, 5)), 21, 44
 						MsgBox "The script is applying " & FormatNumber(Household_array(i, 5)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						transmit
