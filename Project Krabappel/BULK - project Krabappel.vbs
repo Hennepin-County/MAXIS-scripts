@@ -2607,11 +2607,23 @@ FOR EACH case_number IN case_number_array
 	'Checks for WORK panel (Workforce One Referral), makes one with a week from now as the appointment date as a default (we can add a specific date/location checker as an enhancement
 	EMReadScreen WORK_check, 4, 2, 51
 	If WORK_check = "WORK" then
-		call create_MAXIS_friendly_date(date, 7, 7, 59)
-		EMWriteScreen "X", 7, 47
+		wf_row = 7
+		wf_count = 0
+		DO 
+			EMReadScreen empty_space, 1, wf_row, 47
+			IF empty_space = "_" THEN 
+				call create_MAXIS_friendly_date(date, 7, wf_row, 59)
+				EMWriteScreen "X", wf_row, 47
+				wf_count = wf_count + 1
+			END IF
+			IF empty_space = " " THEN EXIT DO
+			wf_row = wf_row + 1
+		LOOP UNTIL empty_space = " "
 		transmit
-		EMWriteScreen "X", 5, 9
-		transmit
+		FOR i = 1 TO wf_count
+			EMWriteScreen "X", 5, 9
+			transmit
+		NEXT
 		transmit
 		transmit
 		'Special error handling for DHS and possibly multicounty agencies (don't have WF1 sites)
