@@ -89,7 +89,7 @@ BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
   EditBox 60, 155, 95, 15, SHEL_HEST
   EditBox 225, 155, 95, 15, COEX_DCEX
   ButtonGroup ButtonPressed
-    OKButton 340, 205, 50, 15
+    Pushbutton 340, 205, 50, 15, "Next", next_button
     CancelButton 395, 205, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
@@ -269,9 +269,10 @@ DO
 				Dialog CSR_dialog01
 				cancel_confirmation
 				If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
+				'If next_button = pressed THEN msgbox next_button
 			Loop until ButtonPressed <> no_cancel_button
 			MAXIS_dialog_navigation
-		LOOP until ButtonPressed = -1
+		LOOP until ButtonPressed = next_button
 		IF CSR_datestamp = "" THEN 														err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
 		IF CSR_status = "select one..." THEN 											err_msg = err_msg & vbCr & "* Please select the status of the CSR."
 		IF HH_comp = "" THEN 															err_msg = err_msg & vbCr & "* Please enter household composition information."
