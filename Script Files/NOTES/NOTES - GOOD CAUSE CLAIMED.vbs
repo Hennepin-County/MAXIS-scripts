@@ -75,7 +75,7 @@ BeginDialog Good_Cause_Claimed_Dialog, 0, 0, 251, 310, "Child Support Good Cause
   GroupBox 5, 50, 250, 35, "Date Good Cause"
   Text 30, 65, 30, 15, "Claimed"
   Text 135, 65, 35, 15, "Expiration"
-  Text 5, 90, 135, 15, "Date DHS-3627 and DHS-3979 were sent:"
+  Text 5, 90, 135, 15, "Date DHS-3627, DHS-3632, and DHS-3979 were sent:"
   Text 5, 115, 135, 15, "Date DHS-3630 and DHS-3631 were sent:"
   Text 5, 145, 40, 15, "Programs:"
   Text 5, 185, 175, 15, "Deadline given to provide supporting documentation:"
@@ -129,5 +129,3 @@ CALL write_variable_in_case_note(worker_signature)
 
 
 CALL script_end_procedure("")
-
-

@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - MEDICAL OPINION FORM RECEIVED.vbs"
+name_of_script = "NOTES - COUNTY BURIAL APPLICATION.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -48,35 +48,29 @@ END IF
 
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog MOF_recd, 0, 0, 186, 265, "Medical Opinion Form Received"
-  EditBox 55, 5, 100, 15, case_number
-  EditBox 55, 25, 95, 15, date_recd
-  EditBox 80, 45, 90, 15, HH_Member
-  Text 5, 50, 70, 10, "HHLD Member name"
-  EditBox 75, 80, 100, 15, last_exam_date
-  EditBox 90, 100, 85, 15, doctor_date
-  EditBox 45, 120, 130, 15, diagnosis
-  EditBox 70, 140, 105, 15, condition_will_last
-  EditBox 85, 160, 90, 15, ability_to_work
-  EditBox 50, 180, 125, 15, other_notes
-  EditBox 50, 200, 125, 15, action_taken
-  EditBox 70, 220, 105, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 70, 240, 50, 15
-    CancelButton 125, 240, 50, 15
+BeginDialog County_Burial_Application_Received, 0, 0, 186, 240, "County Burial Application Received"
   Text 5, 10, 50, 10, "Case Number: "
+  EditBox 55, 5, 100, 15, case_number
   Text 5, 30, 50, 10, "Date received: "
-  CheckBox 20, 65, 85, 10, "Client signed release?", client_release
-  Text 5, 85, 65, 10, "Date of last exam: "
-  Text 5, 105, 80, 10, "Date doctor signed form: "
-  Text 5, 125, 40, 10, "Diagnosis"
-  Text 5, 145, 65, 10, "Condition will last:"
-  Text 5, 165, 75, 10, "Client's ability to work: "
-  Text 5, 185, 40, 10, "Other notes: "
-  Text 5, 205, 45, 10, "Action taken: "
-  Text 5, 225, 60, 10, "Worker Signature: "
+  EditBox 55, 25, 100, 15, date_received
+  Text 5, 50, 50, 10, "Date of death:"
+  EditBox 60, 50, 85, 15, date_of_death
+  Text 5, 70, 30, 10, "CFR:"
+  EditBox 60, 70, 85, 15, CFR
+  Text 5, 95, 35, 10, "Assets:"
+  EditBox 50, 95, 130, 15, assets
+  Text 5, 125, 75, 10, "Total Counted Assets"
+  EditBox 80, 120, 95, 15, Total_Counted_Assets
+  Text 5, 150, 40, 10, "Other notes: "
+  EditBox 55, 145, 125, 15, other_notes
+  Text 5, 175, 45, 10, "Action taken: "
+  EditBox 50, 175, 125, 15, action_taken
+  Text 5, 205, 60, 10, "Worker Signature: "
+  EditBox 70, 200, 105, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 70, 220, 50, 15
+    CancelButton 125, 220, 50, 15
 EndDialog
-
 
 
 
@@ -89,37 +83,31 @@ Call MAXIS_case_number_finder(case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	Err_msg = ""
-	Dialog MOF_recd
+	Dialog County_Burial_Application_Received
 	IF buttonpressed = 0 THEN stopscript
-	IF case_number = "" THEN err_msg = err_msg & vbNewLine & "*You must enter a case number"
-	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
-	If HH_Member = "" Then err_msg = err_msg & vbNewLine & "*You must enter the household member"
-LOOP until err_msg = ""
-
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
+	
+LOOP until case_number <> "" and worker_signature <> ""
 
 'checking for an active MAXIS session
 CALL check_for_MAXIS(FALSE)
 
-CALL navigate_to_MAXIS_screen("STAT", "PROG")  'checking for stat to remind worker about WREG/ABAWD
-EMReadScreen SNAP_ACTV, 4, 10, 74
 
 
 'The case note---------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-CALL write_variable_in_CASE_NOTE("***Medical Opinion Form Rec'd " & date_recd & "***")
-Call write_bullet_and_variable_in_CASE_NOTE("Household Member", HH_Member)
-IF client_release = checked THEN CALL write_variable_in_CASE_NOTE ("* Client signed release on MOF.")
-CALL write_bullet_and_variable_in_CASE_NOTE("Date of last examination", last_exam_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("Doctor signed form", doctor_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("Diagnosis", diagnosis)
-CALL write_bullet_and_variable_in_CASE_NOTE("Condition will last", condition_will_last)
-CALL write_bullet_and_variable_in_CASE_NOTE("Ability to work", ability_to_work)
+CALL write_variable_in_CASE_NOTE("***County Burial Application Received")
+CALL write_bullet_and_variable_in_CASE_NOTE("Date Received", Date_Received)
+CALL write_bullet_and_variable_in_CASE_NOTE("Date of death", Date_of_death)
+CALL write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
+CALL write_bullet_and_variable_in_CASE_NOTE("Assets", Assets)
+CALL write_bullet_and_variable_in_CASE_NOTE("Total Counted Assets", Total_Counted_Assets)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", action_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-IF SNAP_ACTV = "ACTV" or SNAP_ACTV = "PEND" THEN MSGBOX "Please remember to update WREG and client's ABAWD status accordingly."  'Adds message box to remind worker to update WREG and ABAWD is SNAP is ACTV or pending
+
 
 Script_end_procedure("")
