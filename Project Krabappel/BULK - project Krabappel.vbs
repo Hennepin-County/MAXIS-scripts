@@ -173,6 +173,33 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	Next
 End function
 
+'This is the custom function to load the dialotg. It needs to be in a custom function because the user can change the excel file
+FUNCTION create_dialog(excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)	
+	'DIALOGS-----------------------------------------------------------------------------------------------------------
+	'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
+	BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator dialog"
+	EditBox 85, 5, 295, 15, excel_file_path
+	DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
+	DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
+	EditBox 125, 60, 40, 15, how_many_cases_to_make
+	CheckBox 205, 65, 210, 10, "Check here to XFER cases, and enter worker numbers below.", XFER_check
+	EditBox 130, 80, 310, 15, workers_to_XFER_cases_to
+	ButtonGroup ButtonPressed
+		OkButton 335, 105, 50, 15
+		CancelButton 390, 105, 50, 15
+		PushButton 385, 5, 55, 15, "Reload details", reload_excel_file_button
+	Text 5, 10, 75, 10, "File path of Excel file:"
+	Text 130, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
+	Text 5, 45, 55, 10, "Scenario to run:"
+	Text 210, 45, 65, 10, "App/XFER cases?:"
+	Text 5, 65, 120, 10, "How many cases are you creating?:"
+	Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
+	Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
+	EndDialog
+
+	DIALOG training_case_creator_dialog
+END FUNCTION
+
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"	'Might want to predeclare with a default, and allow users to change it.
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
@@ -185,55 +212,48 @@ For Each objWorkSheet In objWorkbook.Worksheets
 	If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
 Next
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------
-'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
-BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator dialog"
-  EditBox 85, 5, 295, 15, excel_file_path
-  DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
-  DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
-  EditBox 125, 60, 40, 15, how_many_cases_to_make
-  CheckBox 205, 65, 210, 10, "Check here to XFER cases, and enter worker numbers below.", XFER_check
-  EditBox 130, 80, 310, 15, workers_to_XFER_cases_to
-  ButtonGroup ButtonPressed
-    OkButton 335, 105, 50, 15
-    CancelButton 390, 105, 50, 15
-    PushButton 385, 5, 55, 15, "Reload details", reload_excel_file_button
-  Text 5, 10, 75, 10, "File path of Excel file:"
-  Text 130, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
-  Text 5, 45, 55, 10, "Scenario to run:"
-  Text 210, 45, 65, 10, "App/XFER cases?:"
-  Text 5, 65, 120, 10, "How many cases are you creating?:"
-  Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
-  Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
-EndDialog
-
 '--------- Project Krabappel --------------
 'Connects to BlueZone
 EMConnect ""
 
-Do
-	Do
-		Dialog training_case_creator_dialog
-		If buttonpressed = cancel then stopscript
-		If scenario_dropdown = "select one..." then MsgBox ("You must select a scenario from the dropdown!")
-	Loop until scenario_dropdown <> "select one..."
+DO
+	DO
+		DO
+			CALL create_dialog(excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)
+				If buttonpressed = cancel then stopscript
+				IF ButtonPressed = reload_excel_file_button THEN 
+					'Reseting the scenario list
+					scenario_list = ""
+					'Closing the current, active version of Excel
+					objWorkbook.Close
+					objExcel.Quit
+					
+					'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+					Set objExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
+					objExcel.Visible = True
+					Set objWorkbook = objExcel.Workbooks.Open(excel_file_path) 'Opens an excel file from a specific URL
+					objExcel.DisplayAlerts = True
+					
+					'Set objWorkSheet = objWorkbook.Worksheet
+					For Each objWorkSheet In objWorkbook.Worksheets
+						If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+					Next
+				END IF
+		LOOP UNTIL ButtonPressed <> reload_excel_file_button
+		If scenario_dropdown = "select one..." AND ButtonPressed = -1 then MsgBox ("You must select a scenario from the dropdown!")
+	LOOP UNTIL ButtonPressed <> reload_excel_file_button	
 	final_check_before_running = MsgBox("Here's what the scenario will try to create. Please review before proceeding:" & Chr(10) & Chr(10) & _
-										"Scenario selection: " & scenario_dropdown & Chr(10) & _
-										"Approving cases: " & approve_case_dropdown & Chr(10) & _
-										"Amt of cases to make: " & how_many_cases_to_make & Chr(10) & _
-										"Workers to XFER cases to: " & workers_to_XFER_cases_to & Chr(10) & Chr(10) & _
-										"It is VERY IMPORTANT to review these details before proceeding. It is also highly recommended that if you've created your own scenarios, " & _
-										"test them first creating a single case. This is to check to see if any details were missed on the spreadsheet. DHS CANNOT TRIAGE ISSUES WITH " & _
-										"COUNTY/AGENCY CUSTOMIZED SCENARIOS." & Chr(10) & Chr(10) & _
-										"Please also note that creating training cases can take a very long time. If you are creating hundreds of cases, you may want to run this " & _
-										"overnight, or on a secondary machine." & Chr(10) & Chr(10) & _
-										"If you are ready to continue, press ''Yes''. Otherwise, press ''no'' to return to the previous screen.", vbYesNo)
-Loop until final_check_before_running = vbYes
-
-'<<<<<<<<<<<DIALOG SHOULD GO HERE, FOR NOW IT WILL SELECT THE ONLY CASE ON THE LIST
-	'DIALOG SHOULD ASK FOR WORKER NUMBERS IN AN EDITBOX (TO TURN TO AN ARRAY)
-	'DIALOG SHOULD ASK IF EACH PIECE NEEDS TO HAPPEN (SO, PROVIDE EARLY TERMINATION FOR INSTANCES WHERE WE JUST WANT TO LEAVE A CASE IN PND1 OR PND2 STATUS)
-	'DIALOG SHOULD POP UP A MSGBOX CONFIRMING DETAILS AND WARNING THAT THIS COULD TAKE A WHILE
+									"Scenario selection: " & scenario_dropdown & Chr(10) & _
+									"Approving cases: " & approve_case_dropdown & Chr(10) & _
+									"Amt of cases to make: " & how_many_cases_to_make & Chr(10) & _
+									"Workers to XFER cases to: " & workers_to_XFER_cases_to & Chr(10) & Chr(10) & _
+									"It is VERY IMPORTANT to review these details before proceeding. It is also highly recommended that if you've created your own scenarios, " & _
+									"test them first creating a single case. This is to check to see if any details were missed on the spreadsheet. DHS CANNOT TRIAGE ISSUES WITH " & _
+									"COUNTY/AGENCY CUSTOMIZED SCENARIOS." & Chr(10) & Chr(10) & _
+									"Please also note that creating training cases can take a very long time. If you are creating hundreds of cases, you may want to run this " & _
+									"overnight, or on a secondary machine." & Chr(10) & Chr(10) & _
+									"If you are ready to continue, press ''Yes''. Otherwise, press ''no'' to return to the previous screen.", vbYesNo)
+LOOP UNTIL final_check_before_running = vbYes
 
 'Activates worksheet based on user selection
 objExcel.worksheets(scenario_dropdown).Activate
