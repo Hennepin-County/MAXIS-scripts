@@ -47,7 +47,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 211, 102, "SNAP ER NOMI Dialog"
+BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 211, 135, "SNAP ER NOMI Dialog"
   Text 5, 5, 50, 10, "Case number:"
   EditBox 60, 0, 65, 15, case_number
   Text 5, 25, 85, 10, "Date of missed interview:"
@@ -56,30 +56,34 @@ BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 211, 102, "SNAP ER NOMI Dialog"
   EditBox 95, 40, 50, 15, time_of_missed_interview
   Text 5, 60, 125, 20, "Recert must be complete by (usually the last day of the current month):"
   EditBox 130, 60, 75, 15, last_day_for_recert
-  Text 55, 85, 70, 10, "Sign your case note:"
-  EditBox 130, 80, 75, 15, worker_signature
+  EditBox 55, 85, 150, 15, contact_attempts
+  Text 60, 115, 70, 10, "Sign your case note:"
+  EditBox 130, 110, 75, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 155, 5, 50, 15
     CancelButton 155, 25, 50, 15
+  Text 5, 85, 45, 20, "Attempts to contact client:"
 EndDialog
 
-BeginDialog NOMI_dialog, 0, 0, 151, 155, "NOMI Dialog"
-  EditBox 70, 5, 65, 15, case_number
+BeginDialog NOMI_dialog, 0, 0, 226, 165, "NOMI Dialog"
+  EditBox 95, 5, 65, 15, case_number
   EditBox 95, 25, 50, 15, date_of_missed_interview
   EditBox 95, 45, 50, 15, time_of_missed_interview
-  EditBox 80, 65, 50, 15, application_date
-  EditBox 70, 85, 75, 15, worker_signature
-  CheckBox 10, 110, 135, 10, "Check here to have the script update", client_delay_check
+  EditBox 95, 65, 50, 15, application_date
+  EditBox 75, 85, 145, 15, contact_attempts
+  EditBox 75, 105, 75, 15, worker_signature
+  CheckBox 5, 125, 205, 10, "Check here to have the script update PND2 for client delay.", client_delay_check
   ButtonGroup ButtonPressed
-    OkButton 20, 135, 50, 15
-    CancelButton 80, 135, 50, 15
-  Text 20, 10, 50, 10, "Case number:"
+    OkButton 105, 145, 50, 15
+    CancelButton 160, 145, 50, 15
+  Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 85, 10, "Date of missed interview:"
   Text 5, 50, 85, 10, "Time of missed interview:"
-  Text 20, 70, 60, 10, "Application date:"
-  Text 5, 90, 65, 10, "Worker signature:"
-  Text 45, 120, 75, 10, "PND2 for client delay."
+  Text 5, 70, 60, 10, "Application date:"
+  Text 5, 110, 65, 10, "Worker signature:"
+  Text 5, 85, 65, 20, "Attempts to contact client:"
 EndDialog
+
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -130,6 +134,7 @@ Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_miss
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("**Client missed SNAP recertification interview**")
 	Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	IF contact_attempts <> "" THEN Call write_variable_in_CASE_NOTE("* Attempts to contact the client: " & contact_attempts)
 	Call write_variable_in_CASE_NOTE("* A SPEC/MEMO has been sent to the client informing them of missed interview.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -203,6 +208,7 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
 	CALL write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	IF contact_attempts <> "" THEN Call write_variable_in_CASE_NOTE("* Attempts to contact the client: " & contact_attempts)
 	CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
 	Call write_variable_in_CASE_NOTE("---")
