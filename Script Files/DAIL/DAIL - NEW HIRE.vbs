@@ -174,6 +174,10 @@ Dialog new_HIRE_dialog
 MAXIS_dialog_navigation
 cancel_confirmation
 
+'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first. 
+EMReadScreen jobs_total_panel_count, 1, 2, 78
+IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
+
 'If new job is known, script ends.
 If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
 
