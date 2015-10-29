@@ -146,6 +146,11 @@ call HH_member_custom_dialog(HH_member_array)
 
 'First, checking that MFIP closure was approved today
 call navigate_to_MAXIS_screen("ELIG", "MFIP")
+EMReadScreen MFIP_version_check, 10, 24, 2 'need to make sure there is an MFIP version out there, or this won't work
+IF MFIP_version_check = "NO VERSION" THEN
+	msgbox "There is currently no version of MFIP on this case.  Please check your case and try again.  The script will now stop."
+	script_end_procedure("")
+END IF
 EMReadscreen total_versions, 1, 2, 18
 For i = total_versions to 1 step -1 'Finding the most recent approved version and reading the approval date
 	EMReadscreen approved_check, 8, 3, 3
