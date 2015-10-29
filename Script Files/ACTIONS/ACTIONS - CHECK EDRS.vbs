@@ -118,7 +118,7 @@ For i = 0 to Ubound(HH_member_array)
 	'Reads SSN 
 	Emreadscreen SSN_number, 11, 7, 42  
 	SSN_number = replace(SSN_number, " ", "")
-	Member_Info_Array(i, 4) = SS_number
+	Member_Info_Array(i, 4) = SSN_number
 	
 Next 
 
@@ -131,7 +131,7 @@ CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 For i = 0 to UBound(HH_member_array)
 	
 	'Write in SSN number into EDRS
-	EMwritescreen Member_Info_Array(i, 4) , 2, 7
+	EMwritescreen Member_Info_Array(i, 4), 2, 7
 	transmit
 	Emreadscreen SSN_output, 7, 24, 2
 	
