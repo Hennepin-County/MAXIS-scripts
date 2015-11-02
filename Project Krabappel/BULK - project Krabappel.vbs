@@ -41,6 +41,13 @@ ELSE														'Error message, tells user to try to reach github.com, otherwi
 			script_end_procedure("Script ended due to error connecting to GitHub.")
 END IF
 
+'LOADING GLOBAL VARIABLES--------------------------------------------------------------------
+'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+'Set fso_command = run_another_script_fso.OpenTextFile("H:\Project Krabappel\func lib.vbs")
+'text_from_the_other_script = fso_command.ReadAll
+'fso_command.Close
+'Execute text_from_the_other_script
+
 
 '========================================================================TRANSFER CASES========================================================================
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
@@ -166,8 +173,35 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	Next
 End function
 
+'This is the custom function to load the dialotg. It needs to be in a custom function because the user can change the excel file
+FUNCTION create_dialog(excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)	
+	'DIALOGS-----------------------------------------------------------------------------------------------------------
+	'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
+	BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator dialog"
+	EditBox 85, 5, 295, 15, excel_file_path
+	DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
+	DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
+	EditBox 125, 60, 40, 15, how_many_cases_to_make
+	CheckBox 205, 65, 210, 10, "Check here to XFER cases, and enter worker numbers below.", XFER_check
+	EditBox 130, 80, 310, 15, workers_to_XFER_cases_to
+	ButtonGroup ButtonPressed
+		OkButton 335, 105, 50, 15
+		CancelButton 390, 105, 50, 15
+		PushButton 385, 5, 55, 15, "Reload details", reload_excel_file_button
+	Text 5, 10, 75, 10, "File path of Excel file:"
+	Text 130, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
+	Text 5, 45, 55, 10, "Scenario to run:"
+	Text 210, 45, 65, 10, "App/XFER cases?:"
+	Text 5, 65, 120, 10, "How many cases are you creating?:"
+	Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
+	Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
+	EndDialog
+
+	DIALOG training_case_creator_dialog
+END FUNCTION
+
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
-excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"		'Might want to predeclare with a default, and allow users to change it.
+excel_file_path = "C:\DHS-MAXIS-Scripts\Project Krabappel\Krabappel template.xlsx"	'Might want to predeclare with a default, and allow users to change it.
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
@@ -178,58 +212,48 @@ For Each objWorkSheet In objWorkbook.Worksheets
 	If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
 Next
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------
-'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
-BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator dialog"
-  EditBox 85, 5, 295, 15, excel_file_path
-  DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
-  DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
-  EditBox 125, 60, 40, 15, how_many_cases_to_make
-  CheckBox 205, 65, 210, 10, "Check here to XFER cases, and enter worker numbers below.", XFER_check
-  EditBox 130, 80, 310, 15, workers_to_XFER_cases_to
-  ButtonGroup ButtonPressed
-    OkButton 335, 105, 50, 15
-    CancelButton 390, 105, 50, 15
-    PushButton 385, 5, 55, 15, "Reload details", reload_excel_file_button
-  Text 5, 10, 75, 10, "File path of Excel file:"
-  Text 130, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
-  Text 5, 45, 55, 10, "Scenario to run:"
-  Text 210, 45, 65, 10, "App/XFER cases?:"
-  Text 5, 65, 120, 10, "How many cases are you creating?:"
-  Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
-  Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
-EndDialog
-
-
 '--------- Project Krabappel --------------
 'Connects to BlueZone
 EMConnect ""
 
-
-
-Do
-	Do
-		Dialog training_case_creator_dialog
-		If buttonpressed = cancel then stopscript
-		If scenario_dropdown = "select one..." then MsgBox ("You must select a scenario from the dropdown!")
-	Loop until scenario_dropdown <> "select one..."
+DO
+	DO
+		DO
+			CALL create_dialog(excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)
+				If buttonpressed = cancel then stopscript
+				IF ButtonPressed = reload_excel_file_button THEN 
+					'Reseting the scenario list
+					scenario_list = ""
+					'Closing the current, active version of Excel
+					objWorkbook.Close
+					objExcel.Quit
+					
+					'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+					Set objExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
+					objExcel.Visible = True
+					Set objWorkbook = objExcel.Workbooks.Open(excel_file_path) 'Opens an excel file from a specific URL
+					objExcel.DisplayAlerts = True
+					
+					'Set objWorkSheet = objWorkbook.Worksheet
+					For Each objWorkSheet In objWorkbook.Worksheets
+						If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+					Next
+				END IF
+		LOOP UNTIL ButtonPressed <> reload_excel_file_button
+		If scenario_dropdown = "select one..." AND ButtonPressed = -1 then MsgBox ("You must select a scenario from the dropdown!")
+	LOOP UNTIL ButtonPressed <> reload_excel_file_button	
 	final_check_before_running = MsgBox("Here's what the scenario will try to create. Please review before proceeding:" & Chr(10) & Chr(10) & _
-										"Scenario selection: " & scenario_dropdown & Chr(10) & _
-										"Approving cases: " & approve_case_dropdown & Chr(10) & _
-										"Amt of cases to make: " & how_many_cases_to_make & Chr(10) & _
-										"Workers to XFER cases to: " & workers_to_XFER_cases_to & Chr(10) & Chr(10) & _
-										"It is VERY IMPORTANT to review these details before proceeding. It is also highly recommended that if you've created your own scenarios, " & _
-										"test them first creating a single case. This is to check to see if any details were missed on the spreadsheet. DHS CANNOT TRIAGE ISSUES WITH " & _
-										"COUNTY/AGENCY CUSTOMIZED SCENARIOS." & Chr(10) & Chr(10) & _
-										"Please also note that creating training cases can take a very long time. If you are creating hundreds of cases, you may want to run this " & _
-										"overnight, or on a secondary machine." & Chr(10) & Chr(10) & _
-										"If you are ready to continue, press ''Yes''. Otherwise, press ''no'' to return to the previous screen.", vbYesNo)
-Loop until final_check_before_running = vbYes
-
-'<<<<<<<<<<<DIALOG SHOULD GO HERE, FOR NOW IT WILL SELECT THE ONLY CASE ON THE LIST
-	'DIALOG SHOULD ASK FOR WORKER NUMBERS IN AN EDITBOX (TO TURN TO AN ARRAY)
-	'DIALOG SHOULD ASK IF EACH PIECE NEEDS TO HAPPEN (SO, PROVIDE EARLY TERMINATION FOR INSTANCES WHERE WE JUST WANT TO LEAVE A CASE IN PND1 OR PND2 STATUS)
-	'DIALOG SHOULD POP UP A MSGBOX CONFIRMING DETAILS AND WARNING THAT THIS COULD TAKE A WHILE
+									"Scenario selection: " & scenario_dropdown & Chr(10) & _
+									"Approving cases: " & approve_case_dropdown & Chr(10) & _
+									"Amt of cases to make: " & how_many_cases_to_make & Chr(10) & _
+									"Workers to XFER cases to: " & workers_to_XFER_cases_to & Chr(10) & Chr(10) & _
+									"It is VERY IMPORTANT to review these details before proceeding. It is also highly recommended that if you've created your own scenarios, " & _
+									"test them first creating a single case. This is to check to see if any details were missed on the spreadsheet. DHS CANNOT TRIAGE ISSUES WITH " & _
+									"COUNTY/AGENCY CUSTOMIZED SCENARIOS." & Chr(10) & Chr(10) & _
+									"Please also note that creating training cases can take a very long time. If you are creating hundreds of cases, you may want to run this " & _
+									"overnight, or on a secondary machine." & Chr(10) & Chr(10) & _
+									"If you are ready to continue, press ''Yes''. Otherwise, press ''no'' to return to the previous screen.", vbYesNo)
+LOOP UNTIL final_check_before_running = vbYes
 
 'Activates worksheet based on user selection
 objExcel.worksheets(scenario_dropdown).Activate
@@ -624,7 +648,6 @@ End if
 '========================================================================PND2 PANELS========================================================================
 
 For each case_number in case_number_array
-	
 	
 	'Navigates to STAT/SUMM for each case
 	call navigate_to_screen("STAT", "SUMM")
@@ -1172,7 +1195,6 @@ For each case_number in case_number_array
 		REST_agreement_date = ObjExcel.Cells(REST_starting_excel_row + 10, current_excel_col).Value
 
 		SCHL_starting_excel_row = 509
-		appl_date = ObjExcel.Cells(4, 3).Value
 		SCHL_status = left(ObjExcel.Cells(SCHL_starting_excel_row, current_excel_col).Value, 1)
 		SCHL_ver = left(ObjExcel.Cells(SCHL_starting_excel_row + 1, current_excel_col).Value, 2)
 		SCHL_type = left(ObjExcel.Cells(SCHL_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1384,9 +1406,6 @@ For each case_number in case_number_array
 		EMReadScreen SSN_mid, 2, 7, 46
 		EMReadScreen SSN_last, 4, 7, 49
 		
-		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
-		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
-		
 		'ACCT
 		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
 		
@@ -1485,7 +1504,10 @@ For each case_number in case_number_array
 		If OTHR_type <> "" then call write_panel_to_MAXIS_OTHR(OTHR_type, OTHR_cash_value, OTHR_cash_value_ver, OTHR_owed, OTHR_owed_ver, OTHR_date, OTHR_cash_count, OTHR_SNAP_count, OTHR_HC_count, OTHR_IV_count, OTHR_joint, OTHR_share_ratio)
 			
 		'PARE
-		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(appl_date, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(appl_date, reference_number, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+
+		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
+		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 		
 		'PBEN 1
 		If PBEN_1_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_1_referal_date, PBEN_1_type, PBEN_1_appl_date, PBEN_1_appl_ver, PBEN_1_IAA_date, PBEN_1_disp)
@@ -1564,15 +1586,19 @@ For each case_number in case_number_array
 
 	DO			
 		PF3		'---Navigates to STAT/WRAP
-		EMReadScreen benefit_month, 2, 20, 55
+		EMReadScreen at_wrap, 4, 2, 46
+		EMReadScreen at_self, 4, 2, 50
+		IF at_wrap = "WRAP" THEN EMReadScreen benefit_month, 2, 20, 55
+		IF at_self = "SELF" THEN EMReadScreen benefit_month, 2, 20, 43
 		future_month = DatePart("M", DateAdd("M", 1, date))
 		IF len(future_month) <> 2 THEN future_month = "0" & future_month
-		IF benefit_month <> future_month THEN
+		IF int(benefit_month) <> int(future_month) THEN
 			EMWriteScreen "Y", 16, 54
 			transmit
-		ELSE
+		ELSEIF int(benefit_month) = int(future_month) THEN 
 			EXIT DO
 		END IF
+		
 		
 		'---Now the script will update BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for future months.
 		For current_memb = 1 to total_membs
@@ -1791,7 +1817,6 @@ For each case_number in case_number_array
 			IF WKEX_program <> "" THEN CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
 		NEXT		
 	LOOP UNTIL benefit_month = future_month
-		
 	'Gets back to self
 	back_to_self
 
@@ -2072,7 +2097,7 @@ FOR EACH case_number IN case_number_array
 		'================= GA Approval ===============================================
 		IF cash_type = "GA" THEN
 			num_of_ga_months = DateDiff("M", appl_date, date) + 2
-			Dim ga_array ()		'Creating an array of GA approval for FIATing SNAP.
+			Dim ga_array		'Creating an array of GA approval for FIATing SNAP.
 			ReDim ga_array(num_of_ga_months, 1) 
 			ga_months = -1
 			DO
@@ -2300,45 +2325,51 @@ FOR EACH case_number IN case_number_array
 			transmit
 			IF is_case_expedited <> "EXPEDITED" THEN
 				DO
+					not_allowed = ""
+					locked_by_background = ""
 					EMWriteScreen "APP", 19, 70
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 15, 54
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
+					row = 1
+					col = 1
+					EMSearch "(Y/N)  _", row, col
+				LOOP UNTIL (not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED") OR row <> 0
 				DO
-					EMReadScreen please_examine, 14, 4, 25
-				LOOP UNTIL please_examine = "PLEASE EXAMINE"
+					row = 1
+					col = 1
+					EMSearch "Do you want to continue with the approval?", row, col
+				LOOP UNTIL row <> 0
 				DO
-					EMSendKey "Y"
+					row = 1 
+					col = 1
+					EMSearch "(Y/N)  _", row, col	
+					IF row <> 0 THEN 
+						EMWriteScreen "Y", row, col + 7
+					ELSE
+						MsgBox "The script is struggling to find the correct space to confirm the approval. Please enter a Y in the correct space, and press OK for the script to continue." & vbCr & vbCr & "PLEASE DO NOT TRANSMIT!!"
+					END IF
 					transmit
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
 			ELSE
 				DO
+					not_allowed = ""
+					locked_by_background = ""
 					EMWriteScreen "APP", 19, 70
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 15, 54
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
-				DO
-					EMReadScreen rei_benefit, 3, 15, 33
-				LOOP UNTIL rei_benefit = "REI"
-				EMSendKey "Y"
-				transmit
-				DO
-					EMReadScreen rei_confirm, 3, 14, 30
-				LOOP UNTIL rei_confirm = "REI"
-				EMSendKey "Y"
-				transmit
-				DO
-					EMReadScreen continue_with_approval, 5, 16, 44
-				LOOP UNTIL continue_with_approval = "(Y/N)"
-				DO
-					EMSendKey "Y"
-					transmit
+					row = 1
+					col = 1
+					EMSearch "(Y/N)", row, col
+					IF row <> 0 THEN
+						emfocus
+						emsendkey "<tab>"
+						emsendkey "y"
+						transmit
+					End If
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
@@ -2596,11 +2627,23 @@ FOR EACH case_number IN case_number_array
 	'Checks for WORK panel (Workforce One Referral), makes one with a week from now as the appointment date as a default (we can add a specific date/location checker as an enhancement
 	EMReadScreen WORK_check, 4, 2, 51
 	If WORK_check = "WORK" then
-		call create_MAXIS_friendly_date(date, 7, 7, 59)
-		EMWriteScreen "X", 7, 47
+		wf_row = 7
+		wf_count = 0
+		DO 
+			EMReadScreen empty_space, 1, wf_row, 47
+			IF empty_space = "_" THEN 
+				call create_MAXIS_friendly_date(date, 7, wf_row, 59)
+				EMWriteScreen "X", wf_row, 47
+				wf_count = wf_count + 1
+			END IF
+			IF empty_space = " " THEN EXIT DO
+			wf_row = wf_row + 1
+		LOOP UNTIL empty_space = " "
 		transmit
-		EMWriteScreen "X", 5, 9
-		transmit
+		FOR i = 1 TO wf_count
+			EMWriteScreen "X", 5, 9
+			transmit
+		NEXT
 		transmit
 		transmit
 		'Special error handling for DHS and possibly multicounty agencies (don't have WF1 sites)

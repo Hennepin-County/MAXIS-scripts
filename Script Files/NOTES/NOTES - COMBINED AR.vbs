@@ -47,17 +47,17 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+next_month = dateadd("m", 1, date)
+MAXIS_footer_month = datepart("m", next_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = datepart("yyyy", next_month)
+MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
-  EditBox 80, 25, 30, 15, footer_month
-  EditBox 120, 25, 30, 15, footer_year
+  EditBox 80, 25, 30, 15, MAXIS_footer_month
+  EditBox 120, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "GRH", GRH_check
   CheckBox 50, 60, 30, 10, "MSA", cash_check
   CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
@@ -69,7 +69,6 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   Text 10, 30, 65, 10, "Footer month/year:"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
-
 
 BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 70, 35, 50, 15, recert_datestamp
@@ -138,7 +137,6 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   Text 5, 60, 55, 10, "Interview Date:"
 EndDialog
 
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 Dim row
@@ -148,8 +146,10 @@ Dim col
 'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
 call MAXIS_case_number_finder(case_number)
-call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)  removed since typically CARs are run on current month + 1 anyway
 
+MAXIS_footer_month = cstr(MAXIS_footer_month)
+MAXIS_footer_year = cstr(MAXIS_footer_year)
 
 'Shows case number dialog
 Do
@@ -186,8 +186,9 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL)
 CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL)
 
 'Determines recert month
-recert_month = footer_month & "/" & footer_year
+recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
+recert_month = cstr(recert_month)
 
 'Showing the case note dialog
 Do

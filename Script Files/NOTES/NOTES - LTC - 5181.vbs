@@ -10,7 +10,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -49,6 +49,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Declaring variables----------------------------------------------------------------------------------------------------
@@ -391,7 +392,7 @@ End if
 'Showing the case number
 Do
 	Dialog case_number_and_footer_month_dialog
-	If ButtonPressed = 0 then stopscript
+	cancel_confirmation
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 transmit
@@ -407,7 +408,7 @@ Do
 			Do
 				Dialog DHS_5181_dialog_1			'Displays the first dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
-				'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_02_button
 			IF waiver_type_droplist = "Select one..." THEN MsgBox "Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
 		Loop until waiver_type_droplist <> "Select one..."
@@ -418,7 +419,7 @@ Do
 				Do
 					Dialog DHS_5181_dialog_2			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-					'MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
 				If ButtonPressed = previous_to_page_01_button THEN exit do
 				If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") THEN Msgbox	"You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
@@ -426,26 +427,21 @@ Do
 		Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
 		If ButtonPressed = previous_to_page_01_button then exit do
 		Do
-			Do				
-				Do
-					Dialog DHS_5181_Dialog_3			'Displays the third dialog
-					cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
-					'MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-				Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
-				If ButtonPressed = previous_to_page_02_button THEN exit do
-				If case_action_editbox = "" or worker_signature = "" OR (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") OR _
-					(client_deceased_check =  checked AND date_of_death_editbox = "") OR (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") OR _
-					(waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") OR _
-					(client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") OR (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN
-					MsgBox "You need to:" & vbNewLine & vbNewLine & _
-					"-Complete a field next to an option that was checked, and/or" & vbNewLine & _	
-					"-Case note the 'case actions' section, and/or" & vbNewLine & _
-					"-Sign your case note." & vbNewLine & vbNewLine & _
-					"Check these items after pressing ''OK''."	
-				ELSE
-					move_on_to_case_note = True			'If all of that stuff is fine, this will set to true and the loop can end.
-				End if
-			Loop until move_on_to_case_note = True
+			Do
+				err_msg = ""
+				Dialog DHS_5181_Dialog_3			'Displays the third dialog
+				cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
+				MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				IF case_action_editbox = "" THEN err_msg = err_msg & vBcr & "Complete case actions section."
+				IF worker_signature = "" THEN err_msg = err_msg & vBcr & "Sign your case note."
+				IF (exited_waiver_program_check = checked AND exit_waiver_end_date_editbox = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the exited waiver checkbox that was checked."
+				IF (client_deceased_check =  checked AND date_of_death_editbox = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client deceased checkbox that was checked."
+				IF (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF_editbox = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client moved to LTCF checkbox that was checked."
+				IF (waiver_program_change_check = checked AND waiver_program_change_from_editbox = "" AND waiver_program_change_to_editbox = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the waiver program change checkbox that was checked."
+				IF (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan_editbox = "") THEN err_msg = err_msg & vBcr & "Complete a field next to the client disenrolled from health plan checkbox that was checked."
+				IF (new_address_check = checked AND new_address_effective_date_editbox =  "") THEN err_msg = err_msg & vBcr & "Complete a field next to the new address effective date checkbox that was checked."
+				IF err_msg <> "" THEN Msgbox err_msg
+			Loop until err_msg = ""
 		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
 	Loop until ButtonPressed = -1
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.

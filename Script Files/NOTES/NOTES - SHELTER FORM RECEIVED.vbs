@@ -22,7 +22,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -33,7 +33,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -74,8 +74,8 @@ END IF
 
 'THE DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number					
-  EditBox 80, 25, 25, 15, MAXIS_footer_month					
+  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 35, 45, 50, 15
@@ -85,7 +85,7 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
 EndDialog
 
 
-BeginDialog Shelter_form_received_dialog, 0, 0, 206, 225, "Dialog"							'Dialogue box completed by worker with information provided by the client regarding the shelter form that was received 
+BeginDialog Shelter_form_received_dialog, 0, 0, 206, 225, "Dialog"							'Dialogue box completed by worker with information provided by the client regarding the shelter form that was received
   EditBox 50, 5, 55, 15, date_moved_in
   EditBox 155, 5, 55, 15, how_many_residents
   EditBox 50, 25, 150, 15, new_address
@@ -118,12 +118,12 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to Bluezone & grabbing case number and footer year/month
-EMConnect ""				   
-call MAXIS_case_number_finder(case_number)	
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)			
+EMConnect ""
+call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 DO
-	Dialog case_number_dialogbox																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop' 
+	Dialog case_number_dialog																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop' 
 	IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
 	IF case_number = "" THEN MsgBox "You must enter a case number"
 LOOP UNTIL case_number <> ""
@@ -152,10 +152,10 @@ LOOP UNTIL utilities_paid_by_resident_listbox <> "(Select one...)"
 
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(False)							
+Call check_for_MAXIS(False)
 
 
-'Dollar bill symbol will be added to numeric variables 
+'Dollar bill symbol will be added to numeric variables
 IF total_cost <> "" THEN total_cost = "$" & total_cost
 IF cost_per_person <> "" THEN cost_per_person = "$" & cost_per_person
 IF subsidized_amount <> "" THEN subsidized_amount = "$" & subsidized_amount
@@ -163,20 +163,20 @@ IF garage_amount <> "" THEN garage_amount = "$" & garage_amount
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-Call write_variable_in_case_note ("~~~Shelter form rec'd~~~")												
-Call write_bullet_and_variable_in_case_note ("Date client moved in", date_moved_in )		
-Call write_bullet_and_variable_in_case_note ("Number of residents", how_many_residents)			
-Call write_bullet_and_variable_in_case_note ("New address", new_address)		  
-Call write_bullet_and_variable_in_case_note ("Phone number", phone_number)				 
-Call write_bullet_and_variable_in_case_note ("Total cost", total_cost)					 
-Call write_bullet_and_variable_in_case_note ("Cost per person", cost_per_person)			 
-IF subsidized_amount_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Subsidized amount", subsidized_amount)			   
-IF garage_amount_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Garage amount", garage_amount)				  
-Call write_bullet_and_variable_in_case_note ("Utilities paid by resident", utilities_paid_by_resident_listbox) 
-Call write_bullet_and_variable_in_case_note ("Other notes", other_notes)				
-IF signed_by_LLMgr_check = 1 THEN Call write_variable_in_case_note ("* Signed by LL/Mgr.")			  
+Call write_variable_in_case_note ("~~~Shelter form rec'd~~~")
+Call write_bullet_and_variable_in_case_note ("Date client moved in", date_moved_in )
+Call write_bullet_and_variable_in_case_note ("Number of residents", how_many_residents)
+Call write_bullet_and_variable_in_case_note ("New address", new_address)
+Call write_bullet_and_variable_in_case_note ("Phone number", phone_number)
+Call write_bullet_and_variable_in_case_note ("Total cost", total_cost)
+Call write_bullet_and_variable_in_case_note ("Cost per person", cost_per_person)
+IF subsidized_amount_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Subsidized amount", subsidized_amount)
+IF garage_amount_check = 1 THEN Call write_bullet_and_variable_in_case_note ("Garage amount", garage_amount)
+Call write_bullet_and_variable_in_case_note ("Utilities paid by resident", utilities_paid_by_resident_listbox)
+Call write_bullet_and_variable_in_case_note ("Other notes", other_notes)
+IF signed_by_LLMgr_check = 1 THEN Call write_variable_in_case_note ("* Signed by LL/Mgr.")
 IF signed_by_client_check = 1 THEN Call write_variable_in_case_note ("* Signed by client.")
-Call write_variable_in_case_note ("---")						 
+Call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
 
 script_end_procedure ("")																										   'closing script and writing stats

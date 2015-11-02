@@ -144,7 +144,7 @@ EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
-LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel)
+LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel or VbDefaultButton2) 'defaults to no since that is most commonly chosen option
 If LTC_case = vbCancel then stopscript
 
 'Connects to BlueZone

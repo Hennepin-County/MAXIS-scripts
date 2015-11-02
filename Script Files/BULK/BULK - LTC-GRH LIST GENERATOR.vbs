@@ -147,7 +147,6 @@ For each worker in worker_number_array
 	EMReadScreen default_worker_number, 3, 21, worker_ID_col 'CHECKING THE CURRENT worker NUMBER. IF IT DOESN'T NEED TO CHANGE IT WON'T. OTHERWISE, THE SCRIPT WILL INPUT THE CORRECT NUMBER.
 	If ucase(worker_ID) <> default_worker_number then
 		EMWriteScreen worker_ID, 21, worker_ID_col
-		stopscript
 		transmit
 	End if
 

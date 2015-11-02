@@ -5,7 +5,7 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -48,12 +48,10 @@ END IF
 
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
 
+footer_month = datepart("m", date)
+If len(footer_month) = 1 then footer_month = "0" & footer_month
+footer_year = right(datepart("yyyy", date), 2)
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
@@ -220,6 +218,8 @@ If row <> 0 then
 	If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
+footer_month = CStr(footer_month)
+
 'Showing the case number
 Do
 	Dialog case_number_and_footer_month_dialog
@@ -275,127 +275,71 @@ Do
 	Do
 		Do
 			Do
-				Do
-					Dialog HCAPP_dialog_01
-					If ButtonPressed = 0 then 
-						dialog cancel_dialog
-						If ButtonPressed = yes_cancel_button then stopscript
-					End if
-				Loop until ButtonPressed <> no_cancel_button
-				EMReadScreen STAT_check, 4, 20, 21
-				If STAT_check = "STAT" then
-					If ButtonPressed = prev_panel_button then call panel_navigation_prev
-					If ButtonPressed = next_panel_button then call panel_navigation_next
-					If ButtonPressed = prev_memb_button then call memb_navigation_prev
-					If ButtonPressed = next_memb_button then call memb_navigation_next
-				End if
-				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-				EMReadScreen MAXIS_check, 5, 1, 39
-				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-			If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-			If ButtonPressed = ABPS_button then call navigate_to_screen("stat", "ABPS")
-			If ButtonPressed = AREP_button then call navigate_to_screen("stat", "AREP")
-			If ButtonPressed = ALTP_button then call navigate_to_screen("stat", "ALTP")
-			If ButtonPressed = SCHL_button then call navigate_to_screen("stat", "SCHL")
-			If ButtonPressed = STIN_button then call navigate_to_screen("stat", "STIN")
-			If ButtonPressed = STEC_button then call navigate_to_screen("stat", "STEC")
-			If ButtonPressed = DISA_button then call navigate_to_screen("stat", "DISA")
-			If ButtonPressed = PDED_button then call navigate_to_screen("stat", "PDED")
-			If ButtonPressed = BUSI_button then call navigate_to_screen("stat", "BUSI")
-			If ButtonPressed = JOBS_button then call navigate_to_screen("stat", "JOBS")
-			If ButtonPressed = RBIC_button then call navigate_to_screen("stat", "RBIC")
-			If ButtonPressed = UNEA_button then call navigate_to_screen("stat", "UNEA")
-			If ButtonPressed = COEX_button then call navigate_to_screen("stat", "COEX")
-			If ButtonPressed = DCEX_button then call navigate_to_screen("stat", "DCEX")
-			If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
-			If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
-			If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
+				err_msg = ""
+				Dialog HCAPP_dialog_01
+				cancel_confirmation
+				If HCAPP_datestamp = "" or len(HCAPP_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."  'creating err_msg if required items are missing
+				If err_msg <> "" THEN Msgbox err_msg
+			Loop until ButtonPressed <> no_cancel_button and err_msg = ""
+			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 		Loop until ButtonPressed = next_page_button
 		Do
 			Do
-				Do
-					Dialog HCAPP_dialog_02
-					If ButtonPressed = 0 then 
-						dialog cancel_dialog
-						If ButtonPressed = yes_cancel_button then stopscript
-					End if
-				Loop until ButtonPressed <> no_cancel_button
-				EMReadScreen STAT_check, 4, 20, 21
-				If STAT_check = "STAT" then
-					If ButtonPressed = prev_panel_button then call panel_navigation_prev
-					If ButtonPressed = next_panel_button then call panel_navigation_next
-					If ButtonPressed = prev_memb_button then call memb_navigation_prev
-					If ButtonPressed = next_memb_button then call memb_navigation_next
-				End if
-				transmit 'Forces a screen refresh, to keep MAXIS from erroring out in the event of a password prompt.
-				EMReadScreen MAXIS_check, 5, 1, 39
-				If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You do not appear to be in MAXIS. Are you passworded out? Or in MMIS? Check these and try again."
-			Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " 
-			If ButtonPressed = ELIG_HC_button then call navigate_to_screen("elig", "HC__")
-			If ButtonPressed = ACCT_button then call navigate_to_screen("stat", "ACCT")
-			If ButtonPressed = CARS_button then call navigate_to_screen("stat", "CARS")
-			If ButtonPressed = CASH_button then call navigate_to_screen("stat", "CASH")
-			If ButtonPressed = OTHR_button then call navigate_to_screen("stat", "OTHR")
-			If ButtonPressed = REST_button then call navigate_to_screen("stat", "REST")
-			If ButtonPressed = SECU_button then call navigate_to_screen("stat", "SECU")
-			If ButtonPressed = TRAN_button then call navigate_to_screen("stat", "TRAN")
-			If ButtonPressed = INSA_button then call navigate_to_screen("stat", "INSA")
-			If ButtonPressed = MEDI_button then call navigate_to_screen("stat", "MEDI")
-			If ButtonPressed = ACCI_button then call navigate_to_screen("stat", "ACCI")
-			If ButtonPressed = BILS_button then call navigate_to_screen("stat", "BILS")
-			If ButtonPressed = FACI_button then call navigate_to_screen("stat", "FACI")
-			If ButtonPressed = MEMB_button then call navigate_to_screen("stat", "MEMB")
-			If ButtonPressed = MEMI_button then call navigate_to_screen("stat", "MEMI")
-			If ButtonPressed = REVW_button then call navigate_to_screen("stat", "REVW")
+				err_msg = ""
+				Dialog HCAPP_dialog_02
+				cancel_confirmation
+				If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
+				If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+				If HCAPP_status = "Select one..." THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
+				If err_msg <> "" THEN Msgbox err_msg
+			Loop until ButtonPressed <> no_cancel_button and err_msg = ""
+			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 		Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
 		If ButtonPressed = previous_page_button then exit do
-		If actions_taken = "" or HCAPP_datestamp = "" or worker_signature = "" or HCAPP_status = "Select one..." then MsgBox "You need to fill in the datestamp and actions taken sections, and the HCAPP status, as well as sign your case note. Check these items after pressing ''OK''."
-	Loop until actions_taken <> "" and HCAPP_datestamp <> "" and HCAPP_status <> "Select one..." and worker_signature <> "" 
+	Loop until err_msg = "" 
 	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then
-		If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
-			call navigate_to_screen("rept", "pnd2")
-			EMGetCursor PND2_row, PND2_col
-			EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
-			If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
-			EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
-			If PND2_HC_status_check = "P" then
-				EMWriteScreen "x", PND2_row, 3
-				transmit
-				person_delay_row = 7
-				Do
-					EMReadScreen person_delay_check, 1, person_delay_row, 39
-					If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
-					person_delay_row = person_delay_row + 2
-				Loop until person_delay_check = " " or person_delay_row > 20
-				PF3
-			End if
-			PF3
-			EMReadScreen PND2_check, 4, 2, 52
-			If PND2_check = "PND2" then
-				MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
-				PF10
-				client_delay_check = 0
-			End if
-		End if
-		If TIKL_check = 1 then
-			call navigate_to_screen("dail", "writ")
-			call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18) 
-			EMSetCursor 9, 3
-			EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-			transmit
-			PF3
-		End if
-		call navigate_to_screen("case", "note")
-		PF9
-		EMReadScreen case_note_check, 17, 2, 33
-		EMReadScreen mode_check, 1, 20, 09
-		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then MsgBox "The script can't open a case note. Are you in inquiry? Check MAXIS and try again."
-	End if
+	If buttonpressed = yes_case_note_button then exit do
 Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 
+'PND2 updater------------------------------------------------------------------------------------------------------------------------
+If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
+	call navigate_to_MAXIS_screen("rept", "pnd2")
+	EMGetCursor PND2_row, PND2_col
+	EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
+	If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
+	EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
+	If PND2_HC_status_check = "P" then
+		EMWriteScreen "x", PND2_row, 3
+		transmit
+		person_delay_row = 7
+		Do
+			EMReadScreen person_delay_check, 1, person_delay_row, 39
+			If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+			person_delay_row = person_delay_row + 2
+		Loop until person_delay_check = " " or person_delay_row > 20
+		PF3
+	End if
+	PF3
+	EMReadScreen PND2_check, 4, 2, 52
+	If PND2_check = "PND2" then
+		MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
+		PF10
+		client_delay_check = 0
+	End if
+End if
+'Tikl portion-----------------------------------------------------------------------------------------------------------------------------
+If TIKL_check = 1 then
+	call navigate_to_MAXIS_screen("dail", "writ")
+	call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18) 
+	EMSetCursor 9, 3
+	EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
+	transmit
+	PF3
+End if
+
 'SECTION 08: THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+
 CALL write_variable_in_case_note("***HCAPP received " & HCAPP_datestamp & ": " & HCAPP_status & "***")
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
@@ -427,7 +371,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
-IF MMIS_update_check = checked then call write_variable_in_case_note("* MMIS updated.")
+IF MMIS_updated_check = checked then call write_variable_in_case_note("* MMIS updated.")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 

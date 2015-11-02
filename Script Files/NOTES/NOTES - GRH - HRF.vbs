@@ -61,7 +61,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
-  CheckBox 10, 60, 30, 10, "GRH", cash_check
+  CheckBox 10, 60, 30, 10, "GRH", GRH_check
   CheckBox 50, 60, 30, 10, "HC", HC_check
   ButtonGroup ButtonPressed
     OkButton 35, 80, 50, 15
@@ -91,7 +91,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 240, "HRF dialog"
   ButtonGroup ButtonPressed
     OkButton 340, 220, 50, 15
     CancelButton 395, 220, 50, 15
-    PushButton 280, 15, 20, 10, "GRH", ELIG_MFIP_button
+    PushButton 280, 15, 20, 10, "GRH", ELIG_GRH_button 'previously this was assign to elig/mfip, because elig/grh was not in funclib...this now has been fix and updated.
     PushButton 300, 15, 20, 10, "HC", ELIG_HC_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
@@ -200,7 +200,8 @@ Do
 	Loop until HRF_status <> "(select one...)"
 	If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
 Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
-	If grab_GRH_info_check = 1 then
+	
+If grab_GRH_info_check = 1 then
 		call navigate_to_MAXIS_screen("elig", "grh")
 		EMReadScreen GRPR_check, 4, 3, 47
 		If GRPR_check <> "GRPR" then
@@ -239,6 +240,7 @@ If GRPR_check = "GRPR" then
 	call write_variable_in_CASE_NOTE("Client Obligation: $" & GRSM_Obligation)
 	call write_variable_in_CASE_NOTE("---")
 End if
-call write_variable_in_CASE_NOTE(worker_signature)
 
+call write_variable_in_CASE_NOTE(worker_signature)
+ 
 call script_end_procedure("")

@@ -49,13 +49,12 @@ END IF
 
 BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
   EditBox 60, 10, 80, 15, case_number
-  EditBox 60, 30, 25, 15, memb_number
   ButtonGroup ButtonPressed
     OkButton 15, 55, 50, 15
     CancelButton 80, 55, 50, 15
   Text 5, 15, 50, 10, "Case Number:"
-  Text 5, 35, 50, 10, "Memb Number:"
 EndDialog
+
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -68,67 +67,90 @@ DO
 	dialog EDRS_dialog
 	IF buttonpressed = 0 THEN stopscript
 	IF case_number = "" THEN MSGBOX "Please enter a case number"
-	IF memb_number = "" THEN MSGBOX "Please enter a member number"
 
-LOOP UNTIL case_number <> "" AND memb_number <> ""
+LOOP UNTIL case_number <> ""
+
+'Creating a custom dialog for determining who the HH members are
+call HH_member_custom_dialog(HH_member_array)
+
+
 
 'changing footer dates to current month to avoid invalid months. 
 footer_month = datepart("M", date)
 	IF Len(footer_month) <> 2 THEN footer_month = "0" & footer_month 
 footer_year = right(datepart("YYYY", date), 2)
 
-'error proofs for 1 digit member numbers
-IF LEN(memb_number) <> 2 THEN memb_number = "0" & memb_number
-
 'Error proof functions
 Call check_for_MAXIS(False)
 
+Dim Member_Info_Array()
+Redim Member_Info_Array(UBound(HH_member_array), 4)
+
+
 'Navigate to stat/memb and check for ERRR message
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-'Navigating to selected memb panel
-EMwritescreen memb_number, 20, 76
-transmit
+For i = 0 to Ubound(HH_member_array)
 
-EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
-IF no_MEMB = "Arrival Date:" THEN script_end_procedure("This HH member does not exist.")
+	Member_Info_Array(i, 0) = HH_member_array(i)
+	'Navigating to selected memb panel
+	EMwritescreen HH_member_array(i), 20, 76
+	transmit
+	
+	EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
+	IF no_MEMB = "Arrival Date:" THEN script_end_procedure("This HH member does not exist.")
+	
+	
+	'Reading info and removing spaces
+	EMReadscreen First_name, 12, 6, 63
+	First_name = replace(First_name, "_", "")
+	Member_Info_Array(i, 1) = First_name
+	
+	'Reading Last name and removing spaces
+	EMReadscreen Last_name, 25, 6, 30
+	Last_name = replace(Last_name, "_", "")
+	Member_Info_Array(i, 2) = Last_name
+	
+	'Reading Middle initial and replacing _ with a blank if empty. 
+	EMReadscreen Middle_initial, 1, 6, 79
+	Middle_initial = replace(Middle_initial, "_", "")
+	Member_Info_Array(i, 3) = Middle_initial
 
-'Reading SSN number and removing spaces
-Emreadscreen SSN_number, 11, 7, 42  
-SSN_number = replace(SSN_number, " ", "")
-'Reading Last name and removing spaces
-EMReadscreen Last_name, 25, 6, 30
-Last_name = replace(Last_name, "_", "")
-'Reading First name and removing spaces
-EMReadscreen First_name, 12, 6, 63
-First_name = replace(First_name, "_", "")
-'Reading Middle initial and replacing _ with a blank if empty. 
-EMReadscreen Middle_initial, 1, 6, 79
-Middle_initial = replace(Middle_initial, "_", "")
+	'Reads SSN 
+	Emreadscreen SSN_number, 11, 7, 42  
+	SSN_number = replace(SSN_number, " ", "")
+	Member_Info_Array(i, 4) = SSN_number
+	
+Next 
+
 
 
 'Navigate back to self and to EDRS
 Back_to_self
 CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 
-'Write in SSN number into EDRS
-EMwritescreen SSN_number, 2, 7
-transmit
-Emreadscreen SSN_output, 7, 24, 2
-
-'Check to see what results you get from entering the SSN. If you get NO DISQ then check the person's name
-IF SSN_output = "NO DISQ" THEN
-	EMWritescreen Last_name, 2, 24
-	EMWritescreen First_name, 2, 58
-	EMWritescreen Middle_initial, 2, 76
+For i = 0 to UBound(HH_member_array)
+	
+	'Write in SSN number into EDRS
+	EMwritescreen Member_Info_Array(i, 4), 2, 7
 	transmit
-	EMreadscreen NAME_output, 7, 24, 2
-	IF NAME_output = "NO DISQ" THEN        'If after entering a name you still get NO DISQ then let worker know otherwise let them know you found a name. 
-		MSGBOX "No disqualifications found for " & First_name & " " & Last_name & " Member #: " & Memb_number
+	Emreadscreen SSN_output, 7, 24, 2
+	
+	'Check to see what results you get from entering the SSN. If you get NO DISQ then check the person's name
+	IF SSN_output = "NO DISQ" THEN
+		EMWritescreen Member_Info_Array(i, 2), 2, 24
+		EMWritescreen Member_Info_Array(i, 1), 2, 58
+		EMWritescreen Member_Info_Array(i, 3), 2, 76
+		transmit
+		EMreadscreen NAME_output, 7, 24, 2
+		IF NAME_output = "NO DISQ" THEN        'If after entering a name you still get NO DISQ then let worker know otherwise let them know you found a name. 
+			Hits = Hits & "No disqualifications found for Member #: " & Member_Info_Array(i, 0) & " " & Member_Info_Array(i, 1) & " " & Member_Info_Array(i, 2) & vbcr
+		ELSE
+			Hits = Hits & "Member #: " & Member_Info_Array(i, 0) & " " & Member_Info_Array(i, 1) & " " & Member_Info_Array(i, 2) & " has a potential name match. " & vbCr
+		END IF
 	ELSE
-		MSGBOX "Client's name has a match"
+		Hits = Hits & "Member #: " & Member_Info_Array(i, 0) & " " & Member_Info_Array(i, 1) & " " & Member_Info_Array(i, 2) & " has SSN Match. " & vbCr     'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
 	END IF
-ELSE
-	MSGBOX "SSN number has a match"        'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
-END IF
-
+Next 
+Msgbox Hits
+	
 script_end_procedure("")

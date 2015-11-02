@@ -99,6 +99,8 @@ End if
 
 'Navigating to case/curr
 EMSendKey "h"
+EMReadScreen case_number, 8, 5, 73
+case_number = trim(case_number)
 transmit
 
 'Searching for active SNAP
@@ -112,23 +114,14 @@ Else
 End if
 
 'Navigating to STAT/JOBS for the HH_memb in question
-EMWriteScreen "stat", 20, 22
-EMWriteScreen "jobs", 20, 69
-EMWriteScreen HH_memb, 20, 74
+CALL navigate_to_MAXIS_screen("STAT", "JOBS")
+EMWriteScreen HH_memb, 20, 76
+EMWriteScreen "01", 20, 79
 transmit
-
-'Searching for abended cases. If it's abended, it'll transmit
-row = 1
-col = 1
-EMSearch "abended", row, col
-If row <> 0 then transmit
 
 'Checking to make sure we're in STAT. If not, script will exit.
 EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure("This case couldn't get to stat. MAXIS may have slowed down or be in background. Try again in a few seconds. If this continues to happen and MAXIS is up, send the case number to the script administrator.")
-
-'Checks for the error screen, and if found, transmits
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 'Checking for the HH memb on the message. If not found, script will exit.
 EMReadScreen HH_memb_check, 31, 24, 02
@@ -194,17 +187,8 @@ End if
 'Gets out of case
 transmit
 
-'Presses PF3 until we're back on the DAIL
-Do
-	EMReadScreen DAIL_check, 4, 2, 48
-	If DAIL_check = "DAIL" then exit do
-	PF3
-Loop until DAIL_check = "DAIL"
-
-'Navigating to case note
-EMSendKey "n"
-transmit
-PF9
+'Navigating to case note and creating a new case note
+start_a_blank_CASE_NOTE
 
 'Sending case note
 EMSendKey "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer & "<newline>" 
@@ -216,8 +200,7 @@ PF3
 PF3
 
 'Opening a blank TIKL
-EMSendKey "w"
-transmit
+CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)

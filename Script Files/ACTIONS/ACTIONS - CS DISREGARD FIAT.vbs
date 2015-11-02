@@ -175,9 +175,9 @@ Next
 'The script determines eligibility for the disregard based on whether the person is a child on the PARE panel. This is a running decision.
 'Household_array(i, 4) is the eligibility for CS Disregard.
 number_of_kids = 0
-pare_row = 8
 FOR i = 1 to number_of_people
 	CALL navigate_to_MAXIS_screen("STAT", "PARE")
+	pare_row = 8
 	Do
 		EmReadScreen child_reference, 2, pare_row, 24
 		If child_reference = Household_array(i, 0) Then
@@ -250,80 +250,86 @@ IF CS_found <> True THEN script_end_procedure("A child support UNEA panel was no
 back_to_self
 
 'Checking out the sweet, sweet eligibility results, begining with D to the Dubs P
-IF DWP_cash_status <> "" Then
+IF DWP_cash_status <> "" THEN
 	CALL navigate_to_MAXIS_screen("ELIG", "DWP")
-	FOR i = 1 to number_of_people
-		dwpr_row = 7
-		DO
-			EMReadScreen DWPR_ref, 2, dwpr_row, 5
-			IF DWPR_ref = Household_array(i, 0) THEN
-				EMReadScreen DWP_elig_status, 1, dwpr_row, 57
-				IF DWP_elig_status = "I" Then
-					Household_array(i, 3) = FALSE
-					Exit do
-				ELSEIF DWP_elig_status = "E" THEN
-					Household_array(i, 3) = True
-					Exit do
+	'Checking to make sure we have a DWP version for the current month, for situations when DWP closes / MFIP opens
+	EmReadScreen DWP_version_check, 10, 24, 2
+	IF DWP_version_check <> "NO VERSION" THEN 'DWP exists, FIAT it
+		FOR i = 1 to number_of_people
+			dwpr_row = 7
+			DO
+				EMReadScreen DWPR_ref, 2, dwpr_row, 5
+				IF DWPR_ref = Household_array(i, 0) THEN
+					EMReadScreen DWP_elig_status, 1, dwpr_row, 57
+					IF DWP_elig_status = "I" Then
+						Household_array(i, 3) = FALSE
+						Exit do
+					ELSEIF DWP_elig_status = "E" THEN
+						Household_array(i, 3) = True
+						Exit do
+					END If
 				END If
-			END If
-			dwpr_row = dwpr_row + 1
-			If dwpr_row = 18 THEN 
-				PF8
-				dwpr_row = 7
-				EmReadScreen dwpr_edit, 4, 24, 2
-			END If
-		LOOP Until dwpr_edit = "THIS"
-	Next
-	
-	'IF there is 1 child eligible for the disregard, the limit is $100. If the number of eligible children exceeds 1, the limit is $200.
-	disregard_limit = 0
-	IF number_of_kids = 0 Then 
-		script_end_procedure("No eligible children were found eligible for DWP and are receiving Child Support. Please review case.")
-	ElseIF number_of_kids = 1 Then
-		disregard_limit = 100
-	Elseif number_of_kids > 1 Then
-		disregard_limit = 200
-	End if
-	
-	msgbox number_of_kids & " of clients are eligible." & vbCr & vbCr & "The disregard limit is " & disregard_limit & "." & vbCr & vbCr & "Press OK to continue."
-	
-	'FIATING DWP
-	PF9
-	EMwritescreen "04", 10, 41
-	transmit
-	EMwritescreen "DWB1", 20, 71
-	transmit
-	EMwritescreen "x", 8, 41
-	transmit
-	'Pausing to make sure MAXIS can keep up...
-	Emwaitready 1, 1000
-	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
-	applied_dwp_disregard = 0
-	For i = 1 to number_of_people		
-		If Household_array(i, 3) = TRUE Then
-			IF Household_array(i, 4) = TRUE Then
-				EMwritescreen "        ", 17, 50
-				'The applied disregard equals the existing applied amount PLUS the prospective CS amount for this person
-				applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
-				'If the amount to be applied exceeds the limit...
-				If applied_dwp_disregard > disregard_limit THEN 
-					'...the script subtracts the amount previously applied from this person...
-					applied_dwp_disregard = applied_dwp_disregard - Household_array(i, 6)
-					'...and applies the difference of the previous applied amount and the limit...
-					Household_array(i, 6) = disregard_limit - applied_dwp_disregard
-					applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
-				End if
-				EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
-				MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
-				Transmit
-				Transmit
-			Else
-				transmit
-			End If
+				dwpr_row = dwpr_row + 1
+				If dwpr_row = 18 THEN 
+					PF8
+					dwpr_row = 7
+					EmReadScreen dwpr_edit, 4, 24, 2
+				END If
+			LOOP Until dwpr_edit = "THIS"
+		Next
+		
+		'IF there is 1 child eligible for the disregard, the limit is $100. If the number of eligible children exceeds 1, the limit is $200.
+		disregard_limit = 0
+		IF number_of_kids = 0 Then 
+			script_end_procedure("No eligible children were found eligible for DWP and are receiving Child Support. Please review case.")
+		ElseIF number_of_kids = 1 Then
+			disregard_limit = 100
+		Elseif number_of_kids > 1 Then
+			disregard_limit = 200
 		End if
-	Next
+		
+		msgbox number_of_kids & " of clients are eligible." & vbCr & vbCr & "The disregard limit is " & disregard_limit & "." & vbCr & vbCr & "Press OK to continue."
+		
+		'FIATING DWP
+		PF9
+		EMwritescreen "04", 10, 41
+		transmit
+		EMwritescreen "DWB1", 20, 71
+		transmit
+		EMwritescreen "x", 8, 41
+		transmit
+		'Pausing to make sure MAXIS can keep up...
+		Emwaitready 1, 1000
+		'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
+		applied_dwp_disregard = 0
+		For i = 1 to number_of_people		
+			If Household_array(i, 3) = TRUE Then
+				IF Household_array(i, 4) = TRUE Then
+					EMwritescreen "        ", 17, 50
+					'The applied disregard equals the existing applied amount PLUS the prospective CS amount for this person
+					applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
+					'If the amount to be applied exceeds the limit...
+					If applied_dwp_disregard > disregard_limit THEN 
+						'...the script subtracts the amount previously applied from this person...
+						applied_dwp_disregard = applied_dwp_disregard - Household_array(i, 6)
+						'...and applies the difference of the previous applied amount and the limit...
+						Household_array(i, 6) = disregard_limit - applied_dwp_disregard
+						applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
+					End if
+					IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
+					EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
+					MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
+					Transmit
+					Transmit
+				Else
+					transmit
+				End If
+			End if
+		Next
+	END IF
+END IF
 '...next, for MFIP cases...
-ELSEIF MFIP_cash_status <> "" Then
+IF MFIP_cash_status <> "" THEN
 	CALL navigate_to_MAXIS_screen("FIAT", "")
 	EMwritescreen "03", 4, 34
 	EMwritescreen "x", 9, 22
@@ -373,6 +379,8 @@ ELSEIF MFIP_cash_status <> "" Then
 	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
 	applied_mfip_disregard = 0
 	FOR i = 1 to number_of_people
+		PF7
+		PF7 'This makes sure it is back at the top screen of FMSL
 		IF Household_array(i, 4) = True THEN
 			fmsl_row = 9
 			DO
@@ -393,6 +401,7 @@ ELSEIF MFIP_cash_status <> "" Then
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
 							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						END IF
+						IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 						EMWriteScreen Household_array(i, 6), 21, 44
 						transmit
 						transmit
@@ -406,6 +415,7 @@ ELSEIF MFIP_cash_status <> "" Then
 							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
 						END IF
+						IF Household_array(i, 5) < 0.01 THEN Household_array(i, 5) = 0
 						EMWriteScreen FormatNumber(Household_array(i, 5)), 21, 44
 						MsgBox "The script is applying " & FormatNumber(Household_array(i, 5)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						transmit
@@ -418,7 +428,7 @@ ELSEIF MFIP_cash_status <> "" Then
 						PF8
 						fmsl_row = 9
 						EMReadScreen no_more_people, 14, 24, 12
-						IF no_more_people = no_more_people = "NO MORE PEOPLE" THEN EXIT DO
+						IF no_more_people = "NO MORE PEOPLE" THEN EXIT DO
 					END IF
 				END IF
 			LOOP 

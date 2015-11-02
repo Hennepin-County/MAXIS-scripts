@@ -1,5 +1,5 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - APPLYMN APPLICATION RECEIVED.vbs"
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "NOTES - COUNTY BURIAL APPLICATION.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -46,54 +46,68 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
 
-BeginDialog apply_MN_dialog, 0, 0, 291, 125, "Apply MN"
-  EditBox 60, 5, 75, 15, case_number
-  EditBox 90, 25, 75, 15, app_date
-  EditBox 185, 25, 40, 15, app_time
-  DropListBox 235, 25, 35, 15, "AM"+chr(9)+"PM", AM_PM
-  EditBox 65, 45, 100, 15, confirmation_number
-  EditBox 50, 65, 205, 15, progs_applied_for
-  DropListBox 55, 85, 80, 15, "N/A"+chr(9)+"known to EBT"+chr(9)+"unknown to EBT", EBT_status
-  DropListBox 180, 85, 105, 15, "SPEC/XFERed to worker."+chr(9)+"Indexed to worker.", actions_taken
-  EditBox 70, 105, 75, 15, worker_signature
+'Dialog---------------------------------------------------------------------------------------------------------------------------
+BeginDialog County_Burial_Application_Received, 0, 0, 186, 240, "County Burial Application Received"
+  Text 5, 10, 50, 10, "Case Number: "
+  EditBox 55, 5, 100, 15, case_number
+  Text 5, 30, 50, 10, "Date received: "
+  EditBox 55, 25, 100, 15, date_received
+  Text 5, 50, 50, 10, "Date of death:"
+  EditBox 60, 50, 85, 15, date_of_death
+  Text 5, 70, 30, 10, "CFR:"
+  EditBox 60, 70, 85, 15, CFR
+  Text 5, 95, 35, 10, "Assets:"
+  EditBox 50, 95, 130, 15, assets
+  Text 5, 125, 75, 10, "Total Counted Assets"
+  EditBox 80, 120, 95, 15, Total_Counted_Assets
+  Text 5, 150, 40, 10, "Other notes: "
+  EditBox 55, 145, 125, 15, other_notes
+  Text 5, 175, 45, 10, "Action taken: "
+  EditBox 50, 175, 125, 15, action_taken
+  Text 5, 205, 60, 10, "Worker Signature: "
+  EditBox 70, 200, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 105, 50, 15
-    CancelButton 235, 105, 50, 15
-  Text 5, 10, 50, 10, "Case number:"
-  Text 5, 30, 80, 10, "Apply MN app rec'd on"
-  Text 170, 30, 10, 10, "at"
-  Text 5, 50, 55, 10, "Confirmation #:"
-  Text 5, 70, 45, 10, "Applying for:"
-  Text 5, 90, 40, 10, "EBT status:"
-  Text 145, 90, 30, 10, "Actions:"
-  Text 5, 110, 60, 10, "Worker signature:"
+    OkButton 70, 220, 50, 15
+    CancelButton 125, 220, 50, 15
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone
+
+
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
+'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-
-'Finds case number
-call MAXIS_case_number_finder(case_number)
-
-'Shows dialog and navigates to case note
-Dialog apply_MN_dialog
-cancel_confirmation
-
-'checking for an active MAXIS session	
-Call check_for_MAXIS(False)
+Call MAXIS_case_number_finder(case_number)
 
 
-'Case notes information
-Call start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("ApplyMN app rec'd on " & app_date & " at " & app_time & " " & AM_PM)
-call write_variable_in_case_note("Confirmation #" & confirmation_number) 'x is the header, y is the variable for the edit box which will be put in the case note.
-call write_variable_in_case_note("Applying for " &  progs_applied_for) 'x is the header, y is the variable for the edit box which will be put in the case note.
-If EBT_status <> "N/A" then call write_variable_in_CASE_NOTE("* Client is " & EBT_status & ".")
-call write_variable_in_CASE_NOTE("* " & actions_taken)
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE(worker_signature)
+'calling the dialog---------------------------------------------------------------------------------------------------------------
+DO
+	Dialog County_Burial_Application_Received
+	IF buttonpressed = 0 THEN stopscript
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
+	
+LOOP until case_number <> "" and worker_signature <> ""
 
-script_end_procedure("")
+'checking for an active MAXIS session
+CALL check_for_MAXIS(FALSE)
+
+
+
+'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+CALL write_variable_in_CASE_NOTE("***County Burial Application Received")
+CALL write_bullet_and_variable_in_CASE_NOTE("Date Received", Date_Received)
+CALL write_bullet_and_variable_in_CASE_NOTE("Date of death", Date_of_death)
+CALL write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
+CALL write_bullet_and_variable_in_CASE_NOTE("Assets", Assets)
+CALL write_bullet_and_variable_in_CASE_NOTE("Total Counted Assets", Total_Counted_Assets)
+CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", action_taken)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
+
+
+
+Script_end_procedure("")

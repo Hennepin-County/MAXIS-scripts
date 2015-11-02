@@ -70,6 +70,9 @@ EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
 
+'Determining specific county for multicounty agencies...
+CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
+
 'Connects to BlueZone
 EMConnect ""
 
