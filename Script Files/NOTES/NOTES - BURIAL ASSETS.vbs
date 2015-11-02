@@ -314,19 +314,16 @@ LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
 
 Do
 	Do
-		Do
-			Do
-	err_msg = ""
-	Dialog burial_assets_dialog_01
-	cancel_confirmation
-	If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
-	If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
-	If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
-	If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
-	If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
-Do
+		err_msg = ""
+		Dialog burial_assets_dialog_01
+		cancel_confirmation
+		If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
+		If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
+		If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
+		If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
+		If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
 	Do
 		Do
 			Dialog burial_assets_dialog_02
@@ -345,11 +342,10 @@ Do
 				Dialog burial_assets_dialog_04
 				cancel_confirmation
 				If buttonpressed = previous_to_03_button then exit do
-			Loop until ButtonPressed = -1
-			If buttonpressed = previous_to_03_button then exit do
-		Loop until ButtonPressed = -1
-	Loop until ButtonPressed = -1
-Loop until ButtonPressed = -1
+			Loop until ButtonPressed = -1	
+		LOOP until ButtonPressed = -1
+	LOOP until ButtonPressed = -1
+LOOP until ButtonPressed = -1
 
 Call check_for_MAXIS(False) 'checking for an active MAXIS session
 
