@@ -207,7 +207,7 @@ If buttonpressed = yes_case_note_button then
 		End if
 	End if
 	If grab_UHFS_info_check = 1 then
-		call navigate_to_MAXIS_screen("elig", "fs")
+		call navigate_to_MAXIS_screen("elig", "fs__")
 		EMReadScreen UHFS_check, 4, 3, 48
 		If UHFS_check <> "FSPR" then 
 			MsgBox "The script couldn't find Elig/FS. It will now jump to case note." 
