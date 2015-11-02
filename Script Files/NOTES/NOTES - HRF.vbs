@@ -73,7 +73,7 @@ EndDialog
 
 BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
   EditBox 65, 30, 50, 15, HRF_datestamp
-  DropListBox 170, 30, 75, 15, "complete"+chr(9)+"incomplete", HRF_status
+  DropListBox 170, 30, 75, 15, " "+chr(9)+"complete"+chr(9)+"incomplete", HRF_status
   EditBox 65, 50, 380, 15, earned_income
   EditBox 70, 70, 375, 15, unearned_income
   EditBox 30, 90, 90, 15, YTD
