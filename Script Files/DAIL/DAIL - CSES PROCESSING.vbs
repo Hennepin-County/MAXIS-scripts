@@ -293,7 +293,10 @@ If row <> 0 then FS_active = "True"
 If row = 0 then FS_active = "False"
 
 'Now it gets to STAT/MEMB to associate the HH members with the PMIs
-Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+'Manually navigating instead of using funclib to maintain tie to DAIL/DAIL for navigating efficiency while processing many DAILs
+EMWriteScreen "stat", 20, 22
+EMWriteScreen "memb", 20, 69
+transmit
 
 'Now we're in STAT/MEMB, and the script will associate a PMI with that HH member.
 excel_row = 1 'setting the variable for the following Do...Loop
