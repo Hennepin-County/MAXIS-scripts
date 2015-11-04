@@ -46,14 +46,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
-
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
   EditBox 65, 10, 65, 15, case_number
@@ -65,7 +57,6 @@ BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
   Text 10, 30, 50, 15, "Footer month:"
   Text 10, 10, 50, 15, "Case number: "
 EndDialog
-
 
 BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   EditBox 55, 5, 135, 15, FACI
@@ -95,7 +86,7 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   CheckBox 10, 260, 150, 10, "Check here to have the script update FACI.", FACI_update_check
   Text 105, 205, 60, 10, "Worker signature:"
   Text 5, 185, 25, 10, "Notes:"
-  Text 5, 50, 135, 10, "If hospital, list name & dates of admission:"
+  Text 5, 50, 135, 10, "If hospital, list name/dates of admission:"
   GroupBox 5, 100, 355, 75, "actions/proofs"
   Text 5, 30, 95, 10, "Recommended level of care:"
   Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
@@ -107,11 +98,9 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   GroupBox 5, 220, 260, 55, "Script actions"
 EndDialog
 
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS
+'connecting to MAXIS & grabs the case number and footer month/year
 EMConnect ""
-'Grabs the case number and footer month/year
 call MAXIS_case_number_finder(case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -119,9 +108,10 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 DO
 	Dialog case_number_dialog
 	cancel_confirmation
-	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number"
-LOOP UNTIL IsNumeric(case_number) = TRUE
-
+	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number."
+	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
+	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
+LOOP UNTIL IsNumeric(case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
 
 'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do
@@ -130,11 +120,16 @@ Do
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
 LOOP UNTIL worker_signature <> ""  
 
-'Checks for MAXIS
+'navigating the script to the correct footer month
+back_to_self
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
+call navigate_to_MAXIS_screen("STAT", "FACI")
+
+'Checks for an active MAXIS session
 call check_for_MAXIS(False)
 'checking to make sure case is out of background
 MAXIS_background_check
-
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -149,7 +144,6 @@ If TIKL_check = 1 then
   TIKL_date_YY = datepart("yyyy", TIKL_date)
   If len(TIKL_date_YY) = 4 then TIKL_date_YY = TIKL_date_YY - 2000
 End if
-
 
 'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
 'FACI
@@ -182,7 +176,6 @@ If FACI_update_check = 1 then
 	End if
 End if
 
-
 'HCMI
 If HCMI_update_check = 1 THEN
 	call navigate_to_MAXIS_screen("stat", "hcmi") 
@@ -190,7 +183,6 @@ If HCMI_update_check = 1 THEN
 	transmit
 	transmit
 END IF
-
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -203,7 +195,6 @@ If TIKL_check = 1 then
   transmit
   PF3
 End if
-
 
 'The CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
