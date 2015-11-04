@@ -131,18 +131,20 @@ FUNCTION create_NOTES_main_menu(dialog_name)
             PushButton 5, 130, 45, 10, "Emergency", EMERGENCY_button
             PushButton 5, 145, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
             PushButton 5, 160, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button
-            PushButton 5, 175, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-            PushButton 5, 190, 40, 10, "Fraud info", FRAUD_INFO_button
-            CancelButton 460, 245, 50, 15
-          Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
-          Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
-          Text 50, 100, 215, 10, "--- Template for noting drug felon info."
-          Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
-          Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
-          Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
-          Text 100, 160, 370, 10, "--- New 08/2015!!! -- Template for noting information about an employment verification received by the agency."
-          Text 85, 175, 220, 10, "--- Template for screening a client for expedited status."
-          Text 50, 190, 200, 10, "--- Template for noting fraud info."
+            PushButton 5, 175, 45, 10, "ES Referral", ES_REFERRAL_button
+	    PushButton 5, 190, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
+       	    PushButton 5, 205, 40, 10, "Fraud info", FRAUD_INFO_button
+	    CancelButton 460, 245, 50, 15
+   	Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
+        Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
+	Text 50, 100, 215, 10, "--- Template for noting drug felon info."
+	Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
+  	Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
+	Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
+	Text 100, 160, 370, 10, "--- Template for noting information about an employment verification received by the agency."
+	Text 55, 175, 245, 10, "--- New 11/2015!!! Template for sending an MFIP or DWP referral to employment services."
+  	Text 85, 190, 220, 10, "--- Template for screening a client for expedited status."
+	Text 50, 205, 200, 10, "--- Template for noting fraud info."
         EndDialog
 	ELSEIF dialog_name = "G-L" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (G-L) scripts main menu dialog"
@@ -177,14 +179,14 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		Text 40, 120, 120, 10, "--- Template for HCAPPs.*"
 		Text 75, 135, 240, 10, "--- Template for when you update the HH comp of a case."
 		Text 35, 150, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
-		Text 95, 165, 215, 10, "---- NEW 10/2015!!! Templace to case note when a IEVS notice is returned."
+		Text 95, 165, 215, 10, "---- NEW 10/2015!!! Template to case note when a IEVS notice is returned."
 		Text 60, 180, 290, 10, "---Template to note details of an incarceration, and also updates STAT/FACI if necessary."
 		Text 90, 195, 325, 10, "--- NEW 10/15!!! Template to case note an interview being completed but no stat panels updated."  
 		Text 90, 195, 325, 10, "--- NEW 10/15!!! Template to case note an interview being completed but no stat panels updated."
 		Text 55, 210, 255, 10, "--- Template for EMA applications."
 		Text 55, 225, 255, 10, "--- Template for the SAVE system for verifying immigration status."
 		Text 90, 240, 310, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
-		Text 70, 255, 320, 10, "--- NEW 08/2015!!! -- Template for case noting a client's no-showing their in-office appointment."
+		Text 70, 255, 320, 10, "--- Template for case noting a client's no-showing their in-office appointment."
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 		EndDialog
 	ELSEIF dialog_name = "M-Q" THEN
@@ -218,8 +220,8 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		Text 120, 145, 250, 10, "--- Template for when MNsure documents have been requested."
 		Text 115, 160, 340, 10, "--- NEW 10/2015!!! -- Template for when MNsure retro HC has been requested."
 		Text 60, 175, 240, 10, "--- Template for noting basic information about overpayments."
-		Text 85, 190, 405, 10, "--- NEW 08/2015!!! -- Template for case noting a pregnancy. This script can update STAT/PREG."
-		Text 85, 205, 415, 10, "--- NEW 08/2015!!! -- Template for documenting proof of relationship between a member 01 and someone else in the household."
+		Text 85, 190, 405, 10, "--- Template for case noting a pregnancy. This script can update STAT/PREG."
+		Text 85, 205, 415, 10, "--- Template for documenting proof of relationship between a member 01 and someone else in the household."
 		EndDialog
 	ELSEIF dialog_name = "R-Z" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (R-Z) scripts main menu dialog"
@@ -239,11 +241,11 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		      PushButton 5, 115, 100, 10, "Submit case for SNAP review", SUBMIT_CASE_FOR_SNAP_REVIEW_button
 		      PushButton 5, 130, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
 		    CancelButton 460, 245, 50, 15
-			Text 40, 70, 415, 10, "--- NEW 07/2015!!! --  Template for noting program reinstatement information."
+			Text 40, 70, 415, 10, "--- Template for noting program reinstatement information."
 			Text 90, 85, 350, 10, "--- Template for case noting information about a Shelter Form received."
-			Text 80, 100, 365, 10, "--- NEW 07/2015!!! --  Template for SNAP reviewers to use that will case note the status  SNAP quality review."
+			Text 80, 100, 365, 10, "--- Template for SNAP reviewers to use that will case note the status  SNAP quality review."
 			Text 85, 130, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
-			Text 110, 115, 345, 10, "--- NEW 08/2015!!! Template for when a worker sends a case to be reviewed by a supervisor or coworker."
+			Text 110, 115, 345, 10, "--- Template for when a worker sends a case to be reviewed by a supervisor or coworker."
 		EndDialog
 	ELSEIF dialog_name = "LTC" THEN
        BeginDialog dialog_name, 0, 0, 516, 270, "Notes (LTC) scripts main menu dialog"
@@ -339,6 +341,7 @@ IF ButtonPressed = DWP_BUDGET_button								THEN CALL run_from_GitHub(script_rep
 IF ButtonPressed = EMERGENCY_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")
 IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
 IF ButtonPressed = EMPLOYMENT_VERIFICATION_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EVF RECEIVED.vbs")
+IF ButtonPressed = ES_REFERRAL_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - ES REFERRAL.vbs")
 IF ButtonPressed = EXPEDITED_SCREENING_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPEDITED SCREENING.vbs")
 IF ButtonPressed = FRAUD_INFO_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FRAUD INFO.vbs")
 
