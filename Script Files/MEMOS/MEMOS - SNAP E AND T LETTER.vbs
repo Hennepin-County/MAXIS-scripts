@@ -81,7 +81,7 @@ IF worker_county_code = "x123" THEN county_FSET_offices = array("Workforce Devel
 'IF worker_county_code = "x124" THEN county_FSET_offices = array("Select one...", 
 IF worker_county_code = "x125" THEN county_FSET_offices = array("Workforce Development Inc. (Redwing)")
 IF worker_county_code = "x126" THEN county_FSET_offices = array("Grant County Social Services")
-IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one...", "Century Plaza", "Sabathani Community Center")
+'IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one...", "Health Services Building", "Sabathani Community Center")
 IF worker_county_code = "x128" THEN county_FSET_offices = array("Workforce Development Inc.")
 'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x130" THEN county_FSET_offices = array("Cambridge MN Workforce Center")
@@ -146,11 +146,6 @@ IF worker_county_code = "x187" THEN county_FSET_offices = array("Yellow Medicine
 'If the array isn't blank, then create a new array called FSET_list containing these items as a droplist. This will be used by the dialog.
 IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
 
-If worker_county_code = "x127" THEN 
-	SNAPET_contact = "the EZ Info Line"
-	SNAPET_phone = "612-596-1300"
-END IF
-
 'DIALOGS----------------------------------------------------------------------------------------------------
 ' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
@@ -177,7 +172,6 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointmen
   Text 5, 30, 60, 10, "Appointment Date:"
   Text 135, 75, 50, 10, "Contact phone:"
 EndDialog
-
 
 'This dialog is for counties that have not provided FSET office address(s)
 BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment Letter"
@@ -210,19 +204,112 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment 
   Text 130, 10, 70, 10, "HH Member Number:"
 EndDialog
 
+'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
+BeginDialog SNAPET_Hennepin_dialog, 0, 0, 276, 150, "SNAP E&T Appointment Letter"
+  EditBox 75, 10, 60, 15, case_number
+  EditBox 200, 10, 25, 15, member_number
+  DropListBox 75, 35, 185, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 1:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Sabathani, next Tuesday @ 1:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
+  EditBox 75, 60, 75, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 155, 60, 50, 15
+    CancelButton 210, 60, 50, 15
+  Text 5, 40, 70, 10, "Region of residence: "
+  Text 5, 65, 60, 10, "Worker Signature:"
+  Text 5, 15, 50, 10, "Case Number:"
+  Text 145, 15, 50, 10, "HH Member #:"
+  GroupBox 5, 85, 260, 55, "For non-English speaking ABAWD's:"
+  Text 15, 100, 245, 35, "HSRs: Do not use this script. Contact Mark Scherer at 612-596-7411 (if not available send email) and request language-specific SNAP E and T Orientation/intake. Provide ABAWD with Mark’s contact information, and instruct to contact him to schedule orientation within one week."
+EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone default screen
+'Connects to BlueZone default screen & 'Searches for a case number
 EMConnect ""
-'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(case_number)
+
+'defaults the member_number to 01
+member_number = "01"
 
 'Main dialog 
 DO	
 	'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 	err_msg = ""
+	IF worker_county_code = "x127" THEN 
+		Dialog SNAPET_Hennepin_dialog
+		'Hennepin specific information===================================================================================================
+		If worker_county_code = "x127" THEN 
+			SNAPET_contact = "the EZ Info Line"
+			SNAPET_phone = "612-596-1300"
+		END IF
+		'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
+		'Central NE
+		IF interview_location = "Central NE (HSB, next Wednesday @ 1:00 p.m.)" THEN 
+			SNAPET_name = "Health Services Building"
+			SNAPET_address_01 = "525 Portland Ave, 5th floor"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55415"
+			appointment_time_prefix_editbox = "01"
+			appointment_time_post_editbox = "00"
+			AM_PM = "PM"
+			appointment_date = Date + 8 - Weekday(Date, vbWednesday)
+		'North
+		ElseIF interview_location = "North (HSB, next Wednesday @ 10:00 a.m.)" THEN 
+			SNAPET_name = "Health Services Building"
+			SNAPET_address_01 = "525 Portland Ave, 5th floor"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55415"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbWednesday)
+		'Northwest
+		ElseIf interview_location = "Northwest(Sabathani, next Tuesday @ 1:00 p.m.)" THEN 
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "01"
+			appointment_time_post_editbox = "00"
+			AM_PM = "PM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		'South Minneapolis
+		ElseIf interview_location = "South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)" THEN 
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		'South Suburban
+		ElseIf interview_location = "South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)" THEN 
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		'West
+		ElseIf interview_location = "West (Sabathani, next Tuesday @ 10:00 a.m.)" THEN 
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		END IF
 	'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
-	IF worker_county_code = "x105" OR _
+	ELSEIF worker_county_code = "x105" OR _
 	worker_county_code = "x106" OR _
 	worker_county_code = "x110" OR _
 	worker_county_code = "x111" OR _
@@ -250,7 +337,7 @@ DO
 	worker_county_code = "x185" OR _ 
 	worker_county_code = "" THEN											  
 		Dialog SNAPET_manual_address_dialog 
-	ELSE 
+	ELSE
 		Dialog SNAPET_automated_adress_dialog
 		'next 5 lines are tricking the script to read <> "" since they are declared as "_"
 		SNAPET_name = "_"
@@ -263,7 +350,8 @@ DO
 	cancel_confirmation 
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If isdate(appointment_date) = FALSE then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-	If DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
+	'The DateValue condition does not apply to Hennepin County users which is why it is excluded in the line below
+	IF worker_county_code <> "x127" AND DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
 	IF len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid member number."		
 	IF SNAPET_name = "" then err_msg = err_msg & vbNewLine & "* Enter a E and T office location."
 	IF SNAPET_address_01 = "" then err_msg = err_msg & vbNewLine & "* Enter a street address."			
@@ -276,6 +364,18 @@ DO
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until err_msg = ""
+
+'The Hennepin County worker must confirm the appointment time and date, and gives them the option to select another date
+If worker_county_code = "x127" THEN	
+	DO
+		orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _ 
+		"                                                  " & appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & _
+		AM_PM, vbYesNoCancel, "Please confirm the SNAP E & T orientation referral date")
+		If orientation_date_confirmation = vbCancel then stopscript
+		If orientation_date_confirmation = vbYes then exit do
+		If orientation_date_confirmation = vbNo then appointment_date = dateadd("d", 7, appointment_date)
+	LOOP until orientation_date_confirmation = vbYes	
+END IF 
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
@@ -449,20 +549,7 @@ IF interview_location = "Grant County Social Services" THEN
 	SNAPET_zip = "56531"
 END IF
 
-'CO #27 HENNEPIN COUNTY addresses
-IF interview_location = "Century Plaza" THEN 
-	SNAPET_name = "Century Plaza"
-	SNAPET_address_01 = "330 South 12th Street #3650"
-	SNAPET_city = "Minneapolis"
-	SNAPET_ST = "MN"
-	SNAPET_zip = "55404"
-ElseIf interview_location = "Sabathani Community Center" THEN 
-	SNAPET_name = "Sabathani Community Center"
-	SNAPET_address_01 = "310 East 38th Street #120"
-	SNAPET_city = "Minneapolis"
-	SNAPET_ST = "MN"
-	SNAPET_zip = "55409"
-END IF
+'CO #27 Hennepin County address is listed at the top of the script as there are some Hennepin specific stuff in the script
 
 'CO #28 HOUSTON COUNTY address
 IF interview_location  = "Workforce Development Inc." THEN
@@ -956,4 +1043,9 @@ call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-dig
 EMWriteScreen SNAPET_contact, 16, 28
 PF4		'saves and sends memo
 
-script_end_procedure("If you haven't made the E & T referral, please do so now.  Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
+If worker_county_code = "x127" then 
+	script_end_procedure("Your orientation letter has been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _ 
+	vbNewLine & vbNewLine & "Make sure that you have made your E & T referral, and that you have sent the Diamond form: ABAWD FS RULES to the client.") 
+ELSE
+	script_end_procedure("If you haven't made the E & T referral, please do so now.  Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
+END IF
