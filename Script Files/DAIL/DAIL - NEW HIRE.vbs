@@ -170,9 +170,11 @@ TIKL_checkbox = checked
 HH_memb_row = 5 
 
 'Show dialog
-Dialog new_HIRE_dialog
-MAXIS_dialog_navigation
-cancel_confirmation
+Do
+	Dialog new_HIRE_dialog
+	cancel_confirmation
+	MAXIS_dialog_navigation
+Loop until ButtonPressed = -1
 
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first. 
 EMReadScreen jobs_total_panel_count, 1, 2, 78
