@@ -62,6 +62,7 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add() 
 objExcel.DisplayAlerts = True
 
+'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "CASE NBR"
 objExcel.Cells(1, 1).Font.Bold = True
 objExcel.Cells(1, 2).Value = "CLIENT NAME"
@@ -85,9 +86,13 @@ transmit
 
 excel_row = 2
 DO
+	'Reading and trimming the MAXIS case number and dumping it in Excel
 	EMReadScreen maxis_case_number, 8, 5, 73
 	maxis_case_number = trim(maxis_case_number)
 	objExcel.Cells(excel_row, 1).Value = maxis_case_number
+	
+	'This bit of code grabs the client name. The do/loop expands the search area until the value for 
+	'next_two equals "--" ... at which time the script determines that the cl name has ended
 	dail_col = 6
 	name_len = 1
 	DO
@@ -98,25 +103,36 @@ DO
 			dail_col = dail_col + 1
 		END IF
 	LOOP UNTIL next_two = "--"
+	'Dumping the client name in Excel
 	objExcel.Cells(excel_row, 2).Value = client_name
+	
+	'This is where the script starts reading the DAIL messages.
+	'Because the script brings each new case to the top of the page, dail_row starts at 6.
 	dail_row = 6
 	DO
+		'Determining if there is a new case number...
 		EMReadScreen new_case, 8, dail_row, 63
 		new_case = trim(new_case)
 		IF new_case <> "CASE NBR" THEN 
+			'...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
 			EMReadScreen dail_type, 4, dail_row, 6
 			EMReadScreen dail_month, 8, dail_row, 11
 			dail_month = trim(dail_month)
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
 			IF dail_msg <> "" AND dail_type <> "    " and dail_month <> "" THEN 
+				'...and put that biznass in Excel.
 				objExcel.Cells(excel_row, 1).Value = maxis_case_number
 				objExcel.Cells(excel_row, 2).Value = client_name
 				objExcel.Cells(excel_row, 3).Value = dail_type
 				objExcel.Cells(excel_row, 4).Value = dail_month
 				objExcel.Cells(excel_row, 5).Value = dail_msg
 			END IF
+			
+			'...going to the next ding dang row...
 			dail_row = dail_row + 1
+			
+			'...going to the next page if necessary
 			IF dail_row = 19 AND dail_msg <> "" THEN
 				PF8
 				dail_row = 6
@@ -124,14 +140,19 @@ DO
 				EMReadScreen more_pages, 7, 19, 3
 				IF more_pages = "More: -" OR more_pages = "       " THEN 
 					all_done = True
+					'If the script determines that it is on the last page, it EXITS DO...
 					exit do
 				ELSE
 					PF8
 					dail_row = 6
 				END IF
 			END IF
+			
 			excel_row = excel_row + 1
 		ELSEIF new_case = "CASE NBR" THEN
+			'...if the script does find that there is a new case number (indicated by the presence
+			'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that 
+			'   case number to the top of your DAIL
 			EMWriteScreen "T", dail_row + 1, 3
 			transmit
 		END IF
@@ -139,10 +160,14 @@ DO
 	IF all_done = true THEN exit do
 LOOP
 
+'Formatting the column width.
 FOR i = 1 to 5
 	objExcel.Columns(i).AutoFit()
 NEXT
-	
-objExcel.Visible = True
 
+'All donesies.
 script_end_procedure("Success!!")
+
+'Now that you have your Excel spreadsheet, photons will enter your eye balls, hit your retina, and create a signal that will
+'be passed to your brain. Your brain will create an image from those signals, giving you a view of the world as it exists
+'in MAXIS, specifically, DAIl/DAIL.
