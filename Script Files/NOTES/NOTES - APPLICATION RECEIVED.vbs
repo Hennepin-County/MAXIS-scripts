@@ -57,28 +57,36 @@ BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
   Text 5, 30, 85, 10, "Worker Signature"
 EndDialog
 
-BeginDialog app_detail_dialog, 0, 0, 221, 205, "Detail of application"
+BeginDialog app_detail_dialog, 0, 0, 221, 260, "Detail of application"
   DropListBox 80, 5, 135, 45, "Select One"+chr(9)+"In Person"+chr(9)+"Droped Off"+chr(9)+"Mail"+chr(9)+"Online"+chr(9)+"Fax"+chr(9)+"Email", how_app_recvd
   DropListBox 80, 25, 135, 20, "Select One"+chr(9)+"CAF"+chr(9)+"ApplyMN"+chr(9)+"HC - Certain Populations"+chr(9)+"HCAPP"+chr(9)+"Addendum", app_type
   EditBox 80, 45, 135, 15, confirmation_number
-  EditBox 60, 65, 75, 15, time_of_app
-  DropListBox 145, 65, 70, 15, "AM"+chr(9)+"PM", AM_PM
-  EditBox 50, 85, 165, 15, worker_name
-  EditBox 120, 105, 95, 15, worker_number
-  EditBox 150, 125, 65, 15, pended_date
-  EditBox 5, 145, 210, 15, entered_notes
-  CheckBox 5, 165, 205, 15, "Check here to have script transfer case to assigned worker", transfer_case
+  EditBox 80, 65, 135, 15, date_of_app
+  CheckBox 5, 105, 30, 10, "Cash", cash_pend
+  CheckBox 45, 105, 30, 10, "SNAP", fs_pend
+  CheckBox 90, 105, 50, 10, "Emergency", emer_pend
+  CheckBox 150, 105, 20, 10, "HC", hc_pend
+  CheckBox 185, 105, 30, 10, "GRH", grh_pend
+  EditBox 60, 120, 75, 15, time_of_app
+  DropListBox 145, 120, 70, 15, "AM"+chr(9)+"PM", AM_PM
+  EditBox 50, 140, 165, 15, worker_name
+  EditBox 120, 160, 95, 15, worker_number
+  EditBox 150, 180, 65, 15, pended_date
+  EditBox 5, 200, 210, 15, entered_notes
+  CheckBox 5, 220, 205, 15, "Check here to have script transfer case to assigned worker", transfer_case
   ButtonGroup ButtonPressed
-    OkButton 110, 185, 50, 15
-    CancelButton 165, 185, 50, 15
+    OkButton 110, 240, 50, 15
+    CancelButton 165, 240, 50, 15
   Text 5, 10, 70, 10, "Application received"
   Text 5, 30, 65, 10, "Type of application"
   Text 5, 50, 60, 10, "Confirmation #"
-  Text 5, 70, 50, 10, "Time received"
-  Text 5, 90, 40, 10, "Assigned to:"
-  Text 5, 110, 110, 10, "Worker Number (X###### format)"
-  Text 5, 130, 25, 10, "Notes:"
-  Text 105, 130, 40, 10, "Pended on:"
+  Text 5, 70, 65, 10, "Date of Application"
+  Text 5, 90, 70, 10, "Programs Applied for:"
+  Text 5, 125, 50, 10, "Time received"
+  Text 5, 145, 40, 10, "Assigned to:"
+  Text 5, 165, 110, 10, "Worker Number (X###### format)"
+  Text 5, 185, 25, 10, "Notes:"
+  Text 110, 185, 40, 10, "Pended on:"
 EndDialog
 
 'Grabs the case number
@@ -117,6 +125,7 @@ EMReadScreen fs_pend, 4, 10, 74
 EMReadScreen ive_pend, 4, 11, 74
 EMReadScreen hc_pend, 4, 12, 74
 
+'Assigns a value so the programs pending will show up in check boxes
 IF cash1_pend = "PEND" THEN
 	cash1_pend = 1 
 	Else 
@@ -128,7 +137,9 @@ If cash2_pend = "PEND" THEN
 	Else 
 	cash2_pend = 0
 End if
-	
+
+If cash1_pend = 1 OR cash2_pend = 1 then cash_pend = 1 
+
 If emer_pend = "PEND" THEN 
 	emer_pend = 1
 	Else 
@@ -136,7 +147,7 @@ If emer_pend = "PEND" THEN
 End if
 
 If grh_pend = "PEND" THEN 
-	ghr__pend = 1
+	grh_pend = 1
 	Else 
 	grh_pend = 0
 End if
@@ -158,7 +169,7 @@ If hc_pend = "PEND" THEN
 	Else 
 	hc_pend = 0
 End if
-	
+
 'Defaults the date pended to today
 pended_date = date & ""
 
@@ -178,8 +189,7 @@ Do
 Loop until (app_type = "ApplyMN" and isnumeric(confirmation_number) = true) AND time_of_app <> "" OR app_type <> "ApplyMN"
 
 'Creates a variable that lists all the programs pending.
-If cash1_pend = 1 THEN programs_applied_for = programs_applied_for & "Cash, "
-If cash2_pend = 1 THEN programs_applied_for = programs_applied_for & "Cash, "
+If cash_pend = 1 THEN programs_applied_for = programs_applied_for & "Cash, "
 If emer_pend = 1 THEN programs_applied_for = programs_applied_for & "Emergency, "
 If grh_pend = 1 THEN programs_applied_for = programs_applied_for & "GRH, "
 If fs_pend = 1 THEN programs_applied_for = programs_applied_for & "SNAP, "
@@ -202,7 +212,7 @@ IF transfer_case = 1 THEN
 	End If
 End If
 
-
+'Combines the time and AM/PM in one variable
 IF time_of_app <> "" Then
 	time_stamp = " at " & time_of_app & " " & AM_PM
 ELSE 
