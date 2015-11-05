@@ -316,6 +316,10 @@ IF DWP_cash_status <> "" THEN
 						Household_array(i, 6) = disregard_limit - applied_dwp_disregard
 						applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
 					End if
+					'For whatever reason, the script was creating a very very small value instead of 0 and
+					'using scientific notation to display it. This was causing a problem when it came time
+					'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+					'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
 					IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 					EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
 					MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
@@ -401,6 +405,10 @@ IF MFIP_cash_status <> "" THEN
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
 							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						END IF
+						'For whatever reason, the script was creating a very very small value instead of 0 and
+						'using scientific notation to display it. This was causing a problem when it came time
+						'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+						'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
 						IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 						EMWriteScreen Household_array(i, 6), 21, 44
 						transmit
@@ -415,6 +423,10 @@ IF MFIP_cash_status <> "" THEN
 							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
 						END IF
+						'For whatever reason, the script was creating a very very small value instead of 0 and
+						'using scientific notation to display it. This was causing a problem when it came time
+						'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+						'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
 						IF Household_array(i, 5) < 0.01 THEN Household_array(i, 5) = 0
 						EMWriteScreen FormatNumber(Household_array(i, 5)), 21, 44
 						MsgBox "The script is applying " & FormatNumber(Household_array(i, 5)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
