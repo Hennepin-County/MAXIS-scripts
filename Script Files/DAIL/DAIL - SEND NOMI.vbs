@@ -1,17 +1,8 @@
 OPTION EXPLICIT
-
 name_of_script = "DAIL - SEND NOMI.vbs"
 start_time = timer
 
-DIM name_of_script
-DIM start_time
-DIM FuncLib_URL
-DIM run_locally
-DIM default_directory
-DIM beta_agency
-DIM req
-DIM fso
-DIM row
+DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso, row
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -71,17 +62,16 @@ DIM result_of_msgbox
 EMConnect ""
 
 'Reading date and time of recert appt. from TIKL
-Dail message ~*~*~CLIENT HAD RECERT INTERVIEW APPOINTMENT. IF MISSED SEND NOMI.
-EMReadScreen interview_date, 10, *****
-EMReadScreen interview_time, 8?, *****  
-
+'Dail message that should be read is: "~*~*~CLIENT HAD RECERT INTERVIEW AT" This is the part that is static in the DAIL message
+EMReadScreen interview_date, 10, 17, 57
+EMReadScreen interview_time, 8, 17, 71
 
 'navigates to CASE/NOTE to user can see if interview has been completed or not
 EMSendKey "n" 
 transmit
 
 'Msgbox asking the user to confirm if the client has sent a CAF or if no contact has been made by the client
-recert_forms_confirm = MsgBox("The SNAP NOMI recertification SPEC/MEMO is not to be sent when the SNAP recipient does not contact the agency about their recertification, and no CAF is received.  Press Yes if forms provided, OR contact was made by the recipient.") & _ 
+recert_forms_confirm = MsgBox("The SNAP NOMI recertification SPEC/MEMO is ONLY to be sent when the SNAP recipient does not contact the agency about their recertification, and no CAF is received.  Press Yes if forms provided, OR contact was made by the recipient.") & _ 
 	VbNewLine & ("Press No if no forms provided") & vbNewLine & ("Cancel to end the script.", vbYesNoCancel)
 	If recert_forms_confirm = vbCancel then stopscript
 	If recert_forms_confirm = vbYes then result_of_msgbox = TRUE
