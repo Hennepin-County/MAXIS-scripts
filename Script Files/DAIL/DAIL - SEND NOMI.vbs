@@ -1,4 +1,4 @@
-OPTION EXPLICIT
+'OPTION EXPLICIT
 name_of_script = "DAIL - SEND NOMI.vbs"
 start_time = timer
 
@@ -50,11 +50,11 @@ END IF
 'END OF GLOBAL VARIABLES----------------------------------------------------------------------------------------------------
 
 'Declaring variables
-DIM ButtonPressed
-DIM interview_date
-DIM interview_time
-DIM recert_forms_confirm
-DIM result_of_msgbox
+'DIM ButtonPressed
+'DIM interview_date
+'DIM interview_time
+'DIM recert_forms_confirm
+'DIM result_of_msgbox
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
