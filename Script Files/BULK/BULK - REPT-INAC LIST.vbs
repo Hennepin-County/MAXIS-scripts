@@ -83,7 +83,6 @@ cancel_confirmation
 
 If len(inac_month) = 1 then inac_month = "0" & inac_month
 
-
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 
