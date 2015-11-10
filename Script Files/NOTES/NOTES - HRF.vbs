@@ -86,6 +86,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
   EditBox 240, 165, 205, 15, verifs_needed
   EditBox 235, 185, 210, 15, actions_taken
   CheckBox 125, 210, 180, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
+  CheckBox 125, 225, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_UHFS_info_check
   EditBox 380, 205, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 340, 225, 50, 15
@@ -94,17 +95,17 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
     PushButton 280, 20, 20, 10, "HC", ELIG_HC_button
     PushButton 300, 20, 20, 10, "MFIP", ELIG_MFIP_button
     PushButton 335, 20, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 30, 45, 10, "next panel", next_panel_button
     PushButton 395, 20, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 30, 45, 10, "next panel", next_panel_button
     PushButton 395, 30, 45, 10, "next memb", next_memb_button
     PushButton 10, 165, 25, 10, "BUSI", BUSI_button
     PushButton 35, 165, 25, 10, "JOBS", JOBS_button
-    PushButton 10, 175, 25, 10, "RBIC", RBIC_button
-    PushButton 35, 175, 25, 10, "UNEA", UNEA_button
     PushButton 75, 165, 25, 10, "ACCT", ACCT_button
     PushButton 100, 165, 25, 10, "CARS", CARS_button
     PushButton 125, 165, 25, 10, "CASH", CASH_button
     PushButton 150, 165, 25, 10, "OTHR", OTHR_button
+    PushButton 10, 175, 25, 10, "RBIC", RBIC_button
+    PushButton 35, 175, 25, 10, "UNEA", UNEA_button
     PushButton 75, 175, 25, 10, "REST", REST_button
     PushButton 100, 175, 25, 10, "SECU", SECU_button
     PushButton 125, 175, 25, 10, "TRAN", TRAN_button
@@ -114,20 +115,21 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
   GroupBox 255, 5, 70, 30, "ELIG panels:"
   GroupBox 330, 5, 115, 40, "STAT-based navigation"
   Text 5, 35, 55, 10, "HRF datestamp:"
-  Text 125, 35, 40, 10, "HRF status:"
   Text 5, 55, 55, 10, "Earned income:"
   Text 5, 75, 60, 10, "Unearned income:"
   Text 5, 95, 20, 10, "YTD:"
-  Text 130, 95, 35, 10, "Changes?:"
   Text 5, 115, 95, 10, "FIAT reasons (if applicable):"
   Text 5, 135, 45, 10, "Other notes:"
   GroupBox 5, 150, 60, 40, "Income panels"
   GroupBox 70, 150, 110, 40, "Asset panels"
-  Text 185, 170, 50, 10, "Verifs needed:"
+  Text 315, 210, 65, 10, "Worker signature:"
   Text 185, 190, 50, 10, "Actions taken:"
   GroupBox 5, 195, 85, 30, "other STAT panels:"
-  Text 315, 210, 65, 10, "Worker signature:"
+  Text 185, 170, 50, 10, "Verifs needed:"
+  Text 125, 35, 40, 10, "HRF status:"
+  Text 130, 95, 35, 10, "Changes?:"
 EndDialog
+
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
@@ -181,30 +183,49 @@ pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = retro_month_name & "/" & pro_month_name
 
 'The case note dialog, complete with panel navigation, reading the ELIG/MFIP screen, and navigation to case note, as well as logic for certain sections to be required.
-Do
-    Dialog HRF_dialog
-	MAXIS_dialog_navigation
-    cancel_confirmation 
-    call check_for_MAXIS(False)
-	If HRF_status = " " or earned_income = "" or actions_taken = "" or HRF_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, HRF status, earned income, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-Loop until HRF_status <> " " and earned_income <> "" and actions_taken <> "" and HRF_datestamp <> "" and worker_signature <> ""
-If ButtonPressed = -1 then dialog case_note_dialog
-If buttonpressed = yes_case_note_button then
-   If grab_MFIP_info_check = 1 then
-		call navigate_to_MAXIS_screen("elig", "mfip")
-		EMReadScreen MFPR_check, 4, 3, 47
-		If MFPR_check <> "MFPR" then
-			MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
-		Else
-			EMWriteScreen "MFSM", 20, 71
-			transmit
-			EMReadScreen MFSM_line_01, 37, 12, 44
-			EMReadScreen MFSM_line_02, 37, 14, 44
-			EMReadScreen MFSM_line_03, 37, 15, 44
-			EMReadScreen MFSM_line_04, 37, 16, 44
-		End if
+DO
+	Do
+		err_msg = ""
+		Dialog HRF_dialog
+		cancel_confirmation 
+		call check_for_MAXIS(False)
+		MAXIS_dialog_navigation
+		IF HRF_status = " " AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter a status for your HRF."
+		IF HRF_datestamp = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please indicate the date the HRF was received."
+		IF earned_income = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter information about earned income."
+		IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please indicate which actions you took."
+		IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL ButtonPressed = -1 AND err_msg = ""
+	case_note_confirmation = MsgBox("Do you want to case note? Press YES to case note. Press NO to return to the previous dialog. Press CANCEL to stop the script.", vbYesNoCancel)
+	IF case_note_confirmation = vbCancel THEN script_end_procedure("You have aborted this script.")
+LOOP UNTIL case_note_confirmation = vbYes
+
+If grab_MFIP_info_check = 1 then
+	call navigate_to_MAXIS_screen("elig", "mfip")
+	EMReadScreen MFPR_check, 4, 3, 47
+	If MFPR_check <> "MFPR" then
+		MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
+	Else
+		EMWriteScreen "MFSM", 20, 71
+		transmit
+		EMReadScreen MFSM_line_01, 37, 12, 44
+		EMReadScreen MFSM_line_02, 37, 14, 44
+		EMReadScreen MFSM_line_03, 37, 15, 44
+		EMReadScreen MFSM_line_04, 37, 16, 44
 	End if
-END IF
+End if
+If grab_UHFS_info_check = 1 then
+	call navigate_to_MAXIS_screen("elig", "fs__")
+	EMReadScreen UHFS_check, 4, 3, 48
+	If UHFS_check <> "FSPR" then 
+		MsgBox "The script couldn't find Elig/FS. It will now jump to case note." 
+	Else 
+		EMWriteScreen "FSSM", 19, 70
+		transmit	
+		EMReadScreen UHFS_line_01, 37, 13, 44
+	End if
+End If		
 
 'Enters the case note
 start_a_blank_CASE_NOTE
@@ -227,6 +248,10 @@ If MFPR_check = "MFPR" then
   call write_variable_in_CASE_NOTE("   " & MFSM_line_03)
   call write_variable_in_CASE_NOTE("   " & MFSM_line_04)
   call write_variable_in_CASE_NOTE("---")
+End if
+If UHFS_check = "FSPR" then
+	call write_variable_in_CASE_NOTE("     UHFS " & UHFS_line_01)
+	call write_variable_in_CASE_NOTE("---")
 End if
 call write_variable_in_CASE_NOTE(worker_signature)
 
