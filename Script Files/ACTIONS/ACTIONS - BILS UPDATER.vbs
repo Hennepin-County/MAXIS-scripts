@@ -186,6 +186,7 @@ IF BILS_panel_check <> "0" THEN	'if panel exists then puts panel into edit mode
 	PF9
 ELSEIF BILS_panel_check = "0" THEN	'if panel does not exist, creates new panel
 	EMWriteScreen "NN", 20, 79
+	Needs_new_check = TRUE  'checking to see if a new panel has been created
 	Transmit
 	EMReadScreen error_msg_check, 47, 24, 2
 	IF error_msg_check = "HC STATUS IS INACTIVE, YOU CANNOT ADD OR UPDATE" Then 'if cannot add BILS panel, script will stop
@@ -193,6 +194,15 @@ ELSEIF BILS_panel_check = "0" THEN	'if panel does not exist, creates new panel
 	END IF
 END IF
 
+'Navigating back to most recent bills so worker can more easily view them while entering info into the dialog
+IF Needs_new_check <> TRUE THEN   'if a new panel hasn't been created
+	Do
+		PF19
+		EMReadScreen first_page_check, 4, 24, 20
+	Loop until first_page_check = "PAGE"
+	Transmit 'this transmit will leave edit mode but it will allow the future pf9s to get back to a place the script can edit. 
+END IF 
+	
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
 If updating_existing_BILS_check = checked then
 
