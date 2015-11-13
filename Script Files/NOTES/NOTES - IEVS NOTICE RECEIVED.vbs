@@ -59,7 +59,7 @@ BeginDialog case_number_dlg, 0, 0, 206, 75, "Enter a Case Number"
 EndDialog
 
 BeginDialog IEVS_Match, 0, 0, 177, 126, "IEVS Match Received"
-  DropListBox 56, 4, 100, 14, "Select"+chr(9)+"Resolved"+chr(9)+"Notice Sent to Client"+chr(9)+"Notice Sent to Employer", OPTIONS
+  DropListBox 56, 4, 100, 14, "Select one"+chr(9)+"Resolved"+chr(9)+"Notice Sent to Client"+chr(9)+"Notice Sent to Employer", OPTIONS
   EditBox 50, 24, 20, 14, MEMB
   DropListBox 112, 24, 48, 14, "Select one"+chr(9)+"1st"+chr(9)+"2nd"+chr(9)+"3rd"+chr(9)+"4th"+chr(9)+"year", Quarter
   EditBox 44, 46, 110, 14, Employer
