@@ -255,6 +255,8 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   Text 330, 330, 60, 10, "Worker signature:"
 EndDialog
 
+
+
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
@@ -354,36 +356,39 @@ If CAF_type <> "Recertification" then TIKL_checkbox = checked
 Do
 	Do
 		Do
-			err_msg = ""
-			Dialog CAF_dialog_01			'Displays the first dialog
-			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
-			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-			If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."
-			If err_msg <> "" THEN Msgbox err_msg
-		Loop until ButtonPressed = next_to_page_02_button and err_msg = ""
-		Do
-			Do
-				Dialog CAF_dialog_02			'Displays the second dialog
-				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-			Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
-			If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
 			Do
 				err_msg = ""
-				Dialog CAF_dialog_03			'Displays the third dialog
-				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+				Dialog CAF_dialog_01			'Displays the first dialog
+				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-				If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
-				If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
-				If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
-				If CAF_status = " " THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
+				If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."
 				If err_msg <> "" THEN Msgbox err_msg
-			Loop until (ButtonPressed = -1 and err_msg = "") or (ButtonPressed = previous_to_page_02_button and err_msg = "")		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
-		Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
-		If ButtonPressed = previous_to_page_01_button then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
-	Loop until err_msg = ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
-	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+			Loop until ButtonPressed = next_to_page_02_button and err_msg = ""
+			Do
+				Do
+					Dialog CAF_dialog_02			'Displays the second dialog
+					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
+				If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
+				Do
+					err_msg = ""
+					Dialog CAF_dialog_03			'Displays the third dialog
+					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
+					If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
+					If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+					If CAF_status = " " THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
+					If err_msg <> "" THEN Msgbox err_msg
+				Loop until (ButtonPressed = -1 and err_msg = "") or (ButtonPressed = previous_to_page_02_button and err_msg = "")		'If OK or PREV, it exits the loop here, which is weird because the above also causes it to exit
+			Loop until ButtonPressed = -1	'Because this is in here a second time, it triggers a return to the "Dialog CAF_dialog_02" line, where all those "DOs" start again!!!!!
+			If ButtonPressed = previous_to_page_01_button then exit do 	'This exits this particular loop again for prev button on page 2, which sends you back to page 1!!
+		Loop until err_msg = ""		'Loops all of that until those four sections are finished. Let's move that over to those particular pages. Folks would be less angry that way I bet.
+		CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+	Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+	call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = false
 
 check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
 
