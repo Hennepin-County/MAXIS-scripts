@@ -263,7 +263,7 @@ call create_MAXIS_friendly_date(date, 10, 5, 18)
 EMSetCursor 9, 3
 
 'Sending TIKL text.
-call write_variable_in_TIKL("Verification of NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script).")
+call write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script).")
 
 'Submits TIKL
 transmit
