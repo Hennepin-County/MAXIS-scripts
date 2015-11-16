@@ -188,8 +188,7 @@ LOOP until prog_type = "  "
 'Outcome ---------------------------------------------------------------------------------------------------------------------
 
 If WCOM_count = 0 THEN  'if no waiting FS notice is found
-	MSGbox "No Waiting FS elig results were found in this month for this HH member."
-	Stopscript	
+	script_end_procedure("No Waiting FS elig results were found in this month for this HH member.")	
 ELSE 					'If a waiting FS notice is found
 	'Case note
 	start_a_blank_case_note
@@ -199,8 +198,18 @@ ELSE 					'If a waiting FS notice is found
 	call write_bullet_and_variable_in_CASE_note("Closure Date", closure_date)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
-	MSGbox "Success! The WCOM/CASE NOTE have been added."
+
+	'Navigating to DAIL/WRIT
+	call navigate_to_MAXIS_screen("dail", "writ")
+	'The following will generate a TIKL formatted date for 10 days from now.
+	call create_MAXIS_friendly_date(date, 10, 5, 18)
+	'Writing in the rest of the TIKL.
+	call write_variable_in_TIKL("Verification of postponed WREG verification(s) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
+	transmit
+	PF3
+	script_end_procedure("Success! The WCOM/CASE NOTE/TIKL have been added.")
 END IF
 
-
 script_end_procedure("")
+
+
