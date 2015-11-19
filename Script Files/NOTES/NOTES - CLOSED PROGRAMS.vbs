@@ -60,7 +60,7 @@ BeginDialog closed_dialog, 0, 0, 421, 240 - dialog_shrink_amt, "Closed progs dia
   EditBox 140, 45, 280, 15, verifs_needed
   EditBox 170, 65, 250, 15, open_progs
   GroupBox 5, 90, 410, 45, "Elements that affect the REIN date/docs needed"
-  CheckBox 15, 100, 360, 15, "Case is at renewal (monthy, six-month, annual. Client gets entire next month after closure for REIN.)", CSR_check
+  CheckBox 15, 100, 360, 15, "Case is at renewal (monthly, six-month, annual. Client gets entire next month after closure for REIN.)", CSR_check
   CheckBox 15, 120, 360, 10, "Case is at HC annual renewal (can turn in HC ER instead of new HCAPP, but still counts as new application)", HC_ER_check
   CheckBox 5, 145, 65, 10, "Updated MMIS?", updated_MMIS_check
   CheckBox 85, 145, 95, 10, "WCOM added to notice?", WCOM_check
@@ -80,7 +80,7 @@ BeginDialog closed_dialog, 0, 0, 421, 240 - dialog_shrink_amt, "Closed progs dia
   Text 280, 145, 60, 10, "Worker signature: "
   GroupBox 10, 175, 400, 60, "Please note for SNAP:"
   Text 20, 185, 380, 25, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
-  Text 20, 215, 380, 20, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their reamining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
+  Text 20, 215, 380, 20, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
 EndDialog
 
 'The script----------------------------------------------------------------------------------------------------
@@ -116,6 +116,75 @@ DO
 	If SNAP_check = 0 and HC_check = 0 and cash_check = 0 then MsgBox "You need to select a program to close."
 Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1
 
+'******HENNEPIN COUNTY SPECIFIC INFORMATION*********
+'WCOM informing users that they may be subject to probate claims for their HC case
+IF worker_county_code = "x127" AND HC_check = 1 AND death_check = 1 THEN
+	notice_edited = false 'Resetting this variable
+	call navigate_to_screen("SPEC", "WCOM")
+	notice_month = DatePart("m", application_date) 'Entering the benefit month to find notices
+	IF len(notice_month) = 1 THEN notice_month = "0" & notice_month
+	EMWritescreen notice_month, 3, 46
+	EMWriteScreen right(DatePart("yyyy", application_date), 2), 3, 51
+	EMWriteScreen "Y", 3, 74 	'sorts notices by HC only
+	transmit
+	row = 6 'setting the variables for EMSearch
+	col = 1
+	DO 'This loop looks for any waiting notices to edit, and edits them
+	EMSearch "Waiting", row, col
+	IF row > 6 THEN 'Found a waiting notice, Checking for a match to our denied programs
+		EMReadScreen prg_typ, 2, row, 26
+		'putting the denied progs into a formatted list
+		progs_denied_list = Replace(progs_denied, "SNAP", "FS")
+		IF instr(ucase(progs_denied_list), prg_typ) > 0 THEN
+			EMWriteScreen "X", row, 13
+			Transmit
+			'Making sure the notice is actually a denial for verifications
+			document_end = "" 'resetting the variable
+			DO
+				notice_row = 1 
+				notice_col = 1
+				EMSearch "proof", notice_row, notice_col
+				IF notice_row = 0 THEN 'It didn't spot the word proofs, checking the next page
+					PF8
+					EMReadScreen document_end, 3, 24, 13
+					IF document_end <> "   " then EXIT DO
+				END IF
+			LOOP UNTIL notice_row > 1 OR document_end <> "   " 
+			IF notice_row > 1 THEN	'This means the word "proofs" is contained in the notice, and it should be edited
+				PF9
+				'Writing the verifs needed into the notice 
+				Call write_variable_in_spec_memo("************************************************************")
+				call write_variable_in_spec_memo("Medical Assistance eligibility ends on: " & hc_close_for_death_date & ".")
+				call write_variable_in_spec_memo("Hennepin County may have claims against any assets left after funeral expenses.") 
+				call write_variable_in_spec_memo("Please contact the Probate Unit at 612-348-3244 for more information. Thank you.")
+				Call write_variable_in_spec_memo("************************************************************")
+				notice_edited = true 'Setting this true lets us know that we successfully edited the notice
+				pf4
+				pf3
+				WCOM_check = 1 'This makes sure to case note that the notice was edited, even if user doesn't check the box.
+			ELSE
+				pf3
+			END IF
+		END IF
+		row = row + 1 'THis makes the next search start at current line +1
+	END IF
+	IF row = 0 THEN
+		EMReadScreen second_page_check, 1, 18, 77 'looking for a 2nd page of notices
+		IF second_page_check = "+" THEN
+			PF8
+			row = 6 'resetting search variables
+			col = 1
+		ELSE
+			PF8 'this changes to the next benefit month to look for more notices
+			row = 6 'resetting search variables
+			col = 1
+			EMReadScreen last_month_check, 3, 24, 2
+			IF last_month_check = "NOT" THEN EXIT DO 'the last month has been reached, exit the loop.
+		END IF
+	END IF
+	LOOP UNTIL row = 18 or last_month_check = "NOT"
+END IF
+'******END OF HENNEPIN COUNTY SPECIFIC INFORMATION*********
 
 'LOGIC and calculations----------------------------------------------------------------------------------------------------
 'Converting dates for intake/REIN/reapp date calculations
