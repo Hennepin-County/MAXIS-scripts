@@ -1,5 +1,3 @@
-worker_county_code = "x127"
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - CLOSED PROGRAMS.vbs"
 start_time = timer
@@ -97,7 +95,6 @@ HC_check = 0
 'Autofills case number
 call MAXIS_case_number_finder(case_number)
 
-
 'Dialog starts. Checks for MAXIS, includes nav button for SPEC/WCOM, validates the date of closure, confirms that date
 '    of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE.
 DO
@@ -120,22 +117,35 @@ Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1
 
 '******HENNEPIN COUNTY SPECIFIC INFORMATION*********
 'WCOM informing users that they may be subject to probate claims for their HC case
-IF (worker_county_code = "x127" AND HC_check = 1 AND death_check = 1) THEN
-	call navigate_to_screen("SPEC", "WCOM")
-	EMWriteScreen "Y", 3, 74 'sorts notices by HC only
-	transmit
-	EMSearch "Waiting", read_row, col
-	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
-	If Print_status_check <> "Waiting" THEN
-		Msgbox "There is not a pending notice for this HC case. The script was unable to update your SPEC/WCOM notation. Please add manually."
-	ELSE
-		
-		'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
-		If Print_status_check = "Waiting" THEN 
+IF worker_county_code = "x127" THEN
+	IF (HC_check = 1 AND death_check = 1) THEN
+		'creating date variables
+		approval_month = datepart("m", closure_date)
+		approval_year = datepart("YYYY", closure_date)
+		approval_year = right(approval_year, 2)
+		call navigate_to_screen("SPEC", "WCOM")
+		EMWriteScreen "Y", 3, 74 'sorts notices by HC only
+		EMWriteScreen approval_month, 3, 46
+		EMWriteScreen approval_year, 3, 51
+		transmit
+		DO 	'This DO/LOOP resets to the first page of notices in SPEC/WCOM
+			EMReadScreen more_pages, 8, 18, 72
+			IF more_pages = "MORE:</>" THEN 
+				PF8
+				EMReadScreen future_month_error, 14, 24, 2
+			END IF
+		LOOP until future_month_error = "NOTICE BENEFIT"
+	
+		read_row = 7 ' sets the variable for the row since this doesn't change in the search for notices
+		DO
+			waiting_check = ""
+			EMReadscreen prog_type, 2, read_row, 26 
+			EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
+		If waiting_check = "Waiting" and prog_type = "HC" THEN 'checking program type and if it's been printed
 			EMSetcursor read_row, 13
 			EMSendKey "x"
 			Transmit
-			PF9
+			pf9
 			EMSetCursor 03, 15
 			'Writing the verifs needed into the notice 
 			Call write_variable_in_spec_memo("************************************************************")
@@ -147,9 +157,18 @@ IF (worker_county_code = "x127" AND HC_check = 1 AND death_check = 1) THEN
 			pf4
 			pf3
 			WCOM_check = 1 'This makes sure to case note that the notice was edited, even if user doesn't check the box.
-		END If
+			WCOM_count = WCOM_count + 1
+			exit do
+		ELSE
+			read_row = read_row + 1
+		END IF
+		IF read_row = 18 THEN
+			PF8    'Navigates to the next page of notices.  DO/LOOP until read_row = 18
+			read_row = 7
+		End if
+		LOOP until prog_type = "  "	
 	END IF
-END IF	
+END IF
 '******END OF HENNEPIN COUNTY SPECIFIC INFORMATION*********
 
 'LOGIC and calculations----------------------------------------------------------------------------------------------------
@@ -209,6 +228,7 @@ call write_bullet_and_variable_in_case_note("Reason for closure", reason_for_clo
 If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
+IF (worker_county_code = "x127" AND HC_check = 1 AND death_check = 1) THEN call write_variable_in_case_note("* Added Hennepin County probate information to the client's notice.")
 If CSR_check = 1 then call write_bullet_and_variable_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.")
 If HC_ER_check = 1 then call write_variable_in_case_note("* Case is at HC ER.")
 If case_noting_intake_dates = True then
