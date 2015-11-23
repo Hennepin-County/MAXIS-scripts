@@ -6,7 +6,6 @@ start_time = timer
 'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso, row
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
@@ -55,7 +54,6 @@ END IF
 'DIM MAXIS_footer_month
 'DIM MAXIS_footer_year
 'DIM program_droplist
-
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_case_review_dialog, 0, 0, 276, 80, "SNAP case review dialog"
