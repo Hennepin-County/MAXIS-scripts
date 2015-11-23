@@ -57,8 +57,8 @@ BeginDialog no_show_dialog, 0, 0, 191, 278, "Enter No Show Information"
   CheckBox 16, 215, 150, 15, "Check here to have the script send a NOMI", nomi_sent
   EditBox 75, 235, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    CancelButton 36, 256, 70, 15
-    OkButton 110, 256, 70, 15
+    CancelButton 110, 256, 70, 15
+    OkButton 36, 256, 70, 15
   Text 10, 5, 175, 10, "Client did not respond to page for sameday interview"
   Text 33, 22, 44, 10, "Case Number"
   GroupBox 0, 40, 180, 70, "Client was Paged in the Lobby"
