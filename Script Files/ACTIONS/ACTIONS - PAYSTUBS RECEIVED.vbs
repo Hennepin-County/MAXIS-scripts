@@ -230,8 +230,9 @@ DO
 	
 	'Navigates to the JOBS panel for the right person
 	If HH_member <> "01" then 
-	EMWriteScreen HH_member, 20, 76
-	transmit
+		EMWriteScreen HH_member, 20, 76
+		EMWriteScreen "01", 20, 79
+		transmit
 	End if
 	
 	'Checks to make sure there are JOBS panels for this member. If none exist the script will close
