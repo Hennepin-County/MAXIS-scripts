@@ -1,5 +1,4 @@
 'Created by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County.
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
 start_time = timer
@@ -7,10 +6,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -21,7 +18,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -32,7 +29,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -90,7 +87,6 @@ BeginDialog benefits_approved, 0, 0, 271, 280, "Benefits Approved"
   Text 120, 25, 60, 10, "Type of Approval:"
   Text 5, 5, 70, 10, "Approved Programs:"
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
@@ -449,7 +445,6 @@ IF autofill_cash_check = checked THEN
 		NEXT
 END IF
 
-
 'updates WCOM with notice requirements if MFIP or DWP child support income disregarded in the budget
 If CASH_WCOM_checkbox = checked THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
@@ -494,7 +489,6 @@ END If
 
 cash_approval_array = trim(cash_approval_array)
 cash_approval_array = split(cash_approval_array)
-
 
 'Case notes----------------------------------------------------------------------------------------------------
 call start_a_blank_CASE_NOTE
@@ -572,7 +566,6 @@ IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Prog
 If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
-
 
 'Runs denied progs if selected
 If closed_progs_check = checked then run_from_github(script_repository & "NOTES/NOTES - CLOSED PROGRAMS.vbs")
