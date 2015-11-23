@@ -1,0 +1,1 @@
+This is a folder to store scripts and info related to a screening tool. This folder will be deleted when the tool is done.
