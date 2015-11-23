@@ -205,11 +205,8 @@ CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)
 
-'Setting cursor on the text area
-EMSetCursor 9, 3
-
-'Sending TIKL
-EMSendKey "Verification of new employer (via CS message) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)."
+'Writing TIKL
+call write_variable_in_TIKL("Verification of " & employer & " job (via CS message) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 transmit
 PF3
 
