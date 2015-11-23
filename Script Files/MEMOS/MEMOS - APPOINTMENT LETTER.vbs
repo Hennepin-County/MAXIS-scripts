@@ -67,9 +67,12 @@ class address
     end property
 end class
 
+
 'Declaring variables needed by the script
 'First, determining the county code. If it isn't declared, it will ask (proxy)
+
 call worker_county_code_determination(worker_county_code, two_digit_county_code_variable)
+
 
 if worker_county_code = "x101" then 
     agency_office_array = array("Aitkin")
@@ -194,7 +197,7 @@ elseif worker_county_code = "x160" then
 elseif worker_county_code = "x161" then     
     agency_office_array = array("Pope")
 elseif worker_county_code = "x162" then     
-    agency_office_array = array("Ramsey")
+    agency_office_array = array("Ramsey", "Fairview", "AIFC", "CAC-Bigelow", "Midway", "North St.Paul") 'adding more locations to Ramsey County
 elseif worker_county_code = "x163" then     
     agency_office_array = array("Red Lake")
 elseif worker_county_code = "x164" then     
@@ -634,10 +637,32 @@ ELSEIF worker_county_code = "x161" THEN
     agency_address.street = "211 E Minnesota Ave, Suite 200" 
     agency_address.city = "Glenwood" 
     agency_address.zip = "56334" 
-ELSEIF worker_county_code = "x162" THEN
-    agency_address.street = "160 Kellogg Blvd. E." 
-    agency_address.city = "Saint Paul" 
-    agency_address.zip = "55101" 
+ELSEIF worker_county_code = "x162" THEN        'adding more locations to Ramsey County
+    IF interview_location = "Ramsey" THEN
+    	agency_address.street = "160 Kellogg Blvd. E." 
+    	agency_address.city = "Saint Paul" 
+      agency_address.zip = "55101"
+    ELSEIF interview_location = "Fairview" THEN
+      agency_address.street = "1910 W Co RD B, Suite 124"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55113"
+    ELSEIF interview_location = "AIFC" THEN
+      agency_address.street = "579 Wells St"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55130"
+    ELSEIF interview_location = "CAC-Bigelow" THEN
+      agency_address.street = "450 N Syndicate St, Suite 250"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55104"
+    ELSEIF interview_location = "Midway" THEN
+      agency_address.street = "1821 University Ave, Ste. N263"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55104"
+    ELSEIF interview_location = "North St.Paul" THEN
+      agency_address.street = "2098 11th Ave E"
+      agency_address.city = "North St.Paul"
+      agency_address.zip = "55109"
+    END IF
 ELSEIF worker_county_code = "x163" THEN
     agency_address.street = "125 Edward Ave" 
     agency_address.city = "Red Lake Falls" 
