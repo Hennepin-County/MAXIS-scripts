@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - LTC - COLA SUMMARY 2015.vbs"
+name_of_script = "NOTE - LTC - COLA SUMMARY 2016.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -69,7 +69,6 @@ BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
   Text 135, 175, 60, 15, "Worker signature:"
 EndDialog
 
-
 BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
   Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
   ButtonGroup ButtonPressed
@@ -77,7 +76,6 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
     PushButton 100, 25, 70, 15, "Stay in ELIG/HC", ELIG_button
     CancelButton 135, 55, 50, 15
 EndDialog 
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -94,14 +92,13 @@ Sub approval_summary
   _function
   
 'First it goes to HCMI check to see if it's coded. If so it'll autofill the designated provider info
-
   back_to_self
   
   EMWriteScreen "stat", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
-  EMWriteScreen "07", 20, 43
-  EMWriteScreen "15", 20, 46
+  EMWriteScreen "01", 20, 43
+  EMWriteScreen "16", 20, 46
   EMWriteScreen "hcmi", 21, 70
   transmit
   
@@ -154,13 +151,12 @@ Sub approval_summary
   End if
   back_to_self
 
-
 'navigates to elig HC for first month of the year.     
   EMWriteScreen "elig", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
-  EMWriteScreen "07", 20, 43
-  EMWriteScreen "15", 20, 46
+  EMWriteScreen "01", 20, 43
+  EMWriteScreen "16", 20, 46
   EMWriteScreen "hc", 21, 70
   transmit
  'checks if the first person has HC if not it selects person 02.
@@ -174,9 +170,9 @@ Sub approval_summary
   
   row = 3
   col = 1
-  EMSearch "07/15", row, col
+  EMSearch "01/16", row, col
   If row = 0 then 
-    MsgBox "A 07/15 span could not be found. Try this again. You may need to run the case through background."
+    MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
     stopscript
   End if
 
@@ -243,7 +239,6 @@ Sub approval_summary
     If other_deductions <> "__________" then deductions = deductions & "Other deductions ($" & replace(other_deductions, "_", "") & "). "
   End if
   
-  
   EMReadScreen BBUD_check, 4, 3, 47
   If BBUD_check = "BBUD" then
     EMReadScreen income, 10, 12, 32
@@ -287,7 +282,7 @@ BeginDialog COLA_dialog, 0, 0, 376, 147, "COLA"
   CheckBox 85, 90, 110, 10, "Approved new MAXIS results?", approved_check
   CheckBox 210, 90, 70, 10, "Sent DHS-3050?", DHS_3050_check
   EditBox 75, 105, 295, 15, other
-  EditBox 80, 125, 70, 15, worker_sig
+  EditBox 80, 125, 70, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 165, 125, 50, 15
     CancelButton 225, 125, 50, 15
@@ -300,7 +295,6 @@ BeginDialog COLA_dialog, 0, 0, 376, 147, "COLA"
   Text 5, 110, 70, 10, "Other (if applicable):"
   Text 5, 130, 70, 10, "Sign your case note:"
 EndDialog
-
 
    Do
 	      Dialog COLA_dialog
@@ -319,9 +313,9 @@ EndDialog
   			 transmit
 			 row = 3
   			 col = 1
-  			 EMSearch "01/15", row, col
+  			 EMSearch "01/16", row, col
  			 If row = 0 then 
- 			   MsgBox "A 01/15 span could not be found. Try this again. You may need to run the case through background."
+ 			   MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
  			   stopscript
 			  End if
 			  EMReadScreen elig_type, 2, 12, col - 2
@@ -345,39 +339,37 @@ EndDialog
   transmit
   PF9
   
-  EMSendKey "**Approved COLA updates 01/15: " & elig_type & "-" & budget_type & " " & recipient_amt
+  EMSendKey "**Approved COLA updates 01/16: " & elig_type & "-" & budget_type & " " & recipient_amt
   If budget_type = "L" then EMSendKey " LTC sd**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " recip amt**"
   Call write_bullet_and_variable_in_CASE_NOTE("Income", income)
   Call write_bullet_and_variable_in_CASE_NOTE("Deductions", deductions)
-  If designated_provider <> "" then call write_bullet_and_variable_in_CASE_NOTE("Designated Provider", designated_provider)
+  call write_bullet_and_variable_in_CASE_NOTE("Designated Provider", designated_provider)
   Call write_variable_in_CASE_NOTE("---")
   If updated_RSPL_check = 1 then call write_variable_in_CASE_NOTE ("* Updated RSPL in MMIS.")
   If designated_provider_check = 1 then write_variable_in_CASE_NOTE "* Client has designated provider.")
   If approved_check = 1 then call write_variable_in_CASE_NOTE "* Approved new MAXIS results.")
   If DHS_3050_check = 1 then call write_variable_in_CASE_NOTE ("* Sent DHS-3050 LTC communication form to facility.")
-  If other <> "" then call write_variable_in_CASE_NOTE("Other: " & other)
+  call write_variable_in_CASE_NOTE("Other: " & other)
   Call write_variable_in_CASE_NOTE("---")
-  Call write_variable_in_CASE_NOTE(worker_sig)
+  Call write_variable_in_CASE_NOTE(worker_signature)
 End sub
 
 ' Function for script--------------------------------------------------------------------------------------------------------
-
 function income_summary
 
 EMConnect ""
 
 'FORCING THE CASE INTO FOOTER MONTH 01/15
 back_to_self
-EMWriteScreen "07", 20, 43
-EMWriteScreen "15", 20, 46
+EMWriteScreen "01", 20, 43
+EMWriteScreen "16", 20, 46
 
 'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "unea")
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
-
 
 'THE FOLLOWING DIALOG WILL DYNAMICALLY CHANGE DEPENDING ON THE HH COMP. IT WILL ALLOW A WORKER TO SELECT WHICH HH MEMBERS NEED TO BE INCLUDED IN THE SCRIPT.
 EMReadScreen HH_member_01, 18, 5, 3                                       'THIS GATHERS THE HH MEMBERS DIRECTLY FROM A MAXIS SCREEN.
@@ -451,7 +443,6 @@ EndDialog
  cancel_confirmation
  Call check_for_MAXIS(False)
 
- 
 'DETERMINING WHICH HH MEMBERS TO LOOK AT
 If client_01_check = 1 then HH_member_array = HH_member_array & left(HH_member_01, 2) & " "
 If client_02_check = 1 then HH_member_array = HH_member_array & left(HH_member_02, 2) & " "
@@ -472,7 +463,6 @@ HH_member_array = trim(HH_member_array)
 HH_member_array = split(HH_member_array, " ")
 
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 'DETERMINES THE UNEARNED INCOME RECEIVED BY THE CLIENT
 For each HH_member in HH_member_array
@@ -613,13 +603,13 @@ cancel_confirmation
 Call check_for_MAXIS(False)
 
 call start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE ("===COLA 2015 INCOME SUMMARY===")
-If unearned_income <> "" then call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
-If earned_income <> "" then call write_bullet_and_variable_in_case_note("Earned income", earned_income)
-If medicare_part_B <> "" then call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
-If unearned_income_spouse <> "" then call write_bullet_and_variable_in_case_note("Spousal unearned income", unearned_income_spouse)
-If earned_income_spouse <> "" then call write_bullet_and_variable_in_case_note("Spousal earned income", earned_income_spouse)
-If other_notes <> "" then call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+Call write_variable_in_CASE_NOTE ("===COLA 2016 INCOME SUMMARY===")
+call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
+call write_bullet_and_variable_in_case_note("Spousal unearned income", unearned_income_spouse)
+call write_bullet_and_variable_in_case_note("Spousal earned income", earned_income_spouse)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 End function
