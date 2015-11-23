@@ -193,11 +193,14 @@ call MAXIS_case_number_finder(case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
-Do
+DO
+	err_msg = ""
 	Dialog case_number_dialog
-	cancel_confirmation
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+		cancel_confirmation
+		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+LOOP UNTIL err_msg = ""
 
 'Checking for an active MAXIS session
 Call check_for_MAXIS(False)
@@ -290,7 +293,6 @@ DO
 		LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
 		err_msg = ""
 		IF actions_taken = "" THEN 		err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
-		IF worker_signature = "" THEN 	err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = "" OR ButtonPressed = previous_button
 LOOP WHILE ButtonPressed = previous_button
