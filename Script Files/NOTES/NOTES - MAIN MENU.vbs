@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -63,13 +61,13 @@ DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, IEVS_NOT
 DIM LEP_EMA_button, LEP_SAVE_button, LEP_SPONSOR_INCOME_button, LOBBY_NO_SHOW_button
 
 DIM MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, MFIP_SANCTION_CURED_button, MFIP_TO_SNAP_TRANSITION_button, MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button, MNSURE_RETRO_HC_APPLICATION_button
-DIM OVERPAYMENT_button
+DIM OVERPAYMENT_button, MTAF_button
 DIM PREGNANCY_REPORTED_button, PROOF_OF_RELATIONSHIP_button
 DIM REIN_PROGS_button
 DIM SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button, SUBMIT_CASE_FOR_SNAP_REVIEW_button
 DIM VERIFICATIONS_NEEDED_button
 
-DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2015_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button
+DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2016_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button
 DIM LTC_RENEWAL_button, LTC_TRANSFER_PENALTY_button, LTC_1503_button, LTC_5181_button
 
 'The function that creates the 4 dialogs depending on the dialog_name being sent through.
@@ -190,7 +188,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 		EndDialog
 	ELSEIF dialog_name = "M-Q" THEN
-	BeginDialog dialog_name, 0, 0, 516, 270, "Notes (M-Q) scripts main menu dialog"
+		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (M-Q) scripts main menu dialog"
 		ButtonGroup ButtonPressed
 			PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
 			PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
@@ -206,10 +204,10 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 			PushButton 5, 130, 110, 10, "Mileage reimbursement request", MILEAGE_REIMBURSEMENT_REQUEST_button
 			PushButton 5, 145, 110, 10, "MNsure - Documents requested", MNSURE_DOCUMENTS_REQUESTED_button
 			PushButton 5, 160, 105, 10, "MNsure - Retro HC Application", MNSURE_RETRO_HC_APPLICATION_button
-			PushButton 5, 175, 50, 10, "Overpayment", OVERPAYMENT_button
-			PushButton 5, 190, 75, 10, "Pregnancy Reported", PREGNANCY_REPORTED_button
-			PushButton 5, 205, 70, 10, "Proof of relationship", PROOF_OF_RELATIONSHIP_button
-			CancelButton 460, 245, 50, 15
+			PushButton 5, 175, 30, 10, "MTAF", MTAF_button
+			PushButton 5, 190, 50, 10, "Overpayment", OVERPAYMENT_button
+			PushButton 5, 205, 75, 10, "Pregnancy Reported", PREGNANCY_REPORTED_button
+			PushButton 5, 220, 70, 10, "Proof of relationship", PROOF_OF_RELATIONSHIP_button
 		Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 		Text 120, 70, 335, 10, "--- Template for case noting information about a Medical Opinion Form."
@@ -219,9 +217,12 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		Text 120, 130, 260, 10, "--- Template for actions taken on medical mileage reimbursements."
 		Text 120, 145, 250, 10, "--- Template for when MNsure documents have been requested."
 		Text 115, 160, 340, 10, "--- Template for when MNsure retro HC has been requested."
-		Text 60, 175, 240, 10, "--- Template for noting basic information about overpayments."
-		Text 85, 190, 405, 10, "--- Template for case noting a pregnancy. This script can update STAT/PREG."
-		Text 85, 205, 415, 10, "--- Template for documenting proof of relationship between a member 01 and someone else in the household."
+		Text 60, 190, 240, 10, "--- Template for noting basic information about overpayments."
+		Text 85, 205, 405, 10, "--- Template for case noting a pregnancy. This script can update STAT/PREG."
+		Text 85, 220, 415, 10, "--- Template for documenting proof of relationship between a member 01 and someone else in the household."
+		ButtonGroup ButtonPressed
+			CancelButton 460, 245, 50, 15
+		Text 45, 175, 290, 10, "--- NEW 10/2015!!!! Template for case noting an MTAF (MFIP Transition Application Form)."
 		EndDialog
 	ELSEIF dialog_name = "R-Z" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (R-Z) scripts main menu dialog"
@@ -263,7 +264,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
            PushButton 5, 85, 45, 10, "LTC - 5181", LTC_5181_button
            PushButton 5, 100, 90, 10, "LTC - Application received", LTC_APPLICATION_RECEIVED_button
            PushButton 5, 115, 85, 10, "LTC - Asset assessment", LTC_ASSET_ASSESSMENT_button
-           PushButton 5, 130, 95, 10, "LTC - COLA summary 2015", LTC_COLA_SUMMARY_2015_button
+           PushButton 5, 130, 95, 10, "LTC - COLA summary 2016", LTC_COLA_SUMMARY_2016_button
            PushButton 5, 145, 75, 10, "LTC - Intake approval", LTC_INTAKE_APPROVAL_button
            PushButton 5, 160, 65, 10, "LTC - MA approval", LTC_MA_APPROVAL_button
            PushButton 5, 175, 55, 10, "LTC - Renewal", LTC_RENEWAL_button
@@ -273,7 +274,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
          Text 55, 85, 180, 10, "--- Template for processing DHS-5181."
          Text 100, 100, 205, 10, "--- Template for initial details of a LTC application.*"
          Text 95, 115, 340, 10, "--- Template for the LTC asset assessment. Will enter both person and case notes if desired."
-         Text 105, 130, 250, 10, "--- Template to summarize actions for the 2015 COLA.*"
+         Text 105, 130, 250, 10, "--- Template to summarize actions for the 2016 COLA.*"
          Text 85, 145, 205, 10, "--- Template for use when approving a LTC intake.*"
          Text 75, 160, 355, 10, "--- Template for approving LTC MA (can be used for changes, initial application, or recertification).*"
          Text 65, 175, 140, 10, "--- Template for LTC renewals.*"
@@ -341,7 +342,7 @@ IF ButtonPressed = DWP_BUDGET_button								THEN CALL run_from_GitHub(script_rep
 IF ButtonPressed = EMERGENCY_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")
 IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
 IF ButtonPressed = EMPLOYMENT_VERIFICATION_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EVF RECEIVED.vbs")
-IF ButtonPressed = ES_REFERRAL_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - ES REFERRAL.vbs")
+IF ButtonPressed = ES_REFERRAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - ES REFERRAL.vbs")
 IF ButtonPressed = EXPEDITED_SCREENING_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPEDITED SCREENING.vbs")
 IF ButtonPressed = FRAUD_INFO_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FRAUD INFO.vbs")
 
@@ -352,7 +353,7 @@ IF ButtonPressed = HC_RENEWAL_button								THEN CALL run_from_GitHub(script_rep
 IF ButtonPressed = HCAPP_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HCAPP.vbs")
 IF ButtonPressed = HH_COMP_CHANGE_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HH COMP CHANGE.vbs")
 IF ButtonPressed = HRF_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - HRF.vbs")
-IF ButtonPressed = IEVS_NOTICE_RECEIVED_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - IEVS NOTICE RECEIVED.vbs")
+IF ButtonPressed = IEVS_NOTICE_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - IEVS NOTICE RECEIVED.vbs")
 If ButtonPressed = Incarceration_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES – INCARCERATION.vbs")
 IF ButtonPressed = INTERVIEW_COMPLETED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - INTERVIEW COMPLETED.vbs")
 IF ButtonPressed = LEP_EMA_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - EMA.vbs")
@@ -367,6 +368,7 @@ IF ButtonPressed = MFIP_TO_SNAP_TRANSITION_button					THEN CALL run_from_GitHub(
 IF ButtonPressed = MILEAGE_REIMBURSEMENT_REQUEST_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs")
 IF ButtonPressed = MNSURE_DOCUMENTS_REQUESTED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MNSURE - DOCUMENTS REQUESTED.vbs")
 IF ButtonPressed = MNSURE_RETRO_HC_APPLICATION_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MNSURE RETRO HC APPLICATION.vbs")
+If ButtonPressed = MTAF_button										THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MTAF.vbs")
 IF ButtonPressed = OVERPAYMENT_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - OVERPAYMENT.vbs")
 IF ButtonPressed = PREGNANCY_REPORTED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - PREGNANCY REPORTED.vbs")
 IF ButtonPressed = PROOF_OF_RELATIONSHIP_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - PROOF OF RELATIONSHIP.vbs")
@@ -380,7 +382,7 @@ IF ButtonPressed = LTC_1503_button									THEN CALL run_from_GitHub(script_repo
 IF ButtonPressed = LTC_5181_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 5181.vbs")
 IF ButtonPressed = LTC_APPLICATION_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - APPLICATION RECEIVED.vbs")
 IF ButtonPressed = LTC_ASSET_ASSESSMENT_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - ASSET ASSESSMENT.vbs")
-IF ButtonPressed = LTC_COLA_SUMMARY_2015_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - COLA SUMMARY 2015.vbs")
+IF ButtonPressed = LTC_COLA_SUMMARY_2016_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - COLA SUMMARY 2016.vbs")
 IF ButtonPressed = LTC_INTAKE_APPROVAL_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - INTAKE APPROVAL.vbs")
 IF ButtonPressed = LTC_MA_APPROVAL_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - MA APPROVAL.vbs")
 IF ButtonPressed = LTC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - RENEWAL.vbs")
