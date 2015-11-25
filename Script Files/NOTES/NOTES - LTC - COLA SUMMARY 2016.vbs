@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - LTC - COLA SUMMARY 2016.vbs"
+name_of_script = "NOTES - LTC - COLA SUMMARY 2016.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -335,8 +335,8 @@ EndDialog
   call write_bullet_and_variable_in_CASE_NOTE("Designated Provider", designated_provider)
   Call write_variable_in_CASE_NOTE("---")
   If updated_RSPL_check = 1 then call write_variable_in_CASE_NOTE ("* Updated RSPL in MMIS.")
-  If designated_provider_check = 1 then write_variable_in_CASE_NOTE "* Client has designated provider.")
-  If approved_check = 1 then call write_variable_in_CASE_NOTE "* Approved new MAXIS results.")
+  If designated_provider_check = 1 then write_variable_in_CASE_NOTE("* Client has designated provider.")
+  If approved_check = 1 then call write_variable_in_CASE_NOTE("* Approved new MAXIS results.")
   If DHS_3050_check = 1 then call write_variable_in_CASE_NOTE ("* Sent DHS-3050 LTC communication form to facility.")
   call write_variable_in_CASE_NOTE("Other: " & other)
   Call write_variable_in_CASE_NOTE("---")
@@ -608,8 +608,8 @@ EMSearch "Case Nbr:", row, col
 If row <> 0 then EMReadScreen case_number, 8, row, col + 10
 
 If date <= "12/01/2015" then 
-	MsgBox("You must wait until 12/01/15 or after to run this script. MAXIS is unable to be updated for 01/16 yet."
-	script_end_procedure
+	MsgBox("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
+	script_end_procedure("")
 Else 
 	BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
 	EditBox 100, 0, 60, 15, case_number
