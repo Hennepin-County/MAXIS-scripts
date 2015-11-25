@@ -236,7 +236,7 @@ DO
 		'Hennepin specific information===================================================================================================
 		If worker_county_code = "x127" THEN 
 			SNAPET_contact = "the EZ Info Line"
-			SNAPET_phone = "612-596-1300"
+			SNAPET_phone = "612-596-7411"
 		END IF
 		'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
 		'Central NE
