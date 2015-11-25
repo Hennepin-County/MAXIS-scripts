@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -83,17 +81,14 @@ HC_check = 1
 Dim row
 Dim col
 HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
-application_signed_check = 1 'The script should default to having the application signed.
 
-'THE SUB routine----------------------------------------------------------------------------------------------------
-
-Sub approval_summary
+'THE SUB routine----------------------------------------------------------------------------------------------------  
+Function approval_summary
   PF3
-  _function
-  
+  Call check_for_MAXIS(False)
+
 'First it goes to HCMI check to see if it's coded. If so it'll autofill the designated provider info
   back_to_self
-  
   EMWriteScreen "stat", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
@@ -111,7 +106,6 @@ Sub approval_summary
     transmit
   
   'Now it checks to see if there are multiple FACI panels. It will automatically go to the most recent one.
-  
     Do
       EMReadScreen in_year_check_01, 4, 14, 53
       EMReadScreen in_year_check_02, 4, 15, 53
@@ -255,16 +249,14 @@ Sub approval_summary
         Loop until check_for_MAXIS(True) = "MAXIS"
       End if
       back_to_SELF
-      EMWriteScreen "stat", 16, 43
-      EMWriteScreen "bils", 21, 70
+      Call navigate_to_MAXIS_screen("STAT", "BILS")
       transmit
       EMReadScreen BILS_check, 4, 2, 54
-      If BILS_check <> "BILS" then transmit  'ERR checkin
+      If BILS_check <> "BILS" then transmit  'ERR checking
     End if
   End if
 
 '---Dialog is dynamically created and needs results from BBUD to be created therefore needs to be seperate from other dialogs. 
-
 BeginDialog COLA_dialog, 0, 0, 376, 147, "COLA"
   DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX", elig_type
   DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
@@ -298,10 +290,9 @@ EndDialog
 
    Do
 	      Dialog COLA_dialog
-		_function
 	      If buttonpressed = 0 then stopscript
 		If buttonpressed = BBUD_button then
-			_function
+			Call check_for_MAXIS(False)
 			back_to_self
 			Call navigate_to_MAXIS_screen("ELIG", "HC")
  			 EMReadScreen person_check, 2, 8, 31
@@ -328,21 +319,17 @@ EndDialog
 			back_to_self
 			Call navigate_to_MAXIS_screen("STAT", "BILS")
 			EMReadScreen BILS_check, 4, 2, 54
-   			If BILS_check <> "BILS" then transmit  'ERR checkin
+   			If BILS_check <> "BILS" then transmit  'ERR checking
 		End if
   Loop until buttonpressed = OK
   back_to_self
-  
-  EMWriteScreen "case", 16, 43
   EMWriteScreen case_number, 18, 43
-  EMWriteScreen "note", 21, 70
-  transmit
-  PF9
   
+  Call start_a_blank_CASE_NOTE
   EMSendKey "**Approved COLA updates 01/16: " & elig_type & "-" & budget_type & " " & recipient_amt
-  If budget_type = "L" then EMSendKey " LTC sd**"
+  If budget_type = "L" then EMSendKey " LTC SD**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
-  If budget_type = "B" then EMSendKey " recip amt**"
+  If budget_type = "B" then EMSendKey " Recip amt.**"
   Call write_bullet_and_variable_in_CASE_NOTE("Income", income)
   Call write_bullet_and_variable_in_CASE_NOTE("Deductions", deductions)
   call write_bullet_and_variable_in_CASE_NOTE("Designated Provider", designated_provider)
@@ -354,264 +341,262 @@ EndDialog
   call write_variable_in_CASE_NOTE("Other: " & other)
   Call write_variable_in_CASE_NOTE("---")
   Call write_variable_in_CASE_NOTE(worker_signature)
-End sub
+end function
 
 ' Function for script--------------------------------------------------------------------------------------------------------
 function income_summary
-
-EMConnect ""
-
-'FORCING THE CASE INTO FOOTER MONTH 01/15
-back_to_self
-EMWriteScreen "01", 20, 43
-EMWriteScreen "16", 20, 46
-
-'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-call navigate_to_MAXIS_screen("stat", "unea")
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
-
-'THE FOLLOWING DIALOG WILL DYNAMICALLY CHANGE DEPENDING ON THE HH COMP. IT WILL ALLOW A WORKER TO SELECT WHICH HH MEMBERS NEED TO BE INCLUDED IN THE SCRIPT.
-EMReadScreen HH_member_01, 18, 5, 3                                       'THIS GATHERS THE HH MEMBERS DIRECTLY FROM A MAXIS SCREEN.
-EMReadScreen HH_member_02, 18, 6, 3
-EMReadScreen HH_member_03, 18, 7, 3
-EMReadScreen HH_member_04, 18, 8, 3
-EMReadScreen HH_member_05, 18, 9, 3
-EMReadScreen HH_member_06, 18, 10, 3
-EMReadScreen HH_member_07, 18, 11, 3
-EMReadScreen HH_member_08, 18, 12, 3
-EMReadScreen HH_member_09, 18, 13, 3
-EMReadScreen HH_member_10, 18, 14, 3
-EMReadScreen HH_member_11, 18, 15, 3
-EMReadScreen HH_member_12, 18, 16, 3
-EMReadScreen HH_member_13, 18, 17, 3
-EMReadScreen HH_member_14, 18, 18, 3
-EMReadScreen HH_member_15, 18, 19, 3
-dialog_size_variable = 50             'DEFAULT IS 50, BUT IT CHANGES DEPENDING ON THE AMOUNT OF HH MEMBERS.
-If HH_member_03 <> "                  " then dialog_size_variable = 65     
-If HH_member_04 <> "                  " then dialog_size_variable = 80
-If HH_member_05 <> "                  " then dialog_size_variable = 95
-If HH_member_06 <> "                  " then dialog_size_variable = 110
-If HH_member_07 <> "                  " then dialog_size_variable = 125
-If HH_member_08 <> "                  " then dialog_size_variable = 140
-If HH_member_09 <> "                  " then dialog_size_variable = 155
-If HH_member_10 <> "                  " then dialog_size_variable = 170
-If HH_member_11 <> "                  " then dialog_size_variable = 185
-If HH_member_12 <> "                  " then dialog_size_variable = 200
-If HH_member_13 <> "                  " then dialog_size_variable = 215
-If HH_member_14 <> "                  " then dialog_size_variable = 230
-If HH_member_15 <> "                  " then dialog_size_variable = 245
-If HH_member_01 <> "                  " then client_01_check = 1          'ALL CHECKBOXES DEFAULT TO CHECKED, AS USUALLY WE NEED ALL HH MEMBER INFO.
-If HH_member_02 <> "                  " then client_02_check = 1
-If HH_member_03 <> "                  " then client_03_check = 1
-If HH_member_04 <> "                  " then client_04_check = 1
-If HH_member_05 <> "                  " then client_05_check = 1
-If HH_member_06 <> "                  " then client_06_check = 1
-If HH_member_07 <> "                  " then client_07_check = 1
-If HH_member_08 <> "                  " then client_08_check = 1
-If HH_member_09 <> "                  " then client_09_check = 1
-If HH_member_10 <> "                  " then client_10_check = 1
-If HH_member_11 <> "                  " then client_11_check = 1
-If HH_member_12 <> "                  " then client_12_check = 1
-If HH_member_13 <> "                  " then client_13_check = 1
-If HH_member_14 <> "                  " then client_14_check = 1
-If HH_member_15 <> "                  " then client_15_check = 1
-BeginDialog HH_memb_dialog, 0, 0, 191, dialog_size_variable, "HH member dialog"
-  ButtonGroup ButtonPressed
-    OkButton 135, 10, 50, 15
-    CancelButton 135, 30, 50, 15
-  Text 10, 5, 105, 10, "Household members to look at:"
-  If HH_member_01 <> "                  " then CheckBox 10, 20, 120, 10, HH_member_01, client_01_check
-  If HH_member_02 <> "                  " then CheckBox 10, 35, 120, 10, HH_member_02, client_02_check
-  If HH_member_03 <> "                  " then CheckBox 10, 50, 120, 10, HH_member_03, client_03_check
-  If HH_member_04 <> "                  " then CheckBox 10, 65, 120, 10, HH_member_04, client_04_check
-  If HH_member_05 <> "                  " then CheckBox 10, 80, 120, 10, HH_member_05, client_05_check
-  If HH_member_06 <> "                  " then CheckBox 10, 95, 120, 10, HH_member_06, client_06_check
-  If HH_member_07 <> "                  " then CheckBox 10, 110, 120, 10, HH_member_07, client_07_check
-  If HH_member_08 <> "                  " then CheckBox 10, 125, 120, 10, HH_member_08, client_08_check
-  If HH_member_09 <> "                  " then CheckBox 10, 140, 120, 10, HH_member_09, client_09_check
-  If HH_member_10 <> "                  " then CheckBox 10, 155, 120, 10, HH_member_10, client_10_check
-  If HH_member_11 <> "                  " then CheckBox 10, 170, 120, 10, HH_member_11, client_11_check
-  If HH_member_12 <> "                  " then CheckBox 10, 185, 120, 10, HH_member_12, client_12_check
-  If HH_member_13 <> "                  " then CheckBox 10, 200, 120, 10, HH_member_13, client_13_check
-  If HH_member_14 <> "                  " then CheckBox 10, 215, 120, 10, HH_member_14, client_14_check
-  If HH_member_15 <> "                  " then CheckBox 10, 230, 120, 10, HH_member_15, client_15_check
-EndDialog
-
-'NOW IT SHOWS THE DIALOG FROM THE LAST SCREEN
- Dialog HH_memb_dialog
- cancel_confirmation
- Call check_for_MAXIS(False)
-
-'DETERMINING WHICH HH MEMBERS TO LOOK AT
-If client_01_check = 1 then HH_member_array = HH_member_array & left(HH_member_01, 2) & " "
-If client_02_check = 1 then HH_member_array = HH_member_array & left(HH_member_02, 2) & " "
-If client_03_check = 1 then HH_member_array = HH_member_array & left(HH_member_03, 2) & " "
-If client_04_check = 1 then HH_member_array = HH_member_array & left(HH_member_04, 2) & " "
-If client_05_check = 1 then HH_member_array = HH_member_array & left(HH_member_05, 2) & " "
-If client_06_check = 1 then HH_member_array = HH_member_array & left(HH_member_06, 2) & " "
-If client_07_check = 1 then HH_member_array = HH_member_array & left(HH_member_07, 2) & " "
-If client_08_check = 1 then HH_member_array = HH_member_array & left(HH_member_08, 2) & " "
-If client_09_check = 1 then HH_member_array = HH_member_array & left(HH_member_09, 2) & " "
-If client_10_check = 1 then HH_member_array = HH_member_array & left(HH_member_10, 2) & " "
-If client_11_check = 1 then HH_member_array = HH_member_array & left(HH_member_11, 2) & " "
-If client_12_check = 1 then HH_member_array = HH_member_array & left(HH_member_12, 2) & " "
-If client_13_check = 1 then HH_member_array = HH_member_array & left(HH_member_13, 2) & " "
-If client_14_check = 1 then HH_member_array = HH_member_array & left(HH_member_14, 2) & " "
-If client_15_check = 1 then HH_member_array = HH_member_array & left(HH_member_15, 2) & " "
-HH_member_array = trim(HH_member_array)
-HH_member_array = split(HH_member_array, " ")
-
-'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-'DETERMINES THE UNEARNED INCOME RECEIVED BY THE CLIENT
-For each HH_member in HH_member_array
-  call navigate_to_MAXIS_screen("stat", "unea")
-  EMWriteScreen HH_member, 20, 76
-  EMWriteScreen "01", 20, 79
-  transmit
-  EMReadScreen UNEA_total, 1, 2, 78
-  If UNEA_total <> 0 then 
-    Do
-      If HH_member = "01" then
-        call add_UNEA_to_variable(unearned_income)
-      Else
-        call add_unea_to_variable(unearned_income_spouse)
-      End if
-      EMReadScreen UNEA_panel_current, 1, 2, 73
-      If cint(UNEA_panel_current) < cint(UNEA_total) then transmit
-    Loop until cint(UNEA_panel_current) = cint(UNEA_total)
-  End if
-Next
-
-'DETERMINES THE JOBS INCOME RECEIVED BY THE CLIENT
-For each HH_member in HH_member_array
-  call navigate_to_MAXIS_screen("stat", "jobs")
-  EMWriteScreen HH_member, 20, 76
-  EMWriteScreen "01", 20, 79
-  transmit
-  EMReadScreen JOBS_total, 1, 2, 78
-  If JOBS_total <> 0 then 
-    Do
-      If HH_member = "01" then
-        call add_JOBS_to_variable(earned_income)
-      Else
-        call add_JOBS_to_variable(earned_income_spouse)
-      End if
-      EMReadScreen JOBS_panel_current, 1, 2, 73
-      If cint(JOBS_panel_current) < cint(JOBS_total) then transmit
-    Loop until cint(JOBS_panel_current) = cint(JOBS_total)
-  End if
-Next
-
-'DETERMINES THE BUSI INCOME RECEIVED BY THE CLIENT
-For each HH_member in HH_member_array
-  call navigate_to_MAXIS_screen("stat", "busi")
-  EMWriteScreen HH_member, 20, 76
-  EMWriteScreen "01", 20, 79
-  transmit
-  EMReadScreen BUSI_total, 1, 2, 78
-  If BUSI_total <> 0 then 
-    Do
-      If HH_member = "01" then
-        call add_BUSI_to_variable(earned_income)
-      Else
-        call add_BUSI_to_variable(earned_income_spouse)
-      End if
-      EMReadScreen BUSI_panel_current, 1, 2, 73
-      If cint(BUSI_panel_current) < cint(BUSI_total) then transmit
-    Loop until cint(BUSI_panel_current) = cint(BUSI_total)
-  End if
-Next
-
-'DETERMINES THE RBIC INCOME RECEIVED BY THE CLIENT
-For each HH_member in HH_member_array
-  call navigate_to_MAXIS_screen("stat", "rbic")
-  EMWriteScreen HH_member, 20, 76
-  EMWriteScreen "01", 20, 79
-  transmit
-  EMReadScreen RBIC_total, 1, 2, 78
-  If RBIC_total <> 0 then 
-    Do
-      If HH_member = "01" then
-        call add_RBIC_to_variable(earned_income)
-      Else
-        call add_RBIC_to_variable(earned_income_spouse)
-      End if
-      EMReadScreen RBIC_panel_current, 1, 2, 73
-      If cint(RBIC_panel_current) < cint(RBIC_total) then transmit
-    Loop until cint(RBIC_panel_current) = cint(RBIC_total)
-  End if
-Next
-
-'DETERMINES THE MEDICARE PART B PAID BY THE CLIENT
-call navigate_to_MAXIS_screen("stat", "medi")
-EMWriteScreen "01", 20, 76
-transmit
-EMReadScreen MEDI_total, 1, 2, 78
-If MEDI_total <> 0 then 
-  EMReadScreen medicare_part_B, 8, 7, 73
-  medicare_part_B = "$" & trim(medicare_part_B)
-End if
-
-'IT HAS TO CLEAN UP EDIT BOXES--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-'CLEANS UP THE unearned_income EDITBOX
-unearned_income = trim(unearned_income)
-if right(unearned_income, 1) = ";" then unearned_income = left(unearned_income, len(unearned_income) - 1)
-unearned_income = replace(unearned_income, "/)", ")")
-unearned_income = replace(unearned_income, "$________/non-monthly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/monthly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/weekly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/biweekly", "amt unknown")
-unearned_income = replace(unearned_income, "$________/semimonthly", "amt unknown")
-
-'CLEANS UP THE earned_income EDITBOX
-earned_income = trim(earned_income)
-if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
-earned_income = replace(earned_income, "/)", ")")
-earned_income = replace(earned_income, "$________/non-monthly", "amt unknown")
-earned_income = replace(earned_income, "$________/monthly", "amt unknown")
-earned_income = replace(earned_income, "$________/weekly", "amt unknown")
-earned_income = replace(earned_income, "$________/biweekly", "amt unknown")
-earned_income = replace(earned_income, "$________/semimonthly", "amt unknown")
-
-'CLEANS UP THE unearned_income_spouse EDITBOX
-unearned_income_spouse = trim(unearned_income_spouse)
-if right(unearned_income_spouse, 1) = ";" then unearned_income_spouse = left(unearned_income_spouse, len(unearned_income_spouse) - 1)
-unearned_income_spouse = replace(unearned_income_spouse, "/)", ")")
-unearned_income_spouse = replace(unearned_income_spouse, "$________/non-monthly", "amt unknown")
-unearned_income_spouse = replace(unearned_income_spouse, "$________/monthly", "amt unknown")
-unearned_income_spouse = replace(unearned_income_spouse, "$________/weekly", "amt unknown")
-unearned_income_spouse = replace(unearned_income_spouse, "$________/biweekly", "amt unknown")
-unearned_income_spouse = replace(unearned_income_spouse, "$________/semimonthly", "amt unknown")
-
-'CLEANS UP THE earned_income_spouse EDITBOX
-earned_income_spouse = trim(earned_income_spouse)
-if right(earned_income_spouse, 1) = ";" then earned_income_spouse = left(earned_income_spouse, len(earned_income_spouse) - 1)
-earned_income_spouse = replace(earned_income_spouse, "/)", ")")
-earned_income_spouse = replace(earned_income_spouse, "$________/non-monthly", "amt unknown")
-earned_income_spouse = replace(earned_income_spouse, "$________/monthly", "amt unknown")
-earned_income_spouse = replace(earned_income_spouse, "$________/weekly", "amt unknown")
-earned_income_spouse = replace(earned_income_spouse, "$________/biweekly", "amt unknown")
-earned_income_spouse = replace(earned_income_spouse, "$________/semimonthly", "amt unknown")
-
-'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Dialog COLA_income_dialog
-cancel_confirmation
-
-Call check_for_MAXIS(False)
-
-call start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE ("===COLA 2016 INCOME SUMMARY===")
-call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
-call write_bullet_and_variable_in_case_note("Earned income", earned_income)
-call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
-call write_bullet_and_variable_in_case_note("Spousal unearned income", unearned_income_spouse)
-call write_bullet_and_variable_in_case_note("Spousal earned income", earned_income_spouse)
-call write_bullet_and_variable_in_case_note("Other notes", other_notes)
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE(worker_signature)
+	
+	EMConnect ""
+	
+	'FORCING THE CASE INTO FOOTER MONTH 01/15
+	back_to_self
+	EMWriteScreen "01", 20, 43
+	EMWriteScreen "16", 20, 46
+	
+	'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	call navigate_to_MAXIS_screen("stat", "unea")
+	'checking for an active MAXIS session
+	Call check_for_MAXIS(False)
+	
+	'THE FOLLOWING DIALOG WILL DYNAMICALLY CHANGE DEPENDING ON THE HH COMP. IT WILL ALLOW A WORKER TO SELECT WHICH HH MEMBERS NEED TO BE INCLUDED IN THE SCRIPT.
+	EMReadScreen HH_member_01, 18, 5, 3                                       'THIS GATHERS THE HH MEMBERS DIRECTLY FROM A MAXIS SCREEN.
+	EMReadScreen HH_member_02, 18, 6, 3
+	EMReadScreen HH_member_03, 18, 7, 3
+	EMReadScreen HH_member_04, 18, 8, 3
+	EMReadScreen HH_member_05, 18, 9, 3
+	EMReadScreen HH_member_06, 18, 10, 3
+	EMReadScreen HH_member_07, 18, 11, 3
+	EMReadScreen HH_member_08, 18, 12, 3
+	EMReadScreen HH_member_09, 18, 13, 3
+	EMReadScreen HH_member_10, 18, 14, 3
+	EMReadScreen HH_member_11, 18, 15, 3
+	EMReadScreen HH_member_12, 18, 16, 3
+	EMReadScreen HH_member_13, 18, 17, 3
+	EMReadScreen HH_member_14, 18, 18, 3
+	EMReadScreen HH_member_15, 18, 19, 3
+	dialog_size_variable = 50             'DEFAULT IS 50, BUT IT CHANGES DEPENDING ON THE AMOUNT OF HH MEMBERS.
+	If HH_member_03 <> "                  " then dialog_size_variable = 65     
+	If HH_member_04 <> "                  " then dialog_size_variable = 80
+	If HH_member_05 <> "                  " then dialog_size_variable = 95
+	If HH_member_06 <> "                  " then dialog_size_variable = 110
+	If HH_member_07 <> "                  " then dialog_size_variable = 125
+	If HH_member_08 <> "                  " then dialog_size_variable = 140
+	If HH_member_09 <> "                  " then dialog_size_variable = 155
+	If HH_member_10 <> "                  " then dialog_size_variable = 170
+	If HH_member_11 <> "                  " then dialog_size_variable = 185
+	If HH_member_12 <> "                  " then dialog_size_variable = 200
+	If HH_member_13 <> "                  " then dialog_size_variable = 215
+	If HH_member_14 <> "                  " then dialog_size_variable = 230
+	If HH_member_15 <> "                  " then dialog_size_variable = 245
+	If HH_member_01 <> "                  " then client_01_check = 1          'ALL CHECKBOXES DEFAULT TO CHECKED, AS USUALLY WE NEED ALL HH MEMBER INFO.
+	If HH_member_02 <> "                  " then client_02_check = 1
+	If HH_member_03 <> "                  " then client_03_check = 1
+	If HH_member_04 <> "                  " then client_04_check = 1
+	If HH_member_05 <> "                  " then client_05_check = 1
+	If HH_member_06 <> "                  " then client_06_check = 1
+	If HH_member_07 <> "                  " then client_07_check = 1
+	If HH_member_08 <> "                  " then client_08_check = 1
+	If HH_member_09 <> "                  " then client_09_check = 1
+	If HH_member_10 <> "                  " then client_10_check = 1
+	If HH_member_11 <> "                  " then client_11_check = 1
+	If HH_member_12 <> "                  " then client_12_check = 1
+	If HH_member_13 <> "                  " then client_13_check = 1
+	If HH_member_14 <> "                  " then client_14_check = 1
+	If HH_member_15 <> "                  " then client_15_check = 1
+	BeginDialog HH_memb_dialog, 0, 0, 191, dialog_size_variable, "HH member dialog"
+	ButtonGroup ButtonPressed
+		OkButton 135, 10, 50, 15
+		CancelButton 135, 30, 50, 15
+	Text 10, 5, 105, 10, "Household members to look at:"
+	If HH_member_01 <> "                  " then CheckBox 10, 20, 120, 10, HH_member_01, client_01_check
+	If HH_member_02 <> "                  " then CheckBox 10, 35, 120, 10, HH_member_02, client_02_check
+	If HH_member_03 <> "                  " then CheckBox 10, 50, 120, 10, HH_member_03, client_03_check
+	If HH_member_04 <> "                  " then CheckBox 10, 65, 120, 10, HH_member_04, client_04_check
+	If HH_member_05 <> "                  " then CheckBox 10, 80, 120, 10, HH_member_05, client_05_check
+	If HH_member_06 <> "                  " then CheckBox 10, 95, 120, 10, HH_member_06, client_06_check
+	If HH_member_07 <> "                  " then CheckBox 10, 110, 120, 10, HH_member_07, client_07_check
+	If HH_member_08 <> "                  " then CheckBox 10, 125, 120, 10, HH_member_08, client_08_check
+	If HH_member_09 <> "                  " then CheckBox 10, 140, 120, 10, HH_member_09, client_09_check
+	If HH_member_10 <> "                  " then CheckBox 10, 155, 120, 10, HH_member_10, client_10_check
+	If HH_member_11 <> "                  " then CheckBox 10, 170, 120, 10, HH_member_11, client_11_check
+	If HH_member_12 <> "                  " then CheckBox 10, 185, 120, 10, HH_member_12, client_12_check
+	If HH_member_13 <> "                  " then CheckBox 10, 200, 120, 10, HH_member_13, client_13_check
+	If HH_member_14 <> "                  " then CheckBox 10, 215, 120, 10, HH_member_14, client_14_check
+	If HH_member_15 <> "                  " then CheckBox 10, 230, 120, 10, HH_member_15, client_15_check
+	EndDialog
+	
+	'NOW IT SHOWS THE DIALOG FROM THE LAST SCREEN
+	Dialog HH_memb_dialog
+	cancel_confirmation
+	Call check_for_MAXIS(False)
+	
+	'DETERMINING WHICH HH MEMBERS TO LOOK AT
+	If client_01_check = 1 then HH_member_array = HH_member_array & left(HH_member_01, 2) & " "
+	If client_02_check = 1 then HH_member_array = HH_member_array & left(HH_member_02, 2) & " "
+	If client_03_check = 1 then HH_member_array = HH_member_array & left(HH_member_03, 2) & " "
+	If client_04_check = 1 then HH_member_array = HH_member_array & left(HH_member_04, 2) & " "
+	If client_05_check = 1 then HH_member_array = HH_member_array & left(HH_member_05, 2) & " "
+	If client_06_check = 1 then HH_member_array = HH_member_array & left(HH_member_06, 2) & " "
+	If client_07_check = 1 then HH_member_array = HH_member_array & left(HH_member_07, 2) & " "
+	If client_08_check = 1 then HH_member_array = HH_member_array & left(HH_member_08, 2) & " "
+	If client_09_check = 1 then HH_member_array = HH_member_array & left(HH_member_09, 2) & " "
+	If client_10_check = 1 then HH_member_array = HH_member_array & left(HH_member_10, 2) & " "
+	If client_11_check = 1 then HH_member_array = HH_member_array & left(HH_member_11, 2) & " "
+	If client_12_check = 1 then HH_member_array = HH_member_array & left(HH_member_12, 2) & " "
+	If client_13_check = 1 then HH_member_array = HH_member_array & left(HH_member_13, 2) & " "
+	If client_14_check = 1 then HH_member_array = HH_member_array & left(HH_member_14, 2) & " "
+	If client_15_check = 1 then HH_member_array = HH_member_array & left(HH_member_15, 2) & " "
+	HH_member_array = trim(HH_member_array)
+	HH_member_array = split(HH_member_array, " ")
+	
+	'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	'DETERMINES THE UNEARNED INCOME RECEIVED BY THE CLIENT
+	For each HH_member in HH_member_array
+	call navigate_to_MAXIS_screen("stat", "unea")
+	EMWriteScreen HH_member, 20, 76
+	EMWriteScreen "01", 20, 79
+	transmit
+	EMReadScreen UNEA_total, 1, 2, 78
+	If UNEA_total <> 0 then 
+		Do
+		If HH_member = "01" then
+			call add_UNEA_to_variable(unearned_income)
+		Else
+			call add_unea_to_variable(unearned_income_spouse)
+		End if
+		EMReadScreen UNEA_panel_current, 1, 2, 73
+		If cint(UNEA_panel_current) < cint(UNEA_total) then transmit
+		Loop until cint(UNEA_panel_current) = cint(UNEA_total)
+	End if
+	Next
+	
+	'DETERMINES THE JOBS INCOME RECEIVED BY THE CLIENT
+	For each HH_member in HH_member_array
+	call navigate_to_MAXIS_screen("stat", "jobs")
+	EMWriteScreen HH_member, 20, 76
+	EMWriteScreen "01", 20, 79
+	transmit
+	EMReadScreen JOBS_total, 1, 2, 78
+	If JOBS_total <> 0 then 
+		Do
+		If HH_member = "01" then
+			call add_JOBS_to_variable(earned_income)
+		Else
+			call add_JOBS_to_variable(earned_income_spouse)
+		End if
+		EMReadScreen JOBS_panel_current, 1, 2, 73
+		If cint(JOBS_panel_current) < cint(JOBS_total) then transmit
+		Loop until cint(JOBS_panel_current) = cint(JOBS_total)
+	End if
+	Next
+	
+	'DETERMINES THE BUSI INCOME RECEIVED BY THE CLIENT
+	For each HH_member in HH_member_array
+	call navigate_to_MAXIS_screen("stat", "busi")
+	EMWriteScreen HH_member, 20, 76
+	EMWriteScreen "01", 20, 79
+	transmit
+	EMReadScreen BUSI_total, 1, 2, 78
+	If BUSI_total <> 0 then 
+		Do
+		If HH_member = "01" then
+			call add_BUSI_to_variable(earned_income)
+		Else
+			call add_BUSI_to_variable(earned_income_spouse)
+		End if
+		EMReadScreen BUSI_panel_current, 1, 2, 73
+		If cint(BUSI_panel_current) < cint(BUSI_total) then transmit
+		Loop until cint(BUSI_panel_current) = cint(BUSI_total)
+	End if
+	Next
+	
+	'DETERMINES THE RBIC INCOME RECEIVED BY THE CLIENT
+	For each HH_member in HH_member_array
+	call navigate_to_MAXIS_screen("stat", "rbic")
+	EMWriteScreen HH_member, 20, 76
+	EMWriteScreen "01", 20, 79
+	transmit
+	EMReadScreen RBIC_total, 1, 2, 78
+	If RBIC_total <> 0 then 
+		Do
+		If HH_member = "01" then
+			call add_RBIC_to_variable(earned_income)
+		Else
+			call add_RBIC_to_variable(earned_income_spouse)
+		End if
+		EMReadScreen RBIC_panel_current, 1, 2, 73
+		If cint(RBIC_panel_current) < cint(RBIC_total) then transmit
+		Loop until cint(RBIC_panel_current) = cint(RBIC_total)
+	End if
+	Next
+	
+	'DETERMINES THE MEDICARE PART B PAID BY THE CLIENT
+	call navigate_to_MAXIS_screen("stat", "medi")
+	EMWriteScreen "01", 20, 76
+	transmit
+	EMReadScreen MEDI_total, 1, 2, 78
+	If MEDI_total <> 0 then 
+	EMReadScreen medicare_part_B, 8, 7, 73
+	medicare_part_B = "$" & trim(medicare_part_B)
+	End if
+	
+	'IT HAS TO CLEAN UP EDIT BOXES--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	'CLEANS UP THE unearned_income EDITBOX
+	unearned_income = trim(unearned_income)
+	if right(unearned_income, 1) = ";" then unearned_income = left(unearned_income, len(unearned_income) - 1)
+	unearned_income = replace(unearned_income, "/)", ")")
+	unearned_income = replace(unearned_income, "$________/non-monthly", "amt unknown")
+	unearned_income = replace(unearned_income, "$________/monthly", "amt unknown")
+	unearned_income = replace(unearned_income, "$________/weekly", "amt unknown")
+	unearned_income = replace(unearned_income, "$________/biweekly", "amt unknown")
+	unearned_income = replace(unearned_income, "$________/semimonthly", "amt unknown")
+	
+	'CLEANS UP THE earned_income EDITBOX
+	earned_income = trim(earned_income)
+	if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
+	earned_income = replace(earned_income, "/)", ")")
+	earned_income = replace(earned_income, "$________/non-monthly", "amt unknown")
+	earned_income = replace(earned_income, "$________/monthly", "amt unknown")
+	earned_income = replace(earned_income, "$________/weekly", "amt unknown")
+	earned_income = replace(earned_income, "$________/biweekly", "amt unknown")
+	earned_income = replace(earned_income, "$________/semimonthly", "amt unknown")
+	
+	'CLEANS UP THE unearned_income_spouse EDITBOX
+	unearned_income_spouse = trim(unearned_income_spouse)
+	if right(unearned_income_spouse, 1) = ";" then unearned_income_spouse = left(unearned_income_spouse, len(unearned_income_spouse) - 1)
+	unearned_income_spouse = replace(unearned_income_spouse, "/)", ")")
+	unearned_income_spouse = replace(unearned_income_spouse, "$________/non-monthly", "amt unknown")
+	unearned_income_spouse = replace(unearned_income_spouse, "$________/monthly", "amt unknown")
+	unearned_income_spouse = replace(unearned_income_spouse, "$________/weekly", "amt unknown")
+	unearned_income_spouse = replace(unearned_income_spouse, "$________/biweekly", "amt unknown")
+	unearned_income_spouse = replace(unearned_income_spouse, "$________/semimonthly", "amt unknown")
+	
+	'CLEANS UP THE earned_income_spouse EDITBOX
+	earned_income_spouse = trim(earned_income_spouse)
+	if right(earned_income_spouse, 1) = ";" then earned_income_spouse = left(earned_income_spouse, len(earned_income_spouse) - 1)
+	earned_income_spouse = replace(earned_income_spouse, "/)", ")")
+	earned_income_spouse = replace(earned_income_spouse, "$________/non-monthly", "amt unknown")
+	earned_income_spouse = replace(earned_income_spouse, "$________/monthly", "amt unknown")
+	earned_income_spouse = replace(earned_income_spouse, "$________/weekly", "amt unknown")
+	earned_income_spouse = replace(earned_income_spouse, "$________/biweekly", "amt unknown")
+	earned_income_spouse = replace(earned_income_spouse, "$________/semimonthly", "amt unknown")
+	
+	'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	Dialog COLA_income_dialog
+	cancel_confirmation
+	Call check_for_MAXIS(False)
+	
+	call start_a_blank_CASE_NOTE
+	Call write_variable_in_CASE_NOTE ("===COLA 2016 INCOME SUMMARY===")
+	call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+	call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+	call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
+	call write_bullet_and_variable_in_case_note("Spousal unearned income", unearned_income_spouse)
+	call write_bullet_and_variable_in_case_note("Spousal earned income", earned_income_spouse)
+	call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+	call write_variable_in_CASE_NOTE("---")
+	call write_variable_in_CASE_NOTE(worker_signature)
 End function
 
 'CONNECTS TO MAXIS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -622,21 +607,26 @@ col = 1
 EMSearch "Case Nbr:", row, col
 If row <> 0 then EMReadScreen case_number, 8, row, col + 10
 
-BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
-  EditBox 100, 0, 60, 15, case_number
-  CheckBox 45, 30, 75, 10, "Approval Summary", approval_summary_check
-  CheckBox 45, 45, 70, 10, "Income Summary", income_summary_check
-  ButtonGroup ButtonPressed
-    OkButton 25, 65, 50, 15
-    CancelButton 90, 65, 50, 15
-  Text 10, 5, 85, 10, "Enter your case number:"
-  GroupBox 40, 20, 85, 40, "COLA case note types"
-EndDialog
-
-Dialog COLA_case_number_dialog
-cancel_confirmation
-
-If approval_summary_check = 1 then call approval_summary
-If income_summary_check = 1 then call income_summary
+If date <= "12/01/2015" then 
+	MsgBox("You must wait until 12/01/15 or after to run this script. MAXIS is unable to be updated for 01/16 yet."
+	script_end_procedure
+Else 
+	BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
+	EditBox 100, 0, 60, 15, case_number
+	CheckBox 45, 30, 75, 10, "Approval Summary", approval_summary_check
+	CheckBox 45, 45, 70, 10, "Income Summary", income_summary_check
+	ButtonGroup ButtonPressed
+		OkButton 25, 65, 50, 15
+		CancelButton 90, 65, 50, 15
+	Text 10, 5, 85, 10, "Enter your case number:"
+	GroupBox 40, 20, 85, 40, "COLA case note types"
+	EndDialog
+	
+	Dialog COLA_case_number_dialog
+	cancel_confirmation
+	
+	If approval_summary_check = 1 then call approval_summary
+	If income_summary_check = 1 then call income_summary
+END IF 
 
 script_end_procedure("")
