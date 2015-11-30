@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,7 +44,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT
+'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT----------------------------------------------------------------------------------------------------
 Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
   variable_array = split(y, " ")
   EMSendKey "* " & x & ": "
@@ -97,7 +95,7 @@ Function write_new_line_in_person_note(x)
   End if
 End function
 
-'SECTION 02: DIALOGS----------------------------------------------------------------------------------------------------
+'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog asset_assessment_dialog, 0, 0, 266, 261, "Asset assessment dialog"
   DropListBox 5, 5, 60, 15, "REQUIRED"+chr(9)+"REQUESTED", asset_assessment_type
   EditBox 195, 5, 65, 15, effective_date
@@ -136,7 +134,6 @@ BeginDialog asset_assessment_dialog, 0, 0, 266, 261, "Asset assessment dialog"
   Text 130, 205, 60, 10, "Worker signature:"
 EndDialog
 
-
 BeginDialog case_and_PMI_number_dialog, 0, 0, 196, 101, "Case and PMI number dialog"
   EditBox 80, 5, 70, 15, LTC_spouse_PMI
   EditBox 105, 25, 70, 15, community_spouse_PMI
@@ -150,14 +147,13 @@ BeginDialog case_and_PMI_number_dialog, 0, 0, 196, 101, "Case and PMI number dia
   Text 15, 50, 80, 10, "Case number (if known):"
 EndDialog
 
-
-'SECTION 03: THE SCRIPT----------------------------------------------------------------------------------------------------
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 Dialog case_and_PMI_number_dialog
 If ButtonPressed = 0 then stopscript
 
 'Connecting and checking for an active MAXIS section
 EMConnect ""
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 back_to_self
 call navigate_to_screen("aset", "____")
 
@@ -237,8 +233,8 @@ EMReadScreen total_marital_asset_list_line_17, 53, 13, 25
 EMReadScreen total_marital_asset_list_line_18, 53, 14, 25
 EMReadScreen total_marital_asset_list_line_19, 53, 15, 25
 PF8
-EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
-If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+EMReadScreen last_SPAA_page_check, 5, 19, 7		'checking to make sure that no more assets need to be copied for the case note
+If last_SPAA_page_check = "THERE" THEN 
 	PF3
 ELSE
 	'2nd page of the total marital asset list
@@ -253,8 +249,8 @@ ELSE
 	EMReadScreen total_marital_asset_list_line_28, 53, 14, 25
 	EMReadScreen total_marital_asset_list_line_29, 53, 15, 25
 	PF8
-	EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
-	If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+	EMReadScreen last_SPAA_page_check, 5, 19, 7		'checking to make sure that no more assets need to be copied for the case note
+	If last_SPAA_page_check = "THERE" THEN 
 		PF3
 	ELSE
 		'3rd page of the total marital asset list
@@ -269,8 +265,8 @@ ELSE
 		EMReadScreen total_marital_asset_list_line_38, 53, 14, 25
 		EMReadScreen total_marital_asset_list_line_39, 53, 15, 25
 		PF8
-		EMReadScreen last_SPAA_page_check, 25, 23, 4		'checking to make sure that no more assets need to be copied for the case note
-		If last_SPAA_page_check = "NO MORE ASSETS TO DISPLAY" THEN 
+		EMReadScreen last_SPAA_page_check, 5, 19, 7		'checking to make sure that no more assets need to be copied for the case note
+		If last_SPAA_page_check = "THERE" THEN 
 			PF3
 		ELSE
 			'4th page of the total marital asset list
@@ -290,19 +286,19 @@ ELSE
 	END IF
 END IF
 
-Do
+
+Do			'calls the main asset assessment dialog
 	dialog asset_assessment_dialog
-	If buttonpressed = 0 then stopscript
 	cancel_confirmation
 	transmit
-	EMReadScreen function_check, 4, 20, 21
-	If function_check <> "ASET" then MsgBox "You do not appear to be in the ASET function anymore. You might be locked out of your case, or have nagigated away. Reenter the ASET function before proceeding."
- Loop until function_check = "ASET"
- 'navigates to person note
-PF5 
-'puts person note into edit mode
-PF9
+	EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function 
+	If function_check <> "ASET" then 
+		MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
+	END IF
+Loop until function_check = "ASET"
 
+PF5 	'navigates to person note 
+PF9		'puts person note into edit mode
 'case/person notes information about forms sent to client
 If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
 If sent_3340A_check = 1 then actions_taken = "Sent 3340-A. " & actions_taken
