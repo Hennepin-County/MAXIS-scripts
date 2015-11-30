@@ -69,7 +69,7 @@ DIM REIN_PROGS_button
 DIM SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button, SUBMIT_CASE_FOR_SNAP_REVIEW_button
 DIM VERIFICATIONS_NEEDED_button
 
-DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2015_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button
+DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2016_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button
 DIM LTC_RENEWAL_button, LTC_TRANSFER_PENALTY_button, LTC_1503_button, LTC_5181_button
 
 'The function that creates the 4 dialogs depending on the dialog_name being sent through.
@@ -263,7 +263,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
            PushButton 5, 85, 45, 10, "LTC - 5181", LTC_5181_button
            PushButton 5, 100, 90, 10, "LTC - Application received", LTC_APPLICATION_RECEIVED_button
            PushButton 5, 115, 85, 10, "LTC - Asset assessment", LTC_ASSET_ASSESSMENT_button
-           PushButton 5, 130, 95, 10, "LTC - COLA summary 2015", LTC_COLA_SUMMARY_2015_button
+           PushButton 5, 130, 95, 10, "LTC - COLA summary 2016", LTC_COLA_SUMMARY_2016_button
            PushButton 5, 145, 75, 10, "LTC - Intake approval", LTC_INTAKE_APPROVAL_button
            PushButton 5, 160, 65, 10, "LTC - MA approval", LTC_MA_APPROVAL_button
            PushButton 5, 175, 55, 10, "LTC - Renewal", LTC_RENEWAL_button
@@ -273,7 +273,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
          Text 55, 85, 180, 10, "--- Template for processing DHS-5181."
          Text 100, 100, 205, 10, "--- Template for initial details of a LTC application.*"
          Text 95, 115, 340, 10, "--- Template for the LTC asset assessment. Will enter both person and case notes if desired."
-         Text 105, 130, 250, 10, "--- Template to summarize actions for the 2015 COLA.*"
+         Text 105, 130, 250, 10, "--- Template to summarize actions for the 2016 COLA.*"
          Text 85, 145, 205, 10, "--- Template for use when approving a LTC intake.*"
          Text 75, 160, 355, 10, "--- Template for approving LTC MA (can be used for changes, initial application, or recertification).*"
          Text 65, 175, 140, 10, "--- Template for LTC renewals.*"
@@ -380,7 +380,7 @@ IF ButtonPressed = LTC_1503_button									THEN CALL run_from_GitHub(script_repo
 IF ButtonPressed = LTC_5181_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - 5181.vbs")
 IF ButtonPressed = LTC_APPLICATION_RECEIVED_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - APPLICATION RECEIVED.vbs")
 IF ButtonPressed = LTC_ASSET_ASSESSMENT_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - ASSET ASSESSMENT.vbs")
-IF ButtonPressed = LTC_COLA_SUMMARY_2015_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - COLA SUMMARY 2015.vbs")
+IF ButtonPressed = LTC_COLA_SUMMARY_2016_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - COLA SUMMARY 2016.vbs")
 IF ButtonPressed = LTC_INTAKE_APPROVAL_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - INTAKE APPROVAL.vbs")
 IF ButtonPressed = LTC_MA_APPROVAL_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - MA APPROVAL.vbs")
 IF ButtonPressed = LTC_RENEWAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LTC - RENEWAL.vbs")
