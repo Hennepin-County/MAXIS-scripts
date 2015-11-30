@@ -101,6 +101,7 @@ EndDialog
 footer_month = datepart("m", dateadd("m", 1, date))
 If len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
+footer_month = CStr(footer_month)	
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -143,9 +144,8 @@ Do
 				Do
 					Do
 						Dialog new_job_reported_dialog
-						MAXIS_dialog_navigation
 						cancel_confirmation
-						Call check_for_MAXIS(False)
+						MAXIS_dialog_navigation
 						If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
 							If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
 								MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
@@ -212,13 +212,8 @@ If create_JOBS_checkbox = checked then
 	Loop until edit_mode_check = "D"
 End if
 
-'Jumps to case note the info.
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-EMReadScreen edit_mode_check, 1, 20, 9
-If edit_mode_check = "D" then script_end_procedure("Unable to create a new case note. Your case may be in inquiry. If so shut down inquiry and try again. Or try closing BlueZone.")
-
 'Now the script will case note what's happened.
+start_a_blank_CASE_NOTE
 EMSendKey ">>>New job for MEMB " & HH_memb & " reported by " & who_reported_job & " via " & job_report_type & "<<<" & "<newline>" 
 call write_bullet_and_variable_in_case_note("Employer", employer)
 call write_bullet_and_variable_in_case_note("Income type", income_type_dropdown)
@@ -236,12 +231,10 @@ call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
 call navigate_to_MAXIS_screen("dail", "writ")
-
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)
-
 'Writing in the rest of the TIKL.
-call write_variable_in_TIKL("Verification of job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
+call write_variable_in_TIKL("Verification of " & employer & " job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 transmit
 PF3
 MsgBox "Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."

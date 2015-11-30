@@ -3,48 +3,47 @@ name_of_script = "MEMOS - APPOINTMENT LETTER.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
-IF IsEmpty(FuncLib_URL) = TRUE THEN 'Shouldn't load FuncLib if it already loaded once
-    IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN     'If the scripts are set to run locally, it skips this and uses an FSO below.
-        IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN            'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-        ELSEIF beta_agency = "" or beta_agency = True then                          'If you're a beta agency, you should probably use the beta branch.
-            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-        Else                                                                        'Everyone else should use the release branch.
-            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-        End if
-        SET req = CreateObject("Msxml2.XMLHttp.6.0")                'Creates an object to get a FuncLib_URL
-        req.open "GET", FuncLib_URL, FALSE                          'Attempts to open the FuncLib_URL
-        req.send                                                    'Sends request
-        IF req.Status = 200 THEN                                    '200 means great success
-            Set fso = CreateObject("Scripting.FileSystemObject")    'Creates an FSO
-            Execute req.responseText                                'Executes the script code
-        ELSE                                                        'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-            MsgBox  "Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-                    vbCr & _
-                    "Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-                    vbCr & _
-                    "If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-                    vbTab & "- The name of the script you are running." & vbCr &_
-                    vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-                    vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-                    vbTab & vbTab & "responsible for network issues." & vbCr &_
-                    vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-                    vbCr & _
-                    "Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-                    vbCr &_
-                    "URL: " & FuncLib_URL
-                    script_end_procedure("Script ended due to error connecting to GitHub.")
-        END IF
-    ELSE
-        FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
-        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-        text_from_the_other_script = fso_command.ReadAll
-        fso_command.Close
-        Execute text_from_the_other_script
-    END IF
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 
 'CLASSES----------------------------------------------------------------------------------------------------------------------
 'IF THIS WORKS, CONSIDER INCORPORATING INTO FUNCTIONS LIBRARY
@@ -67,9 +66,12 @@ class address
     end property
 end class
 
+
 'Declaring variables needed by the script
 'First, determining the county code. If it isn't declared, it will ask (proxy)
+
 call worker_county_code_determination(worker_county_code, two_digit_county_code_variable)
+
 
 if worker_county_code = "x101" then 
     agency_office_array = array("Aitkin")
@@ -128,7 +130,7 @@ elseif worker_county_code = "x127" then
 elseif worker_county_code = "x128" then 
     agency_office_array = array("Houston")
 elseif worker_county_code = "x129" then 
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
+    agency_office_array = array("Hubbard")
 elseif worker_county_code = "x130" then 
     agency_office_array = array("Isanti")
 elseif worker_county_code = "x131" then 
@@ -194,7 +196,7 @@ elseif worker_county_code = "x160" then
 elseif worker_county_code = "x161" then     
     agency_office_array = array("Pope")
 elseif worker_county_code = "x162" then     
-    agency_office_array = array("Ramsey")
+    agency_office_array = array("Ramsey", "Fairview", "AIFC", "CAC-Bigelow", "Midway", "North St.Paul") 'adding more locations to Ramsey County
 elseif worker_county_code = "x163" then     
     agency_office_array = array("Red Lake")
 elseif worker_county_code = "x164" then     
@@ -494,6 +496,10 @@ ELSEIF worker_county_code = "x128" THEN
     agency_address.street = "304 S Marshall St., Room 104" 
     agency_address.city = "Caledonia" 
     agency_address.zip = "55921" 
+ELSEIF worker_county_code = "x129" THEN
+    agency_address.street = "205 Court Ave" 
+    agency_address.city = "Park Rapids" 
+    agency_address.zip = "56470" 
 ELSEIF worker_county_code = "x130" THEN
     agency_address.street = "1700 East Rum River Dr. S. Ste. A" 
     agency_address.city = "Cambridge" 
@@ -630,10 +636,32 @@ ELSEIF worker_county_code = "x161" THEN
     agency_address.street = "211 E Minnesota Ave, Suite 200" 
     agency_address.city = "Glenwood" 
     agency_address.zip = "56334" 
-ELSEIF worker_county_code = "x162" THEN
-    agency_address.street = "160 Kellogg Blvd. E." 
-    agency_address.city = "Saint Paul" 
-    agency_address.zip = "55101" 
+ELSEIF worker_county_code = "x162" THEN        'adding more locations to Ramsey County
+    IF interview_location = "Ramsey" THEN
+    	agency_address.street = "160 Kellogg Blvd. E." 
+    	agency_address.city = "Saint Paul" 
+      agency_address.zip = "55101"
+    ELSEIF interview_location = "Fairview" THEN
+      agency_address.street = "1910 W Co RD B, Suite 124"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55113"
+    ELSEIF interview_location = "AIFC" THEN
+      agency_address.street = "579 Wells St"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55130"
+    ELSEIF interview_location = "CAC-Bigelow" THEN
+      agency_address.street = "450 N Syndicate St, Suite 250"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55104"
+    ELSEIF interview_location = "Midway" THEN
+      agency_address.street = "1821 University Ave, Ste. N263"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55104"
+    ELSEIF interview_location = "North St.Paul" THEN
+      agency_address.street = "2098 11th Ave E"
+      agency_address.city = "North St.Paul"
+      agency_address.zip = "55109"
+    END IF
 ELSEIF worker_county_code = "x163" THEN
     agency_address.street = "125 Edward Ave" 
     agency_address.city = "Red Lake Falls" 

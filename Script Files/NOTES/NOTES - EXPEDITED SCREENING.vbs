@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -149,25 +147,35 @@ IF expedited_status = "client appears expedited" THEN
 END IF 
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
-call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
-call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
-call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
-call write_variable_in_CASE_NOTE("---")
-If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
-If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-If expedited_status = "client appears expedited" AND EBT_account_status = "Y" then call write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
-If expedited_status = "client appears expedited" AND EBT_account_status = "N" then call write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE(worker_signature)
-If expedited_status = "client appears expedited" then
-	MsgBox "This client appears expedited. A same day interview needs to be offered."
-End if
-If expedited_status = "client does not appear expedited" then
-	MsgBox "This client does not appear expedited. A same day interview does not need to be offered."
-End if
-
+	call navigate_to_screen("case", "note")
+	PF9
+	
+	EMReadScreen case_note_check, 17, 2, 33
+	EMReadScreen mode_check, 1, 20, 09
+	If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then    'this will account for those cases when the script is run on an out of county case.
+		msgbox "The script can't open a case note. You may be in inquiry or entered a case number that is in another county." &_
+		vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
+		script_end_procedure("")
+	else	
+		'Body of the case note 
+		Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
+		call write_variable_in_CASE_NOTE("---")
+		call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
+		call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
+		call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
+		call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
+		call write_variable_in_CASE_NOTE("---")
+		If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
+		If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+		If expedited_status = "client appears expedited" AND EBT_account_status = "Y" then call write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
+		If expedited_status = "client appears expedited" AND EBT_account_status = "N" then call write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
+		call write_variable_in_CASE_NOTE("---")
+		call write_variable_in_CASE_NOTE(worker_signature)
+		If expedited_status = "client appears expedited" then
+			MsgBox "This client appears expedited. A same day interview needs to be offered."
+		End if
+		If expedited_status = "client does not appear expedited" then
+			MsgBox "This client does not appear expedited. A same day interview does not need to be offered."
+		End if
+	End if
 script_end_procedure("")

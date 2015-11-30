@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -47,21 +45,26 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS-----------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
+BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 175, "Pull REPT data into Excel dialog"
   EditBox 140, 20, 140, 15, worker_number
-  CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 70, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 70, 95, 200, 10, "Check here to read info from case notes to help locate", error_check
+  CheckBox 70, 120, 210, 10, "Check here to have the script read information from SNAP", notice_audit_check
   CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
   CheckBox 10, 50, 50, 10, "Cash/GRH?", cash_check
   CheckBox 10, 65, 40, 10, "HC?", HC_check
   ButtonGroup ButtonPressed
-    OkButton 175, 100, 50, 15
-    CancelButton 230, 100, 50, 15
+    OkButton 180, 155, 50, 15
+    CancelButton 230, 155, 50, 15
   GroupBox 5, 20, 60, 60, "Progs to scan"
   Text 70, 25, 65, 10, "Worker(s) to check:"
-  Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 70, 75, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 70, 40, 210, 15, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 80, 105, 175, 10, "cases with STAT/REVW errors."
+  Text 80, 130, 175, 10, "autoclose notices."
 EndDialog
+
 
 'THE SCRIPT---------------------------------------------------
 
@@ -155,6 +158,22 @@ If current_month_plus_2 = False then
 	interview_date_letter_col = convert_digit_to_excel_column(interview_date_col)
 End if
 
+IF notice_audit_check = checked Then
+	objExcel.Cells(1, col_to_use).value = "AUTOCLOSE NOTICE"
+	objExcel.Cells(1, col_to_use).Font.Bold = True
+	notice_column = col_to_use
+	col_to_use = col_to_use + 1
+END IF
+
+IF error_check = checked Then
+	objExcel.Cells(1, col_to_use).value = "POTENTIAL ERROR"
+	objExcel.Cells(1, col_to_use).Font.Bold = True
+	error_column = col_to_use
+	col_to_use = col_to_use + 1
+END IF
+
+	
+
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -189,7 +208,10 @@ For each worker in worker_array
 		EMWriteScreen future_footer_year, 20, 58
 		transmit
 	End if
-
+	EMReadScreen footer_month, 2, 20, 55
+	EMReadScreen footer_year, 2, 20, 58
+	review_date = footer_month & "/01/" & footer_year
+	
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
 	If has_content_check <> " " then
@@ -222,14 +244,20 @@ For each worker in worker_array
 				If cash_status = "-" then cash_status = ""
 				If SNAP_status = "-" then SNAP_status = ""
 				If HC_status = "-" then HC_status = ""
-
+				
 				'The asterisk in the exempt IR column messes up the formula for Excel. Replacing with the word "exempt"
 				If exempt_IR_status = "*" then exempt_IR_status = "exempt"
 
 				'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
-				If trim(cash_status) <> "" and cash_check = checked then add_case_info_to_Excel = True
-				If trim(SNAP_status) <> "" and SNAP_check = checked then add_case_info_to_Excel = True
-				If trim(HC_status) <> "" and HC_check = checked then add_case_info_to_Excel = True
+				If T_check = checked THEN
+					IF trim(case_status) = "T" and cash_check = checked THEN add_case_info_to_Excel = True
+					If trim(SNAP_status) = "T" and SNAP_check = checked then add_case_info_to_Excel = True
+					If trim(HC_status) = "T" and HC_check = checked then add_case_info_to_Excel = True
+				ELSE 
+					If trim(cash_status) <> "" and cash_check = checked then add_case_info_to_Excel = True
+					If trim(SNAP_status) <> "" and SNAP_check = checked then add_case_info_to_Excel = True
+					If trim(HC_status) <> "" and HC_check = checked then add_case_info_to_Excel = True
+				END IF
 
 				'Cleaning up the blank revw_recd_date and interview_date variables
 				revw_recd_date = trim(replace(revw_recd_date, "__ __ __", ""))
@@ -262,6 +290,110 @@ For each worker in worker_array
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
+
+
+'Going to the top of the list and checking each case for additional information
+row_to_use = 2
+'if notice_audit_check = checked THEN col_to_use = col_to_use + 1
+IF notice_audit_check = checked OR error_check = checked THEN	
+	DO 
+		case_number = objExcel.Cells(row_to_use, 2).Value
+		IF case_number <> "" THEN
+			IF SNAP_check = checked THEN 'Checking SNAP notices only
+				IF notice_audit_check = checked THEN 'THE FOLLOWING CHECKS THE CONTENTS OF AUTOCLOSE NOTICES
+					IF objExcel.Cells(row_to_use, snap_actv_col).Value = "T"  OR objExcel.Cells(row_to_use, snap_actv_col).Value = "N" THEN 'Only concerned with notices for incomplete or terminated cases.
+					'First it will read the SNAP autoclose notice and check the closure reasons listed.
+						call navigate_to_MAXIS_screen("SPEC", "WCOM")
+						row = 7
+						col = 1
+						DO
+						EMSearch "Autoclose Notice", row, col
+						IF row <> 0 THEN
+							EMReadScreen prg_typ, 2, row, 26
+							IF prg_typ = "FS" THEN 'found a snap autoclose, need to read it
+								EMWriteScreen "X", row, 13
+								Transmit
+								PF8 'skipping the first page, the important stuff is on page 2
+								row = 10
+								col = 1
+								EMSearch "Report Form", row, col 'checking for CSRs 1st as they all use same notice.
+								IF row <> 0 THEN
+									notice_reason = "CSR not complete."
+									PF3
+									EXIT DO
+								ELSE 'not a csr notice, read the closure reasons
+									row = 10
+									col = 1
+									EMSearch "interview", row, col
+									IF row <> 0 THEN notice_reason = "No interview."
+									row = 10
+									col = 1
+									EMSearch "asked for", row, col
+									IF row <> 0 THEN notice_reason = notice_reason & " Proofs."
+									row = 10
+									col = 1-3
+									EMSearch "redetermination form", row, col
+									IF row <> 0 THEN notice_reason = notice_reason & " No CAF."
+									IF notice_reason = "" THEN notice_reason = "Check manually."
+									PF3
+									EXIT DO
+								END IF
+							END IF
+							row = row + 1
+						END IF
+						If row = 0 THEN notice_reason = "No notice found, check case manually." 'There is likely an error on this case.
+						LOOP UNTIL row = 21 or row = 0
+						objExcel.Cells(row_to_use, notice_column).Value = notice_reason
+					END IF
+				END IF
+				'This section checks for potential errors before notices are sent
+				IF error_check = checked THEN
+					IF ObjExcel.Cells(row_to_use, snap_actv_col).Value = "N" OR objExcel.cells(row_to_use, snap_actv_col).Value = "I" THEN
+						call navigate_to_MAXIS_screen("CASE", "NOTE")
+						row = 1
+						col = 1
+						IF ObjExcel.Cells(row_to_use, snap_actv_col).Value = "N" THEN
+							DO
+								IF ObjExcel.Cells(row_to_use, snap_actv_col).Value = "N" THEN EMSearch "received", row, col 'Looking for a case note for CSR Received or RECERT CAF received.
+								IF row = 0 THEN EXIT DO
+								IF row <> 0 THEN 
+									EMReadScreen case_note_date, 10, row, 6
+									IF datediff("d", case_note_date, review_date) > 45 THEN EXIT DO 'We are only concerned with stuff received in the 45 days before recert.
+									EMReadScreen case_note_type, 4, row, col - 4
+									IF case_note_type = "CAF " THEN 
+										error_content = "Check for possible RECERT received." 
+										EXIT DO
+									ELSEIF case_note_type = "CSR " THEN 
+										error_content = "Check for possible CSR received."
+										EXIT DO
+									ELSE
+										row = row + 1
+									END IF
+								END IF
+							LOOP UNTIL row = 19
+						END IF
+						IF objExcel.cells(row_to_use, snap_actv_col).Value = "I" THEN
+							EMSearch "approved", row, col 'Looking for a case note saying "approved" when review is coded I 
+							IF row <> 0 THEN 'found the word approved, next it finds out when
+								EMReadScreen case_note_date, 10, row, 6
+								IF datediff("d", case_note_date, review_date) < 32 THEN error_content = "Check for potential approved review." 'review can only be approved 1 month prior
+							END IF
+						END IF
+						objExcel.Cells(row_to_use, error_column).Value = error_content
+						error_content = "" 'Reset data 
+					END IF
+				END IF		
+			END IF
+		row_to_use = row_to_use + 1
+		END IF
+	Loop Until case_number = ""			
+END IF					
+ 	
+
+	
+
+
+'IF error_check = checked THEN col_to_use = col_to_use + 1 'need to add the extra column for this outside the DO...LOOP
 
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
 row_to_use = 3			'Declaring here before the following if...then statements

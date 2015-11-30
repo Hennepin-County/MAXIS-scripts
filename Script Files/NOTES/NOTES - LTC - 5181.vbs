@@ -1,19 +1,15 @@
 'OPTION EXPLICIT
-
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
 name_of_script = "NOTE - 5181.vbs"
 start_time = timer
 
-'DIM beta_agency
-'DIM FuncLib_URL, req, fso, run_locally, default_directory
+'DIM beta_agency, FuncLib_URL, req, fso, run_locally, default_directory
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -24,7 +20,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -35,7 +31,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -49,157 +45,45 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Declaring variables----------------------------------------------------------------------------------------------------
-'DIM start_time
-'DIM name_of_script
-'DIM url
-'DIM row
-'DIM script_end_procedure
-'DIM case_number_and_footer_month_dialog
-'DIM case_number
-'DIM footer_month
-'DIM footer_year
-'DIM next_month
-'DIM ButtonPressed
-'DIM case_note_dialog
-'DIM yes_case_note_button
-'DIM no_case_note_button
-'DIM cancel_dialog
-'DIM no_cancel_button
-'DIM yes_cancel_button
-'DIM MAXIS_footer_month
-'DIM MAXIS_footer_year
-'DIM DHS_5181_dialog_1
-'DIM date_5181_editbox
-'DIM date_received_editbox
-'DIM lead_agency_editbox
-'DIM lead_agency_assessor_editbox
-'DIM casemgr_ADDR_line_01
-'DIM casemgr_ADDR_line_02
-'DIM casemgr_city
-'DIM casemgr_state
-'DIM casemgr_zip_code
-'DIM phone_area_code
-'DIM phone_prefix
-'DIM phone_second_four
-'DIM phone_extension
-'DIM fax_editbox
-'DIM update_SWKR_info_checkbox
-'DIM update_addr_checkbox
-'DIM name_of_facility_editbox
-'DIM date_of_admission_editbox
-'DIM facility_address_line_01
-'DIM facility_address_line_02
-'DIM facility_city
-'DIM facility_state
-'DIM facility_county_code
-'DIM facility_zip_code
-'DIM waiver_type_droplist
-'DIM essential_community_supports_check
-'DIM next_to_page_02_button
-'DIM DHS_5181_dialog_2
-'DIM waiver_assessment_date_editbox
-'DIM needs_waiver_checkbox
-'DIM estimated_effective_date_editbox
-'DIM estimated_monthly_check
-'DIM estimated_monthly_waiver_costs_editbox
-'DIM does_not_meet_waiver_LOC_check
-'DIM ongoing_waiver_case_manager_check
-'DIM ongoing_waiver_case_manager_editbox
-'DIM LTCF_assessment_date_editbox
-'DIM meets_MALOC_check
-'DIM ongoing_case_manager_check
-'DIM ongoing_case_manager_editbox
-'DIM ongoing_case_manager_not_available_check
-'DIM does_not_meet_MALTC_LOC_check
-'DIM client_applied_MA_check
-'DIM client_MA_enrollee_3543_provided_check
-'DIM Client_MA_enrollee_editbox
-'DIM completed_3543_3531_check
-'DIM completed_3543_3531_faxed_check
-'DIM completed_3543_3531_faxed_editbox
-'DIM please_send_3543_check
-'DIM please_send_3531_check
-'DIM please_send_3531_editbox
-'DIM please_send_3340_check
-'DIM previous_to_page_01_button
-'DIM requested_1503_check
-'DIM onfile_1503_check 
-'DIM DHS_5181_Dialog_3
-'DIM client_no_longer_meets_LOC_check
-'DIM client_no_longer_meets_LOC_efffective_date_editbox
-'DIM waiver_program_change_by_assessor_check
-'DIM waiver_program_change_from_assessor_editbox
-'DIM waiver_program_change_to_assessor_editbox
-'DIM waiver_program_change_effective_date_editbox
-'DIM exited_waiver_program_check
-'DIM exit_waiver_end_date_editbox
-'DIM client_choice_check
-'DIM client_deceased_check
-'DIM date_of_death_editbox
-'DIM client_moved_to_LTCF_check
-'DIM client_moved_to_LTCF_editbox
-'DIM waiver_program_change_check
-'DIM waiver_program_change_from_editbox
-'DIM waiver_program_change_to_editbox
-'DIM client_disenrolled_health_plan_check
-'DIM client_disenrolled_from_healthplan_editbox
-'DIM new_address_check
-'DIM new_address_effective_date_editbox
-'DIM case_action_editbox
-'DIM other_notes_editbox
-'DIM write_TIKL_for_worker_check
-'DIM sent_5181_to_caseworker_check
-'DIM worker_signature
-'DIM previous_to_page_02_button
-'DIM LTCF_ADDR_line_01
-'DIM LTCF_ADDR_line_02
-'DIM LTCF_city
-'DIM LTCF_state
-'DIM LTCF_county_code
-'DIM LTCF_zip_code
-'DIM LTCF_update_ADDR_checkbox
-'DIM update_addr_new_ADDR_checkbox
-'DIM change_ADDR_line_1
-'DIM change_ADDR_line_2
-'DIM change_city
-'DIM change_state
-'DIM change_county_code
-'DIM change_zip_code
-'DIM case_note_confirm
-'DIM next_to_page_03_button
-'DIM footer_month_as_date
-'DIM difference_between_dates
-'DIM move_on_to_case_note
-'DIM from_droplist
-'DIM to_droplist
+'DIM start_time, name_of_script, url, row, script_end_procedure, case_number_and_footer_month_dialog, case_number
+'DIM MAXIS_footer_month, MAXIS_footer_year, next_month, ButtonPressed, case_note_dialog, yes_case_note_button, no_case_note_button
+'DIM cancel_dialog, no_cancel_button, yes_cancel_button, DHS_5181_dialog_1, date_5181_editbox, date_received_editbox, lead_agency_editbox
+'DIM lead_agency_assessor_editbox, casemgr_ADDR_line_01, casemgr_ADDR_line_02, casemgr_city, casemgr_state, casemgr_zip_code
+'DIM phone_area_code, phone_prefix, phone_second_four, phone_extension, fax_editbox, update_SWKR_info_checkbox, update_addr_checkbox
+'DIM name_of_facility_editbox, date_of_admission_editbox, facility_address_line_01, facility_address_line_02, facility_city
+'DIM facility_state, facility_county_code, facility_zip_code, waiver_type_droplist, essential_community_supports_check, next_to_page_02_button
+'DIM DHS_5181_dialog_2, waiver_assessment_date_editbox, needs_waiver_checkbox, estimated_effective_date_editbox, estimated_monthly_check
+'DIM estimated_monthly_waiver_costs_editbox, does_not_meet_waiver_LOC_check, ongoing_waiver_case_manager_check, ongoing_waiver_case_manager_editbox
+'DIM LTCF_assessment_date_editbox, meets_MALOC_check, ongoing_case_manager_check, ongoing_case_manager_editbox, ongoing_case_manager_not_available_check
+'DIM does_not_meet_MALTC_LOC_check, client_applied_MA_check, client_MA_enrollee_3543_provided_check, Client_MA_enrollee_editbox
+'DIM completed_3543_3531_check, completed_3543_3531_faxed_check, completed_3543_3531_faxed_editbox, please_send_3543_check
+'DIM please_send_3531_check, please_send_3531_editbox, please_send_3340_check, previous_to_page_01_button, requested_1503_check
+'DIM onfile_1503_check, DHS_5181_Dialog_3, client_no_longer_meets_LOC_check, client_no_longer_meets_LOC_efffective_date_editbox
+'DIM waiver_program_change_by_assessor_check, waiver_program_change_from_assessor_editbox, waiver_program_change_to_assessor_editbox
+'DIM waiver_program_change_effective_date_editbox, exited_waiver_program_check, exit_waiver_end_date_editbox, client_choice_check
+'DIM client_deceased_check, date_of_death_editbox, client_moved_to_LTCF_check, client_moved_to_LTCF_editbox, waiver_program_change_check
+'DIM waiver_program_change_from_editbox, waiver_program_change_to_editbox, client_disenrolled_health_plan_check, client_disenrolled_from_healthplan_editbox
+'DIM new_address_check, new_address_effective_date_editbox, case_action_editbox, other_notes_editbox, write_TIKL_for_worker_check
+'DIM sent_5181_to_caseworker_check, worker_signature, previous_to_page_02_button, LTCF_ADDR_line_01, LTCF_ADDR_line_02, LTCF_city
+'DIM LTCF_state, LTCF_county_code, LTCF_zip_code, LTCF_update_ADDR_checkbox, update_addr_new_ADDR_checkbox, change_ADDR_line_1
+'DIM change_ADDR_line_2, change_city, change_state, change_county_code, change_zip_code, case_note_confirm, next_to_page_03_button
+'DIM footer_month_as_date, difference_between_dates, move_on_to_case_note, from_droplist, to_droplist
 
-
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
- 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
 	OkButton 25, 45, 50, 15
 	CancelButton 85, 45, 50, 15
 EndDialog
-
 
 BeginDialog DHS_5181_dialog_1, 0, 0, 361, 305, "5181 Dialog 1"
   EditBox 55, 5, 55, 15, date_5181_editbox
@@ -260,7 +144,6 @@ BeginDialog DHS_5181_dialog_1, 0, 0, 361, 305, "5181 Dialog 1"
   Text 185, 140, 165, 15, "**Script will default to sending the SWKR notices**"
 EndDialog
 
-
 BeginDialog DHS_5181_dialog_2, 0, 0, 361, 415, "5181 Dialog 2"
   EditBox 75, 35, 45, 15, waiver_assessment_date_editbox
   EditBox 270, 50, 45, 15, estimated_effective_date_editbox
@@ -312,7 +195,6 @@ BeginDialog DHS_5181_dialog_2, 0, 0, 361, 415, "5181 Dialog 2"
   Text 5, 350, 225, 10, "Client no longer meets LOC - Effective date should be no sooner than:"
   Text 5, 375, 100, 10, "Waiver program change from:"
 EndDialog
-
 
 BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
   CheckBox 5, 20, 135, 15, "Exited waiver program- Effective date: ", exited_waiver_program_check
@@ -373,21 +255,11 @@ BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
   GroupBox 0, 0, 355, 250, ""
 EndDialog
 
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to MAXIS
+'Connecting to MAXIS & grabbing the case number and footer month/year
 EMConnect ""
-
-'Grabbing the case number
-call MAXIS_case_number_finder(case_number)
-
-'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
+Call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number
 Do
@@ -395,7 +267,6 @@ Do
 	cancel_confirmation
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
-transmit
 
 'Dialog completed by worker. Each dialog follows this process:
 '  1. Show the dialog and validate that next/OK or prev is pressed
@@ -447,12 +318,8 @@ Do
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE		
 
-
-
-
 'Dollar bill symbol will be added to numeric variables 
 IF estimated_monthly_waiver_costs_editbox <> "" THEN estimated_monthly_waiver_costs_editbox = "$" & estimated_monthly_waiver_costs_editbox
-
 'Checking to see that we're in MAXIS
 call check_for_MAXIS(False)
 
@@ -462,7 +329,6 @@ call check_for_MAXIS(False)
 IF write_TIKL_for_worker_check = 1 THEN 
 	'Go to DAIL/WRIT
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-	
 	'Writes TIKL to worker
 	call write_variable_in_TIKL("A DHS 5181 has been received for this case.  Please review the case and case notes.")
 	transmit
@@ -470,27 +336,22 @@ IF write_TIKL_for_worker_check = 1 THEN
 END If
 
 'Updates STAT MEMB with client's date of death (client_deceased_check)
-IF client_deceased_check = 1 THEN 
-	'Go to STAT MEMB
-	
+IF client_deceased_check = 1 THEN  	'Goes to STAT MEMB	
 	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = footer_month & "/01/" & footer_year
-	
+	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 	'Calculates the difference between the two dates (date of death and footer month)
 	difference_between_dates = DateDiff("m", date_of_death_editbox, footer_month_as_date)
 
 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
-		Call convert_date_into_MAXIS_footer_month(date_of_death_editbox, footer_month, footer_year)
-		EMWriteScreen footer_month, 20, 43
-		EMWriteScreen footer_year, 20, 46
+		Call convert_date_into_MAXIS_footer_month(date_of_death_editbox, MAXIS_footer_month, MAXIS_footer_year)
+		EMWriteScreen MAXIS_footer_month, 20, 43
+		EMWriteScreen MAXIS_footer_year, 20, 46
 		Transmit
 	END IF
-	
 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	PF9
-		
+	PF9	
 	'Writes in DOD from the date_of_death_editbox
 	Call create_MAXIS_friendly_date_with_YYYY(date_of_death_editbox, 0, 19, 42)	
 	transmit
@@ -502,7 +363,7 @@ END IF
 'Updates ADDR if selected on DIALOG 1 "have script update ADDR panel"
 IF update_addr_checkbox = 1 THEN 
 	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = footer_month & "/01/" & footer_year
+	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
 	difference_between_dates = DateDiff("m", date_of_admission_editbox, footer_month_as_date)
@@ -510,15 +371,13 @@ IF update_addr_checkbox = 1 THEN
 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(date_of_admission_editbox, footer_month, footer_year)
-		EMWriteScreen footer_month, 20, 43
-		EMWriteScreen footer_year, 20, 46
+		CALL convert_date_into_MAXIS_footer_month(date_of_admission_editbox, MAXIS_footer_month, MAXIS_footer_year)
+		EMWriteScreen MAXIS_footer_month, 20, 43
+		EMWriteScreen MAXIS_footer_year, 20, 46
 		Transmit
 	END IF
-	
 	'Go to STAT/ADDR
 	Call navigate_to_MAXIS_screen("STAT", "ADDR")
-
 	'Go into edit mode
 	PF9
 
@@ -539,17 +398,15 @@ IF update_addr_checkbox = 1 THEN
 	EMWriteScreen facility_state, 8, 66
 	EMWriteScreen facility_county_code, 9, 66
 	EMWriteScreen facility_zip_code, 9, 43
-	
 	transmit
 	transmit
 	transmit
 END If
 
-
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for move to LTCF
 IF LTCF_update_ADDR_checkbox = 1 THEN 
 		'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = footer_month & "/01/" & footer_year
+	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
 	difference_between_dates = DateDiff("m", client_moved_to_LTCF_editbox, footer_month_as_date)
@@ -557,15 +414,13 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(client_moved_to_LTCF_editbox, footer_month, footer_year)
-		EMWriteScreen footer_month, 20, 43
-		EMWriteScreen footer_year, 20, 46
+		CALL convert_date_into_MAXIS_footer_month(client_moved_to_LTCF_editbox, MAXIS_footer_month, MAXIS_footer_year)
+		EMWriteScreen MAXIS_footer_month, 20, 43
+		EMWriteScreen MAXIS_footer_year, 20, 46
 		Transmit
 	END IF
-	
 	'Go to STAT/ADDR
 	Call navigate_to_MAXIS_screen("STAT", "ADDR")
-
 	'Go into edit mode
 	PF9
 
@@ -586,17 +441,15 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 	EMWriteScreen LTCF_state, 8, 66
 	EMWriteScreen LTCF_county_code, 9, 66
 	EMWriteScreen LTCF_zip_code, 9, 43
-	
 	transmit
 	transmit
 	transmit
 END If
 
-
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
 IF update_addr_new_ADDR_checkbox = 1 THEN 
 	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = footer_month & "/01/" & footer_year
+	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
 	difference_between_dates = DateDiff("m", new_address_effective_date_editbox, footer_month_as_date)
@@ -604,15 +457,13 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
 	If difference_between_dates <> 0 THEN
 		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(new_address_effective_date_editbox, footer_month, footer_year)
-		EMWriteScreen footer_month, 20, 43
-		EMWriteScreen footer_year, 20, 46
+		CALL convert_date_into_MAXIS_footer_month(new_address_effective_date_editbox, MAXIS_footer_month, MAXIS_footer_year)
+		EMWriteScreen MAXIS_footer_month, 20, 43
+		EMWriteScreen MAXIS_footer_year, 20, 46
 		Transmit
 	END IF
-	
 	'Go to STAT/ADDR
 	Call navigate_to_MAXIS_screen("STAT", "ADDR")
-
 	'Go into edit mode
 	PF9
 
@@ -639,18 +490,19 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 	transmit
 END If
 
-
 'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
 If update_SWKR_info_checkbox = 1 THEN
 	'Go to STAT/SWKR
 	Call navigate_to_MAXIS_screen("STAT", "SWKR")
-
 	'creates a new panel if one doesn't exist, and will needs new if there is not one
-	Call Create_panel_if_nonexistent	
-
-	'Go into edit mode
-	PF9
-
+	EMReadScreen panel_exists_check, 1, 2, 73
+	IF panel_exists_check = "0" THEN 
+		EMWriteScreen "nn", 20, 79 'creating new panel
+		transmit
+	ELSE 
+		FP9	'putting panel into edit mode
+	END IF 	
+	
 	'Blanks out the old info
 	EMWriteScreen "___________________________________", 6, 32
 	EMWriteScreen "______________________", 8, 32
@@ -675,7 +527,6 @@ If update_SWKR_info_checkbox = 1 THEN
 	EMWriteScreen phone_second_four, 12, 44
 	EMWriteScreen phone_extension, 12, 54
 	EMWriteScreen "Y", 15, 63
-	
 	transmit
 	transmit
 	PF3
@@ -685,16 +536,12 @@ END IF
 If ongoing_waiver_case_manager_check = 1 THEN
 	'Go to STAT/SWKR
 	Call navigate_to_MAXIS_screen("STAT", "SWKR")
-
 	'Go into edit mode
 	PF9
-
 	'Blanks out the old info
 	EMWriteScreen "___________________________________", 6, 32
-	
 	'Writes in new case manager name
 	EMWriteScreen ongoing_waiver_case_manager_editbox, 6, 32
-	
 	transmit
 	transmit
 	PF3
@@ -704,28 +551,22 @@ END IF
 If ongoing_case_manager_check = 1 THEN
 	'Go to STAT/SWKR
 	Call navigate_to_MAXIS_screen("STAT", "SWKR")
-
 	'Go into edit mode
 	PF9
-
 	'Blanks out the old info
 	EMWriteScreen "___________________________________", 6, 32
-	
 	'Writes in new case manager name
 	EMWriteScreen ongoing_case_manager_editbox, 6, 32
-	
 	transmit
 	transmit
 	PF3
 END IF
 	
 'Checking to see that we're in MAXIS
-call check_for_MAXIS(True)
-
-'function to navigate user to case note and make a new one
-Call start_a_blank_CASE_NOTE
+call check_for_MAXIS(False)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
+Call start_a_blank_CASE_NOTE
 'Information from DHS 5181 Dialog 1
 'Contact information
 Call write_variable_in_case_note ("~~~DHS 5181 rec'd~~~")											
@@ -788,4 +629,4 @@ Call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
 MsgBox "Make sure your DISA and FACI panel(s) are updated if needed. Please also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed."
 
-script_end_procedure("")
+script_end_procedure("")	

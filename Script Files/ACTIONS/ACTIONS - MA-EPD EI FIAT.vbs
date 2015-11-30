@@ -87,7 +87,11 @@ Dialog case_number_dialog
 Cancel_confirmation
 
 call navigate_to_MAXIS_screen("STAT", "JOBS")
-
+EMReadScreen jobs_memb, 2, 4, 33  'checking if the current jobs panel is the memb, if not it will nav to member. 
+IF jobs_memb <> memb_number THEN
+	EMWriteScreen memb_number, 20, 76
+	transmit
+END IF
 EMReadScreen jobs_total, 1, 2, 78
 EMReadScreen jobs_current, 1, 2, 73
 
@@ -176,9 +180,8 @@ BeginDialog MA_EPD_dialog, 0, 0, 186, 156, "MA-EPD dialog"
     CancelButton 100, 135, 50, 15
 EndDialog
 
-
 Dialog MA_EPD_dialog
-If ButtonPressed = 0 then stopscript
+cancel_confirmation
 
 'SECTION 04: NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
 Call navigate_to_MAXIS_screen("ELIG", "HC__")

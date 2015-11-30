@@ -3,14 +3,11 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ACTIONS - CS DISREGARD FIAT.vbs"
 start_time = timer
-
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -21,7 +18,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -32,7 +29,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -48,8 +45,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOG
-'===========================================================================================================================
+'DIALOG===========================================================================================================================
 BeginDialog CSD_FIAT_dlg, 0, 0, 161, 95, "Child Support Disregard FIATer"
   EditBox 60, 5, 90, 15, case_number
   EditBox 60, 25, 20, 15, footer_month
@@ -250,80 +246,90 @@ IF CS_found <> True THEN script_end_procedure("A child support UNEA panel was no
 back_to_self
 
 'Checking out the sweet, sweet eligibility results, begining with D to the Dubs P
-IF DWP_cash_status <> "" Then
+IF DWP_cash_status <> "" THEN
 	CALL navigate_to_MAXIS_screen("ELIG", "DWP")
-	FOR i = 1 to number_of_people
-		dwpr_row = 7
-		DO
-			EMReadScreen DWPR_ref, 2, dwpr_row, 5
-			IF DWPR_ref = Household_array(i, 0) THEN
-				EMReadScreen DWP_elig_status, 1, dwpr_row, 57
-				IF DWP_elig_status = "I" Then
-					Household_array(i, 3) = FALSE
-					Exit do
-				ELSEIF DWP_elig_status = "E" THEN
-					Household_array(i, 3) = True
-					Exit do
+	'Checking to make sure we have a DWP version for the current month, for situations when DWP closes / MFIP opens
+	EmReadScreen DWP_version_check, 10, 24, 2
+	IF DWP_version_check <> "NO VERSION" THEN 'DWP exists, FIAT it
+		FOR i = 1 to number_of_people
+			dwpr_row = 7
+			DO
+				EMReadScreen DWPR_ref, 2, dwpr_row, 5
+				IF DWPR_ref = Household_array(i, 0) THEN
+					EMReadScreen DWP_elig_status, 1, dwpr_row, 57
+					IF DWP_elig_status = "I" Then
+						Household_array(i, 3) = FALSE
+						Exit do
+					ELSEIF DWP_elig_status = "E" THEN
+						Household_array(i, 3) = True
+						Exit do
+					END If
 				END If
-			END If
-			dwpr_row = dwpr_row + 1
-			If dwpr_row = 18 THEN 
-				PF8
-				dwpr_row = 7
-				EmReadScreen dwpr_edit, 4, 24, 2
-			END If
-		LOOP Until dwpr_edit = "THIS"
-	Next
-	
-	'IF there is 1 child eligible for the disregard, the limit is $100. If the number of eligible children exceeds 1, the limit is $200.
-	disregard_limit = 0
-	IF number_of_kids = 0 Then 
-		script_end_procedure("No eligible children were found eligible for DWP and are receiving Child Support. Please review case.")
-	ElseIF number_of_kids = 1 Then
-		disregard_limit = 100
-	Elseif number_of_kids > 1 Then
-		disregard_limit = 200
-	End if
-	
-	msgbox number_of_kids & " of clients are eligible." & vbCr & vbCr & "The disregard limit is " & disregard_limit & "." & vbCr & vbCr & "Press OK to continue."
-	
-	'FIATING DWP
-	PF9
-	EMwritescreen "04", 10, 41
-	transmit
-	EMwritescreen "DWB1", 20, 71
-	transmit
-	EMwritescreen "x", 8, 41
-	transmit
-	'Pausing to make sure MAXIS can keep up...
-	Emwaitready 1, 1000
-	'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
-	applied_dwp_disregard = 0
-	For i = 1 to number_of_people		
-		If Household_array(i, 3) = TRUE Then
-			IF Household_array(i, 4) = TRUE Then
-				EMwritescreen "        ", 17, 50
-				'The applied disregard equals the existing applied amount PLUS the prospective CS amount for this person
-				applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
-				'If the amount to be applied exceeds the limit...
-				If applied_dwp_disregard > disregard_limit THEN 
-					'...the script subtracts the amount previously applied from this person...
-					applied_dwp_disregard = applied_dwp_disregard - Household_array(i, 6)
-					'...and applies the difference of the previous applied amount and the limit...
-					Household_array(i, 6) = disregard_limit - applied_dwp_disregard
-					applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
-				End if
-				EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
-				MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
-				Transmit
-				Transmit
-			Else
-				transmit
-			End If
+				dwpr_row = dwpr_row + 1
+				If dwpr_row = 18 THEN 
+					PF8
+					dwpr_row = 7
+					EmReadScreen dwpr_edit, 4, 24, 2
+				END If
+			LOOP Until dwpr_edit = "THIS"
+		Next
+		
+		'IF there is 1 child eligible for the disregard, the limit is $100. If the number of eligible children exceeds 1, the limit is $200.
+		disregard_limit = 0
+		IF number_of_kids = 0 Then 
+			script_end_procedure("No eligible children were found eligible for DWP and are receiving Child Support. Please review case.")
+		ElseIF number_of_kids = 1 Then
+			disregard_limit = 100
+		Elseif number_of_kids > 1 Then
+			disregard_limit = 200
 		End if
-	Next
+		
+		msgbox number_of_kids & " of clients are eligible." & vbCr & vbCr & "The disregard limit is " & disregard_limit & "." & vbCr & vbCr & "Press OK to continue."
+		
+		'FIATING DWP
+		PF9
+		EMwritescreen "04", 10, 41
+		transmit
+		EMwritescreen "DWB1", 20, 71
+		transmit
+		EMwritescreen "x", 8, 41
+		transmit
+		'Pausing to make sure MAXIS can keep up...
+		Emwaitready 1, 1000
+		'The variable applied_dwp_disregard is a running total of the disregard amount applied to make sure the case does not exceed the limit according to the policy.
+		applied_dwp_disregard = 0
+		For i = 1 to number_of_people		
+			If Household_array(i, 3) = TRUE Then
+				IF Household_array(i, 4) = TRUE Then
+					EMwritescreen "        ", 17, 50
+					'The applied disregard equals the existing applied amount PLUS the prospective CS amount for this person
+					applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
+					'If the amount to be applied exceeds the limit...
+					If applied_dwp_disregard > disregard_limit THEN 
+						'...the script subtracts the amount previously applied from this person...
+						applied_dwp_disregard = applied_dwp_disregard - Household_array(i, 6)
+						'...and applies the difference of the previous applied amount and the limit...
+						Household_array(i, 6) = disregard_limit - applied_dwp_disregard
+						applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
+					End if
+					'For whatever reason, the script was creating a very very small value instead of 0 and
+					'using scientific notation to display it. This was causing a problem when it came time
+					'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+					'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
+					IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
+					EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
+					MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
+					Transmit
+					Transmit
+				Else
+					transmit
+				End If
+			End if
+		Next
+	END IF
+END IF
 '...next, for MFIP cases...
-ELSEIF MFIP_cash_status <> "" Then
+IF MFIP_cash_status <> "" THEN
 	CALL navigate_to_MAXIS_screen("FIAT", "")
 	EMwritescreen "03", 4, 34
 	EMwritescreen "x", 9, 22
@@ -395,6 +401,11 @@ ELSEIF MFIP_cash_status <> "" Then
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
 							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						END IF
+						'For whatever reason, the script was creating a very very small value instead of 0 and
+						'using scientific notation to display it. This was causing a problem when it came time
+						'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+						'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
+						IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 						EMWriteScreen Household_array(i, 6), 21, 44
 						transmit
 						transmit
@@ -408,6 +419,11 @@ ELSEIF MFIP_cash_status <> "" Then
 							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
 						END IF
+						'For whatever reason, the script was creating a very very small value instead of 0 and
+						'using scientific notation to display it. This was causing a problem when it came time
+						'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+						'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
+						IF Household_array(i, 5) < 0.01 THEN Household_array(i, 5) = 0
 						EMWriteScreen FormatNumber(Household_array(i, 5)), 21, 44
 						MsgBox "The script is applying " & FormatNumber(Household_array(i, 5)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						transmit
