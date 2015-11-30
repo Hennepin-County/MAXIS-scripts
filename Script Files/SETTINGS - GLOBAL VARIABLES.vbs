@@ -24,9 +24,6 @@ county_name = "Anoka County"
 'This merely exists to help the installer determine which dropdown box to default. It is not used by any scripts.
 code_from_installer = "02 - Anoka County"
 
-'Creates a double array of county offices, first by office (using the ~), then by address line (using the |). Dynamically added with the installer.
-county_office_array = split("2100 3rd Ave Suite 400|Anoka, MN 55303~1201 89th Ave NE Suite 400|Blaine, MN 55434~3980 Central Ave NE|Columbia Heights, MN 55421~4175 Lovell RD NE|Lexington, MN 55014", "~")
-
 'This is an "updated date" variable, which is updated dynamically by the intaller.
 scripts_updated_date = "01/01/2099"
 
