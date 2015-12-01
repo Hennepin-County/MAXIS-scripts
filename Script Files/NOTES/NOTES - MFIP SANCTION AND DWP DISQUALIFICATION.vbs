@@ -171,7 +171,7 @@ DO
 	IF IsDate(Date_Sanction) = FALSE THEN 
 			err_msg = err_msg & vbCr & "You need to enter a valid date of sanction (MM/DD/YYYY)."
 		'logic for figuring out if its the first of the month, if it's not, then it gives a more define date requirement
-		ELSEIf Date_Sanction <> datepart ("m", Date_Sanction) & "/01/" & datepart("yyyy", Date_Sanction) THEN  
+		ELSEIF datepart("d", Date_Sanction) <> 1 THEN  
 			err_msg = "You need to enter a valid date of sanction (MM/DD/YYYY), with DD = to first of the sanction month)"
 		END IF
 	IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
