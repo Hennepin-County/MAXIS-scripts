@@ -136,10 +136,7 @@ Do
 	DO
 		DO
 			Dialog many_case_numbers_dialog
-			If buttonpressed = cancel then 
-				cancel_confirmation = MsgBox ("Are you sure you want to exit? Answer Yes to exit, and No to return.", vbYesNo)
-				If cancel_confirmation = vbYes then stopscript
-			End if
+			cancel_confirmation
 			If (isnumeric(case_number_01) = FALSE and case_number_01 <> "") or (isnumeric(case_number_02) = FALSE and case_number_02 <> "") or _ 
 			  (isnumeric(case_number_03) = FALSE and case_number_03 <> "") or (isnumeric(case_number_04) = FALSE and case_number_04 <> "") or _ 
 			  (isnumeric(case_number_05) = FALSE and case_number_05 <> "") or (isnumeric(case_number_06) = FALSE and case_number_06 <> "") or _ 
@@ -205,10 +202,7 @@ Do
 		Do
 			Do
 				DIALOG tikl_dialog
-				If buttonpressed = cancel then 
-					cancel_confirmation = MsgBox ("Are you sure you want to exit? Answer Yes to exit, and No to return.", vbYesNo)
-					If cancel_confirmation = vbYes then stopscript
-				End if
+				cancel_confirmation
 			Loop until buttonpressed = OK		'Included because if the user selects cancel, then backs out of that, I don't want it trying to validate dates.
 			IF isdate(tikl_date) = FALSE THEN MsgBox "Please enter a valid date (MM/DD/YYYY)."
 		Loop until isdate(tikl_date) = True		'Doing this here, because below it could introduce an error by trying to datediff a non-date element
