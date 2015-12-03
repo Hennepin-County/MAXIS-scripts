@@ -9,7 +9,7 @@
 default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = False
+run_locally = True
 
 '========================================================================================================================================
 
@@ -55,7 +55,7 @@ CLS_x1_number = "X102CLS"
 all_users_select_a_worker = False
 
 'If the above is False, we need a list of workers who do use the "select a worker" nav scripts.
-users_using_select_a_user = array("VKC", "VKCARY", "PWVKC45")
+users_using_select_a_user = array()
 
 
 'COLLECTING STATISTICS=========================

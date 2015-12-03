@@ -1,4 +1,4 @@
-'LOADING GLOBAL VARIABLES
+'LOADING GLOBAL VARIABLES--------------------------------------------------------------------
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
 text_from_the_other_script = fso_command.ReadAll
@@ -6,7 +6,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'LOADING SCRIPT
-script_URL = script_repository & "/NOTES/NOTES - MAIN MENU - H-Z.vbs"
+script_URL = script_repository & "/NAV/NAV - STAT-PROG.vbs"
 IF run_locally = False THEN
 	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
 	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
