@@ -107,37 +107,36 @@ EndDialog
 
 
 BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
-  EditBox 60, 10, 50, 20, case_number
-  ComboBox 80, 30, 80, 20, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
-  EditBox 130, 50, 70, 20, worker_to_transfer_to
+  EditBox 65, 10, 50, 15, case_number
+  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
+  EditBox 130, 50, 65, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
-  CheckBox 50, 90, 30, 10, "SNAP", SNAP_active_check
-  CheckBox 90, 90, 20, 10, "HC", HC_active_check
-  CheckBox 120, 90, 40, 10, "MNsure", mnsure_active_check
-  CheckBox 170, 90, 40, 10, "EMER", EMER_active_check
-  CheckBox 20, 120, 30, 10, "Cash", Cash_pend_check
-  CheckBox 50, 120, 30, 10, "SNAP", SNAP_pend_check
-  CheckBox 90, 120, 20, 10, "HC", HC_pend_check
-  CheckBox 120, 120, 40, 10, "MNsure", mnsure_pend_check
-  CheckBox 170, 120, 40, 10, "EMER", EMER_pend_check
-  DropListBox 100, 140, 70, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
-  EditBox 80, 160, 120, 20, Transfer_reason
-  EditBox 80, 180, 130, 20, Action_to_be_taken
-  EditBox 80, 200, 130, 20, worker_signature
+  CheckBox 55, 90, 30, 10, "SNAP", SNAP_active_check
+  CheckBox 95, 90, 20, 10, "HC", HC_active_check
+  CheckBox 125, 90, 35, 10, "MNsure", mnsure_active_check
+  CheckBox 170, 90, 35, 10, "EMER", EMER_active_check
+  CheckBox 20, 125, 30, 10, "Cash", Cash_pend_check
+  CheckBox 55, 125, 30, 10, "SNAP", SNAP_pend_check
+  CheckBox 95, 125, 20, 10, "HC", HC_pend_check
+  CheckBox 125, 125, 35, 10, "MNsure", mnsure_pend_check
+  CheckBox 170, 125, 40, 10, "EMER", EMER_pend_check
+  DropListBox 100, 140, 65, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
+  EditBox 85, 160, 120, 15, Transfer_reason
+  EditBox 80, 180, 125, 15, Action_to_be_taken
+  EditBox 80, 200, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 100, 220, 50, 20
-    CancelButton 150, 220, 50, 20
-  Text 10, 180, 70, 10, "Actions to be taken:"
-  Text 10, 30, 60, 10, "Unit to transfer to: "
-  Text 10, 160, 70, 10, "Reason for Transfer:"
-  Text 10, 140, 90, 10, "Pregnancy verif received:"
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 10, 70, 80, 10, "Active On:"
-  Text 10, 110, 60, 10, "Pending On:"
-  Text 10, 200, 60, 10, "Worker Signature:"
-  Text 10, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
+    OkButton 100, 220, 50, 15
+    CancelButton 155, 220, 50, 15
+  Text 15, 185, 65, 10, "Actions to be taken:"
+  Text 15, 35, 60, 10, "Unit to transfer to: "
+  Text 15, 165, 70, 10, "Reason for Transfer:"
+  Text 15, 145, 85, 10, "Pregnancy verif received:"
+  Text 15, 15, 50, 10, "Case Number:"
+  Text 15, 75, 80, 10, "Active On:"
+  Text 15, 110, 60, 10, "Pending On:"
+  Text 15, 205, 60, 10, "Worker Signature:"
+  Text 15, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
 EndDialog
-
 
 
 
