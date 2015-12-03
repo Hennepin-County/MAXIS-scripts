@@ -1,4 +1,3 @@
-worker_county_code = "x127"
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMOS - NOMI.vbs"
 start_time = timer
@@ -47,7 +46,8 @@ END IF
 
 'variable/array for appointment time droplist
 call convert_array_to_droplist_items(time_array_15_min, time_array)  'drop list that contains time in 15 minute increments  
-'logic to autofill the last_day_for_recert field
+
+'logic to autofill the 'last_day_for_recert' field
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
 last_day_for_recert = dateadd("d", -1, next_month)
@@ -121,19 +121,19 @@ BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 140, "Hennepin County ER SNAP NOMI"
   EditBox 60, 10, 55, 15, case_number
   DropListBox 200, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 80, 35, 55, 15, date_of_missed_interview
+  DropListBox 225, 35, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
   EditBox 100, 65, 180, 15, contact_attempts
+  EditBox 100, 90, 55, 15, last_day_for_recert
   EditBox 70, 115, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 175, 115, 50, 15
     CancelButton 230, 115, 50, 15
-  Text 5, 40, 75, 10, "Missed interview date:"
-  Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
   Text 5, 120, 60, 10, "Worker signature:"
   Text 5, 70, 85, 10, "Attempts to contact client:"
   Text 10, 15, 45, 10, "Case number:"
   Text 125, 15, 70, 10, "Region of residence: "
-  DropListBox 225, 35, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
-  EditBox 100, 90, 55, 15, last_day_for_recert
+  Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
+  Text 5, 40, 75, 10, "Missed interview date:"
   Text 5, 95, 95, 10, "Recert must be complete by:"
   Text 160, 95, 115, 10, "(Usually the last day of the month)"
 EndDialog
@@ -146,11 +146,10 @@ Call MAXIS_case_number_finder(case_number)
 'Asks if this is a recert. A recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add-a-programs.
 recert_check = MsgBox("Is this a missed SNAP recertification interview?" & Chr(13) & Chr(13) & "If yes, the SNAP missed recert interview notice will be sent. " & Chr(13) & Chr(13) & "If no, the regular NOMI will be sent.", 3)
 If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox
-If recert_check = 6 then 				'This is the "yes" button on a MsgBox	
+If recert_check = 6 then 'This is the "yes" button on a MsgBox	
 	'Shows dialog, checks for password prompt
 	Do
 		If worker_county_code = "x127" then
-			time_of_missed_interview = "_"		'establishing that this variable <> "", making it not mandatory
 			Dialog Hennepin_ER_NOMI
 		ELSE
 			Dialog SNAP_ER_NOMI_dialog
@@ -158,10 +157,10 @@ If recert_check = 6 then 				'This is the "yes" button on a MsgBox
 		cancel_confirmation
 		If case_number = "" then MsgBox "You did not enter a case number. Please try again."
 		If date_of_missed_interview = "" then MsgBox "You did not enter a date of missed interview. Please try again."
-		If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
+		If (worker_county_code <> "x127" AND time_of_missed_interview = "Select one...") then MsgBox "You did not enter a time of missed interview. Please try again."
 		If last_day_for_recert = "" then MsgBox "You did not enter a date the recert must be completed by. Please try again."
 		If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-	Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_missed_interview <> "" and last_day_for_recert <> "" and worker_signature <> ""
+	Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_missed_interview <> "Select one..." and last_day_for_recert <> "" and worker_signature <> ""
 	
 	'checking for an active MAXIS session
 	Call check_for_MAXIS(False)
@@ -176,10 +175,9 @@ If recert_check = 6 then 				'This is the "yes" button on a MsgBox
 	transmit
 
 	If worker_county_code = "x127" then 
-		If time_of_missed_interview = "_" then time_of_missed_interview = ""	're-establish that if variable = "_" to read as ""
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("************************************************************")
-	    IF time_of_missed_interview <> "" THEN 
+	    IF time_of_missed_interview <> "Select one..." THEN 
 			Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
 		ELSE
 			Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & date_of_missed_interview & ".")
@@ -187,17 +185,17 @@ If recert_check = 6 then 				'This is the "yes" button on a MsgBox
 		Call write_variable_in_SPEC_MEMO(" ")
 	    Call write_variable_in_SPEC_MEMO("Please contact your worker at 612-596-1300 to complete the required SNAP interview.")
 		IF region_residence = "Central/NE" Then
-			Call write_variable_in_SPEC_MEMO("You may also come to the Human Services building office to complete an interview. The office is located at: 525 Portland Ave. in Minneapolis. Office hours are Monday through Friday from 8 a.m. – 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come to the Human Services building office to complete an interview. The office is located at: 525 Portland Ave. in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "North" Then
-			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. – 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	    ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. – 5:00 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
 		ELSEIF region_residence = "South MPLS" Then 
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Bloomington office complete an interview. The office is located at: 9600 Aldrich Ave. Office hours are Monday, Tuesday, Wednesday and Friday from 8 a.m. – 4:30 p.m. and Thursday from 8 a.m. – 6:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Bloomington office complete an interview. The office is located at: 9600 Aldrich Ave. Office hours are Monday, Tuesday, Wednesday and Friday from 8 a.m. to 4:30 p.m. and Thursday from 8 a.m. to 6:30 p.m.")
 		ElseIF region_residence = "West" Then 
-			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 – 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. – 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		END IF 
 		Call write_variable_in_SPEC_MEMO(" ")
 	    Call write_variable_in_SPEC_MEMO("The Combined Application Form (DHS-5223), the interview by phone or in the office, and the mandatory verifications needed to process your renewal must be completed by " & last_day_for_recert & ", or your SNAP case will Auto-Close on this date.")
@@ -217,14 +215,12 @@ If recert_check = 6 then 				'This is the "yes" button on a MsgBox
 	'Writes the case note
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("**Client missed SNAP recertification interview**")
-	IF worker_county_code <> "x127" then 
+	If time_of_missed_interview = "Select one..." Then
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
-	Elseif (worker_county_code = "x127" AND time_of_missed_interview <> "") Then
+	ELSE
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
-	ELSE 
-		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
 	END IF
-	Call write_variable_in_CASE_NOTE("* Attempts to contact the client: " & contact_attempts)
+	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
 	Call write_variable_in_CASE_NOTE("* A SPEC/MEMO has been sent to the client informing them of missed interview.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -241,10 +237,10 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		cancel_confirmation
 		If case_number = "" then MsgBox "You did not enter a case number. Please try again."
 		If isdate(date_of_missed_interview) = False then MsgBox "You did not enter a valid date of missed interview. Please try again."
-		If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
+		If (worker_county_code <> "x127" AND time_of_missed_interview = "Select one...") then MsgBox "You did not enter a time of missed interview. Please try again."
 		If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
 		If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-	Loop until case_number <> "" and isdate(date_of_missed_interview) = True and time_of_missed_interview <> "" and isdate(application_date) = True and worker_signature <> ""
+	Loop until case_number <> "" and isdate(date_of_missed_interview) = True and time_of_missed_interview <> "Select one..." and isdate(application_date) = True and worker_signature <> ""
 
 	'checks for an active MAXIS session
 	Call check_for_MAXIS(False)
@@ -258,24 +254,24 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		EMWriteScreen "x", 5, 10
 		transmit
 		'writes in the SPEC/MEMO for Hennepin County users
-		Call write_variable_in_SPEC_MEMO("***************APPLICATION INTERVIEW REMINDER***************")
+		Call write_variable_in_SPEC_MEMO("*************APPLICATION INTERVIEW REMINDER*************")
 		Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on" & (application_date) & ".")
 		Call write_variable_in_SPEC_MEMO("An interview is required to process your application. You may be eligible for SNAP benefits within 24 hours of your interview.")
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("You must contact your team to complete the interview as soon as possible. Please call 612-596-1300 if you would like a phone interview.")
 		Call write_variable_in_SPEC_MEMO(" ")
 		IF region_residence = "Central/NE" Then
-			Call write_variable_in_SPEC_MEMO("You may also come to the Human Services building office to complete an interview. The office is located at: 525 Portland Ave. in Minneapolis. Office hours are Monday through Friday from 8 a.m. – 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come to the Human Services building office to complete an interview. The office is located at: 525 Portland Ave. in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "North" Then
-			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. – 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	    ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. – 5:00 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
 		ELSEIF region_residence = "South MPLS" Then 
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Bloomington office complete an interview. The office is located at: 9600 Aldrich Ave. Office hours are Monday, Tuesday, Wednesday and Friday from 8 a.m. – 4:30 p.m. and Thursday from 8 a.m. – 6:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Bloomington office complete an interview. The office is located at: 9600 Aldrich Ave. Office hours are Monday, Tuesday, Wednesday and Friday from 8 a.m. to 4:30 p.m. and Thursday from 8 a.m. to 6:30 p.m.")
 		ElseIF region_residence = "West" Then 
-			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 – 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. – 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		END IF 
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")   
@@ -336,14 +332,17 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
-	If (worker_county_code = "x127" AND time_of_missed_interview <> "") Then 
+	If time_of_missed_interview = "Select one..." Then
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
 	ELSE
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	END IF
+	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
+	IF worker_county_code = "x127" then 
+		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/MEMO informing them of missed interview.")
+	ELSE
+		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
 	END IF 
-	CALL write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
-	Call write_variable_in_CASE_NOTE("* Attempts to contact the client: " & contact_attempts)
-	CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
