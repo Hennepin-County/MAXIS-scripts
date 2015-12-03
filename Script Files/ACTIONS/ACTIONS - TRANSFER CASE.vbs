@@ -127,17 +127,16 @@ BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   ButtonGroup ButtonPressed
     OkButton 100, 220, 50, 20
     CancelButton 150, 220, 50, 20
-  Text 10, 180, 70, 10, "Actions to be taken:"
-  Text 10, 30, 60, 10, "Unit to transfer to: "
-  Text 10, 160, 70, 10, "Reason for Transfer:"
-  Text 10, 140, 90, 10, "Pregnancy verif received:"
+  Text 10, 185, 70, 10, "Actions to be taken:"
+  Text 10, 35, 60, 10, "Unit to transfer to: "
+  Text 10, 165, 70, 10, "Reason for Transfer:"
+  Text 10, 145, 90, 10, "Pregnancy verif received:"
   Text 10, 10, 50, 10, "Case Number:"
-  Text 10, 70, 80, 10, "Active On:"
-  Text 10, 110, 60, 10, "Pending On:"
-  Text 10, 200, 60, 10, "Worker Signature:"
+  Text 10, 75, 80, 10, "Active On:"
+  Text 10, 105, 60, 10, "Pending On:"
+  Text 10, 205, 60, 10, "Worker Signature:"
   Text 10, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
 EndDialog
-
 
 
 
