@@ -248,7 +248,7 @@ BeginDialog info_dialog, 0, 0, 375, 450, "DHS BlueZone Scripts Info dialog"
 	Text 5, 70, 365, 10, "EDMS choice: " & EDMS_choice
 	Text 5, 80, 365, 10, "BNDX variance threshold: $" & county_bndx_variance_threshold
 	Text 5, 90, 365, 10, "Emergency ''percent rule'' amount: " & emer_percent_rule_amt & "%"
-	Text 5, 100, 365, 10, "Number of days-worth-of-income to be verified for emergency: $" & emer_number_of_income_days
+	Text 5, 100, 365, 10, "Number of days-worth-of-income to be verified for emergency: " & emer_number_of_income_days
 	Text 5, 110, 365, 10, "CLS x1 number: " & CLS_x1_number
 
 	'The users who select a worker is either set to True (for everyone in the agency), or set to False and manually entered into global variables. This reads off who's covered by that.
