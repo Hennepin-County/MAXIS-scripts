@@ -107,9 +107,9 @@ EndDialog
 
 
 BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
-  EditBox 60, 10, 50, 20, case_number
-  ComboBox 80, 30, 80, 20, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
-  EditBox 130, 50, 70, 20, worker_to_transfer_to
+  EditBox 60, 10, 50, 15, case_number
+  ComboBox 80, 30, 80, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
+  EditBox 130, 50, 70, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
   CheckBox 50, 90, 30, 10, "SNAP", SNAP_active_check
   CheckBox 90, 90, 20, 10, "HC", HC_active_check
@@ -121,9 +121,9 @@ BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   CheckBox 120, 120, 40, 10, "MNsure", mnsure_pend_check
   CheckBox 170, 120, 40, 10, "EMER", EMER_pend_check
   DropListBox 100, 140, 70, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
-  EditBox 80, 160, 120, 20, Transfer_reason
-  EditBox 80, 180, 130, 20, Action_to_be_taken
-  EditBox 80, 200, 130, 20, worker_signature
+  EditBox 80, 160, 120, 15, Transfer_reason
+  EditBox 80, 180, 130, 15, Action_to_be_taken
+  EditBox 80, 200, 130, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 100, 220, 50, 20
     CancelButton 150, 220, 50, 20
