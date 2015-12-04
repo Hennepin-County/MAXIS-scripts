@@ -777,6 +777,7 @@ EndDialog
 
   current_SSN_with_spaces = ObjExcel.Cells(excel_row, 9).Value
   current_SSN = replace(ObjExcel.Cells(excel_row, 9).Value, " ", "")
+  EMWriteScreen "                 ", 4, 20
   EMWriteScreen "            ", 5, 20
   EMWriteScreen "            ", 6, 20
   EMWriteScreen "   ", 7, 20
@@ -789,8 +790,9 @@ EndDialog
   EMWriteScreen "N", 10, 76
   EMWriteScreen "N", 12, 54
 
-  EMSetCursor 10, 13
-  EMSendKey current_SSN
+  EMWritescreen left(current_SSN, 3), 10, 13
+  EMWritescreen right(left(current_SSN, 6), 2), 10, 17
+  EMwritescreen right(current_SSN, 4), 10, 20
   transmit
 
   EMWriteScreen "x", 5, 5
