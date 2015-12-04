@@ -96,7 +96,6 @@ EMConnect ""
 'Hennepin handling (they don't use the Appt Letter or NOMI scripts because they have permission (at least temporarily) to schedule using a time range instead of a single time. Because of this, the NOMI and Appt letter scripts would technically cause incorrect information to be sent to the clients. This is a simple solution until their procedures are updated.)
 If ucase(worker_county_code) = "X127" then
 	IF ButtonPressed = APPOINTMENT_LETTER_button 	THEN script_end_procedure("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user or your supervisor if you have questions.")
-	IF ButtonPressed = NOMI_button 					THEN script_end_procedure("The NOMI script is not available to Hennepin users at this time. Contact an alpha user or your supervisor if you have questions.")
 End if
 
 IF ButtonPressed = TWELVE_MONTH_CONTACT_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - 12 MONTH CONTACT.vbs")
