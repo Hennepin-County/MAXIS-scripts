@@ -852,8 +852,24 @@ End if
 If app_type = "new application" then last_contact_day = CAF_date + 30
 If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date 
 
-'This checks to make sure the case is not in background.
-MAXIS_background_check
+'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
+Do
+	call navigate_to_screen("STAT", "SUMM")
+	EMReadScreen month_check, 11, 24, 56 'checking for the error message when PND1 cases are not in APPL month
+	IF left(month_check, 5) = "CASES" THEN 'this means the case can't get into stat in current month
+		EMWriteScreen mid(month_check, 7, 2), 20, 43 'writing the correct footer month (taken from the error message)
+		EMWriteScreen mid(month_check, 10, 2), 20, 46 'writing footer year
+		EMWriteScreen "STAT", 16, 43 
+		EMWriteScreen "SUMM", 21, 70
+		transmit 'This transmit should take us to STAT / SUMM now
+	END IF	
+	'This section makes sure the case isn't locked by background, if it is it will loop and try again
+	EMReadScreen SELF_check, 4, 2, 50
+	If SELF_check = "SELF" then
+		PF3
+		Pause 2
+	End if
+Loop until SELF_check <> "SELF"
 
 'Navigating to SPEC/MEMO
 call navigate_to_MAXIS_screen("SPEC", "MEMO")
