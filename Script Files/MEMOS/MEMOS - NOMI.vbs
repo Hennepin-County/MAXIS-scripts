@@ -44,36 +44,47 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'variable/array for appointment time droplist
+call convert_array_to_droplist_items(time_array_15_min, time_array)  'drop list that contains time in 15 minute increments  
+
+'logic to autofill the 'last_day_for_recert' field
+next_month = DateAdd("M", 1, date)
+next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
+last_day_for_recert = dateadd("d", -1, next_month)
+
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 211, 135, "SNAP ER NOMI Dialog"
-  Text 5, 5, 50, 10, "Case number:"
-  EditBox 60, 0, 65, 15, case_number
-  Text 5, 25, 85, 10, "Date of missed interview:"
-  EditBox 95, 20, 50, 15, date_of_missed_interview
-  Text 5, 45, 85, 10, "Time of missed interview:"
-  EditBox 95, 40, 50, 15, time_of_missed_interview
-  Text 5, 60, 125, 20, "Recert must be complete by (usually the last day of the current month):"
-  EditBox 130, 60, 75, 15, last_day_for_recert
-  EditBox 55, 85, 150, 15, contact_attempts
-  Text 60, 115, 70, 10, "Sign your case note:"
-  EditBox 130, 110, 75, 15, worker_signature
+' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
+BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
+  EditBox 85, 5, 55, 15, date_of_missed_interview
+  EditBox 215, 5, 55, 15, case_number
+  DropListBox 85, 25, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
+  EditBox 100, 45, 55, 15, last_day_for_recert
+  EditBox 100, 70, 180, 15, contact_attempts
+  EditBox 70, 95, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 155, 5, 50, 15
-    CancelButton 155, 25, 50, 15
-  Text 5, 85, 45, 20, "Attempts to contact client:"
+    OkButton 175, 95, 50, 15
+    CancelButton 230, 95, 50, 15
+  Text 5, 100, 60, 10, "Worker signature:"
+  Text 5, 75, 85, 10, "Attempts to contact client:"
+  Text 165, 10, 45, 10, "Case number:"
+  Text 160, 50, 115, 10, "(Usually the last day of the month)"
+  Text 5, 30, 75, 10, "Missed interview time:"
+  Text 5, 50, 95, 10, "Recert must be complete by:"
+  Text 5, 10, 75, 10, "Missed interview date:"
 EndDialog
 
-BeginDialog NOMI_dialog, 0, 0, 226, 165, "NOMI Dialog"
-  EditBox 95, 5, 65, 15, case_number
-  EditBox 95, 25, 50, 15, date_of_missed_interview
-  EditBox 95, 45, 50, 15, time_of_missed_interview
-  EditBox 95, 65, 50, 15, application_date
-  EditBox 75, 85, 145, 15, contact_attempts
-  EditBox 75, 105, 75, 15, worker_signature
-  CheckBox 5, 125, 205, 10, "Check here to have the script update PND2 for client delay.", client_delay_check
+' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
+BeginDialog NOMI_dialog, 0, 0, 261, 150, "NOMI Dialog"
+  EditBox 95, 5, 55, 15, case_number
+  EditBox 95, 25, 55, 15, date_of_missed_interview
+  DropListBox 95, 45, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
+  EditBox 95, 65, 55, 15, application_date
+  EditBox 70, 85, 185, 15, contact_attempts
+  EditBox 70, 105, 75, 15, worker_signature
+  CheckBox 10, 130, 205, 10, "Check here to have the script update PND2 for client delay.", client_delay_check
   ButtonGroup ButtonPressed
-    OkButton 105, 145, 50, 15
-    CancelButton 160, 145, 50, 15
+    OkButton 150, 105, 50, 15
+    CancelButton 205, 105, 50, 15
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 85, 10, "Date of missed interview:"
   Text 5, 50, 85, 10, "Time of missed interview:"
@@ -82,7 +93,50 @@ BeginDialog NOMI_dialog, 0, 0, 226, 165, "NOMI Dialog"
   Text 5, 85, 65, 20, "Attempts to contact client:"
 EndDialog
 
+'Hennepin County specific dialogs
+' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
+BeginDialog Hennepin_application_NOMI, 0, 0, 286, 140, "Hennepin County Application SNAP NOMI"
+  DropListBox 80, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
+  EditBox 225, 10, 55, 15, case_number
+  EditBox 80, 35, 55, 15, date_of_missed_interview
+  DropListBox 225, 35, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
+  EditBox 65, 65, 55, 15, application_date
+  CheckBox 130, 70, 150, 10, "Check here to update PND2 for client delay.", client_delay_check
+  EditBox 90, 90, 190, 15, contact_attempts
+  EditBox 65, 115, 105, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 175, 115, 50, 15
+    CancelButton 230, 115, 50, 15
+  Text 5, 95, 85, 10, "Attempts to contact client:"
+  Text 170, 15, 45, 10, "Case number:"
+  Text 5, 15, 70, 10, "Region of residence: "
+  Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
+  Text 5, 40, 75, 10, "Missed interview date:"
+  Text 5, 70, 55, 10, "Application date:"
+  Text 5, 120, 60, 10, "Worker signature:"
+EndDialog
 
+' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
+BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 140, "Hennepin County ER SNAP NOMI"
+  EditBox 60, 10, 55, 15, case_number
+  DropListBox 200, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
+  EditBox 80, 35, 55, 15, date_of_missed_interview
+  DropListBox 225, 35, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
+  EditBox 100, 65, 180, 15, contact_attempts
+  EditBox 100, 90, 55, 15, last_day_for_recert
+  EditBox 70, 115, 100, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 175, 115, 50, 15
+    CancelButton 230, 115, 50, 15
+  Text 5, 120, 60, 10, "Worker signature:"
+  Text 5, 70, 85, 10, "Attempts to contact client:"
+  Text 10, 15, 45, 10, "Case number:"
+  Text 125, 15, 70, 10, "Region of residence: "
+  Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
+  Text 5, 40, 75, 10, "Missed interview date:"
+  Text 5, 95, 95, 10, "Recert must be complete by:"
+  Text 160, 95, 115, 10, "(Usually the last day of the month)"
+EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone & grabs case number
@@ -90,21 +144,23 @@ EMConnect ""
 Call MAXIS_case_number_finder(case_number)
 
 'Asks if this is a recert. A recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add-a-programs.
-recert_check = MsgBox("Is this a missed SNAP recertification interview?" & Chr(13) & Chr(13) & "If yes, the SNAP missed recert interview notice will be sent. " & Chr(13) & "If no, the regular NOMI will be sent.", 3)
+recert_check = MsgBox("Is this a missed SNAP recertification interview?" & Chr(13) & Chr(13) & "If yes, the SNAP missed recert interview notice will be sent. " & Chr(13) & Chr(13) & "If no, the regular NOMI will be sent.", 3)
 If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox
-If recert_check = 6 then			'This is the "yes" button on a MsgBox
-	
-	
-'Shows dialog, checks for password prompt
-Do
-	Dialog SNAP_ER_NOMI_dialog
-	cancel_confirmation
-	If case_number = "" then MsgBox "You did not enter a case number. Please try again."
-	If date_of_missed_interview = "" then MsgBox "You did not enter a date of missed interview. Please try again."
-	If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
-	If last_day_for_recert = "" then MsgBox "You did not enter a date the recert must be completed by. Please try again."
-	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_missed_interview <> "" and last_day_for_recert <> "" and worker_signature <> ""
+If recert_check = 6 then 'This is the "yes" button on a MsgBox	
+	'Shows dialog, checks for password prompt
+	Do
+		If worker_county_code = "x127" then
+			Dialog Hennepin_ER_NOMI
+		ELSE
+			Dialog SNAP_ER_NOMI_dialog
+		END IF
+		cancel_confirmation
+		If case_number = "" then MsgBox "You did not enter a case number. Please try again."
+		If date_of_missed_interview = "" then MsgBox "You did not enter a date of missed interview. Please try again."
+		If (worker_county_code <> "x127" AND time_of_missed_interview = "Select one...") then MsgBox "You did not enter a time of missed interview. Please try again."
+		If last_day_for_recert = "" then MsgBox "You did not enter a date the recert must be completed by. Please try again."
+		If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+	Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_missed_interview <> "Select one..." and last_day_for_recert <> "" and worker_signature <> ""
 	
 	'checking for an active MAXIS session
 	Call check_for_MAXIS(False)
@@ -118,58 +174,129 @@ Loop until case_number <> "" and date_of_missed_interview <> "" and time_of_miss
 	EMWriteScreen "x", 5, 10
 	transmit
 
-	'Writes the info into the MEMO.
-	Call write_variable_in_SPEC_MEMO("************************************************************")
-	Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
-	Call write_variable_in_SPEC_MEMO(" ")
-	Call write_variable_in_SPEC_MEMO("Please contact your worker at the telephone number listed below to reschedule the required Food Support interview.")
-	Call write_variable_in_SPEC_MEMO(" ")
-	Call write_variable_in_SPEC_MEMO("The Combined Application Form (DHS-5223), the interview by phone or in the office, and the mandatory verifications needed to process your recertification must be completed by " & last_day_for_recert & " or your Food Support case will Auto-Close on this date.")
-	Call write_variable_in_SPEC_MEMO("************************************************************")
+	If worker_county_code = "x127" then 
+		'writes in the SPEC/MEMO for Hennepin County users
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+	    IF time_of_missed_interview <> "Select one..." THEN 
+			Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+		ELSE
+			Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & date_of_missed_interview & ".")
+	    END IF
+		Call write_variable_in_SPEC_MEMO(" ")
+	    Call write_variable_in_SPEC_MEMO("Please contact your worker at 612-596-1300 to complete the required SNAP interview.")
+		IF region_residence = "Central/NE" Then
+			Call write_variable_in_SPEC_MEMO("You may also come to the Human Services building office to complete an interview. The office is located at: 525 Portland Ave. in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+		ELSEIF region_residence = "North" Then
+			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+	    ELSEIF region_residence = "Northwest" Then
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
+		ELSEIF region_residence = "South MPLS" Then 
+			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+		ELSEIF region_residence = "S. Suburban" Then
+			Call write_variable_in_SPEC_MEMO("You may also come into the Bloomington office complete an interview. The office is located at: 9600 Aldrich Ave. Office hours are Monday, Tuesday, Wednesday and Friday from 8 a.m. to 4:30 p.m. and Thursday from 8 a.m. to 6:30 p.m.")
+		ElseIF region_residence = "West" Then 
+			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+		END IF 
+		Call write_variable_in_SPEC_MEMO(" ")
+	    Call write_variable_in_SPEC_MEMO("The Combined Application Form (DHS-5223), the interview by phone or in the office, and the mandatory verifications needed to process your renewal must be completed by " & last_day_for_recert & ", or your SNAP case will Auto-Close on this date.")
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+	ELSE
+		'Writes the info into the MEMO.
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+		Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+		Call write_variable_in_SPEC_MEMO(" ")
+		Call write_variable_in_SPEC_MEMO("Please contact your worker at the telephone number listed below to reschedule the required Food Support interview.")
+		Call write_variable_in_SPEC_MEMO(" ")
+		Call write_variable_in_SPEC_MEMO("The Combined Application Form (DHS-5223), the interview by phone or in the office, and the mandatory verifications needed to process your recertification must be completed by " & last_day_for_recert & " or your Food Support case will Auto-Close on this date.")
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+	END IF 
 	PF4
 
 	'Writes the case note
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("**Client missed SNAP recertification interview**")
-	Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
-	IF contact_attempts <> "" THEN Call write_variable_in_CASE_NOTE("* Attempts to contact the client: " & contact_attempts)
+	If time_of_missed_interview = "Select one..." Then
+		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
+	ELSE
+		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	END IF
+	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
 	Call write_variable_in_CASE_NOTE("* A SPEC/MEMO has been sent to the client informing them of missed interview.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	MsgBox "Success! A SPEC/MEMO has been sent with the correct language for a missed SNAP recert. A case note has been made."
+	MsgBox "Success! A SPEC/MEMO has been sent with the correct language for a missed SNAP renewal, and a case note has been made."
 
 Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
-
 	'Shows dialog, checks for password prompt
-
 	Do
-		Dialog NOMI_dialog
+		If worker_county_code = "x127" Then		'Hennepin county specific dialog 
+			Dialog Hennepin_application_NOMI	
+		ELSE 
+			Dialog NOMI_dialog
+		END IF 
 		cancel_confirmation
 		If case_number = "" then MsgBox "You did not enter a case number. Please try again."
 		If isdate(date_of_missed_interview) = False then MsgBox "You did not enter a valid date of missed interview. Please try again."
-		If time_of_missed_interview = "" then MsgBox "You did not enter a time of missed interview. Please try again."
+		If (worker_county_code <> "x127" AND time_of_missed_interview = "Select one...") then MsgBox "You did not enter a time of missed interview. Please try again."
 		If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
 		If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-	Loop until case_number <> "" and isdate(date_of_missed_interview) = True and time_of_missed_interview <> "" and isdate(application_date) = True and worker_signature <> ""
+	Loop until case_number <> "" and isdate(date_of_missed_interview) = True and time_of_missed_interview <> "Select one..." and isdate(application_date) = True and worker_signature <> ""
 
 	'checks for an active MAXIS session
 	Call check_for_MAXIS(False)
 	
-	'Navigates into SPEC/LETR
-	call navigate_to_MAXIS_screen("SPEC", "LETR")
-	'Opens up the NOMI LETR. If it's unable the script will stop.
-	EMWriteScreen "x", 7, 12
-	transmit
-	EMReadScreen LETR_check, 4, 2, 49
-	If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-
-	'Writes the info into the NOMI.
-	EMWriteScreen "x", 7, 17
-	call create_MAXIS_friendly_date(application_date, 0, 12, 38) 
-	call create_MAXIS_friendly_date(date_of_missed_interview, 0, 14, 38) 
-	transmit
-	PF4
-
+	IF worker_county_code = "x127" then
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigates into SPEC/MEMO
+		'Creates a new MEMO. If it's unable the script will stop.
+		PF5
+		EMReadScreen memo_display_check, 12, 2, 33
+		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+		EMWriteScreen "x", 5, 10
+		transmit
+		'writes in the SPEC/MEMO for Hennepin County users
+		Call write_variable_in_SPEC_MEMO("*************APPLICATION INTERVIEW REMINDER*************")
+		Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on" & (application_date) & ".")
+		Call write_variable_in_SPEC_MEMO("An interview is required to process your application. You may be eligible for SNAP benefits within 24 hours of your interview.")
+		Call write_variable_in_SPEC_MEMO(" ")
+		Call write_variable_in_SPEC_MEMO("You must contact your team to complete the interview as soon as possible. Please call 612-596-1300 if you would like a phone interview.")
+		Call write_variable_in_SPEC_MEMO(" ")
+		IF region_residence = "Central/NE" Then
+			Call write_variable_in_SPEC_MEMO("You may also come to the Human Services building office to complete an interview. The office is located at: 525 Portland Ave. in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+		ELSEIF region_residence = "North" Then
+			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+	    ELSEIF region_residence = "Northwest" Then
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
+		ELSEIF region_residence = "South MPLS" Then 
+			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+		ELSEIF region_residence = "S. Suburban" Then
+			Call write_variable_in_SPEC_MEMO("You may also come into the Bloomington office complete an interview. The office is located at: 9600 Aldrich Ave. Office hours are Monday, Tuesday, Wednesday and Friday from 8 a.m. to 4:30 p.m. and Thursday from 8 a.m. to 6:30 p.m.")
+		ElseIF region_residence = "West" Then 
+			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
+		END IF 
+		Call write_variable_in_SPEC_MEMO(" ")
+		Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")   
+		Call write_variable_in_SPEC_MEMO(" ")
+		Call write_variable_in_SPEC_MEMO("Auth: Laws of Minnesota 7CFR 273.2(e)(3)")
+		Call write_variable_in_SPEC_MEMO(" ")
+		Call write_variable_in_SPEC_MEMO("If you cannot attend an interview because of a hardship, please call our office.")
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+	ELSE
+		'Navigates into SPEC/LETR
+		call navigate_to_MAXIS_screen("SPEC", "LETR")
+		'Opens up the NOMI LETR. If it's unable the script will stop.
+		EMWriteScreen "x", 7, 12
+		transmit
+		EMReadScreen LETR_check, 4, 2, 49
+		If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+	
+		'Writes the info into the NOMI.
+		EMWriteScreen "x", 7, 17
+		call create_MAXIS_friendly_date(application_date, 0, 12, 38) 
+		call create_MAXIS_friendly_date(date_of_missed_interview, 0, 14, 38) 
+		transmit
+	END IF
+	PF4 	'saves the MEMO/LETR
+	 
 	'Navigates to REPT/PND2 and updates for client delay if applicable.
 	If client_delay_check = checked then
 		call navigate_to_MAXIS_screen("rept", "pnd2")
@@ -205,13 +332,21 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
-	CALL write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
-	IF contact_attempts <> "" THEN Call write_variable_in_CASE_NOTE("* Attempts to contact the client: " & contact_attempts)
-	CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
+	If time_of_missed_interview = "Select one..." Then
+		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
+	ELSE
+		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
+	END IF
+	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
+	IF worker_county_code = "x127" then 
+		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/MEMO informing them of missed interview.")
+	ELSE
+		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
+	END IF 
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	MsgBox "Success! The NOMI has been sent and a case note has been made."
+	MsgBox "Success! The NOMI has been sent, and a case note has been made."
 End if
 
 script_end_procedure("")
