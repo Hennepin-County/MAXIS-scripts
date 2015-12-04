@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -58,7 +56,7 @@ BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
 EndDialog
 
 BeginDialog app_detail_dialog, 0, 0, 221, 260, "Detail of application"
-  DropListBox 80, 5, 135, 45, "Select One"+chr(9)+"In Person"+chr(9)+"Droped Off"+chr(9)+"Mail"+chr(9)+"Online"+chr(9)+"Fax"+chr(9)+"Email", how_app_recvd
+  DropListBox 80, 5, 135, 45, "Select One"+chr(9)+"In Person"+chr(9)+"Dropped Off"+chr(9)+"Mail"+chr(9)+"Online"+chr(9)+"Fax"+chr(9)+"Email", how_app_recvd
   DropListBox 80, 25, 135, 20, "Select One"+chr(9)+"CAF"+chr(9)+"ApplyMN"+chr(9)+"HC - Certain Populations"+chr(9)+"HCAPP"+chr(9)+"Addendum", app_type
   EditBox 80, 45, 135, 15, confirmation_number
   EditBox 80, 65, 135, 15, date_of_app
@@ -105,7 +103,7 @@ Loop until case_number <> "" AND worker_signature <> ""
 call check_for_MAXIS(true)
 
 'Gathers Date of application and creates MAXIS friendly dates to be sure to navigate to the correct time frame
-
+'This only functions if case is in PND2 status
 call navigate_to_MAXIS_screen("REPT","PND2")
 dateofapp_row = 1 
 dateofapp_col = 1 
@@ -114,6 +112,12 @@ EMReadScreen footer_month, 2, dateofapp_row, 38
 EMReadScreen app_day, 2, dateofapp_row, 41
 EMReadScreen footer_year, 2, dateofapp_row, 44
 date_of_app = footer_month & "/" & app_day & "/" & footer_year
+
+'If case is not in PND2 status this defaults the date information to current date to allow correct navigation
+If date_of_app = "  /  /  " then 
+	date_of_app = date 
+	Call convert_date_into_MAXIS_footer_month (date, footer_month, footer_year)
+End If
 
 'Determines which programs are currently pending in the month of application
 call navigate_to_MAXIS_screen("STAT","PROG")
@@ -212,7 +216,7 @@ IF transfer_case = 1 THEN
 	End If
 End If
 
-'Combines the time and AM/PM in one variable
+
 IF time_of_app <> "" Then
 	time_stamp = " at " & time_of_app & " " & AM_PM
 ELSE 
