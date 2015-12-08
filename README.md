@@ -7,11 +7,10 @@ This GitHub repo is the home of Minnesota's BlueZone Scripts, which aim to autom
 
 Our workflow is pretty simple, and broken into branches:
 
-1. "master" is our current working directory.
-2. "beta" is our branch for agencies that are testing new features and enhancements.
-3. "release" is our branch for statewide agency use.
+1. "master" is our current working directory, and is our branch for agencies that are testing new features and enhancements.
+2. "release" is our branch for statewide agency use.
 
-Basically, the changes made here (assuming they "pass muster" with any policy/procedural folks involved at DHS) will first be merged into "beta", then into "release". We have an issue list currently kept on GitHub. Feel free to tackle issues on that list, just please, comment the issue in GitHub before starting (so that way I don't start working on it myself).
+Basically, the changes made here (assuming they "pass muster" with any policy/procedural folks involved at DHS) will first be merged into "master", then into "release". We have an issue list currently kept on GitHub. Feel free to tackle issues on that list, just please, comment the issue in GitHub before starting (so that way I, or someone else, doesn't start working on it first).
 
 This is a casual (and, dare I say, fun) group, but we're doing a pretty epic project, with the goal of saving thousands of hours in work for all of Minnesota. So please be ready with a working knowledge of VBScript, an understanding of Minnesota's assistance programs, and a sense of humor, and I'm sure this will go well.
 
