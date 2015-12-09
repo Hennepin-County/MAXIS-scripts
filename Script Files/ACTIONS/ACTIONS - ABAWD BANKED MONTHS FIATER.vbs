@@ -286,9 +286,22 @@ END IF
 
 'The following loop will take the script throught each month in the package, from appl month. to CM+1
 
+
 	
 	For i = 0 to ubound(footer_month_array)
 	Set ABAWD_months_array(i) = new ABAWD_month_data
+		Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
+		EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
+		IF HEST_heat <> "      " then						'<<<<< If there is an amount on the hest line then the electric and phone allowances are not used
+			HEST_elect = "" AND HEST_phone = ""				'<<<<< Ignores the electric and phone standards if HEAT/AC is used
+		Else
+			HEST_heat = ""									'<<<<< Sets the class property to a void if line is blank
+			EMReadScreen HEST_elect, 6, 14, 75				'<<<<< Pulls information from prospective side of Electric standard if HEAT/AC is not used
+			EMReadScreen HEST_phone, 6, 15, 75				'<<<<< Pulls information from prospective side of Phone standard if HEAT/AC is not used
+			If HEST_elect = "      " then HEST_elect = ""	'<<<<< Sets the class property to a void if line is blank
+			If HEST_phone = "      " then HEST_phone = ""
+		End If
+		
 		For each hh_member in HH_member_array
 			Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
 			EMWriteScreen hh_member, 20, 76 
@@ -316,7 +329,81 @@ END IF
 			SHEL_rent = cint(rent) + cint(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property 
 			SHEL_other = cint(lot_rent) + cint(room) + cint(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
 		Next
-
+'//////////// Going to pull UNEA information
+		For i = 0 to ubound(HH_member_array)
+		Set HH_member_array(i) = new HH_member_data
+		Call navigate_to_MAXIS_screen("STAT", "UNEA")		'<<<<< Goes to SHEL for this person
+		EMWriteScreen HH_member_array(i), 20, 76 
+		EMReadScreen number_of_unea_panels, 1, 2, 78 
+			For i = 1 to number_of_unea_panels				'<<<<<< Starting at 1 becuase this is a panel count and it makes sense to use this as a standard count
+				EMWriteScreen "0" & i, 20, 79
+				transmit
+				EMReadScreen unea_type, 2, 5, 37 			'<<<<<< Reads each type of UNEA panel and adds the amounts togetther within a type
+				If unea_type = "01" OR "02" then 			'<<<<<< RSDI
+					EMWriteScreen "x", 10, 26 
+					transmit
+					EMReadScreen rsdi_amount, 8, 18, 56 
+					If gross_RSDI = "" then
+						gross_RSDI = rsdi_amount
+					Else 
+						gross_RSDI = gross_RSDI + rsdi_amount
+					End If
+					transmit
+				Else If unea_type = "03" then 				'<<<<<< SSI
+					EMWriteScreen "x", 10, 26 
+					transmit
+					EMReadScreen ssi_amount, 8, 18, 56 
+					If gross_SSI = "" then
+						gross_SSI = ssi_amount
+					Else 
+						gross_SSI = gross_SSI + ssi_amount
+					End If
+					transmit
+				Else If unea_type = "11" OR "12" OR "13" OR "38" then 	'<<<<<< VA
+					EMWriteScreen "x", 10, 26 
+					transmit
+					EMReadScreen va_amount, 8, 18, 56 
+					If gross_VA = "" then
+						gross_VA = va_amount
+					Else 
+						gross_VA = gross_VA + va_amount
+					End If
+					transmit
+				Else If unea_type = "14" then 				'<<<<<< UC
+					EMWriteScreen "x", 10, 26 
+					transmit
+					EMReadScreen uc_amount, 8, 18, 56 
+					If gross_UC = "" then
+						gross_UC = uc_amount
+					Else 
+						gross_UC = gross_UC + uc_amount
+					End If
+					transmit
+				Else If unea_type = "08" OR "36" OR "39" then 	'<<<<<< CS
+					EMWriteScreen "x", 10, 26 
+					transmit
+					EMReadScreen cs_amount, 8, 18, 56 
+					If gross_CS = "" then
+						gross_CS = cs_amount
+					Else 
+						gross_CS = gross_CS + cs_amount
+					End If
+					transmit
+				Else If unea_type = "06" OR "15" OR "16" OR "17" OR "18" OR "23" OR "24" OR "25" OR "26" OR "27" OR "28" OR "29" OR "31" OR "35" OR "37" OR "40" then 	'<<<<<< Other UNEA
+					EMWriteScreen "x", 10, 26 
+					transmit
+					EMReadScreen other_unea_amount, 8, 18, 56 
+					If gross_other = "" then
+						gross_other = other_unea_amount
+					Else 
+						gross_other = gross_other + other_unea_amount
+					End If
+					transmit
+				End If
+			Next
+		Next	
+		
+		
 	'	'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
 	'	For i = 0 to ubound(ABAWD_counted_months)
 	'		'Defines the ABAWD_months_array as an obejct of ABAWD month data'
