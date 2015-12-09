@@ -44,6 +44,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	'defines an intial date from the initial_month and initial_year parameters
@@ -82,7 +83,7 @@ BeginDialog case_number_dialog, 0, 0, 251, 230, "ABAWD BANKED MONTHS FIATER"
   Text 30, 90, 200, 25, "This script will FIAT eligibility results, income and deductions for each HH member with pending SNAP results for months where ABAWD banked months are being used. "
   GroupBox 20, 75, 215, 70, "Per Bulletin #15-01-01 SNAP banked month policy/procedures:"
   Text 30, 170, 200, 10, "* All STAT panels must be updated before using this script."
-  Text 30, 190, 200, 20, "* Do NOT mark partial counted months with an "M". Partial months are not counted, only full months are counted."
+  Text 30, 190, 200, 20, "* Do NOT mark partial counted months with an ""M"". Partial months are not counted, only full months are counted."
   Text 30, 125, 200, 20, "If you are unsure of how/why/when you should be applying this process, please refer to the Bulletin."
   GroupBox 20, 155, 215, 60, "Before you begin:"
 EndDialog
@@ -176,11 +177,7 @@ end class
 '-------------------------END CLASSES
 
 'VARIABLES WE'LL NEED TO DECLARE (NOTE, IT'S LIKELY THESE WILL NEED TO MOVE FURTHER DOWN IN THE SCRIPT)----------------------------
-ABAWD_counted_months = 1	'<<<<<<<<<<<THIS IS TEMPORARY AND SHOULD BE READ ELSEWHERE, TO FIGURE OUT HOW MANY MONTHS WE NEED
 
-'Create an array of all the counted months
-DIM ABAWD_months_array()	'Minus one because arrays
-REDIM ABAWD_months_array(ABAWD_counted_months - 1)	'Minus one because arrays
 
 'The script----------------------------------------------------------------------------------------------------
 EMConnect ""
@@ -204,8 +201,16 @@ call date_array_generator(initial_month, initial_year, footer_month_array)
 
 'Remove the "/1/20" from each element in the array
 For i = 0 to ubound(footer_month_array)
-	footer_month_array(i) = replace(footer_month_array, "/1/20")
+	footer_month_array(i) = replace(footer_month_array(i), "/1/20", "")
 Next
+
+
+'Create an array of all the counted months
+DIM ABAWD_months_array()	'Minus one because arrays
+REDIM ABAWD_months_array(ubound(footer_month_array))	'Minus one because arrays
+
+
+
 
 check_for_maxis(true)
 'Create hh_member_array
@@ -231,7 +236,7 @@ For each member in hh_member_array
 	transmit 'Now on FFPR
 	EMReadscreen inelig_test, 6, 6, 20 'This reads the ABAWD 3/36 month test
 	IF inelig_test = "FAILED" THEN 'This member is failing this test, add them to the ABAWD member array
-		If ABAWD_member_array(0) <> "" Then ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1)
+		If ABAWD_member_array(0) <> "" Then ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1) 
 		ABAWD_member_array(UBound(ABAWD_member_array)) = member
 	END IF
 	transmit
@@ -248,15 +253,15 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
 	EMReadscreen abawd_status, 2, 13, 50
 	IF abawd_status <> "10" THEN err_msg = err_msg & vbCr & "Member " & member & " does not have ABAWD code 10."
 	'This section pulls up the counted months popup and checks for 3 months counted before Jan. 16
-	EmWriteScreen "x", 13, 57
+	EmWriteScreen "x", 13, 57 
 	transmit
 	bene_mo_col = 55
 	bene_yr_row = 8
-    abawd_counted_months = 0
+    WREG_months = 0
     second_abawd_period = 0
  	DO 'This loop actually reads every month in the time period
   	    EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
-  		IF is_counted_month = "X" or is_counted_month = "M" THEN abawd_counted_months = abawd_counted_months + 1
+  		IF is_counted_month = "X" or is_counted_month = "M" THEN WREG_months = WREG_months + 1
 		IF is_counted_month = "Y" or is_counted_month = "N" THEN second_abawd_period = second_abawd_period + 1
    		bene_mo_col = bene_mo_col + 4
     		IF bene_mo_col > 63 THEN
@@ -264,7 +269,7 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
    	     		bene_mo_col = 19
    	   	    END IF
    	LOOP until bene_yr_row = 11 'Stops when it reaches 2016
-  	IF abawd_counted_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have 3 ABAWD months coded before 01/2016"
+  	IF WREG_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have 3 ABAWD months coded before 01/2016"
 	row = 11
 	col = 19
 	EMSearch "M", row, col 'This looks to make sure there is an intial banked month coded on WREG.
@@ -277,73 +282,54 @@ IF err_msg <> "" THEN 'This means the WREG panel(s) are coded incorrectly.
 	script_end_procedure("")
 END IF
 
-
+	
 
 'The following loop will take the script throught each month in the package, from appl month. to CM+1
-Do
-	footer_month = datepart("m", current_month)
-	if len(footer_month) = 1 THEN footer_month = "0" & footer_month
-	footer_year = right(datepart("YYYY", current_month), 2)
 
-
-	'for each member in hh_member_array
-		'go to UNEA and read SNAP PIC for each thing
-	For i = 0 to ubound(HH_member_array)
-
-	For i = 0 to ubound(ABAWD_counted_months)
-		Set ABAWD_months_array(i) = new ABAWD_month_data
-		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
-		EMWriteScreen HH_member_array(i), 20, 76
-		EMReadScreen rent_verif, 2, 11, 67
-		If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
-		If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
-		EMReadScreen lot_rent_verif, 2, 12, 67
-		If lot_rent_verif <> "__" and lot_rent_verif <> "NO" and lot_rent_verif <> "?_" then EMReadScreen lot_rent, 8, 12, 56
-		If lot_rent_verif = "__" or lot_rent_verif = "NO" or lot_rent_verif = "?_" then lot_rent = "0"		'<<<<< gets Lot Rent amount
-		EMReadScreen mortgage_verif, 2, 13, 67
-		If mortgage_verif <> "__" and mortgage_verif <> "NO" and mortgage_verif <> "?_" then EMReadScreen mortgage, 8, 13, 56
-		If mortgage_verif = "__" or mortgage_verif = "NO" or mortgage_verif = "?_" then mortgage = "0"		'<<<<<< gets Mortgage amount
-		EMReadScreen insurance_verif, 2, 14, 67
-		If insurance_verif <> "__" and insurance_verif <> "NO" and insurance_verif <> "?_" then EMReadScreen insurance, 8, 14, 56
-		If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then SHEL_insa = "0"	'<<<<<< gets insurance amount and adds it to the class property
-		EMReadScreen taxes_verif, 2, 15, 67
-		If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
-		If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then SHEL_taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
-		EMReadScreen room_verif, 2, 16, 67
-		If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
-		If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
-		EMReadScreen garage_verif, 2, 17, 67
-		If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
-		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
-		SHEL_rent = cint(rent) + cint(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property
-		SHEL_other = cint(lot_rent) + cint(room) + cint(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
-		'///// Needs to navigate to next month
-	Next
-
-		'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
-		For i = 0 to ubound(ABAWD_counted_months)
-			'Defines the ABAWD_months_array as an obejct of ABAWD month data'
-			set ABAWD_months_array(i) = new ABAWD_month_data
-			'>>>>NAVIGATE TO WHERE YOU NEED TO GO'
-			EMReadScreen x, 8, 18, 56	'<<<<READ THE STUFF'
-			ABAWD_months_array(i).gross_RSDI = x	'<<<<ADD THE STUFF TO THE ARRAY'
-			'>>>>>>DO THE ABOVE TWO LINES OVER AND OVER AGAIN UNTIL YOU HAVE ALL THE STUFF FOR THIS MONTH'
-			'//// <<<<<<GET TO THE NEXT MONTH AT THE END'
+	
+	For i = 0 to ubound(footer_month_array)
+	Set ABAWD_months_array(i) = new ABAWD_month_data
+		For each hh_member in HH_member_array
+			Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
+			EMWriteScreen hh_member, 20, 76 
+			EMReadScreen rent_verif, 2, 11, 67
+			If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
+			If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
+			EMReadScreen lot_rent_verif, 2, 12, 67
+			If lot_rent_verif <> "__" and lot_rent_verif <> "NO" and lot_rent_verif <> "?_" then EMReadScreen lot_rent, 8, 12, 56
+			If lot_rent_verif = "__" or lot_rent_verif = "NO" or lot_rent_verif = "?_" then lot_rent = "0"		'<<<<< gets Lot Rent amount
+			EMReadScreen mortgage_verif, 2, 13, 67
+			If mortgage_verif <> "__" and mortgage_verif <> "NO" and mortgage_verif <> "?_" then EMReadScreen mortgage, 8, 13, 56
+			If mortgage_verif = "__" or mortgage_verif = "NO" or mortgage_verif = "?_" then mortgage = "0"		'<<<<<< gets Mortgage amount
+			EMReadScreen insurance_verif, 2, 14, 67
+			If insurance_verif <> "__" and insurance_verif <> "NO" and insurance_verif <> "?_" then EMReadScreen insurance, 8, 14, 56
+			If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then SHEL_insa = "0"	'<<<<<< gets insurance amount and adds it to the class property
+			EMReadScreen taxes_verif, 2, 15, 67
+			If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
+			If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then SHEL_taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
+			EMReadScreen room_verif, 2, 16, 67
+			If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
+			If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
+			EMReadScreen garage_verif, 2, 17, 67
+			If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
+			If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
+			SHEL_rent = cint(rent) + cint(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property 
+			SHEL_other = cint(lot_rent) + cint(room) + cint(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
 		Next
-		'<<<<<<<<<<<<<<<<<END SAMPLE'
 
+	'	'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
+	'	For i = 0 to ubound(ABAWD_counted_months)
+	'		'Defines the ABAWD_months_array as an obejct of ABAWD month data'
+	'		set ABAWD_months_array(i) = new ABAWD_month_data
+	'		'>>>>NAVIGATE TO WHERE YOU NEED TO GO'
+	'		EMReadScreen x, 8, 18, 56	'<<<<READ THE STUFF'
+	'		ABAWD_months_array(i).gross_RSDI = x	'<<<<ADD THE STUFF TO THE ARRAY'
+	'		'>>>>>>DO THE ABOVE TWO LINES OVER AND OVER AGAIN UNTIL YOU HAVE ALL THE STUFF FOR THIS MONTH'
+	'		'//// <<<<<<GET TO THE NEXT MONTH AT THE END'
+	'	Next
+	'	'<<<<<<<<<<<<<<<<<END SAMPLE'
+	dialog income_deductions_dialog
 
-
-
-
-		'if member > 18 go to JOBS and read SNAP PIC
-		'if member > 18 go to BUSI and read SNAP PIC
-		'if member > 18 go to RBIC and read SNAP PIC
-		'go to COEX and read deductions
-		'go to DCEX and read deductions
-
-	'Sum up gross income
-	'background check
 	'Go to FIAT
 	back_to_self
 	EMwritescreen "FIAT", 16, 43
@@ -378,25 +364,25 @@ Do
 		EMWritescreen "PASSED", 14, 7
 		PF3
 		'Now the BUDGET (FFB1) NO
-		EMWritescreen gross_wages, 5, 32
-		EMWritescreen busi_income, 6, 32
-		EMWritescreen gross_RSDI, 11, 32
-		EMWritescreen gross_SSI, 12, 32
-		EMWritescreen gross_VA, 13, 32
-		EMWritescreen gross_UC, 14, 32
-		EMWritescreen gross_CS, 15, 32
-		EMWritescreen gross_other, 16, 32
-		EMWritescreen deduction_FMED, 12, 72
-		EMWritescreen deduction_DCEX, 13, 72
-		EMWritescreen deduction_COEX, 14, 72
+		EMWritescreen ABAWD_months_array(i).gross_wages, 5, 32
+		EMWritescreen ABAWD_months_array(i).busi_income, 6, 32
+		EMWritescreen ABAWD_months_array(i).gross_RSDI, 11, 32
+		EMWritescreen ABAWD_months_array(i).gross_SSI, 12, 32
+		EMWritescreen ABAWD_months_array(i).gross_VA, 13, 32
+		EMWritescreen ABAWD_months_array(i).gross_UC, 14, 32
+		EMWritescreen ABAWD_months_array(i).gross_CS, 15, 32
+		EMWritescreen ABAWD_months_array(i).gross_other, 16, 32
+		EMWritescreen ABAWD_months_array(i).deduction_FMED, 12, 72
+		EMWritescreen ABAWD_months_array(i).deduction_DCEX, 13, 72
+		EMWritescreen ABAWD_months_array(i).deduction_COEX, 14, 72
 		transmit
 		'Now on FFB2
-		EMWritescreen SHEL_rent, 5, 29
-		EMWritescreen SHEL_tax, 6, 29
-		EMWritescreen SHEL_insa, 7, 29
-		EMWritescreen HEST_elect, 8, 29
-		EMWritescreen HEST_heat, 9, 29
-		EMWritescreen HEST_phone, 10, 29
+		EMWritescreen ABAWD_months_array(i).SHEL_rent, 5, 29
+		EMWritescreen ABAWD_months_array(i).SHEL_tax, 6, 29
+		EMWritescreen ABAWD_months_array(i).SHEL_insa, 7, 29
+		EMWritescreen ABAWD_months_array(i).HEST_elect, 8, 29
+		EMWritescreen ABAWD_months_array(i).HEST_heat, 9, 29
+		EMWritescreen ABAWD_months_array(i).HEST_phone, 10, 29
 		'Does hennepin cashout matter?
 		transmit
 		'Now on SUMM screen, which shouldn't matter
@@ -412,11 +398,8 @@ Do
 		EMWritescreen initial_month, 13, 37
 		EMWritescreen initial_year, 13, 40
 		transmit
-		Exit DO
+		
 	END IF
-	'IF datepart("m", current_month) = datepart("m", current_month_plus_one) THEN exit DO
-	current_month = dateadd("m", 1, current_month)
-	msgbox datediff("m", current_month_plus_one, current_month)
-Loop Until datediff("m", current_month_plus_one, current_month) > 0
+	next
 
 script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
