@@ -1,4 +1,3 @@
-worker_county_code = "x127"
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMOS - NOMI.vbs"
 start_time = timer
@@ -51,56 +50,53 @@ call convert_array_to_droplist_items(time_array_15_min, time_array)  'drop list 
 'logic to autofill the 'last_day_for_recert' field
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
-last_day_for_recert = dateadd("d", -1, next_month)
+last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
-  EditBox 85, 5, 55, 15, date_of_missed_interview
-  EditBox 215, 5, 55, 15, case_number
-  DropListBox 85, 25, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
+  EditBox 85, 5, 55, 15, case_number
+  EditBox 85, 25, 55, 15, date_of_missed_interview
+  EditBox 225, 25, 55, 15, time_of_missed_interview
   EditBox 100, 45, 55, 15, last_day_for_recert
   EditBox 100, 70, 180, 15, contact_attempts
   EditBox 70, 95, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 175, 95, 50, 15
     CancelButton 230, 95, 50, 15
-  Text 5, 100, 60, 10, "Worker signature:"
   Text 5, 75, 85, 10, "Attempts to contact client:"
-  Text 165, 10, 45, 10, "Case number:"
+  Text 35, 10, 45, 10, "Case number:"
   Text 160, 50, 115, 10, "(Usually the last day of the month)"
-  Text 5, 30, 75, 10, "Missed interview time:"
+  Text 145, 30, 75, 10, "Missed interview time:"
   Text 5, 50, 95, 10, "Recert must be complete by:"
-  Text 5, 10, 75, 10, "Missed interview date:"
+  Text 10, 30, 75, 10, "Missed interview date:"
+  Text 5, 100, 60, 10, "Worker signature:"
 EndDialog
 
-' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
-BeginDialog NOMI_dialog, 0, 0, 261, 150, "NOMI Dialog"
-  EditBox 95, 5, 55, 15, case_number
+BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
+  EditBox 55, 5, 55, 15, case_number
+  EditBox 200, 5, 55, 15, application_date
   EditBox 95, 25, 55, 15, date_of_missed_interview
-  DropListBox 95, 45, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
-  EditBox 95, 65, 55, 15, application_date
-  EditBox 70, 85, 185, 15, contact_attempts
-  EditBox 70, 105, 75, 15, worker_signature
-  CheckBox 10, 130, 205, 10, "Check here to have the script update PND2 for client delay.", client_delay_check
+  EditBox 95, 45, 55, 15, time_of_missed_interview
+  EditBox 95, 65, 160, 15, contact_attempts
+  EditBox 70, 85, 75, 15, worker_signature
+  CheckBox 10, 110, 205, 10, "Check here to have the script update PND2 for client delay.", client_delay_check
   ButtonGroup ButtonPressed
-    OkButton 150, 105, 50, 15
-    CancelButton 205, 105, 50, 15
-  Text 5, 10, 50, 10, "Case number:"
+    OkButton 150, 85, 50, 15
+    CancelButton 205, 85, 50, 15
   Text 5, 30, 85, 10, "Date of missed interview:"
   Text 5, 50, 85, 10, "Time of missed interview:"
-  Text 5, 70, 60, 10, "Application date:"
-  Text 5, 110, 65, 10, "Worker signature:"
-  Text 5, 85, 65, 20, "Attempts to contact client:"
+  Text 140, 10, 55, 10, "Application date:"
+  Text 5, 90, 65, 10, "Worker signature:"
+  Text 5, 70, 85, 10, "Attempts to contact client:"
+  Text 5, 10, 50, 10, "Case number:"
 EndDialog
 
 'Hennepin County specific dialogs
-' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 BeginDialog Hennepin_application_NOMI, 0, 0, 286, 140, "Hennepin County Application SNAP NOMI"
   DropListBox 80, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 225, 10, 55, 15, case_number
   EditBox 80, 35, 55, 15, date_of_missed_interview
-  DropListBox 225, 35, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
+  EditBox 225, 35, 55, 15, time_of_missed_interview
   EditBox 65, 65, 55, 15, application_date
   CheckBox 130, 70, 150, 10, "Check here to update PND2 for client delay.", client_delay_check
   EditBox 90, 90, 190, 15, contact_attempts
@@ -108,28 +104,26 @@ BeginDialog Hennepin_application_NOMI, 0, 0, 286, 140, "Hennepin County Applicat
   ButtonGroup ButtonPressed
     OkButton 175, 115, 50, 15
     CancelButton 230, 115, 50, 15
-  Text 5, 95, 85, 10, "Attempts to contact client:"
   Text 170, 15, 45, 10, "Case number:"
   Text 5, 15, 70, 10, "Region of residence: "
   Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
   Text 5, 40, 75, 10, "Missed interview date:"
   Text 5, 70, 55, 10, "Application date:"
   Text 5, 120, 60, 10, "Worker signature:"
+  Text 5, 95, 85, 10, "Attempts to contact client:"
 EndDialog
 
-' *********time_array is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 140, "Hennepin County ER SNAP NOMI"
   EditBox 60, 10, 55, 15, case_number
   DropListBox 200, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 80, 35, 55, 15, date_of_missed_interview
-  DropListBox 225, 35, 55, 15, "Select one..."+chr(9)+time_array, time_of_missed_interview
+  EditBox 225, 35, 55, 15, time_of_missed_interview
   EditBox 100, 65, 180, 15, contact_attempts
   EditBox 100, 90, 55, 15, last_day_for_recert
   EditBox 70, 115, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 175, 115, 50, 15
     CancelButton 230, 115, 50, 15
-  Text 5, 120, 60, 10, "Worker signature:"
   Text 5, 70, 85, 10, "Attempts to contact client:"
   Text 10, 15, 45, 10, "Case number:"
   Text 125, 15, 70, 10, "Region of residence: "
@@ -137,6 +131,7 @@ BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 140, "Hennepin County ER SNAP NOMI"
   Text 5, 40, 75, 10, "Missed interview date:"
   Text 5, 95, 95, 10, "Recert must be complete by:"
   Text 160, 95, 115, 10, "(Usually the last day of the month)"
+  Text 5, 120, 60, 10, "Worker signature:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -150,8 +145,8 @@ If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox
 If recert_check = 6 then 'This is the "yes" button on a MsgBox
 	'Shows dialog, checks for password promp
 	If worker_county_code = "x127" then
-		Err_msg = ""
 		DO
+			Err_msg = ""
 			Dialog Hennepin_ER_NOMI
 			cancel_confirmation
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
@@ -160,12 +155,12 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP until err_msg = ""	
-	ELSE
-		Err_msg = ""
+	ELSE	
 		DO
+			Err_msg = ""
 			Dialog SNAP_ER_NOMI_dialog
 			cancel_confirmation
-			If time_of_missed_interview = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
+			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."	
@@ -189,7 +184,7 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 	If worker_county_code = "x127" then
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("************************************************************")
-	    IF time_of_missed_interview <> "Select one..." THEN
+	    IF time_of_missed_interview <> "" THEN
 			Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
 		ELSE
 			Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & date_of_missed_interview & ".")
@@ -227,7 +222,7 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 	'Writes the case note
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("**Client missed SNAP recertification interview**")
-	If time_of_missed_interview = "Select one..." Then
+	If time_of_missed_interview = "" Then
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
 	ELSE
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
@@ -241,8 +236,8 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	'Shows dialog, checks for password prompt
 	If worker_county_code = "x127" then		'Hennepin county specific dialog
-		Err_msg = ""
 		DO
+			Err_msg = ""
 			Dialog Hennepin_application_NOMI
 			cancel_confirmation
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
@@ -253,11 +248,11 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP until err_msg = ""	
 	ELSE
-		Err_msg = ""
 		DO
+			Err_msg = ""
 			Dialog NOMI_dialog
 			cancel_confirmation
-			If time_of_missed_interview = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
+			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."	
@@ -280,7 +275,7 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		transmit
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("*************APPLICATION INTERVIEW REMINDER*************")
-		IF time_of_missed_interview <> "Select one..." then 
+		IF time_of_missed_interview <> "" then 
 			Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & (application_date) & " at " & time_of_missed_interview & ".")
 		ELSE
 			Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & (application_date) & ".")
