@@ -216,13 +216,7 @@ check_for_maxis(true)
 'Create hh_member_array
 call HH_member_custom_dialog(HH_member_array)
 
-
-'defining necessary dates
-initial_date = initial_month & "/01/" & initial_year
-current_month = initial_date
-current_month_plus_one = dateadd("m", 1, date)
 maxis_background_check
-
 
 'The following performs case accuracy checks.
 call navigate_to_maxis_screen("ELIG", "FS")
@@ -289,6 +283,9 @@ END IF
 
 	
 	For i = 0 to ubound(footer_month_array)
+	footer_month = left(footer_month_array(i), 2) 'Need to assign footer month / year each time through
+	footer_year = right(footer_month_array(i), 2)
+	
 	Set ABAWD_months_array(i) = new ABAWD_month_data
 		Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
 		EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
@@ -441,7 +438,6 @@ END IF
 		PF3 'back to FFSL
 	Next
 	'Ready to head into case test / budget screens
-	DO 'This is in a loop, because sometimes FIAT has a glitch that won't let it exit.
 		EMWritescreen "x", 16, 5
 		EMWritescreen "x", 17, 5
 		Transmit
@@ -475,8 +471,6 @@ END IF
 		'Now on SUMM screen, which shouldn't matter
 		PF3 'back to FFSL
 		PF3 'This should bring up the "do you want to retain" popup
-		EMReadscreen budget_error_check, 6, 24, 2 'This will be "budget" if MAXIS had a glitch, and will need to loop through again.
-	LOOP Until budget_error_check = ""
 	EMWritescreen "Y", 13, 41
 	transmit
 	EMReadscreen final_month_check, 4, 10, 53 'This looks for a popup that only comes up in the final month, and clears it.
@@ -488,5 +482,7 @@ END IF
 		
 	END IF
 	next
+
+script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
 
 script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
