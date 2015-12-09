@@ -66,6 +66,36 @@ BeginDialog case_number_dialog, 0, 0, 251, 230, "ABAWD BANKED MONTHS FIATER"
   GroupBox 20, 155, 215, 60, "Before you begin:"
 EndDialog
 
+'----------------------DEFINING CLASSES WE'LL NEED FOR THIS SCRIPT
+class ABAWD_month_data
+	public gross_Wages
+	public BUSI_income
+	public gross_RSDI
+	public gross_SSI
+	public gross_VA
+	public gross_UC
+	public gross_CS
+	public gross_other
+	public deduction_FMED
+	public deduction_DCEX
+	public deduction_COEX
+	public SHEL_rent
+	public SHEL_tax
+	public SHEL_insa
+	public HEST_elect
+	public HEST_heat
+	public HEST_phone
+end class
+
+'-------------------------END CLASSES
+
+'VARIABLES WE'LL NEED TO DECLARE (NOTE, IT'S LIKELY THESE WILL NEED TO MOVE FURTHER DOWN IN THE SCRIPT)----------------------------
+ABAWD_counted_months = 1	'<<<<<<<<<<<THIS IS TEMPORARY AND SHOULD BE READ ELSEWHERE, TO FIGURE OUT HOW MANY MONTHS WE NEED
+
+'Create an array of all the counted months
+DIM ABAWD_months_array()	'Minus one because arrays
+REDIM ABAWD_months_array(ABAWD_counted_months - 1)	'Minus one because arrays
+
 'The script----------------------------------------------------------------------------------------------------
 EMConnect ""
 call check_for_maxis(false)
@@ -82,7 +112,7 @@ DO
 	IF err_msg <> "" THEN msgbox err_msg & vbCr & "Please resolve to continue."
 LOOP UNTIL err_msg = ""
 
-	
+
 check_for_maxis(true)
 'Create hh_member_array
 call HH_member_custom_dialog(HH_member_array)
@@ -91,23 +121,45 @@ call HH_member_custom_dialog(HH_member_array)
 'defining necessary dates
 initial_date = initial_month & "/01/" & initial_year
 current_month = initial_date
-current_month_plus_one = dateadd("m", 1, date) 
+current_month_plus_one = dateadd("m", 1, date)
 maxis_background_check
 'The following loop will take the script throught each month in the package, from appl month. to CM+1
 Do
 	footer_month = datepart("m", current_month)
-	if len(footer_month) = 1 THEN footer_month = "0" & footer_month 
+	if len(footer_month) = 1 THEN footer_month = "0" & footer_month
 	footer_year = right(datepart("YYYY", current_month), 2)
-	
-	
+
+
 	'for each member in hh_member_array
 		'go to UNEA and read SNAP PIC for each thing
+
+
+
+
+
+
+		'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
+		For i = 0 to ubound(ABAWD_counted_months)
+			'Defines the ABAWD_months_array as an obejct of ABAWD month data'
+			set ABAWD_months_array(i) = new ABAWD_month_data
+			'>>>>NAVIGATE TO WHERE YOU NEED TO GO'
+			EMReadScreen x, 8, 18, 56	'<<<<READ THE STUFF'
+			ABAWD_months_array(i).gross_RSDI = x	'<<<<ADD THE STUFF TO THE ARRAY'
+			'>>>>>>DO THE ABOVE TWO LINES OVER AND OVER AGAIN UNTIL YOU HAVE ALL THE STUFF FOR THIS MONTH'
+			'//// <<<<<<GET TO THE NEXT MONTH AT THE END'
+		Next
+		'<<<<<<<<<<<<<<<<<END SAMPLE'
+
+
+
+
+
 		'if member > 18 go to JOBS and read SNAP PIC
 		'if member > 18 go to BUSI and read SNAP PIC
 		'if member > 18 go to RBIC and read SNAP PIC
 		'go to COEX and read deductions
 		'go to DCEX and read deductions
-		
+
 	'Sum up gross income
 	'background check
 	'Go to FIAT
@@ -115,7 +167,7 @@ Do
 	EMwritescreen "FIAT", 16, 43
 	EMWritescreen case_number, 18, 43
 	EMwritescreen footer_month, 20, 43
-	EMWritescreen footer_year, 20, 46 
+	EMWritescreen footer_year, 20, 46
 	transmit
 	EMReadscreen results_check, 4, 14, 46 'We need to make sure results exist, otherwise stop.
 	IF results_check = "    " THEN script_end_procedure("The script was unable to find unapproved SNAP results for the benefit month, please check your case and try again.")
@@ -143,7 +195,7 @@ Do
 		EMWritescreen "PASSED", 13, 7
 		EMWritescreen "PASSED", 14, 7
 		PF3
-		'Now the BUDGET (FFB1) NO 
+		'Now the BUDGET (FFB1) NO
 		EMWritescreen gross_wages, 5, 32
 		EMWritescreen busi_income, 6, 32
 		EMWritescreen gross_RSDI, 11, 32
@@ -181,8 +233,8 @@ Do
 		Exit DO
 	END IF
 	'IF datepart("m", current_month) = datepart("m", current_month_plus_one) THEN exit DO
-	current_month = dateadd("m", 1, current_month) 
+	current_month = dateadd("m", 1, current_month)
 	msgbox datediff("m", current_month_plus_one, current_month)
-Loop Until datediff("m", current_month_plus_one, current_month) > 0 
+Loop Until datediff("m", current_month_plus_one, current_month) > 0
 
 script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
