@@ -82,6 +82,7 @@ class ABAWD_month_data
 	public SHEL_rent
 	public SHEL_tax
 	public SHEL_insa
+	public SHEL_other
 	public HEST_elect
 	public HEST_heat
 	public HEST_phone
@@ -123,6 +124,68 @@ initial_date = initial_month & "/01/" & initial_year
 current_month = initial_date
 current_month_plus_one = dateadd("m", 1, date)
 maxis_background_check
+
+
+'The following performs case accuracy checks.
+call navigate_to_maxis_screen("ELIG", "FS")
+redim ABAWD_member_array(0)
+
+For each member in hh_member_array
+	row = 6
+	col = 1
+	EMSearch member, row, col 'Finding the row this member is on
+	EMWritescreen "x", row, 5
+	transmit 'Now on FFPR
+	EMReadscreen inelig_test, 6, 6, 20 'This reads the ABAWD 3/36 month test
+	IF inelig_test = "FAILED" THEN 'This member is failing this test, add them to the ABAWD member array
+		If ABAWD_member_array(0) <> "" Then ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1) 
+		ABAWD_member_array(UBound(ABAWD_member_array)) = member
+	END IF
+	transmit
+Next
+IF ABAWD_member_array(0) = "" THEN script_end_procedure("ERROR: There are no members on this case with ineligible ABAWDs.  The script will stop.")
+
+err_msg = ""
+For each member in ABAWD_member_array 'This loop will check that WREG is coded correctly
+	call navigate_to_maxis_screen("STAT", "WREG")
+	EMWritescreen member, 20, 76
+	Transmit
+	EMReadscreen wreg_status, 2, 8, 50
+	IF wreg_status <> "30" THEN err_msg = err_msg & vbCr & "Member " & member & " does not have FSET code 30."
+	EMReadscreen abawd_status, 2, 13, 50
+	IF abawd_status <> "10" THEN err_msg = err_msg & vbCr & "Member " & member & " does not have ABAWD code 10."
+	'This section pulls up the counted months popup and checks for 3 months counted before Jan. 16
+	EmWriteScreen "x", 13, 57 
+	transmit
+	bene_mo_col = 55
+	bene_yr_row = 8
+    abawd_counted_months = 0
+    second_abawd_period = 0
+ 	DO 'This loop actually reads every month in the time period
+  	    EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
+  		IF is_counted_month = "X" or is_counted_month = "M" THEN abawd_counted_months = abawd_counted_months + 1
+		IF is_counted_month = "Y" or is_counted_month = "N" THEN second_abawd_period = second_abawd_period + 1
+   		bene_mo_col = bene_mo_col + 4
+    		IF bene_mo_col > 63 THEN
+        		bene_yr_row = bene_yr_row + 1
+   	     		bene_mo_col = 19
+   	   	    END IF
+   	LOOP until bene_yr_row = 11 'Stops when it reaches 2016
+  	IF abawd_counted_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have 3 ABAWD months coded before 01/2016"
+	row = 11
+	col = 19
+	EMSearch "M", row, col 'This looks to make sure there is an intial banked month coded on WREG.
+	IF row > 11 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+	PF3
+Next
+
+IF err_msg <> "" THEN 'This means the WREG panel(s) are coded incorrectly.
+	msgbox "Please resolve the following errors before continuing. The script will now stop." & vBcr & err_msg
+	script_end_procedure("")
+END IF
+
+	
+
 'The following loop will take the script throught each month in the package, from appl month. to CM+1
 Do
 	footer_month = datepart("m", current_month)
@@ -132,11 +195,37 @@ Do
 
 	'for each member in hh_member_array
 		'go to UNEA and read SNAP PIC for each thing
+	For i = 0 to ubound(HH_member_array)
 
-
-
-
-
+	For i = 0 to ubound(ABAWD_counted_months)
+		Set ABAWD_months_array(i) = new ABAWD_month_data
+		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
+		EMWriteScreen HH_member_array(i), 20, 76 
+		EMReadScreen rent_verif, 2, 11, 67
+		If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
+		If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
+		EMReadScreen lot_rent_verif, 2, 12, 67
+		If lot_rent_verif <> "__" and lot_rent_verif <> "NO" and lot_rent_verif <> "?_" then EMReadScreen lot_rent, 8, 12, 56
+		If lot_rent_verif = "__" or lot_rent_verif = "NO" or lot_rent_verif = "?_" then lot_rent = "0"		'<<<<< gets Lot Rent amount
+		EMReadScreen mortgage_verif, 2, 13, 67
+		If mortgage_verif <> "__" and mortgage_verif <> "NO" and mortgage_verif <> "?_" then EMReadScreen mortgage, 8, 13, 56
+		If mortgage_verif = "__" or mortgage_verif = "NO" or mortgage_verif = "?_" then mortgage = "0"		'<<<<<< gets Mortgage amount
+		EMReadScreen insurance_verif, 2, 14, 67
+		If insurance_verif <> "__" and insurance_verif <> "NO" and insurance_verif <> "?_" then EMReadScreen insurance, 8, 14, 56
+		If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then SHEL_insa = "0"	'<<<<<< gets insurance amount and adds it to the class property
+		EMReadScreen taxes_verif, 2, 15, 67
+		If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
+		If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then SHEL_taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
+		EMReadScreen room_verif, 2, 16, 67
+		If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
+		If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
+		EMReadScreen garage_verif, 2, 17, 67
+		If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
+		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
+		SHEL_rent = cint(rent) + cint(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property 
+		SHEL_other = cint(lot_rent) + cint(room) + cint(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
+		'///// Needs to navigate to next month
+	Next
 
 		'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
 		For i = 0 to ubound(ABAWD_counted_months)
