@@ -82,6 +82,7 @@ class ABAWD_month_data
 	public SHEL_rent
 	public SHEL_tax
 	public SHEL_insa
+	public SHEL_other
 	public HEST_elect
 	public HEST_heat
 	public HEST_phone
@@ -127,7 +128,7 @@ maxis_background_check
 
 'The following performs case accuracy checks.
 call navigate_to_maxis_screen("ELIG", "FS")
-redim ABAWD_member_aray(0)
+redim ABAWD_member_array(0)
 
 For each member in hh_member_array
 	row = 6
@@ -137,15 +138,15 @@ For each member in hh_member_array
 	transmit 'Now on FFPR
 	EMReadscreen inelig_test, 6, 6, 20 'This reads the ABAWD 3/36 month test
 	IF inelig_test = "FAILED" THEN 'This member is failing this test, add them to the ABAWD member array
-		If ABAWD_member_aray(0) <> "" Then ReDim Preserve ABAWD_member_aray(UBound(ABAWD_member_aray)+1) 
-		ABAWD_member_aray(UBound(ABAWD_member_aray)) = member
+		If ABAWD_member_array(0) <> "" Then ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1) 
+		ABAWD_member_array(UBound(ABAWD_member_array)) = member
 	END IF
 	transmit
 Next
-IF ABAWD_member_aray(0) = "" THEN script_end_procedure("ERROR: There are no members on this case with ineligible ABAWDs.  The script will stop.")
+IF ABAWD_member_array(0) = "" THEN script_end_procedure("ERROR: There are no members on this case with ineligible ABAWDs.  The script will stop.")
 
 err_msg = ""
-For each member in ABAWD_member_aray 'This loop will check that WREG is coded correctly
+For each member in ABAWD_member_array 'This loop will check that WREG is coded correctly
 	call navigate_to_maxis_screen("STAT", "WREG")
 	EMWritescreen member, 20, 76
 	Transmit
@@ -194,11 +195,37 @@ Do
 
 	'for each member in hh_member_array
 		'go to UNEA and read SNAP PIC for each thing
+	For i = 0 to ubound(HH_member_array)
 
-
-
-
-
+	For i = 0 to ubound(ABAWD_counted_months)
+		Set ABAWD_months_array(i) = new ABAWD_month_data
+		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
+		EMWriteScreen HH_member_array(i), 20, 76 
+		EMReadScreen rent_verif, 2, 11, 67
+		If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
+		If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
+		EMReadScreen lot_rent_verif, 2, 12, 67
+		If lot_rent_verif <> "__" and lot_rent_verif <> "NO" and lot_rent_verif <> "?_" then EMReadScreen lot_rent, 8, 12, 56
+		If lot_rent_verif = "__" or lot_rent_verif = "NO" or lot_rent_verif = "?_" then lot_rent = "0"		'<<<<< gets Lot Rent amount
+		EMReadScreen mortgage_verif, 2, 13, 67
+		If mortgage_verif <> "__" and mortgage_verif <> "NO" and mortgage_verif <> "?_" then EMReadScreen mortgage, 8, 13, 56
+		If mortgage_verif = "__" or mortgage_verif = "NO" or mortgage_verif = "?_" then mortgage = "0"		'<<<<<< gets Mortgage amount
+		EMReadScreen insurance_verif, 2, 14, 67
+		If insurance_verif <> "__" and insurance_verif <> "NO" and insurance_verif <> "?_" then EMReadScreen insurance, 8, 14, 56
+		If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then SHEL_insa = "0"	'<<<<<< gets insurance amount and adds it to the class property
+		EMReadScreen taxes_verif, 2, 15, 67
+		If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
+		If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then SHEL_taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
+		EMReadScreen room_verif, 2, 16, 67
+		If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
+		If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
+		EMReadScreen garage_verif, 2, 17, 67
+		If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
+		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
+		SHEL_rent = cint(rent) + cint(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property 
+		SHEL_other = cint(lot_rent) + cint(room) + cint(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
+		'///// Needs to navigate to next month
+	Next
 
 		'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
 		For i = 0 to ubound(ABAWD_counted_months)
