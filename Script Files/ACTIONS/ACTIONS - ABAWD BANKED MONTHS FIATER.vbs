@@ -44,6 +44,27 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
+FUNCTION date_array_generator(initial_month, initial_year, date_array)
+	'defines an intial date from the initial_month and initial_year parameters
+	initial_date = initial_month & "/1/" & initial_year
+	'defines a date_list, which starts with just the initial date
+	date_list = initial_date
+
+	'This loop creates a list of dates
+	Do
+		working_date = dateadd("m", 1, right(date_list, len(date_list) - InStrRev(date_list,"|")))	'the working_date is the last-added date + 1 month. We use dateadd, then grab the rightmost characters after the "|" delimiter, which we determine the location of using InStrRev
+		date_list = date_list & "|" & working_date	'Adds the working_date to the date_list
+	Loop until datediff("m", date, working_date) = 1	'Loops until we're at current month plus one
+
+	'Splits this into an array
+	date_array = split(date_list, "|")
+End function
+
+
+'-------------------------------END FUNCTIONS
+
+
 'Defining variables----------------------------------------------------------------------------------------------------
 'Dim gross_wages, busi_income, gross_RSDI, gross_SSI, gross_VA, gross_UC, gross_CS, gross_other
 'Dim deduction_FMED, deduction_DCEX, deduction_COEX
@@ -113,6 +134,14 @@ DO
 	IF err_msg <> "" THEN msgbox err_msg & vbCr & "Please resolve to continue."
 LOOP UNTIL err_msg = ""
 
+'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
+	'We will need to remove the string "/1/" from each element in the array
+call date_array_generator(initial_month, initial_year, footer_month_array)
+
+'Remove the "/1/20" from each element in the array
+For i = 0 to ubound(footer_month_array)
+	footer_month_array(i) = replace(footer_month_array, "/1/20")
+Next
 
 check_for_maxis(true)
 'Create hh_member_array
@@ -138,7 +167,7 @@ For each member in hh_member_array
 	transmit 'Now on FFPR
 	EMReadscreen inelig_test, 6, 6, 20 'This reads the ABAWD 3/36 month test
 	IF inelig_test = "FAILED" THEN 'This member is failing this test, add them to the ABAWD member array
-		If ABAWD_member_array(0) <> "" Then ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1) 
+		If ABAWD_member_array(0) <> "" Then ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1)
 		ABAWD_member_array(UBound(ABAWD_member_array)) = member
 	END IF
 	transmit
@@ -155,7 +184,7 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
 	EMReadscreen abawd_status, 2, 13, 50
 	IF abawd_status <> "10" THEN err_msg = err_msg & vbCr & "Member " & member & " does not have ABAWD code 10."
 	'This section pulls up the counted months popup and checks for 3 months counted before Jan. 16
-	EmWriteScreen "x", 13, 57 
+	EmWriteScreen "x", 13, 57
 	transmit
 	bene_mo_col = 55
 	bene_yr_row = 8
@@ -184,7 +213,7 @@ IF err_msg <> "" THEN 'This means the WREG panel(s) are coded incorrectly.
 	script_end_procedure("")
 END IF
 
-	
+
 
 'The following loop will take the script throught each month in the package, from appl month. to CM+1
 Do
@@ -200,7 +229,7 @@ Do
 	For i = 0 to ubound(ABAWD_counted_months)
 		Set ABAWD_months_array(i) = new ABAWD_month_data
 		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
-		EMWriteScreen HH_member_array(i), 20, 76 
+		EMWriteScreen HH_member_array(i), 20, 76
 		EMReadScreen rent_verif, 2, 11, 67
 		If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
 		If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
@@ -222,7 +251,7 @@ Do
 		EMReadScreen garage_verif, 2, 17, 67
 		If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
 		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
-		SHEL_rent = cint(rent) + cint(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property 
+		SHEL_rent = cint(rent) + cint(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property
 		SHEL_other = cint(lot_rent) + cint(room) + cint(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
 		'///// Needs to navigate to next month
 	Next
