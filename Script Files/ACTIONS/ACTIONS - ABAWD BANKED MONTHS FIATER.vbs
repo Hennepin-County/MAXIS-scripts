@@ -66,6 +66,70 @@ BeginDialog case_number_dialog, 0, 0, 251, 230, "ABAWD BANKED MONTHS FIATER"
   GroupBox 20, 155, 215, 60, "Before you begin:"
 EndDialog
 
+BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD banked months income and deductions dialog"
+  ButtonGroup ButtonPressed
+    OkButton 260, 155, 50, 15
+    CancelButton 260, 175, 50, 15
+  EditBox 55, 45, 50, 15, gross_wages
+  EditBox 55, 65, 50, 15, busi_income
+  EditBox 55, 85, 50, 15, gross_RSDI
+  EditBox 55, 105, 50, 15, gross_SSI
+  EditBox 55, 125, 50, 15, gross_VA
+  EditBox 55, 145, 50, 15, gross_UC
+  EditBox 55, 165, 50, 15, gross_CS
+  EditBox 55, 185, 50, 15, gross_other
+  EditBox 185, 45, 35, 15, SHEL_rent
+  EditBox 185, 65, 35, 15, SHEL_tax
+  EditBox 185, 85, 35, 15, SHEL_insa
+  EditBox 185, 105, 35, 15, SHEL_other
+  EditBox 185, 125, 35, 15, deduction_FMED
+  EditBox 275, 45, 35, 15, HEST_elec
+  EditBox 275, 65, 35, 15, HEST_heat
+  EditBox 275, 85, 35, 15, HEST_phone
+  EditBox 275, 105, 35, 15, deduction_COEX
+  EditBox 275, 125, 35, 15, deduction_DCEX
+  ButtonGroup ButtonPressed
+    PushButton 20, 15, 25, 10, "BUSI",  BUSI_button
+    PushButton 45, 15, 25, 10, "JOBS", JOBS_button
+    PushButton 70, 15, 25, 10, "RBIC", RBIC_button
+    PushButton 95, 15, 25, 10, "SPON", SPON_button
+    PushButton 120, 15, 25, 10, "UNEA", UNEA_button
+    PushButton 175, 15, 25, 10, "COEX", COEX_button
+    PushButton 200, 15, 25, 10, "DCEX", DCEX_button
+    PushButton 225, 15, 25, 10, "FMED", FMED_button
+    PushButton 250, 15, 25, 10, "HEST", HEST_button
+    PushButton 275, 15, 25, 10, "SHEL", SHEL_button
+    PushButton 130, 165, 45, 10, "prev. panel", prev_panel_button
+    PushButton 130, 175, 45, 10, "next panel", next_panel_button
+    PushButton 185, 165, 45, 10, "prev. memb", prev_memb_button
+    PushButton 185, 175, 45, 10, "next memb", next_memb_button
+  Text 35, 150, 15, 10, "UC:"
+  Text 245, 130, 25, 10, "DCEX:"
+  Text 30, 190, 20, 10, "Other:"
+  Text 35, 170, 15, 10, "CS:"
+  Text 155, 130, 25, 10, "FMED:"
+  Text 240, 50, 30, 10, "Electric:"
+  Text 245, 110, 25, 10, "COEX:"
+  Text 35, 110, 15, 10, "SSI:"
+  Text 230, 70, 40, 10, "Heating/air:"
+  Text 125, 90, 60, 10, "House insurance:"
+  Text 230, 90, 40, 10, "Telephone:"
+  Text 130, 50, 50, 10, "Mortgage/rent:"
+  Text 160, 110, 20, 10, "Other:"
+  Text 30, 70, 20, 10, "BUSI:"
+  Text 135, 70, 45, 10, "Property tax:"
+  GroupBox 125, 155, 110, 35, "STAT-based navigation"
+  GroupBox 170, 5, 135, 25, "Deduction based MAXIS panels:"
+  Text 60, 35, 50, 10, "Gross Amount"
+  Text 25, 35, 25, 10, "UI type"
+  GroupBox 15, 5, 135, 25, "Income based MAXIS panels:"
+  Text 30, 90, 20, 10, "RSDI:"
+  GroupBox 15, 210, 300, 50, "BEFORE YOU HIT THE OK BUTTON"
+  Text 20, 220, 285, 35, "The information pulled into the editboxes above are the amounts that are being FIATed into the SNAP budget in the selected budget month. Please use the navigation buttons on this dialog if you want to check what is listed on your MAXIS panels. If this informaiton is not corret, please press cancel now, and review your case.  "
+  Text 35, 130, 10, 10, "VA:"
+  Text 20, 50, 30, 10, "WAGES:"
+EndDialog
+
 '----------------------DEFINING CLASSES WE'LL NEED FOR THIS SCRIPT
 class ABAWD_month_data
 	public gross_Wages
