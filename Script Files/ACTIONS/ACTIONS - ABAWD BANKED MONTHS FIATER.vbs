@@ -458,8 +458,12 @@ END IF
 		EMWritescreen ABAWD_months_array(i).HEST_elect, 8, 29
 		EMWritescreen ABAWD_months_array(i).HEST_heat, 9, 29
 		EMWritescreen ABAWD_months_array(i).HEST_phone, 10, 29
-		'Does hennepin cashout matter?
 		transmit
+		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
+		IF warning_check = "FIAT" Then '... and enter two extra transmits to bypass.
+			transmit 
+			transmit
+		END IF
 		'Now on SUMM screen, which shouldn't matter
 		PF3 'back to FFSL
 		PF3 'This should bring up the "do you want to retain" popup
