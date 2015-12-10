@@ -199,18 +199,9 @@ LOOP UNTIL err_msg = ""
 	'We will need to remove the string "/1/" from each element in the array
 call date_array_generator(initial_month, initial_year, footer_month_array)
 
-'Remove the "/1/20" from each element in the array
-For i = 0 to ubound(footer_month_array)
-	footer_month_array(i) = replace(footer_month_array(i), "/1/20", "")
-Next
-
-
 'Create an array of all the counted months
 DIM ABAWD_months_array()	'Minus one because arrays
 REDIM ABAWD_months_array(ubound(footer_month_array))	'Minus one because arrays
-
-
-
 
 check_for_maxis(true)
 'Create hh_member_array
@@ -283,10 +274,11 @@ END IF
 
 	
 	For i = 0 to ubound(footer_month_array)
-	footer_month = left(footer_month_array(i), 2) 'Need to assign footer month / year each time through
-	footer_year = right(footer_month_array(i), 2)
-	
-	Set ABAWD_months_array(i) = new ABAWD_month_data
+		footer_month = datepart("m", footer_month_array(i)) 'Need to assign footer month / year each time through
+		if len(footer_month) = 1 THEN footer_month = "0" & footer_month
+		footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
+		
+		Set ABAWD_months_array(i) = new ABAWD_month_data
 		Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
 		EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
 		IF HEST_heat <> "      " then						'<<<<< If there is an amount on the hest line then the electric and phone allowances are not used
@@ -485,4 +477,3 @@ END IF
 
 script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
 
-script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
