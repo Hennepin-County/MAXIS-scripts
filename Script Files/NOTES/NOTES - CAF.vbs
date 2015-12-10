@@ -46,8 +46,9 @@ END IF
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 footer_month = datepart("m", date)
+footer_month = cstr(footer_month)
 If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = "" & datepart("yyyy", date) - 2000
+footer_year = cstr(right(datepart("yyyy", date), 2))
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
