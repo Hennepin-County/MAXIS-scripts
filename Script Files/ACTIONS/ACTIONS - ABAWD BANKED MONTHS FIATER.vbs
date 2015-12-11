@@ -223,37 +223,45 @@ END IF
 		IF HEST_heat <> "      " then						'<<<<< If there is an amount on the hest line then the electric and phone allowances are not used
 			HEST_elect = "" AND HEST_phone = ""				'<<<<< Ignores the electric and phone standards if HEAT/AC is used
 		Else
-			HEST_heat = ""									'<<<<< Sets the class property to a void if line is blank
 			EMReadScreen HEST_elect, 6, 14, 75				'<<<<< Pulls information from prospective side of Electric standard if HEAT/AC is not used
 			EMReadScreen HEST_phone, 6, 15, 75				'<<<<< Pulls information from prospective side of Phone standard if HEAT/AC is not used
-			If HEST_elect = "      " then HEST_elect = ""	'<<<<< Sets the class property to a void if line is blank
-			If HEST_phone = "      " then HEST_phone = ""
 		End If
+		ABAWD_months_array(i).HEST_heat = trim(HEST_heat)
+		ABAWD_months_array(i).HEST_elect = trim(HEST_elect)
+		ABAWD_months_array(i).HEST_phone = trim(HEST_phone)
 
+		
 		For each hh_member in HH_member_array
 			Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
 			EMWriteScreen hh_member, 20, 76
 			EMReadScreen rent_verif, 2, 11, 67
 			If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
 			If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
+			trim(rent)
 			EMReadScreen lot_rent_verif, 2, 12, 67
 			If lot_rent_verif <> "__" and lot_rent_verif <> "NO" and lot_rent_verif <> "?_" then EMReadScreen lot_rent, 8, 12, 56
 			If lot_rent_verif = "__" or lot_rent_verif = "NO" or lot_rent_verif = "?_" then lot_rent = "0"		'<<<<< gets Lot Rent amount
+			trim(lot_rent)
 			EMReadScreen mortgage_verif, 2, 13, 67
 			If mortgage_verif <> "__" and mortgage_verif <> "NO" and mortgage_verif <> "?_" then EMReadScreen mortgage, 8, 13, 56
 			If mortgage_verif = "__" or mortgage_verif = "NO" or mortgage_verif = "?_" then mortgage = "0"		'<<<<<< gets Mortgage amount
+			trim(mortage)
 			EMReadScreen insurance_verif, 2, 14, 67
 			If insurance_verif <> "__" and insurance_verif <> "NO" and insurance_verif <> "?_" then EMReadScreen insurance, 8, 14, 56
-			If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then SHEL_insa = "0"	'<<<<<< gets insurance amount and adds it to the class property
+			If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then insurance = "0"	'<<<<<< gets insurance amount and adds it to the class property
+			ABAWD_months_array(i).SHEL_insa = trim(insurance)
 			EMReadScreen taxes_verif, 2, 15, 67
 			If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
-			If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then SHEL_taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
+			If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
+			ABAWD_months_array(i).SHEL_taxes = trim(taxes)
 			EMReadScreen room_verif, 2, 16, 67
 			If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
 			If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
+			trim(room)
 			EMReadScreen garage_verif, 2, 17, 67
 			If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
 			If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
+			trim(garage)
 			ABAWD_months_array(i).SHEL_rent = rent + mortgage						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property
 			ABAWD_months_array(i).SHEL_other = lot_rent + room + garage 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
 		Next
@@ -261,75 +269,69 @@ END IF
 
 '//////////// Going to pull UNEA information
 		For j = 0 to ubound(HH_member_array)
-			Call navigate_to_MAXIS_screen("STAT", "UNEA")		'<<<<< Goes to SHEL for this person
+			Call navigate_to_MAXIS_screen("STAT", "UNEA")	'<<<<< Goes to UNEA for this person
 			EMWriteScreen HH_member_array(j), 20, 76
 			EMReadScreen number_of_unea_panels, 1, 2, 78
-			For k = 1 to number_of_unea_panels				'<<<<<< Starting at 1 becuase this is a panel count and it makes sense to use this as a standard count
+			For k = 1 to number_of_unea_panels		'<<<<<< Starting at 1 becuase this is a panel count and it makes sense to use this as a standard count
 				EMWriteScreen "0" & k, 20, 79
 				transmit
-				EMReadScreen unea_type, 2, 5, 37 			'<<<<<< Reads each type of UNEA panel and adds the amounts togetther within a type
-				If unea_type = "01" OR "02" then 			'<<<<<< RSDI
+				EMReadScreen unea_type, 2, 5, 37 	'<<<<<< Reads each type of UNEA panel and adds the amounts togetther within a type
+				If unea_type = "01" OR unea_type = "02" then '<<<<<< RSDI
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen rsdi_amount, 8, 18, 56
-					If gross_RSDI = "" then
-						gross_RSDI = rsdi_amount
-					Else
-						gross_RSDI = gross_RSDI + rsdi_amount
-					End If
+					trim(rsdi_amount)
+					gross_RSDI = gross_RSDI + rsdi_amount
 					transmit
 				ElseIf unea_type = "03" then 				'<<<<<< SSI
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen ssi_amount, 8, 18, 56
-					If gross_SSI = "" then
-						gross_SSI = ssi_amount
-					Else
-						gross_SSI = gross_SSI + ssi_amount
-					End If
+					trim(ssi_amount)
+					gross_SSI = gross_SSI + ssi_amount
 					transmit
-				ElseIf unea_type = "11" OR "12" OR "13" OR "38" then 	'<<<<<< VA
+				ElseIf unea_type = "11" OR unea_type = "12" OR unea_type = "13" OR unea_type = "38" then 	'<<<<<< VA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen va_amount, 8, 18, 56
-					If gross_VA = "" then
-						gross_VA = va_amount
-					Else
-						gross_VA = gross_VA + va_amount
-					End If
+					trim(va_amount)
+					gross_VA = gross_VA + va_amount
 					transmit
 				ElseIf unea_type = "14" then 				'<<<<<< UC
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen uc_amount, 8, 18, 56
-					If gross_UC = "" then
-						gross_UC = uc_amount
-					Else
-						gross_UC = gross_UC + uc_amount
-					End If
+					trim(uc_amount)
+					gross_UC = gross_UC + uc_amount
 					transmit
-				ElseIf unea_type = "08" OR "36" OR "39" then 	'<<<<<< CS
+				ElseIf unea_type = "08" OR unea_type = "36" OR unea_type = "39" then 	'<<<<<< CS
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen cs_amount, 8, 18, 56
-					If gross_CS = "" then
-						gross_CS = cs_amount
-					Else
-						gross_CS = gross_CS + cs_amount
-					End If
+					trim(cs_amount)
+					gross_CS = gross_CS + cs_amount
 					transmit
-				ElseIf unea_type = "06" OR "15" OR "16" OR "17" OR "18" OR "23" OR "24" OR "25" OR "26" OR "27" OR "28" OR "29" OR "31" OR "35" OR "37" OR "40" then 	'<<<<<< Other UNEA
+				ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" then 	'<<<<<< Other UNEA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen other_unea_amount, 8, 18, 56
-					If gross_other = "" then
-						gross_other = other_unea_amount
-					Else
-						gross_other = gross_other + other_unea_amount
-					End If
+					trim(other_unea_amount)
+					gross_other = gross_other + other_unea_amount
 					transmit
 				End If
 			Next
+			ABAWD_months_array(i).gross_RSDI = gross_RSDI	'<<<<<<< Stores veriables in the class property
+			ABAWD_months_array(i).gross_SSI = gross_SSI
+			ABAWD_months_array(i).gross_VA = gross_VA
+			ABAWD_months_array(i).gross_UC = gross_UC
+			ABAWD_months_array(i).gross_CS = gross_CS
+			ABAWD_months_array(i).gross_other = gross_other
+			gross_RSDI = 0				'<<<<<<< Resets the variables for the next cycle of this function
+			gross_SSI = 0
+			gross_VA = 0
+			gross_UC = 0
+			gross_CS = 0
+			gross_other = 0
 		Next
 
 
