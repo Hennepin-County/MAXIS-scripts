@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -63,7 +61,7 @@ EndDialog
 EMConnect ""
 
 'warning box
-Msgbox "Warning: If you have multiple waiting SNAP results this script may be unable to find the most recent one. Please process manually in those instances." & vbNewLine & vbNewLine &_
+Msgbox "Warning: If you have multiple waiting SNAP or MFIP results this script may be unable to find the most recent one. Please process manually in those instances." & vbNewLine & vbNewLine &_
 		"- If this case includes members who are residing in a battered women's shelter please review approval." & vbNewLine &_
 		"- If this was an expedited case where client reported they did not receive benefits in another state please review approval" & vbNewLine &_
 		"- See CM 001.21 for more details on these two situations and how they qualify for duplicate assistance."
@@ -104,9 +102,30 @@ Do
 	If program_type = "FS" then
 		If print_status = "Waiting" then
 			Emwritescreen "x", wcom_row, 13
-			exit Do
+			Transmit
+			PF9
+			Emreadscreen fs_wcom_exists, 3, 3, 15
+			If fs_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
+			If program_type = "FS" AND print_status = "Waiting" then
+				fs_wcom_writen = true
+				'This will write if the notice is for SNAP only
+				CALL write_variable_in_SPEC_MEMO("******************************************************")
+				CALL write_variable_in_SPEC_MEMO("Dear Client,")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("You will not be eligible for SNAP benefits this month since you have received SNAP benefits on another case for the same month.")
+				CALL write_variable_in_SPEC_MEMO("Per program rules SNAP participants are not eligible for duplicate benefits in the same benefit month.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("If you have any questions or concerns please feel free to contact your worker.")
+				CALL write_variable_in_SPEC_MEMO("---")
+				CALL write_variable_in_SPEC_MEMO(worker_signature)
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("******************************************************")
+				PF4
+				PF3
+			End if
 		End If
 	End If
+	If fs_wcom_writen = true then Exit Do
 	If wcom_row = 17 then
 		PF8
 		Emreadscreen spec_edit_check, 6, 24, 2
@@ -115,22 +134,50 @@ Do
 	If spec_edit_check = "NOTICE" THEN no_fs_waiting = true
 Loop until spec_edit_check = "NOTICE"
 
-If no_fs_waiting = true then script_end_procedure("No waiting FS results were found for the requested month")
+program_type = " "
+print_status = " "
+spec_edit_check = " "
 
-'writing the WCOM
-Transmit
-PF9
-CALL write_variable_in_SPEC_MEMO("******************************************************")
-CALL write_variable_in_SPEC_MEMO("Dear Client,")
-CALL write_variable_in_SPEC_MEMO("")
-CALL write_variable_in_SPEC_MEMO("You will not be eligible for SNAP benefits this month since you have received SNAP benefits on another case for the same month.")
-CALL write_variable_in_SPEC_MEMO("Per program rules SNAP participants are not eligible for duplicate benefits in the same benefit month.")
-CALL write_variable_in_SPEC_MEMO("")
-CALL write_variable_in_SPEC_MEMO("If you have any questions or concerns please feel free to contact your worker.")
-CALL write_variable_in_SPEC_MEMO("---")
-CALL write_variable_in_SPEC_MEMO(worker_signature)
-CALL write_variable_in_SPEC_MEMO("")
-CALL write_variable_in_SPEC_MEMO("******************************************************")
-PF4
+wcom_row = 6
+Do
+	wcom_row = wcom_row + 1
+	Emreadscreen program_type, 2, wcom_row, 26
+	Emreadscreen print_status, 7, wcom_row, 71
+	If program_type = "MF" then
+		If print_status = "Waiting" then
+			Emwritescreen "x", wcom_row, 13
+			Transmit
+			PF9
+			Emreadscreen mf_wcom_exists, 3, 3, 15
+			If mf_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
+			If program_type = "MF" AND print_status = "Waiting" then
+				mf_wcom_writen = true
+				'This will write if it is for an MFIP notice
+				CALL write_variable_in_SPEC_MEMO("******************************************************")
+				CALL write_variable_in_SPEC_MEMO("Dear Client,")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("One or more of your household members will not be eligible for SNAP benefits in this month since you have received SNAP benefits on another case for the same month.")
+				CALL write_variable_in_SPEC_MEMO("Per program rules SNAP participants are not eligible for duplicate benefits in the same benefit month.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("If you have any questions or concerns please feel free to contact your worker.")
+				CALL write_variable_in_SPEC_MEMO("---")
+				CALL write_variable_in_SPEC_MEMO(worker_signature)
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("******************************************************")
+				PF4
+				PF3
+			End If
+		End If
+	End If
+	If mf_wcom_writen = true then Exit Do
+	If wcom_row = 17 then
+		PF8
+		Emreadscreen spec_edit_check, 6, 24, 2
+		wcom_row = 6
+	end if
+	If spec_edit_check = "NOTICE" THEN no_mf_waiting = true
+Loop until spec_edit_check = "NOTICE"
 
-script_end_procedure("WCOM has been added to the first found waiting SNAP notice for the month and case selected. Please feel free to review the notice.")
+If no_fs_waiting = true AND no_mf_waiting = true then script_end_procedure("No waiting FS or MFIP notices were found for the requested month")
+
+script_end_procedure("WCOM has been added to the first found waiting SNAP and/or MFIP notice for the month and case selected. Please feel free to review the notice.")

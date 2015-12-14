@@ -7,10 +7,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -21,7 +19,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -32,7 +30,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -47,7 +45,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
 
 '--- DIALOG-----------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dlg, 0, 0, 196, 85, "Postponed WREG WCOM"
@@ -188,8 +185,7 @@ LOOP until prog_type = "  "
 'Outcome ---------------------------------------------------------------------------------------------------------------------
 
 If WCOM_count = 0 THEN  'if no waiting FS notice is found
-	MSGbox "No Waiting FS elig results were found in this month for this HH member."
-	Stopscript	
+	script_end_procedure("No Waiting FS elig results were found in this month for this HH member.")	
 ELSE 					'If a waiting FS notice is found
 	'Case note
 	start_a_blank_case_note
@@ -199,8 +195,18 @@ ELSE 					'If a waiting FS notice is found
 	call write_bullet_and_variable_in_CASE_note("Closure Date", closure_date)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
-	MSGbox "Success! The WCOM/CASE NOTE have been added."
+
+	'Navigating to DAIL/WRIT
+	call navigate_to_MAXIS_screen("dail", "writ")
+	'The following will generate a TIKL formatted date for 10 days from now.
+	call create_MAXIS_friendly_date(date, 10, 5, 18)
+	'Writing in the rest of the TIKL.
+	call write_variable_in_TIKL("Verification of postponed WREG verification(s) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
+	transmit
+	PF3
+	script_end_procedure("Success! The WCOM/CASE NOTE/TIKL have been added.")
 END IF
 
-
 script_end_procedure("")
+
+

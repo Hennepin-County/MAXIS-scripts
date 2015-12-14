@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN					'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -45,6 +43,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 270, "Memos scripts main menu dialog"
@@ -97,7 +96,6 @@ EMConnect ""
 'Hennepin handling (they don't use the Appt Letter or NOMI scripts because they have permission (at least temporarily) to schedule using a time range instead of a single time. Because of this, the NOMI and Appt letter scripts would technically cause incorrect information to be sent to the clients. This is a simple solution until their procedures are updated.)
 If ucase(worker_county_code) = "X127" then
 	IF ButtonPressed = APPOINTMENT_LETTER_button 	THEN script_end_procedure("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user or your supervisor if you have questions.")
-	IF ButtonPressed = NOMI_button 					THEN script_end_procedure("The NOMI script is not available to Hennepin users at this time. Contact an alpha user or your supervisor if you have questions.")
 End if
 
 IF ButtonPressed = TWELVE_MONTH_CONTACT_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - 12 MONTH CONTACT.vbs")

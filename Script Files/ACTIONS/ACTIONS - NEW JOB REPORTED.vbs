@@ -234,7 +234,7 @@ call navigate_to_MAXIS_screen("dail", "writ")
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)
 'Writing in the rest of the TIKL.
-call write_variable_in_TIKL("Verification of job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
+call write_variable_in_TIKL("Verification of " & employer & " job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 transmit
 PF3
 MsgBox "Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."

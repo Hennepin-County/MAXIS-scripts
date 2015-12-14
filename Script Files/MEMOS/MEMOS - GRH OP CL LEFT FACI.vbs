@@ -16,10 +16,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -41,7 +39,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -55,6 +53,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 
 'DECLARING VARIABLES----------------------------------------------------------------------------------------------------
@@ -250,8 +249,20 @@ Call check_for_MAXIS(False)
 
 
 'Actions and calculations----------------------------------------------------------------------------------------------------
+'Calculate OP total if nothing is entered.
+IF OP_total = "" THEN
+	If OP_amt_01 = "" THEN OP_amt_01 = "0"
+	If OP_amt_02 = "" THEN OP_amt_02 = "0"
+	If OP_amt_03 = "" THEN OP_amt_03 = "0"
+	If OP_amt_04 = "" THEN OP_amt_04 = "0"
+	If OP_amt_05 = "" THEN OP_amt_05 = "0"
+	If OP_amt_06 = "" THEN OP_amt_06 = "0"	
+	OP_total = (Abs(OP_amt_01) + Abs(OP_amt_02) + Abs(OP_amt_03) + Abs(OP_amt_04) + Abs(OP_amt_05) + Abs(OP_amt_06)) & ""
+END IF
+
+
 'Dollar bill symbol will be added to numeric variables 
-IF total_OP_amt <> "" THEN total_OP_amt = "$" & total_OP_amt
+IF OP_total <> "" THEN OP_total = "$" & OP_total
 IF OP_amt_01 <> "" THEN OP_amt_01 = "$" & OP_amt_01
 IF OP_amt_02 <> "" THEN OP_amt_02 = "$" & OP_amt_02
 IF OP_amt_03 <> "" THEN OP_amt_03 = "$" & OP_amt_03
@@ -304,7 +315,7 @@ IF OP_amt_03 <> "" and OP_date_03 <> "" THEN Call write_variable_in_SPEC_MEMO("*
 IF OP_amt_04 <> "" and OP_date_04 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_04 & " for " & OP_date_04)
 IF OP_amt_05 <> "" and OP_date_05 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_05 & " for " & OP_date_05)
 IF OP_amt_06 <> "" and OP_date_06 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_06 & " for " & OP_date_06)
-Call write_variable_in_SPEC_MEMO("The total amount of the overpayment to be returned is: " & total_OP_amt)
+Call write_variable_in_SPEC_MEMO("The total amount of the overpayment to be returned is: " & OP_total)
 Call write_variable_in_SPEC_MEMO("Reason for the overpayment(s):" & OP_reason)
 Call write_variable_in_SPEC_MEMO("Amount client is responsible to pay for GRH during overpayment months (this amount is not to be subtracted from the total overpayment amount):" & client_amt) 
 Call write_variable_in_SPEC_MEMO("Please submit payment to:")
@@ -338,7 +349,7 @@ Call write_variable_in_CASE_NOTE ("*")
 Call write_bullet_and_variable_in_case_note("Reason for overpayment(s)", OP_reason)
 Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 Call write_bullet_and_variable_in_case_note("Established date", established_date)
-Call write_bullet_and_variable_in_case_note("Total overpayment amount", total_OP_amt)
+Call write_bullet_and_variable_in_case_note("Total overpayment amount", OP_total)
 Call write_bullet_and_variable_in_case_note("Amount client is responsible to pay for GRH during overpayment months",client_amt) 
 IF OP_amt_01 <> "" and OP_date_01 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_01 & " for " & OP_date_01)
 IF OP_amt_02 <> "" and OP_date_02 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_02 & " for " & OP_date_02)

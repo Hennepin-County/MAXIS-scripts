@@ -3,48 +3,47 @@ name_of_script = "MEMOS - APPOINTMENT LETTER.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
-IF IsEmpty(FuncLib_URL) = TRUE THEN 'Shouldn't load FuncLib if it already loaded once
-    IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN     'If the scripts are set to run locally, it skips this and uses an FSO below.
-        IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN            'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-        ELSEIF beta_agency = "" or beta_agency = True then                          'If you're a beta agency, you should probably use the beta branch.
-            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-        Else                                                                        'Everyone else should use the release branch.
-            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-        End if
-        SET req = CreateObject("Msxml2.XMLHttp.6.0")                'Creates an object to get a FuncLib_URL
-        req.open "GET", FuncLib_URL, FALSE                          'Attempts to open the FuncLib_URL
-        req.send                                                    'Sends request
-        IF req.Status = 200 THEN                                    '200 means great success
-            Set fso = CreateObject("Scripting.FileSystemObject")    'Creates an FSO
-            Execute req.responseText                                'Executes the script code
-        ELSE                                                        'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-            MsgBox  "Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-                    vbCr & _
-                    "Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-                    vbCr & _
-                    "If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-                    vbTab & "- The name of the script you are running." & vbCr &_
-                    vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-                    vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-                    vbTab & vbTab & "responsible for network issues." & vbCr &_
-                    vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-                    vbCr & _
-                    "Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-                    vbCr &_
-                    "URL: " & FuncLib_URL
-                    script_end_procedure("Script ended due to error connecting to GitHub.")
-        END IF
-    ELSE
-        FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
-        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-        text_from_the_other_script = fso_command.ReadAll
-        fso_command.Close
-        Execute text_from_the_other_script
-    END IF
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else																		'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
+					vbCr & _
+					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
+					vbCr & _
+					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
+					vbTab & "- The name of the script you are running." & vbCr &_
+					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
+					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
+					vbTab & vbTab & "responsible for network issues." & vbCr &_
+					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
+					vbCr & _
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
+					vbCr &_
+					"URL: " & FuncLib_URL
+					script_end_procedure("Script ended due to error connecting to GitHub.")
+		END IF
+	ELSE
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 
 'CLASSES----------------------------------------------------------------------------------------------------------------------
 'IF THIS WORKS, CONSIDER INCORPORATING INTO FUNCTIONS LIBRARY
@@ -67,9 +66,12 @@ class address
     end property
 end class
 
+
 'Declaring variables needed by the script
 'First, determining the county code. If it isn't declared, it will ask (proxy)
+
 call worker_county_code_determination(worker_county_code, two_digit_county_code_variable)
+
 
 if worker_county_code = "x101" then 
     agency_office_array = array("Aitkin")
@@ -194,7 +196,7 @@ elseif worker_county_code = "x160" then
 elseif worker_county_code = "x161" then     
     agency_office_array = array("Pope")
 elseif worker_county_code = "x162" then     
-    agency_office_array = array("Ramsey")
+    agency_office_array = array("Ramsey", "Fairview", "AIFC", "CAC-Bigelow", "Midway", "North St.Paul") 'adding more locations to Ramsey County
 elseif worker_county_code = "x163" then     
     agency_office_array = array("Red Lake")
 elseif worker_county_code = "x164" then     
@@ -634,10 +636,32 @@ ELSEIF worker_county_code = "x161" THEN
     agency_address.street = "211 E Minnesota Ave, Suite 200" 
     agency_address.city = "Glenwood" 
     agency_address.zip = "56334" 
-ELSEIF worker_county_code = "x162" THEN
-    agency_address.street = "160 Kellogg Blvd. E." 
-    agency_address.city = "Saint Paul" 
-    agency_address.zip = "55101" 
+ELSEIF worker_county_code = "x162" THEN        'adding more locations to Ramsey County
+    IF interview_location = "Ramsey" THEN
+    	agency_address.street = "160 Kellogg Blvd. E." 
+    	agency_address.city = "Saint Paul" 
+      agency_address.zip = "55101"
+    ELSEIF interview_location = "Fairview" THEN
+      agency_address.street = "1910 W Co RD B, Suite 124"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55113"
+    ELSEIF interview_location = "AIFC" THEN
+      agency_address.street = "579 Wells St"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55130"
+    ELSEIF interview_location = "CAC-Bigelow" THEN
+      agency_address.street = "450 N Syndicate St, Suite 250"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55104"
+    ELSEIF interview_location = "Midway" THEN
+      agency_address.street = "1821 University Ave, Ste. N263"
+      agency_address.city = "Saint Paul"
+      agency_address.zip = "55104"
+    ELSEIF interview_location = "North St.Paul" THEN
+      agency_address.street = "2098 11th Ave E"
+      agency_address.city = "North St.Paul"
+      agency_address.zip = "55109"
+    END IF
 ELSEIF worker_county_code = "x163" THEN
     agency_address.street = "125 Edward Ave" 
     agency_address.city = "Red Lake Falls" 
@@ -828,8 +852,24 @@ End if
 If app_type = "new application" then last_contact_day = CAF_date + 30
 If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date 
 
-'This checks to make sure the case is not in background.
-MAXIS_background_check
+'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
+Do
+	call navigate_to_screen("STAT", "SUMM")
+	EMReadScreen month_check, 11, 24, 56 'checking for the error message when PND1 cases are not in APPL month
+	IF left(month_check, 5) = "CASES" THEN 'this means the case can't get into stat in current month
+		EMWriteScreen mid(month_check, 7, 2), 20, 43 'writing the correct footer month (taken from the error message)
+		EMWriteScreen mid(month_check, 10, 2), 20, 46 'writing footer year
+		EMWriteScreen "STAT", 16, 43 
+		EMWriteScreen "SUMM", 21, 70
+		transmit 'This transmit should take us to STAT / SUMM now
+	END IF	
+	'This section makes sure the case isn't locked by background, if it is it will loop and try again
+	EMReadScreen SELF_check, 4, 2, 50
+	If SELF_check = "SELF" then
+		PF3
+		Pause 2
+	End if
+Loop until SELF_check <> "SELF"
 
 'Navigating to SPEC/MEMO
 call navigate_to_MAXIS_screen("SPEC", "MEMO")

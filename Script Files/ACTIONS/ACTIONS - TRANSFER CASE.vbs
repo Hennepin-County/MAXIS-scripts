@@ -108,7 +108,7 @@ EndDialog
 
 BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   EditBox 65, 10, 50, 15, case_number
-  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC", unit_drop_down
+  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
   EditBox 130, 50, 65, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
   CheckBox 55, 90, 30, 10, "SNAP", SNAP_active_check

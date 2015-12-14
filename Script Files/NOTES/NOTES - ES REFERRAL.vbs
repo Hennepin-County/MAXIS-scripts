@@ -1,16 +1,14 @@
+'Option Explicit
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - ES REFERRAL.vbs"
 start_time = timer
 
-'Option Explicit
-
-DIM beta_agency
-DIM FuncLib_URL, req, fso
+'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -49,8 +47,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK==============================================================================================
-		
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 IF collecting_ES_statistics = true THEN
 'Collecting ES agencies from database
 		'Setting constants
