@@ -44,9 +44,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'variable/array for appointment time droplist
-call convert_array_to_droplist_items(time_array_15_min, time_array)  'drop list that contains time in 15 minute increments
-
 'logic to autofill the 'last_day_for_recert' field
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
