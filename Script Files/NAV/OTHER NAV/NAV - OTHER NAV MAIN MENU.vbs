@@ -60,7 +60,7 @@ BeginDialog OTHER_NAV_scripts_main_menu_dialog, 0, 0, 456, 140, "Other NAV scrip
   Text 110, 20, 250, 10, "--- Navigates to RELG in MMIS for a selected case. Navigates to person 01."
   Text 110, 35, 140, 10, "--- Jumps from MMIS to MAXIS for a case."
   Text 130, 50, 195, 10, "--- Moves a screen from MAXIS production to MAXIS inquiry."
-  Text 90, 65, 360, 20, "--- NEW 06/2015!!! Checks every case on PND1, PND2, ACTV, REVW, or INAC, to find a case number when all you have is a phone number."
+  Text 90, 65, 360, 20, "--- Checks every case on PND1, PND2, ACTV, REVW, or INAC, to find a case number when all you have is a phone number."
   Text 60, 90, 190, 10, "--- Searches for a specific case on multiple REPT screens."
   Text 50, 105, 400, 10, "--- Views an INFC panel for a case."
 EndDialog
