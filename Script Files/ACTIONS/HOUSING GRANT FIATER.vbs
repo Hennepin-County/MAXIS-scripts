@@ -1,7 +1,7 @@
 'Created by Tim DeLong from Stearns County.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - HOUSING GRANT FIAT.vbs"
+name_of_script = "ACTIONS - HOUSING GRANT FIATER.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
