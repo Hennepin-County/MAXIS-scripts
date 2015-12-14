@@ -74,7 +74,7 @@ BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 270, "Memos scripts main 
   Text 65, 150, 160, 10, "--- Sends a MEMO to a client regarding MNsure."
   Text 35, 165, 375, 10, "--- Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
   Text 65, 180, 355, 20, "--- Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
-  Text 95, 205, 345, 20, "--- NEW 10/2015!!! Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
+  Text 95, 205, 345, 20, "--- Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
   Text 75, 230, 340, 10, "--- Sends a MEMO when a client reports significant change requiring additional action."
   Text 80, 245, 300, 10, "--- Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
 EndDialog
