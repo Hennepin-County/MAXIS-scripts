@@ -108,10 +108,10 @@ FUNCTION create_BULK_main_menu(dialog_name)
 		  GroupBox 120, 60, 330, 205, "Other bulk lists Text 155"
 		  Text 155, 90, 215, 10, "--- Caseload stats by worker. Includes most MAXIS programs."
 		  Text 225, 110, 205, 20, "--- Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
-		  Text 210, 135, 225, 15, "--- NEW 08/2015!!! Creates a list of cases from one more more case loads showing when selected panels have been updated."
+		  Text 210, 135, 225, 15, "--- Creates a list of cases from one more more case loads showing when selected panels have been updated."
 		  Text 195, 160, 250, 20, "--- Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload (or group of caseloads)."
 		  Text 210, 185, 230, 20, "--- Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
-		  Text 160, 225, 260, 10, "--- NEW 09/2015!! Creates a list of cases with PDED information."
+		  Text 160, 225, 260, 10, "--- Creates a list of cases with PDED information."
 		  Text 235, 210, 185, 10, "--- Creates a list of cases with non-MAGI HC deductions."
 		  Text 185, 240, 260, 20, "--- Creates a list of SWKRs assigned to the various cases in a caseload (or group of caseloads)."
 		EndDialog
