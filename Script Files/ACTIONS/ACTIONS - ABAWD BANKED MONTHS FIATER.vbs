@@ -126,11 +126,15 @@ DO
 	err_msg = ""
 	dialog case_number_dialog
 	If buttonpressed = 0 THEN stopscript
-	IF isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
+	IF left(case_number, 10) <> "UUDDLRLRBA" AND isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
 	IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial month."
 	IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial year."
 	IF err_msg <> "" THEN msgbox err_msg & vbCr & "Please resolve to continue."
 LOOP UNTIL err_msg = ""
+
+'THIS ACTIVATES DEVELOPER MODE if Konami code is entered left of the case number
+IF left(case_number, 10) = "UUDDLRLRBA" THEN developer_mode = true
+case_number = replace(case_number, "UUDDLRLRBA", "") 'removing it so the case number works in the rest of the script
 
 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
 	'We will need to remove the string "/1/" from each element in the array
@@ -164,8 +168,11 @@ For each member in hh_member_array
 	END IF
 	transmit
 Next
-IF ABAWD_member_array(0) = "" THEN script_end_procedure("ERROR: There are no members on this case with ineligible ABAWDs.  The script will stop.")
-
+IF developer_mode = false THEN
+	IF ABAWD_member_array(0) = "" THEN script_end_procedure("ERROR: There are no members on this case with ineligible ABAWDs.  The script will stop.")
+ELSE
+	IF ABAWD_member_array(0) = "" THEN msgbox "ERROR: There are no members on this case with ineligible ABAWDs.  The script would stop in production mode."
+END IF
 err_msg = ""
 For each member in ABAWD_member_array 'This loop will check that WREG is coded correctly
 	call navigate_to_maxis_screen("STAT", "WREG")
@@ -175,40 +182,52 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
 	IF wreg_status <> "30" THEN err_msg = err_msg & vbCr & "Member " & member & " does not have FSET code 30."
 	EMReadscreen abawd_status, 2, 13, 50
 	IF abawd_status <> "10" THEN err_msg = err_msg & vbCr & "Member " & member & " does not have ABAWD code 10."
-	'This section pulls up the counted months popup and checks for 3 months counted before Jan. 16
+	'-----This section pulls up the counted months popup and checks for 3 months counted before Jan. 16----
 	EmWriteScreen "x", 13, 57
 	transmit
-	bene_mo_col = 55
-	bene_yr_row = 8
+	'This finds the current month location '
+	current_month_col = 15 + 4*cint(initial_month)
+
+	'This finds the current year row
+	current_yr_row = 6
+	col = 9
+	if len(initial_year) = 2 THEN initial_year = "20" & initial_year
+	EMSearch initial_year, current_yr_row, col
+	'Setting the initial month to look at as current month - 36'
+	bene_mo_col = current_month_col
+	bene_yr_row = current_yr_row - 3
     WREG_months = 0
     second_abawd_period = 0
  	DO 'This loop actually reads every month in the time period
   	    EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
-  		IF is_counted_month = "X" or is_counted_month = "M" THEN WREG_months = WREG_months + 1
+  	IF is_counted_month = "X" or is_counted_month = "M" THEN WREG_months = WREG_months + 1
 		IF is_counted_month = "Y" or is_counted_month = "N" THEN second_abawd_period = second_abawd_period + 1
    		bene_mo_col = bene_mo_col + 4
-    		IF bene_mo_col > 63 THEN
+    IF bene_mo_col > 63 THEN
         		bene_yr_row = bene_yr_row + 1
    	     		bene_mo_col = 19
-   	   	    END IF
-   	LOOP until bene_yr_row = 11 'Stops when it reaches 2016
-  	IF WREG_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have 3 ABAWD months coded before 01/2016"
-	row = 11
-	col = 19
-	EMSearch "M", row, col 'This looks to make sure there is an intial banked month coded on WREG.
-	IF row > 11 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+   	END IF
+  LOOP until bene_yr_row = current_yr_row AND bene_mo_col = current_month_col'Stops when it reaches current year & month.
+  IF WREG_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " has not used 3 ABAWD months in the past 3 years."
+	row = current_yr_row
+	col = current_month_col
+	EMSearch "M", row, col 'This looks to make sure there is an intial banked month coded on WREG on or after the initial month
+	IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
 	PF3
 Next
 
 IF err_msg <> "" THEN 'This means the WREG panel(s) are coded incorrectly.
-	msgbox "Please resolve the following errors before continuing. The script will now stop." & vBcr & err_msg
-	script_end_procedure("")
+	IF developer_mode = true THEN
+		msgbox "The following errors were found on the WREG panel. In production mode the script would stop." & vBcr & err_msg
+	ELSE
+		msgbox "Please resolve the following errors before continuing. The script will now stop." & vBcr & err_msg
+		script_end_procedure("")
+	END IF
 END IF
 
 
 
 'The following loop will take the script throught each month in the package, from appl month. to CM+1
-
 
 
 For i = 0 to ubound(footer_month_array)
@@ -230,7 +249,7 @@ For i = 0 to ubound(footer_month_array)
 	ABAWD_months_array(i).HEST_elect = trim(HEST_elect)
 	ABAWD_months_array(i).HEST_phone = trim(HEST_phone)
 
-	
+
 	For each hh_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
 		EMWriteScreen hh_member, 20, 76
@@ -253,7 +272,7 @@ For i = 0 to ubound(footer_month_array)
 		EMReadScreen taxes_verif, 2, 15, 67
 		If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
 		If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
-		ABAWD_months_array(i).SHEL_taxes = trim(taxes)
+		ABAWD_months_array(i).SHEL_tax = trim(taxes)
 		EMReadScreen room_verif, 2, 16, 67
 		If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
 		If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
@@ -326,68 +345,67 @@ For i = 0 to ubound(footer_month_array)
 		ABAWD_months_array(i).gross_CS = gross_CS
 		ABAWD_months_array(i).gross_other = gross_other
 
-		
 		Call navigate_to_MAXIS_screen("STAT", "JOBS")		'<<<<< Goes to JOBS for this person
-		EMWriteScreen HH_member, 20, 76 
-		EMReadScreen number_of_jobs_panels, 1, 2, 78 
+		EMWriteScreen HH_member, 20, 76
+		EMReadScreen number_of_jobs_panels, 1, 2, 78
 		For m = 1 to number_of_jobs_panels					'<<<<<< Starting at 1 becuase this is a panel count and it makes sense to use this as a standard count
 			EMWriteScreen "0" & m, 20, 79
 			transmit
 			EMReadScreen jobs_type, 1, 5, 38
 			EMReadScreen jobs_subsidy, 2, 5, 71
 			EMReadScreen jobs_verified, 1, 6, 38
-			If jobs_type <> "W" OR jobs_subsidy <> "__" OR jobs_verified = "?" OR jobs_verified = "N" OR jobs_verified = "_" then  
+			If jobs_type <> "W" OR jobs_subsidy <> "__" OR jobs_verified = "?" OR jobs_verified = "N" OR jobs_verified = "_" then
 				'Currently this will only add standard JOBS to the budget as other types may or may not be counted
 				MsgBox "This script does not support this type of Job" & vbCr & "You will need to calculate the counted amount for this job" & vbCr & "and add to FIAT."
 				jobs_income = jobs_income
 			ElseIf jobs_type = "W" then						'<<<<< Gets prospective income from the SNAP PIC
 				EMWriteScreen "x", 19, 38
 				transmit
-				EMReadScreen income_amount, 8, 18, 56 
+				EMReadScreen income_amount, 8, 18, 56
 				jobs_income = jobs_income + trim(income_amount)	'<<<<< Combines all jobs income
-			End If 
-		Next 
+			End If
+		Next
 		ABAWD_months_array(i).gross_wages = jobs_income		'<<<<<< Adds income to the class property
-		
+
 		Call navigate_to_MAXIS_screen("STAT", "BUSI")		'<<<<<< Same HH member - checking BUSI
-		EMWriteScreen HH_member, 20, 76 
+		EMWriteScreen HH_member, 20, 76
 		EMReadScreen number_of_busi_panels, 1, 2, 78 		'<<<<<< Will go to alll BUSI panels for this person
 		For n = 1 to number_of_busi_panels
 			EMWriteScreen "0" & n, 20, 79
 			transmit
 			EMWriteScreen "x", 6, 26
 			transmit
-			EMReadScreen busi_verif 1, 11, 73 
+			EMReadScreen busi_verif, 1, 11, 73
 			PF3
 			If busi_verif = "?" OR busi_verif = "N" OR busi_verif = "_" then '<<<<< Will not count unverified income
 				busi_amount = "0"
 			Else
-				EMReadScreen busi_amount 8, 10, 69
+				EMReadScreen busi_amount, 8, 10, 69
 			End If
 			gross_BUSI = gross_BUSI + trim(busi_amount)		'<<<<<< Combining all busi income together
 		Next
 		ABAWD_months_array(i).BUSI_income = gross_BUSI		'<<<<<< Adding information to the class property
 	Next
-	jobs_income = 0 			'<<<<<< Resets the variables for the next cycle of this function
-	gross_BUSI = 0 				
-	gross_RSDI = 0				
-	gross_SSI = 0
-	gross_VA = 0
-	gross_UC = 0
-	gross_CS = 0
-	gross_other = 0
-
-	'	'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
-	'	For i = 0 to ubound(ABAWD_counted_months)
-	'		'Defines the ABAWD_months_array as an obejct of ABAWD month data'
-	'		set ABAWD_months_array(i) = new ABAWD_month_data
-	'		'>>>>NAVIGATE TO WHERE YOU NEED TO GO'
-	'		EMReadScreen x, 8, 18, 56	'<<<<READ THE STUFF'
-	'		ABAWD_months_array(i).gross_RSDI = x	'<<<<ADD THE STUFF TO THE ARRAY'
-	'		'>>>>>>DO THE ABOVE TWO LINES OVER AND OVER AGAIN UNTIL YOU HAVE ALL THE STUFF FOR THIS MONTH'
-	'		'//// <<<<<<GET TO THE NEXT MONTH AT THE END'
-	'	Next
-	'	'<<<<<<<<<<<<<<<<<END SAMPLE'
+jobs_income = 0 			'<<<<<< Resets the variables for the next cycle of this function
+gross_BUSI = 0
+gross_RSDI = 0
+gross_SSI = 0
+gross_VA = 0
+gross_UC = 0
+gross_CS = 0
+gross_other = 0
+'
+'	'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
+'	For i = 0 to ubound(ABAWD_counted_months)
+'		'Defines the ABAWD_months_array as an obejct of ABAWD month data'
+'		set ABAWD_months_array(i) = new ABAWD_month_data
+'		'>>>>NAVIGATE TO WHERE YOU NEED TO GO'
+'		EMReadScreen x, 8, 18, 56	'<<<<READ THE STUFF'
+'		ABAWD_months_array(i).gross_RSDI = x	'<<<<ADD THE STUFF TO THE ARRAY'
+'		'>>>>>>DO THE ABOVE TWO LINES OVER AND OVER AGAIN UNTIL YOU HAVE ALL THE STUFF FOR THIS MONTH'
+'		'//// <<<<<<GET TO THE NEXT MONTH AT THE END'
+'	Next
+'	'<<<<<<<<<<<<<<<<<END SAMPLE'
  '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
 	BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD banked months income and deductions dialog"
 	  ButtonGroup ButtonPressed
@@ -491,7 +509,9 @@ For i = 0 to ubound(footer_month_array)
 		'Passing all case tests
 		EMWritescreen "PASSED", 10, 7
 		EMWritescreen "PASSED", 13, 7
-		EMWritescreen "PASSED", 14, 7
+		Transmit
+		EMReadscreen net_check, 3, 24, 40
+		IF net_check = "NET" THEN EMWritescreen "PASSED", 14, 7
 		PF3
 		'Now the BUDGET (FFB1) NO
 		EMWritescreen ABAWD_months_array(i).gross_wages, 5, 32
@@ -528,7 +548,7 @@ For i = 0 to ubound(footer_month_array)
 		IF final_month_check = "ELIG" THEN
 			EMWritescreen "Y", 11, 52
 			EMWritescreen initial_month, 13, 37
-			EMWritescreen initial_year, 13, 40
+			EMWritescreen right(initial_year, 2), 13, 40
 			transmit
 		END IF
 next
