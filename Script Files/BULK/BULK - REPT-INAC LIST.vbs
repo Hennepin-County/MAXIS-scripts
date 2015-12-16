@@ -55,7 +55,7 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 301, 120, "Pull REPT data in
     CancelButton 245, 100, 50, 15
   Text 85, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 95, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 85, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 85, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
   GroupBox 5, 20, 75, 60, "Month to scan"
   Text 85, 25, 65, 10, "Worker(s) to check:"
   Text 10, 40, 40, 10, "Month (MM):"
@@ -111,12 +111,12 @@ If all_workers_check = checked then
 Else
 	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
-	'Need to add the worker_county_code to each one
+	'building array
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -131,6 +131,8 @@ For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "inac")
 	EMWriteScreen worker, 21, 16
+	EMWriteScreen inac_month, 20, 54
+	EMWriteScreen inac_year, 20, 57
 	transmit
 
 	'Skips workers with no info
