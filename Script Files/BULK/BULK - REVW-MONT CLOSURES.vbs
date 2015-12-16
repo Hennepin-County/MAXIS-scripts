@@ -82,7 +82,7 @@ BeginDialog REVW_MONT_closures_dialog, 0, 0, 256, 110, "REVW/MONT closures"
     OkButton 200, 65, 50, 15
     CancelButton 200, 90, 50, 15
   Text 5, 5, 185, 25, "This script will case note all of your renewals that are closing/incomplete. You'll need to sign your case notes:"
-  Text 5, 40, 195, 10, "Enter the last three digits of your x1# here (e.g. ''X100###''):"
+  Text 5, 40, 195, 10, "Enter all 7 digits of your x1# here (e.g. ''X######''):"
   GroupBox 5, 60, 150, 45, "Case note closing/incomplete cases from:"
 EndDialog
 
@@ -93,8 +93,8 @@ Do
 		Dialog REVW_MONT_closures_dialog
 		cancel_confirmation
 		If worker_number <> "" then worker_number = ucase(worker_number)
-		If len(worker_number) <> 3 then MsgBox "You must enter the last three digits of your " & county_worker_code & "# (and just the last three digits)."
-	Loop until len(worker_number) = 3
+		If len(worker_number) <> 7 then MsgBox "You must enter all 7 digits of your worker number."
+	Loop until len(worker_number) = 7
 	If worker_signature = "" then MsgBox "You must sign your case note."
 Loop until worker_signature <> ""
 
@@ -103,7 +103,7 @@ If revw_check = checked then
 	call navigate_to_MAXIS_screen("rept", "revw")
 	EMReadScreen default_worker_number, 3, 21, 10
 	If worker_number <> ucase(default_worker_number) then
-		EMWriteScreen worker_county_code & worker_number, 21, 6
+		EMWriteScreen worker_number, 21, 6
 		transmit
 	End if
 	EMReadScreen current_footer_month, 2, 20, 55
@@ -315,7 +315,7 @@ If revw_check = checked then
 	call navigate_to_MAXIS_screen("rept", "revw")
 	EMReadScreen default_worker_number, 3, 21, 10
 	If worker_number <> default_worker_number then
-		EMWriteScreen worker_county_code & worker_number, 21, 6
+		EMWriteScreen worker_number, 21, 6
 		transmit
 	End if
 End If  
@@ -331,7 +331,7 @@ If mont_check = 1 then
   'Checking the current worker number. If it's not the selected one it will enter the selected one.
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
-    EMWriteScreen worker_county_code & worker_number, 21, 6
+    EMWriteScreen worker_number, 21, 6
     transmit
   End if
 
@@ -413,7 +413,7 @@ If mont_check = 1 then
   call navigate_to_MAXIS_screen("rept", "mont")
   EMReadScreen default_worker_number, 3, 21, 10
   If worker_number <> default_worker_number then
-    EMWriteScreen worker_county_code & worker_number, 21, 6
+    EMWriteScreen worker_number, 21, 6
     transmit
   End if
 End If  
