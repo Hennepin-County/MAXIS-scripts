@@ -182,14 +182,15 @@ FUNCTION navigate_to_MAXIS(maxis_mode)
 	END IF		
 END FUNCTION
 
-BeginDialog maepd_dlg, 0, 0, 191, 110, "MA-EPD Reimburseables"
-  EditBox 85, 10, 65, 15, x_number
+BeginDialog maepd_dlg, 0, 0, 191, 85, "MA-EPD Reimburseables"
+  EditBox 100, 10, 65, 15, x_number
   ButtonGroup ButtonPressed
-    OkButton 85, 90, 50, 15
-    CancelButton 135, 90, 50, 15
-  Text 10, 15, 70, 10, "X Number:"
+    OkButton 70, 60, 50, 15
+    CancelButton 125, 60, 50, 15
+  Text 10, 15, 85, 10, "X Number (7 digit format):"
   Text 10, 30, 175, 10, "This script will check REPT/ACTV on this X number."
 EndDialog
+
 
 
 EMConnect ""
