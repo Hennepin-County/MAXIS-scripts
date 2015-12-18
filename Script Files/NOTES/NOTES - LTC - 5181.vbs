@@ -500,7 +500,7 @@ If update_SWKR_info_checkbox = 1 THEN
 		EMWriteScreen "nn", 20, 79 'creating new panel
 		transmit
 	ELSE 
-		FP9	'putting panel into edit mode
+		PF9	'putting panel into edit mode
 	END IF 	
 	
 	'Blanks out the old info
