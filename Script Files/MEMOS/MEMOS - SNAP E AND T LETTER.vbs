@@ -1,4 +1,3 @@
-worker_county_code = "x101"
 'Option Explicit
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
