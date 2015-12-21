@@ -54,7 +54,7 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 218, 120, "Pull REPT data in
   Text 4, 25, 65, 10, "Worker(s) to check:"
   Text 4, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 14, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 4, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 4, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
@@ -113,9 +113,9 @@ Else
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 

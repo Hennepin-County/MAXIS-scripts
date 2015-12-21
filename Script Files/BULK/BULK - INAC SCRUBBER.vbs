@@ -49,9 +49,9 @@ If CLS_x1_number <> "" then CLS_dialog_string = "**This script will XFER cases i
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 'NOTE: this dialog uses a dynamic CLS_dialog_string variable. As such, it can't be directly edited in dialog editor.
-BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
+BeginDialog INAC_scrubber_dialog, 0, 0, 211, 165, "INAC scrubber dialog"
   EditBox 80, 80, 80, 15, worker_signature
-  EditBox 100, 100, 60, 15, worker_number
+  EditBox 145, 100, 60, 15, worker_number
   EditBox 55, 120, 35, 15, footer_month
   EditBox 145, 120, 35, 15, footer_year
   ButtonGroup ButtonPressed
@@ -61,15 +61,12 @@ BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
   Text 5, 25, 195, 20, "Script will check MMIS for each household memb, ABPS for Good Cause status, and CCOL/CLIC for claims."
   Text 5, 55, 195, 20, "Write the information in the boxes below and click ''OK'' to begin. Click ''Cancel'' to exit."
   Text 5, 85, 75, 10, "Sign your case notes:"
-  Text 5, 105, 90, 10, "Write your worker number:"
+  Text 5, 105, 135, 10, "Write your worker number (7 digit format):"
   Text 5, 125, 45, 10, "Footer month:"
   Text 100, 125, 40, 10, "Footer year:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Determines worker_county_code for multi-county agencies
-call worker_county_code_determination(worker_county_code, two_digit_county_code)
 
 'Shows the dialog, requires 3 digits for worker number, a worker signature, a footer_month and year. Contains developer mode to bypass case noting and XFERing.
 Do
@@ -84,15 +81,15 @@ Do
 			Else
 				developer_mode = False
 			End if
-			If len(worker_number) <> 3 then MsgBox("Your worker number is not 3 digits. Please try again. Only type the last three digits of the worker number.")
-		Loop until len(worker_number) = 3
+			If len(worker_number) <> 7 then MsgBox("Your worker number is not 7 digits. Please try again. Type the whole worker number.")
+		Loop until len(worker_number) = 7
 		If worker_signature = "" and developer_mode = False then MsgBox "You must sign your case notes!"	'Must sign case notes, or be in developer mode which does not case note.
 	Loop until worker_signature <> "" or developer_mode = True
 	If footer_month = "" or footer_year = "" then MsgBox "You must provide a footer month and year!"
 Loop until footer_month <> "" and footer_year <> ""
 
-'Converts worker number to the MAXIS friendly all-caps, adds x1 number prefix
-worker_number = worker_county_code & UCase(worker_number)
+'Converts worker number to the MAXIS friendly all-caps
+worker_number = UCase(worker_number)
 
 'Converts system/footer month and year to a MAXIS-appropriate number, for validation
 current_system_month = DatePart("m", Now)

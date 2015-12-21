@@ -50,7 +50,7 @@ BeginDialog check_snap_dlg, 0, 0, 166, 80, "Check SNAP for GA/RCA"
   ButtonGroup ButtonPressed
     OkButton 35, 60, 50, 15
     CancelButton 85, 60, 50, 15
-  Text 15, 15, 85, 10, "Enter worker X number(s)"
+  Text 15, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
 EndDialog
 
 EMConnect ""

@@ -47,15 +47,15 @@ END IF
 
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog pull_cases_into_excel_dialog, 0, 0, 176, 135, "Pull cases into Excel dialog"
+BeginDialog pull_cases_into_excel_dialog, 0, 0, 176, 105, "Pull cases into Excel dialog"
   EditBox 75, 10, 90, 15, x_number
   CheckBox 10, 65, 150, 10, "Check HERE to run for entire agency.", all_workers_check
   ButtonGroup ButtonPressed
-    OkButton 70, 115, 50, 15
-    CancelButton 120, 115, 50, 15
+    OkButton 65, 85, 50, 15
+    CancelButton 115, 85, 50, 15
   Text 10, 15, 60, 10, "Worker to check:"
   Text 10, 45, 145, 10, "* For multiple, separate with comma."
-  Text 10, 30, 145, 10, "* Enter 3-digit worker number ONLY."
+  Text 10, 30, 145, 10, "* Enter 7-digit worker number ONLY."
 EndDialog
 
 
@@ -109,7 +109,6 @@ For each worker in x_array
 	IF worker <> "" THEN
 		Call navigate_to_screen("rept", "actv")
 		IF worker <> "" THEN
-			IF len(worker) = 3 THEN worker = worker_county_code & worker
 			EMWriteScreen worker, 21, 13
 			transmit
 		END IF

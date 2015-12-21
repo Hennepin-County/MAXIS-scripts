@@ -60,7 +60,7 @@ BeginDialog SWKR_list_generator_dialog, 0, 0, 156, 115, "SWKR list generator dia
   Text 5, 30, 45, 10, "Footer month:"
   Text 85, 30, 40, 10, "Footer year:"
   Text 5, 50, 65, 10, "Worker number(s):"
-  Text 5, 65, 145, 25, "Enter last three digits of each, (ex: x100###). If entering multiple workers, separate each with a comma."
+  Text 5, 65, 145, 25, "Enter all 7 digits of each, (ex: x######). If entering multiple workers, separate each with a comma."
 EndDialog
 
 
@@ -126,7 +126,7 @@ For each worker in worker_number_array
 
 	If trim(worker) = "" then exit for
 
-	worker_ID = worker_county_code & trim(worker)
+	worker_ID = trim(worker)
 	
 	If REPT_panel = "REPT/ACTV" then 'THE REPT PANEL HAS THE worker NUMBER IN DIFFERENT COLUMNS. THIS WILL DETERMINE THE CORRECT COLUMN FOR THE worker NUMBER TO GO
 		worker_ID_col = 13

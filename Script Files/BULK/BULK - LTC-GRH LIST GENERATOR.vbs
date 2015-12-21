@@ -63,9 +63,8 @@ BeginDialog LTC_GRH_list_generator_dialog, 0, 0, 156, 115, "LTC-GRH list generat
   Text 5, 30, 45, 10, "Footer month:"
   Text 85, 30, 40, 10, "Footer year:"
   Text 5, 50, 65, 10, "Worker number(s):"
-  Text 5, 65, 145, 25, "Enter last three digits of each, (ex: x100###). If entering multiple workers, separate each with a comma."
+  Text 5, 65, 145, 25, "Enter 7 digits of each, (ex: x######). If entering multiple workers, separate each with a comma."
 EndDialog
-
 
 'DISPLAYS DIALOG
 Dialog LTC_GRH_list_generator_dialog
@@ -135,15 +134,15 @@ For each worker in worker_number_array
 
 	If trim(worker) = "" then exit for
 
-	worker_ID = worker_county_code & trim(worker)
+	worker_ID = trim(worker)
 
 	If REPT_panel = "REPT/ACTV" then 'THE REPT PANEL HAS THE worker NUMBER IN DIFFERENT COLUMNS. THIS WILL DETERMINE THE CORRECT COLUMN FOR THE worker NUMBER TO GO
 		worker_ID_col = 13
 	Else
 		worker_ID_col = 6
 	End if
-	EMReadScreen default_worker_number, 3, 21, worker_ID_col 'CHECKING THE CURRENT worker NUMBER. IF IT DOESN'T NEED TO CHANGE IT WON'T. OTHERWISE, THE SCRIPT WILL INPUT THE CORRECT NUMBER.
-	If ucase(worker_ID) <> default_worker_number then
+	EMReadScreen default_worker_number, 7, 21, worker_ID_col 'CHECKING THE CURRENT worker NUMBER. IF IT DOESN'T NEED TO CHANGE IT WON'T. OTHERWISE, THE SCRIPT WILL INPUT THE CORRECT NUMBER.
+	If ucase(worker_ID) <> ucase(default_worker_number) then
 		EMWriteScreen worker_ID, 21, worker_ID_col
 		transmit
 	End if

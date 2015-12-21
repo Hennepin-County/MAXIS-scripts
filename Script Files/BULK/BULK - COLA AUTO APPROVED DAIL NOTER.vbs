@@ -76,8 +76,8 @@ BeginDialog worker_sig_dlg, 0, 0, 211, 135, "COLA Scrubber"
     OkButton 105, 110, 50, 15
     CancelButton 155, 110, 50, 15
   Text 20, 85, 160, 10, "NOTE: This option also creates a report in Excel."
-  Text 10, 35, 95, 10, "Please enter an X number..."
-  Text 10, 15, 95, 10, "Please sign your case note..."
+  Text 10, 30, 95, 20, "Please enter an X number (7 digit format):"
+  Text 10, 15, 95, 10, "Please sign your case note:"
 EndDialog
 
 

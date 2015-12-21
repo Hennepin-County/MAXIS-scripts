@@ -80,7 +80,7 @@ BeginDialog panel_update_check_dlg, 0, 0, 231, 195, "Panels to Check"
     OkButton 10, 170, 50, 15
     CancelButton 60, 170, 50, 15
   Text 10, 20, 55, 10, "Worker Number"
-  Text 15, 35, 150, 10, "* Please enter only 3-digit worker numbers."
+  Text 15, 35, 150, 10, "* Please enter only 7-digit worker numbers."
   Text 15, 45, 205, 10, "* For multiple workers, separate worker numbers by a comma."
   GroupBox 10, 65, 210, 30, "Income Panels to Check"
   GroupBox 10, 105, 210, 30, "Expense Panels to Check"
@@ -107,13 +107,6 @@ DO
 		'multiple_workers = split(workers_list)
 		workers_list = split(workers_list)
 	END IF
-	
-	'>>>>> ADDING TO err_msg IF THE USER ENTERS A WORKER NUMBER LONGER THAN 3 DIGITS. <<<<<
-	FOR EACH maxis_worker IN workers_list
-		IF maxis_worker <> "" THEN 
-			IF len(maxis_worker) <> 3 THEN err_msg = err_msg & vbCr & "* Worker ID " & worker_county_code & maxis_worker & " is not a valid MAXIS worker ID."
-		END IF
-	NEXT
 	
 	'>>>>> ADDING TO err_msg IF THE USER SELECTS NO STAT PANELS. <<<<<
 	IF JOBS_checkbox = 0 AND _ 
@@ -210,7 +203,8 @@ FOR EACH maxis_worker IN workers_list
 		
 		'>>>>> BUILDING A LIST OF CASE NUMBERS AND CLIENTS <<<<<
 		CALL navigate_to_MAXIS_screen("REPT", "ACTV")
-		CALL write_value_and_transmit((worker_county_code & maxis_worker), 21, 13)
+		EMReadScreen ACTV_Xnumber, 7, 21, 13
+		IF UCase(maxis_worker) <> UCase(ACTV_Xnumber) THEN CALL write_value_and_transmit(maxis_worker, 21, 13)  'if the script transmits on the current worker with their own x# it will skip first page. 
 		excel_row = 2
 		DO
 			rept_row = 7
@@ -222,7 +216,7 @@ FOR EACH maxis_worker IN workers_list
 				client_name = trim(client_name)
 				IF case_number <> "" THEN 
 					'>>>>> ADDING WORKER NUMBER, CASE NUMBER, AND CLIENT NAME TO EXCEL <<<<<
-					objExcel.Cells(excel_row, 1).Value = worker_county_code & maxis_worker
+					objExcel.Cells(excel_row, 1).Value = maxis_worker
 					objExcel.Cells(excel_row, 2).Value = case_number
 					objExcel.Cells(excel_row, 3).Value = client_name
 					excel_row = excel_row + 1
