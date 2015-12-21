@@ -106,7 +106,7 @@ call check_for_maxis(false)
 'Gathering/formatting variables---------------------------------------------------------------------------------------------------------------------
 back_to_self
 EMWriteScreen approval_month, 20, 43
-EMWriteScreen approval_year, 20, 45
+EMWriteScreen approval_year, 20, 46
 CALL check_for_maxis(false)
 CALL navigate_to_MAXIS_screen("STAT", "PROG")   'grabbing the app date to use later.
 EMReadScreen app_date, 8, 10, 33
