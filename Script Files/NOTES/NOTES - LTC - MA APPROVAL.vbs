@@ -68,7 +68,7 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
 EndDialog
 
 BeginDialog approval_dialog, 0, 0, 376, 140, "Approval dialog"
-  DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
+  DropListBox 45, 5, 30, 15, "AX"+chr(9)+"EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
   DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
   EditBox 285, 5, 85, 15, recipient_amt
   EditBox 90, 25, 280, 15, income
