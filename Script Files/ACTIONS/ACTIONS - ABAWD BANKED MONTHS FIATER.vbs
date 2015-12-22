@@ -110,9 +110,6 @@ end class
 
 '-------------------------END CLASSES
 
-'VARIABLES WE'LL NEED TO DECLARE (NOTE, IT'S LIKELY THESE WILL NEED TO MOVE FURTHER DOWN IN THE SCRIPT)----------------------------
-
-
 'The script----------------------------------------------------------------------------------------------------
 EMConnect ""
 call check_for_maxis(false)
@@ -237,7 +234,8 @@ For i = 0 to ubound(footer_month_array)
 	Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
 	EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
 	IF HEST_heat <> "      " then						'<<<<< If there is an amount on the hest line then the electric and phone allowances are not used
-		HEST_elect = "" AND HEST_phone = ""				'<<<<< Ignores the electric and phone standards if HEAT/AC is used
+		HEST_elect = ""
+		HEST_phone = ""				'<<<<< Ignores the electric and phone standards if HEAT/AC is used
 	Else
 		EMReadScreen HEST_elect, 6, 14, 75				'<<<<< Pulls information from prospective side of Electric standard if HEAT/AC is not used
 		EMReadScreen HEST_phone, 6, 15, 75				'<<<<< Pulls information from prospective side of Phone standard if HEAT/AC is not used
@@ -246,35 +244,41 @@ For i = 0 to ubound(footer_month_array)
 	ABAWD_months_array(i).HEST_elect = trim(HEST_elect)
 	ABAWD_months_array(i).HEST_phone = trim(HEST_phone)
 
-
 	For each hh_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
 		EMWriteScreen hh_member, 20, 76
 		EMReadScreen rent_verif, 2, 11, 67
+		call verif_confirm_message(rent_verif, "rent")
 		If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
 		If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
 		trim(rent)
 		EMReadScreen lot_rent_verif, 2, 12, 67
+		call verif_confirm_message(lot_rent_verif, "lot rent")
 		If lot_rent_verif <> "__" and lot_rent_verif <> "NO" and lot_rent_verif <> "?_" then EMReadScreen lot_rent, 8, 12, 56
 		If lot_rent_verif = "__" or lot_rent_verif = "NO" or lot_rent_verif = "?_" then lot_rent = "0"		'<<<<< gets Lot Rent amount
 		trim(lot_rent)
 		EMReadScreen mortgage_verif, 2, 13, 67
+		call verif_confirm_message(mortgage_verif, "mortgage")
 		If mortgage_verif <> "__" and mortgage_verif <> "NO" and mortgage_verif <> "?_" then EMReadScreen mortgage, 8, 13, 56
 		If mortgage_verif = "__" or mortgage_verif = "NO" or mortgage_verif = "?_" then mortgage = "0"		'<<<<<< gets Mortgage amount
 		trim(mortage)
 		EMReadScreen insurance_verif, 2, 14, 67
+		call verif_confirm_message(insurance_verif, "insurance")
 		If insurance_verif <> "__" and insurance_verif <> "NO" and insurance_verif <> "?_" then EMReadScreen insurance, 8, 14, 56
 		If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then insurance = "0"	'<<<<<< gets insurance amount and adds it to the class property
 		ABAWD_months_array(i).SHEL_insa = trim(insurance)
 		EMReadScreen taxes_verif, 2, 15, 67
+		call verif_confirm_message(taxes_verif, "taxes")
 		If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
 		If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
 		ABAWD_months_array(i).SHEL_tax = trim(taxes)
 		EMReadScreen room_verif, 2, 16, 67
+		call verif_confirm_message(room_verif, "room")
 		If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
 		If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
 		trim(room)
 		EMReadScreen garage_verif, 2, 17, 67
+		call verif_confirm_message(garage_verif, "garage")
 		If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
 		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
 		trim(garage)
@@ -291,51 +295,55 @@ For i = 0 to ubound(footer_month_array)
 			EMWriteScreen "0" & k, 20, 79
 			transmit
 			EMReadScreen unea_type, 2, 5, 37 	'<<<<<< Reads each type of UNEA panel and adds the amounts togetther within a type
-			If unea_type = "01" OR unea_type = "02" then '<<<<<< RSDI
-				EMWriteScreen "x", 10, 26
-				transmit
-				EMReadScreen rsdi_amount, 8, 18, 56
-				trim(rsdi_amount)
-				gross_RSDI = gross_RSDI + rsdi_amount
-				transmit
-			ElseIf unea_type = "03" then 				'<<<<<< SSI
-				EMWriteScreen "x", 10, 26
-				transmit
-				EMReadScreen ssi_amount, 8, 18, 56
-				trim(ssi_amount)
-				gross_SSI = gross_SSI + ssi_amount
-				transmit
-			ElseIf unea_type = "11" OR unea_type = "12" OR unea_type = "13" OR unea_type = "38" then 	'<<<<<< VA
-				EMWriteScreen "x", 10, 26
-				transmit
-				EMReadScreen va_amount, 8, 18, 56
-				trim(va_amount)
-				gross_VA = gross_VA + va_amount
-				transmit
-			ElseIf unea_type = "14" then 				'<<<<<< UC
-				EMWriteScreen "x", 10, 26
-				transmit
-				EMReadScreen uc_amount, 8, 18, 56
-				trim(uc_amount)
-				gross_UC = gross_UC + uc_amount
-				transmit
-			ElseIf unea_type = "08" OR unea_type = "36" OR unea_type = "39" then 	'<<<<<< CS
-				EMWriteScreen "x", 10, 26
-				transmit
-				EMReadScreen cs_amount, 8, 18, 56
-				trim(cs_amount)
-				gross_CS = gross_CS + cs_amount
-				transmit
-			ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" then 	'<<<<<< Other UNEA
-				EMWriteScreen "x", 10, 26
-				transmit
-				EMReadScreen other_unea_amount, 8, 18, 56
-				trim(other_unea_amount)
-				gross_other = gross_other + other_unea_amount
-				transmit
-			End If
+			EMReadscreen unea_verif, 1, 5, 65
+			call verif_confirm_message(unea_verif, "Unearned income")
+			IF unea_verif <> "?" THEN
+				If unea_type = "01" OR unea_type = "02" then '<<<<<< RSDI
+					EMWriteScreen "x", 10, 26
+					transmit
+					EMReadScreen rsdi_amount, 8, 18, 56
+					trim(rsdi_amount)
+					gross_RSDI = gross_RSDI + rsdi_amount
+					transmit
+					ElseIf unea_type = "03" then 				'<<<<<< SSI
+					EMWriteScreen "x", 10, 26
+					transmit
+					EMReadScreen ssi_amount, 8, 18, 56
+					trim(ssi_amount)
+					gross_SSI = gross_SSI + ssi_amount
+					transmit
+					ElseIf unea_type = "11" OR unea_type = "12" OR unea_type = "13" OR unea_type = "38" then 	'<<<<<< VA
+					EMWriteScreen "x", 10, 26
+					transmit
+					EMReadScreen va_amount, 8, 18, 56
+					trim(va_amount)
+					gross_VA = gross_VA + va_amount
+					transmit
+					ElseIf unea_type = "14" then 				'<<<<<< UC
+					EMWriteScreen "x", 10, 26
+					transmit
+					EMReadScreen uc_amount, 8, 18, 56
+					trim(uc_amount)
+					gross_UC = gross_UC + uc_amount
+					transmit
+					ElseIf unea_type = "08" OR unea_type = "36" OR unea_type = "39" then 	'<<<<<< CS
+					EMWriteScreen "x", 10, 26
+					transmit
+					EMReadScreen cs_amount, 8, 18, 56
+					trim(cs_amount)
+					gross_CS = gross_CS + cs_amount
+					transmit
+					ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" then 	'<<<<<< Other UNEA
+					EMWriteScreen "x", 10, 26
+					transmit
+					EMReadScreen other_unea_amount, 8, 18, 56
+					trim(other_unea_amount)
+					gross_other = gross_other + other_unea_amount
+					transmit
+					End If
+				END IF
 		Next
-		ABAWD_months_array(i).gross_RSDI = gross_RSDI	'<<<<<<< Stores veriables in the class property
+		ABAWD_months_array(i).gross_RSDI = gross_RSDI	'<<<<<<< Stores variables in the class property
 		ABAWD_months_array(i).gross_SSI = gross_SSI
 		ABAWD_months_array(i).gross_VA = gross_VA
 		ABAWD_months_array(i).gross_UC = gross_UC
@@ -351,11 +359,15 @@ For i = 0 to ubound(footer_month_array)
 			EMReadScreen jobs_type, 1, 5, 38
 			EMReadScreen jobs_subsidy, 2, 5, 71
 			EMReadScreen jobs_verified, 1, 6, 38
-			If jobs_type <> "W" OR jobs_subsidy <> "__" OR jobs_verified = "?" OR jobs_verified = "N" OR jobs_verified = "_" then
-				'Currently this will only add standard JOBS to the budget as other types may or may not be counted
-				MsgBox "This script does not support this type of Job" & vbCr & "You will need to calculate the counted amount for this job" & vbCr & "and add to FIAT."
-				jobs_income = jobs_income
-			ElseIf jobs_type = "W" then						'<<<<< Gets prospective income from the SNAP PIC
+			call verif_confirm_message(jobs_verified, "job")
+			income_counted = vbYes 'defaults to counted, the next statement will confirm certain income types'
+			IF jobs_verified = "?" or jobs_verified = "_?" THEN income_counted = false 'this will set to not counted if the user selected no on the verif_confirm popup'
+			If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
+				'certain rare income types can not be automatically determined, this prompts the user to confirm yes/no to reduce errors.
+				income_counted = MsgBox("This script does not support this type of Job" & vbCr & "Please select whether this income should be included in the FIAT budget for SNAP.", vbYesNo)
+			END IF
+			IF jobs_type = "F" or jobs_type = "S" or jobs_type = "G" THEN income_counted = vbNo 'Work study is not counted, but listed on PIC, so we don't want to read the pic.
+			IF income_counted = vbYes	THEN			'<<<<< Gets prospective income from the SNAP PIC
 				EMWriteScreen "x", 19, 38
 				transmit
 				EMReadScreen income_amount, 8, 18, 56
@@ -366,7 +378,7 @@ For i = 0 to ubound(footer_month_array)
 
 		Call navigate_to_MAXIS_screen("STAT", "BUSI")		'<<<<<< Same HH member - checking BUSI
 		EMWriteScreen HH_member, 20, 76
-		EMReadScreen number_of_busi_panels, 1, 2, 78 		'<<<<<< Will go to alll BUSI panels for this person
+		EMReadScreen number_of_busi_panels, 1, 2, 78 		'<<<<<< Will go to all BUSI panels for this person
 		For n = 1 to number_of_busi_panels
 			EMWriteScreen "0" & n, 20, 79
 			transmit
@@ -374,6 +386,7 @@ For i = 0 to ubound(footer_month_array)
 			transmit
 			EMReadScreen busi_verif, 1, 11, 73
 			PF3
+			call verif_confirm_message(busi_verif, "Self Employment Income")
 			If busi_verif = "?" OR busi_verif = "N" OR busi_verif = "_" then '<<<<< Will not count unverified income
 				busi_amount = "0"
 			Else
@@ -471,8 +484,8 @@ gross_other = 0
   'This calls the dialog to allow worker to confirm
 	DO
 		dialog income_deductions_dialog
-		MAXIS_dialog_navigation
 		cancel_confirmation
+		MAXIS_dialog_navigation
 	Loop until buttonpressed = ok
 
 	'-----------------GO TO FIAT!---------------------------------
@@ -507,7 +520,7 @@ gross_other = 0
 		EMWritescreen "PASSED", 10, 7
 		EMWritescreen "PASSED", 13, 7
 		Transmit
-		EMReadscreen net_check, 3, 24, 40
+		EMReadscreen net_check, 3, 24, 40 'sometimes this test needs to be passed, sometimes n/a.  the transmit triggers an error msg if it needs to pass this'
 		IF net_check = "NET" THEN EMWritescreen "PASSED", 14, 7
 		PF3
 		'Now the BUDGET (FFB1) NO
