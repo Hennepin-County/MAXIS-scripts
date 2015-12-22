@@ -519,6 +519,8 @@ gross_other = 0
 		'Passing all case tests
 		EMWritescreen "PASSED", 10, 7
 		EMWritescreen "PASSED", 13, 7
+		EMReadscreen state_food_check, 1, 7, 58 'We need to enter something here if it is blank'
+		IF state_food_check <> "N" or state_food_check <> "Y" THEN EMwritescreen "N", 7, 58
 		Transmit
 		EMReadscreen net_check, 3, 24, 40 'sometimes this test needs to be passed, sometimes n/a.  the transmit triggers an error msg if it needs to pass this'
 		IF net_check = "NET" THEN EMWritescreen "PASSED", 14, 7
