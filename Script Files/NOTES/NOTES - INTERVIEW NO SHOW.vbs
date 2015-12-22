@@ -1,14 +1,12 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - LOBBY NO SHOW.vbs"
+name_of_script = "NOTES - INTERVIEW NO SHOW.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -182,13 +180,13 @@ EMReadScreen hc_pend, 4, 12, 74
 'Assigns a value so the programs pending will show up in check boxes
 IF cash1_pend = "PEND" THEN
 	cash1_pend = 1 
-	Else 
+Else 
 	cash1_pend = 0 
 End If
 
 If cash2_pend = "PEND" THEN 
 	cash2_pend = 1
-	Else 
+Else 
 	cash2_pend = 0
 End if
 
@@ -196,25 +194,25 @@ If cash1_pend = 1 OR cash2_pend = 1 then cash_pend = 1
 
 If emer_pend = "PEND" THEN 
 	emer_pend = 1
-	Else 
+Else 
 	emer_pend = 0
 End if
 
 If grh_pend = "PEND" THEN 
 	grh_pend = 1
-	Else 
+Else 
 	grh_pend = 0
 End if
 
 If fs_pend = "PEND" THEN 
 	fs_pend = 1
-	Else 
+Else 
 	fs_pend = 0
 End if
 
 If hc_pend = "PEND" THEN 
 	hc_pend = 1
-	Else 
+Else 
 	hc_pend = 0
 End if
 
@@ -222,48 +220,57 @@ End if
 
 'Display's the Dialog Box to imput variable information - includes safeguards for mandatory fields
 If same_day_interview = vbYes THEN
-	Do					
-		Do
-			Dialog same_day_dialog
-			cancel_confirmation
-			IF case_number = "" THEN MsgBox "You did not enter a case number. Please try again."
-			IF interview_date = "" THEN MsgBox "You did not enter an Interview Date. Please try again."
-			IF IsDate (interview_date) = False THEN MsgBox "Interview Date must be a date, please reenter."
-			IF first_page = "" THEN MsgBox "Please enter the time of the 1st page in the lobby."
-			IF second_page = "" THEN MsgBox "Please enter the time of the second page in the lobby - you must page your client at least twice"
-			IF worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
-		Loop until case_number <> "" and interview_date <> "" and IsDate(interview_date) = True and first_page <> "" and second_page <> "" and worker_signature <> ""
-		'The following converts the times entered by the user to a standard format
-		IF IsNumeric(first_page) = TRUE THEN
-			first_page = FormatNumber (first_page, 2)
-			first_page = FormatDateTime (first_page, 4)
-		End If
-		IF IsNumeric(second_page) = TRUE THEN
-			second_page = FormatNumber (second_page, 2)
-			second_page = FormatDateTime (second_page ,4)
-		End If
-		first_page = TimeValue(first_page)
-		second_page = TimeValue(second_page)
-		'This converts the time to military time for any afternnon times
-		If first_page < TimeValue("7:00") THEN first_page = DateAdd("h", 12, first_page)
-		If second_page < TimeValue("7:00") THEN second_page = DateAdd("h", 12, second_page)
-		'This tests to ensure the page times are at least 15 minutes apart
-		IF abs(DateDiff("n", first_page, second_page))<15 THEN MsgBox "You must page client at least 15 minutes apart"
-	Loop until abs(DateDiff("n", first_page, second_page))>=15 'and case_number <> "" and interview_date <> "" and IsDate(interview_date) = True and first_page <> "" and second_page <> "" and worker_signature <> ""
+	Do 
+		Do					
+			Do
+				err_msg = ""
+				Dialog same_day_dialog
+				cancel_confirmation
+				IF case_number = "" THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
+				IF interview_date = "" THEN err_msg = err_msg & vbNewLine & "*Please enter an Interview Date"
+				IF IsDate (interview_date) = False THEN err_msg = err_msg & vbNewLine & "*Please enter a valid Interview Date"
+				IF first_page = "" THEN err_msg = err_msg & vbNewLine & "*Please enter the time of the 1st page in the lobby"
+				IF second_page = "" THEN err_msg = err_msg & vbNewLine & "*Please enter the time of the second page in the lobby - you must page your client at least twice"
+				IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*Please sign your case note"
+				If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
+			Loop until err_msg = ""
+			'The following converts the times entered by the user to a standard format
+			IF IsNumeric(first_page) = TRUE THEN
+				first_page = FormatNumber (first_page, 2)
+				first_page = FormatDateTime (first_page, 4)
+			End If
+			IF IsNumeric(second_page) = TRUE THEN
+				second_page = FormatNumber (second_page, 2)
+				second_page = FormatDateTime (second_page ,4)
+			End If
+			first_page = TimeValue(first_page)
+			second_page = TimeValue(second_page)
+			'This converts the time to military time for any afternnon times
+			If first_page < TimeValue("7:00") THEN first_page = DateAdd("h", 12, first_page)
+			If second_page < TimeValue("7:00") THEN second_page = DateAdd("h", 12, second_page)
+			'This tests to ensure the page times are at least 15 minutes apart
+			IF abs(DateDiff("n", first_page, second_page))<15 THEN MsgBox "You must page client at least 15 minutes apart"
+		Loop until abs(DateDiff("n", first_page, second_page))>=15 'and case_number <> "" and interview_date <> "" and IsDate(interview_date) = True and first_page <> "" and second_page <> "" and worker_signature <> ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
+	
 ELSEIF same_day_interview = vbNo THEN 'Begins dialog if client was no show for scheduled interview
-	Do  
-		err_msg = ""
-		Dialog Scheduled_interview_dialog
-		cancel_confirmation
-		IF case_number = "" OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
-		If phone_int_checkbox = 0 and In_person_checkbox = 0 then err_msg = err_msg & vbNewLine & "*Please check either Attempted phone interview or No Show for In Person interview"
-		If interview_date = "" Then err_msg = err_msg & vbNewLine & "*Please enter an interview date"
-		If Interview_time = "" then err_msg = err_msg & vbNewLine & "*Please enter an interview time"
-		If application_date = "" then err_msg = err_msg & vbNewLine & "*Please enter the application date"
-		If Phone_int_checkbox = checked and phone_number_scheduled = "" Then err_msg = err_msg & vbNewLine & "Enter the phone number you attempted to call" 
-		If Type_of_interview_droplist= "Select one..." then err_msg = err_msg & vbNewLine & "*Please select the type of interview"
-		If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
-	Loop Until err_msg = ""	
+	Do
+		Do  
+			err_msg = ""
+			Dialog Scheduled_interview_dialog
+			cancel_confirmation
+			IF case_number = "" OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
+			If phone_int_checkbox = 0 and In_person_checkbox = 0 then err_msg = err_msg & vbNewLine & "*Please check either Attempted phone interview or No Show for In Person interview"
+			If interview_date = "" Then err_msg = err_msg & vbNewLine & "*Please enter an interview date"
+			If Interview_time = "" then err_msg = err_msg & vbNewLine & "*Please enter an interview time"
+			If application_date = "" then err_msg = err_msg & vbNewLine & "*Please enter the application date"
+			If Phone_int_checkbox = checked and phone_number_scheduled = "" Then err_msg = err_msg & vbNewLine & "Enter the phone number you attempted to call" 
+			If Type_of_interview_droplist= "Select one..." then err_msg = err_msg & vbNewLine & "*Please select the type of interview"
+			If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
+		Loop Until err_msg = ""	
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
 End if
 
 call check_for_MAXIS(False)	
@@ -274,20 +281,21 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 	If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox		
 	If recert_check = 6 then			'This is the "yes" button on a MsgBox	
   'Shows dialog, checks for password prompt
+	
 		Do
 			Do
+				err_msg = ""
 				Dialog SNAP_ER_NOMI_dialog
 				If ButtonPressed = 0 then stopscript
-				If case_number = "" then MsgBox "You did not enter a case number. Please try again."
-				If interview_date = "" then MsgBox "You did not enter a date of missed interview. Please try again."
-				If interview_time = "" then MsgBox "You did not enter a time of missed interview. Please try again."
-				If last_day_for_recert = "" then MsgBox "You did not enter a date the recert must be completed by. Please try again."
-				If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-			Loop until case_number <> "" and interview_date <> "" and interview_time <> "" and last_day_for_recert <> "" and worker_signature <> ""
-			transmit
-			EMReadScreen MAXIS_check, 5, 1, 39
-			IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
-		Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+				If case_number = "" then err_msg = err_msg & vbNewLine & "*You did not enter a case number. Please try again."
+				If interview_date = "" then err_msg = err_msg & vbNewLine & "*You did not enter a date of missed interview. Please try again."
+				If interview_time = "" then err_msg = err_msg & vbNewLine & "*You did not enter a time of missed interview. Please try again."
+				If last_day_for_recert = "" then err_msg = err_msg & vbNewLine & "*You did not enter a date the recert must be completed by. Please try again."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "*You did not sign your case note. Please try again."
+				If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
+			Loop until err_msg = ""	
+			Call check_for_password(are_we_passworded_out)
+		Loop until are_we_passworded_out = false
    
 		'Navigates into SPEC/MEMO
 		call navigate_to_screen("SPEC", "MEMO")
@@ -316,18 +324,18 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 	'This is the "no" button on a MsgBox 'Shows dialog, checks for password prompt
 		Do
 			Do
+				err_msg = ""
 				Dialog NOMI_dialog
 				If ButtonPressed = 0 then stopscript
-				If case_number = "" then MsgBox "You did not enter a case number. Please try again."
-				If isdate(interview_date) = False then MsgBox "You did not enter a valid date of missed interview. Please try again."
-				If interview_time = "" then MsgBox "You did not enter a time of missed interview. Please try again."
-				If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
-				If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-			Loop until case_number <> "" and isdate(interview_date) = True and interview_time <> "" and isdate(application_date) = True and worker_signature <> ""
-			transmit
-			EMReadScreen MAXIS_check, 5, 1, 39
-			IF MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be outside of MAXIS. You may be locked out of MAXIS, check your screen and try again."
-		Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+				If case_number = "" then err_msg = err_msg & vbNewLine & "*You did not enter a case number. Please try again."
+				If isdate(interview_date) = False then err_msg = err_msg & vbNewLine & "*You did not enter a valid interview date."
+				If interview_time = "" then err_msg = err_msg & vbNewLine & "*You did not enter interview time."
+				If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "*You did not enter a valid application date. Please try again."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "You did not sign your case note. Please try again."
+				If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
+			Loop until err_msg = ""
+			call check_for_password(are_we_passworded_out)
+		Loop until are_we_passworded_out = false
 	
 		'Navigates into SPEC/LETR
 		call navigate_to_screen("SPEC", "LETR")
@@ -436,4 +444,3 @@ If Same_day_Interview = vbNo then
 End if
 	
 script_end_procedure ("")
-
