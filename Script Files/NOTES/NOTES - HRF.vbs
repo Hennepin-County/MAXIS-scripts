@@ -56,9 +56,10 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
-  CheckBox 10, 60, 30, 10, "MFIP", cash_check
+  CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
   CheckBox 55, 60, 35, 10, "SNAP", SNAP_check
   CheckBox 100, 60, 30, 10, "HC", HC_check
+  CheckBox 140, 60, 30, 10, "GA", GA_check
   ButtonGroup ButtonPressed
     OkButton 35, 80, 50, 15
     CancelButton 95, 80, 50, 15
@@ -68,9 +69,9 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
-BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
+BeginDialog HRF_dialog, 0, 0, 451, 250, "HRF dialog"
   EditBox 65, 30, 50, 15, HRF_datestamp
-  DropListBox 170, 30, 75, 15, " "+chr(9)+"complete"+chr(9)+"incomplete", HRF_status
+  DropListBox 170, 30, 75, 15, " " +chr(9)+"complete"+chr(9)+"incomplete", HRF_status
   EditBox 65, 50, 380, 15, earned_income
   EditBox 70, 70, 375, 15, unearned_income
   EditBox 30, 90, 90, 15, YTD
@@ -82,8 +83,9 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
   CheckBox 330, 150, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
   EditBox 240, 165, 205, 15, verifs_needed
   EditBox 235, 185, 210, 15, actions_taken
-  CheckBox 125, 210, 180, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
-  CheckBox 125, 225, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_UHFS_info_check
+  CheckBox 125, 205, 180, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
+  CheckBox 125, 220, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_FS_info_check
+  CheckBox 125, 235, 170, 10, "Check here to case note grant info from ELIG/GA.", grab_GA_info_check
   EditBox 380, 205, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 340, 225, 50, 15
@@ -91,6 +93,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
     PushButton 260, 20, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 20, 20, 10, "HC", ELIG_HC_button
     PushButton 300, 20, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 260, 30, 20, 10, "GA", ELIG_GA_button
     PushButton 335, 20, 45, 10, "prev. panel", prev_panel_button
     PushButton 395, 20, 45, 10, "prev. memb", prev_memb_button
     PushButton 335, 30, 45, 10, "next panel", next_panel_button
@@ -109,7 +112,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
     PushButton 10, 210, 25, 10, "MEMB", MEMB_button
     PushButton 35, 210, 25, 10, "MEMI", MEMI_button
     PushButton 60, 210, 25, 10, "MONT", MONT_button
-  GroupBox 255, 5, 70, 30, "ELIG panels:"
+  GroupBox 255, 5, 70, 40, "ELIG panels:"
   GroupBox 330, 5, 115, 40, "STAT-based navigation"
   Text 5, 35, 55, 10, "HRF datestamp:"
   Text 5, 55, 55, 10, "Earned income:"
@@ -126,6 +129,7 @@ BeginDialog HRF_dialog, 0, 0, 451, 245, "HRF dialog"
   Text 125, 35, 40, 10, "HRF status:"
   Text 130, 95, 35, 10, "Changes?:"
 EndDialog
+
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
@@ -194,6 +198,7 @@ DO
 	IF case_note_confirmation = vbCancel THEN script_end_procedure("You have aborted this script.")
 LOOP UNTIL case_note_confirmation = vbYes
 
+'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
 If grab_MFIP_info_check = 1 then
 	call navigate_to_MAXIS_screen("elig", "mfip")
 	EMReadScreen MFPR_check, 4, 3, 47
@@ -208,21 +213,41 @@ If grab_MFIP_info_check = 1 then
 		EMReadScreen MFSM_line_04, 37, 16, 44
 	End if
 End if
-If grab_UHFS_info_check = 1 then
+If grab_FS_info_check = 1 then
 	call navigate_to_MAXIS_screen("elig", "fs__")
-	EMReadScreen UHFS_check, 4, 3, 48
-	If UHFS_check <> "FSPR" then 
+	EMReadScreen FS_check, 4, 3, 48
+	If FS_check <> "FSPR" then 
 		MsgBox "The script couldn't find Elig/FS. It will now jump to case note." 
 	Else 
 		EMWriteScreen "FSSM", 19, 70
 		transmit	
-		EMReadScreen UHFS_line_01, 37, 13, 44
+		EMReadScreen FS_line_01, 37, 13, 44
 	End if
-End If		
+End If	
+If grab_GA_info_check = 1 Then
+		call navigate_to_MAXIS_screen("ELIG", "GA__")
+		EMReadScreen GAPR_check, 4, 3, 48
+		IF GAPR_check <> "GAPR" Then
+			MsgBox "The script couldn't find Elig/GA. It will now jump to case note." 
+		Else
+			EMWriteScreen "GASM", 20, 70
+			transmit
+			EMReadScreen GA_line_01, 10, 14, 70
+		END If
+END IF
 
-'Enters the case note
+
+
+'Creating program list---------------------------------------------------------------------------------------------
+If MFIP_check = 1 Then programs_list = "MFIP "
+If SNAP_check = 1 Then programs_list = programs_list & "SNAP "
+If HC_check = 1 Then programs_list = programs_list & "HC "
+If GA_check = 1 Then programs_list = programs_list & "GA "
+
+'Enters the case note-----------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
+call write_bullet_and_variable_in_case_note("Programs", programs_list)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 call write_bullet_and_variable_in_case_note("YTD", YTD)
@@ -242,10 +267,14 @@ If MFPR_check = "MFPR" then
   call write_variable_in_CASE_NOTE("   " & MFSM_line_04)
   call write_variable_in_CASE_NOTE("---")
 End if
-If UHFS_check = "FSPR" then
-	call write_variable_in_CASE_NOTE("     UHFS " & UHFS_line_01)
+If FS_check = "FSPR" then
+	call write_variable_in_CASE_NOTE("       FS " & FS_line_01)
 	call write_variable_in_CASE_NOTE("---")
 End if
+If GAPR_check = "GAPR" Then
+	call write_variable_in_CASE_NOTE("       GA Benefit Amount............" & GA_line_01)
+	call write_variable_in_CASE_NOTE("---")
+End If
 call write_variable_in_CASE_NOTE(worker_signature)
 
 call script_end_procedure("")
