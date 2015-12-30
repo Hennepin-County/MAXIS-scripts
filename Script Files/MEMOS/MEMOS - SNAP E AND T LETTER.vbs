@@ -240,7 +240,15 @@ member_number = "01"
 DO
 	'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 	err_msg = ""
-	IF worker_county_code = "x127" THEN
+	'these counties are exempt from participation per the FNS'
+	If worker_county_code = "x101" OR _
+		worker_county_code = "x115" OR _
+		worker_county_code = "x129" OR _
+		worker_county_code = "x133" OR _
+		worker_county_code = "x136" OR _
+		worker_county_code = "x139" THEN
+			script_end_procedure ("Your agency is exempt from ABAWD work requirments through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
+	ElseIF worker_county_code = "x127" THEN
 		Dialog SNAPET_Hennepin_dialog
 		'Hennepin specific information===================================================================================================
 		If worker_county_code = "x127" THEN
@@ -322,15 +330,11 @@ DO
 	worker_county_code = "x111" OR _
 	worker_county_code = "x113" OR _
 	worker_county_code = "x114" OR _
-	worker_county_code = "x115" OR _
 	worker_county_code = "x116" OR _
 	worker_county_code = "x117" OR _
 	worker_county_code = "x124" OR _
-	worker_county_code = "x129" OR _
 	worker_county_code = "x132" OR _
-	worker_county_code = "x133" OR _
 	worker_county_code = "x134" OR _
-	worker_county_code = "x136" OR _
 	worker_county_code = "x148" OR _
 	worker_county_code = "x149" OR _
 	worker_county_code = "x152" OR _
