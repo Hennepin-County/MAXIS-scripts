@@ -791,7 +791,7 @@ EndDialog
   EMWriteScreen "N", 12, 54
 
   EMWritescreen left(current_SSN, 3), 10, 13
-  EMWritescreen right(left(current_SSN, 6), 2), 10, 17
+  EMWritescreen right(left(current_SSN, 5), 2), 10, 17
   EMwritescreen right(current_SSN, 4), 10, 20
   transmit
 
