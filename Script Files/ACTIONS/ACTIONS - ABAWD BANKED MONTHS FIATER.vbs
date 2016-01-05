@@ -160,6 +160,10 @@ call HH_member_custom_dialog(HH_member_array)
 
 maxis_background_check
 
+'Needs the elig begin date for proration reasons, collect it from PROG
+call navigate_to_maxis_screen("STAT", "PROG")
+EMReadscreen proration_date, 8, 10, 44
+
 'The following performs case accuracy checks.
 call navigate_to_maxis_screen("ELIG", "FS")
 redim ABAWD_member_array(0)
@@ -568,6 +572,12 @@ gross_other = 0
 		EMWritescreen ABAWD_months_array(i).deduction_DCEX, 13, 72
 		EMWritescreen ABAWD_months_array(i).deduction_COEX, 14, 72
 		transmit
+		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
+		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
+			transmit
+			transmit
+		END IF
+
 		'Now on FFB2
 		EMWriteScreen "         ", 5, 29
 		EMWriteScreen "         ", 6, 29
@@ -581,6 +591,12 @@ gross_other = 0
 		EMWritescreen ABAWD_months_array(i).HEST_elect, 8, 29
 		EMWritescreen ABAWD_months_array(i).HEST_heat, 9, 29
 		EMWritescreen ABAWD_months_array(i).HEST_phone, 10, 29
+		'this enters the proration date in the initial month'
+		IF footer_month = left(proration_date, 2) THEN
+			EMWriteScreen left(proration_date, 2), 11, 56
+			EMWriteScreen mid(proration_date, 4, 2), 11, 59
+			EMWriteScreen right(proration_date, 2), 11, 62
+		END IF
 		transmit
 		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
