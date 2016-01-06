@@ -407,38 +407,44 @@ IF autofill_cash_check = checked THEN
 			ELSEIF left(prog_to_check, 2) = "DW" THEN
 				'DWP portion
 				call navigate_to_MAXIS_screen("ELIG", "DWP")
-				EMWriteScreen left(right(prog_to_check, 4), 2), 20, 56
-				EMWriteScreen right(prog_to_check, 2), 20, 59
-				EMWRiteScreen "DWSM", 20, 71
-				transmit
-				EMReadScreen cash_approved_version, 8, 3, 3
-				IF cash_approved_version = "APPROVED" THEN
-					EMReadScreen cash_approval_date, 8, 3, 14
-					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen DWP_bene_shel_amt, 8, 13, 73
-						EMReadScreen DWP_bene_pers_amt, 8, 14, 73
-						EMReadScreen current_cash_bene_mo, 2, 20, 56
-						EMReadScreen current_cash_bene_yr, 2, 20, 59
-						DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
-						DWP_bene_pers_amt = replace(DWP_bene_pers_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "DWP_" & DWP_bene_shel_amt & DWP_bene_pers_amt & current_cash_bene_mo & current_cash_bene_yr & " "
-					END IF
-				ELSE
-					EMReadScreen cash_approval_versions, 1, 2, 18
-					IF cash_approval_versions = "1" THEN script_end_procedure("You do not have an approved version of CASH in the selected benefit month. Please approve before running the script.")
-					cash_approval_versions = int(cash_approval_versions)
-					cash_approval_to_check = cash_approval_versions - 1
-					EMWriteScreen cash_approval_to_check, 20, 79
+				'Checking to make sure the script gets into DWP results. If the case is transitioning between DWP and MFIP, ELIG/SUMM will have both showing for that month.
+				row = 1
+				col = 1
+				EMSearch "DWP Eligibility Results", row, col
+				IF row <> 0 THEN 			
+					EMWriteScreen left(right(prog_to_check, 4), 2), 20, 56
+					EMWriteScreen right(prog_to_check, 2), 20, 59
+					EMWRiteScreen "DWSM", 20, 71
 					transmit
-					EMReadScreen cash_approval_date, 8, 3, 14
-					IF cdate(cash_approval_date) = date THEN
-						EMReadScreen DWP_bene_shel_amt, 8, 13, 73
-						EMReadScreen DWP_bene_pers_amt, 8, 14, 73
-						EMReadScreen current_cash_bene_mo, 2, 20, 56
-						EMReadScreen current_cash_bene_yr, 2, 20, 59
-						DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
-						DWP_bene_pers_amt = replace(DWP_bene_pers_amt, " ", "0")
-						cash_approval_array = cash_approval_array & "DWP_" & DWP_bene_shel_amt & DWP_bene_pers_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+					EMReadScreen cash_approved_version, 8, 3, 3
+					IF cash_approved_version = "APPROVED" THEN
+						EMReadScreen cash_approval_date, 8, 3, 14
+						IF cdate(cash_approval_date) = date THEN
+							EMReadScreen DWP_bene_shel_amt, 8, 13, 73
+							EMReadScreen DWP_bene_pers_amt, 8, 14, 73
+							EMReadScreen current_cash_bene_mo, 2, 20, 56
+							EMReadScreen current_cash_bene_yr, 2, 20, 59
+							DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
+							DWP_bene_pers_amt = replace(DWP_bene_pers_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "DWP_" & DWP_bene_shel_amt & DWP_bene_pers_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						END IF
+					ELSE
+						EMReadScreen cash_approval_versions, 1, 2, 18
+						IF cash_approval_versions = "1" THEN script_end_procedure("You do not have an approved version of CASH in the selected benefit month. Please approve before running the script.")
+						cash_approval_versions = int(cash_approval_versions)
+						cash_approval_to_check = cash_approval_versions - 1
+						EMWriteScreen cash_approval_to_check, 20, 79
+						transmit
+						EMReadScreen cash_approval_date, 8, 3, 14
+						IF cdate(cash_approval_date) = date THEN
+							EMReadScreen DWP_bene_shel_amt, 8, 13, 73
+							EMReadScreen DWP_bene_pers_amt, 8, 14, 73
+							EMReadScreen current_cash_bene_mo, 2, 20, 56
+							EMReadScreen current_cash_bene_yr, 2, 20, 59
+							DWP_bene_shel_amt = replace(DWP_bene_shel_amt, " ", "0")
+							DWP_bene_pers_amt = replace(DWP_bene_pers_amt, " ", "0")
+							cash_approval_array = cash_approval_array & "DWP_" & DWP_bene_shel_amt & DWP_bene_pers_amt & current_cash_bene_mo & current_cash_bene_yr & " "
+						END IF
 					END IF
 				END IF
 			END IF
