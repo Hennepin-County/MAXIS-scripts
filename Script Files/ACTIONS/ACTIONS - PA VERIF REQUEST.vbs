@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -71,10 +69,10 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   ButtonGroup ButtonPressed
     OkButton 85, 230, 50, 15
     CancelButton 140, 230, 50, 15
- 
+
   EditBox 50, 15, 25, 15, snap_grant
   EditBox 125, 15, 25, 15, MFIP_food
-  EditBox 155, 15, 25, 15, MFIP_cash  
+  EditBox 155, 15, 25, 15, MFIP_cash
   EditBox 50, 35, 25, 15, MSA_Grant
   EditBox 50, 55, 25, 15, GA_grant
   EditBox 155, 35, 25, 15, MFIP_housing
@@ -89,7 +87,7 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   EditBox 40, 190, 55, 15, completed_by
   EditBox 140, 190, 45, 15, worker_phone
   EditBox 120, 210, 65, 15, worker_signature
-  
+
   Text 5, 15, 40, 15, "SNAP:"
   Text 100, 55, 20, 15, "DWP:"
   Text 5, 75, 40, 15, "Other notes:"
@@ -107,7 +105,7 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   Text 110, 190, 25, 20, "Worker Phone:"
   Text 5, 190, 35, 20, "Completed by:"
   Text 20, 210, 90, 15, "Worker Signature (For case note):"
- 
+
 EndDialog
 
 
@@ -142,13 +140,13 @@ call navigate_to_MAXIS_screen("stat", "memb")
 call HH_member_custom_dialog(HH_member_array)
 
 'Pulling household and worker info for the letter
-call navigate_to_MAXIS_screen("stat", "addr") 
+call navigate_to_MAXIS_screen("stat", "addr")
 EMReadScreen addr_line1, 21, 6, 43
 EMReadScreen addr_line2, 21, 7, 43
 EMReadScreen addr_city, 14, 8, 43
 EMReadScreen addr_state, 2, 8, 66
 EMReadScreen addr_zip, 5, 9, 43
-hh_address = addr_line1 & " " & addr_line2 'Finding and Formatting household address 
+hh_address = addr_line1 & " " & addr_line2 'Finding and Formatting household address
 hh_address_line2 = addr_city & " " & addr_state & " " & addr_zip
 hh_address = replace(hh_address, "_", "") & vbCrLf & replace(hh_address_line2, "_", "")
 
@@ -176,7 +174,7 @@ other_income = earned_income & " " & unearned_income
 
 
 'This function looks for an approved version of elig
-Function approved_version 
+Function approved_version
 	EMReadScreen version, 2, 2, 12
 	For approved = version to 0 Step -1
 	EMReadScreen approved_check, 8, 3, 3
@@ -200,7 +198,7 @@ End Function
 call navigate_to_MAXIS_screen("case", "curr")
   call find_variable("MFIP: ", MFIP_check, 6)
    If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
-		call navigate_to_MAXIS_screen("elig", "mfip")        
+		call navigate_to_MAXIS_screen("elig", "mfip")
 	  	EMReadScreen version, 1, 2, 12 'Reading the version, the for loop finds most recent approved.
 		For approved = version to 0 Step -1
 			EMReadScreen approved_check, 8, 3, 3
@@ -249,7 +247,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	End if
 	If fs_check = "APP CL" then msgbox "SNAP is set to close, please enter amounts manually to avoid errors."
 	If fs_check = "PENDIN" then msgbox "SNAP is pending, please enter amounts manually to avoid errors."
-	
+
 	call find_variable("DWP: ", DWP_check, 6)
 	If DWP_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "dwp")
@@ -275,7 +273,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 		call navigate_to_MAXIS_screen ("case", "curr")
 	 End if
 	If DWP_check = "PENDIN" then msgbox "DWP is pending, please enter amounts manually to avoid errors."
-	
+
 	call find_variable("GA: ", GA_check, 6)
 	If GA_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "GA")
@@ -299,7 +297,7 @@ call navigate_to_MAXIS_screen("case", "curr")
 	End If
 	If GA_check = "APP CL" then msgbox "GA is set to close, please enter amounts manually to avoid errors."
 	If GA_check = "PENDIN" then msgbox "GA is pending, please enter amounts manually to avoid errors."
-	
+
 	call find_variable("MSA: ", MSA_check, 6)
 	If MSA_check = "ACTIVE" then
 		call navigate_to_MAXIS_screen("elig", "msa")
@@ -321,11 +319,11 @@ call navigate_to_MAXIS_screen("case", "curr")
 	End If
 	If MSA_check = "APP CL" then MsgBox "MSA is set to close, please enter amounts manually to avoid errors."
 	If MSA_check = "PENDIN" then MsgBox "MSA is pending, please enter amounts manually to avoid errors."
-	
+
 	call find_variable("Cash: ", cash_check, 6)
 	If cash_check = "PENDIN" then MsgBox "Cash is pending for this household, please explain in additional notes."
-		
-'calling the main dialog	
+
+'calling the main dialog
 Do
 	Dialog PA_verif_dialog
 	cancel_confirmation
@@ -347,8 +345,8 @@ Set objSelection = objWord.Selection
 
 objSelection.Font.Name = "Arial"
 objSelection.Font.Size = "14"
-objSelection.TypeText "Your agency requested information about public assistance from "  
-objSelection.TypeText county_name 
+objSelection.TypeText "Your agency requested information about public assistance from "
+objSelection.TypeText county_name
 objSelection.TypeText " for the following client:"
 objSelection.TypeParagraph()
 objSelection.TypeText client_name
@@ -406,7 +404,7 @@ IF inqd_check = checked THEN
 	start_month = datepart("m", start_date)
 	IF len(start_month) = 1 THEN start_month = "0" & start_month
 	EMWriteScreen start_month, 6, 38
-	EMWriteScreen right(datepart("YYYY", start_date), 2), 6, 41 
+	EMWriteScreen right(datepart("YYYY", start_date), 2), 6, 41
 	transmit
 	output_array = "" 'resetting array
 	row = 6
@@ -420,14 +418,14 @@ IF inqd_check = checked THEN
 		PF8
 		row = 6
 	END IF
-	LOOP 
+	LOOP
 	output_array = split(output_array, "UUDDLRLRBA")
 	FOR EACH line in output_array 'Type the info from array into word doc
 		IF line <> "                                                                                " THEN
 			objSelection.TypeText line & Chr(11)
 		END IF
 	NEXT
-END IF		
+END IF
 
 objSelection.TypeText "Completed By: "
 objSelection.TypeText completed_by
