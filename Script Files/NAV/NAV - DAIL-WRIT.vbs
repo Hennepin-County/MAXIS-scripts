@@ -50,6 +50,12 @@ STATS_manualtime = 10                      'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
+
 'DIALOGS----------------
 BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
   EditBox 95, 0, 60, 15, case_number
