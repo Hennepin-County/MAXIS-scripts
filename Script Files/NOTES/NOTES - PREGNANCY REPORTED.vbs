@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 120          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'THE DIALOG--------------------------------------------------------------------------------------------------
 BeginDialog preg_dialog, 0, 0, 351, 185, "Pregnancy Reported"
   EditBox 95, 5, 80, 15, maxis_case_number
