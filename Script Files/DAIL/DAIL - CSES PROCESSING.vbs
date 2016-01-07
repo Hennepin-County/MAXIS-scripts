@@ -45,7 +45,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Required for statistical purposes==========================================================================================
-STATS_counter = 1              'sets the stats counter at one
+STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.  
 STATS_manualtime = 54          'manual run time in seconds
 STATS_denomination = "I"       'I is for each dail message 
 'END OF stats block==============================================================================================
@@ -151,7 +151,7 @@ Do
   PF3
   MAXIS_row = MAXIS_row + 1
   message_number = message_number + 1
-  STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+  STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter	
 Loop until line_check <> "DISB"
 
 'THE FOLLOWING LINES OF CODE WERE COPIED FROM DAKOTA'S ANDREW FINK, AND MODIFIED FOR OUR PURPOSES - VKC, 10/02/2014
@@ -873,6 +873,7 @@ MsgBox "PRISM checked, no CMI/CMS/CCC obl types indicated on CAFS. The script fi
 'Manually closing workbooks so that the stats script can finish up
 objExcel.Workbooks.Close
 objExcel.quit
+
 
 'ending script
 script_end_procedure("")
