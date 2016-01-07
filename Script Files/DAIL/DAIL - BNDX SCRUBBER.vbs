@@ -64,7 +64,7 @@ END IF
 
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 98          'manual run time in seconds
+STATS_manualtime = 80        'manual run time in seconds
 STATS_denomination = "I"       'I is for each Bndx dail message
 'END OF stats block==============================================================================================
 
