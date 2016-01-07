@@ -46,6 +46,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 15                      'manual run time in seconds
+STATS_denomination = "I"                   'I is for each ITEM
+'END OF stats block=========================================================================================================
 
 BeginDialog search_dialog, 0, 0, 186, 135, "Client Look Up"
   EditBox 120, 10, 55, 15, phone_look_up
@@ -223,6 +228,7 @@ FOR EACH case_number in case_number_array
 
 	
 	END IF
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 NEXT
 
 script_end_procedure(phone_look_up & " was not found in selected REPT. Feel free to try another REPT list, change your footer month, or verify that the number you entered is correct")
