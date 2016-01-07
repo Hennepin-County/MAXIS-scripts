@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 69                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
 BeginDialog check_snap_dlg, 0, 0, 166, 80, "Check SNAP for GA/RCA"
   EditBox 105, 10, 50, 15, worker_number
   CheckBox 15, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
@@ -92,11 +98,10 @@ ELSE
 	worker_array = split(worker_number, ", ")
 END IF
 
-
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker, case number, and name
@@ -125,12 +130,13 @@ FOR EACH worker IN worker_array
 			EMReadScreen cash_status, 1, rept_actv_row, 54
 			EMReadScreen cash_prog, 2, rept_actv_row, 51
 			EMReadScreen client_name, 20, rept_actv_row, 21
-			IF snap_status = "A" AND cash_status = "A" AND (cash_prog = "RC" OR cash_prog = "GA") THEN 
+			IF snap_status = "A" AND cash_status = "A" AND (cash_prog = "RC" OR cash_prog = "GA") THEN
 				case_array = case_array & case_number & " "
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = case_number
 				objExcel.Cells(excel_row, 3).Value = client_name
 				excel_row = excel_row + 1
+				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 			END IF
 			rept_actv_row = rept_actv_row + 1
 		LOOP UNTIL rept_actv_row = 19
@@ -157,7 +163,7 @@ FOR EACH case_number IN case_array
 	version = trim(version)
 	version = version - 1
 	IF len(version) <> 2 THEN version = "0" & version
-	IF approved <> "APPROVED" THEN 
+	IF approved <> "APPROVED" THEN
 		EMWriteScreen version, 19, 78
 		transmit
 	END IF
@@ -184,7 +190,7 @@ FOR EACH case_number IN case_array
 		version = trim(version)
 		version = version - 1
 		IF len(version) <> 2 THEN version = "0" & version
-		IF approved <> "APPROVED" THEN 
+		IF approved <> "APPROVED" THEN
 			EMWriteScreen version, 20, 78
 			transmit
 		END IF
@@ -215,16 +221,16 @@ FOR EACH case_number IN case_array
 		version = trim(version)
 		version = version - 1
 		IF len(version) <> 2 THEN version = "0" & version
-		IF approved <> "APPROVED" THEN 
+		IF approved <> "APPROVED" THEN
 			EMWriteScreen version, 19, 78
 			transmit
 		END IF
 			EMWriteScreen "RCSM", 19, 70
 		transmit
-	
+
 		CALL find_variable("Grant Amount..............$", rca_amount, 10)
 		rca_amount = trim(rca_amount)
-		IF pa_amount <> rca_amount THEN 
+		IF pa_amount <> rca_amount THEN
 			CALL navigate_to_screen("STAT", "REVW")
 			ERRR_screen_check
 			EMReadScreen cash_revw_date, 8, 9, 37
@@ -243,7 +249,7 @@ FOR EACH case_number IN case_array
 	ELSEIF cash_prog = "SET TO CLOSE" THEN
 		objExcel.Cells(excel_row, 4).Value = ("CASH set to close")
 	END IF
-	
+
 	excel_row = excel_row + 1
 
 NEXT

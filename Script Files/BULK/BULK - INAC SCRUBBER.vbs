@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 169                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
 'THE FOLLOWING VARIABLE IS DYNAMICALLY DETERMINED BY THE PRESENCE OF DATA IN CLS_x1_number. IT WILL BE ADDED DYNAMICALLY TO THE DIALOG BELOW.
 If CLS_x1_number <> "" then CLS_dialog_string = "**This script will XFER cases in REPT/INAC to " & CLS_x1_number & ".**"
 
@@ -67,14 +73,13 @@ BeginDialog INAC_scrubber_dialog, 0, 0, 211, 165, "INAC scrubber dialog"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Shows the dialog, requires 3 digits for worker number, a worker signature, a footer_month and year. Contains developer mode to bypass case noting and XFERing.
 Do
 	Do
 		Do
 			Dialog INAC_scrubber_dialog
 			If buttonpressed = cancel then stopscript
-			If worker_signature = "UUDDLRLRBA" then 
+			If worker_signature = "UUDDLRLRBA" then
 				MsgBox "Developer mode enabled. Will bypass XFER and case note functions."
 				worker_signature = ""
 				developer_mode = True
@@ -177,12 +182,12 @@ If word_warning = vbCancel then stopscript
 'Before creating the Word document, we create an Excel spreadsheet that runs behind the scenes to collect the case numbers. It's easier to work off of an Excel spreadsheet than an array (for debugging purposes). An array would be faster, however.
 
 'Loads Excel document for developer_mode only
-If developer_mode = True then 
+If developer_mode = True then
 	Set objExcel = CreateObject("Excel.Application")
 	objExcel.Visible = True
-	Set objWorkbook = objExcel.Workbooks.Add() 
+	Set objWorkbook = objExcel.Workbooks.Add()
 	objExcel.DisplayAlerts = True
-	
+
 	'Assigning values to the Excel spreadsheet.
 	ObjExcel.Cells(1, 1).Value = "MAXIS number"
 	ObjExcel.Cells(1, 2).Value = "Name"
@@ -203,10 +208,6 @@ objselection.typetext "Case numbers with active claims: "
 objselection.TypeParagraph()
 objselection.TypeParagraph()
 
-
-
-
-
 'Setting the variable for the do...loop.
 MAXIS_row = 7 'This sets the variable for the following do...loop.
 
@@ -217,12 +218,12 @@ Do
 		EMReadScreen client_name, 25, MAXIS_row, 14
 		EMReadScreen inac_date, 8, MAXIS_row, 49
 		EMReadScreen appl_date, 8, MAXIS_row, 39
-		case_number = Trim(case_number)                    'Then it trims the spaces from the edges of each. 
+		case_number = Trim(case_number)                    'Then it trims the spaces from the edges of each.
 		client_name = Trim(client_name)
 		inac_date = Trim(inac_date)
 		appl_date = Trim(appl_date)
 		If appl_date <> inac_date then                     'Because if the two dates equal each other, then this is a denial and not a case closure.
-			
+
 			'Adds case info to an array. Uses tildes to differentiate the case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
 			If INAC_info_array = "" then
 				INAC_info_array = case_number & "~" & client_name & "~" & inac_date
@@ -231,9 +232,7 @@ Do
 			End if
 		End if
 		MAXIS_row = MAXIS_row + 1
-		
-		
-		
+
 	Loop until MAXIS_row = 19
 	MAXIS_row = 7 'Setting the variable for when the do...loop restarts
 	PF8
@@ -256,7 +255,7 @@ For x = 0 to total_cases
 	INAC_scrubber_primary_array(x, 0) = interim_array(0)	'The case_number
 	INAC_scrubber_primary_array(x, 1) = interim_array(1)	'The client_name
 	INAC_scrubber_primary_array(x, 2) = interim_array(2)	'The inac_date
-	If developer_mode = True then 
+	If developer_mode = True then
 		ObjExcel.Cells(x + 2, 1).Value = INAC_scrubber_primary_array(x, 0)
 		ObjExcel.Cells(x + 2, 2).Value = INAC_scrubber_primary_array(x, 1)
 		ObjExcel.Cells(x + 2, 3).Value = INAC_scrubber_primary_array(x, 2)
@@ -267,7 +266,6 @@ Next
 EMWriteScreen "CCOL", 20, 22
 EMWriteScreen "CLIC", 20, 70
 transmit
-
 
 'Grabs any claims due for each case. Adds to Excel if developer_mode = True
 For x = 0 to total_cases
@@ -286,9 +284,9 @@ For x = 0 to total_cases
 	case_number = INAC_scrubber_primary_array(x, 0)
 	client_name = INAC_scrubber_primary_array(x, 1)
 	claims_due = INAC_scrubber_primary_array(x, 3)
-	
+
 	'If there's a claim due, it'll add to the Word doc
-	If claims_due <> 0 then 
+	If claims_due <> 0 then
 		objselection.typetext case_number & ": " & client_name & "; amount due: $" & claims_due
 		objselection.TypeParagraph()
 	End if
@@ -298,8 +296,6 @@ Next
 back_to_SELF
 call navigate_to_MAXIS_screen("DAIL", "DAIL")
 
-
-
 'This checks the DAIL for messages, sends a variable to the array. We don't transfer cases with DAIL messages. (True for "has DAIL", False for "doesn't have DAIL")
 For x = 0 to total_cases
 	case_number = INAC_scrubber_primary_array(x, 0)		'Grabbing case number
@@ -307,13 +303,14 @@ For x = 0 to total_cases
 	EMWriteScreen case_number, 20, 38
 	transmit
 	EMReadScreen DAIL_check, 1, 5, 5
-	If DAIL_check <> " " then 
+	If DAIL_check <> " " then
 		INAC_scrubber_primary_array(x, 4) = True
 	Else
 		INAC_scrubber_primary_array(x, 4) = False
 	End if
 	If developer_mode = True then ObjExcel.Cells(x + 2, 5).Value = INAC_scrubber_primary_array(x, 4)
 	excel_row = excel_row + 1
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 Next
 
 'Making the header for the next section of the Word document.
@@ -324,38 +321,38 @@ objselection.TypeParagraph()
 
 'This do...loop goes into STAT, grabs PMIs for MEMB types 01, 02, 03, 04, and 18, and then navigates to ABPS to get that info.
 For x = 0 to total_cases
-	
+
 	'Grabbing case number and name for this loop
-	case_number = INAC_scrubber_primary_array(x, 0)	
-	client_name = INAC_scrubber_primary_array(x, 1)	
-	
+	case_number = INAC_scrubber_primary_array(x, 0)
+	client_name = INAC_scrubber_primary_array(x, 1)
+
 	'Gets to MEMB
 	call navigate_to_MAXIS_screen("STAT", "MEMB")
-	
+
 	'Checks to make sure we're past SELF. If we aren't, it'll save that the case is privileged (most likely cause) in the array.
 	EMReadScreen SELF_check, 4, 2, 50
-	If SELF_check = "SELF" then 
+	If SELF_check = "SELF" then
 		INAC_scrubber_primary_array(x, 7) = True		'If it's privileged, it won't get past SELF. If so, it'll enter a True value in the array.
 	Else
 		INAC_scrubber_primary_array(x, 7) = False		'If it gets through, it isn't privileged.
-		
+
 		'Reads the PMI number for each 01, 02, 03, 04, and 18 (dependents). Stores it to a variable called "PMI array", which will be added to the main array (and split later).
 		Do
 			EMReadScreen PMI_number, 8, 4, 46
 			EMReadScreen rel_to_applicant, 2, 10, 42
 			If rel_to_applicant = "01" or rel_to_applicant = "02" or rel_to_applicant = "03" or rel_to_applicant = "04" or rel_to_applicant = "18" then
-				If PMI_array = "" then 
+				If PMI_array = "" then
 					PMI_array = trim(PMI_number)
 				Else
 					PMI_array = PMI_array & "|" & trim(PMI_number)
 				End if
-				
+
 			End if
 			transmit
 			EMReadScreen no_more_MEMBs_check, 31, 24, 2
 			INAC_scrubber_primary_array(x, 6) = PMI_array		'Writes the PMI array to the main array
 		Loop until no_more_MEMBs_check = "ENTER A VALID COMMAND OR PF-KEY"
-		
+
 		'Goes to ABPS to check good cause. Good cause will not hang the case from being sent to CLS, as such, it does not get entered in the array (just the Word doc).
 		call navigate_to_MAXIS_screen("STAT", "ABPS")
 		EMReadScreen good_cause_check, 1, 5, 47
@@ -364,7 +361,7 @@ For x = 0 to total_cases
 			objselection.TypeParagraph()
 		End if
 	End if
-	If developer_mode = True then 
+	If developer_mode = True then
 		ObjExcel.Cells(x + 2, 8).Value = INAC_scrubber_primary_array(x, 7)		'Writes privileged status to Excel when developer_mode is on
 		ObjExcel.Cells(x + 2, 7).Value = INAC_scrubber_primary_array(x, 6)		'Writes PMI array to Excel when developer_mode is on
 	End if
@@ -372,23 +369,22 @@ For x = 0 to total_cases
 Next
 
 'MMIS--------------------------------------------------------------------------------------------------------------
-
 'The following checks for which screen MMIS is running on.
 attn
 EMReadScreen MMIS_A_check, 7, MMIS_MDHS_row, 15
-IF MMIS_A_check = "RUNNING" then 
+IF MMIS_A_check = "RUNNING" then
 	EMSendKey MMIS_number
 	transmit
 End if
-IF MMIS_A_check <> "RUNNING" then 
+IF MMIS_A_check <> "RUNNING" then
 	attn
 	EMConnect "B"
 	attn
 	EMReadScreen MMIS_B_check, 7, MMIS_MDHS_row, 15
-	If MMIS_B_check <> "RUNNING" then 
+	If MMIS_B_check <> "RUNNING" then
 		script_end_procedure("MMIS does not appear to be running. This script will now stop.")
 	End if
-	If MMIS_B_check = "RUNNING" then 
+	If MMIS_B_check = "RUNNING" then
 		EMSendKey MMIS_number
 		transmit
 	End if
@@ -398,7 +394,7 @@ End if
 EMFocus
 
 'Sending MMIS back to the beginning screen and checking for a password prompt
-Do 
+Do
 	PF6
 	EMReadScreen password_prompt, 38, 2, 23
 	IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
@@ -411,7 +407,7 @@ transmit
 transmit
 
 'Finding the right MMIS, if needed, by checking the header of the screen to see if it matches the security group selector
-EMReadScreen MMIS_security_group_check, 21, 1, 35 
+EMReadScreen MMIS_security_group_check, 21, 1, 35
 If MMIS_security_group_check = "MMIS MAIN MENU - MAIN" then
 	EMSendKey "x"
 	transmit
@@ -430,18 +426,18 @@ EMWriteScreen "i", 2, 19
 'This for...next enters a PMI for each HH member and gets their program status in MMIS.
 For x = 0 to total_cases
 	'Grabs MAXIS_case_number and PMI_array from the main array
-	MAXIS_case_number = INAC_scrubber_primary_array(x, 0)		
+	MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 	PMI_array = INAC_scrubber_primary_array(x, 6)
 	privileged_status = INAC_scrubber_primary_array(x, 7)
-		
+
 	'Splits the PMI_array from the main array into an actual array, which will be used by the script.
 	PMI_array = split(PMI_array, "|")
-		
+
 	'Checks each PMI in MMIS for discrepancies. Skips cases with no PMI (privileged cases).
 	For each PMI in PMI_array
-		If privileged_status = False then 
+		If privileged_status = False then
 			If len(PMI) < 8 then 'This will generate an 8 digit PMI.
-				Do 
+				Do
 					PMI = "0" & PMI
 				Loop until len(PMI) = 8
 			End if
@@ -451,25 +447,25 @@ For x = 0 to total_cases
 			transmit
 			EMReadScreen MMIS_case_status, 1, 7, 62
 			If len(MAXIS_case_number) < 8 then 'This will generate an 8 digit MAXIS case number.
-				Do 
+				Do
 					MAXIS_case_number = "0" & MAXIS_case_number
 				Loop until len(MAXIS_case_number) = 8
 			End if
 			EMReadScreen MMIS_case_number, 8, 6, 73
-			
+
 			'Checks for active/pending cases. Shows "True" for MMIS is active, and "False" for MMIS is not active.
 			'It considers IMA cases (cases which start with a 25) to be connected to MAXIS (we don't want to lose these cases), and will exclude them from the MAXIS pieces.
 			'If it's closed/denied (C or D), if there's no end date, it'll consider it connected to MAXIS (discrepancy handling)
 			If MMIS_case_status = "A" or MMIS_case_status = "P" then
-				If isnumeric(MMIS_case_number) = False or (MMIS_case_number = MAXIS_case_number) or left(MMIS_case_number, 2) = "25" then 
+				If isnumeric(MMIS_case_number) = False or (MMIS_case_number = MAXIS_case_number) or left(MMIS_case_number, 2) = "25" then
 					INAC_scrubber_primary_array(x, 5) = True
 				End if
 			ElseIf MMIS_case_status = "C" or MMIS_case_status = "D" then
 				EMReadScreen elig_end_date, 8, 7, 36
-				If elig_end_date = "99/99/99" then 
+				If elig_end_date = "99/99/99" then
 					INAC_scrubber_primary_array(x, 5) = True
 				Else		'Allows for cases that are closing next month
-					If datediff("m", elig_end_date, now) < 1 and (isnumeric(MMIS_case_number) = False or MMIS_case_number = MAXIS_case_number) then 
+					If datediff("m", elig_end_date, now) < 1 and (isnumeric(MMIS_case_number) = False or MMIS_case_number = MAXIS_case_number) then
 						INAC_scrubber_primary_array(x, 5) = True
 					End if
 				End if
@@ -484,16 +480,16 @@ Next
 'The following checks for which screen MAXIS is running on.
 EMConnect "A"
 attn
-EMReadScreen MAXIS_A_check, 7, MAXIS_MDHS_row, 15 
-IF MAXIS_A_check = "RUNNING" then 
+EMReadScreen MAXIS_A_check, 7, MAXIS_MDHS_row, 15
+IF MAXIS_A_check = "RUNNING" then
 	EMSendKey MAXIS_number
 	transmit
 End if
-IF MAXIS_A_check <> "RUNNING" then 
+IF MAXIS_A_check <> "RUNNING" then
 	attn
 	EMConnect "B"
 	EMReadScreen MAXIS_B_check, 7, MAXIS_MDHS_row, 15
-	If MAXIS_B_check <> "RUNNING" then 
+	If MAXIS_B_check <> "RUNNING" then
 		script_end_procedure("MAXIS does not appear to be running. This script will now stop.")
 	Else
 		EMSendkey MAXIS_number
@@ -557,10 +553,10 @@ For x = 0 to total_cases
 	DAILS_out = INAC_scrubber_primary_array(x, 4)
 	MMIS_status = INAC_scrubber_primary_array(x, 5)
 	privileged_status = INAC_scrubber_primary_array(x, 7)
-	
+
 	'Gets back to SELF (SPEC/XFER gets wonky sometimes, this is safer than using the function)
 	back_to_SELF
-	
+
 	'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll SPEC/XFER
 	If privileged_status <> True and DAILS_out = False and MMIS_status = False then
 		EMWriteScreen "SPEC", 16, 43
@@ -572,7 +568,7 @@ For x = 0 to total_cases
 			EMWriteScreen "x", 7, 16
 			transmit
 			PF9
-			EMWriteScreen CLS_x1_number, 18, 61		
+			EMWriteScreen CLS_x1_number, 18, 61
 			transmit
 		Else
 			MsgBox "Case would be XFERed to " & CLS_x1_number & ""

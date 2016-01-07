@@ -44,6 +44,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 36                               'manual run time in seconds
+STATS_denomination = "I"       'I is for each Item
+'END OF stats block==============================================================================================
+
+'Dialog
 BeginDialog x_dlg, 0, 0, 176, 140, "x1 Number"
   EditBox 55, 45, 65, 15, x_number
   CheckBox 20, 65, 140, 10, "Check here to run for the entire county.", all_workers_check
@@ -57,22 +64,20 @@ EndDialog
 'Custom function----------------------------------------------------------------------------------------------------
 FUNCTION find_MAXIS_worker_number(x_number)
 	EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
-	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates				
+	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates
 		EMReadScreen x_number, 7, 22, 8
 	ELSE
 		Call find_variable("PW: ", x_number, 7)	'if not, then the PW: variable is searched to find the worker #
 		If isnumeric(MAXIS_worker_number) = true then 	 'making sure that the worker # is a number
 			MAXIS_worker_number = x_number				'delcares the MAXIS_worker_number to be the x_number
-		End if	
+		End if
 	END if
 END FUNCTION
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
 
 CALL check_for_MAXIS(True)
-
 Call find_MAXIS_worker_number(x_number)
 
 'Shows dialog
@@ -85,7 +90,6 @@ DO
 	LOOP until x_number <> "" OR all_workers_check = 1
 	If x_number <> "" and all_workers_check = 1 THEN MsgBox "You need to enter your worker number OR check to run the entire agency, not both options."
 LOOP until (x_number = "" AND all_workers_check = 1) OR (x_number <> "" AND all_workers_check = 0)
-
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -109,7 +113,7 @@ End if
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Creating columns
@@ -159,10 +163,10 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			
+
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 
@@ -181,7 +185,7 @@ For each worker in worker_array
 				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
-			
+
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
@@ -190,14 +194,14 @@ excel_row = 2
 Do
 	'Assign case number from Excel
 	case_number = ObjExcel.Cells(excel_row, 2)
-	
+
 	'Exiting if the case number is blank
 	If case_number = "" then exit do
 
 	'Navigate to stat/addr to grab address
 	call navigate_to_MAXIS_screen("STAT", "ADDR")
 	EMReadScreen priv_check, 4, 2, 50
-	If priv_check = "SELF" then 
+	If priv_check = "SELF" then
 		objExcel.Cells(excel_row, 4) = "Privileged"
 	Else
 		'Reading and cleaning up Residence address
@@ -222,7 +226,7 @@ Do
 		mailing_city = replace(mailing_city, "_", "")
 		mailing_State = replace(mailing_State, "_", "")
 		mailing_Zip_code = replace(mailing_Zip_code, "_", "")
-		'Writing both addresses into excel 
+		'Writing both addresses into excel
 		objExcel.Cells(excel_row, 4) = addr_line_1
 		objExcel.Cells(excel_row, 5) = addr_line_2
 		objExcel.Cells(excel_row, 6) = city
@@ -234,7 +238,7 @@ Do
 		objExcel.Cells(excel_row, 12) = mailing_State
 		objExcel.Cells(excel_row, 13) = mailing_Zip_code
 	End IF
-	
+
 	'Clearing variables for next loop.
 	addr_line_1 = ""
 	addr_line_2 = ""
@@ -246,17 +250,17 @@ Do
 	mailing_city = ""
 	mailing_State = ""
 	mailing_Zip_code = ""
-	
-	excel_row = excel_row + 1
 
+	excel_row = excel_row + 1
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 Loop until case_number = ""
-	
+
 'formatting excel columns to fit
 FOR i = 1 to 13
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-'making excel document visible. 
+'making excel document visible.
 objExcel.Visible = True
 
 script_end_procedure("Success!!")

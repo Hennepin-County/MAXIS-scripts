@@ -44,7 +44,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 39                      'manual run time in seconds
+STATS_denomination = "C"      						 'C is for each CASE
+'END OF stats block==============================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog pull_cases_into_excel_dialog, 0, 0, 176, 105, "Pull cases into Excel dialog"
@@ -58,7 +62,6 @@ BeginDialog pull_cases_into_excel_dialog, 0, 0, 176, 105, "Pull cases into Excel
   Text 10, 30, 145, 10, "* Enter 7-digit worker number ONLY."
 EndDialog
 
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to BlueZone
 EMConnect ""
@@ -69,9 +72,8 @@ DIALOG pull_cases_into_excel_dialog
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
-
 
 'Setting the first 3 col as worker, case number, and name
 ObjExcel.Cells(1, 1).Value = "X Number"
@@ -98,9 +100,9 @@ excel_row = 2
 If all_workers_check = 1 then
 	CALL create_array_of_all_active_x_numbers_in_county(x_array, right(worker_county_code, 2))
 Else
-	IF len(x_number) > 3 THEN 
+	IF len(x_number) > 3 THEN
 		x_array = split(x_number, ", ")
-	ELSE		
+	ELSE
 		x_array = split(x_number)
 	END IF
 End if
@@ -115,7 +117,7 @@ For each worker in x_array
 		EMReadScreen user_id, 7, 21, 71
 		EMReadScreen check_worker, 7, 21, 13
 		IF user_id = check_worker THEN PF7
-	
+
 		'Grabbing each case number on screen
 		Do
 			MAXIS_row = 7
@@ -138,13 +140,13 @@ For each worker in x_array
 next
 
 'Resetting excel_row variable, now we need to start looking people up
-excel_row = 2 
+excel_row = 2
 
-Do 
+Do
 	case_number = ObjExcel.Cells(excel_row, 2).Value
 	If case_number = "" then exit do
 	call navigate_to_MAXIS_screen("STAT", "PDED")
-	
+
 	' >>>>> DETERMINING THE PEOPLE IN THE HOUSEHOLD FOR WHICH TO BE CHECKING THE PDED <<<<<
 	pded_hh_array = ""
 	pded_row = 5
@@ -162,10 +164,10 @@ Do
 	pded_hh_array = split(pded_hh_array)
 
 	FOR EACH hh_memb IN pded_hh_array
-		IF hh_memb <> "" THEN 
+		IF hh_memb <> "" THEN
 			CALL write_value_and_transmit(hh_memb, 20, 76)
 			EMReadScreen num_of_PDED, 1, 2, 78
-			IF num_of_PDED <> "0" THEN 
+			IF num_of_PDED <> "0" THEN
 			  ' >>>>> Reading the values <<<<<
 				EMReadScreen pickle_disregard, 1, 6, 60
 				EMReadScreen dac_disregard, 1, 8, 60
@@ -174,37 +176,37 @@ Do
 				EMReadScreen guard_fee, 8, 15, 44
 				EMReadScreen payee_fee, 8, 15, 70
 				EMReadScreen shel_spec_need, 1, 18, 78
-				
+
 				' >>>>> Populating Excel <<<<<
-				IF pickle_disregard = "1" THEN 
+				IF pickle_disregard = "1" THEN
 					objExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & hh_memb & " - Pickle Elig; "
-				ELSEIF pickle_disregard = "2" THEN 
+				ELSEIF pickle_disregard = "2" THEN
 					objExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & hh_memb & " - Potential Pickle Elig; "
 				END IF
-				
+
 				IF dac_disregard = "Y" THEN objExcel.Cells(excel_row, 6).Value = objExcel.Cells(excel_row, 6).Value & hh_memb & " - YES; "
-				
+
 				unea_inc_disregard = replace(unea_inc_disregard, "_", "")
 				unea_inc_disregard = trim(unea_inc_disregard)
 				IF unea_inc_disregard <> "" THEN objExcel.Cells(excel_row, 7).Value = objExcel.Cells(excel_row, 7).Value & hh_memb & " (" & unea_inc_disregard & ")" & "; "
-				
+
 				earn_inc_disregard = replace(earn_inc_disregard, "_", "")
 				earn_inc_disregard = trim(earn_inc_disregard)
 				IF earn_inc_disregard <> "" THEN objExcel.Cells(excel_row, 8).Value = objExcel.Cells(excel_row, 8).Value & hh_memb & " (" & earn_inc_disregard & ")" & "; "
-				
+
 				guard_fee = replace(guard_fee, "_", "")
 				guard_fee = trim(guard_fee)
 				IF guard_fee <> "" THEN objExcel.Cells(excel_row, 9).Value = objExcel.Cells(excel_row, 9).Value & hh_memb & " (" & guard_fee & ")" & "; "
-				
+
 				payee_fee = replace(payee_fee, "_", "")
 				payee_fee = trim(payee_fee)
 				IF payee_fee <> "" THEN objExcel.Cells(excel_row, 10).Value = objExcel.Cells(excel_row, 10).Value & hh_memb & " (" & payee_fee & ")" & "; "
-				
+
 				IF shel_spec_need = "Y" THEN objExcel.Cells(excel_row, 11).Value = objExcel.Cells(excel_row, 11).Value & hh_memb & " - YES; "
 			END IF
 		END IF
 	NEXT
-	
+
 	' >>>>> Deleting blank rows <<<<<
 	IF objExcel.Cells(excel_row, 5).Value = "" AND _
 		objExcel.Cells(excel_row, 6).Value = "" AND _
@@ -212,13 +214,14 @@ Do
 		objExcel.Cells(excel_row, 8).Value = "" AND _
 		objExcel.Cells(excel_row, 9).Value = "" AND _
 		objExcel.Cells(excel_row, 10).Value = "" AND _
-		objExcel.Cells(excel_row, 11).Value = "" THEN 
+		objExcel.Cells(excel_row, 11).Value = "" THEN
 			SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 			objRange.Delete
 			excel_row = excel_row - 1
-	END IF	
-	
+	END IF
+
 	excel_row = excel_row + 1
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 Loop until case_number = ""
 
 FOR i = 1 to 11

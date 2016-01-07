@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 301, 120, "Pull REPT data into Excel dialog"
   EditBox 155, 20, 140, 15, worker_number
@@ -62,10 +68,8 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 301, 120, "Pull REPT data in
   Text 10, 60, 35, 10, "Year (YY):"
 EndDialog
 
-
 'THE SCRIPT----------------------------------------------------------------------------------
-
-'inserting month - 1 into footer month section as this is likely the most commonly needed inac month. 
+'inserting month - 1 into footer month section as this is likely the most commonly needed inac month.
 inac_month = datepart("m", dateadd("m", -1, date))
 inac_year = right(dateadd("m", -1, date), 2)
 If len(inac_month) = 1 then inac_month = "0" & inac_month
@@ -90,7 +94,7 @@ Call check_for_MAXIS(false)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker, case number, and name
@@ -143,7 +147,7 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 3			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 14		'Reading client name
 				EMReadScreen appl_date, 8, MAXIS_row, 39		'Reading appl date
@@ -156,7 +160,7 @@ For each worker in worker_array
 				If case_number = "        " then exit do			'Exits do if we reach the end
 
 				'Adding the case to Excel
-				If case_numer <> "        " then 
+				If case_numer <> "        " then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -172,8 +176,8 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 next
-
 
 'Query date/time/runtime info
 objExcel.Cells(1, 6).Font.Bold = TRUE

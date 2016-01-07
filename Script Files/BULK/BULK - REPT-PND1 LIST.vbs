@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-------------------------------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT PND1 data into Excel dialog"
   EditBox 150, 20, 130, 15, worker_number
@@ -58,7 +64,6 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT PND1 da
 EndDialog
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
-
 'Determining specific county for multicounty agencies...
 CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
 
@@ -78,9 +83,8 @@ Call check_for_MAXIS(True)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
-
 
 'Setting the first 4 col as worker, case number, name, and APPL date
 ObjExcel.Cells(1, 1).Value = "WORKER"
@@ -134,7 +138,7 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 3			'Reading case number
 				EMReadScreen client_name, 25, MAXIS_row, 13		'Reading client name
 				EMReadScreen appl_date, 8, MAXIS_row, 41		      'Reading application date
@@ -147,7 +151,7 @@ For each worker in worker_array
 				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
 
 				If case_number = "        " then exit do			'Exits do if we reach the end
-				
+
 				ObjExcel.Cells(excel_row, 1).Value = worker
 				ObjExcel.Cells(excel_row, 2).Value = case_number
 				ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -166,10 +170,10 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 next
 
 'col_to_use is normally used for setting a variable amount of columns. PND1, however, always uses the same amount. I'm setting it as a firm variable here, but this could just as easily include a "col_to_use = col_to_use + 2", like in the PND2 script. -VKC, 01/12/2015
-
 col_to_use = 10
 
 'Query date/time/runtime info

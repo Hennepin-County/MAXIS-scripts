@@ -44,8 +44,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 28                      'manual run time in seconds
+STATS_denomination = "I"       						 'I is for each ITEM
+'END OF stats block==============================================================================================
 
 '=====FUNCTIONS=====
 FUNCTION build_hh_array(hh_array)
@@ -53,7 +56,7 @@ FUNCTION build_hh_array(hh_array)
 	panel_row = 5
 	DO
 		EMReadScreen hh_member, 2, panel_row, 3
-		IF hh_member <> "  " THEN 
+		IF hh_member <> "  " THEN
 			hh_array = hh_array & hh_member & ","
 			panel_row = panel_row + 1
 		END IF
@@ -98,18 +101,18 @@ DO
 	DIALOG panel_update_check_dlg
 		cancel_confirmation
 		IF time_period = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select a date range for the script to analyze."
-	
+
 	'Breaking down the workers_list to determine if the user entered multiple workers or if the script is going to be run for just one worker.
-	IF InStr(workers_list, ",") <> 0 THEN 
+	IF InStr(workers_list, ",") <> 0 THEN
 		workers_list = replace(workers_list, " ", "")
 		workers_list = split(workers_list, ",")
-	ELSEIF InStr(workers_list, ",") = 0 THEN 
+	ELSEIF InStr(workers_list, ",") = 0 THEN
 		'multiple_workers = split(workers_list)
 		workers_list = split(workers_list)
 	END IF
-	
+
 	'>>>>> ADDING TO err_msg IF THE USER SELECTS NO STAT PANELS. <<<<<
-	IF JOBS_checkbox = 0 AND _ 
+	IF JOBS_checkbox = 0 AND _
 		UNEA_checkbox = 0 AND _
 		BUSI_checkbox = 0 AND _
 		RBIC_checkbox = 0 AND _
@@ -120,78 +123,78 @@ DO
 		SHEL_checkbox = 0 AND _
 		WKEX_checkbox = 0 THEN err_msg = err_msg & vbCr & "* You must select at least one STAT panel to check."
 
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
 '>>>>> EXECUTING THE PANEL UPDATE SEARCH FOR EACH WORKER <<<<<
 FOR EACH maxis_worker IN workers_list
-	IF maxis_worker <> "" THEN 
+	IF maxis_worker <> "" THEN
 		'>>>>> CREATING A UNIQUE EXCEL FILE <<<<<
 		Set objExcel = CreateObject("Excel.Application")
 		objExcel.Visible = True
-		Set objWorkbook = objExcel.Workbooks.Add() 
+		Set objWorkbook = objExcel.Workbooks.Add()
 		objExcel.DisplayAlerts = True
-		
+
 		'>>>>> SETTING EXCEL HEADERS
 		objExcel.Cells(1, 1).Value = "X NUMBER"
 		objExcel.Cells(1, 2).Value = "CASE NUMBER"
 		objExcel.Cells(1, 3).Value = "CLIENT NAME"
 		col_to_use = 4
-		IF JOBS_checkbox = 1 THEN 
+		IF JOBS_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "JOBS"
 			JOBS_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF UNEA_checkbox = 1 THEN 
+		IF UNEA_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "UNEA"
 			UNEA_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF BUSI_checkbox = 1 THEN 
+		IF BUSI_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "BUSI"
 			BUSI_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF RBIC_checkbox = 1 THEN 
+		IF RBIC_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "RBIC"
 			RBIC_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF SPON_checkbox = 1 THEN 
+		IF SPON_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "SPON"
 			SPON_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF COEX_checkbox = 1 THEN 
+		IF COEX_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "COEX"
 			COEX_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF DCEX_checkbox = 1 THEN 
+		IF DCEX_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "DCEX"
 			DCEX_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF HEST_checkbox = 1 THEN 
+		IF HEST_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "HEST"
 			HEST_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF SHEL_checkbox = 1 THEN 
+		IF SHEL_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "SHEL"
 			SHEL_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		IF WKEX_checkbox = 1 THEN 
+		IF WKEX_checkbox = 1 THEN
 			objExcel.Cells(1, col_to_use).Value = "WKEX"
 			WKEX_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
-		
+
 		FOR i = 1 TO col_to_use
 			objExcel.Cells(1, i).Font.Bold = True
 		NEXT
-		
+
 		objExcel.Columns(col_to_use).ColumnWidth = 1
 		objExcel.Columns(col_to_use + 1).ColumnWidth = 1
 		objExcel.Cells(1, col_to_use + 2).Value = "Time Criteria: "
@@ -200,11 +203,11 @@ FOR EACH maxis_worker IN workers_list
 		objExcel.Cells(1, col_to_use + 3).Font.Bold = True
 		objExcel.Columns(col_to_use + 2).AutoFit()
 		objExcel.Columns(col_to_use + 3).AutoFit()
-		
+
 		'>>>>> BUILDING A LIST OF CASE NUMBERS AND CLIENTS <<<<<
 		CALL navigate_to_MAXIS_screen("REPT", "ACTV")
 		EMReadScreen ACTV_Xnumber, 7, 21, 13
-		IF UCase(maxis_worker) <> UCase(ACTV_Xnumber) THEN CALL write_value_and_transmit(maxis_worker, 21, 13)  'if the script transmits on the current worker with their own x# it will skip first page. 
+		IF UCase(maxis_worker) <> UCase(ACTV_Xnumber) THEN CALL write_value_and_transmit(maxis_worker, 21, 13)  'if the script transmits on the current worker with their own x# it will skip first page.
 		excel_row = 2
 		DO
 			rept_row = 7
@@ -214,7 +217,7 @@ FOR EACH maxis_worker IN workers_list
 				case_number = trim(case_number)
 				EMReadScreen client_name, 20, rept_row, 21
 				client_name = trim(client_name)
-				IF case_number <> "" THEN 
+				IF case_number <> "" THEN
 					'>>>>> ADDING WORKER NUMBER, CASE NUMBER, AND CLIENT NAME TO EXCEL <<<<<
 					objExcel.Cells(excel_row, 1).Value = maxis_worker
 					objExcel.Cells(excel_row, 2).Value = case_number
@@ -222,10 +225,10 @@ FOR EACH maxis_worker IN workers_list
 					excel_row = excel_row + 1
 				END IF
 				rept_row = rept_row + 1
-			LOOP UNTIL rept_row = 19 
+			LOOP UNTIL rept_row = 19
 			PF8
 		LOOP UNTIL last_page = "THIS IS THE LAST PAGE"
-		
+
 		'>>>>> GOING BACK THROUGH THE EXCEL LIST TO SEARCH FOR PANEL UPDATE DATE <<<<<
 		excel_row = 2
 		DO
@@ -235,12 +238,12 @@ FOR EACH maxis_worker IN workers_list
 			EMWriteScreen "________", 18, 43
 			EMWriteScreen case_number, 18, 43
 			transmit
-			
+
 			'>>>>> PRIVILEGED CHECK <<<<<
 			row = 1
-			col = 1 
+			col = 1
 			EMSearch "PRIVILEGED", row, col
-			'SELF check protecting against background cases. 
+			'SELF check protecting against background cases.
 			DO
 				EMWriteScreen "STAT", 16, 43
 				EMWriteScreen "________", 18, 43
@@ -249,10 +252,11 @@ FOR EACH maxis_worker IN workers_list
 				EMReadScreen self_check, 4, 2, 50
 				IF row = 24 THEN EXIT DO
 			LOOP until self_check <> "SELF"
-			
-			IF row <> 24 THEN 
-				IF JOBS_checkbox = 1 THEN 
-					EMReadScreen in_stat, 4, 20, 21 
+
+			IF row <> 24 THEN
+				IF JOBS_checkbox = 1 THEN
+				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("JOBS", 20, 71)
 					ELSE
@@ -260,52 +264,56 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(JOBS_array)
 					FOR EACH person IN JOBS_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, JOBS_col).Value = objExcel.Cells(excel_row, JOBS_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, JOBS_col).Value = objExcel.Cells(excel_row, JOBS_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, JOBS_col).Value = objExcel.Cells(excel_row, JOBS_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, JOBS_col).Value = objExcel.Cells(excel_row, JOBS_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, JOBS_col).Value = objExcel.Cells(excel_row, JOBS_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
 				END IF
-				IF UNEA_checkbox = 1 THEN 
+				IF UNEA_checkbox = 1 THEN
+				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("UNEA", 20, 71)
 					ELSE
 						CALL navigate_to_MAXIS_screen("STAT", "UNEA")
-					END IF				
+					END IF
 					CALL build_hh_array(UNEA_array)
 					FOR EACH person IN UNEA_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+						STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, UNEA_col).Value = objExcel.Cells(excel_row, UNEA_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, UNEA_col).Value = objExcel.Cells(excel_row, UNEA_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, UNEA_col).Value = objExcel.Cells(excel_row, UNEA_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, UNEA_col).Value = objExcel.Cells(excel_row, UNEA_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, UNEA_col).Value = objExcel.Cells(excel_row, UNEA_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
-				END IF			
-				IF BUSI_checkbox = 1 THEN 
+				END IF
+				IF BUSI_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("BUSI", 20, 71)
@@ -314,25 +322,27 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(BUSI_array)
 					FOR EACH person IN BUSI_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
-				END IF			
-				IF RBIC_checkbox = 1 THEN 
+				END IF
+				IF RBIC_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("RBIC", 20, 71)
@@ -341,25 +351,27 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(RBIC_array)
 					FOR EACH person IN RBIC_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, RBIC_col).Value = objExcel.Cells(excel_row, RBIC_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, RBIC_col).Value = objExcel.Cells(excel_row, RBIC_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, RBIC_col).Value = objExcel.Cells(excel_row, RBIC_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, RBIC_col).Value = objExcel.Cells(excel_row, RBIC_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, RBIC_col).Value = objExcel.Cells(excel_row, RBIC_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
-				END IF		
-				IF SPON_checkbox = 1 THEN 
+				END IF
+				IF SPON_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("SPON", 20, 71)
@@ -368,25 +380,27 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(SPON_array)
 					FOR EACH person IN SPON_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, SPON_col).Value = objExcel.Cells(excel_row, SPON_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, SPON_col).Value = objExcel.Cells(excel_row, SPON_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, SPON_col).Value = objExcel.Cells(excel_row, SPON_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, SPON_col).Value = objExcel.Cells(excel_row, SPON_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, SPON_col).Value = objExcel.Cells(excel_row, SPON_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
-				END IF 
-				IF COEX_checkbox = 1 THEN 
+				END IF
+				IF COEX_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("COEX", 20, 71)
@@ -395,25 +409,27 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(COEX_array)
 					FOR EACH person IN COEX_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+						 	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, COEX_col).Value = objExcel.Cells(excel_row, COEX_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, COEX_col).Value = objExcel.Cells(excel_row, COEX_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, COEX_col).Value = objExcel.Cells(excel_row, COEX_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, COEX_col).Value = objExcel.Cells(excel_row, COEX_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, COEX_col).Value = objExcel.Cells(excel_row, COEX_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
-				END IF 
-				IF DCEX_checkbox = 1 THEN 
+				END IF
+				IF DCEX_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("DCEX", 20, 71)
@@ -422,25 +438,27 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(DCEX_array)
 					FOR EACH person IN DCEX_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, DCEX_col).Value = objExcel.Cells(excel_row, DCEX_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, DCEX_col).Value = objExcel.Cells(excel_row, DCEX_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, DCEX_col).Value = objExcel.Cells(excel_row, DCEX_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, DCEX_col).Value = objExcel.Cells(excel_row, DCEX_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, DCEX_col).Value = objExcel.Cells(excel_row, DCEX_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
-				END IF 
-				IF HEST_checkbox = 1 THEN 
+				END IF
+				IF HEST_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("HEST", 20, 71)
@@ -449,19 +467,20 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					EMReadScreen updated_date, 8, 21, 55
 					updated_date = replace(updated_date, " ", "/")
-					IF updated_date <> "////////" THEN 
-						IF time_period = "Updated in prev. 30 days" THEN 
+					IF updated_date <> "////////" THEN
+						IF time_period = "Updated in prev. 30 days" THEN
 							IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, HEST_col).Value = updated_date & "; "
 						ELSEIF time_period = "Updated in prev. 6 mos" THEN
 							IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, HEST_col).Value = updated_date & "; "
-						ELSEIF time_period = "Not updated more than 12 mos" THEN 
+						ELSEIF time_period = "Not updated more than 12 mos" THEN
 							IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, HEST_col).Value = updated_date & "; "
-						ELSEIF time_period = "Not updated more than 24 mos" THEN 
-							IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, HEST_col).Value = updated_date & "; "								
+						ELSEIF time_period = "Not updated more than 24 mos" THEN
+							IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, HEST_col).Value = updated_date & "; "
 						END IF
 					END IF
-				END IF 
-				IF SHEL_checkbox = 1 THEN 
+				END IF
+				IF SHEL_checkbox = 1 THEN
+				 	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("SHEL", 20, 71)
@@ -470,25 +489,27 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(SHEL_array)
 					FOR EACH person IN SHEL_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, SHEL_col).Value = objExcel.Cells(excel_row, SHEL_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, SHEL_col).Value = objExcel.Cells(excel_row, SHEL_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, SHEL_col).Value = objExcel.Cells(excel_row, SHEL_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, SHEL_col).Value = objExcel.Cells(excel_row, SHEL_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, SHEL_col).Value = objExcel.Cells(excel_row, SHEL_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
 					NEXT
-				END IF 
-				IF WKEX_checkbox = 1 THEN 
+				END IF
+				IF WKEX_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("WKEX", 20, 71)
@@ -497,19 +518,20 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 					CALL build_hh_array(WKEX_array)
 					FOR EACH person IN WKEX_array
-						IF person <> "" THEN 
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN 
-								IF time_period = "Updated in prev. 30 days" THEN 
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
 									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, WKEX_col).Value = objExcel.Cells(excel_row, WKEX_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Updated in prev. 6 mos" THEN
 									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, WKEX_col).Value = objExcel.Cells(excel_row, WKEX_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN 
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, WKEX_col).Value = objExcel.Cells(excel_row, WKEX_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN 
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, WKEX_col).Value = objExcel.Cells(excel_row, WKEX_col).Value & person & ", " & updated_date & "; "								
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, WKEX_col).Value = objExcel.Cells(excel_row, WKEX_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
@@ -517,7 +539,7 @@ FOR EACH maxis_worker IN workers_list
 				END IF
 			END IF
 			excel_row = excel_row + 1
-		LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	
+		LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""
 		FOR i = 1 to col_to_use
 			objExcel.Columns(i).AutoFit()
 		NEXT
@@ -525,15 +547,3 @@ FOR EACH maxis_worker IN workers_list
 NEXT
 back_to_SELF
 script_end_procedure("Success!")
-
-
-
-
-
-
-
-
-
-
-
-
