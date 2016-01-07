@@ -545,4 +545,5 @@ ELSE
 	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "The script has checked for ABAWD and SNAP E&T exemptions coded in MAXIS for member(s) " & household_persons & "." & vbCr & closing_message & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
 END IF
 
+STATS_counter = STATS_counter - 1		'Removing one instance from the STATS Counter as it started with one at the beginning
 script_end_procedure(closing_message)
