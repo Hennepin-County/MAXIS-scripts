@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 43                	'manual run time in seconds
+STATS_denomination = "I"       		'I is for each ITEM
+'END OF stats block=========================================================================================================
+
 '----------------------------------------------------------------------------------------------------
 'ADD TO FUNCTIONS FILE WHEN GITHUB IS WORKING AGAIN
 Function copy_screen_to_array(output_array)
@@ -312,6 +318,7 @@ For each panel_to_scan in all_panels_selected_array
 					screen_on_page = 1
 					objSelection.InsertBreak(7)
 				End if
+				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 
 	ELSE
 
@@ -339,6 +346,7 @@ For each panel_to_scan in all_panels_selected_array
 						screen_on_page = 1
 						objSelection.InsertBreak(7)
 					End if
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 
 			ELSEIF panel_to_scan = "BILS" THEN
 				call navigate_to_MAXIS_screen("STAT", "BILS")
@@ -358,6 +366,7 @@ For each panel_to_scan in all_panels_selected_array
 							screen_on_page = 1
 							objSelection.InsertBreak(7)
 						End if
+						STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					ELSEIF total_bils_panel = "1" THEN
 						call copy_screen_to_array(screentest)
 						'Adds current screen to Word doc
@@ -373,6 +382,7 @@ For each panel_to_scan in all_panels_selected_array
 							screen_on_page = 1
 							objSelection.InsertBreak(7)
 						End if
+						STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					ELSEIF total_bils_panel <> "0" AND total_bils_panel <> "1" THEN
 						DO
 							EMReadScreen last_bils_screen, 9, 19, 66
@@ -391,6 +401,7 @@ For each panel_to_scan in all_panels_selected_array
 								objSelection.InsertBreak(7)
 							End if
 							PF20
+							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 						LOOP until last_bils_screen = "More:   -"	
 					END IF
 
@@ -412,6 +423,7 @@ For each panel_to_scan in all_panels_selected_array
 							screen_on_page = 1
 							objSelection.InsertBreak(7)
 						End if
+						STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					ELSEIF more_fmed_screens = "More: +" THEN
 						EMReadScreen more_fmed_screens, 7, 15, 68
 						call copy_screen_to_array(screentest)
@@ -445,6 +457,7 @@ For each panel_to_scan in all_panels_selected_array
 							screen_on_page = 1
 							objSelection.InsertBreak(7)
 						End if
+						STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 					END IF
 
 			ELSE
@@ -478,6 +491,7 @@ For each panel_to_scan in all_panels_selected_array
 					End if
 
 					current_panel = current_panel + 1
+					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 				LOOP UNTIL (left(number_of_panels, 1) = "0") OR (current_panel = (number_of_panels + 1))
 			END IF
 		NEXT
