@@ -221,7 +221,7 @@ Do
 	END IF
 
 	excel_row = excel_row + 1
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Loop until case_number = ""
 
 FOR i = 1 to 11

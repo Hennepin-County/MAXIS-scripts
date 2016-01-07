@@ -252,7 +252,7 @@ Do
 	mailing_Zip_code = ""
 
 	excel_row = excel_row + 1
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Loop until case_number = ""
 
 'formatting excel columns to fit

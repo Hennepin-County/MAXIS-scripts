@@ -313,7 +313,7 @@ If revw_check = checked then
 		HC_intake_date = ""
 		cash_prog = ""
 
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	Next
 
 	call navigate_to_MAXIS_screen("rept", "revw")
@@ -408,7 +408,7 @@ If mont_check = 1 then
     first_of_working_month = ""
     last_day_to_turn_in_docs = ""
     intake_date = ""
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
   Next
 
   call navigate_to_MAXIS_screen("rept", "mont")

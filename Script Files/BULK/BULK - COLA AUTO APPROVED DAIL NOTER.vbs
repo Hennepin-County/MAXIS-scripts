@@ -187,7 +187,7 @@ IF bulk_check = checked THEN
 
 			'Resetting dail_row because when the script backs out to DAIL/DAIL, the case will now be the top case on DAIL.
 			dail_row = 6
-			STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+			STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 
 			'The case number is now at the top of the DAIL
 			IF delete_dail_check = checked THEN

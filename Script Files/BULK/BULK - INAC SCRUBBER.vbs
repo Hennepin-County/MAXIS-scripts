@@ -310,7 +310,7 @@ For x = 0 to total_cases
 	End if
 	If developer_mode = True then ObjExcel.Cells(x + 2, 5).Value = INAC_scrubber_primary_array(x, 4)
 	excel_row = excel_row + 1
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
 'Making the header for the next section of the Word document.

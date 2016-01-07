@@ -136,7 +136,7 @@ FOR EACH worker IN worker_array
 				objExcel.Cells(excel_row, 2).Value = case_number
 				objExcel.Cells(excel_row, 3).Value = client_name
 				excel_row = excel_row + 1
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			END IF
 			rept_actv_row = rept_actv_row + 1
 		LOOP UNTIL rept_actv_row = 19

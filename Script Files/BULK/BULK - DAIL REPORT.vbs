@@ -135,7 +135,7 @@ DO
 
 			'...going to the next ding dang row...
 			dail_row = dail_row + 1
-			‘adds one instance to the stats counter
+			'adds one instance to the stats counter
 			STATS_counter = STATS_counter + 1
 
 			'...going to the next page if necessary

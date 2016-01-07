@@ -120,7 +120,7 @@ DO
 	IF case_number <> "" THEN
 		excel_row = excel_row + 1
 		case_number_array = case_number_array & case_number & " "
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	END IF
 LOOP UNTIL excel_row = (end_row + 1)
 

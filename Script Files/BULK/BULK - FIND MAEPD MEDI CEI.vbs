@@ -247,7 +247,7 @@ DO
 	LOOP UNTIL rept_row = 19
 	PF8
 	rept_row = 7
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 LOOP UNTIL last_page = "THIS IS THE LAST PAGE"
 
 excel_row = 2

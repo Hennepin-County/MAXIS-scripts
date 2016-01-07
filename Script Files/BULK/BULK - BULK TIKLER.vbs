@@ -235,7 +235,7 @@ For each case_number in case_number_array
 		call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)
 		call write_variable_in_TIKL(tikl_text)
 		PF3
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	End if
 Next
 

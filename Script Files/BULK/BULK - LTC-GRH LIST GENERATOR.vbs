@@ -248,7 +248,7 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	ObjExcel.Cells(excel_row, 6).Value = DISA_waiver_type
 
 	excel_row = excel_row + 1 'setting up the script to check the next row.
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 loop
 
 MsgBox "Success! Your list has been created."

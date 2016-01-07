@@ -296,7 +296,7 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
 'Going to the top of the list and checking each case for additional information

@@ -255,7 +255,7 @@ FOR EACH maxis_worker IN workers_list
 
 			IF row <> 24 THEN
 				IF JOBS_checkbox = 1 THEN
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("JOBS", 20, 71)
@@ -265,7 +265,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(JOBS_array)
 					FOR EACH person IN JOBS_array
 						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -284,7 +284,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF UNEA_checkbox = 1 THEN
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("UNEA", 20, 71)
@@ -294,7 +294,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(UNEA_array)
 					FOR EACH person IN UNEA_array
 						IF person <> "" THEN
-						STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+						STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -313,7 +313,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF BUSI_checkbox = 1 THEN
-					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("BUSI", 20, 71)
@@ -323,7 +323,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(BUSI_array)
 					FOR EACH person IN BUSI_array
 						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -342,7 +342,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF RBIC_checkbox = 1 THEN
-					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("RBIC", 20, 71)
@@ -352,7 +352,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(RBIC_array)
 					FOR EACH person IN RBIC_array
 						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -371,7 +371,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF SPON_checkbox = 1 THEN
-					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("SPON", 20, 71)
@@ -381,7 +381,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(SPON_array)
 					FOR EACH person IN SPON_array
 						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -400,7 +400,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF COEX_checkbox = 1 THEN
-					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("COEX", 20, 71)
@@ -410,7 +410,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(COEX_array)
 					FOR EACH person IN COEX_array
 						IF person <> "" THEN
-						 	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+						 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -429,7 +429,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF DCEX_checkbox = 1 THEN
-					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("DCEX", 20, 71)
@@ -439,7 +439,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(DCEX_array)
 					FOR EACH person IN DCEX_array
 						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -458,7 +458,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF HEST_checkbox = 1 THEN
-					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("HEST", 20, 71)
@@ -480,7 +480,7 @@ FOR EACH maxis_worker IN workers_list
 					END IF
 				END IF
 				IF SHEL_checkbox = 1 THEN
-				 	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("SHEL", 20, 71)
@@ -490,7 +490,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(SHEL_array)
 					FOR EACH person IN SHEL_array
 						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -509,7 +509,7 @@ FOR EACH maxis_worker IN workers_list
 					NEXT
 				END IF
 				IF WKEX_checkbox = 1 THEN
-					STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
 						CALL write_value_and_transmit("WKEX", 20, 71)
@@ -519,7 +519,7 @@ FOR EACH maxis_worker IN workers_list
 					CALL build_hh_array(WKEX_array)
 					FOR EACH person IN WKEX_array
 						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
 							EMReadScreen updated_date, 8, 21, 55
 							updated_date = replace(updated_date, " ", "/")
@@ -547,3 +547,5 @@ FOR EACH maxis_worker IN workers_list
 NEXT
 back_to_SELF
 script_end_procedure("Success!")
+
+msgbox STATS_counter

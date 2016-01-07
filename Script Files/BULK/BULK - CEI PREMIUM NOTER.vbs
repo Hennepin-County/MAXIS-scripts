@@ -221,7 +221,7 @@ For each case_info in info_array
 	'Goes into each line of the array, skipping blank cases
 	If case_info <> "" then
 
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 		
 		'Splits the case_info variable into an array containing (0) case_number, (1) CEI_amount, (2) mo_yr, and (3) date_sent
 		case_specific_info_array = split(case_info, "~")	'That's the character we used above to designate objects for the array

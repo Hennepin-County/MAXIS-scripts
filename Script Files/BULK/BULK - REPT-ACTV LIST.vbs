@@ -239,7 +239,7 @@ For each worker in worker_array
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
 				case_number = ""			'Blanking out variable
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			Loop until MAXIS_row = 19
 			PF8
 

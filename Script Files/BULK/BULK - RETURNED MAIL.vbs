@@ -250,7 +250,7 @@ For each case_number in case_number_array
 
 	'Increasing the array count for each case number processed from case_number array.
 	array_count=array_count+1
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
 'Error message box that lists case numbers that the script failed on so workers can process manually.

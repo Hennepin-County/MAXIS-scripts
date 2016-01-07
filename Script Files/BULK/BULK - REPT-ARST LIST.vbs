@@ -745,7 +745,7 @@ ObjExcel.Cells(3, col_to_use).Value = accumulations_timestamp
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
 script_end_procedure("Success! The statistics have loaded.")

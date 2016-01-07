@@ -168,7 +168,7 @@ For each worker in worker_number_array
 		Loop until row = 19 or trim(case_number) = ""
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
 'NOW THE SCRIPT IS CHECKING STAT/AREP FOR EACH CASE.----------------------------------------------------------------------------------------------------
