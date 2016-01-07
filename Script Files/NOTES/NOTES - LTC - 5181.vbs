@@ -47,6 +47,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 360          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM start_time, name_of_script, url, row, script_end_procedure, case_number_and_footer_month_dialog, case_number
 'DIM MAXIS_footer_month, MAXIS_footer_year, next_month, ButtonPressed, case_note_dialog, yes_case_note_button, no_case_note_button
