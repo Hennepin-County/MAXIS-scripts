@@ -130,7 +130,7 @@ EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
 EMSendKey string(77, "-") 
 EMSendKey "    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF" & "<newline>"
 If HH_memb_01 <> "" then 
-        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+        STATS_counter = STATS_counter                      'does not add one instance to the stats counter as it starts at one and this is the first person
 	EMWriteScreen string(76, " "), 7, 3
 	EMWriteScreen HH_memb_01, 7, 5
 	IF exempt_reason_01 <> "(select or type here)" then EMWriteScreen exempt_reason_01, 7, 22
