@@ -47,6 +47,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, Claim_date, Expiration_date, Date_DHS_Claim_Docs, Date_DHS_Exp_Docs, Docs_provided_check, Good_Cause_Claimed_Dialog, Case_Number, Date_DHS_docs_sent, List_programs, Supporting_doc_date, GC_Review_Date, Other_comments, Worker_signature, Claim_Type_droplist
 
 BeginDialog Good_Cause_Claimed_Dialog, 0, 0, 251, 310, "Child Support Good Cause Claimed"
