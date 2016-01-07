@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 276                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
 'logic to autofill the 'last_day_for_recert' field
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
@@ -148,11 +154,11 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 			cancel_confirmation
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."	
+			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""	
-	ELSE	
+		LOOP until err_msg = ""
+	ELSE
 		DO
 			Err_msg = ""
 			Dialog SNAP_ER_NOMI_dialog
@@ -160,12 +166,12 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."	
+			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""	
-	END IF 
-		
+		LOOP until err_msg = ""
+	END IF
+
 	'checking for an active MAXIS session
 	Call check_for_MAXIS(False)
 
@@ -239,11 +245,11 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 			cancel_confirmation
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."	
+			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""	
+		LOOP until err_msg = ""
 	ELSE
 		DO
 			Err_msg = ""
@@ -252,13 +258,13 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."	
+			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""	
+		LOOP until err_msg = ""
 	END IF
-	
+
 	'checks for an active MAXIS session
 	Call check_for_MAXIS(False)
 
@@ -272,7 +278,7 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		transmit
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("*************APPLICATION INTERVIEW REMINDER*************")
-		IF time_of_missed_interview <> "" then 
+		IF time_of_missed_interview <> "" then
 			Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & (application_date) & " at " & time_of_missed_interview & ".")
 		ELSE
 			Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & (application_date) & ".")

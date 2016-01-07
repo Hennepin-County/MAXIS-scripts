@@ -46,7 +46,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'--- DIALOG-----------------------------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 90                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
+'--- DIALOGS-----------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dlg, 0, 0, 196, 85, "Postponed WREG WCOM"
   EditBox 70, 15, 60, 15, case_number
   EditBox 70, 35, 30, 15, approval_month
@@ -58,7 +64,6 @@ BeginDialog case_number_dlg, 0, 0, 196, 85, "Postponed WREG WCOM"
   Text 10, 20, 55, 10, "Case Number: "
   Text 10, 40, 55, 10, "Approval Month:"
 EndDialog
-
 
 BeginDialog WCOM_dlg, 0, 0, 196, 115, "Postponed WREG WCOM"
   EditBox 55, 10, 60, 15, verif_due_date
@@ -95,7 +100,7 @@ LOOP until err_msg = ""
 call check_for_maxis(false)
 
 'Creating HH member array-------------------------------------------------------------------------------------------------------------
-DO							'Loops until worker selects only one HH member. At this time the script only handles one HH member due to grammar issues involving multiple members with different postponed WREG verifs. 
+DO							'Loops until worker selects only one HH member. At this time the script only handles one HH member due to grammar issues involving multiple members with different postponed WREG verifs.
 	Msgbox "Select the HH member that has the postponed verification. If you have multiple HH members please process manually at this time."
 	CALL HH_member_custom_dialog(HH_member_array)
 	array_length = Ubound(HH_member_array)
@@ -119,7 +124,7 @@ EMReadScreen Last_name, 25, 6, 30
 EMReadScreen Middle_initial, 1, 6, 79
 client_name = replace(First_name, "_", "") & " " & replace(Middle_initial, "_", "") & " " & replace(Last_name, "_", "")
 verif_due_date = dateadd("D", 10, date)  'adding standard 10 day verif request due date
-mid_month = left(app_date, 2) & "/15/" & right(app_date, 2)  'determining if the application date is before or after the 15th this affects when case must close by. 
+mid_month = left(app_date, 2) & "/15/" & right(app_date, 2)  'determining if the application date is before or after the 15th this affects when case must close by.
 mid_month_check = datediff("D", mid_month, app_date)		'subtracting the day part of the app_date against the 15th
 IF mid_month_check <= 0 THEN closure_date = dateadd("D", -1, (dateadd("M", 1, left(app_date, 2) & "/01/" & right(app_date, 2)))) ' 0 and below are before the 15th and close last day of the 1st month after application
 IF mid_month_check > 0 THEN closure_date = dateadd("D", -1, (dateadd("M", 2, left(app_date, 2) & "/01/" & right(app_date, 2))))	' anything above 0 is after the 15th and closes the last day of the 2nd month after application
@@ -138,7 +143,7 @@ DO
 	IF err_msg <> "" THEN msgbox err_msg
 LOOP until err_msg = ""
 
-'error proofing as we don't want the script creating notices that have conflicting information on them. 
+'error proofing as we don't want the script creating notices that have conflicting information on them.
 If datediff("D", verif_due_date, closure_date) < 0 THEN script_end_procedure("Your verif due date is after your entered closure date. If this is the case please check policy and compose the WCOM manually.")
 
 call check_for_maxis(false)
@@ -158,7 +163,7 @@ LOOP until more_pages <> "MORE:  -"
 read_row = 7
 DO
 	waiting_check = ""
-	EMReadscreen prog_type, 2, read_row, 26 
+	EMReadscreen prog_type, 2, read_row, 26
 	EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
 	If waiting_check = "Waiting" and prog_type = "FS" THEN 'checking program type and if it's been printed
 		EMSetcursor read_row, 13
@@ -185,7 +190,7 @@ LOOP until prog_type = "  "
 'Outcome ---------------------------------------------------------------------------------------------------------------------
 
 If WCOM_count = 0 THEN  'if no waiting FS notice is found
-	script_end_procedure("No Waiting FS elig results were found in this month for this HH member.")	
+	script_end_procedure("No Waiting FS elig results were found in this month for this HH member.")
 ELSE 					'If a waiting FS notice is found
 	'Case note
 	start_a_blank_case_note
@@ -208,5 +213,3 @@ ELSE 					'If a waiting FS notice is found
 END IF
 
 script_end_procedure("")
-
-
