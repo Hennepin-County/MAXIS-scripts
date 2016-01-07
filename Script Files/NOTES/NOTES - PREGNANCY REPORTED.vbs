@@ -46,7 +46,7 @@ END IF
 
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 120          'manual run time in seconds
+STATS_manualtime = 180          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
