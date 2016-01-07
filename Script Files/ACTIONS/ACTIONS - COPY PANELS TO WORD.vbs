@@ -498,4 +498,5 @@ For each panel_to_scan in all_panels_selected_array
 	END IF
 NEXT
 
+STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
 script_end_procedure("")
