@@ -44,6 +44,15 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 54          'manual run time in seconds
+STATS_denomination = "I"       'I is for each dail message 
+'END OF stats block==============================================================================================
+
+
+
+
 'SECTION 02: THE SCRIPT
 EMConnect ""
 
@@ -142,6 +151,7 @@ Do
   PF3
   MAXIS_row = MAXIS_row + 1
   message_number = message_number + 1
+  STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 Loop until line_check <> "DISB"
 
 'THE FOLLOWING LINES OF CODE WERE COPIED FROM DAKOTA'S ANDREW FINK, AND MODIFIED FOR OUR PURPOSES - VKC, 10/02/2014
