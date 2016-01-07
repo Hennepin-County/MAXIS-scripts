@@ -158,4 +158,5 @@ For i = 0 to UBound(HH_member_array)
 Next 
 Msgbox Hits
 	
+STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
 script_end_procedure("")
