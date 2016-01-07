@@ -842,9 +842,6 @@ End if
 'Checks for MAXIS
 call check_for_MAXIS(False)
 
-'Using custom function to assign addresses to the selected office
-call assign_county_address_variables(county_address_line_01, county_address_line_02)
-
 'Converting the CAF_date variable to a date, for cases where a CAF was turned in
 If no_CAF_check = unchecked then CAF_date = cdate(CAF_date)
 
