@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 229                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
+
 'VARIABLES TO DECLARE----------------------------------------------------------------------------
 SPEC_MEMO_check = checked		'Should default to checked, as we usually want to send a new worker memo
 
