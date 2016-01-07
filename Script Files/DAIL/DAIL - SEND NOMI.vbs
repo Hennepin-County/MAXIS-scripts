@@ -47,6 +47,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 276         'manual run time in seconds
+STATS_denomination = "C"       'C is for case
+'END OF stats block==============================================================================================
+
+
 'Dialogs
 BeginDialog Hennepin_worker_signature, 0, 0, 176, 80, "Hennepin County worker signature and client region"
   DropListBox 80, 10, 90, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence

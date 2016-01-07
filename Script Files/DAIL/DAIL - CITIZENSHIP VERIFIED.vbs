@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 55          'manual run time in seconds
+STATS_denomination = "M"       'M is for each MEMBER
+'END OF stats block==============================================================================================
+
 'custom function for this script---------------------------------------------------------------------------------
 Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 
@@ -139,6 +145,7 @@ For Each HH_memb in HH_member_array
 	Transmit
 	Transmit 'second transmit to get past if you enter an actual date in another footer month
 	membs_to_case_note = membs_to_case_note & HH_memb & ", "
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
 'Dialog to get worker signature----------------------------------------------------------------------------------------------
@@ -152,6 +159,8 @@ EndDialog
 
 dialog workersig_dlg
 cancel_confirmation
+STATS_counter = STATS_counter - 1 'Had to -1 at the end of the script because the counter starts at 1 and Veronica has reasons why we should not change it to 0. 
+'Msgbox STATS_counter
 
 'Case note section-----------------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
@@ -160,5 +169,7 @@ Call write_variable_in_CASE_NOTE("Automated script has updated MEMI with OT for 
 Call write_variable_in_CASE_NOTE("Members updated: " & membs_to_case_note)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
+
+
 
 script_end_procedure("")
