@@ -593,4 +593,5 @@ If ref_nbr_actual_03 <> "" then
 	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 End if
 
+STATS_counter = STATS_counter - 1		'Removing one instance from the STATS Counter as it started with one at the beginning
 script_end_procedure("")
