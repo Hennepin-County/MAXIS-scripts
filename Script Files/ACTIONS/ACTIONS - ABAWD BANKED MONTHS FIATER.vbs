@@ -309,7 +309,7 @@ For i = 0 to ubound(footer_month_array)
 			EMReadScreen alimony_amt, 8, 11, 63				'repeats the above steps for alimony_amt		
 			EMReadScreen alimony_ver, 1, 11, 36
 			If alimony_ver = "?" or alimony_ver = "N" then alimony_amt = "0"
-			If alimony_amt <> "________" then alimony_amt = "0"
+			If alimony_amt = "________" then alimony_amt = "0"
 			alimony_amt = replace(alimony_amt, "_", "")
 			'tax dependent 
 			EMReadScreen tax_dep_amt, 8, 12, 63				'repeats the above steps for tax_dep_amt
