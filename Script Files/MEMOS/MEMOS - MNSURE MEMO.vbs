@@ -158,6 +158,7 @@ Else
 	EMSendKey "effective " & denial_effective_date & "." & "<newline>" & "<newline>" & "You may be able to purchase medical insurance through MNsure. If your family is under an income limit you may get financial help to purchase insurance. You can apply online at www.mnsure.org. If you have questions or need help to apply you can call the MNsure Call Center at 1-855-366-7873."
 	PF4
 	PF3
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
 
 
