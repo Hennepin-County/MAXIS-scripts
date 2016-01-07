@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for stats purposes================================================================================================
+STATS_counter = 1         'sets the stats counter to 1
+STATS_manualtime = 210    'sets the manual run time
+STATS_denomination = "C"  'C is for case
+'END OF stats block=========================================================================================================
+
 'DIALOGS--------------------------------------------------------------------------------------------------
 BeginDialog verifs_needed_dialog, 0, 0, 351, 360, "Verifs needed"
   EditBox 55, 5, 70, 15, case_number
