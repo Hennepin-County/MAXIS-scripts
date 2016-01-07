@@ -44,6 +44,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 345         'manual run time in seconds
+STATS_denomination = "C"       'C is for Case
+'END OF stats block==============================================================================================
+
+
+
 'DIALOGS----------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
 BeginDialog job_known_to_agency_dialog, 0, 0, 276, 65, "Job known?"
