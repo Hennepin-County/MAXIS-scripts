@@ -77,7 +77,7 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 	NEXT
 
 	BEGINDIALOG HH_memb_dialog, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-		Text 10, 5, 105, 10, "Household members to update MEMI:"						
+		Text 10, 5, 105, 10, "Household members to update:"						
 		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
 			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 120, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 		NEXT
@@ -135,9 +135,7 @@ For Each HH_memb in HH_member_array
 	Transmit
 	PF9
 	EMWriteScreen "OT", 10, 78			'writing OT verif since verif is based on automated dail message.
-	EMWriteScreen datepart("m", date), 6, 35   'writing actual date of change based on current date. 
-	EMWriteScreen datepart("d", date), 6, 38
-	EMWriteScreen datepart("yyyy", date), 6, 41
+	call create_MAXIS_friendly_date_with_YYYY(date, 0, 6, 35)   'writing actual date of change based on current date. 
 	Transmit
 	Transmit 'second transmit to get past if you enter an actual date in another footer month
 	membs_to_case_note = membs_to_case_note & HH_memb & ", "
