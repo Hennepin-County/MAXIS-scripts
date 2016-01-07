@@ -46,6 +46,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 180                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
 '--- DIALOG-----------------------------------------------------------------------------------------------------------------------
 BeginDialog WCOM_dlg, 0, 0, 196, 100, "MA-EPD No premium paid WCOM"
@@ -64,7 +68,6 @@ EndDialog
 '--------------------------------------------------------------------------------------------------------------------------------
 
 '--- The script -----------------------------------------------------------------------------------------------------------------
-
 EMConnect ""
 
 DO
@@ -101,7 +104,7 @@ FOR each HH_member in HH_member_array
 	read_row = 7
 	DO
 		waiting_check = ""
-		EMReadscreen reference_number, 2, read_row, 62 
+		EMReadscreen reference_number, 2, read_row, 62
 		EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
 		If waiting_check = "Waiting" and reference_number = HH_member THEN 'checking program type and if it's been printed
 			EMSetcursor read_row, 13
@@ -134,13 +137,11 @@ FOR each HH_member in HH_member_array
 	LOOP until reference_number = "  "
 NEXT
 
-
 If WCOM_count = 0 THEN
 	MSGbox "No Waiting HC elig results were found in this month for this HH members."
-	Stopscript	
+	Stopscript
 ELSE
 	MSGbox "Success! A WCOM has been added."
 END IF
-
 
 script_end_procedure("")
