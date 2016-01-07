@@ -95,7 +95,7 @@ END IF
 DO
 	PF8
 	EMReadScreen last_page_check, 21, 24, 2
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 script_end_procedure("")
