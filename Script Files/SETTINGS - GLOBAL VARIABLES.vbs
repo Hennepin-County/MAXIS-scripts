@@ -66,6 +66,9 @@ collecting_statistics = False
 'This is the file path for the statistics Access database.
 stats_database_path = "C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
 
+'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
+STATS_enhanced_db = false
+
 
 'BRANCH CONFIGURATION=====================
 
