@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-----------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 175, "Pull REPT data into Excel dialog"
   EditBox 140, 20, 140, 15, worker_number
@@ -65,9 +71,7 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 175, "Pull REPT data in
   Text 80, 130, 175, 10, "autoclose notices."
 EndDialog
 
-
 'THE SCRIPT---------------------------------------------------
-
 'Asks if we want to navigate to current month + 2, which REVS is unique in that it can show this screen
 current_month_plus_2 = MsgBox("Navigate to current month + 2 for REVS?", vbYesNo)
 If current_month_plus_2 = vbCancel then stopscript
@@ -95,7 +99,7 @@ Call check_for_MAXIS(True)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker, case number, and name
@@ -105,7 +109,6 @@ ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 objExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(1, 3).Value = "NAME"
 objExcel.Cells(1, 3).Font.Bold = TRUE
-
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
@@ -172,8 +175,6 @@ IF error_check = checked Then
 	col_to_use = col_to_use + 1
 END IF
 
-	
-
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -200,7 +201,7 @@ For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	footer_month = "" 'clearing variable to prevent breaking when in Cm+2
 	footer_year = ""
-	EMWriteScreen left(date, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases. 
+	EMWriteScreen left(date, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
 	EMWriteScreen right(date, 2), 20, 46
 	transmit
 
@@ -217,7 +218,7 @@ For each worker in worker_array
 	EMReadScreen footer_month, 2, 20, 55
 	EMReadScreen footer_year, 2, 20, 58
 	review_date = footer_month & "/01/" & footer_year
-	
+
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
 	If has_content_check <> " " then
@@ -226,7 +227,7 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
 				EMReadScreen cash_status, 2, MAXIS_row, 34		'Reading cash status
@@ -236,7 +237,7 @@ For each worker in worker_array
 				EMReadScreen MAGI_status, 8, MAXIS_row, 54		'Reading MAGI status
 				EMReadScreen revw_recd_date, 8, MAXIS_row, 62		'Reading review received date
 				EMReadScreen interview_date, 8, MAXIS_row, 72		'Reading interview date
-				
+
 				'Certain MAXIS users have inadvertently bent the laws of MAXIS physics and have cash_status in column 34 instead of 35. Here-in lies the fix.
 				cash_status = trim(replace(cash_status, " ", ""))
 
@@ -250,7 +251,7 @@ For each worker in worker_array
 				If cash_status = "-" then cash_status = ""
 				If SNAP_status = "-" then SNAP_status = ""
 				If HC_status = "-" then HC_status = ""
-				
+
 				'The asterisk in the exempt IR column messes up the formula for Excel. Replacing with the word "exempt"
 				If exempt_IR_status = "*" then exempt_IR_status = "exempt"
 
@@ -259,7 +260,7 @@ For each worker in worker_array
 					IF trim(case_status) = "T" and cash_check = checked THEN add_case_info_to_Excel = True
 					If trim(SNAP_status) = "T" and SNAP_check = checked then add_case_info_to_Excel = True
 					If trim(HC_status) = "T" and HC_check = checked then add_case_info_to_Excel = True
-				ELSE 
+				ELSE
 					If trim(cash_status) <> "" and cash_check = checked then add_case_info_to_Excel = True
 					If trim(SNAP_status) <> "" and SNAP_check = checked then add_case_info_to_Excel = True
 					If trim(HC_status) <> "" and HC_check = checked then add_case_info_to_Excel = True
@@ -270,7 +271,7 @@ For each worker in worker_array
 				interview_date = trim(replace(interview_date, "__ __ __", ""))
 
 				'Adding the case to Excel
-				If add_case_info_to_Excel = True then 
+				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -280,7 +281,7 @@ For each worker in worker_array
 					End if
 					If SNAP_check = checked then ObjExcel.Cells(excel_row, snap_actv_col).Value = trim(SNAP_status)
 					If cash_check = checked then ObjExcel.Cells(excel_row, cash_actv_col).Value = trim(cash_status)
-					If HC_check = checked then 
+					If HC_check = checked then
 						ObjExcel.Cells(excel_row, HC_actv_col).Value = trim(HC_status)
 						ObjExcel.Cells(excel_row, exempt_IR_col).Value = trim(exempt_IR_status)
 						ObjExcel.Cells(excel_row, MAGI_col).Value = trim(MAGI_status)
@@ -295,14 +296,14 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
-
 
 'Going to the top of the list and checking each case for additional information
 row_to_use = 2
 'if notice_audit_check = checked THEN col_to_use = col_to_use + 1
-IF notice_audit_check = checked OR error_check = checked THEN	
-	DO 
+IF notice_audit_check = checked OR error_check = checked THEN
+	DO
 		case_number = objExcel.Cells(row_to_use, 2).Value
 		IF case_number <> "" THEN
 			IF SNAP_check = checked THEN 'Checking SNAP notices only
@@ -362,14 +363,14 @@ IF notice_audit_check = checked OR error_check = checked THEN
 							DO
 								IF ObjExcel.Cells(row_to_use, snap_actv_col).Value = "N" THEN EMSearch "received", row, col 'Looking for a case note for CSR Received or RECERT CAF received.
 								IF row = 0 THEN EXIT DO
-								IF row <> 0 THEN 
+								IF row <> 0 THEN
 									EMReadScreen case_note_date, 10, row, 6
 									IF datediff("d", case_note_date, review_date) > 45 THEN EXIT DO 'We are only concerned with stuff received in the 45 days before recert.
 									EMReadScreen case_note_type, 4, row, col - 4
-									IF case_note_type = "CAF " THEN 
-										error_content = "Check for possible RECERT received." 
+									IF case_note_type = "CAF " THEN
+										error_content = "Check for possible RECERT received."
 										EXIT DO
-									ELSEIF case_note_type = "CSR " THEN 
+									ELSEIF case_note_type = "CSR " THEN
 										error_content = "Check for possible CSR received."
 										EXIT DO
 									ELSE
@@ -379,28 +380,23 @@ IF notice_audit_check = checked OR error_check = checked THEN
 							LOOP UNTIL row = 19
 						END IF
 						IF objExcel.cells(row_to_use, snap_actv_col).Value = "I" THEN
-							EMSearch "approved", row, col 'Looking for a case note saying "approved" when review is coded I 
+							EMSearch "approved", row, col 'Looking for a case note saying "approved" when review is coded I
 							IF row <> 0 THEN 'found the word approved, next it finds out when
 								EMReadScreen case_note_date, 10, row, 6
 								IF datediff("d", case_note_date, review_date) < 32 THEN error_content = "Check for potential approved review." 'review can only be approved 1 month prior
 							END IF
 						END IF
 						objExcel.Cells(row_to_use, error_column).Value = error_content
-						error_content = "" 'Reset data 
+						error_content = "" 'Reset data
 					END IF
-				END IF		
+				END IF
 			END IF
 		row_to_use = row_to_use + 1
 		END IF
-	Loop Until case_number = ""			
-END IF					
- 	
-
-	
-
+	Loop Until case_number = ""
+END IF
 
 'IF error_check = checked THEN col_to_use = col_to_use + 1 'need to add the extra column for this outside the DO...LOOP
-
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
 row_to_use = 3			'Declaring here before the following if...then statements
 
@@ -413,7 +409,7 @@ ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes ba
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
 'SNAP info
-If SNAP_check = checked then	
+If SNAP_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "SNAP cases with unapproved review:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & SNAP_letter_col & ":" & SNAP_letter_col & ") - 1"	'Excel formula
@@ -433,7 +429,7 @@ If SNAP_check = checked then
 End if
 
 'HC info
-If HC_check = checked then	
+If HC_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "HC cases with unapproved review:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & HC_letter_col & ":" & HC_letter_col & ") - 1"	'Excel formula
@@ -457,7 +453,7 @@ If HC_check = checked then
 End if
 
 'cash info
-If cash_check = checked then	
+If cash_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "Cash cases with unapproved review:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & cash_letter_col & ":" & cash_letter_col & ") - 1"	'Excel formula
@@ -482,4 +478,5 @@ For col_to_autofit = 1 to col_to_use
 Next
 
 'Logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

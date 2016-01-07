@@ -44,6 +44,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 27                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
 '----------DIALOGS----------
 'The bulk-loading-case numbers dialog
@@ -130,43 +135,41 @@ EMConnect ""
 'Checks for MAXIS
 Call check_for_MAXIS(True)
 
-
-
-Do	
+Do
 	DO
 		DO
 			Dialog many_case_numbers_dialog
 			cancel_confirmation
-			If (isnumeric(case_number_01) = FALSE and case_number_01 <> "") or (isnumeric(case_number_02) = FALSE and case_number_02 <> "") or _ 
-			  (isnumeric(case_number_03) = FALSE and case_number_03 <> "") or (isnumeric(case_number_04) = FALSE and case_number_04 <> "") or _ 
-			  (isnumeric(case_number_05) = FALSE and case_number_05 <> "") or (isnumeric(case_number_06) = FALSE and case_number_06 <> "") or _ 
-			  (isnumeric(case_number_07) = FALSE and case_number_07 <> "") or (isnumeric(case_number_08) = FALSE and case_number_08 <> "") or _ 
-			  (isnumeric(case_number_09) = FALSE and case_number_09 <> "") or (isnumeric(case_number_10) = FALSE and case_number_10 <> "") or _ 
-			  (isnumeric(case_number_11) = FALSE and case_number_11 <> "") or (isnumeric(case_number_12) = FALSE and case_number_12 <> "") or _ 
-			  (isnumeric(case_number_13) = FALSE and case_number_13 <> "") or (isnumeric(case_number_14) = FALSE and case_number_14 <> "") or _ 
-			  (isnumeric(case_number_15) = FALSE and case_number_15 <> "") or (isnumeric(case_number_16) = FALSE and case_number_16 <> "") or _ 
-			  (isnumeric(case_number_17) = FALSE and case_number_17 <> "") or (isnumeric(case_number_18) = FALSE and case_number_18 <> "") or _ 
-			  (isnumeric(case_number_19) = FALSE and case_number_19 <> "") or (isnumeric(case_number_20) = FALSE and case_number_20 <> "") or _ 
-			  (isnumeric(case_number_21) = FALSE and case_number_21 <> "") or (isnumeric(case_number_22) = FALSE and case_number_22 <> "") or _ 
-			  (isnumeric(case_number_23) = FALSE and case_number_23 <> "") or (isnumeric(case_number_24) = FALSE and case_number_24 <> "") or _ 
-			  (isnumeric(case_number_25) = FALSE and case_number_25 <> "") or (isnumeric(case_number_26) = FALSE and case_number_26 <> "") or _ 
-			  (isnumeric(case_number_27) = FALSE and case_number_27 <> "") or (isnumeric(case_number_28) = FALSE and case_number_28 <> "") or _ 
-			  (isnumeric(case_number_29) = FALSE and case_number_29 <> "") or (isnumeric(case_number_30) = FALSE and case_number_30 <> "") or _ 
-			  (isnumeric(case_number_31) = FALSE and case_number_31 <> "") or (isnumeric(case_number_32) = FALSE and case_number_32 <> "") or _ 
-			  (isnumeric(case_number_33) = FALSE and case_number_33 <> "") or (isnumeric(case_number_34) = FALSE and case_number_34 <> "") or _ 
-			  (isnumeric(case_number_35) = FALSE and case_number_35 <> "") or (isnumeric(case_number_36) = FALSE and case_number_36 <> "") or _ 
-			  (isnumeric(case_number_37) = FALSE and case_number_37 <> "") or (isnumeric(case_number_38) = FALSE and case_number_38 <> "") or _ 
-			  (isnumeric(case_number_39) = FALSE and case_number_39 <> "") or (isnumeric(case_number_40) = FALSE and case_number_40 <> "") or _ 
-			  (isnumeric(case_number_41) = FALSE and case_number_41 <> "") or (isnumeric(case_number_42) = FALSE and case_number_42 <> "") or _ 
-			  (isnumeric(case_number_43) = FALSE and case_number_43 <> "") or (isnumeric(case_number_44) = FALSE and case_number_44 <> "") or _ 
-			  (isnumeric(case_number_45) = FALSE and case_number_45 <> "") or (isnumeric(case_number_46) = FALSE and case_number_46 <> "") or _ 
-			  (isnumeric(case_number_47) = FALSE and case_number_47 <> "") or (isnumeric(case_number_48) = FALSE and case_number_48 <> "") or _ 
-			  (isnumeric(case_number_49) = FALSE and case_number_49 <> "") or (isnumeric(case_number_50) = FALSE and case_number_50 <> "") or _ 
-			  (isnumeric(case_number_51) = FALSE and case_number_51 <> "") or (isnumeric(case_number_52) = FALSE and case_number_52 <> "") or _ 
-			  (isnumeric(case_number_53) = FALSE and case_number_53 <> "") or (isnumeric(case_number_54) = FALSE and case_number_54 <> "") or _ 
-			  (isnumeric(case_number_55) = FALSE and case_number_55 <> "") or (isnumeric(case_number_56) = FALSE and case_number_56 <> "") or _ 
-			  (isnumeric(case_number_57) = FALSE and case_number_57 <> "") or (isnumeric(case_number_58) = FALSE and case_number_58 <> "") or _ 
-			  (isnumeric(case_number_59) = FALSE and case_number_59 <> "") or (isnumeric(case_number_60) = FALSE and case_number_60 <> "") then 
+			If (isnumeric(case_number_01) = FALSE and case_number_01 <> "") or (isnumeric(case_number_02) = FALSE and case_number_02 <> "") or _
+			  (isnumeric(case_number_03) = FALSE and case_number_03 <> "") or (isnumeric(case_number_04) = FALSE and case_number_04 <> "") or _
+			  (isnumeric(case_number_05) = FALSE and case_number_05 <> "") or (isnumeric(case_number_06) = FALSE and case_number_06 <> "") or _
+			  (isnumeric(case_number_07) = FALSE and case_number_07 <> "") or (isnumeric(case_number_08) = FALSE and case_number_08 <> "") or _
+			  (isnumeric(case_number_09) = FALSE and case_number_09 <> "") or (isnumeric(case_number_10) = FALSE and case_number_10 <> "") or _
+			  (isnumeric(case_number_11) = FALSE and case_number_11 <> "") or (isnumeric(case_number_12) = FALSE and case_number_12 <> "") or _
+			  (isnumeric(case_number_13) = FALSE and case_number_13 <> "") or (isnumeric(case_number_14) = FALSE and case_number_14 <> "") or _
+			  (isnumeric(case_number_15) = FALSE and case_number_15 <> "") or (isnumeric(case_number_16) = FALSE and case_number_16 <> "") or _
+			  (isnumeric(case_number_17) = FALSE and case_number_17 <> "") or (isnumeric(case_number_18) = FALSE and case_number_18 <> "") or _
+			  (isnumeric(case_number_19) = FALSE and case_number_19 <> "") or (isnumeric(case_number_20) = FALSE and case_number_20 <> "") or _
+			  (isnumeric(case_number_21) = FALSE and case_number_21 <> "") or (isnumeric(case_number_22) = FALSE and case_number_22 <> "") or _
+			  (isnumeric(case_number_23) = FALSE and case_number_23 <> "") or (isnumeric(case_number_24) = FALSE and case_number_24 <> "") or _
+			  (isnumeric(case_number_25) = FALSE and case_number_25 <> "") or (isnumeric(case_number_26) = FALSE and case_number_26 <> "") or _
+			  (isnumeric(case_number_27) = FALSE and case_number_27 <> "") or (isnumeric(case_number_28) = FALSE and case_number_28 <> "") or _
+			  (isnumeric(case_number_29) = FALSE and case_number_29 <> "") or (isnumeric(case_number_30) = FALSE and case_number_30 <> "") or _
+			  (isnumeric(case_number_31) = FALSE and case_number_31 <> "") or (isnumeric(case_number_32) = FALSE and case_number_32 <> "") or _
+			  (isnumeric(case_number_33) = FALSE and case_number_33 <> "") or (isnumeric(case_number_34) = FALSE and case_number_34 <> "") or _
+			  (isnumeric(case_number_35) = FALSE and case_number_35 <> "") or (isnumeric(case_number_36) = FALSE and case_number_36 <> "") or _
+			  (isnumeric(case_number_37) = FALSE and case_number_37 <> "") or (isnumeric(case_number_38) = FALSE and case_number_38 <> "") or _
+			  (isnumeric(case_number_39) = FALSE and case_number_39 <> "") or (isnumeric(case_number_40) = FALSE and case_number_40 <> "") or _
+			  (isnumeric(case_number_41) = FALSE and case_number_41 <> "") or (isnumeric(case_number_42) = FALSE and case_number_42 <> "") or _
+			  (isnumeric(case_number_43) = FALSE and case_number_43 <> "") or (isnumeric(case_number_44) = FALSE and case_number_44 <> "") or _
+			  (isnumeric(case_number_45) = FALSE and case_number_45 <> "") or (isnumeric(case_number_46) = FALSE and case_number_46 <> "") or _
+			  (isnumeric(case_number_47) = FALSE and case_number_47 <> "") or (isnumeric(case_number_48) = FALSE and case_number_48 <> "") or _
+			  (isnumeric(case_number_49) = FALSE and case_number_49 <> "") or (isnumeric(case_number_50) = FALSE and case_number_50 <> "") or _
+			  (isnumeric(case_number_51) = FALSE and case_number_51 <> "") or (isnumeric(case_number_52) = FALSE and case_number_52 <> "") or _
+			  (isnumeric(case_number_53) = FALSE and case_number_53 <> "") or (isnumeric(case_number_54) = FALSE and case_number_54 <> "") or _
+			  (isnumeric(case_number_55) = FALSE and case_number_55 <> "") or (isnumeric(case_number_56) = FALSE and case_number_56 <> "") or _
+			  (isnumeric(case_number_57) = FALSE and case_number_57 <> "") or (isnumeric(case_number_58) = FALSE and case_number_58 <> "") or _
+			  (isnumeric(case_number_59) = FALSE and case_number_59 <> "") or (isnumeric(case_number_60) = FALSE and case_number_60 <> "") then
 				MsgBox "You must enter a numeric case number for each item, or leave it blank."
 			End if
 		Loop until (isnumeric(case_number_01) = True or case_number_01 = "") and (isnumeric(case_number_02) = True or case_number_02 = "") and _
@@ -211,7 +214,6 @@ Do
 	IF len(tikl_text) > 253 THEN MSGBox "Your TIKL message is too long. A TIKL can be 253 characters and this TIKL is " & len(tikl_text) & " characters."
 LOOP WHILE len(tikl_text) > 253
 
-
 'Splits the case_number(s) into a case_number_array
 case_number_array = array(case_number_01, case_number_02, case_number_03, case_number_04, case_number_05, _
 						case_number_06, case_number_07, case_number_08, case_number_09, case_number_10, _
@@ -226,7 +228,6 @@ case_number_array = array(case_number_01, case_number_02, case_number_03, case_n
 						case_number_51, case_number_52, case_number_53, case_number_54, case_number_55, _
 						case_number_56, case_number_57, case_number_58, case_number_59, case_number_60)
 
-
 For each case_number in case_number_array
 	If case_number <> "" then
 		back_to_self
@@ -234,8 +235,9 @@ For each case_number in case_number_array
 		call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)
 		call write_variable_in_TIKL(tikl_text)
 		PF3
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	End if
 Next
 
-call script_end_procedure("Success! All case numbers TIKLed.")
-
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+script_end_procedure("Success! All case numbers TIKLed.")

@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS----------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 218, 120, "Pull REPT data into Excel dialog"
   EditBox 84, 20, 130, 15, worker_number
@@ -58,7 +64,6 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 218, 120, "Pull REPT data in
 EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
@@ -75,7 +80,7 @@ Call check_for_MAXIS(True)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 4 col as worker, case number, name, and APPL date
@@ -141,10 +146,10 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			
+
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/MFCF it displays right away, instead of when the second F8 is sent
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 6		  'Reading case number
 				EMReadScreen client_name, 20, MAXIS_row, 16		'Reading client name
 				EMReadScreen sanc_perc, 2, MAXIS_row, 39	    'Reading Sanction Percentage
@@ -171,16 +176,16 @@ For each worker in worker_array
         ObjExcel.Cells(excel_row, 8).Value = empl_pro
         ObjExcel.Cells(excel_row, 9).Value = tanf_mos
         ObjExcel.Cells(excel_row, 10).Value = sixty_ext_rsn
-        
+
         excel_row = excel_row + 1
-        
+
 				MAXIS_row = MAXIS_row + 1
 				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
-			
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
@@ -193,11 +198,11 @@ ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
-
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
 'Logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

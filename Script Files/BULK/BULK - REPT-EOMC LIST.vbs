@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-------------------------------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
   EditBox 150, 20, 130, 15, worker_number
@@ -69,7 +75,6 @@ call worker_county_code_determination(worker_county_code, two_digit_county_code)
 is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'This is the string required to tell excel to ignore blank cells in a COUNTIFS function
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
@@ -83,13 +88,11 @@ query_start_time = timer
 'Checking for MAXIS
 Call check_for_MAXIS(True)
 
-
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
-
 
 'Setting the first 4 col as worker, case number, name, and APPL date
 ObjExcel.Cells(1, 1).Value = "WORKER"
@@ -134,7 +137,6 @@ If GRH_check = checked then
 	GRH_letter_col = convert_digit_to_excel_column(GRH_actv_col)
 End if
 
-
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -174,7 +176,7 @@ For each worker in worker_array
 
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 7			'Reading case number
 				EMReadScreen client_name, 25, MAXIS_row, 16		'Reading client name
 				EMReadScreen cash_status, 4, MAXIS_row, 43		'Reading cash status
@@ -200,7 +202,7 @@ For each worker in worker_array
 				If HC_check = checked and right(HC_status, 1) = "A" then autoclose_string = autoclose_string & left(HC_status, 2) & " "
 				If GRH_check = checked and right(GRH_status, 1) = "A" then autoclose_string = autoclose_string & left(GRH_status, 2) & " "
 
-				If add_case_info_to_Excel = True then 
+				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -219,6 +221,7 @@ For each worker in worker_array
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
@@ -233,7 +236,7 @@ ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes ba
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
 'SNAP info
-If SNAP_check = checked then	
+If SNAP_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "SNAP cases that are closing:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & SNAP_letter_col & ":" & SNAP_letter_col & ") - 1"	'Excel formula
@@ -245,7 +248,7 @@ If SNAP_check = checked then
 End if
 
 'HC info
-If HC_check = checked then	
+If HC_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "HC cases that are closing:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & HC_letter_col & ":" & HC_letter_col & ") - 1"	'Excel formula
@@ -257,7 +260,7 @@ If HC_check = checked then
 End if
 
 'GRH info
-If GRH_check = checked then	
+If GRH_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "GRH cases that are closing:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & GRH_letter_col & ":" & GRH_letter_col & ") - 1"	'Excel formula
@@ -269,7 +272,7 @@ If GRH_check = checked then
 End if
 
 'cash info
-If cash_check = checked then	
+If cash_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "Cash cases that are closing:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & cash_letter_col & ":" & cash_letter_col & ") - 1"	'Excel formula
@@ -285,4 +288,5 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 38                      'manual run time in seconds
+STATS_denomination = "C"       						 'C is for each CASE
+'END OF stats block==============================================================================================
+
 'CUSTOM FUNCTIONS---------------------------------------------------------------------------------------------
 'This one creates a quasi-two-dimensional array of all cases, using "|" to split cases and "~" to split case info within cases.
 Function combine_CEI_data_to_array(info_array)
@@ -162,7 +168,7 @@ Do
 		End if
 	Loop until dialog_complete = True
 	'If the user selects the "need more lines" button, it'll add the existing data to an array and clear the dialog.
-	If buttonpressed = need_more_lines_button then 
+	If buttonpressed = need_more_lines_button then
 		add_info_to_array_msgbox = MsgBox("This will clear your existing info, moving it into the computer memory, and clearing the lines on this dialog. Is this OK?", vbYesNo)
 		If add_info_to_array_msgbox = vbYes then
 			'Combine the info to the array
@@ -174,18 +180,18 @@ Do
 			case_number_04 = ""
 			case_number_05 = ""
 			case_number_06 = ""
-			CEI_amount_01 = "" 
-			CEI_amount_02 = "" 
-			CEI_amount_03 = "" 
-			CEI_amount_04 = "" 
-			CEI_amount_05 = "" 
-			CEI_amount_06 = "" 
-			Mo_Yr_01 = "" 
-			Mo_Yr_02 = "" 
-			Mo_Yr_03 = "" 
-			Mo_Yr_04 = "" 
-			Mo_Yr_05 = "" 
-			Mo_Yr_06 = "" 
+			CEI_amount_01 = ""
+			CEI_amount_02 = ""
+			CEI_amount_03 = ""
+			CEI_amount_04 = ""
+			CEI_amount_05 = ""
+			CEI_amount_06 = ""
+			Mo_Yr_01 = ""
+			Mo_Yr_02 = ""
+			Mo_Yr_03 = ""
+			Mo_Yr_04 = ""
+			Mo_Yr_05 = ""
+			Mo_Yr_06 = ""
 			date_01 = ""
 			date_02 = ""
 			date_03 = ""
@@ -197,7 +203,7 @@ Do
 
 Loop until buttonpressed = OK
 
-'checking for an active MAXIS session	
+'checking for an active MAXIS session
 Call check_for_MAXIS(False)
 
 'Heading back to self
@@ -215,18 +221,20 @@ For each case_info in info_array
 	'Goes into each line of the array, skipping blank cases
 	If case_info <> "" then
 
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+
 		'Splits the case_info variable into an array containing (0) case_number, (1) CEI_amount, (2) mo_yr, and (3) date_sent
 		case_specific_info_array = split(case_info, "~")	'That's the character we used above to designate objects for the array
-		
+
 		'Assigns value to each variable needed for the next part
 		case_number = case_specific_info_array(0)
 		CEI_amount = case_specific_info_array(1)
 		mo_yr = case_specific_info_array(2)
 		date_sent = case_specific_info_array(3)
-		
+
 		'navigates to case/curr
-		call navigate_to_MAXIS_screen("case", "curr")		
-		
+		call navigate_to_MAXIS_screen("case", "curr")
+
 		'Checking to make sure case is active. This will skip cases without MA or IMD active.
 		row = 1											'Declaring prior to the EMSearch feature
 		col = 1
@@ -252,6 +260,5 @@ For each case_info in info_array
 	End if
 Next
 
-
-'Script ends
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your cases have been case noted! Don't forget to send the authorization for payment forms. See a supervisor for more information.")

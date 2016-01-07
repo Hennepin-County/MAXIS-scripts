@@ -44,14 +44,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 38                      'manual run time in seconds
+STATS_denomination = "C"       						 'C is for each CASE
+'END OF stats block==============================================================================================
+
 '----------FUNCTIONS----------
 '-----This function needs to be added to the FUNCTIONS FILE-----
 FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	excel_col = ucase(excel_col)
-	IF len(excel_col) = 1 THEN 
+	IF len(excel_col) = 1 THEN
 		excel_col = InStr(alphabet, excel_col)
-	ELSEIF len(excel_col) = 2 THEN 
+	ELSEIF len(excel_col) = 2 THEN
 		excel_col = (26 * InStr(alphabet, left(excel_col, 1))) + (InStr(alphabet, right(excel_col, 1)))
 	END IF
 END FUNCTION
@@ -77,7 +83,6 @@ BeginDialog bulk_case_note_dialog, 0, 0, 256, 210, "Case Note Information"
   Text 15, 170, 100, 10, "Please sign your case note..."
 EndDialog
 
-
 '----------THE SCRIPT----------
 EMConnect ""
 
@@ -86,7 +91,7 @@ Call check_for_MAXIS(True)
 DO
 	Dialog bulk_case_note_dialog
 		cancel_confirmation
-		IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN 
+		IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
 			MsgBox "Please do not use such a large column. The script cannot handle it."
 		ELSE
 			IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
@@ -103,7 +108,6 @@ LOOP UNTIL (isnumeric(excel_col) = true) and excel_col <> "" and isnumeric(excel
 message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_sig & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
 message_array = split(message_array, "~%~")
 
-
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
@@ -113,9 +117,10 @@ end_row = end_row * 1
 excel_col = excel_col * 1
 DO
 	case_number = ObjExcel.Cells(excel_row, excel_col).Value
-	IF case_number <> "" THEN 
+	IF case_number <> "" THEN
 		excel_row = excel_row + 1
 		case_number_array = case_number_array & case_number & " "
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	END IF
 LOOP UNTIL excel_row = (end_row + 1)
 
@@ -175,23 +180,23 @@ IF privileged_count > 0 or out_of_county_count > 0 or invalid_case_count > 0 THE
 	objExcel.Visible = True
 	Set objWorkbook = objExcel.Workbooks.Add()
 	objExcel.DisplayAlerts = True
-	
+
 	objExcel.Cells(1, 1).Value = "PRIVILEGED CASES"
 	objExcel.Cells(1, 2).Value = "OUT OF COUNTY CASES"
-	objExcel.Cells(1, 3).Value = "INVALID CASES"	
-	
+	objExcel.Cells(1, 3).Value = "INVALID CASES"
+
 	privileged_row = 2
 	FOR EACH priv_case IN privileged_array
 		objExcel.Cells(privileged_row, 1).Value = priv_case
 		privileged_row = privileged_row + 1
 	NEXT
-	
+
 	out_of_county_row = 2
 	FOR EACH out_of_county_case IN out_of_county_array
 		objExcel.Cells(out_of_county_row, 2).Value = out_of_county_case
 		out_of_county_row = out_of_county_row + 1
 	NEXT
-	
+
 	invalid_case_row = 2
 	FOR EACH invalid_maxis_case IN invalid_array
 		objExcel.Cells(invalid_case_row, 3).Value = invalid_maxis_case
@@ -199,4 +204,5 @@ IF privileged_count > 0 or out_of_county_count > 0 or invalid_case_count > 0 THE
 	NEXT
 END IF
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("The script is now finished running. If the script did not appear to do anything, it is likely that the column you selected is empty.")

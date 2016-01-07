@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 86                      'manual run time in seconds
+STATS_denomination = "C"       						 'C is for each CASE
+'END OF stats block==============================================================================================
+
 FUNCTION navigate_to_MMIS
 	attn
 	Do
@@ -91,7 +97,7 @@ FUNCTION navigate_to_MMIS
 	row = 1
 	col = 1
 	EMSearch ("C3" & right(worker_county_code, 2)), row, col
-	If row <> 0 then 
+	If row <> 0 then
 		If row <> 1 then 'It has to do this in case the worker only has one option (as many LTC and OSA workers don't have the option to decide between MAXIS and MCRE case access). The MMIS screen will show the text, but it's in the first row in these instances.
 			EMWriteScreen "x", row, 4
 			transmit
@@ -100,7 +106,7 @@ FUNCTION navigate_to_MMIS
 		row = 1
 		col = 1
 		EMSearch "EK01", row, col
-		If row <> 0 then 
+		If row <> 0 then
 			If row <> 1 then
 				EMWriteScreen "x", row, 4
 				transmit
@@ -109,7 +115,7 @@ FUNCTION navigate_to_MMIS
 			row = 1
 			col = 1
 			EMSearch ("C4" & right(worker_county_code, 2)), row, col
-			If row <> 0 then 
+			If row <> 0 then
 				If row <> 1 then
 					EMWriteScreen "x", row, 4
 					transmit
@@ -118,7 +124,7 @@ FUNCTION navigate_to_MMIS
 				row = 1
 				col = 1
 				EMSearch "EKIQ", row, col
-				If row <> 0 then 
+				If row <> 0 then
 					If row <> 1 then
 						EMWriteScreen "x", row, 4
 						transmit
@@ -171,7 +177,7 @@ FUNCTION navigate_to_MAXIS(maxis_mode)
 		END IF
 	END IF
 
-	
+
 	EMConnect (x)
 	IF maxis_mode = "PRODUCTION" THEN
 		EMWriteScreen "1", 2, 15
@@ -179,7 +185,7 @@ FUNCTION navigate_to_MAXIS(maxis_mode)
 	ELSEIF maxis_mode = "INQUIRY DB" THEN
 		EMWriteScreen "2", 2, 15
 		transmit
-	END IF		
+	END IF
 END FUNCTION
 
 BeginDialog maepd_dlg, 0, 0, 191, 85, "MA-EPD Reimburseables"
@@ -190,8 +196,6 @@ BeginDialog maepd_dlg, 0, 0, 191, 85, "MA-EPD Reimburseables"
   Text 10, 15, 85, 10, "X Number (7 digit format):"
   Text 10, 30, 175, 10, "This script will check REPT/ACTV on this X number."
 EndDialog
-
-
 
 EMConnect ""
 
@@ -214,7 +218,7 @@ IF ucase(current_rept_actv) <> ucase(x_number) THEN CALL write_value_and_transmi
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 objExcel.Cells(1, 1).Value = "CASE NUMBER"
 objExcel.Cells(1, 2).Value = "CLIENT NAME"
@@ -229,20 +233,21 @@ DO
 		EMReadScreen case_number, 8, rept_row, 12
 		case_number = trim(case_number)
 		EMReadScreen hc_case, 1, rept_row, 64
-		IF case_number <> "" AND hc_case <> " " THEN 
+		IF case_number <> "" AND hc_case <> " " THEN
 			objExcel.Cells(excel_row, 1).Value = case_number
 			EMReadScreen client_name, 21, rept_row, 21
 			client_name = trim(client_name)
 			EMReadScreen next_revw_dt, 8, rept_row, 42
 			next_revw_dt = replace(next_revw_dt, " ", "/")
 			objExcel.Cells(excel_row, 2).Value = client_name
-			objExcel.Cells(excel_row, 3).Value = next_revw_dt	
+			objExcel.Cells(excel_row, 3).Value = next_revw_dt
 			excel_row = excel_row + 1
 		END IF
 		rept_row = rept_row + 1
 	LOOP UNTIL rept_row = 19
 	PF8
 	rept_row = 7
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 LOOP UNTIL last_page = "THIS IS THE LAST PAGE"
 
 excel_row = 2
@@ -287,8 +292,8 @@ DO
 					transmit
 					EMWriteScreen "RELG", 1, 8
 					transmit
-			
-					'Reading RELG to determine if the CL is active on MA-EPD		
+
+					'Reading RELG to determine if the CL is active on MA-EPD
 					EMReadScreen prog01_type, 8, 6, 13
 						EMReadScreen elig01_type, 2, 6, 33
 						EMReadScreen elig01_end, 8, 7, 36
@@ -306,7 +311,7 @@ DO
 						(prog02_type = "MEDICAID" AND elig02_type = "DP" AND elig02_end = "99/99/99") OR _
 						(prog03_type = "MEDICAID" AND elig03_type = "DP" AND elig03_end = "99/99/99") OR _
 						(prog04_type = "MEDICAID" AND elig04_type = "DP" AND elig04_end = "99/99/99")) THEN
-			
+
 						EMWriteScreen "RMCR", 1, 8
 						transmit
 
@@ -317,11 +322,11 @@ DO
 						EMReadScreen part_b_begin02, 8, 14, 4
 							part_b_begin02 = trim(part_b_begin02)
 						EMReadScreen part_b_end02, 8, 14, 15
-						
-						IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN		
+
+						IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN
 							EMWriteScreen "RBYB", 1, 8
 							transmit
-							
+
 							EMReadScreen accrete_date, 8, 5, 66
 							EMReadScreen delete_date, 8, 6, 65
 							accrete_date = replace(accrete_date, " ", "")
@@ -361,7 +366,7 @@ DO
 		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 		objRange.Delete
 		excel_row = excel_row - 1
-	END IF		
+	END IF
 	excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""
 
@@ -369,5 +374,5 @@ FOR i = 1 to 4
 	objExcel.Columns(i).AutoFit()
 NEXT
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")
-
