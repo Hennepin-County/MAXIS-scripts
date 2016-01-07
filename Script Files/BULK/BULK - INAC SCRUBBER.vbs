@@ -583,4 +583,5 @@ MsgBox 	"Success!"  & vbNewLine & _
 		vbNewLine & _
 		"A Word document has been created, containing active claims as well as cases with ABPS panels requiring update. If you have questions about these procedures, see a supervisor."
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

@@ -204,4 +204,5 @@ IF privileged_count > 0 or out_of_county_count > 0 or invalid_case_count > 0 THE
 	NEXT
 END IF
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("The script is now finished running. If the script did not appear to do anything, it is likely that the column you selected is empty.")

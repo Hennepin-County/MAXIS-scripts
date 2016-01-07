@@ -257,4 +257,5 @@ Next
 If error_message <> "" then msgbox "These cases were not able to be processed, they may be privileged or invalid case numbers. Please review and process manually if needed. " & vbNewline & vbNewline & error_message
 
 'Script ends
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Using " & EDMS_choice & ", send the appropriate returned mail paperwork. Send the completed forms to the most recent address(es). The script has case noted that returned mail was received and TIKLed out for 10-day return for each case indicated.")

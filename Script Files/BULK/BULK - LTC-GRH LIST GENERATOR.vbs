@@ -251,6 +251,5 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 loop
 
-MsgBox "Success! Your list has been created."
-
-script_end_procedure("")
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+script_end_procedure("Success! Your list has been created.")

@@ -263,4 +263,5 @@ NEXT
 'making excel document visible.
 objExcel.Visible = True
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")

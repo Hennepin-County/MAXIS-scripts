@@ -222,7 +222,7 @@ For each case_info in info_array
 	If case_info <> "" then
 
 		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-		
+
 		'Splits the case_info variable into an array containing (0) case_number, (1) CEI_amount, (2) mo_yr, and (3) date_sent
 		case_specific_info_array = split(case_info, "~")	'That's the character we used above to designate objects for the array
 
@@ -260,6 +260,5 @@ For each case_info in info_array
 	End if
 Next
 
-
-'Script ends
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your cases have been case noted! Don't forget to send the authorization for payment forms. See a supervisor for more information.")

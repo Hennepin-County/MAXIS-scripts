@@ -546,6 +546,5 @@ FOR EACH maxis_worker IN workers_list
 	END IF
 NEXT
 back_to_SELF
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!")
-
-msgbox STATS_counter

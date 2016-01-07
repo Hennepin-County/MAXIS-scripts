@@ -254,4 +254,5 @@ FOR EACH case_number IN case_array
 
 NEXT
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Done")

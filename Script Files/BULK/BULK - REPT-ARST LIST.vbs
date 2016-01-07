@@ -748,4 +748,5 @@ For col_to_autofit = 1 to col_to_use
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The statistics have loaded.")
