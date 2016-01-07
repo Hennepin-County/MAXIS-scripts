@@ -228,7 +228,7 @@ FOR EACH case_number in case_number_array
 
 	
 	END IF
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 NEXT
 
 script_end_procedure(phone_look_up & " was not found in selected REPT. Feel free to try another REPT list, change your footer month, or verify that the number you entered is correct")
