@@ -607,7 +607,8 @@ col = 1
 EMSearch "Case Nbr:", row, col
 If row <> 0 then EMReadScreen case_number, 8, row, col + 10
 
-If date <= "12/01/2015" then 
+'Checking to see that we are in an appropriate footer month to be updating in CY2016
+If DateDiff("D", #12/01/2015#, date) < 0 THEN 
 	MsgBox("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
 	script_end_procedure("")
 Else 
