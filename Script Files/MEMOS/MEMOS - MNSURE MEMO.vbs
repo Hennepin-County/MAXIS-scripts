@@ -134,7 +134,7 @@ If radiogroup1 = 0 then
 				read_row = 7
 			End if
 		LOOP until reference_number = "  "
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	NEXT
 	If WCOM_count = 0 THEN
 		MSGbox "No Waiting HC elig results were found in this month for this HH member."
@@ -166,4 +166,5 @@ start_a_blank_CASE_NOTE
 If radiogroup1 = 0 then EMSendKey "Added MNsure info to client notice via WCOM. -" & worker_signature
 If radiogroup1 = 1 then EMSendKey "Sent client MNsure info via MEMO. -" & worker_signature
 
+STATS_counter = STATS_counter - 1                      'subtracts one instance to the stats counter
 script_end_procedure("")
