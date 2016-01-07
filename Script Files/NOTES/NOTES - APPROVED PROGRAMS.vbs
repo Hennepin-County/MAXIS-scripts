@@ -45,6 +45,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 90                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog benefits_approved, 0, 0, 271, 280, "Benefits Approved"
   CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
