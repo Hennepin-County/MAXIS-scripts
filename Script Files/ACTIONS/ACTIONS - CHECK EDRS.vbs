@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 49                	'manual run time in seconds
+STATS_denomination = "M"       		'M is for each MEMBER
+'END OF stats block=========================================================================================================
+
 BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
   EditBox 60, 10, 80, 15, case_number
   ButtonGroup ButtonPressed
@@ -117,6 +123,8 @@ For i = 0 to Ubound(HH_member_array)
 	SSN_number = replace(SSN_number, " ", "")
 	Member_Info_Array(i, 4) = SSN_number
 	
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	
 Next 
 
 
@@ -150,4 +158,5 @@ For i = 0 to UBound(HH_member_array)
 Next 
 Msgbox Hits
 	
+STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
 script_end_procedure("")
