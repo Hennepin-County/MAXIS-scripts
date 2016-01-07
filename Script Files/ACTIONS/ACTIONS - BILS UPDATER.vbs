@@ -543,8 +543,8 @@ If ref_nbr_actual_01 <> "" then 											'If it isn't blank, add it to BILS
 		EMWriteScreen "0" & left(ver_actual_01, 1), MAXIS_row, 67
 	End if
 	EMWriteScreen bill_type_actual_01, MAXIS_row, 71						'Write the bill type
-	MAXIS_row = MAXIS_row + 1
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter'Go to the next row
+	MAXIS_row = MAXIS_row + 1						'Go to the next row
+	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
 End if
 
 If ref_nbr_actual_02 <> "" then 
