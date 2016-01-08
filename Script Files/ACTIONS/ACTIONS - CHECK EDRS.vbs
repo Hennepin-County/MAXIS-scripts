@@ -123,7 +123,7 @@ For i = 0 to Ubound(HH_member_array)
 	SSN_number = replace(SSN_number, " ", "")
 	Member_Info_Array(i, 4) = SSN_number
 	
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	
 Next 
 
