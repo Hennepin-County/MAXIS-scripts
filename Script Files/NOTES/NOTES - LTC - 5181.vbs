@@ -1,6 +1,6 @@
 'OPTION EXPLICIT
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - 5181.vbs"
+name_of_script = "NOTES - 5181.vbs"
 start_time = timer
 
 'DIM beta_agency, FuncLib_URL, req, fso, run_locally, default_directory
