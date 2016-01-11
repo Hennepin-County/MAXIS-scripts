@@ -149,47 +149,48 @@ EndDialog
         EndDialog
 	ELSEIF dialog_name = "G-L" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (G-L) scripts main menu dialog"
-		ButtonGroup ButtonPressed
-			CancelButton 455, 245, 50, 15
-			PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-			PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
-			PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
-			PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-			PushButton 105, 35, 30, 15, "M - Q", m_through_Q_notes_button
-			PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
-			PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
-			PushButton 5, 60, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
-			PushButton 5, 75, 75, 10, "Good Cause Claimed", GOOD_CAUSE_CLAIMED_button
-			PushButton 5, 90, 45, 10, "GRH - HRF", GRH_HRF_button
-			PushButton 5, 105, 50, 10, "HC Renewal", HC_RENEWAL_button
-			PushButton 5, 120, 30, 10, "HCAPP", HCAPP_button
-			PushButton 5, 135, 65, 10, "HH comp change", HH_COMP_CHANGE_button
-			PushButton 5, 150, 25, 10, "HRF", HRF_button
-			PushButton 5, 165, 80, 10, "IEVS Notice Received", IEVS_NOTICE_RECEIVED_button
-			PushButton 5, 180, 50, 10, " Incarceration ", Incarceration_button
-			PushButton 5, 195, 75, 10, "Interview Completed", INTERVIEW_COMPLETED_button
-			PushButton 5, 210, 45, 10, "LEP - EMA", LEP_EMA_button
-			PushButton 5, 225, 45, 10, "LEP - SAVE", LEP_SAVE_button
-			PushButton 5, 240, 80, 10, "LEP - Sponsor income", LEP_SPONSOR_INCOME_button
-			PushButton 5, 255, 60, 10, "Lobby No Show", LOBBY_NO_SHOW_button
-		Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-		Text 75, 60, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
-		Text 85, 75, 235, 10, "--- Template for requests of good cause to not receive child support."
-		Text 55, 90, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
-		Text 60, 105, 140, 10, "--- Template for HC renewals.*"
-		Text 40, 120, 120, 10, "--- Template for HCAPPs.*"
-		Text 75, 135, 240, 10, "--- Template for when you update the HH comp of a case."
-		Text 35, 150, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
-		Text 95, 165, 215, 10, "--- Template to case note when a IEVS notice is returned."
-		Text 60, 180, 290, 10, "--- Template to note details of an incarceration, and also updates STAT/FACI if necessary."
-		Text 90, 195, 325, 10, "--- Template to case note an interview being completed but no stat panels updated."  
-		Text 90, 195, 325, 10, "--- Template to case note an interview being completed but no stat panels updated."
-		Text 55, 210, 255, 10, "--- Template for EMA applications."
-		Text 55, 225, 255, 10, "--- Template for the SAVE system for verifying immigration status."
-		Text 90, 240, 310, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
-		Text 70, 255, 320, 10, "--- Template for case noting a client's no-showing their in-office appointment."
-		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
-		EndDialog
+  ButtonGroup ButtonPressed
+    CancelButton 455, 245, 50, 15
+    PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+    PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+    PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
+    PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
+    PushButton 105, 35, 30, 15, "M - Q", m_through_Q_notes_button
+    PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
+    PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
+    PushButton 5, 60, 65, 10, "Gas cards issued", GAS_CARDS_ISSUED_button
+    PushButton 5, 75, 75, 10, "Good Cause Claimed", GOOD_CAUSE_CLAIMED_button
+    PushButton 5, 90, 45, 10, "GRH - HRF", GRH_HRF_button
+    PushButton 5, 105, 50, 10, "HC Renewal", HC_RENEWAL_button
+    PushButton 5, 120, 30, 10, "HCAPP", HCAPP_button
+    PushButton 5, 135, 65, 10, "HH comp change", HH_COMP_CHANGE_button
+    PushButton 5, 150, 25, 10, "HRF", HRF_button
+    PushButton 5, 165, 80, 10, "IEVS Notice Received", IEVS_NOTICE_RECEIVED_button
+    PushButton 5, 180, 50, 10, " Incarceration ", Incarceration_button
+    PushButton 5, 195, 75, 10, "Interview Completed", INTERVIEW_COMPLETED_button
+    PushButton 5, 210, 70, 10, "Interview No Show", Interview_No_Show_button
+    PushButton 5, 225, 45, 10, "LEP - EMA", LEP_EMA_button
+    PushButton 5, 240, 45, 10, "LEP - SAVE", LEP_SAVE_button
+    PushButton 5, 255, 80, 10, "LEP - Sponsor income", LEP_SPONSOR_INCOME_button
+  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+  GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
+  Text 75, 60, 375, 10, "--- Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
+  Text 85, 75, 235, 10, "--- Template for requests of good cause to not receive child support."
+  Text 55, 90, 190, 10, "--- Template for GRH HRFs. Case must be post-pay.*"
+  Text 60, 105, 140, 10, "--- Template for HC renewals.*"
+  Text 40, 120, 120, 10, "--- Template for HCAPPs.*"
+  Text 75, 135, 240, 10, "--- Template for when you update the HH comp of a case."
+  Text 35, 150, 240, 10, "--- Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
+  Text 95, 165, 215, 10, "--- Template to case note when a IEVS notice is returned."
+  Text 60, 180, 290, 10, "--- Template to note details of an incarceration, and also updates STAT/FACI if necessary."
+  Text 90, 195, 325, 10, "--- Template to case note an interview being completed but no stat panels updated."
+  Text 80, 210, 260, 10, "--- NEW for 1/16!!! Template for case noting a client's no-showing their in-office or phone appointment."
+  Text 55, 225, 255, 10, "--- Template for EMA applications."
+  Text 55, 240, 255, 10, "--- Template for the SAVE system for verifying immigration status."
+  Text 90, 255, 310, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
+  Text 90, 195, 325, 10, "--- Template to case note an interview being completed but no stat panels updated."
+EndDialog
+
 	ELSEIF dialog_name = "M-Q" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (M-Q) scripts main menu dialog"
 		ButtonGroup ButtonPressed
