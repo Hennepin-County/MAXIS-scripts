@@ -242,35 +242,35 @@ If updating_existing_BILS_check = checked then
 				EMWriteScreen gross_recurring_24, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
 			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 25 and BILS_line(5) <> gross_recurring_25 and gross_recurring_25 <> "" then 
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_25, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
 			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 26 and BILS_line(5) <> gross_recurring_26 and gross_recurring_26 <> "" then 
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_26, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
 			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 27 and BILS_line(5) <> gross_recurring_27 and gross_recurring_27 <> "" then 
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_27, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
 			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 99 and BILS_line(5) <> gross_recurring_99 and gross_recurring_99 <> "" then 
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_99, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
-				STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
 		End If
 		MAXIS_row = MAXIS_row + 1
@@ -388,7 +388,7 @@ If ref_nbr_recurring_01 <> "" then
 		End if
 		EMWriteScreen bill_type_recurring_01, MAXIS_row, 71							'Writes the bill type
 		MAXIS_row = MAXIS_row + 1													'Go to the next MAXIS_row
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	Next
 End if
 
@@ -414,7 +414,7 @@ If ref_nbr_recurring_02 <> "" then
 		End if
 		EMWriteScreen bill_type_recurring_02, MAXIS_row, 71
 		MAXIS_row = MAXIS_row + 1
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	Next
 End if
 
@@ -440,7 +440,7 @@ If ref_nbr_recurring_03 <> "" then
 		End if
 		EMWriteScreen bill_type_recurring_03, MAXIS_row, 71
 		MAXIS_row = MAXIS_row + 1
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	Next
 End if
 
@@ -466,7 +466,7 @@ If ref_nbr_recurring_04 <> "" then
 		End if
 		EMWriteScreen bill_type_recurring_04, MAXIS_row, 71
 		MAXIS_row = MAXIS_row + 1
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	Next
 End if
 
@@ -492,7 +492,7 @@ If ref_nbr_recurring_05 <> "" then
 		End if
 		EMWriteScreen bill_type_recurring_05, MAXIS_row, 71
 		MAXIS_row = MAXIS_row + 1
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	Next
 End if
 
@@ -518,7 +518,7 @@ If ref_nbr_recurring_06 <> "" then
 		End if
 		EMWriteScreen bill_type_recurring_06, MAXIS_row, 71
 		MAXIS_row = MAXIS_row + 1
-		STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	Next
 End if
 
@@ -544,7 +544,7 @@ If ref_nbr_actual_01 <> "" then 											'If it isn't blank, add it to BILS
 	End if
 	EMWriteScreen bill_type_actual_01, MAXIS_row, 71						'Write the bill type
 	MAXIS_row = MAXIS_row + 1						'Go to the next row
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
 
 If ref_nbr_actual_02 <> "" then 
@@ -567,7 +567,7 @@ If ref_nbr_actual_02 <> "" then
 	End if
 	EMWriteScreen bill_type_actual_02, MAXIS_row, 71
 	MAXIS_row = MAXIS_row + 1
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
 
 If ref_nbr_actual_03 <> "" then 
@@ -590,7 +590,7 @@ If ref_nbr_actual_03 <> "" then
 	End if
 	EMWriteScreen bill_type_actual_03, MAXIS_row, 71
 	MAXIS_row = MAXIS_row + 1
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
 
 STATS_counter = STATS_counter - 1		'Removing one instance from the STATS Counter as it started with one at the beginning
