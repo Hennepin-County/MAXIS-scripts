@@ -60,7 +60,7 @@ BeginDialog MOF_recd, 0, 0, 186, 265, "Medical Opinion Form Received"
   Text 5, 50, 70, 10, "HHLD Member name"
   EditBox 75, 80, 100, 15, last_exam_date
   EditBox 90, 100, 85, 15, doctor_date
-  EditBox 45, 120, 130, 15, diagnosis
+  'EditBox 45, 120, 130, 15, diagnosis  'Commenting out the diagnosis field while a PI is done. See issue #1589
   EditBox 70, 140, 105, 15, condition_will_last
   EditBox 85, 160, 90, 15, ability_to_work
   EditBox 50, 180, 125, 15, other_notes
@@ -74,7 +74,7 @@ BeginDialog MOF_recd, 0, 0, 186, 265, "Medical Opinion Form Received"
   CheckBox 20, 65, 85, 10, "Client signed release?", client_release
   Text 5, 85, 65, 10, "Date of last exam: "
   Text 5, 105, 80, 10, "Date doctor signed form: "
-  Text 5, 125, 40, 10, "Diagnosis"
+  'Text 5, 125, 40, 10, "Diagnosis" 'Commenting out the diagnosis field while a PI is done. See issue #1589
   Text 5, 145, 65, 10, "Condition will last:"
   Text 5, 165, 75, 10, "Client's ability to work: "
   Text 5, 185, 40, 10, "Other notes: "
@@ -117,7 +117,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Household Member", HH_Member)
 IF client_release = checked THEN CALL write_variable_in_CASE_NOTE ("* Client signed release on MOF.")
 CALL write_bullet_and_variable_in_CASE_NOTE("Date of last examination", last_exam_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Doctor signed form", doctor_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("Diagnosis", diagnosis)
+'CALL write_bullet_and_variable_in_CASE_NOTE("Diagnosis", diagnosis) 'Commenting out the diagnosis field while a PI is done. See issue #1589
 CALL write_bullet_and_variable_in_CASE_NOTE("Condition will last", condition_will_last)
 CALL write_bullet_and_variable_in_CASE_NOTE("Ability to work", ability_to_work)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
