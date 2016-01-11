@@ -109,8 +109,8 @@ BeginDialog out_of_county_dlg, 0, 0, 236, 385, "Case Transfer"
 EndDialog
 
 
-BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
-  EditBox 65, 10, 50, 15, case_number
+BeginDialog within_county_dlg, 0, 0, 211, 270, "Case Transfer"
+  EditBox 70, 10, 50, 15, case_number
   ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
   EditBox 130, 50, 65, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
@@ -125,20 +125,22 @@ BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   CheckBox 170, 125, 40, 10, "EMER", EMER_pend_check
   DropListBox 100, 140, 65, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
   EditBox 85, 160, 120, 15, Transfer_reason
-  EditBox 80, 180, 125, 15, Action_to_be_taken
-  EditBox 80, 200, 125, 15, worker_signature
+  EditBox 85, 180, 120, 15, Action_to_be_taken
+  CheckBox 10, 200, 195, 10, "Check to send out a SPEC/MEMO to client of new worker.", spec_memo_withincty_check 'add this as option for worker to use for w/in county xfer.
+  EditBox 80, 230, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 100, 220, 50, 15
-    CancelButton 155, 220, 50, 15
-  Text 15, 185, 65, 10, "Actions to be taken:"
+    OkButton 100, 250, 50, 15
+    CancelButton 155, 250, 50, 15
   Text 15, 35, 60, 10, "Unit to transfer to: "
   Text 15, 165, 70, 10, "Reason for Transfer:"
   Text 15, 145, 85, 10, "Pregnancy verif received:"
   Text 15, 15, 50, 10, "Case Number:"
   Text 15, 75, 80, 10, "Active On:"
   Text 15, 110, 60, 10, "Pending On:"
-  Text 15, 205, 60, 10, "Worker Signature:"
+  Text 15, 235, 60, 10, "Worker Signature:"
   Text 15, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
+  Text 15, 185, 70, 10, "Actions (to be) taken:"  'put ( ) around "to be" as it is option for if there are actions that new worker need to handle or actions already been done by xfer worker.
+  Text 20, 210, 140, 10, "(This is for only within the county transfer.)"
 EndDialog
 
 
@@ -202,6 +204,7 @@ IF XFERRadioGroup = 0 THEN
 		IF preg_y_n <> "N/A" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
 		call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason)
 		call write_bullet_and_variable_in_case_note("Actions to be taken", Action_to_be_taken)
+		IF spec_memo_withincty_check = checked THEN call write_variable_in_case_note ("SPEC/MEMO sent to client") 'adding this line in case note indicating a memo is sent to client
 		call write_variable_in_case_note("---")
 		call write_variable_in_case_note(worker_signature)
 
@@ -217,6 +220,34 @@ IF XFERRadioGroup = 0 THEN
 		PF9
 		EMWriteScreen worker_to_transfer_to, 18, 61
 		transmit
+
+		'goes back to SELF menu, then navigate to SPEC/MEMO and send a memo out to client regarding their new worker within the county
+		back_to_self
+
+		'goes to MEMO and create a new memo to be send out 
+		If spec_memo_withincty_check = checked THEN 
+			Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
+				PF5
+				EMWriteScreen "X", 5, 10
+				Transmit
+				'this reads the bottom of the screen if worker is not able to update or write memo due to wrong case # or inqury mode, otherwise it goes on writing spec/memo to client, save, and exit.
+					EMReadScreen memo_access, 33, 24, 2
+					IF memo_access = "YOU ARE NOT AUTHORIZED FOR UPDATE" THEN script_end_procedure ("You do not have access to modify this case. Please double check your case number and try again or alternatively, you may be in INQUIRY MODE.")
+
+				Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
+                        	Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
+                        	Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
+                		Call write_variable_in_SPEC_MEMO ("   ")
+                        	Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
+                        	Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request.")
+                        	Call write_variable_in_SPEC_MEMO ("   ")
+                        	Call write_variable_in_SPEC_MEMO ("Thank you,")
+
+				PF4
+				PF3
+		END If
+
+		back_to_self
 
 		script_end_procedure("")
 
@@ -480,6 +511,7 @@ IF XFERRadioGroup = 0 THEN
 	EMReadScreen primary_worker, 7, 21, 16
 	EMWriteScreen primary_worker, 18, 28
 	EMWriteScreen transfer_to, 18, 61
+
 
 	script_end_procedure("Success! The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER and transfer the case.")
 
