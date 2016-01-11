@@ -236,4 +236,4 @@ END IF
 CALL write_variable_in_Case_Note("----")
 CALL write_variable_in_Case_Note(worker_signature)
 
-Script_End_Procedure ""
+script_end_procedure ("")
