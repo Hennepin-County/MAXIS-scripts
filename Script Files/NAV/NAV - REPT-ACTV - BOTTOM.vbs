@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 4                       'manual run time in seconds
+STATS_denomination = "I"                   'I is for each ITEM
+'END OF stats block==============================================================================================
+
 'DIALOGS-----------------------------------------------------------------------------------
 BeginDialog worker_dialog, 0, 0, 171, 45, "Worker dialog"
   Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"
@@ -89,6 +95,7 @@ END IF
 DO
 	PF8
 	EMReadScreen last_page_check, 21, 24, 2
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 script_end_procedure("")

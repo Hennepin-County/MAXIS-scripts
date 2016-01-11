@@ -44,29 +44,35 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog County_Burial_Application_Received, 0, 0, 186, 240, "County Burial Application Received"
-  Text 5, 10, 50, 10, "Case Number: "
-  EditBox 55, 5, 100, 15, case_number
-  Text 5, 30, 50, 10, "Date received: "
-  EditBox 55, 25, 100, 15, date_received
-  Text 5, 50, 50, 10, "Date of death:"
-  EditBox 60, 50, 85, 15, date_of_death
-  Text 5, 70, 30, 10, "CFR:"
-  EditBox 60, 70, 85, 15, CFR
-  Text 5, 95, 35, 10, "Assets:"
-  EditBox 50, 95, 130, 15, assets
-  Text 5, 125, 75, 10, "Total Counted Assets"
-  EditBox 80, 120, 95, 15, Total_Counted_Assets
-  Text 5, 150, 40, 10, "Other notes: "
-  EditBox 55, 145, 125, 15, other_notes
-  Text 5, 175, 45, 10, "Action taken: "
-  EditBox 50, 175, 125, 15, action_taken
-  Text 5, 205, 60, 10, "Worker Signature: "
-  EditBox 70, 200, 105, 15, worker_signature
+BeginDialog County_Burial_Application_Received, 0, 0, 266, 175, "County Burial Application Received"
+  EditBox 55, 5, 60, 15, case_number
+  EditBox 200, 5, 60, 15, date_received
+  EditBox 55, 25, 60, 15, date_of_death
+  EditBox 200, 25, 30, 15, CFR_resp
+  EditBox 35, 50, 225, 15, assets
+  EditBox 80, 75, 180, 15, Total_Counted_Assets
+  EditBox 55, 100, 205, 15, other_notes
+  EditBox 55, 125, 205, 15, action_taken
+  EditBox 65, 150, 90, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 70, 220, 50, 15
-    CancelButton 125, 220, 50, 15
+    OkButton 160, 150, 50, 15
+    CancelButton 210, 150, 50, 15
+  Text 145, 10, 50, 10, "Date received: "
+  Text 5, 105, 40, 10, "Other notes: "
+  Text 175, 30, 20, 10, "CFR:"
+  Text 5, 130, 50, 10, "Actions taken: "
+  Text 5, 10, 50, 10, "Case Number: "
+  Text 5, 155, 60, 10, "Worker Signature: "
+  Text 5, 55, 25, 10, "Assets:"
+  Text 5, 30, 50, 10, "Date of death:"
+  Text 5, 80, 75, 10, "Total Counted Assets:"
 EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
@@ -80,7 +86,6 @@ DO
 	IF buttonpressed = 0 THEN stopscript
 	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
 	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
-	
 LOOP until case_number <> "" and worker_signature <> ""
 
 'checking for an active MAXIS session
@@ -91,7 +96,7 @@ start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***County Burial Application Received")
 CALL write_bullet_and_variable_in_CASE_NOTE("Date Received", Date_Received)
 CALL write_bullet_and_variable_in_CASE_NOTE("Date of death", Date_of_death)
-CALL write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
+CALL write_bullet_and_variable_in_CASE_NOTE("CFR", CFR_resp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Assets", Assets)
 CALL write_bullet_and_variable_in_CASE_NOTE("Total Counted Assets", Total_Counted_Assets)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)

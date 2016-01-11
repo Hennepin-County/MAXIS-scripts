@@ -1,6 +1,6 @@
 'OPTION EXPLICIT
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
-name_of_script = "NOTE - 5181.vbs"
+name_of_script = "NOTES - 5181.vbs"
 start_time = timer
 
 'DIM beta_agency, FuncLib_URL, req, fso, run_locally, default_directory
@@ -46,6 +46,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 360          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM start_time, name_of_script, url, row, script_end_procedure, case_number_and_footer_month_dialog, case_number

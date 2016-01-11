@@ -5,11 +5,13 @@ start_time = timer
 
 'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
 
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -20,7 +22,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -31,7 +33,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +48,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 180          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'Dimming variables----------------------------------------------------------------------------------------------------
 'DIM MFIP_Sanction_DWP_Disq_Dialog
@@ -155,21 +163,21 @@ IF collecting_ES_statistics = true AND case_number <> "" THEN
 	objConnection.Close
 	set rs = nothing
 END IF
-
+	
 'Shows dialog
 DO
-	err_msg = ""
+	err_msg = ""						
 	Dialog MFIP_Sanction_DWP_Disq_Dialog
 	cancel_confirmation
 	IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid numeric case number."
 	IF sanction_status_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction status type."
 	IF HH_Member_Number = "" THEN err_msg = err_msg & vbCr & "You must enter a HH member number."
 	IF sanction_type_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction type."
-	IF number_occurances = "" THEN err_msg = err_msg & vbCr & "You must enter the number of the sanction occurrence."
-	IF IsDate(Date_Sanction) = FALSE THEN
+	IF number_occurances = "" THEN err_msg = err_msg & vbCr & "You must enter the number of the sanction occurrence."		
+	IF IsDate(Date_Sanction) = FALSE THEN 
 			err_msg = err_msg & vbCr & "You need to enter a valid date of sanction (MM/DD/YYYY)."
 		'logic for figuring out if its the first of the month, if it's not, then it gives a more define date requirement
-		ELSEIF datepart("d", Date_Sanction) <> 1 THEN
+		ELSEIF datepart("d", Date_Sanction) <> 1 THEN  
 			err_msg = "You need to enter a valid date of sanction (MM/DD/YYYY), with DD = to first of the sanction month)"
 		END IF
 	IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
@@ -177,7 +185,7 @@ DO
 	IF IsDate(Date_Sanction) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid date of sanction."
 	IF sanction_reason_droplist = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
 	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP UNTIL err_msg = ""
 
 
@@ -186,13 +194,13 @@ LOOP UNTIL err_msg = ""
 Call check_for_MAXIS(True)
 
 'TIKL to change sanction status (check box selected)
-If TIKL_next_month = checked THEN
-	'navigates to DAIL/WRIT
-	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-
+If TIKL_next_month = checked THEN 
+	'navigates to DAIL/WRIT 
+	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
+	
 	TIKL_date = dateadd("m", 1, date)		'Creates a TIKL_date variable with the current date + 1 month (to determine what the month will be next month)
 	TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
-
+	
 	'The following will generate a TIKL formatted date for 10 days from now.
 	Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
 	'Writes TIKL to worker
@@ -244,12 +252,12 @@ IF Sent_SPEC_WCOM = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sancti
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-If notating_spec_wcom = checked THEN
+If notating_spec_wcom = checked THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
 	EMReadscreen CASH_check, 2, read_row, 26  'checking to make sure that notice is for MFIP or DWP
 	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
 	'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
-	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN
+	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
 		EMSetcursor read_row, 13
 		EMSendKey "x"
 		Transmit
@@ -262,7 +270,7 @@ If notating_spec_wcom = checked THEN
 		Call write_variable_in_SPEC_WCOM("")
 		PF4
 		PF3
-	ELSE
+	ELSE 
 		Msgbox "There is not a pending notice for this cash case. The script was unable to update your SPEC/WCOM notation."
 	END if
 END If
@@ -270,7 +278,7 @@ END If
 'Updating database if applicable
 IF collecting_ES_statistics = true THEN
 	IF Sanction_Percentage_droplist = "100%" THEN ESActive = "No" 'updating ESActive when case is sanctioned out
-	Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only
+	Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only                               
 	CALL write_MAXIS_info_to_ES_database(case_number, HH_Member_Number, ESMembName, Sanction_Percentage_droplist, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
 END IF
 

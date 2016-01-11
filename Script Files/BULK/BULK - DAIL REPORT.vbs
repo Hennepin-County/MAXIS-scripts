@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 42                               'manual run time in seconds
+STATS_denomination = "I"       'I is for each ITEM
+'END OF stats block==============================================================================================
+
 BeginDialog x_dlg, 0, 0, 146, 105, "x1 Number"
   EditBox 45, 60, 55, 15, x_number
   ButtonGroup ButtonPressed
@@ -57,7 +63,7 @@ EMConnect ""
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Excel headers and formatting the columns
@@ -88,22 +94,22 @@ DO
 	EMReadScreen maxis_case_number, 8, 5, 73
 	maxis_case_number = trim(maxis_case_number)
 	objExcel.Cells(excel_row, 1).Value = maxis_case_number
-	
-	'This bit of code grabs the client name. The do/loop expands the search area until the value for 
+
+	'This bit of code grabs the client name. The do/loop expands the search area until the value for
 	'next_two equals "--" ... at which time the script determines that the cl name has ended
 	dail_col = 6
 	name_len = 1
 	DO
 		EMReadScreen client_name, name_len, 5, 5
 		EMReadScreen next_two, 2, 5, dail_col
-		IF next_two <> "--" THEN 
+		IF next_two <> "--" THEN
 			name_len = name_len + 1
 			dail_col = dail_col + 1
 		END IF
 	LOOP UNTIL next_two = "--"
 	'Dumping the client name in Excel
 	objExcel.Cells(excel_row, 2).Value = client_name
-	
+
 	'This is where the script starts reading the DAIL messages.
 	'Because the script brings each new case to the top of the page, dail_row starts at 6.
 	dail_row = 6
@@ -111,14 +117,14 @@ DO
 		'Determining if there is a new case number...
 		EMReadScreen new_case, 8, dail_row, 63
 		new_case = trim(new_case)
-		IF new_case <> "CASE NBR" THEN 
+		IF new_case <> "CASE NBR" THEN
 			'...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
 			EMReadScreen dail_type, 4, dail_row, 6
 			EMReadScreen dail_month, 8, dail_row, 11
 			dail_month = trim(dail_month)
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
-			IF dail_msg <> "" AND dail_type <> "    " and dail_month <> "" THEN 
+			IF dail_msg <> "" AND dail_type <> "    " and dail_month <> "" THEN
 				'...and put that biznass in Excel.
 				objExcel.Cells(excel_row, 1).Value = maxis_case_number
 				objExcel.Cells(excel_row, 2).Value = client_name
@@ -126,17 +132,19 @@ DO
 				objExcel.Cells(excel_row, 4).Value = dail_month
 				objExcel.Cells(excel_row, 5).Value = dail_msg
 			END IF
-			
+
 			'...going to the next ding dang row...
 			dail_row = dail_row + 1
-			
+			'adds one instance to the stats counter
+			STATS_counter = STATS_counter + 1
+
 			'...going to the next page if necessary
 			IF dail_row = 19 AND dail_msg <> "" THEN
 				PF8
 				dail_row = 6
 			ELSEIF dail_row = 19 AND dail_msg = "" THEN
 				EMReadScreen more_pages, 7, 19, 3
-				IF more_pages = "More: -" OR more_pages = "       " THEN 
+				IF more_pages = "More: -" OR more_pages = "       " THEN
 					all_done = True
 					'If the script determines that it is on the last page, it EXITS DO...
 					exit do
@@ -145,11 +153,11 @@ DO
 					dail_row = 6
 				END IF
 			END IF
-			
+
 			excel_row = excel_row + 1
 		ELSEIF new_case = "CASE NBR" THEN
 			'...if the script does find that there is a new case number (indicated by the presence
-			'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that 
+			'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that
 			'   case number to the top of your DAIL
 			EMWriteScreen "T", dail_row + 1, 3
 			transmit
@@ -163,7 +171,7 @@ FOR i = 1 to 5
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-'All donesies.
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")
 
 'Now that you have your Excel spreadsheet, photons will enter your eye balls, hit your retina, and create a signal that will

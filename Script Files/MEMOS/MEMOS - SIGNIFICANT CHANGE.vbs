@@ -44,6 +44,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 90                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
+'DIALOGS---------------------------------
 BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
   EditBox 75, 5, 60, 15, case_number
   DropListBox 75, 25, 65, 15, "Select one..."+chr(9)+"Requested"+chr(9)+"Pending"+chr(9)+"Approved"+chr(9)+"Denied", Sig_change_status_dropdown
@@ -76,21 +83,16 @@ BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
   Text 190, 80, 70, 10, "*Enter 4 digit year"
 EndDialog
 
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------
-
 EMConnect "" 'Connects to Bluezone
-
 EMFocus 'Brings Bluezone to foreground
 
 call check_for_MAXIS(True) 'Password Check- Script will shut down if passworded out
 
 call MAXIS_case_number_finder(case_number) 'Searches for case number
 
-
-
-'This is the new Do Loop process that makes mandatory fields in the dialog box  
-Do	
+'This is the new Do Loop process that makes mandatory fields in the dialog box
+Do
 	err_msg = ""
 	Dialog SigChange_Dialog
 	cancel_confirmation 'Are you sure you want to quit? message
@@ -104,15 +106,14 @@ Do
 	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 'Msgbox starts out with Notice!!! then makes new line (this should give it a space it before the error messages because each message starts out with new line) and then adds a couple lines to space after the error messages before the saying that "Please resolve for script to continue" "
 LOOP UNTIL err_msg = ""
 
-	
 'TIKL to review/process sig change request for future month (check box selected)
-If TIKL_future_month_checkbox = checked THEN 
-	'navigates to DAIL/WRIT 
-	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
-	
+If TIKL_future_month_checkbox = checked THEN
+	'navigates to DAIL/WRIT
+	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+
 	TIKL_date = dateadd("m", 1, date)		'Creates a TIKL_date variable with the current date + 1 month (to determine what the month will be next month)
 	TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
-	
+
 	Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
 	'Writes TIKL to worker
 	Call write_variable_in_TIKL("A Significant Change was requested for this month. Please review and process")
@@ -148,7 +149,7 @@ If Sig_change_status_dropdown = "Denied" THEN
 	'Exits the MEMO
 	PF4
 END If
-	
+
 'Starts the case note
 call start_a_blank_case_note
 
@@ -166,5 +167,3 @@ IF Sig_change_status_dropdown = "Denied" THEN write_new_line_in_case_note ("* De
 call write_variable_in_CASE_NOTE (Worker_signature)
 
 script_end_procedure("Success!")
-
-

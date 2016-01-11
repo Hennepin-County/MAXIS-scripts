@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 480          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
   EditBox 30, 15, 350, 15, unearned_income
@@ -607,9 +613,9 @@ col = 1
 EMSearch "Case Nbr:", row, col
 If row <> 0 then EMReadScreen case_number, 8, row, col + 10
 
-If DateDiff("D", #12/01/2015#, date) < 0 then
-	MsgBox("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
-	script_end_procedure("")
+'Checking to see that we are in an appropriate footer month to be updating in CY2016
+If DateDiff("D", #12/01/2015#, date) < 0 THEN
+	script_end_procedure("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
 Else
 	BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
 	EditBox 100, 0, 60, 15, case_number
