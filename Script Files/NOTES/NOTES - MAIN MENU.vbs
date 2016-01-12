@@ -57,8 +57,8 @@ DIM DENIED_PROGRAMS_button, DOCUMENTS_RECEIVED_button, DRUG_FELON_button, DWP_BU
 DIM EMERGENCY_button, EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EMPLOYMENT_VERIFICATION_button, ES_REFERRAL_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button
 
 DIM GAS_CARDS_ISSUED_button, GOOD_CAUSE_CLAIMED_button, GRH_HRF_button
-DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, IEVS_NOTICE_RECEIVED_button, INCARCERATION_button, INTERVIEW_COMPLETED_button
-DIM LEP_EMA_button, LEP_SAVE_button, LEP_SPONSOR_INCOME_button, LOBBY_NO_SHOW_button
+DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, IEVS_NOTICE_RECEIVED_button, INCARCERATION_button, INTERVIEW_COMPLETED_button, INTERVIEW_NO_SHOW_button
+DIM LEP_EMA_button, LEP_SAVE_button, LEP_SPONSOR_INCOME_button
 
 DIM MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button, MFIP_SANCTION_CURED_button, MFIP_TO_SNAP_TRANSITION_button, MILEAGE_REIMBURSEMENT_REQUEST_button, MNSURE_DOCUMENTS_REQUESTED_button, MNSURE_RETRO_HC_APPLICATION_button
 DIM OVERPAYMENT_button, MTAF_button
@@ -364,10 +364,11 @@ IF ButtonPressed = HRF_button										THEN CALL run_from_GitHub(script_reposito
 IF ButtonPressed = IEVS_NOTICE_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - IEVS NOTICE RECEIVED.vbs")
 If ButtonPressed = Incarceration_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - INCARCERATION.vbs")
 IF ButtonPressed = INTERVIEW_COMPLETED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - INTERVIEW COMPLETED.vbs")
+IF ButtonPressed = INTERVIEW_NO_SHOW_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - INTERVIEW NO SHOW.vbs")
 IF ButtonPressed = LEP_EMA_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - EMA.vbs")
 IF ButtonPressed = LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
 IF ButtonPressed = LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
-IF ButtonPressed = LOBBY_NO_SHOW_button 							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LOBBY NO SHOW.vbs")
+							
 
 IF ButtonPressed = MEDICAL_OPINION_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
 IF ButtonPressed = MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
