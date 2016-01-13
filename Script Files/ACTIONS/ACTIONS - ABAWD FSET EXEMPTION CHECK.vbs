@@ -518,7 +518,7 @@ FOR EACH person IN HH_member_array
 			END IF	
 		END IF
 	END IF
-	STATS_counter = STATS_counter + 1                      ‘adds one instance to the stats counter
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 NEXT
 
 household_persons = ""
