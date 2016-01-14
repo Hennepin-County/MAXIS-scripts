@@ -287,7 +287,12 @@ END If
 call navigate_to_MAXIS_screen("SPEC", "MEMO")
 PF5
 'Selects "other recipient of your choosing" instead of the client to send the MEMO to
-EMWritescreen "x", 6, 10
+other_row = 6    
+DO				'loop to search for OTHER recipient
+	EMReadscreen find_other, 5, other_row, 12
+	If find_other <> "OTHER" THEN other_row = other_row + 1
+LOOP until find_other = "OTHER"
+EMWritescreen "x", other_row, 10   'writes X on row where the phrase OTHER was found. 
 transmit
 'Writes in Name of Facility and the address which MEMO is being sent
 EMWritescreen facility_name, 13, 24
