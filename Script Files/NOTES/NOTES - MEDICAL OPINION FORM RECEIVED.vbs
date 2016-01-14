@@ -100,6 +100,7 @@ DO
 	IF case_number = "" THEN err_msg = err_msg & vbNewLine & "*You must enter a case number"
 	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
 	If HH_Member = "" Then err_msg = err_msg & vbNewLine & "*You must enter the household member"
+	If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
 LOOP until err_msg = ""
 
 
