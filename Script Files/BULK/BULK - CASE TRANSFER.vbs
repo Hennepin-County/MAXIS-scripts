@@ -475,3 +475,323 @@ For each worker in worker_array
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
+
+k = 0	'Setting the inital value for the next array
+
+For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from REPT/ACTV for any of the criteria selected in initial dialog 
+	case_number = Full_case_list_array(0,n)	'Setting the case number for the FuncLib fucntions to work
+	IF SNAP_ABAWD_check = checked OR SNAP_UH_check = checked OR MFIP_tanf_check = checked OR child_only_mfip_check = checked OR mont_rept_check = checked OR HC_msp_check = checked OR adult_hc_check = checked OR family_hc_check = checked OR ltc_HC_check = checked OR waiver_HC_check = checked OR exclude_ievs_check = checked OR exclude_paris_check = checked then
+		'////// Checking number of TANF months if requested
+		IF MFIP_tanf_check = checked then 
+			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then 
+				STATS_counter = STATS_counter + 1
+				navigate_to_MAXIS_screen "STAT", "TIME"
+				EMReadScreen reg_mo, 2, 17, 69
+				EMReadScreen ext_mo, 3, 19, 69
+				If ext_mo = "   " then ext_mo = 0 
+				reg_mo = reg_mo * 1
+				ext_mo = ext_mo * 1 
+				TANF_used = abs(reg_mo) + abs(ext_mo)
+				PF3
+			End If
+		End If
+		'////// Checking for adults on the MFIP grant if requested
+		IF  child_only_mfip_check = checked then 
+			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then
+				adult_on_mfip = False  
+				navigate_to_MAXIS_screen "ELIG", "MFIP"
+				STATS_counter = STATS_counter + 1
+				EMReadScreen approval_check, 8, 3, 3 
+				IF approval_check <> "APPROVED" then 
+					EMReadScreen version_number, 1, 2, 12 
+					prev_version = abs(version_number)-1
+					EMWriteScreen 0 & prev_version, 20, 79 
+					transmit 
+				End If
+				ReDim eligible_members_array (0)
+				ReDim non_mfip_members_array (0)
+				a = 0 
+				b = 0 
+				For row_to_check = 7 to 19 
+					EMReadScreen pers_status, 10, row_to_check, 53
+					EMReadScreen memb_number, 2, row_to_check, 6
+					If pers_status = "INELIGIBLE" then
+						non_mfip_members_array(a) = memb_number
+						a = a + 1 
+						ReDim Preserve non_mfip_members_array(a)
+					ElseIF pers_status = "ELIGIBLE  " then 
+						eligible_members_array(b) = memb_number
+						b = b + 1 
+						ReDim Preserve eligible_members_array(b) 
+					Else 
+						Exit For
+					End If
+				Next
+				navigate_to_MAXIS_screen "STAT", "MEMB"
+				For i = 0 to b 
+					STATS_counter = STATS_counter + 1
+					EMWriteScreen eligible_members_array(i), 20, 76
+					transmit
+					EMReadScreen member_age, 2, 8, 76
+					If member_age = "  " then member_age = 0
+					If abs(member_age) > 18 then
+						adult_on_mfip = TRUE 
+					ElseIF abs(member_age) = 18 AND eligible_members_array(i) = "01" THEN
+						adult_on_mfip = TRUE 
+					End IF
+					If adult_on_mfip = TRUE then 
+						Exit For
+					Else 
+						adult_on_mfip = FALSE
+					End If
+				Next
+			End If 
+		End If 
+		'//////Checking for monthly reporter
+		IF mont_rept_check = checked then
+			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then
+				navigate_to_MAXIS_screen "ELIG", "MFIP"
+				STATS_counter = STATS_counter + 1
+				EMReadScreen approval_check, 8, 3, 3 
+				IF approval_check <> "APPROVED" then 
+					EMReadScreen version_number, 1, 2, 12 
+					prev_version = abs(version_number)-1
+					EMWriteScreen 0 & prev_version, 20, 79 
+					transmit 
+				End If
+				EMWriteScreen "MFSM", 20, 71 
+				transmit 
+				EMReadScreen reporter_type, 10, 8, 31 
+				reporter_type = trim(reporter_type)
+			End If 
+		End If 
+		'//////Checking for ABAWD Status 
+		IF SNAP_ABAWD_check = checked then 
+			IF Full_case_list_array(7,n) = "P" OR Full_case_list_array(7,n) = "A" then
+				SNAP_with_ABAWD = False 
+				navigate_to_MAXIS_screen "ELIG", "FS"
+				STATS_counter = STATS_counter + 1
+				ReDim SNAP_HH_Array(0) 
+				c = 0 
+				For row_to_check = 7 to 19 
+					EMReadScreen pers_status, 10, row_to_check, 57
+					EMReadScreen memb_number, 2, row_to_check, 10
+					IF pers_status = "ELIGIBLE  " then 
+						SNAP_HH_Array(c) = memb_number
+						c = c + 1 
+						ReDim Preserve SNAP_HH_Array(c) 
+					End If
+				Next
+				navigate_to_MAXIS_screen "STAT", "WREG"
+				For j = 0 to c
+					STATS_counter = STATS_counter + 1
+					EMWriteScreen SNAP_HH_Array(j), 20, 76 
+					transmit						
+					EMReadScreen ABAWD_status, 2, 13, 50
+					IF ABAWD_status = "10" OR ABAWD_status = "11" then 
+						SNAP_with_ABAWD = TRUE 
+						Exit For 
+					Else 
+						SNAP_with_ABAWD = FALSE 
+					End If
+				Next 
+			End If
+		End If 
+		'///// Determining if Case is Uncle Harry SNAP
+		IF SNAP_UH_check = checked then
+			IF Full_case_list_array(7,n) = "P" OR Full_case_list_array(7,n) = "A" then 
+				STATS_counter = STATS_counter + 1
+				navigate_to_MAXIS_screen "ELIG", "FS"
+				EMReadScreen type_of_SNAP, 13, 4, 3 
+				IF type_of_SNAP = "'UNCLE HARRY'" then 
+					UH_SNAP = TRUE 
+				Else
+					UH_SNAP = FALSE 
+				End If
+			End If
+		End If 
+		'///// Finding if HC cases have Medicare Savings Programs active or pending
+		IF HC_msp_check = checked then
+			IF Full_case_list_array(8,n) = "A" OR Full_case_list_array(8,n) = "P" then 
+				STATS_counter = STATS_counter + 1
+				navigate_to_MAXIS_screen "CASE", "CURR"
+				'Determines if QMB is active
+				Pending_MSP = False 
+				row = 1 
+				col = 1 
+				EMSearch "QMB:", row, col 
+				If row = 0 then 
+					QMB_active = FALSE 
+				Else 
+					EMReadScreen prog_status, 6, row, col + 5 
+					IF prog_status = "ACTIVE" OR prog_status = "APP OP" then 
+						QMB_active = TRUE
+					ElseIf prog_status = "PENDIN" then 
+						Pending_MSP = TRUE 
+					End If
+				End If
+				'Determines if SLMB is active
+				row = 1 
+				col = 1 
+				EMSearch "SLMB:", row, col 
+				If row = 0 then 
+					SLMB_active = FALSE 
+				Else 
+					EMReadScreen prog_status, 6, row, col + 6 
+					IF prog_status = "ACTIVE" OR prog_status = "APP OP" then 
+						SLMB_active = TRUE
+					ElseIf prog_status = "PENDIN" then 
+						Pending_MSP = TRUE 
+					End If 
+				End If
+				'Determines if QI1 is active
+				row = 1 
+				col = 1 
+				EMSearch "Q1:", row, col 
+				If row = 0 then 
+					QI_active = FALSE 
+				Else 
+					EMReadScreen prog_status, 6, row, col + 4 
+					IF prog_status = "ACTIVE" OR prog_status = "APP OP" then 
+						QI_active = TRUE
+					ElseIf prog_status = "PENDIN" then 
+						Pending_MSP = TRUE
+					End If 
+				End If
+				IF QMB_active = TRUE then
+					MSP_actv = "QMB"
+				ElseIf SLMB_active = TRUE then
+					MSP_actv = "SLMB"
+				ElseIF QI_active = TRUE then
+					MSP_actv = "QI1"
+				ElseIF Pending_MSP = TRUE then 
+					MSP_actv = "PEND"
+				Else 
+					MSP_actv = "None"
+				End If
+			End If
+		End If 
+		'////// Determining Family or Adult HC Cases 
+		If adult_hc_check = checked OR family_hc_check = checked then 
+			IF Full_case_list_array(8,n) = "A" or Full_case_list_array(8,n) = "P" then
+				navigate_to_MAXIS_screen "ELIG", "HC"
+				For row = 8 to 19 
+					EMReadScreen prog_status, 6, row, 50 
+					If prog_status = "ACTIVE" or prog_status = "PENDIN" then
+						STATS_counter = STATS_counter + 1
+						EMWriteScreen "x", 8, 26 
+						transmit
+						EMReadScreen Elig_type, 2, 12, 72 
+						If Elig_type = "BT" OR Elig_type = "DT" then 
+							Specialty_HC = "TEFRA"
+						ElseIF Elig_type = "09" OR Elig_type = "10" OR Elig_type = "25" then 
+							Specialty_HC = "Foster/IV-E"
+						ElseIF Elig_type = "BC" then
+							Specialty_HC = "SAGE/BC"
+						ElseIf Elig_type = "11" OR Elig_type = "PX" OR Elig_type = "PC" OR Elig_type = "CB" OR Elig_type = "CK" OR Elig_type = "CX" OR Elig_type = "AA" then
+							Family_HC = TRUE
+						ElseIf Elig_type = "AX" OR Elig_type = "15" OR Elig_type = "16" OR Elig_type = "EX" OR Elig_type = "BX" OR Elig_type = "DX" OR Elig_type = "DP" OR Elig_type = "RM" then
+							Adult_HC = TRUE 
+							Family_HC = FALSE 
+						End If 
+						If Specialty_HC <> "" OR Family_HC = TRUE then 
+							Adult_HC = FALSE 
+							Exit For 
+						End If
+					End If 
+				Next 
+			End If
+		End If 
+		'////// Determining LTC cases
+		If ltc_HC_check = checked then 
+			IF Full_case_list_array(8,n) = "A" or Full_case_list_array(8,n) = "P" then
+				navigate_to_MAXIS_screen "ELIG", "HC"
+				STATS_counter = STATS_counter + 1
+				EMWriteScreen "x", 8, 26 
+				transmit
+				EMReadScreen hc_method, 1, 13, 76 
+				If hc_method = "L" then 
+					LTC_MA = TRUE
+				Else
+					LTC_MA = FALSE
+				End If 
+			End If
+		End If 
+		'////// Determining Waiver Cases 
+		If waiver_HC_check = checked then 
+			IF Full_case_list_array(8,n) = "A" or Full_case_list_array(8,n) = "P" then
+				navigate_to_MAXIS_screen "ELIG", "HC"
+				STATS_counter = STATS_counter + 1
+				EMWriteScreen "x", 8, 26 
+				transmit
+				EMReadScreen waiver_type, 1, 14, 76 
+				If waiver_type = "F" OR waiver_type = "G" OR waiver_type = "H" OR waiver_type = "I" OR waiver_type = "J" OR waiver_type = "K" OR waiver_type = "L" OR waiver_type = "M" OR waiver_type = "P" OR waiver_type = "Q" OR waiver_type = "R" OR waiver_type = "S" OR waiver_type = "Y" then 
+					Waiver_MA = TRUE
+				Else
+					Waiver_MA = FALSE
+				End If 
+			End If
+		End If 
+		'///// Determining if IEVS DAILs exist for this case 
+		IF exclude_ievs_check = checked then 
+			back_to_self
+			EMWaitReady 0,0 
+			EMWriteScreen Full_case_list_array(0,n), 18, 43 
+			navigate_to_MAXIS_screen "DAIL", "DAIL" 
+			STATS_counter = STATS_counter + 1
+			EMWriteScreen "x", 4, 12 
+			transmit 
+			EMWriteScreen " ", 7, 39 
+			EMWriteScreen "x", 12, 39 
+			transmit 
+			Do 
+				EMReadScreen msg_check, 11, 24, 2 
+				IF msg_check = "NO MESSAGES" THEN 
+					msg_check = ""
+					Exit Do
+				End IF 
+				ievs_dail_row = 1 
+				ievs_dail_col = 1 
+				EMSearch Full_case_list_array(0,n), ievs_dail_row, ievs_dail_col 
+				If ievs_dail_row = 0 then 
+					IEVS_DAIL = "N"
+				Else 
+					IEVS_DAIL = "Y" 
+					Exit Do 
+				End If 
+				PF8 
+				EMReadScreen end_of_dail_check, 9, 24, 14 
+			Loop until end_of_dail_check = "LAST PAGE"
+		End If 
+		'///// Determining if PARIS DAILs exist for this case 
+		IF exclude_paris_check = checked then 
+			back_to_self
+			EMWaitReady 0,0 
+			EMWriteScreen Full_case_list_array(0,n), 18, 43 
+			navigate_to_MAXIS_screen "DAIL", "DAIL" 
+			STATS_counter = STATS_counter + 1
+			EMWriteScreen "x", 4, 12 
+			transmit 
+			EMWriteScreen " ", 7, 39 
+			EMWriteScreen "x", 17, 39 
+			transmit 
+			Do 
+				EMReadScreen msg_check, 11, 24, 2 
+				IF msg_check = "NO MESSAGES" THEN 
+					msg_check = ""
+					Exit Do
+				End IF 
+				paris_dail_row = 1 
+				paris_dail_col = 1 
+				EMSearch Full_case_list_array(0,n), paris_dail_row, paris_dail_col 
+				If paris_dail_row = 0 then 
+					PARIS_DAIL = "N"
+				Else 
+					PARIS_DAIL = "Y"
+					Exit Do 
+				End If 
+				PF8 
+				EMReadScreen end_of_dail_check, 9, 24, 14 
+			Loop until end_of_dail_check = "LAST PAGE"
+		End If  
+	End If	
