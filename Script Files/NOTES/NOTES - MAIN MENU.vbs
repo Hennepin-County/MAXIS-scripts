@@ -109,45 +109,49 @@ FUNCTION create_NOTES_main_menu(dialog_name)
   	Text 70, 205, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
   	Text 60, 220, 250, 10, "--- Template for the Combined Annual Renewal.*"
   	Text 30, 235, 120, 10, "--- Template for the CSR.*"
-  ButtonGroup ButtonPressed
-
-EndDialog
-
+	EndDialog
+	
 	ELSEIF dialog_name = "D-F" THEN
+	
+
         BeginDialog dialog_name, 0, 0, 516, 270, "D - F NOTES Scripts"
-          Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
-          	GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
-			ButtonGroup ButtonPressed
-			PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
-			PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
-			PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
-			PushButton 105, 35, 30, 15, "M - Q", m_through_Q_notes_button
-			PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
-            PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
-            PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
-            PushButton 5, 70, 60, 10, "Denied programs", DENIED_PROGRAMS_button
-            PushButton 5, 85, 55, 10, "Docs Received", DOCUMENTS_RECEIVED_button
-            PushButton 5, 100, 40, 10, "Drug felon", DRUG_FELON_button
-            PushButton 5, 115, 50, 10, "DWP budget", DWP_BUDGET_button
-            PushButton 5, 130, 45, 10, "Emergency", EMERGENCY_button
-            PushButton 5, 145, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
-            PushButton 5, 160, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button
-            PushButton 5, 175, 45, 10, "ES Referral", ES_REFERRAL_button
-	    PushButton 5, 190, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-       	    PushButton 5, 205, 40, 10, "Fraud info", FRAUD_INFO_button
-	    CancelButton 460, 245, 50, 15
-   	Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
-        Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
-	Text 50, 100, 215, 10, "--- Template for noting drug felon info."
-	Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
-  	Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
-	Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
-	Text 100, 160, 370, 10, "--- Template for noting information about an employment verification received by the agency."
-	Text 55, 175, 245, 10, "--- New 11/2015!!! Template for sending an MFIP or DWP referral to employment services."
-  	Text 85, 190, 220, 10, "--- Template for screening a client for expedited status."
-	Text 50, 205, 200, 10, "--- Template for noting fraud info."
-        EndDialog
-	ELSEIF dialog_name = "G-L" THEN
+		ButtonGroup ButtonPressed
+		CancelButton 460, 240, 50, 15
+		PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+		PushButton 5, 70, 60, 10, "Denied programs", DENIED_PROGRAMS_button
+		PushButton 5, 85, 55, 10, "Docs Received", DOCUMENTS_RECEIVED_button
+		PushButton 5, 100, 40, 10, "Drug felon", DRUG_FELON_button
+		PushButton 5, 115, 50, 10, "DWP budget", DWP_BUDGET_button
+		PushButton 5, 130, 45, 10, "Emergency", EMERGENCY_button
+		PushButton 5, 145, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
+		PushButton 5, 160, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button
+		PushButton 5, 175, 45, 10, "ES Referral", ES_REFERRAL_button
+		PushButton 5, 190, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
+		PushButton 5, 205, 115, 10, "Explanation of Income Budgeted ", EXPLANATION_INCOME_BUDGETED_button
+		PushButton 5, 220, 40, 10, "Fraud info", FRAUD_INFO_button
+		PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+		PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
+		PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
+		PushButton 105, 35, 30, 15, "M - Q", m_through_Q_notes_button
+		PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
+		PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
+		Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+		Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
+		Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
+		Text 50, 100, 215, 10, "--- Template for noting drug felon info."
+		Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
+		Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
+		Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
+		Text 100, 160, 315, 10, "--- Template for noting information about an employment verification received by the agency."
+		Text 55, 175, 245, 10, "--- New 11/2015!!! Template for sending an MFIP or DWP referral to employment services."
+		Text 85, 190, 220, 10, "--- Template for screening a client for expedited status."
+		Text 50, 220, 200, 10, "--- Template for noting fraud info."
+		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
+		Text 125, 205, 265, 10, "---  NEW 01/2016!!! Template for explaining the income budgeted for a case."
+	EndDialog
+
+        
+ELSEIF dialog_name = "G-L" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (G-L) scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 455, 245, 50, 15
