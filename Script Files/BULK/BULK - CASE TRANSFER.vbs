@@ -1015,3 +1015,173 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 	IEVS_DAIL = ""
 	PARIS_DAIL = ""
 Next 
+
+col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
+
+'Query date/time/runtime info
+objExcel.Cells(1, col_to_use - 1).Font.Bold = TRUE
+objExcel.Cells(2, col_to_use - 1).Font.Bold = TRUE
+ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(1, col_to_use).Value = now
+ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
+
+
+'Autofitting columns
+For col_to_autofit = 1 to col_to_use
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
+
+'Totals up the number of cases found so the user has a count
+cases_found = abs(UBound(All_case_information_array,2)) 
+cases_to_xfer_numb = cases_found  
+
+'Stops the script before transfer when the query option is selected.
+IF query_all_check = checked THEN 
+	'Adding the number of cases count and formatting the speadsheet
+	objExcel.Cells(4, col_to_use - 1).Font.Bold = TRUE
+	ObjExcel.Cells(4, col_to_use - 1).Value = "Number of cases that meet selected criteria:"	'Goes back one, as this is on the next row
+	ObjExcel.Cells(4, col_to_use).Value = cases_found 
+
+	'Autofitting columns
+	For col_to_autofit = 1 to col_to_use
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+	'Logging usage stats
+	script_end_procedure("Success! The script is complete. " & vbCr & cases_found & " cases have been found in your selected case loads." & vbCr & "Your Excel Sheet has all the information about these cases.")
+End If
+
+'Second DIalog needs to be after the calculations so the variables have value 
+BeginDialog case_transfer_dialog, 0, 0, 376, 130, "Select Transfer Options"
+  CheckBox 5, 30, 130, 10, "Check here to have the script transfer", transfer_check
+  EditBox 140, 25, 20, 15, cases_to_xfer_numb
+  EditBox 230, 25, 135, 15, worker_receiving_cases
+  CheckBox 5, 45, 185, 10, "Check here to have a case note entered for each case", case_note_check
+  EditBox 85, 60, 80, 15, worker_signature
+  EditBox 85, 80, 80, 15, new_worker
+  CheckBox 5, 100, 185, 10, "Check here to have a MEMO sent for each case", memo_check
+  CheckBox 5, 115, 175, 10, "Check here if you do not want to transfer any cases", query_check
+  ButtonGroup ButtonPressed
+    OkButton 265, 110, 50, 15
+    CancelButton 320, 110, 50, 15
+  Text 60, 10, 55, 10, "The script found"
+  Text 115, 10, 20, 10, cases_found
+  Text 140, 10, 130, 10, "cases that meet your selected criteria"
+  Text 165, 30, 60, 10, "of these cases to:"
+  Text 230, 40, 140, 25, "Enter the last 3 digits of the worker X1***** number. You may enter more than one worker, seperate workers by a comma."
+  Text 15, 85, 70, 10, "New Worker's Name"
+  Text 15, 65, 65, 10, "Sign your case note"
+  Text 170, 80, 170, 20, "This is optional, it only adds the worker's name to the case note - you can only enter one name."
+EndDialog
+
+'Running the dialog to get transfer information
+Do	
+	Do 
+		Dialog case_transfer_dialog
+		cancel_confirmation
+		err_msg = ""
+		If cases_to_xfer_numb = "" THEN cases_to_xfer_numb = 0 
+		IF transfer_check = checked AND worker_receiving_cases = "" then err_msg = err_msg & vbCR & "You must enter a worker number to transfer cases to"
+		IF abs(cases_to_xfer_numb) > abs(cases_found) then err_msg = err_msg & vbCr & "You cannot transfer more cases than were found to transfer"
+		If err_msg <> "" then MsgBox err_msg
+	Loop until err_msg = ""
+	IF transfer_check = unchecked AND query_check = unchecked THEN MsgBox "You must select an option"
+	IF transfer_check = checked AND query_check = checked THEN MsgBox "You cannot select both"
+Loop until transfer_check = checked OR query_check = checked 
+
+'create an array of all the workers receiving cases
+x1s_from_dialog_two = split(worker_receiving_cases, ",")	'Splits the worker array based on commas
+
+'Need to add the worker_county_code to each one - WORKER NUMBERS MUST BE IN UPPERCASE BECAUSE MAXIS has issues sometimes when lowercase
+For each x1_number in x1s_from_dialog_two
+	If receiving_worker_array = "" then
+		receiving_worker_array = UCase(worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")))		'replaces worker_county_code if found in the typed x1 number
+	Else
+		receiving_worker_array = receiving_worker_array & ", " & UCase(worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))) 'replaces worker_county_code if found in the typed x1 number
+	End if
+Next
+
+'Creating the array of all workers to receive cases
+receiving_worker_array = split(receiving_worker_array, ", ")
+
+r = 0 	'counter for the receiving worker array
+P = 0 	'Counter for the cases transferred 
+'Transfering the cases
+If transfer_check = checked then 
+	Do 
+		back_to_self 
+		case_number = All_case_information_array(0,p) 'setting case number variable for the FuncLib functions to work
+		navigate_to_MAXIS_screen "SPEC", "XFER"
+		STATS_counter = STATS_counter + 1
+		EMWriteScreen "x", 7, 16 
+		transmit
+		PF9
+		EMWriteScreen receiving_worker_array(r), 18, 61 
+		transmit 
+		EMReadScreen confirm_xfer, 4, 24, 2 
+		IF confirm_xfer <> "CASE" then 
+			'If a transfer is not successful it will be noted on the spreadsheet and a msgbox will alert the user but the script will not stop. 
+			'Option to disable the message box if this holds up the runtime
+			MsgBox "This case " & case_number & " cannot be transferred and has been noted on the spreadsheet"
+			PF10 
+			ObjExcel.Cells (All_case_information_array(19,p), xfered_col).Value = "N" 
+		ElseIf confirm_xfer = "CASE" then 'For some reason  only the first case is being case noted ???
+			ObjExcel.Cells (All_case_information_array(19,p), xfered_col).Value = "Y" 
+			ObjExcel.Cells (All_case_information_array(19,p), new_worker_col).Value = receiving_worker_array(r)
+			total_cases_transfered = total_cases_transfered + 1 	'This counts the successful transfers 
+			r = r + 1 'The cases are assigned to multiple workers on a basic rotation
+			IF r > UBound(receiving_worker_array) THEN r = 0 
+			IF case_note_check = checked then 
+				'Writes a case note if requested.
+				Call start_a_blank_case_note
+				Call write_variable_in_case_note ("***Case Transfer within County***")
+				Call write_bullet_and_variable_in_case_note ("Case Transferred to", new_worker)
+				Call write_variable_in_case_note ("Transfered by bulk script")
+				IF memo_check = checked then Call write_variable_in_case_note ("Memo sent to clt of transfer")
+				Call write_variable_in_case_note ("---")
+				Call write_variable_in_case_note (worker_signature)
+				case_note_check = checked 'adding this because sometimes the loop loses this value for some reason
+			End If
+			IF memo_check = checked then 
+				'Sending a memo if requested 
+				navigate_to_MAXIS_screen "SPEC", "MEMO"
+				PF5 
+				EMWriteScreen "x", 5, 10 
+				transmit 
+				Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
+				Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
+				Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
+				Call write_variable_in_SPEC_MEMO ("   ")
+				Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
+				Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request")
+				Call write_variable_in_SPEC_MEMO ("   ")
+				Call write_variable_in_SPEC_MEMO ("Thank you") 
+				PF4
+				PF3
+				memo_check = checked 'adding this because sometimes the loop loses this value for some reason
+			End If 
+		End If 
+		case_number = "" 'Blanking out variable
+		p = p + 1 
+		If p = UBound(All_case_information_array,2) Then Exit Do 
+	Loop until cases_to_xfer_numb = total_cases_transfered 'continues to attempt to transfer until the requested number is reached 
+End If 
+
+If total_cases_transfered = "" then total_cases_transfered = 0 
+
+'Adding some counts to the excel sheet
+objExcel.Cells(4, col_to_use - 1).Font.Bold = TRUE
+objExcel.Cells(5, col_to_use - 1).Font.Bold = TRUE
+ObjExcel.Cells(4, col_to_use - 1).Value = "Number of cases that meet selected criteria:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(4, col_to_use).Value = cases_found 
+ObjExcel.Cells(5, col_to_use - 1).Value = "Number of cases transferred"	'Goes back one, as this is on the next row
+ObjExcel.Cells(5, col_to_use).Value = total_cases_transfered
+
+'Autofitting columns
+For col_to_autofit = 1 to col_to_use
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
+
+STATS_counter = STATS_counter - 1 
+'Logging usage stats
+script_end_procedure("Success! The script is complete. " & vbCr & total_cases_transfered & " cases have been transferred." & vbCr & "Your Excel Sheet has all the detail")
