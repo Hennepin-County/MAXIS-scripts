@@ -1,4 +1,4 @@
-Enter fi'Script Created by Casey Love from Ramsey County 
+'Script Created by Casey Love from Ramsey County 
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - CASE TRANSFER.vbs"
@@ -180,4 +180,185 @@ MsgBox "The script will now create an Excel Spreadsheet to display case informat
    vbCr & "Please do not alter this spreadsheet until after the script has completed." & _ 
    vbCR & "Altering the spreadsheet will not change how the script runs and will only cause the data listed on it to be incorrect."
    
-le contents here
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add() 
+objExcel.DisplayAlerts = True
+
+'Setting the first 4 col as worker, case number, name, and APPL date
+ObjExcel.Cells(1, 1).Value = "WORKER"
+objExcel.Cells(1, 1).Font.Bold = TRUE
+ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
+objExcel.Cells(1, 2).Font.Bold = TRUE
+ObjExcel.Cells(1, 3).Value = "NAME"
+objExcel.Cells(1, 3).Font.Bold = TRUE
+ObjExcel.Cells(1, 4).Value = "NEXT REVW"
+objExcel.Cells(1, 4).Font.Bold = TRUE
+
+STATS_counter = STATS_counter + 1
+
+'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
+'	Below, use the "[blank]_col" variable to recall which col you set for which option.
+col_to_use = 5 'Starting with 5 because cols 1-4 are already used
+
+'Setting the Program specific Excel col - the program headings will always populate but the more specific options will only populate if requested
+ObjExcel.Cells(1, col_to_use).Value = "SNAP"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+snap_actv_col = col_to_use
+col_to_use = col_to_use + 1
+SNAP_letter_col = convert_digit_to_excel_column(snap_actv_col)
+
+IF SNAP_ABAWD_check = checked then 
+	ObjExcel.Cells(1, col_to_use).Value = "ABAWD?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	ABAWD_actv_col = col_to_use
+	col_to_use = col_to_use + 1
+	ABAWD_letter_col = convert_digit_to_excel_column(ABAWD_actv_col)
+End if
+
+IF SNAP_UH_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "Unc Har?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	UH_actv_col = col_to_use
+	col_to_use = col_to_use + 1
+	UH_letter_col = convert_digit_to_excel_column(UH_actv_col)
+End if
+
+ObjExcel.Cells(1, col_to_use).Value = "Cash 1"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+cash_one_prog_col = col_to_use
+col_to_use = col_to_use + 1
+cash_one_prog_letter_col = convert_digit_to_excel_column(cash_one_prog_col)
+
+ObjExcel.Cells(1, col_to_use).Value = "Status"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+cash_one_actv_col = col_to_use
+col_to_use = col_to_use + 1
+cash_one_letter_col = convert_digit_to_excel_column(cash_one_actv_col)
+
+ObjExcel.Cells(1, col_to_use).Value = "Cash 2"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+cash_two_prog_col = col_to_use
+col_to_use = col_to_use + 1
+cash_two_prog_letter_col = convert_digit_to_excel_column(cash_two_prog_col)
+
+ObjExcel.Cells(1, col_to_use).Value = "Status"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+cash_two_actv_col = col_to_use
+col_to_use = col_to_use + 1
+cash_two_letter_col = convert_digit_to_excel_column(cash_two_actv_col)
+
+If MFIP_tanf_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "TANF"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	TANF_mo_col = col_to_use
+	col_to_use = col_to_use + 1
+	TANF_letter_col = convert_digit_to_excel_column(TANF_mo_col)
+End if
+
+If child_only_mfip_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "Child Only?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	child_only_col = col_to_use
+	col_to_use = col_to_use + 1
+	Child_letter_col = convert_digit_to_excel_column(child_only_col)
+End if
+
+If mont_rept_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "HRF?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	mont_rept_col = col_to_use
+	col_to_use = col_to_use + 1
+	mont_rept_letter_col = convert_digit_to_excel_column(mont_rept_col)
+End if
+
+IF ccap_check = checked OR exclude_ccap_check = checked THEN 
+	ObjExcel.Cells(1, col_to_use).Value = "CCAP"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	ccap_col = col_to_use
+	col_to_use = col_to_use + 1
+	ccap_letter_col = convert_digit_to_excel_column(ccap_col)
+End If 
+
+ObjExcel.Cells(1, col_to_use).Value = "HC"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+hc_actv_col = col_to_use
+col_to_use = col_to_use + 1
+hc_letter_col = convert_digit_to_excel_column(hc_actv_col)
+
+If HC_msp_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "MSP"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	MSP_actv_col = col_to_use
+	col_to_use = col_to_use + 1
+	MSP_letter_col = convert_digit_to_excel_column(MSP_actv_col)
+End if
+
+If adult_hc_check = checked OR family_hc_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "HC Type"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	HC_type_col = col_to_use
+	col_to_use = col_to_use + 1
+	HC_type_letter_col = convert_digit_to_excel_column(HC_type_col)
+End if
+
+If ltc_HC_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "LTC?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	LTC_col = col_to_use
+	col_to_use = col_to_use + 1
+	LTC_letter_col = convert_digit_to_excel_column(LTC_col)
+End if
+
+If waiver_HC_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "Waiver?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	Waiver_col = col_to_use
+	col_to_use = col_to_use + 1
+	Waiver_letter_col = convert_digit_to_excel_column(Waiver_col)
+End if
+
+ObjExcel.Cells(1, col_to_use).Value = "EA/EGA"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+EA_actv_col = col_to_use
+col_to_use = col_to_use + 1
+EA_letter_col = convert_digit_to_excel_column(EA_actv_col)
+
+ObjExcel.Cells(1, col_to_use).Value = "GRH"
+objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+GRH_actv_col = col_to_use
+col_to_use = col_to_use + 1
+GRH_letter_col = convert_digit_to_excel_column(GRH_actv_col)
+
+If exclude_ievs_check = checked then 
+	ObjExcel.Cells(1, col_to_use).Value = "IEVS?"
+	ObjExcel.Cells(1, col_to_use).Font.Bold = True 
+	ievs_col = col_to_use
+	col_to_use = col_to_use + 1 
+	ievs_letter_col = convert_digit_to_excel_column(ievs_col)
+End If 
+
+If exclude_paris_check = checked then 
+	ObjExcel.Cells(1, col_to_use).Value = "PARIS?"
+	ObjExcel.Cells(1, col_to_use).Font.Bold = True 
+	paris_col = col_to_use
+	col_to_use = col_to_use + 1 
+	paris_letter_col = convert_digit_to_excel_column(paris_col)
+End If 
+
+IF query_all_check = unchecked THEN 
+	ObjExcel.Cells(1, col_to_use).Value = "Transferred?"
+	ObjExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	xfered_col = col_to_use
+	col_to_use = col_to_use + 1
+	xfered_letter_col = convert_digit_to_excel_column(xfered_col)
+End If 
+
+IF query_all_check = unchecked THEN 
+	ObjExcel.Cells(1, col_to_use).Value = "New Worker"
+	ObjExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	new_worker_col = col_to_use
+	col_to_use = col_to_use + 1
+	new_worker_letter_col = convert_digit_to_excel_column(new_worker_col)
+End IF 
