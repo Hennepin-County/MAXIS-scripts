@@ -362,3 +362,116 @@ IF query_all_check = unchecked THEN
 	col_to_use = col_to_use + 1
 	new_worker_letter_col = convert_digit_to_excel_column(new_worker_col)
 End IF 
+
+'create a single-object "array" just for simplicity of code.
+
+x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+
+'Need to add the worker_county_code to each one
+For each x1_number in x1s_from_dialog
+	If worker_array = "" then
+		worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+	Else
+		worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+	End if
+Next
+
+'Split worker_array
+worker_array = split(worker_array, ", ")
+
+'Arrays that need delcaring and resizing 
+Dim All_case_information_array ()
+Dim Full_case_list_array()
+ReDim All_case_information_array (24, 0)
+ReDim Full_case_list_array(12,0)
+Dim eligible_members_array ()
+Dim non_mfip_members_array ()
+Dim SNAP_HH_Array () 
+
+'Setting the variable for what's to come
+excel_row = 2
+m = 0 
+
+'Script starts by collecting a list of all the cases and the programs as listed on REPT/ACTV 
+'This information is added to the first array called - Full_case_list_array. The values of this array are as follows:
+	'(0,#) - Case Number 
+	'(1,#) - Client Name 
+	'(2,#) = Review Date
+	'(3,#) = Cash 1 Type
+	'(4,#) = Cash 1 Status
+	'(5,#) = Cash 2 Type 
+	'(6,#) = Cash 2 Status
+	'(7,#) = SNAP Status
+	'(8,#) = HC Status
+	'(9,#) = EA Status
+	'(10,#) = GRH Status
+	'(11,#) = Worker's X Number
+	'(12,#) = CCAP Status
+
+For each worker in worker_array
+	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+	Call navigate_to_MAXIS_screen("rept", "actv")
+	EMWriteScreen worker, 21, 13
+	transmit
+	EMReadScreen user_worker, 7, 21, 71		'
+	EMReadScreen p_worker, 7, 21, 13
+	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
+
+	'Skips workers with no info
+	EMReadScreen has_content_check, 1, 7, 8
+	If has_content_check <> " " then
+		'Grabbing each case number on screen
+		Do
+			'Set variable for next do...loop
+			MAXIS_row = 7
+
+			'Checking for the last page of cases.
+			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+			
+			Do	
+				cash_one_type = ""
+				cash_two_type = "" 
+				
+				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
+				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
+				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
+				EMReadScreen cash_one_status, 1, MAXIS_row, 54		'Reading cash status
+					IF cash_one_status = "A" or cash_one_status = "P" then EMReadScreen cash_one_type, 2, MAXIS_row, 51	
+				EMReadScreen cash_two_status, 1, MAXIS_row, 59
+					IF cash_two_status = "A" or cash_two_status = "P" then EMReadScreen cash_two_type, 2, MAXIS_row, 56
+				EMReadScreen SNAP_status, 1, MAXIS_row, 61		'Reading SNAP status
+				EMReadScreen HC_status, 1, MAXIS_row, 64			'Reading HC status
+				EMReadScreen EA_status, 1, MAXIS_row, 67			'Reading EA status
+				EMReadScreen GRH_status, 1, MAXIS_row, 70			'Reading GRH status
+				EMReadScreen CCAP_status, 1, MAXIS_row, 80 			'Reading CCAP Status
+				
+				If case_number = "        " then exit do			'Exits do if we reach the end
+				
+				Full_case_list_array(0,m) = case_number
+				Full_case_list_array(1,m) = client_name
+				Full_case_list_array(2,m) = replace(next_revw_date, " ", "/")
+				Full_case_list_array(3,m) = cash_one_type
+				Full_case_list_array(4,m) = cash_one_status
+				Full_case_list_array(5,m) = cash_two_type 
+				Full_case_list_array(6,m) = cash_two_status
+				Full_case_list_array(7,m) = SNAP_status
+				Full_case_list_array(8,m) = HC_status
+				Full_case_list_array(9,m) = EA_status
+				Full_case_list_array(10,m) = GRH_status
+				Full_case_list_array(11,m) = worker 
+				Full_case_list_array(12,m) = CCAP_status
+				
+				Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
+				
+				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				
+				MAXIS_row = MAXIS_row + 1
+				case_number = ""			'Blanking out variable 
+				m = m + 1
+			Loop until MAXIS_row = 19 
+			PF8
+		Loop until last_page_check = "THIS IS THE LAST PAGE"
+	End if
+next
