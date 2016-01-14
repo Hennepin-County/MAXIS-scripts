@@ -795,3 +795,223 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 			Loop until end_of_dail_check = "LAST PAGE"
 		End If  
 	End If	
+	
+	'///// This is where the script determines which of the cases meet the criteria the user selected. 
+	'If Save_case_for_transfer is True once this Do Loop completes then the case information is saved for the transfer part in another array
+	'This also determines which cases will be added to Excel
+	Do	'The do loop is only here to be able to skip logic futher down in the list - it should never actually loop
+		IF query_all_check = checked Then 
+			Save_case_for_transfer = TRUE 
+			Exit Do 'IF the Query option is checked ALL cases get added to the list so none should have a FALSE
+		End IF 
+		IF SNAP_check = checked then 
+			IF Full_case_list_array(7,n) = "P" OR Full_case_list_array(7,n) = "A" then Save_case_for_transfer = TRUE
+		End If
+		If mfip_check = checked then 
+			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then Save_case_for_transfer = TRUE
+		End If
+		If DWP_check = checked then 
+			IF Full_case_list_array(3,n) = "DW" OR Full_case_list_array(5,n) = "DW" then Save_case_for_transfer = TRUE
+		End If
+		
+		If ga_check = checked then 
+			IF Full_case_list_array(3,n) = "GA" OR Full_case_list_array(5,n) = "GA" then Save_case_for_transfer = TRUE
+		End If
+		If msa_check = checked then 
+			IF Full_case_list_array(3,n) = "MS" OR Full_case_list_array(5,n) = "MS" then Save_case_for_transfer = TRUE
+		End If 
+		If rca_check = checked then 
+			IF Full_case_list_array(3,n) = "RC" OR Full_case_list_array(5,n) = "RC" then Save_case_for_transfer = TRUE
+		End If
+		IF Full_case_list_array(9,n) = "P" AND EA_check = checked then Save_case_for_transfer = TRUE
+		IF HC_check = checked then 
+			IF Full_case_list_array(8,n) = "A" OR Full_case_list_array(8,n) = "P" then Save_case_for_transfer = TRUE
+		End If
+		If GRH_check = checked then
+			IF Full_case_list_array(10,n) = "A" OR Full_case_list_array(10,n) = "P" then Save_case_for_transfer = TRUE
+		End If
+		IF exclude_snap_check = checked then 
+			IF Full_case_list_array(7,n) = "A" OR Full_case_list_array(7,n) = "P" then Save_case_for_transfer = FALSE 
+		End if 
+		IF exclude_mfip_dwp_check = checked then 
+			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" OR Full_case_list_array(3,n) = "DW" OR Full_case_list_array(5,n) = "DW" then Save_case_for_transfer = FALSE 
+		End if 
+		IF Full_case_list_array(9,n) = "P" AND exclude_ea_check = checked then Save_case_for_transfer = FALSE 
+		IF exclude_HC_check = checked then
+			IF Full_case_list_array(8,n) = "A" OR Full_case_list_array(8,n) = "P" then Save_case_for_transfer = FALSE 
+		End If 
+		IF exclude_ga_msa_check = checked then
+			IF Full_case_list_array(3,n) = "GA" OR Full_case_list_array(5,n) = "GA" OR Full_case_list_array(3,n) = "MS" OR Full_case_list_array(5,n) = "MS" then Save_case_for_transfer = FALSE 
+		End If 
+		IF exclude_grh_check = checked then 
+			IF Full_case_list_array(10,n) = "A" OR Full_case_list_array(10,n) = "P" then Save_case_for_transfer = FALSE 
+		End If
+		IF exclude_RCA_check = checked then 
+			IF Full_case_list_array(3,n) = "RC" OR Full_case_list_array(5,n) = "RC" then Save_case_for_transfer = FALSE 
+		End If
+		IF exclude_pending_check = checked then
+			IF Full_case_list_array(7,n) = "P" OR Full_case_list_array(4,n) = "P" OR Full_case_list_array(6,n) = "P" OR Full_case_list_array(9,n) = "P" OR Full_case_list_array(8,n) = "P" OR Full_case_list_array(10,n) = "P" then Save_case_for_transfer = FALSE 
+		End If 
+		IF SNAP_Only_check = checked then
+			IF Full_case_list_array(4,n) = "A" OR Full_case_list_array(4,n) = "P" OR Full_case_list_array(6,n) = "A" OR Full_case_list_array(6,n) = "P" OR Full_case_list_array(9,n) = "A" OR Full_case_list_array(9,n) = "P" OR Full_case_list_array(8,n) = "A" OR Full_case_list_array(8,n) = "P" OR Full_case_list_array(10,n) = "A" OR Full_case_list_array(10,n) = "P" then Save_case_for_transfer = FALSE 
+		End If 
+		IF HC_Only_check = checked then  
+			IF Full_case_list_array(4,n) = "A" OR Full_case_list_array(4,n) = "P" OR Full_case_list_array(6,n) = "A" OR Full_case_list_array(6,n) = "P" OR Full_case_list_array(9,n) = "A" OR Full_case_list_array(9,n) = "P" OR Full_case_list_array(7,n) = "A" OR Full_case_list_array(7,n) = "P" OR Full_case_list_array(10,n) = "A" OR Full_case_list_array(10,n) = "P" then Save_case_for_transfer = FALSE 
+		End If 
+		IF GRH_Only_check = checked then 
+			IF Full_case_list_array(4,n) = "A" OR Full_case_list_array(4,n) = "P" OR Full_case_list_array(6,n) = "A" OR Full_case_list_array(6,n) = "P" OR Full_case_list_array(9,n) = "A" OR Full_case_list_array(9,n) = "P" OR Full_case_list_array(8,n) = "A" OR Full_case_list_array(8,n) = "P" OR Full_case_list_array(7,n) = "A" OR Full_case_list_array(7,n) = "P" then Save_case_for_transfer = FALSE 
+		End If 
+		IF MFIP_Only_check = checked then 
+			IF Full_case_list_array(3,n) = "DW" OR Full_case_list_array(3,n) = "GA" OR Full_case_list_array(3,n) = "MS" OR Full_case_list_array(3,n) = "RC" OR Full_case_list_array(5,n) = "DW" OR Full_case_list_array(5,n) = "GA" OR Full_case_list_array(5,n) = "MS" OR Full_case_list_array(5,n) = "RC" OR Full_case_list_array(7,n) = "A" OR Full_case_list_array(7,n) = "P" OR Full_case_list_array(8,n) = "A" OR Full_case_list_array(8,n) = "P" OR Full_case_list_array(10,n) = "A" OR Full_case_list_array(10,n) = "P" OR Full_case_list_array(9,n) = "A" OR Full_case_list_array(9,n) = "P" then Save_case_for_transfer = FALSE 
+		End If 
+		IF SNAP_ABAWD_check = checked then
+			IF SNAP_with_ABAWD = FALSE then Save_case_for_transfer = FALSE
+		End If 
+		IF SNAP_UH_check = checked then 
+			IF UH_SNAP = FALSE then Save_case_for_transfer = FALSE 
+		End If 
+		IF MFIP_tanf_check = checked then 
+			IF abs(TANF_used) < abs(tanf_months) then Save_case_for_transfer = FALSE 
+		End If
+		IF child_only_mfip_check = checked AND adult_on_mfip = TRUE then Save_case_for_transfer = FALSE 
+		IF mont_rept_check = checked AND reporter_type <> "MONTHLY" then Save_case_for_transfer = FALSE 
+		IF HC_msp_check = checked AND MSP_actv = "None" then Save_case_for_transfer = FALSE 
+		IF adult_hc_check = checked AND Adult_HC = FALSE then Save_case_for_transfer = FALSE  
+		IF family_hc_check = checked AND Family_HC = FALSE then Save_case_for_transfer = FALSE  
+		IF ltc_HC_check = checked AND LTC_MA = FALSE then Save_case_for_transfer = FALSE 
+		IF waiver_HC_check = checked AND Waiver_MA = FALSE then Save_case_for_transfer = FALSE 
+		IF exclude_ievs_check = checked AND IEVS_DAIL = "Y" then Save_case_for_transfer = FALSE 
+		If exclude_paris_check = checked AND PARIS_DAIL = "Y" then Save_case_for_transfer = FALSE 
+		If Save_case_for_transfer <> TRUE THEN Save_case_for_transfer = FALSE 
+	Loop until Save_case_for_transfer <> ""
+	
+	'All_case_information_array is the big array with all of the information stored. These are the values of this array:
+		'(0,#) - Case Number 
+		'(1,#) - Client Name 
+		'(2,#) = Review Date
+		'(3,#) = Cash 1 Type
+		'(4,#) = Cash 1 Status
+		'(5,#) = Cash 2 Type 
+		'(6,#) = Cash 2 Status
+		'(7,#) = TANF Used
+		'(8,#) = Child Only MFIP status
+		'(9,#) = SNAP Status
+		'(10,#) = ABAWD on case?
+		'(11,#) = Uncle Harry SNAP?
+		'(12,#) = HC Status
+		'(13,#) = Type of HC
+		'(14,#) = Medicare Savings Prog
+		'(15,#) = LTC MA?	
+		'(16,#) = Waiver MA?
+		'(17,#) = Emergency Status
+		'(18,#) = GRH Status
+		'(19,#) = excel row to add information	
+		'(20,#) = IEVS DAIL?
+		'(21,#) = PARIS DAIL?
+		'(22,#) = Case transferred?
+		'(23,#) = MFIP HRF?
+		'(24,#) = CCAP Status	
+		
+	IF Save_case_for_transfer = TRUE then
+		'////// Add all information for qualifying cases into the Array
+		All_case_information_array(0,k) = Full_case_list_array(0,n)
+		All_case_information_array(1,k) = Full_case_list_array(1,n)
+		All_case_information_array(2,k) = Full_case_list_array(2,n)
+		All_case_information_array(3,k) = Full_case_list_array(3,n)
+		All_case_information_array(4,k) = Full_case_list_array(4,n)
+		All_case_information_array(5,k) = Full_case_list_array(5,n) 
+		All_case_information_array(6,k) = Full_case_list_array(6,n)
+		All_case_information_array(7,k) = TANF_used
+		IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then
+			IF adult_on_mfip = FALSE then child_only = "Yes"
+			IF adult_on_mfip = TRUE then child_only = "No"
+		Else 
+			child_only = ""
+		End If 
+		All_case_information_array(8,k) = child_only
+		All_case_information_array(9,k) = Full_case_list_array(7,n)
+		All_case_information_array(10,k) = SNAP_with_ABAWD
+		All_case_information_array(11,k) = UH_SNAP
+		All_case_information_array(12,k) = Full_case_list_array(8,n)
+		IF Specialty_HC <> "" then 
+			All_case_information_array(13,k) = Specialty_HC
+		ElseIf Family_HC = TRUE then
+			All_case_information_array(13,k) = "Family"
+		ElseIf Adult_HC = TRUE then
+			All_case_information_array(13,k) = "Adult"
+		End IF
+		All_case_information_array(14,k) = MSP_actv
+		All_case_information_array(15,k) = LTC_MA
+		All_case_information_array(16,k) = Waiver_MA
+		All_case_information_array(17,k) = Full_case_list_array(9,n)
+		All_case_information_array(18,k) = Full_case_list_array(10,n)
+		All_case_information_array(19,k) = excel_row 
+		All_case_information_array(20,k) = IEVS_DAIL
+		All_case_information_array(21,k) = PARIS_DAIL
+		IF reporter_type = "MONTHLY" THEN 
+			All_case_information_array(23,k) = "Y"
+		ElseIf reporter_type = "" then 
+			All_case_information_array(23,k) = ""
+		Else 
+			All_case_information_array(23,k) = "N"
+		End IF 
+		All_case_information_array(24,k) = Full_case_list_array(12,n)
+		
+		'///// Resizing the storage array for the next loop
+		Redim Preserve All_case_information_array (UBound(All_case_information_array,1), UBound(All_case_information_array,2)+1)
+		
+		'ADD THE INFORMATION TO XCEL HERE 
+		ObjExcel.Cells(excel_row, 1).Value = Full_case_list_array(11,n) 
+		ObjExcel.Cells(excel_row, 2).Value = All_case_information_array(0,k)
+		ObjExcel.Cells(excel_row, 3).Value = All_case_information_array(1,k)
+		ObjExcel.Cells(excel_row, 4).Value = All_case_information_array(2,k)
+		'ObjExcel.Cells(excel_row, 5).Value = abs(days_pending)
+		ObjExcel.Cells(excel_row, snap_actv_col).Value = All_case_information_array(9,k)
+		IF SNAP_ABAWD_check = checked THEN ObjExcel.Cells(excel_row, ABAWD_actv_col). Value = All_case_information_array(10,k)
+		IF SNAP_UH_check = checked THEN ObjExcel.Cells(excel_row, UH_actv_col).Value = All_case_information_array(11,k)
+		ObjExcel.Cells(excel_row, cash_one_prog_col).Value = All_case_information_array(3,k)
+		ObjExcel.Cells(excel_row, cash_one_actv_col).Value = All_case_information_array(4,k)
+		ObjExcel.Cells(excel_row, cash_two_prog_col).Value = All_case_information_array(5,k)
+		ObjExcel.Cells(excel_row, cash_two_actv_col).Value = All_case_information_array(6,k)
+		IF MFIP_tanf_check = checked THEN ObjExcel.Cells(excel_row, TANF_mo_col).Value = All_case_information_array(7,k)
+		IF child_only_mfip_check = checked THEN ObjExcel.Cells(excel_row, child_only_col).Value = All_case_information_array(8,k)
+		IF mont_rept_check = checked THEN ObjExcel.Cells(excel_row, mont_rept_col).Value = All_case_information_array(23,k)
+		IF ccap_check = checked OR exclude_ccap_check = checked THEN ObjExcel.Cells(excel_row,ccap_col) = All_case_information_array(24,k)
+		ObjExcel.Cells(excel_row, hc_actv_col).Value = All_case_information_array(12,k)
+		IF adult_hc_check = checked OR family_hc_check =checked THEN ObjExcel.Cells(excel_row, hc_type_col).Value = All_case_information_array(13,k)
+		IF HC_msp_check = checked THEN ObjExcel.Cells(excel_row, MSP_actv_col).Value = All_case_information_array(14,k)
+		IF ltc_HC_check = checked THEN ObjExcel.Cells(excel_row, LTC_col).Value = All_case_information_array(15,k)
+		IF waiver_HC_check = checked THEN ObjExcel.Cells(excel_row, Waiver_col).Value = All_case_information_array(16,k)
+		ObjExcel.Cells(excel_row, EA_actv_col).Value = All_case_information_array(17,k)
+		ObjExcel.Cells(excel_row, GRH_actv_col).Value = All_case_information_array(18,k)
+		IF exclude_ievs_check = checked THEN ObjExcel.Cells(excel_row, ievs_col).Value = All_case_information_array(20,k)
+		IF exclude_paris_check = checked THEN ObjExcel.Cells(excel_row, paris_col).Value = All_case_information_array(21,k)
+		excel_row = excel_row + 1
+		k = k + 1 'Goes to the next entry for the All_case_information_array
+	End if
+	'Blanking out variables for next go round
+	case_number = "" 
+	Save_case_for_transfer = ""	
+	reg_mo = ""
+	ext_mo = ""
+	TANF_used = "" 
+	ReDim eligible_members_array (0)
+	ReDim non_mfip_members_array (0)
+	adult_on_mfip = ""
+	reporter_type = ""
+	SNAP_with_ABAWD = ""
+	ReDim SNAP_HH_Array(0)
+	UH_SNAP = ""
+	Pending_MSP = ""
+	QMB_active = ""
+	SLMB_active = ""
+	QI_active = ""
+	MSP_actv = ""
+	Specialy_HC = ""
+	Family_HC = ""
+	Adult_HC = ""
+	LTC_MA = ""
+	Waiver_MA = ""
+	IEVS_DAIL = ""
+	PARIS_DAIL = ""
+Next 
