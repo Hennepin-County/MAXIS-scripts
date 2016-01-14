@@ -709,11 +709,23 @@ If CASH_WCOM_checkbox = checked THEN
 	IF WCOM_to_notice = False THEN Msgbox "There is not a pending notice for this cash case. The script was unable to update your notice."
 END If
 
-cash_approval_array = trim(cash_approval_array)
-cash_approval_array = split(cash_approval_array)
-
 'Case notes----------------------------------------------------------------------------------------------------
-call start_a_blank_CASE_NOTE
+IF g <> 0 THEN 	'BANKED MONTH Case Note - each client gets a seperate case note 
+	For h = 0 to UBound (BM_Clients_Array,2)
+		Call start_a_blank_CASE_NOTE
+		Call write_variable_in_CASE_NOTE ("!~!~! Memb " & BM_Clients_Array(0,h) & "used BANKED MONTHS in " & BM_Clients_Array (2, h) & "!~!~!")	'Months used moved to header
+		IF worker_county_code = "x169" THEN 
+			Call write_variable_in_CASE_NOTE ("BANKED MONTH Information added to Database for reporting")
+		Else 
+			Call write_variable_in_CASE_NOTE ("Excel Sheet created for manual tracking of BANKED MONTHS")
+		End IF 
+		IF tikl_set = TRUE Then Call write_variable_in_CASE_NOTE ("TIKL Created to close SNAP for " & cls_date)
+		Call write_variable_in_CASE_NOTE ("---")
+		Call write_variable_in_CASE_NOTE (worker_signature)
+	Next 
+End If 
+
+call start_a_blank_CASE_NOTE	'Case note for the general approval
 IF snap_approved_check = checked THEN 
 	IF postponed_verif_check = checked THEN 
 		approved_programs = approved_programs & "EXPEDITED SNAP/"
@@ -727,56 +739,52 @@ IF emer_approved_check = checked THEN approved_programs = approved_programs & "E
 EMSendKey "---Approved " & approved_programs & "<backspace>" & " " & type_of_approval & "---" & "<newline>"
 IF postponed_verif_check = checked THEN write_variable_in_CASE_NOTE("**EXPEDITED SNAP APPROVED BUT CASE HAS POSTPONED VERIFICATIONS.**")
 IF benefit_breakdown <> "" THEN call write_bullet_and_variable_in_case_note("Benefit Breakdown", benefit_breakdown)
-IF autofill_snap_check = checked THEN
-	FOR EACH snap_approval_result in snap_approval_array
-		bene_amount = left(snap_approval_result, 4)
-		report_status = " " & MID(snap_approval_result, 5)
-		len_report_status = LEN(report_status)
-		report_status = LEFT(report_status, (len_report_status - 4)) & " Reporter"
-		benefit_month = left(right(snap_approval_result, 4), 2)
-		benefit_year = right(snap_approval_result, 2)
-		snap_header = ("SNAP for " & benefit_month & "/" & benefit_year)
-		call write_bullet_and_variable_in_CASE_NOTE(snap_header, FormatCurrency(bene_amount) & report_status)
-	NEXT
-END IF
-IF autofill_cash_check = checked THEN
-	FOR EACH cash_approval_result IN cash_approval_array
-		IF left(cash_approval_result, 4) = "MFIP" THEN
-			mfip_housing_start_date = #07/01/2015#
-			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
-			curr_cash_bene_yr = right(cash_approval_result, 2)
-			current_cash_month_for_case_noting_purposes = curr_cash_bene_mo & "/01/" & curr_cash_bene_yr
-			'Determining whether the script needs to be concerned about the MFIP housing grant...
-			IF DateDiff("D", mfip_housing_start_date, current_cash_month_for_case_noting_purposes) >= 0 THEN
-				mfip_cash_amt = right(left(cash_approval_result, 12), 8)
-				mfip_food_amt = right(left(cash_approval_result, 20), 8)
-				mfip_housing_amt = left(right(cash_approval_result, 12), 8)
-				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
-				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
-				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Housing grant Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_housing_amt))
-			ELSEIF DateDiff("D", mfip_housing_start_date, current_cash_month_for_case_noting_purposes) < 0 THEN 
-				mfip_cash_amt = right(left(cash_approval_result, 12), 8)
-				mfip_food_amt = right(left(cash_approval_result, 20), 8)
-				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Cash portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_cash_amt))
-				call write_bullet_and_variable_in_CASE_NOTE(("MFIP Food portion for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(mfip_food_amt))
-			END IF
-		ELSEIF left(cash_approval_result, 4) = "DWP_" THEN
-			dwp_shel_amt = right(left(cash_approval_result, 12), 8)
-			dwp_pers_amt = left(right(cash_approval_result, 12), 8)
-			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
-			curr_cash_bene_yr = right(cash_approval_result, 2)
-			call write_bullet_and_variable_in_CASE_NOTE(("DWP Shelter Benefit Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_shel_amt))
-			call write_bullet_and_variable_in_CASE_NOTE(("DWP Personal Needs Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr), FormatCurrency(dwp_pers_amt))
-		ELSE
-			cash_program = left(cash_approval_result, 4)
-			cash_program = replace(cash_program, "_", "")
-			cash_bene_amt = right(left(cash_approval_result, 12), 8)
-			curr_cash_bene_mo = left(right(cash_approval_result, 4), 2)
-			curr_cash_bene_yr = right(cash_approval_result, 2)
-			cash_header = (cash_program & " Amount for " & curr_cash_bene_mo & "/" & curr_cash_bene_yr)
-			call write_bullet_and_variable_in_CASE_NOTE(cash_header, FormatCurrency(cash_bene_amt))
-		END IF
-	NEXT
+IF autofill_check = checked THEN
+	FOR k = 0 to UBound(bene_amount_array,2) 
+		IF bene_amount_array (0,k) = "Food" THEN
+			snap_header = ("SNAP for " & bene_amount_array(1,k) & "/" & bene_amount_array(2,k))
+			Call write_bullet_and_variable_in_CASE_NOTE (snap_header, FormatCurrency(bene_amount_array(3,k)) & " " & bene_amount_array(10,k))
+			IF bene_amount_array (4, k) <> "" THEN
+				Call write_bullet_and_variable_in_CASE_NOTE ("    Prorated from: ", bene_amount_array(4,k))
+			End If
+		End If
+	Next 
+	FOR h = 0 to UBound(bene_amount_array,2) 
+		IF bene_amount_array (0,h) = "MFIP" THEN
+			Call write_variable_in_CASE_NOTE ("MFIP for " & bene_amount_array(1,h) & "/" & bene_amount_array(2,h) & " " & bene_amount_array(10,h))
+			Call write_bullet_and_variable_in_CASE_NOTE ("Cash Portion", FormatCurrency(bene_amount_array(5, h)))
+			Call write_bullet_and_variable_in_CASE_NOTE ("Food Portion", FormatCurrency(bene_amount_array(3, h)))
+			Call write_bullet_and_variable_in_CASE_NOTE ("Housing Grant Amount", FormatCurrency(bene_amount_array(6, h)))
+			IF bene_amount_array (4, h) <> "" THEN
+				Call write_bullet_and_variable_in_CASE_NOTE ("    Prorated from: ", bene_amount_array(4,h))
+			End If
+		End If
+	Next 
+	FOR i = 0 to UBound(bene_amount_array,2) 
+		IF bene_amount_array (0,i) = "DWP" THEN
+			Call write_variable_in_CASE_NOTE ("DWP for " & bene_amount_array(1,i) & "/" & bene_amount_array(2,i))
+			Call write_bullet_and_variable_in_CASE_NOTE ("Shelter Benefit", FormatCurrency(bene_amount_array(7, i)))
+			Call write_bullet_and_variable_in_CASE_NOTE ("Personal Needs", FormatCurrency(bene_amount_array(8, i)))
+			IF bene_amount_array (4, i) <> "" THEN
+				Call write_bullet_and_variable_in_CASE_NOTE ("    Prorated from: ", bene_amount_array(4,i))
+			End If
+		End If
+	Next 			
+	FOR j = 0 to UBound(bene_amount_array,2) 
+		IF bene_amount_array (0,j) = "MSA" THEN
+			msa_header = ("MSA for " & bene_amount_array(1,j) & "/" & bene_amount_array(2, j))
+			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(3,j)))
+		End If
+	Next 
+	FOR l = 0 to UBound(bene_amount_array,2) 
+		IF bene_amount_array (0,l) = "GA" THEN
+			ga_header = ("GA for " & bene_amount_array(1,l) & "/" & bene_amount_array(2,l))
+			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(3,l)))
+			IF bene_amount_array (4, l) <> "" THEN
+				Call write_bullet_and_variable_in_CASE_NOTE ("    Prorated from: ", bene_amount_array(4,l))
+			End If
+		End If
+	Next 
 END IF
 IF CASH_WCOM_checkbox = checked THEN 
 	CALL write_variable_in_CASE_NOTE("* CS Disregard applied.")
@@ -785,14 +793,15 @@ END IF
 IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* This case has been FIATed.")
 IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)
 IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
-If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed) 
+If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed)
+IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("BANKED MONTHS were approved - see previous case note for detail.") 
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-'Runs denied progs if selected
+'Runs denied progs if selected - this option does not currently exist
 If closed_progs_check = checked then run_from_github(script_repository & "NOTES/NOTES - CLOSED PROGRAMS.vbs")
 
-'Runs denied progs if selected
+'Runs denied progs if selected - this option does not currently exist 
 If denied_progs_check = checked then run_script(script_repository & "NOTES/NOTES - DENIED PROGRAMS.vbs")
 
 script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
