@@ -1,4 +1,5 @@
 'Created by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County.
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
 start_time = timer
@@ -46,13 +47,13 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                      'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 150                	'manual run time in seconds
+STATS_denomination = "C"       			'C is for each Case
+'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog benefits_approved, 0, 0, 271, 280, "Benefits Approved"
+BeginDialog benefits_approved, 0, 0, 271, 245, "Benefits Approved"
   CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
   CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
   CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
@@ -60,45 +61,55 @@ BeginDialog benefits_approved, 0, 0, 271, 280, "Benefits Approved"
   EditBox 60, 20, 55, 15, case_number
   ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
   EditBox 115, 45, 150, 15, benefit_breakdown
-  CheckBox 5, 65, 255, 10, "Check here to have the script autofill the SNAP approval.", autofill_snap_check
-  EditBox 155, 80, 15, 15, snap_start_mo
-  EditBox 170, 80, 15, 15, snap_start_yr
-  EditBox 230, 80, 15, 15, snap_end_mo
-  EditBox 245, 80, 15, 15, snap_end_yr
-  CheckBox 5, 105, 255, 10, "Check here to have the script autofill the CASH approval.", autofill_cash_check
-  EditBox 155, 120, 15, 15, cash_start_mo
-  EditBox 170, 120, 15, 15, cash_start_yr
-  EditBox 230, 120, 15, 15, cash_end_mo
-  EditBox 245, 120, 15, 15, cash_end_yr
-  EditBox 55, 145, 210, 15, other_notes
-  EditBox 75, 165, 190, 15, programs_pending
-  EditBox 55, 185, 210, 15, docs_needed
-  CheckBox 10, 210, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
-  CheckBox 10, 225, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
-  CheckBox 10, 240, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
-  EditBox 75, 255, 80, 15, worker_signature
+  CheckBox 5, 65, 255, 10, "Check here to have the script autofill the approval amounts.", autofill_check
+  EditBox 175, 80, 15, 15, start_mo
+  EditBox 190, 80, 15, 15, start_yr
+  EditBox 55, 100, 210, 15, other_notes
+  EditBox 75, 120, 190, 15, programs_pending
+  EditBox 55, 140, 210, 15, docs_needed
+  CheckBox 10, 165, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
+  CheckBox 10, 180, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
+  CheckBox 10, 195, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
+  CheckBox 10, 210, 190, 10, "Check here if SNAP BANKED MONTHS were approved.", SNAP_banked_mo_check
+  EditBox 75, 225, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 160, 255, 50, 15
-    CancelButton 215, 255, 50, 15
-  Text 5, 25, 50, 10, "Case Number:"
+    OkButton 160, 225, 50, 15
+    CancelButton 215, 225, 50, 15
   Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
-  Text 10, 85, 130, 10, "Select SNAP approval range (MM YY)..."
-  Text 195, 85, 25, 10, "through"
-  Text 10, 125, 130, 10, "Select CASH approval range (MM YY)..."
-  Text 195, 125, 25, 10, "through"
-  Text 5, 150, 45, 10, "Other Notes:"
-  Text 5, 170, 70, 10, "Pending Program(s):"
-  Text 5, 190, 50, 10, "Verifs Needed:"
-  Text 10, 260, 60, 10, "Worker Signature: "
+  Text 10, 85, 160, 10, "Select the first month of approval (MM YY)..."
+  Text 5, 105, 45, 10, "Other Notes:"
+  Text 5, 125, 70, 10, "Pending Program(s):"
+  Text 5, 145, 50, 10, "Verifs Needed:"
+  Text 10, 230, 60, 10, "Worker Signature: "
   Text 120, 25, 60, 10, "Type of Approval:"
   Text 5, 5, 70, 10, "Approved Programs:"
+  Text 5, 25, 50, 10, "Case Number:"
 EndDialog
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
 EMConnect ""
 'Finds the case number
 call MAXIS_case_number_finder(case_number)
+
+'-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
+FUNCTION date_array_generator(initial_month, initial_year, date_array)
+	'defines an intial date from the initial_month and initial_year parameters
+	initial_date = initial_month & "/1/" & initial_year
+	'defines a date_list, which starts with just the initial date
+	date_list = initial_date
+
+	'This loop creates a list of dates
+	Do
+		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
+		working_date = dateadd("m", 1, right(date_list, len(date_list) - InStrRev(date_list,"|")))	'the working_date is the last-added date + 1 month. We use dateadd, then grab the rightmost characters after the "|" delimiter, which we determine the location of using InStrRev
+		date_list = date_list & "|" & working_date	'Adds the working_date to the date_list
+	Loop until datediff("m", date, working_date) = 1	'Loops until we're at current month plus one
+
+	'Splits this into an array
+	date_array = split(date_list, "|")
+End function
 
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
@@ -111,15 +122,8 @@ ELSE
 END IF
 
 'Converts the variables in the dialog into the variables "bene_month" and "bene_year" to autofill the edit boxes.
-snap_start_mo = bene_month
-snap_start_yr = bene_year
-snap_end_mo = bene_month
-snap_end_yr = bene_year
-
-cash_start_mo = bene_month
-cash_start_yr = bene_year
-cash_end_mo = bene_month
-cash_end_yr = bene_year
+start_mo = bene_month
+start_yr = bene_year
 
 'Displays the dialog and navigates to case note
 Do
@@ -129,24 +133,10 @@ Do
 	cancel_confirmation
 		'Enforcing mandatory fields
 		If case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
-		IF snap_approved_check = 0 AND autofill_snap_check = checked THEN err_msg = err_msg & vbCr & "* You checked to have the SNAP results autofilled but did not select that SNAP was approved. Please reconsider your selections and try again."
-		IF cash_approved_check = 0 AND autofill_cash_check = checked THEN err_msg = err_msg & vbCr & "* You checked to have the CASH results autofilled but did not select that CASH was approved. Please reconsider your selections and try again."
-		IF autofill_cash_check = checked AND cash_approved_check = checked THEN
-			'Calculates the number of benefit months the worker is trying to case note.
-			cash_start = cdate(cash_start_mo & "/01/" & cash_start_yr)
-			cash_end = cdate(cash_end_mo & "/01/" & cash_end_yr)
-			IF datediff("M", date, cash_start) > 1 THEN err_msg = err_msg & vbCr & "* Your CASH start month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-			IF datediff("M", date, cash_end) > 1 THEN err_msg = err_msg & vbCr & "* Your CASH end month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-			IF datediff("M", cash_start, cash_end) < 0 THEN err_msg = err_msg & vbCr & "* Please double check your CASH date range. Your start month cannot be later than your end month."
-		END IF	
-		IF autofill_snap_check = checked AND snap_approved_check = checked THEN 
-			'Calculates the number of benefit months the worker is trying to case note.
-			snap_start = cdate(snap_start_mo & "/01/" & snap_start_yr)
-			snap_end = cdate(snap_end_mo & "/01/" & snap_end_yr)
-			IF datediff("M", date, snap_start) > 1 THEN err_msg = err_msg & vbCr & "* Your SNAP start month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-			IF datediff("M", date, snap_end) > 1 THEN err_msg = err_msg & vbCr & "* Your SNAP end month is invalid. You cannot case note eligibility results from more than 1 month into the future. Please change your months."
-			IF datediff("M", snap_start, snap_end) < 0 THEN err_msg = err_msg & vbCr & "* Please double check your SNAP date range. Your start month cannot be later than your end month."
-		END IF
+		IF autofill_check = checked THEN 
+			IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _ 
+			 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
+		End If 
 		IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 Loop until err_msg = ""
@@ -154,8 +144,22 @@ Loop until err_msg = ""
 'checking for an active MAXIS session
 Call check_for_MAXIS(FALSE)  
 
-total_snap_months = (datediff("m", snap_start, snap_end)) + 1
-total_cash_months = (datediff("m", cash_start, cash_end)) + 1
+Call date_array_generator (start_mo, start_yr, date_array)
+
+Dim bene_amount_array ()	'Array to store all the different elig amounts
+Redim bene_amount_array (10, 0)
+	'bene_amount_array Map 
+	'(0, a) = Program to Check
+	'(1, a) = Benefit Month
+	'(2, a) = Benefit Year
+	'(3, a) = SNAP amount 
+	'(4, a) = Prorated date 
+	'(5, a) = MFIP Cash 
+	'(6, a) = MFIP Housing Grant 
+	'(7, a) = DWP Shelter Amount
+	'(8, a) = DWP Personal Amount 
+	'(9, a) = Other Cash amount
+	'(10, a) = Type of Reporter
 
 'Navigates to the ELIG results for SNAP, if the worker desires to have the script autofill the case note with SNAP approval information.
 IF autofill_snap_check = checked THEN
