@@ -161,6 +161,244 @@ Redim bene_amount_array (10, 0)
 	'(9, a) = Other Cash amount
 	'(10, a) = Type of Reporter
 
+DIM All_SNAP_Clients_Array ()	'Array to check clients for ABAWD
+ReDim All_SNAP_Clients_Array (8,0)
+	'All_SNAP_Clients_Array MAP 
+	'(0, a) = Client Reference Number
+	'(1, a) = Client Name 
+	'(2, a) = Client Age 
+	'(3, a) = FSET Status
+	'(4, a) = WREG Status 
+	'(5, a) = using banked months check 
+	'(6, a) = Initial Banked Month
+	'(7, a) = Initial Banked Year 
+
+Dim BM_Clients_Array () 	'Array of all clients approved for BANKED MONTHS with this approval
+g = 0
+
+'If worker selects that banked months have been approved, script will write additional case notes, document the months and tikl
+IF SNAP_banked_mo_check = checked THEN	
+	b = 0 
+	
+	navigate_to_MAXIS_screen "STAT", "MEMB"
+	DO								'Gets name, ref number, and age for all clients and adds to an array
+		ReDim Preserve All_SNAP_Clients_Array (8, b)
+		EMReadscreen ref_nbr, 3, 4, 33 
+		EMReadscreen last_name, 25, 6, 30 
+		EMReadscreen first_name, 12, 6, 63 
+		EMReadscreen Mid_intial, 1, 6, 79 
+		EMReadScreen age, 2, 8, 76 
+		last_name = replace(last_name, "_", "") & " " 
+		first_name = replace(first_name, "_", "") & " " 
+		mid_initial = replace(mid_initial, "_", "") 
+		All_SNAP_Clients_Array (0, b) = ref_nbr
+		All_SNAP_Clients_Array (1, b) = last_name & first_name & mid_intial 
+		All_SNAP_Clients_Array (2, b) = trim(age)
+		b = b + 1 
+		transmit 
+		Emreadscreen edit_check, 7, 24, 2 
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row. 
+
+	c = 0 
+
+	DO 		'Gets information from WREG for each client 
+		navigate_to_MAXIS_screen "STAT", "WREG"
+		EMWriteScreen All_SNAP_Clients_Array(0, c), 20, 76 
+		transmit
+		EMReadScreen FSET_status, 2, 8, 50
+		EMReadScreen ABAWD_status, 2, 13, 50 
+		All_SNAP_Clients_Array (3, c) = FSET_status
+		All_SNAP_Clients_Array (4, c) = ABAWD_status
+		IF FSET_status = "30" then
+			IF ABAWD_status = 10 OR ABAWD_status = 11 then 
+				All_SNAP_Clients_Array (5, c) = 1 
+				All_SNAP_Clients_Array (6, c) = start_mo
+				All_SNAP_Clients_Array (7, c) = start_yr
+				All_SNAP_Clients_Array (8, c) = 3
+			End If 
+		End If 
+		c = c + 1 
+	Loop until c = b 
+
+	total_clients = c	'Variable to handle the dynamic dialog below
+	
+	BeginDialog Banked_Months_Dialog, 0, 0, 330, ((total_clients * 45) + 40), "Determining Clients Using Banked Months"
+	  Text 65, 5, 145, 10, "Household Members Using Banked Months"
+	  For d = 0 to (total_clients - 1)
+		CheckBox 5, (20 + (d * 45)), 85, 10, "Using Banked Months", All_SNAP_Clients_Array (5, d)
+		Text 100, (20 + (d * 45)), 65, 10, "First Banked Month"
+		EditBox 165, (15 + (d * 45)), 15, 15, All_SNAP_Clients_Array (6, d) 
+		EditBox 180, (15 + (d * 45)), 15, 15, All_SNAP_Clients_Array (7, d)
+		 Text 205, (20 + (d * 45)), 100, 10, "Number of Banked Months App"
+		EditBox 310, (15 + (d * 45)), 15, 15, All_SNAP_Clients_Array (8, d)
+		Text 20, (35 + (d * 45)), 30, 10, "Memb " & All_SNAP_Clients_Array (0, d) 
+		Text 60, (35 + (d * 45)), 210, 10, All_SNAP_Clients_Array (1, d)
+		Text 20, (50 + (d * 45)), 35, 10, "FSET: " & All_SNAP_Clients_Array (3, d)
+		Text 60, (50 + (d * 45)), 45, 10, "ABAWD: " & All_SNAP_Clients_Array (4, d)
+		Text 170, (50 + (d * 45)), 35, 10, "Age: " & All_SNAP_Clients_Array (2, d)
+	  Next
+	  ButtonGroup ButtonPressed
+		OkButton 220, (65 + ((total_clients - 1) * 45)), 50, 15
+		CancelButton 275, (65 + ((total_clients - 1) * 45)), 50, 15
+	EndDialog
+
+	Do 
+		err_msg = ""
+		Dialog Banked_Months_Dialog
+		cancel_confirmation
+		clients_with_banked_mo = 0
+		FOR e = 0 to (total_clients - 1)
+			IF All_SNAP_Clients_Array (5, e) = checked THEN
+				IF All_SNAP_Clients_Array (6, e)  = "" AND All_SNAP_Clients_Array(7, e) = "" THEN _
+				err_msg = err_msg & vbCr & "You must indicate an initial banked month and year for " & All_SNAP_Clients_Array (1, e) 
+			End If
+			IF All_SNAP_Clients_Array (5, e) = checked THEN clients_with_banked_mo = clients_with_banked_mo + 1
+		Next 
+		IF clients_with_banked_mo = 0 THEN err_msg = err_msg & vbCr & "You have not inicated any clients using banked months." & _ 
+		  vbCr & "Though you previously marked Banked Months were approved. Press cancel if you have no clients using banked months"
+		IF err_msg <> "" THEN MsgBox err_msg
+	Loop until err_msg = ""
+	
+	ReDim BM_Clients_Array (3, 0) 
+	excel_row = 2 
+	
+	For f = 0 to (total_clients - 1)		'Creates an array of all the clients the worker selected as using banked months
+		IF All_SNAP_Clients_Array (5, f) = checked THEN 
+			ReDim Preserve BM_Clients_Array (3, g)
+			BM_Clients_Array (0, g) = All_SNAP_Clients_Array (0, f)	'Client Ref Numb
+			BM_Clients_Array (1, g) = All_SNAP_Clients_Array (1, f)	'Client Name
+			BM_Clients_Array (3, g) = All_SNAP_Clients_Array (8, f)	'Number of Banked Months Approved
+			For m = 0 to (All_SNAP_Clients_Array (8, f) - 1) 
+				IF All_SNAP_Clients_Array(6, f) + m = 13 THEN 
+					IF BM_Clients_Array (2, g) = "" Then 
+						BM_Clients_Array (2, g) = 01 & "/" & (All_SNAP_Clients_Array(7, f) + 1)
+					Else 
+						BM_Clients_Array (2, g) = BM_Clients_Array (2, g) & " & " & 01 & "/" & (All_SNAP_Clients_Array(7, f) + 1)
+					End IF
+				ElseIf All_SNAP_Clients_Array(6, f) + m = 14 THEN 
+					IF BM_Clients_Array (2, g) = "" Then 
+						BM_Clients_Array (2, g) = 02 & "/" & (All_SNAP_Clients_Array(7, f) + 1)
+					Else 
+						BM_Clients_Array (2, g) = BM_Clients_Array (2, g) & " & " & 02 & "/" & (All_SNAP_Clients_Array(7, f) + 1)
+					End IF
+				Else 
+					IF BM_Clients_Array (2, g) = "" Then
+						BM_Clients_Array (2, g) = (All_SNAP_Clients_Array(6, f) + m) & "/" & All_SNAP_Clients_Array(7, f)
+					Else 
+						BM_Clients_Array (2, g) = BM_Clients_Array (2, g) & " & " & (All_SNAP_Clients_Array(6, f) + m) & "/" & All_SNAP_Clients_Array(7, f)
+					End IF
+				End If 
+			Next
+			
+			Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, g), "&")	'Creates an array of all BANKED MONTHS approved
+			For t = 0 to UBound(Used_ABAWD_Months_Array)
+				MsgBox (Used_ABAWD_Months_Array(t))
+			Next 
+			
+			IF worker_county_code = "x169" Then		'This is David Courtright's code for St Louis County
+				'----------------THis section updates an access database for ABAWD banked months---------------------------------'
+				abawd_member_array = Split(ABAWD_member_list, ",")
+
+				'Getting user name
+				Set objNet = CreateObject("WScript.NetWork")
+				user_ID = objNet.UserName
+				'Setting constants
+				Const adOpenStatic = 3
+				Const adLockOptimistic = 3
+				'Creating objects for Access
+				Set objConnection = CreateObject("ADODB.Connection")
+				Set objRecordSet = CreateObject("ADODB.Recordset")
+				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = U:/PHHS/BlueZoneScripts/Statistics/usage statistics new.accdb"
+				'This looks for an existing case number and edits it if needed
+				FOR q = 0 to UBound(BM_Clients_Array,2) 
+					banked_month = Used_ABAWD_Months_Array(0)
+					banked_month_2 = Used_ABAWD_Months_Array(1)
+					banked_month_3 = Used_ABAWD_Months_Array(2)
+					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,q) & "") 'pulling all existing case / member info into a recordset
+
+					IF NOT(abawdrs.EOF) THEN 'There is an existing case, we need to update
+
+						'This formats all the variables into the correct syntax
+						update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,q) & ""
+						objConnection.Execute "UPDATE banked_month_log SET " & update_string 'Here we are actually writing to the database
+						set abawdrs = nothing
+					ELSE 'There is no existing case, add a new one using the info pulled from the script
+						'Inserting the new record
+						objConnection.Execute "INSERT INTO banked_month_log (case_number, member_number, " & banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,q) & "', '-1', '-1', '-1')"
+					END IF
+				NEXT
+				objConnection.close
+			End If
+			
+			'For counties with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
+			'Opening the Excel file
+			Set objExcel = CreateObject("Excel.Application")
+			objExcel.Visible = True
+			Set objWorkbook = objExcel.Workbooks.Add() 
+			objExcel.DisplayAlerts = True
+			
+			'Setting the first 4 col as worker, case number, name, and APPL date
+			ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
+			objExcel.Cells(1, 1).Font.Bold = TRUE
+			ObjExcel.Cells(excel_row, 1).Value = case_number
+			ObjExcel.Cells(1, 2).Value = "CLT REF #"
+			objExcel.Cells(1, 2).Font.Bold = TRUE
+			ObjExcel.Cells(excel_row, 2).Value = BM_Clients_Array(0, g)
+			ObjExcel.Cells(1, 3).Value = "CLT NAME"
+			objExcel.Cells(1, 3).Font.Bold = TRUE
+			ObjExcel.Cells(excel_row, 3).Value = BM_Clients_Array(1, g)
+			ObjExcel.Cells(1, 4).Value = "1st Banked Month"
+			objExcel.Cells(1, 4).Font.Bold = TRUE
+			ObjExcel.Cells(1, 5).Value = "2nd Banked Month"
+			objExcel.Cells(1, 5).Font.Bold = TRUE
+			ObjExcel.Cells(1, 6).Value = "3rd Banked Month"
+			objExcel.Cells(1, 6).Font.Bold = TRUE
+			
+			month_col = 4 
+			For v = 0 to UBound(Used_ABAWD_Months_Array)
+				ObjExcel.Cells(excel_row, month_col).Value = Used_ABAWD_Months_Array(v)
+				month_col = month_col + 1 
+			Next 
+			
+			'Autofitting columns
+			For col_to_autofit = 1 to 6
+				ObjExcel.columns(col_to_autofit).AutoFit()
+			Next
+			
+			'Writing a TIKL to close SNAP once Banked Months are done for this person
+			navigate_to_MAXIS_screen "DAIL", "WRIT" 
+			last_month = Trim(Used_ABAWD_Months_Array(UBound(Used_ABAWD_Months_Array)))
+			IF len(last_month) = 4 THEN last_month = "0" & last_month
+			last_month_mm = left(last_month,2)
+			last_month_yy = right(last_month,2)
+			EMWriteScreen last_month_mm, 5, 18
+			EMWriteScreen "01", 5, 21 
+			EMWriteScreen last_month_yy, 5, 24 
+			transmit
+			EMReadScreen tikl_corr, 4, 24, 2 
+			IF tikl_corr = "DATE" then 
+				PF10
+				PF3
+				tikl_set = False 
+			Else 
+				tikl_notc = "!!CLOSE SNAP for Memb " & BM_Clients_Array(0, g) & ". Client has used banked months and"
+				tikl_notc_two = "eligibility must be redetermined."
+				EMWriteScreen tikl_notc, 9, 3 
+				EMWriteScreen tikl_notc_two, 10, 3
+				tikl_set = TRUE 
+				cls_month = abs(last_month_mm) + 1
+				IF cls_month = 13 then 
+					cls_date = "01" & "/" & (abs(last_month_yy) + 1)
+				Else 
+					cls_date = cls_month & "/" & last_month_yy
+				End IF 
+			End If 
+			g = g + 1
+		End If 
+		excel_row = excel_row + 1 
+	Next
+End IF 	
+
 'Navigates to the ELIG results for SNAP, if the worker desires to have the script autofill the case note with SNAP approval information.
 IF autofill_snap_check = checked THEN
 	snap_month = int(snap_start_mo)
