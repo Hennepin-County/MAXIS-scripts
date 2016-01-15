@@ -305,3 +305,340 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	'Navigating to the DAIL (Goes back to self as there are issues in CCOL/CLIC with the direct navigate_to_screen)
 	back_to_SELF
 	call navigate_to_screen("DAIL", "DAIL")
+	
+	
+	
+	'This checks the DAIL for messages, sends a variable to the array. We don't transfer cases with DAIL messages. (True for "has DAIL", False for "doesn't have DAIL")
+	For x = 0 to total_cases
+		case_number = INAC_scrubber_primary_array(x, 0)		'Grabbing case number
+		EMWriteScreen "________", 20, 38
+		EMWriteScreen case_number, 20, 38
+		transmit
+		EMReadScreen DAIL_check, 1, 5, 5
+		If DAIL_check <> " " then 
+			INAC_scrubber_primary_array(x, 4) = True
+		Else
+			INAC_scrubber_primary_array(x, 4) = False
+		End if
+		If developer_mode = True then ObjExcel.Cells(x + 2, 5).Value = INAC_scrubber_primary_array(x, 4)
+		excel_row = excel_row + 1
+	Next
+	
+	'Making the header for the next section of the Word document.
+	objselection.TypeParagraph()
+	objselection.TypeParagraph()
+	objselection.typetext "Cases that need to be REINed, STAT/ABPS updated with an ''N'' code for Good Cause Status, and then reapproved for closure:"
+	objselection.TypeParagraph()
+	
+	'This do...loop goes into STAT, grabs PMIs for MEMB types 01, 02, 03, 04, and 18, and then navigates to ABPS to get that info.
+	For x = 0 to total_cases
+		
+		'Grabbing case number and name for this loop
+		case_number = INAC_scrubber_primary_array(x, 0)	
+		client_name = INAC_scrubber_primary_array(x, 1)	
+		
+		'Gets to MEMB
+		call navigate_to_screen("STAT", "MEMB")
+		
+		'Checks to make sure we're past SELF. If we aren't, it'll save that the case is privileged (most likely cause) in the array.
+		EMReadScreen SELF_check, 4, 2, 50
+		If SELF_check = "SELF" then 
+			INAC_scrubber_primary_array(x, 7) = True		'If it's privileged, it won't get past SELF. If so, it'll enter a True value in the array.
+		Else
+			INAC_scrubber_primary_array(x, 7) = False		'If it gets through, it isn't privileged.
+			
+			'Reads the PMI number for each 01, 02, 03, 04, and 18 (dependents). Stores it to a variable called "PMI array", which will be added to the main array (and split later).
+			Do
+				EMReadScreen PMI_number, 8, 4, 46
+				EMReadScreen rel_to_applicant, 2, 10, 42
+				If rel_to_applicant = "01" or rel_to_applicant = "02" or rel_to_applicant = "03" or rel_to_applicant = "04" or rel_to_applicant = "18" then
+					If PMI_array = "" then 
+						PMI_array = trim(PMI_number)
+					Else
+						PMI_array = PMI_array & "|" & trim(PMI_number)
+					End if
+					
+				End if
+				transmit
+				EMReadScreen no_more_MEMBs_check, 31, 24, 2
+				INAC_scrubber_primary_array(x, 6) = PMI_array		'Writes the PMI array to the main array
+			Loop until no_more_MEMBs_check = "ENTER A VALID COMMAND OR PF-KEY"
+			
+			'Goes to ABPS to check good cause. Good cause will not hang the case from being sent to CLS, as such, it does not get entered in the array (just the Word doc).
+			call navigate_to_screen("STAT", "ABPS")
+			EMReadScreen good_cause_check, 1, 5, 47
+			If good_cause_check = "P" then
+				objselection.typetext case_number & ", " & client_name
+				objselection.TypeParagraph()
+			End if
+		End if
+		If developer_mode = True then 
+			ObjExcel.Cells(x + 2, 8).Value = INAC_scrubber_primary_array(x, 7)		'Writes privileged status to Excel when developer_mode is on
+			ObjExcel.Cells(x + 2, 7).Value = INAC_scrubber_primary_array(x, 6)		'Writes PMI array to Excel when developer_mode is on
+		End if
+		PMI_array = ""		'Clears the variable for the following loop
+	Next
+	
+	'MMIS--------------------------------------------------------------------------------------------------------------
+	
+	'The following checks for which screen MMIS is running on.
+	attn
+	EMReadScreen MMIS_A_check, 7, MMIS_MDHS_row, 15
+	IF MMIS_A_check = "RUNNING" then 
+		EMSendKey MMIS_number
+		transmit
+	End if
+	IF MMIS_A_check <> "RUNNING" then 
+		attn
+		EMConnect "B"
+		attn
+		EMReadScreen MMIS_B_check, 7, MMIS_MDHS_row, 15
+		If MMIS_B_check <> "RUNNING" then 
+			script_end_procedure("MMIS does not appear to be running. This script will now stop.")
+		End if
+		If MMIS_B_check = "RUNNING" then 
+			EMSendKey MMIS_number
+			transmit
+		End if
+	End if
+	
+	'Shifts user focus to whatever screen ended up getting selected (A or B)
+	EMFocus
+	
+	'Sending MMIS back to the beginning screen and checking for a password prompt
+	Do 
+		PF6
+		EMReadScreen password_prompt, 38, 2, 23
+		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
+		EMReadScreen session_start, 18, 1, 7
+	Loop until session_start = "SESSION TERMINATED"
+	
+	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themself into MMIS the first time!)
+	EMWriteScreen "mw00", 1, 2
+	transmit
+	transmit
+	
+	'Finding the right MMIS, if needed, by checking the header of the screen to see if it matches the security group selector
+	EMReadScreen MMIS_security_group_check, 21, 1, 35 
+	If MMIS_security_group_check = "MMIS MAIN MENU - MAIN" then
+		EMSendKey "x"
+		transmit
+	End if
+	
+	'Now it finds the recipient file application feature and selects it.
+	row = 1
+	col = 1
+	EMSearch "RECIPIENT FILE APPLICATION", row, col
+	EMWriteScreen "x", row, col - 3
+	transmit
+	
+	'Now we are in RKEY, and it enters an I
+	EMWriteScreen "i", 2, 19
+	
+	'This for...next enters a PMI for each HH member and gets their program status in MMIS.
+	For x = 0 to total_cases
+		'Grabs MAXIS_case_number and PMI_array from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)		
+		PMI_array = INAC_scrubber_primary_array(x, 6)
+		privileged_status = INAC_scrubber_primary_array(x, 7)
+	
+		INAC_scrubber_primary_array(x, 8) = False
+	
+			
+		'Splits the PMI_array from the main array into an actual array, which will be used by the script.
+		PMI_array = split(PMI_array, "|")
+			
+		'Checks each PMI in MMIS for discrepancies. Skips cases with no PMI (privileged cases).
+		For each PMI in PMI_array
+			If privileged_status = False then 
+				If len(PMI) < 8 then 'This will generate an 8 digit PMI.
+					Do 
+						PMI = "0" & PMI
+					Loop until len(PMI) = 8
+				End if
+				EMWriteScreen PMI, 4, 19
+				transmit
+				EMWriteScreen "RELG", 1, 8
+				transmit
+				EMReadScreen MMIS_case_status, 1, 7, 62
+				If len(MAXIS_case_number) < 8 then 'This will generate an 8 digit MAXIS case number.
+					Do 
+						MAXIS_case_number = "0" & MAXIS_case_number
+					Loop until len(MAXIS_case_number) = 8
+				End if
+				EMReadScreen MMIS_case_number, 8, 6, 73
+				
+				'Checks for active/pending cases. Shows "True" for MMIS is active, and "False" for MMIS is not active.
+				'It considers IMA cases (cases which start with a 25) to be connected to MAXIS (we don't want to lose these cases), and will exclude them from the MAXIS pieces.
+				'If it's closed/denied (C or D), if there's no end date, it'll consider it connected to MAXIS (discrepancy handling)
+				If MMIS_case_status = "A" or MMIS_case_status = "P" then
+					If isnumeric(MMIS_case_number) = False or (MMIS_case_number = MAXIS_case_number) or left(MMIS_case_number, 2) = "25" then 
+						INAC_scrubber_primary_array(x, 5) = True
+					End if
+				ElseIf MMIS_case_status = "C" or MMIS_case_status = "D" then
+					EMReadScreen elig_type, 2, 6, 33
+					EMReadScreen elig_end_date, 8, 7, 36
+					IF elig_type = "AX" OR elig_type = "AA" OR elig_type = "CB" OR elig_type = "CK" OR elig_type = "CX" OR elig_type = "PX" THEN INAC_scrubber_primary_array(x, 8) = True
+					If elig_end_date = "99/99/99" then 
+						INAC_scrubber_primary_array(x, 5) = True
+					Else		'Allows for cases that are closing next month
+						If datediff("m", elig_end_date, now) < 1 and (isnumeric(MMIS_case_number) = False or MMIS_case_number = MAXIS_case_number) then 
+							INAC_scrubber_primary_array(x, 5) = True
+						End if
+					End if
+				End if
+				PF6
+			End if
+		Next
+		If INAC_scrubber_primary_array(x, 5) <> True then INAC_scrubber_primary_array(x, 5) = False		'Sets this after the others, so that it doesn't refresh each loop.
+		If developer_mode = True then 
+			ObjExcel.Cells(x + 2, 6).Value = INAC_scrubber_primary_array(x, 5)		'Writes MMIS status to array when developer_mode is on
+			ObjExcel.Cells(x + 2, 9).Value = INAC_scrubber_primary_array(x, 8)
+		END IF
+	Next
+	
+	'The following checks for which screen MAXIS is running on.
+	EMConnect "A"
+	attn
+	EMReadScreen MAXIS_A_check, 7, MAXIS_MDHS_row, 15 
+	IF MAXIS_A_check = "RUNNING" then 
+		EMSendKey MAXIS_number
+		transmit
+	End if
+	IF MAXIS_A_check <> "RUNNING" then 
+		attn
+		EMConnect "B"
+		EMReadScreen MAXIS_B_check, 7, MAXIS_MDHS_row, 15
+		If MAXIS_B_check <> "RUNNING" then 
+			MsgBox "The script is struggling to find MAXIS. Please navigate back to MAXIS and press OK for the script to continue."
+		Else
+			EMSendkey MAXIS_number
+			transmit
+		End if
+	End if
+	
+	'Header for the MMIS discrepancies section of the doc
+	objselection.typetext "Case numbers with MMIS discrepancies: "
+	objselection.TypeParagraph()
+	objselection.TypeParagraph()
+	
+	'This do...loop updates case notes for all of the cases that don't have DAIL messages or cases still open in MMIS
+	For x = 0 to total_cases
+		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		case_number = INAC_scrubber_primary_array(x, 0)
+		DAILS_out = INAC_scrubber_primary_array(x, 4)
+		MMIS_status = INAC_scrubber_primary_array(x, 5)
+		privileged_status = INAC_scrubber_primary_array(x, 7)
+	
+		'Adds the case number to word doc if MMIS is active
+		If MMIS_status = true Then
+			objselection.typetext case_number
+			objselection.TypeParagraph()
+		End If
+	
+		'Checking to determine that the client is a MAGI that closed for no or incomplete review. If that is the case, then the script does not transfer the client to CLS
+		IF INAC_scrubber_primary_array(x, 8) = True THEN
+			CALL navigate_to_screen("CASE", "CURR")
+			EMWriteScreen "X", 4, 9
+			transmit
+	
+			EMWriteScreen "MA", 3, 19
+			transmit
+	
+			EMReadScreen closure_reason, 9, 8, 60
+			EMReadScreen closure_date, 5, 8, 28
+			EMReadScreen inac_month, 5, 20, 54
+			inac_month = replace(inac_month, " ", "/")
+			IF closure_reason = "NO REVIEW" AND inac_month = closure_date THEN 
+				INAC_scrubber_primary_array(x, 8) = True
+				objSelection.typetext case_number & ": case has MAGI HC client(s) that closed for incomplete or no review."
+				objSelection.TypeParagraph()
+			ELSE
+				INAC_scrubber_primary_array(x, 8) = False
+			END IF
+		END IF
+	
+		IF developer_mode = True THEN ObjExcel.Cells(x + 2, 9).Value = INAC_scrubber_primary_array(x, 8)
+		
+		back_to_self
+		'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
+		If privileged_status <> True and DAILS_out = False and MMIS_status = False  AND INAC_scrubber_primary_array(x, 8) = False then
+			call navigate_to_screen("CASE", "NOTE")
+			PF9
+			If developer_mode = False then
+				call write_new_line_in_case_note("--------------------Case is closed--------------------")
+				call write_new_line_in_case_note("* Reviewed closed case for claims via automated script.")
+				If CLS_x1_number <> "" then call write_new_line_in_case_note("* XFERed to " & CLS_x1_number & ".")
+				call write_new_line_in_case_note("---")
+				call write_new_line_in_case_note(worker_signature & ", via automated script.")
+			Else
+				'case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
+				If case_note_box = vbCancel then stopscript
+			End if
+		End if
+		If privileged_status <> True and DAILS_out = False and MMIS_status = False AND INAC_scrubber_primary_array(x, 8) = True then
+			call navigate_to_screen("CASE", "NOTE")
+			PF9
+			tikl_date = dateadd("M", 4, (footer_month & "/01/" & footer_year))
+			last_rein_date = dateadd("D", -1, tikl_date)
+			IF developer_mode = False THEN
+				CALL write_new_line_in_case_note("-----ALL PROGRAMS INACTIVE-----")
+				CALL write_new_line_in_case_note("* Not transfering to Closed Cases because of current MAGI rules")
+				CALL write_new_line_in_case_note("* Last HC REIN Date for MAGI client: " & last_rein_date)
+				CALL write_new_line_in_case_note("---")
+				CALL write_new_line_in_case_note(worker_signature)
+	
+				CALL navigate_to_screen("DAIL", "WRIT")
+				CALL create_maxis_friendly_date(tikl_date, 0, 5, 18)
+				EMWriteScreen ("IF CASE IS INACTIVE TRANSFER TO CLOSED - " & CLS_x1_number), 9, 3
+				transmit
+				PF3
+			ELSE
+				'MsgBox ("The script would case note the last date to REIN is " & last_rein_date & " and then TIKL to XFER to CLS on " & tikl_date)
+			END IF
+		END IF
+	Next
+	
+	CLS_x1_number = "X102CLS"
+	'If there's no CLS_x1_number, it ends here.
+	If CLS_x1_number = "" then
+		MsgBox 	"Success!"  & vbNewLine & _
+				vbNewLine &_
+				"The cases that have HC open in MMIS, have unresolved IEVS, or have DAILs generated, did not get case noted. Some of these cases may be discrepancies or may be MCRE or active IMA cases." & vbNewLine & _
+				vbNewLine & _
+				"A Word document has been created, containing active claims as well as cases with ABPS panels requiring update. If you have questions about these procedures, see a supervisor." & vbNewLine & _
+				vbNewLine & _
+				"Please note that this script normally XFERs cases to a ''CLS'' account (such as x100CLS), which is used by many agencies to store closed cases. This makes certain functions simpler in an agency. Your agency has not configured such an account for script usage, so it will stop now. If you have additional questions, consult an alpha user."
+		script_end_procedure("")
+	End if
+	
+	'This do...loop transfers the cases to the CLS_x1_number.
+	For x = 0 to total_cases
+		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		case_number = INAC_scrubber_primary_array(x, 0)
+		DAILS_out = INAC_scrubber_primary_array(x, 4)
+		MMIS_status = INAC_scrubber_primary_array(x, 5)
+		privileged_status = INAC_scrubber_primary_array(x, 7)
+	
+		'Gets back to SELF (SPEC/XFER gets wonky sometimes, this is safer than using the function)
+		back_to_SELF
+		
+		'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll SPEC/XFER
+		If privileged_status <> True and DAILS_out = False and MMIS_status = False AND INAC_scrubber_primary_array(x, 8) = False then
+			EMWriteScreen "SPEC", 16, 43
+			EMWriteScreen "________", 18, 43
+			EMWriteScreen case_number, 18, 43
+			EMWriteScreen "XFER", 21, 70
+			transmit
+			If developer_mode = False then
+				EMWriteScreen "x", 7, 16
+				transmit
+				PF9
+				EMWriteScreen CLS_x1_number, 18, 61		
+				transmit
+			Else
+				'MsgBox "Case would be XFERed to " & CLS_x1_number & ""
+			End if
+		End if
+	Next
+	
