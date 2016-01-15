@@ -18,7 +18,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+		ELSE															'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
 			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
@@ -74,7 +74,7 @@ BeginDialog MOF_recd, 0, 0, 186, 265, "Medical Opinion Form Received"
   Text 5, 85, 65, 10, "Date of last exam: "
   Text 5, 105, 80, 10, "Date doctor signed form: "
   Text 5, 125, 65, 10, "Condition will last:"
-  Text 5, 140, 125, 10, "Do not enter diagnosis in case notes."
+  Text 5, 140, 125, 10, "Do not enter diagnosis in case notes per PQ #16506."
   Text 5, 165, 75, 10, "Client's ability to work: "
   Text 5, 185, 40, 10, "Other notes: "
   Text 5, 205, 45, 10, "Action taken: "
