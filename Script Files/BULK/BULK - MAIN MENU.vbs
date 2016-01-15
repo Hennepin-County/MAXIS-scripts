@@ -47,36 +47,38 @@ END IF
 DIM ButtonPressed
 DIM SIR_instructions_button, dialog_name
 DIM BULK_list_scripts_button, other_BULK_scripts_button
-DIM BULK_TIKLER_button, CASE_NOTE_FROM_EXCEL_LIST_button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
+DIM BULK_TIKLER_button, CASE_NOTE_FROM_EXCEL_LIST_button, BULK_CASE_TRANSFER_Button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
 DIM ACTV_LIST_button, DAIL_REPORT_button, EOMC_LIST_button, PND1_LIST_button, PND2_LIST_button, REVS_LIST_button, REVW_LIST_button, MFCM_LIST_button, ADDRESS_LIST_button, ARST_LIST_button, CHECK_SNAP_FOR_GA_RCA_button, LTC_GRH_LIST_GENERATOR_button, MAEPD_MEDICARE_LIST_button, MISC_NON_MAGI_HC_DEDUCTIONS_button, SWKR_LIST_GENERATOR_button
 DIM BULK_PDED_button, FIND_PANEL_button
 DIM INAC_LIST_button
 
 FUNCTION create_BULK_main_menu(dialog_name)
 	IF dialog_name = "OTHER BULK" THEN
-		BeginDialog dialog_name, 0, 0, 456, 315, "Other Bulk Scripts Main Menu"
-		ButtonGroup ButtonPressed
-			PushButton 5, 25, 55, 15, "BULK LISTS", BULK_list_scripts_button
-			PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
-			PushButton 10, 80, 45, 10, "Bulk TIKLer", BULK_TIKLER_button
-			PushButton 10, 95, 95, 10, "CASE/NOTE from Excel list", CASE_NOTE_FROM_EXCEL_LIST_button
-			PushButton 10, 120, 70, 10, "CEI premium noter", CEI_PREMIUM_NOTER_button
-			PushButton 10, 135, 110, 10, "COLA auto approved DAIL noter", COLA_AUTO_APPROVED_DAIL_NOTER_button
-			PushButton 10, 160, 55, 10, "INAC scrubber", INAC_SCRUBBER_button
-			PushButton 10, 200, 55, 10, "Returned mail", RETURNED_MAIL_button
-			PushButton 10, 225, 80, 10, "REVW/MONT closures", REVW_MONT_CLOSURES_button
-			CancelButton 400, 295, 50, 15
-		Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
-		GroupBox 5, 60, 440, 190, "Other BULK Scripts"
-		Text 60, 80, 175, 10, "--- Creates the same TIKL on up to 60 cases at once."
-		Text 110, 95, 335, 20, "--- Creates the same CASE/NOTE on potentially hundreds of cases listed on an Excel spreadsheet of your choice."
-		Text 85, 120, 240, 10, "--- Case notes recurring CEI premiums on multiple cases simultaneously."
-		Text 125, 135, 320, 20, "--- Case notes all cases on DAIL/DAIL that have a message indicating that COLA was auto-approved, copies the messages to an Excel spreadsheet, and deletes the DAIL."
-		Text 70, 160, 375, 35, "--- Checks all cases on REPT/INAC (in the month before the current footer month, or prior) for MMIS discrepancies, active claims, DAIL messages, and ABPS panels in need of update (for Good Cause status), and adds them to a Word document. After that, it case notes all of the cases without DAIL messages or MMIS discrepancies. If your agency uses a closed-file worker number, it will SPEC/XFER the cases from your number into that number."
-		Text 70, 200, 375, 20, "--- Case notes that returned mail (without a forwarding address) was received for up to 60 cases simultaneously, and TIKLs for 10-day return of proofs."
-		Text 95, 225, 350, 20, "--- Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER. Case notes ''last day of REIN'' as well as ''date case becomes an intake.''"
-		Text 65, 30, 375, 10, "-- This will navigate you to the menu for the BULK List Generators."
-		EndDialog
+BeginDialog dialog_name, 0, 0, 456, 315, "Other Bulk Scripts Main Menu"
+  ButtonGroup ButtonPressed
+    PushButton 5, 25, 55, 15, "BULK LISTS", BULK_list_scripts_button
+    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
+    PushButton 10, 80, 45, 10, "Bulk TIKLer", BULK_TIKLER_button
+    PushButton 10, 95, 95, 10, "CASE/NOTE from Excel list", CASE_NOTE_FROM_EXCEL_LIST_button
+    PushButton 10, 120, 55, 10, "Case Transfer", BULK_CASE_TRANSFER_Button
+    PushButton 10, 145, 70, 10, "CEI premium noter", CEI_PREMIUM_NOTER_button
+    PushButton 10, 160, 110, 10, "COLA auto approved DAIL noter", COLA_AUTO_APPROVED_DAIL_NOTER_button
+    PushButton 10, 185, 55, 10, "INAC scrubber", INAC_SCRUBBER_button
+    PushButton 10, 225, 55, 10, "Returned mail", RETURNED_MAIL_button
+    PushButton 10, 250, 80, 10, "REVW/MONT closures", REVW_MONT_CLOSURES_button
+    CancelButton 400, 295, 50, 15
+  GroupBox 5, 60, 445, 220, "Other BULK Scripts"
+  Text 60, 80, 175, 10, "--- Creates the same TIKL on up to 60 cases at once."
+  Text 110, 95, 335, 20, "--- Creates the same CASE/NOTE on potentially hundreds of cases listed on an Excel spreadsheet of your choice."
+  Text 85, 145, 240, 10, "--- Case notes recurring CEI premiums on multiple cases simultaneously."
+  Text 125, 160, 320, 20, "--- Case notes all cases on DAIL/DAIL that have a message indicating that COLA was auto-approved, copies the messages to an Excel spreadsheet, and deletes the DAIL."
+  Text 70, 185, 375, 35, "--- Checks all cases on REPT/INAC (in the month before the current footer month, or prior) for MMIS discrepancies, active claims, DAIL messages, and ABPS panels in need of update (for Good Cause status), and adds them to a Word document. After that, it case notes all of the cases without DAIL messages or MMIS discrepancies. If your agency uses a closed-file worker number, it will SPEC/XFER the cases from your number into that number."
+  Text 70, 225, 375, 20, "--- Case notes that returned mail (without a forwarding address) was received for up to 60 cases simultaneously, and TIKLs for 10-day return of proofs."
+  Text 95, 250, 350, 20, "--- Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER. Case notes ''last day of REIN'' as well as ''date case becomes an intake.''"
+  Text 65, 30, 375, 10, "-- This will navigate you to the menu for the BULK List Generators."
+  Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
+  Text 75, 120, 355, 20, "---Searches caseload(s) by selected parameters. Will then transfer a specified number of those cases to another worker. Also generates a list of these cases."
+EndDialog
 	ELSEIF dialog_name = "BULK LISTS" THEN
 		BeginDialog dialog_name, 0, 0, 456, 315, "BULK List Generators"
  		 ButtonGroup ButtonPressed
@@ -163,6 +165,7 @@ If ButtonPressed = SWKR_LIST_GENERATOR_button then 				call run_from_GitHub(scri
 If ButtonPressed = BULK_TIKLER_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - BULK TIKLER.vbs")
 If ButtonPressed = CASE_NOTE_FROM_EXCEL_LIST_button then 		call run_from_GitHub(script_repository & "/BULK/BULK - CASE NOTE FROM EXCEL LIST.vbs")
 If ButtonPressed = CEI_PREMIUM_NOTER_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - CEI PREMIUM NOTER.vbs")
+If ButtonPressed = BULK_CASE_TRANSFER_Button then 				call run_from_GitHub(script_repository & "/BULK/BULK - CASE TRANSFER.vbs")
 If ButtonPressed = COLA_AUTO_APPROVED_DAIL_NOTER_button then 	call run_from_GitHub(script_repository & "/BULK/BULK - COLA AUTO APPROVED DAIL NOTER.vbs")
 If ButtonPressed = INAC_SCRUBBER_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - INAC SCRUBBER.vbs")
 If ButtonPressed = RETURNED_MAIL_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - RETURNED MAIL.vbs")
