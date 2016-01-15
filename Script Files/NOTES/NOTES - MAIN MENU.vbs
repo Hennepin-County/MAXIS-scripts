@@ -55,6 +55,7 @@ DIM CAF_button, CHANGE_REPORT_FORM_RECEIVED_button, CHANGE_REPORTED_button, CITI
 
 DIM DENIED_PROGRAMS_button, DOCUMENTS_RECEIVED_button, DRUG_FELON_button, DWP_BUDGET_button
 DIM EMERGENCY_button, EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EMPLOYMENT_VERIFICATION_button, ES_REFERRAL_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button
+DIM EXPLANATION_INCOME_BUDGETED_button
 
 DIM GAS_CARDS_ISSUED_button, GOOD_CAUSE_CLAIMED_button, GRH_HRF_button
 DIM HC_RENEWAL_button, HCAPP_button, HH_COMP_CHANGE_button, HRF_button, IEVS_NOTICE_RECEIVED_button, INCARCERATION_button, INTERVIEW_COMPLETED_button, INTERVIEW_NO_SHOW_button
@@ -64,7 +65,7 @@ DIM MEDICAL_OPINION_FORM_RECEIVED_button, MFIP_SANCTION_AND_DWP_DISQUALIFICATION
 DIM OVERPAYMENT_button, MTAF_button
 DIM PREGNANCY_REPORTED_button, PROOF_OF_RELATIONSHIP_button
 DIM REIN_PROGS_button
-DIM SNAP_CASE_REVIEW_button, SUBMIT_CASE_FOR_SNAP_REVIEW_button, SIGNIFICANT_CHANGE_button
+DIM SHELTER_FORM_RECEIVED_button, SNAP_CASE_REVIEW_button, SUBMIT_CASE_FOR_SNAP_REVIEW_button, SIGNIFICANT_CHANGE_button
 DIM VERIFICATIONS_NEEDED_button
 
 DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2016_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button
@@ -109,12 +110,10 @@ FUNCTION create_NOTES_main_menu(dialog_name)
   	Text 70, 205, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
   	Text 60, 220, 250, 10, "--- Template for the Combined Annual Renewal.*"
   	Text 30, 235, 120, 10, "--- Template for the CSR.*"
-	EndDialog
-	
-	ELSEIF dialog_name = "D-F" THEN
-	
 
-        BeginDialog dialog_name, 0, 0, 516, 270, "D - F NOTES Scripts"
+EndDialog
+        ELSEIF dialog_name = "D-F" THEN
+        	BeginDialog dialog_name, 0, 0, 516, 260, "D - F NOTES Scripts"
 		ButtonGroup ButtonPressed
 		CancelButton 460, 240, 50, 15
 		PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
@@ -148,10 +147,8 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 		Text 50, 220, 200, 10, "--- Template for noting fraud info."
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 		Text 125, 205, 265, 10, "---  NEW 01/2016!!! Template for explaining the income budgeted for a case."
-	EndDialog
-
-        
-ELSEIF dialog_name = "G-L" THEN
+		EndDialog
+	ELSEIF dialog_name = "G-L" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (G-L) scripts main menu dialog"
   ButtonGroup ButtonPressed
     CancelButton 455, 245, 50, 15
@@ -242,19 +239,21 @@ EndDialog
 		    PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
 		    PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
 		    PushButton 5, 70, 30, 10, "REIN", REIN_PROGS_button
-		    PushButton 5, 85, 70, 10, "Significant Change", SIGNIFICANT_CHANGE_button
-		    PushButton 5, 100, 70, 10, "SNAP case review", SNAP_CASE_REVIEW_button
-		    PushButton 5, 115, 100, 10, "Submit case for SNAP review", SUBMIT_CASE_FOR_SNAP_REVIEW_button
-		    PushButton 5, 130, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
+		    PushButton 5, 85, 80, 10, "Shelter Form Received", SHELTER_FORM_RECEIVED_button
+		    PushButton 5, 100, 70, 10, "Significant Change", SIGNIFICANT_CHANGE_button
+		    PushButton 5, 115, 70, 10, "SNAP case review", SNAP_CASE_REVIEW_button
+		    PushButton 5, 130, 100, 10, "Submit case for SNAP review", SUBMIT_CASE_FOR_SNAP_REVIEW_button
+		    PushButton 5, 145, 75, 10, "Verifications needed", VERIFICATIONS_NEEDED_button
 		    PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
 		    CancelButton 460, 245, 50, 15
 		  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
 		  GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 		  Text 40, 70, 415, 10, "--- Template for noting program reinstatement information."
-		  Text 90, 85, 180, 10, "--- Template for noting Significant Change information."
-		  Text 80, 100, 365, 10, "--- Template for SNAP reviewers to use that will case note the status  SNAP quality review."
-		  Text 110, 115, 345, 10, "--- Template for when a worker sends a case to be reviewed by a supervisor or coworker."
-		  Text 85, 130, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
+		  Text 90, 85, 350, 10, "--- Template for case noting information about a Shelter Form received."
+		  Text 90, 100, 180, 10, "--- Template for noting Significant Change information."
+		  Text 80, 115, 365, 10, "--- Template for SNAP reviewers to use that will case note the status  SNAP quality review."
+		  Text 110, 130, 345, 10, "--- Template for when a worker sends a case to be reviewed by a supervisor or coworker."
+		  Text 85, 145, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
 		EndDialog
 
 	ELSEIF dialog_name = "LTC" THEN
@@ -354,6 +353,7 @@ IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button			THEN CALL run_from_
 IF ButtonPressed = EMPLOYMENT_VERIFICATION_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EVF RECEIVED.vbs")
 IF ButtonPressed = ES_REFERRAL_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - ES REFERRAL.vbs")
 IF ButtonPressed = EXPEDITED_SCREENING_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPEDITED SCREENING.vbs")
+IF ButtonPressed = EXPLANATION_INCOME_BUDGETED_button 					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EXPLANATION OF INCOME BUDGETED.vbs")
 IF ButtonPressed = FRAUD_INFO_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - FRAUD INFO.vbs")
 
 IF ButtonPressed = GAS_CARDS_ISSUED_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - GAS CARDS ISSUED.vbs")
@@ -384,6 +384,7 @@ IF ButtonPressed = OVERPAYMENT_button								THEN CALL run_from_GitHub(script_re
 IF ButtonPressed = PREGNANCY_REPORTED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - PREGNANCY REPORTED.vbs")
 IF ButtonPressed = PROOF_OF_RELATIONSHIP_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - PROOF OF RELATIONSHIP.vbs")
 IF ButtonPressed = REIN_PROGS_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - REIN PROGS.vbs")
+IF ButtonPressed = SHELTER_FORM_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SHELTER FORM RECEIVED.vbs")
 If ButtonPressed = SIGNIFICANT_CHANGE_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SIGNIFICANT CHANGE.vbs")
 IF ButtonPressed = SUBMIT_CASE_FOR_SNAP_REVIEW_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SUBMIT CASE FOR SNAP REVIEW.vbs")
 IF ButtonPressed = SNAP_CASE_REVIEW_button							THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - SNAP CASE REVIEW.vbs")
