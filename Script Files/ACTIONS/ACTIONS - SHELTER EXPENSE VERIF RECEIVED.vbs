@@ -455,4 +455,4 @@ IF update_MAXIS_check = 1 THEN CALL write_bullet_and_variable_in_case_note("Pane
 Call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
 
-script_end_procedure ("Success!!")
+script_end_procedure ("")
