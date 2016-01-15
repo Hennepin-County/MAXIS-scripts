@@ -782,6 +782,14 @@ EndDialog
     If ObjExcel.Cells(excel_row, 10).Value = "SSN checked" then excel_row = excel_row + 1
   Loop until ObjExcel.Cells(excel_row, 10).Value = ""
 
+	' >>>>>> ONE LINE ADDED BY ROBERT FEWINS-KALB 01/15/2016 <<<<<<<<
+	'Explanation -- because I'm not sure it was being articulated on GH, but users on SIR are reporting the problem as well...
+	'This gets out of the do...loop if there is no SSN indicated. 
+	'In testing with Excel visible, I was seeing where the script was reading new rows to the point that the SSN cell is blank.
+	'The script would then try to dump a blank SSN into PRISM and read how many cases were there, except that PRISM would not be navigating to the pop up where the number of cases are, because of the blank SSN.
+	'I am not able to identify what about the cases causes this error to occur -- because it does not happen on every case -- but it's a real thing.
+	IF ObjExcel.Cells(excel_row, 9).Value = "" THEN Exit DO
+
   EMWriteScreen "PESE", 21, 18
   transmit
 
