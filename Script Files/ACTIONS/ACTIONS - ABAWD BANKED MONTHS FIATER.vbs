@@ -302,7 +302,7 @@ For i = 0 to ubound(footer_month_array)
 		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
 		ABAWD_months_array(i).SHEL_tax = 	ABAWD_months_array(i).SHEL_tax + abs(taxes)
 		ABAWD_months_array(i).SHEL_insa = ABAWD_months_array(i).SHEL_insa +	abs(insurance)
-		ABAWD_months_array(i).SHEL_rent = ABAWD_months_array(i).SHEL_rent +	abs(rent) + abs(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property
+		ABAWD_months_array(i).SHEL_rent = ABAWD_months_array(i).SHEL_rent +	abs(rent) + abs(mortgage)						'<<<<<<  Adds rent amount and mortgage amount together to get the Rent line for elig and adds to Class property
 		ABAWD_months_array(i).SHEL_other = ABAWD_months_array(i).SHEL_other + abs(lot_rent) + abs(room) + abs(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
 	Next
 	
@@ -457,7 +457,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWriteScreen HH_member, 20, 76
 		Transmit
 		EMReadScreen number_of_jobs_panels, 1, 2, 78
-		IF number_of_jobs_panels <> "" THEN
+		IF number_of_jobs_panels <> "0" THEN
 			For m = 1 to number_of_jobs_panels					'<<<<<< Starting at 1 because this is a panel count and it makes sense to use this as a standard count
 				EMWriteScreen "0" & m, 20, 79
 				transmit
@@ -476,11 +476,13 @@ For i = 0 to ubound(footer_month_array)
 					EMWriteScreen "x", 19, 38
 					transmit
 					EMReadScreen income_amount, 8, 18, 56
+					PF3
 					IF isnumeric(income_amount) = false THEN income_amount = 0
 					jobs_income = abs(jobs_income) + income_amount	'<<<<< Combines all jobs income
 					End If
-				Next
-			END IF
+		
+			Next
+		END IF
 
 		Call navigate_to_MAXIS_screen("STAT", "BUSI")		'<<<<<< Same HH member - checking BUSI
 		EMWriteScreen HH_member, 20, 76
@@ -503,10 +505,10 @@ For i = 0 to ubound(footer_month_array)
 	Next
 
 	'storing all total amounts in the class properties for this month / adding trims so they read correctly in dialog
-	trim(ABAWD_months_array(i).SHEL_tax)
-	trim(ABAWD_months_array(i).SHEL_insa)
+	ABAWD_months_array(i).SHEL_tax = trim(ABAWD_months_array(i).SHEL_tax)
+	ABAWD_months_array(i).SHEL_insa = trim(ABAWD_months_array(i).SHEL_insa)
 	ABAWD_months_array(i).SHEL_rent = trim(ABAWD_months_array(i).SHEL_rent)
-	trim(ABAWD_months_array(i).SHEL_other)
+	ABAWD_months_array(i).SHEL_other = trim(ABAWD_months_array(i).SHEL_other)
 	ABAWD_months_array(i).gross_wages = trim(jobs_income)		'<<<<<< Adds income to the class property
 	ABAWD_months_array(i).gross_RSDI = trim(gross_RSDI)	'<<<<<<< Stores variables in the class property
 	ABAWD_months_array(i).gross_SSI = trim(gross_SSI)
@@ -672,7 +674,9 @@ gross_other = 0
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
 			transmit
 			transmit
-		END IF
+		ELSE 
+			transmit
+		END IF 
 
 		'Now on FFB2
 		EMWriteScreen "         ", 5, 29
@@ -681,12 +685,14 @@ gross_other = 0
 		EMWriteScreen "         ", 8, 29
 		EMWriteScreen "         ", 9, 29
 		EMWriteScreen "         ", 10, 29
+		EMWriteScreen "         ", 12, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_rent, 5, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_tax, 6, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_insa, 7, 29
 		EMWritescreen ABAWD_months_array(i).HEST_elect, 8, 29
 		EMWritescreen ABAWD_months_array(i).HEST_heat, 9, 29
 		EMWritescreen ABAWD_months_array(i).HEST_phone, 10, 29
+		EMWriteScreen ABAWD_months_array(i).SHEL_other, 12, 29
 		'this enters the proration date in the initial month'
 		IF footer_month = left(proration_date, 2) THEN
 			EMWriteScreen left(proration_date, 2), 11, 56
