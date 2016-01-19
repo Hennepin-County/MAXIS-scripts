@@ -264,9 +264,6 @@ For i = 0 to ubound(footer_month_array)
 		EMReadScreen HEST_elect, 6, 14, 75				'<<<<< Pulls information from prospective side of Electric standard if HEAT/AC is not used
 		EMReadScreen HEST_phone, 6, 15, 75				'<<<<< Pulls information from prospective side of Phone standard if HEAT/AC is not used
 	End If
-	ABAWD_months_array(i).HEST_heat = trim(HEST_heat)
-	ABAWD_months_array(i).HEST_elect = trim(HEST_elect)
-	ABAWD_months_array(i).HEST_phone = trim(HEST_phone)
 
 	For each hh_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
@@ -300,12 +297,12 @@ For i = 0 to ubound(footer_month_array)
 		call verif_confirm_message(garage_verif, "garage")
 		If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
 		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
-		ABAWD_months_array(i).SHEL_tax = 	ABAWD_months_array(i).SHEL_tax + abs(taxes)
-		ABAWD_months_array(i).SHEL_insa = ABAWD_months_array(i).SHEL_insa +	abs(insurance)
-		ABAWD_months_array(i).SHEL_rent = ABAWD_months_array(i).SHEL_rent +	abs(rent) + abs(mortgage)						'<<<<<<  Adds rent amount and mortgage amount together to get the Rent line for elig and adds to Class property
-		ABAWD_months_array(i).SHEL_other = ABAWD_months_array(i).SHEL_other + abs(lot_rent) + abs(room) + abs(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
+		total_taxes = total_taxes + abs(taxes)
+		total_insurance = abs(total_insurance) +	abs(insurance)
+		total_rent = total_rent +	abs(rent) + abs(mortgage)						'<<<<<<  Adds rent amount and mortage amount together to get the Rent line for elig and adds to Class property
+		shel_other = shel_other + abs(lot_rent) + abs(room) + abs(garage) 	'<<<<<<  Adds lot rent, room, and garage amounts together to get the Other line for elig and adds to Class property
 	Next
-	
+
 	'COEX expenses/deductions
 	For each HH_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "COEX")	'navs to COEX
@@ -314,7 +311,7 @@ For i = 0 to ubound(footer_month_array)
 		EMReadScreen COEX_total, 1, 2, 78				'reading to see if COEX screens exist
 		If COEX_total = "0" then
 			total_COEX_deduction = "0"							'if not, sets the variable to blank
-		ELSEIF COEX_total <> "0" then						
+		ELSEIF COEX_total <> "0" then
 			'Support
 			EMReadScreen support_amt, 8, 10, 63				'repeats the above steps for support_amt
 			EMReadScreen support_ver, 1, 10, 36
@@ -322,12 +319,12 @@ For i = 0 to ubound(footer_month_array)
 			If support_amt = "________" then support_amt = "0"
 			support_amt = replace(support_amt, "_", "")
 			'Alimony
-			EMReadScreen alimony_amt, 8, 11, 63				'repeats the above steps for alimony_amt		
+			EMReadScreen alimony_amt, 8, 11, 63				'repeats the above steps for alimony_amt
 			EMReadScreen alimony_ver, 1, 11, 36
 			If alimony_ver = "?" or alimony_ver = "N" then alimony_amt = "0"
 			If alimony_amt = "________" then alimony_amt = "0"
 			alimony_amt = replace(alimony_amt, "_", "")
-			'tax dependent 
+			'tax dependent
 			EMReadScreen tax_dep_amt, 8, 12, 63				'repeats the above steps for tax_dep_amt
 			EMReadScreen tax_dep_ver, 1, 12, 36
 			If tax_dep_ver = "?" or tax_dep_ver = "N" then tax_dep_amt = "0"
@@ -339,15 +336,15 @@ For i = 0 to ubound(footer_month_array)
 			If tax_dep_ver = "?" or tax_dep_ver = "N" then other_COEX_amt = "0"
 			If other_COEX_amt = "________" then other_COEX_amt = "0"
 			other_COEX_amt = replace(other_COEX_amt, "_", "")
-		END IF 	
+		END IF
 		total_COEX_deduction = abs(support_amt) + abs(alimony_amt) + abs(tax_dep_amt) + abs(other_COEX_amt)
 		ABAWD_months_array(i).deduction_COEX = ABAWD_months_array(i).deduction_COEX + total_COEX_deduction 'adds the current total_COEX_deduction amt to the array
-	NEXT	
-	
+	NEXT
+
 	'FMED expenses/deductions
 	For each HH_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "FMED")	'navs to FMED
-		EMWriteScreen HH_member, 20, 76				'writes the HH_member variable				
+		EMWriteScreen HH_member, 20, 76				'writes the HH_member variable
 		transmit
 		fmed_row = 9 									'Setting this variable for the do...loop
 		EMReadScreen fmed_total, 1, 2, 78				'reading to see if fmed screens exist
@@ -357,7 +354,7 @@ For i = 0 to ubound(footer_month_array)
 		fmed_total_amt = "0"
 		Do
 			use_expense = False				'Used to determine if an FMED expense that has an end date is going to be counted.
-			EMReadScreen fmed_type, 2, fmed_row, 25	'reading FMED information 
+			EMReadScreen fmed_type, 2, fmed_row, 25	'reading FMED information
 			EMReadScreen fmed_proof, 2, fmed_row, 32
 			EMReadScreen fmed_amt, 8, fmed_row, 70
 			EMReadScreen fmed_end_date, 5, fmed_row, 60		'reading end date to see if this one even gets added
@@ -366,14 +363,14 @@ For i = 0 to ubound(footer_month_array)
 				EMReadScreen fmed_footer_year, 2, 20, 58
 				fmed_current_date = fmed_footer_month & "/01/" & fmed_footer_year
 				fmed_end_date = replace(fmed_end_date, " ", "/01/")
-				If fmed_end_date = fmed_current_date then 
+				If fmed_end_date = fmed_current_date then
 					use_expense = True
 				ElseIf fmed_end_date < fmed_current_date then
 					use_expense = False
 				END IF
 			END IF
 			If fmed_end_date = "__ __" OR use_expense = TRUE then	'Skips entries with an end date, or end dates in the past.
-				If fmed_proof <> "__" or fmed_proof <> "?_" or fmed_proof <> "NO" then 
+				If fmed_proof <> "__" or fmed_proof <> "?_" or fmed_proof <> "NO" then
 					use_expense = True
 				ELSE
 					fmed_amt = trim(fmed_amt)
@@ -391,16 +388,17 @@ For i = 0 to ubound(footer_month_array)
 			fmed_total_amt = fmed_total_amt + abs(fmed_amt)	'adds the fmed_amt to the fmed_total_amt
 			If fmed_row = 15 then
 				PF20							'if at the end of the screen PF20 will shift PF8 to the next FMED screen
-				fmed_row = 9					're-established this variable if PF20 was used. 
+				fmed_row = 9					're-established this variable if PF20 was used.
 				EMReadScreen last_page_check, 21, 24, 2		'checking for the last page edit
 				If last_page_check <> "THIS IS THE LAST PAGE" then last_page_check = ""
 			End if
 		Loop until fmed_type = "__" or last_page_check = "THIS IS THE LAST PAGE"	'repeats all actions within the loop until the conditions are met
-		End if 
-		fmed_total_amt = abs(fmed_total_amt) - "35"		'remove $35 benchmark from total
+		End if
+	  fmed_total_amt = abs(fmed_total_amt) - "35"		'remove $35 benchmark from total
+		If fmed_total_amt < 0 Then fmed_total_amt = 0 'makes sure we don't end up with a negative deduction, as it becomes positive in the budget.
 		ABAWD_months_array(i).deduction_FMED = ABAWD_months_array(i).deduction_FMED	= fmed_total_amt 'creates the total to FIAT into elig for FMED
 	Next
-	
+
 '//////////// Going to pull UNEA information
 	For each HH_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "UNEA")	'<<<<< Goes to UNEA for this person
@@ -464,13 +462,17 @@ For i = 0 to ubound(footer_month_array)
 				EMReadScreen jobs_type, 1, 5, 38
 				EMReadScreen jobs_subsidy, 2, 5, 71
 				EMReadScreen jobs_verified, 1, 6, 38
+				EMReadScreen job_end_date, 8, 9, 49
 				call verif_confirm_message(jobs_verified, "job")
 				income_counted = vbYes 'defaults to counted, the next statement will confirm certain income types'
+				IF job_end_date <> "__ __ __" THEN 'THere is a job end, determine whether it is prior to current footer month, if yes, don't count it.
+					IF datediff("d", footer_month & "/01/" & footer_year, replace(job_end_date, " ", "/")) < 0 THEN income_counted = false
+				END IF
 				IF jobs_verified = "?" or jobs_verified = "_?" THEN income_counted = false 'this will set to not counted if the user selected no on the verif_confirm popup'
 				If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
 					'certain rare income types can not be automatically determined, this prompts the user to confirm yes/no to reduce errors.
 					income_counted = MsgBox("This script does not support this type of Job" & vbCr & "Please select whether this income should be included in the FIAT budget for SNAP.", vbYesNo)
-					END IF
+				END IF
 					IF jobs_type = "F" or jobs_type = "S" or jobs_type = "G" THEN income_counted = vbNo 'Work study is not counted, but listed on PIC, so we don't want to read the pic.
 					IF income_counted = vbYes	THEN			'<<<<< Gets prospective income from the SNAP PIC
 					EMWriteScreen "x", 19, 38
@@ -480,9 +482,8 @@ For i = 0 to ubound(footer_month_array)
 					IF isnumeric(income_amount) = false THEN income_amount = 0
 					jobs_income = abs(jobs_income) + income_amount	'<<<<< Combines all jobs income
 					End If
-		
-			Next
-		END IF
+				Next
+			END IF
 
 		Call navigate_to_MAXIS_screen("STAT", "BUSI")		'<<<<<< Same HH member - checking BUSI
 		EMWriteScreen HH_member, 20, 76
@@ -504,65 +505,49 @@ For i = 0 to ubound(footer_month_array)
 		Next
 	Next
 
-	'storing all total amounts in the class properties for this month / adding trims so they read correctly in dialog
-	ABAWD_months_array(i).SHEL_tax = trim(ABAWD_months_array(i).SHEL_tax)
-	ABAWD_months_array(i).SHEL_insa = trim(ABAWD_months_array(i).SHEL_insa)
-	ABAWD_months_array(i).SHEL_rent = trim(ABAWD_months_array(i).SHEL_rent)
-	ABAWD_months_array(i).SHEL_other = trim(ABAWD_months_array(i).SHEL_other)
-	ABAWD_months_array(i).gross_wages = trim(jobs_income)		'<<<<<< Adds income to the class property
-	ABAWD_months_array(i).gross_RSDI = trim(gross_RSDI)	'<<<<<<< Stores variables in the class property
-	ABAWD_months_array(i).gross_SSI = trim(gross_SSI)
-	ABAWD_months_array(i).gross_VA = trim(gross_VA)
-	ABAWD_months_array(i).gross_UC = trim(gross_UC)
-	ABAWD_months_array(i).gross_CS = trim(gross_CS)
-	ABAWD_months_array(i).gross_other = trim(gross_other)
-	ABAWD_months_array(i).BUSI_income = trim(gross_BUSI)
-	ABAWD_months_array(i).deduction_COEX = trim(total_COEX_deduction)
-	ABAWD_months_array(i).deduction_FMED = trim(fmed_total_amt)
 
-jobs_income = 0 			'<<<<<< Resets the variables for the next cycle of this function
-gross_BUSI = 0
-gross_RSDI = 0
-gross_SSI = 0
-gross_VA = 0
-gross_UC = 0
-gross_CS = 0
-gross_other = 0
-'
-'	'<<<<<<<<<<<<<SAMPLE IDEA FOR ARRAY'
-'	For i = 0 to ubound(ABAWD_counted_months)
-'		'Defines the ABAWD_months_array as an object of ABAWD month data'
-'		set ABAWD_months_array(i) = new ABAWD_month_data
-'		'>>>>NAVIGATE TO WHERE YOU NEED TO GO'
-'		EMReadScreen x, 8, 18, 56	'<<<<READ THE STUFF'
-'		ABAWD_months_array(i).gross_RSDI = x	'<<<<ADD THE STUFF TO THE ARRAY'
-'		'>>>>>>DO THE ABOVE TWO LINES OVER AND OVER AGAIN UNTIL YOU HAVE ALL THE STUFF FOR THIS MONTH'
-'		'//// <<<<<<GET TO THE NEXT MONTH AT THE END'
-'	Next
-'	'<<<<<<<<<<<<<<<<<END SAMPLE'
+	'ABAWD_months_array(i).gross_wages = cstr(jobs_income)
+	'storing all total amounts / adding trims so they read correctly in dialog
+	jobs_income = trim(jobs_income)
+	total_taxes = trim(total_taxes)
+	total_insurance = trim(total_insurance)
+ 	total_rent = trim(total_rent)
+	shel_other = trim(shel_other)
+	gross_RSDI = trim(gross_RSDI)
+	gross_SSI = trim(gross_SSI)
+	gross_VA = trim(gross_VA)
+	gross_UC = trim(gross_UC)
+	gross_CS = trim(gross_CS)
+	gross_other = trim(gross_other)
+	BUSI_income = trim(gross_BUSI)
+	total_COEX_deduction = trim(total_COEX_deduction)
+	fmed_total_amt = trim(fmed_total_amt)
+
+
+
  '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
 		BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD banked months income and deductions dialog"
 	  ButtonGroup ButtonPressed
 	    OkButton 260, 155, 50, 15
 	    CancelButton 260, 175, 50, 15
-	  EditBox 55, 45, 50, 15, ABAWD_months_array(i).gross_wages
-	  EditBox 55, 65, 50, 15, ABAWD_months_array(i).busi_income
-	  EditBox 55, 85, 50, 15, ABAWD_months_array(i).gross_RSDI
-	  EditBox 55, 105, 50, 15, ABAWD_months_array(i).gross_SSI
-	  EditBox 55, 125, 50, 15, ABAWD_months_array(i).gross_VA
-	  EditBox 55, 145, 50, 15, ABAWD_months_array(i).gross_UC
-	  EditBox 55, 165, 50, 15, ABAWD_months_array(i).gross_CS
-	  EditBox 55, 185, 50, 15, ABAWD_months_array(i).gross_other
-	  EditBox 185, 45, 35, 15, ABAWD_months_array(i).SHEL_rent
-	  EditBox 185, 65, 35, 15, ABAWD_months_array(i).SHEL_tax
-	  EditBox 185, 85, 35, 15, ABAWD_months_array(i).SHEL_insa
-	  EditBox 185, 105, 35, 15, ABAWD_months_array(i).SHEL_other
-	  EditBox 185, 125, 35, 15, ABAWD_months_array(i).deduction_FMED
-	  EditBox 275, 45, 35, 15, ABAWD_months_array(i).HEST_elect
-	  EditBox 275, 65, 35, 15, ABAWD_months_array(i).HEST_heat
-	  EditBox 275, 85, 35, 15, ABAWD_months_array(i).HEST_phone
-	  EditBox 275, 105, 35, 15, ABAWD_months_array(i).deduction_COEX
-	  ButtonGroup ButtonPressed
+	  EditBox 55, 45, 50, 15, jobs_income
+	  EditBox 55, 65, 50, 15, gross_BUSI
+	  EditBox 55, 85, 50, 15, gross_RSDI
+	  EditBox 55, 105, 50, 15, gross_SSI
+	  EditBox 55, 125, 50, 15, gross_VA
+	  EditBox 55, 145, 50, 15, gross_UC
+	  EditBox 55, 165, 50, 15, gross_CS
+	  EditBox 55, 185, 50, 15, gross_other
+	  EditBox 185, 45, 35, 15, total_rent
+	  EditBox 185, 65, 35, 15, total_taxes
+	  EditBox 185, 85, 35, 15, total_insurance
+	  EditBox 185, 105, 35, 15, shel_other
+	  EditBox 185, 125, 35, 15, fmed_total_amt
+	  EditBox 275, 45, 35, 15, HEST_elect
+	  EditBox 275, 65, 35, 15, HEST_heat
+	  EditBox 275, 85, 35, 15, HEST_phone
+	  EditBox 275, 105, 35, 15, total_COEX_deduction
+	 	ButtonGroup ButtonPressed
 	    PushButton 20, 15, 25, 10, "BUSI",  BUSI_button
 	    PushButton 45, 15, 25, 10, "JOBS", JOBS_button
 	    PushButton 70, 15, 25, 10, "RBIC", RBIC_button
@@ -602,12 +587,47 @@ gross_other = 0
 	  Text 20, 50, 30, 10, "WAGES:"
 	EndDialog
 
-  'This calls the dialog to allow worker to confirm
+  'This calls the dialog to allow worke r to confirm
 	DO
 		dialog income_deductions_dialog
 		cancel_confirmation
 		MAXIS_dialog_navigation
 	Loop until buttonpressed = ok
+
+	ABAWD_months_array(i).SHEL_rent = total_rent
+	ABAWD_months_array(i).gross_wages = jobs_income
+	ABAWD_months_array(i).gross_RSDI = gross_RSDI	'<<<<<<< Stores variables in the class property
+	ABAWD_months_array(i).gross_SSI = gross_SSI
+	ABAWD_months_array(i).gross_VA = gross_VA
+	ABAWD_months_array(i).gross_UC = gross_UC
+	ABAWD_months_array(i).gross_CS = gross_CS
+	ABAWD_months_array(i).gross_other = gross_other
+	ABAWD_months_array(i).BUSI_income = gross_BUSI
+	ABAWD_months_array(i).deduction_COEX = total_COEX_deduction
+	ABAWD_months_array(i).deduction_FMED = fmed_total_amt
+ 	ABAWD_months_array(i).SHEL_tax = total_taxes
+ 	ABAWD_months_array(i).SHEL_insa = total_insurance
+ 	ABAWD_months_array(i).HEST_elect = HEST_elect
+ 	ABAWD_months_array(i).HEST_heat = HEST_heat
+ 	ABAWD_months_array(i).HEST_phone = HEST_phone
+
+	jobs_income = 0
+	gross_BUSI = 0
+	gross_RSDI = 0
+	gross_SSI = 0
+	gross_VA = 0
+	gross_UC = 0
+	gross_CS = 0
+	gross_other = 0
+	total_rent = 0
+	total_taxes = 0
+	total_insurance = 0
+	shel_other = 0
+	fmed_total_amt = 0
+	HEST_elect = 0
+	HEST_heat = 0
+	HEST_phone = 0
+	total_COEX_deduction = 0	'<<<<<< Resets the variables for the next cycle of this function
 
 	'-----------------GO TO FIAT!---------------------------------
 	back_to_self
@@ -674,9 +694,7 @@ gross_other = 0
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
 			transmit
 			transmit
-		ELSE 
-			transmit
-		END IF 
+		END IF
 
 		'Now on FFB2
 		EMWriteScreen "         ", 5, 29
@@ -685,7 +703,6 @@ gross_other = 0
 		EMWriteScreen "         ", 8, 29
 		EMWriteScreen "         ", 9, 29
 		EMWriteScreen "         ", 10, 29
-		EMWriteScreen "         ", 12, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_rent, 5, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_tax, 6, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_insa, 7, 29
