@@ -144,7 +144,6 @@ EMReadScreen MA_income_standard, 8, 16, 18
 EMReadScreen Income, 8, 15, 18
 EMReadScreen spenddown, 8, 17, 19
 spenddown = trim(spenddown)
-msgbox spenddown
 If spenddown = "" then script_end_procedure("Your case does not have a spenddown amount. The script will now end.")
 
 income_standard = trim(MA_income_standard)
@@ -154,34 +153,27 @@ medi_part_a = trim(medi_part_a)
 medi_part_b = trim(medi_part_b)
 
 'Shows the dialog
-  Do
-    err_msg = ""
-    Dialog MEMOS_LTC_METHOD_B_dialog
-    MAXIS_Dialog_navigation
-    cancel_confirmation
+Do
+	Do
+		Dialog MEMOS_LTC_METHOD_B_dialog
+		MAXIS_Dialog_navigation
+		cancel_confirmation
+		If ButtonPressed = CALC_button THEN
+			'makes the deduction amounts = 0 so the Abs(number) function work
+			If medi_part_a = "" THEN medi_part_a = "0"
+			If medi_part_b = "" THEN medi_part_b = "0"
+			If medi_part_d = "" THEN medi_part_d = "0"
+			If health_insa = "" THEN health_insa = "0"
+			If remedial_care = "" THEN remedial_care = "0"
+			If other_deductions = "" THEN other_deductions = "0"
+			recipient_amt = Abs(SD) - Abs(medi_part_a) + Abs(medi_part_b) + Abs(medi_part_d) + Abs(health) + Abs(remedial_care) + Abs(other_deductions) & ""
+		END IF
+	LOOP until ButtonPressed = -1
     IF IsNumeric(recipient_amt) = False then err_msg = err_msg & vbNewLine & "* Enter the recipient amount."
     IF IsNumeric(income_standard) = False then err_msg = err_msg & vbNewLine & "* Enter the MA income standard."
     IF IsNumeric(income) = False then err_msg = err_msg & vbNewLine & "* Enter the budgeted income."
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-  Loop until err_msg = ""
-  If ButtonPressed = CALC_button THEN
-		'makes the deduction amounts = 0 so the Abs(number) function work
-		If OP_amt_01 = "" THEN OP_amt_01 = "0"
-		If OP_amt_02 = "" THEN OP_amt_02 = "0"
-		If OP_amt_03 = "" THEN OP_amt_03 = "0"
-		If OP_amt_04 = "" THEN OP_amt_04 = "0"
-		If OP_amt_05 = "" THEN OP_amt_05 = "0"
-		If OP_amt_06 = "" THEN OP_amt_06 = "0"
-		OP_total = (Abs(OP_amt_01) + Abs(OP_amt_02) + Abs(OP_amt_03) + Abs(OP_amt_04) + Abs(OP_amt_05) + Abs(OP_amt_06)) & ""
-	END IF
-
-If income = "" then income = "0"
-If health_insa = "" then health_insa = "0"
-If medi_part_b = "" then medi_part_b = "0"
-If remedial_care = "" then remedial_care "0"
-If medi_part_d = "" then medi_part_d = "0"
-If other_deductions = "" then other_deductions = "0"
-recipient_amt = (Abs(health_insa)+ Abs())
+Loop until err_msg = ""
 
 'THE MEMO----------------------------------------------------------------------------------------------------------------
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
