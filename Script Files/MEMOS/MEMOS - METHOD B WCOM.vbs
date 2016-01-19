@@ -65,6 +65,11 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
 EndDialog
 
 BeginDialog MEMOS_LTC_METHOD_B_dialog, 0, 0, 281, 215, "Method B budget deductions for WCOM"
+  CheckBox 5, 160, 275, 10, "Check here is client pays for room/ board in addition to spenddown (GRH clients).", GRH_check
+  ButtonGroup ButtonPressed
+    PushButton 95, 195, 70, 10, "Calculate recip amt", CALC_button
+    OkButton 170, 190, 50, 15
+    CancelButton 225, 190, 50, 15
   EditBox 75, 20, 40, 15, income
   EditBox 75, 45, 40, 15, income_standard
   EditBox 195, 45, 40, 15, SD
@@ -73,18 +78,14 @@ BeginDialog MEMOS_LTC_METHOD_B_dialog, 0, 0, 281, 215, "Method B budget deductio
   EditBox 75, 105, 40, 15, medi_part_b
   EditBox 195, 110, 40, 15, remedial_care
   EditBox 75, 130, 40, 15, medi_part_d
-  CheckBox 5, 160, 275, 10, "Check here is client pays for room/ board in addition to spenddown (GRH clients).", GRH_check
-  EditBox 50, 190, 40, 15, Edit16
+  EditBox 195, 130, 40, 15, other_deductions
+  EditBox 50, 190, 40, 15, recipient_amt
   ButtonGroup ButtonPressed
-    PushButton 95, 195, 70, 10, "Calculate recip amt", CALC_button
-    OkButton 170, 190, 50, 15
-    CancelButton 225, 190, 50, 15
     PushButton 130, 20, 35, 10, "ELIG/HC", ELIG_HC_button
     PushButton 170, 20, 25, 10, "BILS", BILS_button
     PushButton 195, 20, 25, 10, "FACI", FACI_button
     PushButton 220, 20, 25, 10, "HCMI", HCMI_button
     PushButton 245, 20, 25, 10, "UNEA", UNEA_button
-  Text 5, 50, 70, 10, "MA income standard:"
   Text 5, 25, 60, 10, "Budgeted income:"
   Text 135, 135, 60, 10, "Other deductions:"
   Text 30, 135, 40, 10, "Medi part D:"
@@ -95,7 +96,7 @@ BeginDialog MEMOS_LTC_METHOD_B_dialog, 0, 0, 281, 215, "Method B budget deductio
   Text 150, 90, 40, 10, "Health insa:"
   Text 180, 50, 15, 10, "SD:"
   Text 20, 170, 235, 10, "(This will add text on the notice about the additional cost of room/board.)"
-  EditBox 195, 130, 40, 15, other_deductions
+  Text 5, 50, 70, 10, "MA income standard:"
   Text 10, 195, 35, 10, "Recip amt:"
   Text 140, 115, 50, 10, "Remedial care:"
 EndDialog
@@ -142,6 +143,9 @@ If method_type <> "B" then script_end_procedure("Your case is not a Method B bud
 EMReadScreen MA_income_standard, 8, 16, 18
 EMReadScreen Income, 8, 15, 18
 EMReadScreen spenddown, 8, 17, 19
+spenddown = trim(spenddown)
+msgbox spenddown
+If spenddown = "" then script_end_procedure("Your case does not have a spenddown amount. The script will now end.")
 
 income_standard = trim(MA_income_standard)
 income = trim(Income)
@@ -209,17 +213,18 @@ PF9
 
 'Worker Comment Input
 Write_variable_in_SPEC_MEMO("************************************************************")
-Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount the amount that you are responsible to pay each month is $" & recipient_amt & ".")
+Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount the amount, or the you are responsible to pay each month, is $" & recipient_amt & ".")
 Write_variable_in_SPEC_MEMO("This was determined using the following calculations:")
 Write_variable_in_SPEC_MEMO(" ")
 Write_variable_in_SPEC_MEMO("Income: $" & income &" - MA Income Standard $" & income_standard & " = $" & spenddown & " Spenddown")
-Write_variable_in_SPEC_MEMO("Spenddown             $" & spenddown)
-If medi_part_a <> "" then Write_variable_in_SPEC_MEMO("Medicare Part A          - $" & medi_part_a)
-If medi_part_b <> "" then Write_variable_in_SPEC_MEMO("Medicare Part B          - $" & medi_part_b)
-If medi_part_d <> "" then Write_variable_in_SPEC_MEMO("Medicare Part D      - $" & medi_part_d)
-If remedial_care <> "" then Write_variable_in_SPEC_MEMO("Remedial care - $" & remedial_care)
+Write_variable_in_SPEC_MEMO("Spenddown:            $" & spenddown)
+If medi_part_a <> "" then Write_variable_in_SPEC_MEMO("Medicare Part A     -  $" & medi_part_a)
+If medi_part_b <> "" then Write_variable_in_SPEC_MEMO("Medicare Part B     -  $" & medi_part_b)
+If medi_part_d <> "" then Write_variable_in_SPEC_MEMO("Medicare Part D     -  $" & medi_part_d)
+If remedial_care <> "" then Write_variable_in_SPEC_MEMO("Remedial care       - $" & remedial_care)
 Write_variable_in_SPEC_MEMO(" ")
-If other_deductions <> "" then Write_variable_in_SPEC_MEMO( "Other deductions       - $" & other_deductions)
+If other_deductions <> "" then Write_variable_in_SPEC_MEMO("Other deductions    - $" & other_deductions)
+If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    = $" & health_insa)
 If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    = $" & health_insa)
 If GRH_check = 1 Then Write_variable_in_SPEC_MEMO("You are also responsible to pay for room and board in addition to your recipient amount.")
 Write_variable_in_SPEC_MEMO("Please contact the agency with any questions. Thank you.")
