@@ -487,6 +487,7 @@ For i = 0 to ubound(footer_month_array)
 
 		Call navigate_to_MAXIS_screen("STAT", "BUSI")		'<<<<<< Same HH member - checking BUSI
 		EMWriteScreen HH_member, 20, 76
+		transmit
 		EMReadScreen number_of_busi_panels, 1, 2, 78 		'<<<<<< Will go to all BUSI panels for this person
 		For n = 1 to number_of_busi_panels
 			EMWriteScreen "0" & n, 20, 79
@@ -501,7 +502,7 @@ For i = 0 to ubound(footer_month_array)
 			Else
 				EMReadScreen busi_amount, 8, 10, 69
 			End If
-			gross_BUSI = gross_BUSI + busi_amount		'<<<<<< Combining all busi income together
+			gross_BUSI = abs(gross_BUSI) + abs(busi_amount)		'<<<<<< Combining all busi income together
 		Next
 	Next
 
@@ -519,7 +520,7 @@ For i = 0 to ubound(footer_month_array)
 	gross_UC = trim(gross_UC)
 	gross_CS = trim(gross_CS)
 	gross_other = trim(gross_other)
-	BUSI_income = trim(gross_BUSI)
+	gross_BUSI = trim(gross_BUSI)
 	total_COEX_deduction = trim(total_COEX_deduction)
 	fmed_total_amt = trim(fmed_total_amt)
 
