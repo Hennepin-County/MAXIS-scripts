@@ -302,6 +302,7 @@ ELSE
 		EMWriteScreen "________", 18, 37
 		EMWriteScreen retro_subsidy, 18, 37
 		EMWriteScreen "SF", 18, 48
+		EMWriteScreen "Y", 6, 46	     'accounting for retro only subsidy will cause inhibiting edit 
 	ELSE
 		EMWriteScreen "________", 18, 37
 		EMWriteScreen "__", 18, 48
