@@ -112,13 +112,21 @@ class ABAWD_month_data
 	public HEST_heat
 	public HEST_phone
 end class
-
 '-------------------------END CLASSES
 
 'The script----------------------------------------------------------------------------------------------------
 EMConnect ""
 call check_for_maxis(false)
 call maxis_case_number_finder(case_number)
+
+If worker_county_code = "x101" OR _
+		worker_county_code = "x115" OR _
+		worker_county_code = "x129" OR _
+		worker_county_code = "x133" OR _
+		worker_county_code = "x136" OR _
+		worker_county_code = "x139" THEN
+		script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
+END IF
 
 DO
 	err_msg = ""
@@ -238,6 +246,14 @@ For i = 0 to ubound(footer_month_array)
 	footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
 
 	Set ABAWD_months_array(i) = new ABAWD_month_data
+	
+	Call navigate_to_MAXIS_screen("STAT", "RBIC")	'error handling for RBIC cases 
+	EMWriteScreen HH_member, 20, 76					
+	transmit
+	EMReadScreen RBIC_total, 1, 2, 78				'reading to see if RBIC screens exist
+	If RBIC_total <> "0" then 
+		script_end_procedure("The script does not currently support cases with RBIC income. Please process this case manually.")
+	END IF
 
 	Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
 	EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
@@ -382,7 +398,6 @@ For i = 0 to ubound(footer_month_array)
 		Loop until fmed_type = "__" or last_page_check = "THIS IS THE LAST PAGE"	'repeats all actions within the loop until the conditions are met
 		End if 
 		fmed_total_amt = abs(fmed_total_amt) - "35"		'remove $35 benchmark from total
-		msgbox fmed_total_amt
 		ABAWD_months_array(i).deduction_FMED = ABAWD_months_array(i).deduction_FMED	= fmed_total_amt 'creates the total to FIAT into elig for FMED
 	Next
 	
@@ -687,9 +702,11 @@ gross_other = 0
 		'Now on SUMM screen, which shouldn't matter
 		PF3 'back to FFSL
 		PF3 'This should bring up the "do you want to retain" popup
+		EMReadScreen income_cap_check, 11, 24, 2
+		If income_cap_check = "PROSP GROSS" then script_end_procedure("Prospective gross income is over the income standard. THE FIAT cannot be saved. Please review case and budget for potential errors.")
 		EMWritescreen "Y", 13, 41
 		transmit
-		EMReadscreen final_month_check, 4, 10, 53 'This looks for a popup that only comes up in the final month, and clears it.
+		EMReadscreen final_month_check, 4, 10, 53 'This looks for a pop-up that only comes up in the final month, and clears it.
 		IF final_month_check = "ELIG" THEN
 			EMWritescreen "Y", 11, 52
 			EMWritescreen initial_month, 13, 37
