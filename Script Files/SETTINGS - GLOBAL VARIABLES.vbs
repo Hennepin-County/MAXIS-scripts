@@ -9,7 +9,7 @@
 default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = False
+run_locally = true
 
 '========================================================================================================================================
 
@@ -48,7 +48,7 @@ emer_number_of_income_days = "30"
 'This is the X1/PW number to send closed cases to in the INAC scrubber.
 CLS_x1_number = "X102CLS"
 
-'This is a TRUE/FALSE that will tell the INAC scrubber to hold onto MAGI cases that closed for no/incomplete renewals for 4 months or not. 
+'This is a TRUE/FALSE that will tell the INAC scrubber to hold onto MAGI cases that closed for no/incomplete renewals for 4 months or not.
 MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE
 
 
