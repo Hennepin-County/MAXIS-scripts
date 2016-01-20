@@ -69,9 +69,9 @@ END IF
 'DIM last_appointment_listbox_for_comparison, last_appointment_time, interview_time
 'DIM am_pm, recert_status, forms_to_swkr
 
-'Required variables/arrays
-appt_time_list = "15 mins"+chr(9)+"30 mins"+chr(9)+"45 mins"+chr(9)+"60 mins"
-call convert_array_to_droplist_items(time_array_30_min, time_array)
+'Variables needed for the script-----------------------------------------------------------------------------------------------------
+appt_time_list = "15 mins"+chr(9)+"30 mins"+chr(9)+"45 mins"+chr(9)+"60 mins"		'Used by the dialog to display possible times/lengths of appointments
+call convert_array_to_droplist_items(time_array_30_min, time_array)					'Schedules time blocks in 30 minute increments
 
 'Custom functions (should merge with FuncLib when tested/confirmed to work)---------------------------------------------------
 'Function to create dynamic calendar out of checkboxes
@@ -182,8 +182,9 @@ BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 255, "REVS Scrubber Time Dialo
   Text 160, 185, 80, 10, "How many per time slot:"
 EndDialog
 
-'-----THE SCRIPT
-EMConnect ""				'Connects to BlueZone
+'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -212,17 +213,17 @@ CALL find_variable("User: ", worker_number, 7)
 'if user is Hennepin Co. user, then contact phone number auto-fills with EZ info number
 if worker_county_code = "x127" Then contact_phone_number = "612-596-1300"
 
-'Display REVS scrubber initial dialog
-DIALOG REVS_scrubber_initial_dialog
+'Display REVS scrubber initial dialog. If contact_phone_number is UUDDLRLRBA then it'll enable developer mode.
+Dialog REVS_scrubber_initial_dialog
 IF ButtonPressed = 0 THEN stopscript
 
-'Entering developer mode
+'Entering developer mode if Konami code entered as contact_phone_number.
 If contact_phone_number = "UUDDLRLRBA" then
 	developer_mode = true
 	MsgBox "You have enabled Developer Mode." & vbCr & vbCr & "The script will not enter information into MAXIS, but it will navigate, showing you where the script would otherwise have been."
 END IF
 
-'Stopping the script is the user is running it before the 16th of the month.
+'Stopping the script if the user is running it before the 16th of the month.
 day_of_month = DatePart("D", date)
 If developer_mode <> true then
 	IF day_of_month < 16 THEN script_end_procedure("You cannot run this script before the 16th of the month.") 'to boot the user before the script tries to access a blank REPT/REVS.
@@ -302,7 +303,6 @@ DO
 			alt_first_appointment_listbox = DateAdd("H", 12, alt_first_appointment_listbox)
 			last_appointment_listbox = DateAdd("H", 0, last_appointment_listbox)
 		END IF
-		'IF DateDiff("N", alt_appointment_length_listbox, last_appointment_listbox) <= 0 THEN err_msg = err_msg & VbCr & "* The additional appointment block may not begin prior or equal to the first appointment block ending."
 
 		'Converting the appointment times back from military time.
 		IF DatePart("H", last_appointment_listbox) > 12 THEN
@@ -314,26 +314,32 @@ DO
 			last_appointment_listbox = DateAdd("H", 0, last_appointment_listbox)
 		END IF
 	END IF
-	IF last_appointment_listbox = "Select one..." THEN err_msg = err_msg & VbCr & "* You must choose a final appointment time."
-	IF alt_first_appointment_listbox <> "Select one..." and alt_last_appointment_listbox = "Select one..." THEN err_msg = err_msg & VbCr & "* You have selected an initial appointment time for the additional appointment block, you must select a final appointment time."
-	IF alt_last_appointment_listbox <> "Select one..." and alt_first_appointment_listbox = "Select one.." THEN err_msg = err_msg & VbCr & "* You have selected a final appointment time for the additional appointment block, you must select an initial appointment time."
-	IF appointment_length_listbox = "Select one..." THEN err_msg = err_msg & VbCr & "* You must select an appointment length."
-	IF alt_first_appointment_listbox <> "Select one..." and alt_appointment_length_listbox = "Select one..." THEN err_msg = err_msg & VbCr & "* Please choose an appointment length for the additional appointment block."
+	'Error message handling
+	IF last_appointment_listbox = "Select one..." 																THEN err_msg = err_msg & VbCr & "* You must choose a final appointment time."
+	IF alt_first_appointment_listbox <> "Select one..." and alt_last_appointment_listbox = "Select one..." 		THEN err_msg = err_msg & VbCr & "* You have selected an initial appointment time for the additional appointment block, you must select a final appointment time."
+	IF alt_last_appointment_listbox <> "Select one..." and alt_first_appointment_listbox = "Select one.." 		THEN err_msg = err_msg & VbCr & "* You have selected a final appointment time for the additional appointment block, you must select an initial appointment time."
+	IF appointment_length_listbox = "Select one..." 															THEN err_msg = err_msg & VbCr & "* You must select an appointment length."
+	IF alt_first_appointment_listbox <> "Select one..." and alt_appointment_length_listbox = "Select one..." 	THEN err_msg = err_msg & VbCr & "* Please choose an appointment length for the additional appointment block."
+
+	'Display the error message
 	IF err_msg <> "" THEN msgbox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
+'If the appointments_per_time_slot variable isn't declared, it defaults to 1
 IF appointments_per_time_slot = "" THEN appointments_per_time_slot = 1
 IF alt_appointments_per_time_slot = "" THEN alt_appointments_per_time_slot = 1
 
-'Navigating to MAXIS
+'Checking for MAXIS
 CALL check_for_MAXIS(false)
+
+'We need to get back to SELF and manually update the footer month
 back_to_SELF
 current_month = DatePart("M", date)
 IF len(current_month) = 1 THEN current_month = "0" & current_month
 current_year = DatePart("YYYY", date)
 current_year = right(current_year, 2)
 
-'Determining the month that the script will access REPT/REVS.
+'Determining the month that the script will access REPT/REVS. It's CM+2 for most, but CM+1 in developer mode
 revs_month = DateAdd("M", 2, date)
 IF developer_mode = True THEN revs_month = DateAdd("M", -1, revs_month)
 revs_year = DatePart("YYYY", revs_month)
@@ -341,12 +347,12 @@ revs_year = right(revs_year, 2)
 revs_month = DatePart("M", revs_month)
 IF len(revs_month) = 1 THEN revs_month = "0" & revs_month
 
-'writing current month
+'writing current month and transmitting
 EMWriteScreen current_month, 20, 43
 EMWriteScreen current_year, 20, 46
 transmit
 
-'navigating to REVS and entering REVS Month and year
+'navigating to REVS and entering REVS Month and year as determined above
 CALL navigate_to_MAXIS_screen("REPT", "REVS")
 EMWriteScreen revs_month, 20, 55
 EMWriteScreen revs_year, 20, 58
@@ -360,54 +366,74 @@ IF UCASE(current_worker) <> UCASE(worker_number) THEN
 END IF
 
 'Grabbing case numbers from REVS for requested worker
-Excel_row = 2
-DO
-	MAXIS_row = 7
-	DO
+Excel_row = 2	'Declaring variable prior to do...loops
+DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
+	MAXIS_row = 7	'Setting or resetting this to look at the top of the list
+	DO		'All of this loops until MAXIS_row = 19
+		'Reading case information (case number, SNAP status, and cash status)
 		EMReadScreen case_number, 8, MAXIS_row, 6
 		EMReadScreen SNAP_status, 1, MAXIS_row, 45
 		EMReadScreen cash_status, 1, MAXIS_row, 34
 
-		IF case_number = "        " then exit do     'navigates though until it runs out of case numbers to read
+		'Navigates though until it runs out of case numbers to read
+		IF case_number = "        " then exit do
 
 		'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
-		If cash_status = "-" then cash_status = ""
-		If SNAP_status = "-" then SNAP_status = ""
-		If HC_status = "-" then HC_status = ""
+		If cash_status = "-" 	then cash_status = ""
+		If SNAP_status = "-" 	then SNAP_status = ""
+		If HC_status = "-" 		then HC_status = ""
 
-				'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
+		'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
 		If trim(SNAP_status) = "N" or trim(SNAP_status) = "I" or trim(SNAP_status) = "U" then add_case_info_to_Excel = True
 		If trim(cash_status) = "N" or trim(cash_status) = "I" or trim(cash_status) = "U" then add_case_info_to_Excel = True
+
 		'Adding the case to Excel
 		If add_case_info_to_Excel = True then
 			ObjExcel.Cells(excel_row, 1).Value = case_number
 			excel_row = excel_row + 1
 		End if
+
+		'On the next loop it must look to the next row
 		MAXIS_row = MAXIS_row + 1
-		add_case_info_to_Excel = ""	'Blanking out variable
-		case_number = ""			'Blanking out variable
-	Loop until MAXIS_row = 19
+
+		'Clearing variables before next loop
+		add_case_info_to_Excel = ""
+		case_number = ""
+	Loop until MAXIS_row = 19		'Last row in REPT/REVS
+
+	'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
 	PF8
 	EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 Loop until last_page_check = "THIS IS THE LAST PAGE"
 
 'Now the script will go through STAT/REVW for each case and check that the case is at CSR or ER and remove the cases that are at CSR from the list.
-excel_row = 2
-DO
+excel_row = 2		'Resets the variable to 2, as it needs to look through all of the cases on the Excel sheet!
+DO 'Loops until there are no more cases in the Excel list
+
+	'Grabs the case number
 	case_number = objExcel.cells(excel_row, 1).Value
+
+	'Goes to STAT/REVW
 	CALL navigate_to_MAXIS_screen("STAT", "REVW")
+
 	'Checking for PRIV cases.
 	EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
 	IF priv_check = "PRIVIL" THEN 'Delete priv cases from excel sheet, save to a list for later
+
 		priv_case_list = priv_case_list & "|" & case_number
 		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 		objRange.Delete
 		excel_row = excel_row - 1
 		msgbox priv_case_list
-	ELSE
+
+	ELSE		'For all of the cases that aren't privileged...
+
+		'Looks at review details
 		EMwritescreen "x", 5, 58
 		Transmit
-		DO											'looping to check if the SNAP REVW popup is on the screen
+
+
+		DO
 			EMReadScreen SNAP_popup_check, 7, 5, 43
 		LOOP until SNAP_popup_check = "Reports"
 
@@ -418,11 +444,11 @@ DO
 		EMReadScreen recert_yr, 2, 9, 70
 
 		'It then compares what it read to the previously established current month plus 2 and determines if it is a recert or not. If it is a recert we need an interview
-		IF CSR_mo = left(cm_plus_2, 2) and CSR_yr = right(cm_plus_2, 2) THEN RECERT_STATUS = "NO"
-		IF recert_mo = left(cm_plus_2, 2) and recert_yr = right(cm_plus_2, 2) THEN RECERT_STATUS = "YES"
+		IF CSR_mo = left(cm_plus_2, 2) and CSR_yr = right(cm_plus_2, 2) THEN recert_status = "NO"
+		IF recert_mo = left(cm_plus_2, 2) and recert_yr = right(cm_plus_2, 2) THEN recert_status = "YES"
 
 		'If it's not a recert, delete it from the excel list and move on with our lives
-		IF RECERT_STATUS = "NO" THEN
+		IF recert_status = "NO" THEN
 			Call navigate_to_MAXIS_screen("STAT", "PROG")
 			EMReadScreen MFIP_prog_check, 2, 6, 67		'checking for an active MFIP case
 			EMReadScreen MFIP_status_check, 4, 6, 74
@@ -780,11 +806,12 @@ Else    'if worker is actually running the script it will do this
 	objExcel.Columns(4).autofit()
 End IF
 'Creating the list of privileged cases and adding to the spreadsheet
-	prived_case_array = split(priv_case_list, "|")
-	excel_row = 2
+prived_case_array = split(priv_case_list, "|")
+excel_row = 2
+
 FOR EACH case_number in prived_case_array
 	objExcel.cells(excel_row, 5).value = case_number
 	excel_row = excel_row + 1
 NEXT
 
-script_end_procedure("Success, the excel file now has all of the cases that have had interviews scheduled.  Please manually review the list of priveleged cases.")
+script_end_procedure("Success! The Excel file now has all of the cases that have had interviews scheduled.  Please manually review the list of privileged cases.")
