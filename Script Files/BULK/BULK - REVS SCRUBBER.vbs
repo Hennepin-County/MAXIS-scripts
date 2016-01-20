@@ -139,7 +139,6 @@ FUNCTION create_outlook_appointment(appt_date, appt_start_time, appt_end_time, a
 	End if
 	objAppointment.Categories = appt_category						'Defines a category
 	objAppointment.Save												'Saves the appointment
-
 END FUNCTION
 
 'DIALOGS -----------------------------------------------------------------------------------------------
@@ -519,6 +518,12 @@ FOR i = 1 to num_of_days
 	END IF
 NEXT
 
+'VbOKCancel allows the user to review and confirm the scheduled appointments prior to case notes, TIKL's and MEMOs being sent
+recertificaiton_date_confirmation = MsgBox("Please review your Excel spreadsheet carefully to ensure that the dates and times are accurate." & vbNewLine & vbNewLine & "Press OK to confirm the dates and times of your scheduled appointments. Press cancel to stop the script.", vbOKCancel, "Please review and confirm")
+		If recertificaiton_date_confirmation = vbCancel then stopscript
+
+Call check_for_MAXIS(False)
+
 If developer_mode = true Then
 	excel_row = 2					'resetting excel row to start reading at the top
 	DO 								'looping until it meets a blank excel cell without a case number
@@ -763,7 +768,7 @@ Else    'if worker is actually running the script it will do this
 		transmit
 		PF3
 		'END IF
-		
+
 		excel_row = excel_row + 1
 
 	LOOP until objExcel.cells(excel_row, 1).Value = ""
