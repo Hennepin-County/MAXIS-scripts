@@ -154,35 +154,35 @@ BeginDialog REVS_scrubber_initial_dialog, 0, 0, 136, 130, "REVS scrubber initial
   Text 5, 45, 60, 60, "Please enter a phone number client can call to report a change in phone number (Include area code)"
 EndDialog
 
-BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 280, "REVS Scrubber Time Dialog"
-  DropListBox 75, 15, 60, 15, "Select one..."+chr(9)+time_array, first_appointment_listbox
-  DropListBox 210, 15, 60, 15, "Select one..."+chr(9)+time_array, last_appointment_listbox
-  DropListBox 115, 35, 50, 15, "Select one..."+chr(9)+appt_time_list, appointment_length_listbox
-  CheckBox 10, 55, 135, 10, "Duplicate appointments per time slot?", duplicate_appt_times
-  EditBox 110, 70, 35, 15, appointments_per_time_slot
+BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 255, "REVS Scrubber Time Dialog"
+  DropListBox 75, 25, 60, 15, "Select one..."+chr(9)+time_array, first_appointment_listbox
+  DropListBox 215, 25, 60, 15, "Select one..."+chr(9)+time_array, last_appointment_listbox
+  DropListBox 110, 50, 50, 15, "Select one..."+chr(9)+appt_time_list, appointment_length_listbox
+  CheckBox 10, 75, 140, 10, "Duplicate appointments per time slot?", duplicate_appt_times
+  EditBox 240, 70, 35, 15, appointments_per_time_slot
   DropListBox 75, 135, 60, 15, "Select one..."+chr(9)+time_array, alt_first_appointment_listbox
-  DropListBox 210, 135, 60, 15, "Select one..."+chr(9)+time_array, alt_last_appointment_listbox
-  DropListBox 115, 155, 50, 15, "Select one..."+chr(9)+appt_time_list, alt_appointment_length_listbox
-  CheckBox 10, 175, 135, 10, "Duplicate appointments per time slot?", alt_duplicate_appt_times
-  EditBox 110, 190, 35, 15, alt_appointments_per_time_slot
-  CheckBox 10, 235, 200, 10, "Check here to add appointments to your Outlook calendar.", outlook_calendar_check
+  DropListBox 215, 135, 60, 15, "Select one..."+chr(9)+time_array, alt_last_appointment_listbox
+  DropListBox 115, 160, 50, 15, "Select one..."+chr(9)+appt_time_list, alt_appointment_length_listbox
+  CheckBox 10, 185, 135, 10, "Duplicate appointments per time slot?", alt_duplicate_appt_times
+  EditBox 240, 180, 35, 15, alt_appointments_per_time_slot
+  CheckBox 10, 215, 200, 10, "Check here to add appointments to your Outlook calendar.", outlook_calendar_check
   ButtonGroup ButtonPressed
-    OkButton 180, 260, 50, 15
-    CancelButton 230, 260, 50, 15
-  Text 10, 20, 60, 10, "First appointment:"
-  Text 145, 20, 60, 10, "Last appointment:"
-  Text 10, 35, 95, 10, "Time between Appointments:"
+    OkButton 165, 230, 50, 15
+    CancelButton 220, 230, 50, 15
+  Text 10, 30, 60, 10, "First appointment:"
+  Text 150, 30, 60, 10, "Last appointment:"
+  Text 10, 55, 95, 10, "Time between Appointments:"
   Text 10, 140, 60, 10, "First appointment:"
-  Text 145, 140, 60, 10, "Last appointment:"
-  Text 10, 155, 95, 10, "Time between Appointments:"
-  Text 15, 75, 90, 10, "Appointments per time slot:"
-  GroupBox 5, 5, 275, 85, "Main Appointment Block"
-  GroupBox 5, 105, 275, 110, "Additional Appointment Block"
-  Text 10, 120, 260, 10, "*NOTE: Use this block for scheduling appointments around your lunch break."
-  Text 15, 195, 90, 10, "Appointments per time slot:"
+  Text 150, 140, 60, 10, "Last appointment:"
+  Text 10, 165, 95, 10, "Time between Appointments:"
+  Text 160, 75, 80, 10, "How many per time slot:"
+  GroupBox 5, 10, 275, 85, "Main Appointment Block"
+  GroupBox 5, 100, 275, 105, "Additional Appointment Block"
+  Text 20, 115, 260, 10, "*NOTE: Use this block for scheduling appointments around your lunch break."
+  Text 160, 185, 80, 10, "How many per time slot:"
 EndDialog
 
-'-----THE SCRIPT, dawg
+'-----THE SCRIPT
 EMConnect ""				'Connects to BlueZone
 
 'Opening the Excel file
