@@ -187,7 +187,7 @@ BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 270, "REVS Scrubber Time Dialo
   Text 150, 140, 60, 10, "Last appointment:"
   Text 10, 165, 95, 10, "Time between Appointments:"
   Text 160, 185, 80, 10, "How many per time slot:"
-  Text 10, 235, 190, 10, "Maximum reviews to schedule per worker (blank for ''all''):"
+  Text 10, 235, 190, 10, "Maximum reviews to schedule per worker (leave blank for no cap):"
   GroupBox 5, 10, 275, 85, "Main Appointment Block"
   GroupBox 5, 100, 275, 105, "Additional Appointment Block"
 EndDialog
@@ -214,10 +214,19 @@ if worker_county_code = "x127" Then contact_phone_number = "612-596-1300"
 
 'Display REVS scrubber initial dialog. If contact_phone_number is UUDDLRLRBA then it'll enable developer mode.
 Do
-	Dialog REVS_scrubber_initial_dialog
-	IF ButtonPressed = 0 THEN stopscript
-	IF ButtonPressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/REVS%20Scrubber.aspx")
-Loop until ButtonPressed = -1
+	Do
+		err_msg = ""
+		Dialog REVS_scrubber_initial_dialog
+		IF ButtonPressed = 0 THEN stopscript
+		IF ButtonPressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/REVS%20Scrubber.aspx")
+	Loop until ButtonPressed = -1
+	If worker_number_editbox = "" 		then err_msg = err_msg & vbNewLine & "* You must enter at least one worker number in the worker number editbox."
+	If worker_signature = "" 			then err_msg = err_msg & vbNewLine & "* You must sign the case notes regarding the appointments."
+	If contact_phone_number = ""		then err_msg = err_msg & vbNewLine & "* You must provide a contact phone number in case the client needs to report a new phone number to you."
+
+	'Display the error message
+	IF err_msg <> "" THEN msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue."
+LOOP UNTIL err_msg = ""
 
 'Entering developer mode if Konami code entered as contact_phone_number.
 If contact_phone_number = "UUDDLRLRBA" then
