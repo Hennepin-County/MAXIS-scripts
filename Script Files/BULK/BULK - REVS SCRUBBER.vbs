@@ -197,19 +197,7 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
 
-'formatting excel file with columns for case number and interview date/time
-objExcel.cells(1, 1).Value = "CASE NUMBER"
-objExcel.Cells(1, 1).Font.Bold = TRUE
-objExcel.Cells(1, 2).Value = "Interview Date & Time"
-objExcel.cells(1, 2).Font.Bold = TRUE
-objExcel.cells(1, 5).Value = "Privileged Cases"
-objExcel.cells(1, 5).Font.Bold = TRUE
 
 'creating month plus 1 and plus 2
 cm_plus_1 = dateadd("M", 1, date)
@@ -342,6 +330,20 @@ DO
 	'Display the error message
 	IF err_msg <> "" THEN msgbox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
+
+'Opening the Excel file, (now that the dialog is done)
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'formatting excel file with columns for case number and interview date/time
+objExcel.cells(1, 1).Value = "CASE NUMBER"
+objExcel.Cells(1, 1).Font.Bold = TRUE
+objExcel.Cells(1, 2).Value = "Interview Date & Time"
+objExcel.cells(1, 2).Font.Bold = TRUE
+objExcel.cells(1, 5).Value = "Privileged Cases"
+objExcel.cells(1, 5).Font.Bold = TRUE
 
 'If the appointments_per_time_slot variable isn't declared, it defaults to 1
 IF appointments_per_time_slot = "" THEN appointments_per_time_slot = 1
