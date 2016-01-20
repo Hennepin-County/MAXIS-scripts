@@ -156,7 +156,7 @@ BeginDialog REVS_scrubber_initial_dialog, 0, 0, 501, 130, "REVS scrubber initial
   GroupBox 365, 5, 130, 55, "Description"
   Text 375, 15, 115, 40, "This script will schedule appointments (in advance) for cases that require an interview for recertification, and will do so for an entire caseload."
   GroupBox 365, 65, 130, 40, "What you need before you start"
-  Text 375, 75, 115, 30, "Individual or case-banked caseloads which have cases that require an interview. "
+  Text 375, 75, 115, 25, "Individual or case-banked caseloads which have cases that require an interview. "
   GroupBox 5, 65, 350, 40, "PLEASE NOTE"
   Text 10, 75, 340, 25, "The script will not be available for use until the 16th of each month, as the script goes into current month plus two to schedule the appointments with proper advance notice (example: REVS scrubber will be available 02/16/16 to schedule recertification interviews for March reviews)."
 EndDialog
@@ -187,7 +187,7 @@ BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 270, "REVS Scrubber Time Dialo
   Text 150, 140, 60, 10, "Last appointment:"
   Text 10, 165, 95, 10, "Time between Appointments:"
   Text 160, 185, 80, 10, "How many per time slot:"
-  Text 10, 235, 190, 10, "Maximum reviews to schedule per worker (blank for "all"):"
+  Text 10, 235, 190, 10, "Maximum reviews to schedule per worker (blank for ''all''):"
   GroupBox 5, 10, 275, 85, "Main Appointment Block"
   GroupBox 5, 100, 275, 105, "Additional Appointment Block"
 EndDialog
@@ -225,8 +225,11 @@ CALL find_variable("User: ", worker_number, 7)
 if worker_county_code = "x127" Then contact_phone_number = "612-596-1300"
 
 'Display REVS scrubber initial dialog. If contact_phone_number is UUDDLRLRBA then it'll enable developer mode.
-Dialog REVS_scrubber_initial_dialog
-IF ButtonPressed = 0 THEN stopscript
+Do
+	Dialog REVS_scrubber_initial_dialog
+	IF ButtonPressed = 0 THEN stopscript
+	IF ButtonPressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/REVS%20Scrubber.aspx")
+Loop until ButtonPressed = -1
 
 'Entering developer mode if Konami code entered as contact_phone_number.
 If contact_phone_number = "UUDDLRLRBA" then
@@ -255,8 +258,12 @@ CALL create_calendar(calendar_month, month_array)
 'Determining the appropriate times to set appointments.
 DO
 	err_msg = ""
-	DIALOG REVS_scrubber_time_dialog
-	IF ButtonPressed = 0 THEN stopscript
+	Do
+		dialog REVS_scrubber_time_dialog
+		IF ButtonPressed = 0 THEN stopscript
+		IF ButtonPressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/REVS%20Scrubber.aspx")
+	Loop until ButtonPressed = -1
+
 	IF first_appointment_listbox = "Select one..." THEN err_msg = err_msg & VbCr & "* You must choose an initial appointment time."
 	IF first_appointment_listbox <> "Select one..." AND last_appointment_listbox <> "Select one..." THEN
 		'Converting the appointment times for comparison. VBS runs in military time.
