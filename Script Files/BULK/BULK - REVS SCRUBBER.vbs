@@ -142,19 +142,26 @@ FUNCTION create_outlook_appointment(appt_date, appt_start_time, appt_end_time, a
 END FUNCTION
 
 'DIALOGS -----------------------------------------------------------------------------------------------
-BeginDialog REVS_scrubber_initial_dialog, 0, 0, 136, 130, "REVS scrubber initial dialog"
-  EditBox 65, 5, 65, 15, worker_number
-  EditBox 65, 25, 65, 15, worker_signature
-  EditBox 70, 45, 60, 15, contact_phone_number
+BeginDialog REVS_scrubber_initial_dialog, 0, 0, 501, 130, "REVS scrubber initial dialog"
+  EditBox 165, 5, 195, 15, worker_number_editbox
+  EditBox 165, 25, 55, 15, worker_signature
+  EditBox 290, 45, 70, 15, contact_phone_number
   ButtonGroup ButtonPressed
-    OkButton 25, 110, 50, 15
-    CancelButton 80, 110, 50, 15
-  Text 5, 10, 55, 10, "Worker number:"
-  Text 5, 30, 60, 10, "Worker signature:"
-  Text 5, 45, 60, 60, "Please enter a phone number client can call to report a change in phone number (Include area code)"
+    OkButton 380, 110, 50, 15
+    CancelButton 435, 110, 50, 15
+    PushButton 250, 115, 105, 10, "SIR instructions for this script", SIR_instructions_button
+  Text 5, 10, 155, 10, "Worker numbers to run, separated by commas:"
+  Text 5, 30, 155, 10, "Worker signature (for appointment case notes):"
+  Text 5, 50, 280, 10, "Contact phone number with area code (so client can report changes in phone number):"
+  GroupBox 365, 5, 130, 55, "Description"
+  Text 375, 15, 115, 40, "This script will schedule appointments (in advance) for cases that require an interview for recertification, and will do so for an entire caseload."
+  GroupBox 365, 65, 130, 40, "What you need before you start"
+  Text 375, 75, 115, 30, "Individual or case-banked caseloads which have cases that require an interview. "
+  GroupBox 5, 65, 350, 40, "PLEASE NOTE"
+  Text 10, 75, 340, 25, "The script will not be available for use until the 16th of each month, as the script goes into current month plus two to schedule the appointments with proper advance notice (example: REVS scrubber will be available 02/16/16 to schedule recertification interviews for March reviews)."
 EndDialog
 
-BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 255, "REVS Scrubber Time Dialog"
+BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 270, "REVS Scrubber Time Dialog"
   DropListBox 75, 25, 60, 15, "Select one..."+chr(9)+time_array, first_appointment_listbox
   DropListBox 215, 25, 60, 15, "Select one..."+chr(9)+time_array, last_appointment_listbox
   DropListBox 110, 50, 50, 15, "Select one..."+chr(9)+appt_time_list, appointment_length_listbox
@@ -166,21 +173,25 @@ BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 255, "REVS Scrubber Time Dialo
   CheckBox 10, 185, 135, 10, "Duplicate appointments per time slot?", alt_duplicate_appt_times
   EditBox 240, 180, 35, 15, alt_appointments_per_time_slot
   CheckBox 10, 215, 200, 10, "Check here to add appointments to your Outlook calendar.", outlook_calendar_check
+  EditBox 210, 230, 55, 15, max_reviews_per_worker
   ButtonGroup ButtonPressed
-    OkButton 165, 230, 50, 15
-    CancelButton 220, 230, 50, 15
+    OkButton 175, 250, 50, 15
+    CancelButton 230, 250, 50, 15
+    PushButton 10, 255, 105, 10, "SIR instructions for this script", SIR_instructions_button
   Text 10, 30, 60, 10, "First appointment:"
   Text 150, 30, 60, 10, "Last appointment:"
   Text 10, 55, 95, 10, "Time between Appointments:"
+  Text 160, 75, 80, 10, "How many per time slot:"
+  Text 20, 115, 260, 10, "*NOTE: Use this block for scheduling appointments around your lunch break."
   Text 10, 140, 60, 10, "First appointment:"
   Text 150, 140, 60, 10, "Last appointment:"
   Text 10, 165, 95, 10, "Time between Appointments:"
-  Text 160, 75, 80, 10, "How many per time slot:"
+  Text 160, 185, 80, 10, "How many per time slot:"
+  Text 10, 235, 190, 10, "Maximum reviews to schedule per worker (blank for "all"):"
   GroupBox 5, 10, 275, 85, "Main Appointment Block"
   GroupBox 5, 100, 275, 105, "Additional Appointment Block"
-  Text 20, 115, 260, 10, "*NOTE: Use this block for scheduling appointments around your lunch break."
-  Text 160, 185, 80, 10, "How many per time slot:"
 EndDialog
+
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone
