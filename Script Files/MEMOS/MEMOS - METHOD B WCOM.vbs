@@ -48,8 +48,8 @@
 
  'Required for statistical purposes==========================================================================================
  STATS_counter = 1                          'sets the stats counter at one
- STATS_manualtime = 140                      'manual run time in seconds
- STATS_denomination = "C"                   'C is for each case
+ STATS_manualtime = 90                      'manual run time in seconds
+ STATS_denomination = "C"                   'M is for each MEMBER
  'END OF stats block==============================================================================================
 
 'Dialogs----------------------------------------------------------------------------------------------------
@@ -64,27 +64,28 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
   Text 10, 10, 45, 10, "Case number: "
 EndDialog
 
-BeginDialog MEMOS_LTC_METHOD_B_dialog, 0, 0, 281, 270, "Method B budget deductions for WCOM"
+BeginDialog MEMOS_LTC_METHOD_B_dialog, 0, 0, 281, 215, "Method B budget deductions for WCOM"
+  CheckBox 5, 160, 275, 10, "Check here is client pays for room/ board in addition to spenddown (GRH clients).", GRH_check
+  ButtonGroup ButtonPressed
+    PushButton 95, 195, 70, 10, "Calculate recip amt", CALC_button
+    OkButton 170, 190, 50, 15
+    CancelButton 225, 190, 50, 15
+  EditBox 75, 20, 40, 15, income
+  EditBox 75, 45, 40, 15, income_standard
+  EditBox 195, 45, 40, 15, SD
   EditBox 75, 85, 40, 15, medi_part_a
   EditBox 195, 85, 40, 15, health_insa
   EditBox 75, 105, 40, 15, medi_part_b
   EditBox 195, 110, 40, 15, remedial_care
   EditBox 75, 130, 40, 15, medi_part_d
   EditBox 195, 130, 40, 15, other_deductions
-  CheckBox 5, 160, 275, 10, "Check here is client pays for room/ board in addition to spenddown (GRH clients).", GRH_check
   EditBox 50, 190, 40, 15, recipient_amt
   ButtonGroup ButtonPressed
-    PushButton 95, 195, 70, 10, "Calculate recip amt", CALC_button
-    OkButton 170, 190, 50, 15
-    CancelButton 225, 190, 50, 15
     PushButton 130, 20, 35, 10, "ELIG/HC", ELIG_HC_button
     PushButton 170, 20, 25, 10, "BILS", BILS_button
     PushButton 195, 20, 25, 10, "FACI", FACI_button
     PushButton 220, 20, 25, 10, "HCMI", HCMI_button
     PushButton 245, 20, 25, 10, "UNEA", UNEA_button
-  EditBox 75, 20, 40, 15, income
-  EditBox 75, 45, 40, 15, income_standard
-  EditBox 195, 45, 40, 15, SD
   Text 5, 25, 60, 10, "Budgeted income:"
   Text 135, 135, 60, 10, "Other deductions:"
   Text 30, 135, 40, 10, "Medi part D:"
@@ -98,10 +99,7 @@ BeginDialog MEMOS_LTC_METHOD_B_dialog, 0, 0, 281, 270, "Method B budget deductio
   Text 5, 50, 70, 10, "MA income standard:"
   Text 10, 195, 35, 10, "Recip amt:"
   Text 140, 115, 50, 10, "Remedial care:"
-  Text 20, 230, 245, 35, "The 'Calculate recip amt' will calculate the recipient amount based on the infromation inputted into the deductions edit boxes. If you calculate the recipeint amount, and add another deduction, please hit the calculate button again. Otherwise the cleint's recipient amount will be incorrect."
-  GroupBox 0, 215, 275, 55, "Using the 'Calculate recip amt' button"
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone & grabs the case number
@@ -114,7 +112,6 @@ Call check_for_MAXIS(False)
 Do
   err_msg = ""
   Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
@@ -143,32 +140,24 @@ EMSendKey "x"
 transmit
 EMReadScreen method_type, 1, 13, 21
 If method_type <> "B" then script_end_procedure("Your case is not a Method B budget case. The script will now end.")
-
-'finding the correct income, SD and and income standard for footer month selected'
-footer_info = MAXIS_footer_month & "/" & MAXIS_footer_year  'turnes footer year and footer month into string'
-row = 6
-col = 1                'establishes the row to start searching'
-EMSearch footer_info, row, col    'searches for footer_info'
-EMReadScreen MA_income_standard, 7, row + 10, col
-EMReadScreen Income, 7, row + 9, col
-EMReadScreen spenddown, 7, row + 11, col
-spenddown = Ltrim(spenddown)
+EMReadScreen MA_income_standard, 8, 16, 18
+EMReadScreen Income, 8, 15, 18
+EMReadScreen spenddown, 8, 17, 19
+spenddown = trim(spenddown)
 If spenddown = "" then script_end_procedure("Your case does not have a spenddown amount. The script will now end.")
 
-'cleaning up the variables for the dialog
-income_standard = Ltrim(MA_income_standard)
-income = Ltrim(Income)
-SD = Ltrim(spenddown)
-medi_part_a = Ltrim(medi_part_a)
-medi_part_b = Ltrim(medi_part_b)
+income_standard = trim(MA_income_standard)
+income = trim(Income)
+SD = trim(spenddown)
+medi_part_a = trim(medi_part_a)
+medi_part_b = trim(medi_part_b)
 
 'Shows the dialog
 Do
-  err_msg = ""
-  Do
+	Do
 		Dialog MEMOS_LTC_METHOD_B_dialog
-    cancel_confirmation
-    MAXIS_Dialog_navigation
+		MAXIS_Dialog_navigation
+		cancel_confirmation
 		If ButtonPressed = CALC_button THEN
 			'makes the deduction amounts = 0 so the Abs(number) function work
 			If medi_part_a = "" THEN medi_part_a = "0"
@@ -177,23 +166,14 @@ Do
 			If health_insa = "" THEN health_insa = "0"
 			If remedial_care = "" THEN remedial_care = "0"
 			If other_deductions = "" THEN other_deductions = "0"
-			recipient_amt = Abs(SD) - Abs(medi_part_a) - Abs(medi_part_b) - Abs(medi_part_d) - Abs(health_insa) - Abs(remedial_care) - Abs(other_deductions) & ""
-      If medi_part_a = "0" THEN medi_part_a = ""
-      If medi_part_b = "0" THEN medi_part_b = ""
-      If medi_part_d = "0" THEN medi_part_d = ""
-      If health_insa = "0" THEN health_insa = ""
-      If remedial_care = "0" THEN remedial_care = ""
-      If other_deductions = "0" THEN other_deductions = ""
-	  End if
-    Loop until ButtonPressed = -1
-  IF IsNumeric(recipient_amt) = False then err_msg = err_msg & vbNewLine & "* Enter the recipient amount."
-  IF IsNumeric(income_standard) = False then err_msg = err_msg & vbNewLine & "* Enter the MA income standard."
-  IF IsNumeric(income) = False then err_msg = err_msg & vbNewLine & "* Enter the budgeted income."
-  IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-  Loop until err_msg = ""
-
-recipient_amt = Round(recipient_amt)  'rounds variable to nearest decimal point to clean up for memo'
-recipient_amt = recipient_amt & ".00"
+			recipient_amt = Abs(SD) - Abs(medi_part_a) + Abs(medi_part_b) + Abs(medi_part_d) + Abs(health) + Abs(remedial_care) + Abs(other_deductions) & ""
+		END IF
+	LOOP until ButtonPressed = -1
+    IF IsNumeric(recipient_amt) = False then err_msg = err_msg & vbNewLine & "* Enter the recipient amount."
+    IF IsNumeric(income_standard) = False then err_msg = err_msg & vbNewLine & "* Enter the MA income standard."
+    IF IsNumeric(income) = False then err_msg = err_msg & vbNewLine & "* Enter the budgeted income."
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+Loop until err_msg = ""
 
 'THE MEMO----------------------------------------------------------------------------------------------------------------
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
@@ -224,18 +204,22 @@ Transmit
 PF9
 
 'Worker Comment Input
-Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount the amount, or the amount you pay each month, is $" & recipient_amt & ". This is how the recipeint is determined:")
-Write_variable_in_SPEC_MEMO("Income: $" & income &" - MA Income Standard $" & income_standard & " = $" & spenddown)
+Write_variable_in_SPEC_MEMO("************************************************************")
+Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount the amount, or the you are responsible to pay each month, is $" & recipient_amt & ".")
+Write_variable_in_SPEC_MEMO("This was determined using the following calculations:")
+Write_variable_in_SPEC_MEMO(" ")
+Write_variable_in_SPEC_MEMO("Income: $" & income &" - MA Income Standard $" & income_standard & " = $" & spenddown & " Spenddown")
 Write_variable_in_SPEC_MEMO("Spenddown:            $" & spenddown)
-If medi_part_a <> "" then Write_variable_in_SPEC_MEMO("Medicare Part A     - $" & medi_part_a)
-If medi_part_b <> "" then Write_variable_in_SPEC_MEMO("Medicare Part B     - $" & medi_part_b)
-If medi_part_d <> "" then Write_variable_in_SPEC_MEMO("Medicare Part D     - $" & medi_part_d)
+If medi_part_a <> "" then Write_variable_in_SPEC_MEMO("Medicare Part A     -  $" & medi_part_a)
+If medi_part_b <> "" then Write_variable_in_SPEC_MEMO("Medicare Part B     -  $" & medi_part_b)
+If medi_part_d <> "" then Write_variable_in_SPEC_MEMO("Medicare Part D     -  $" & medi_part_d)
 If remedial_care <> "" then Write_variable_in_SPEC_MEMO("Remedial care       - $" & remedial_care)
+Write_variable_in_SPEC_MEMO(" ")
 If other_deductions <> "" then Write_variable_in_SPEC_MEMO("Other deductions    - $" & other_deductions)
-If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    - $" & health_insa)
-If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    - $" & health_insa)
-Call Write_variable_in_SPEC_MEMO("Recipient amount:   =$" & recipient_amt)
-If GRH_check = 1 Then Write_variable_in_SPEC_MEMO("This amount is in addition to your room and board.")
+If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    = $" & health_insa)
+If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    = $" & health_insa)
+If GRH_check = 1 Then Write_variable_in_SPEC_MEMO("You are also responsible to pay for room and board in addition to your recipient amount.")
 Write_variable_in_SPEC_MEMO("Please contact the agency with any questions. Thank you.")
+Write_variable_in_SPEC_MEMO("************************************************************")
 
-script_end_procedure("Success! Your MEMO has been written. Please review it for accuracy, and PF4 to save.")
+script_end_procedure("")
