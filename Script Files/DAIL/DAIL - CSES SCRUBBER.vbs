@@ -77,6 +77,20 @@ If worker_signature = "UUDDLRLRBA" then
     excel_visible_checkbox = 1      'Forces this to be checked
 End if
 
+'If excel_visible_checkbox is checked, it'll set the visibility for Excel to "true". Otherwise it'll be false.
+If excel_visible_checkbox = 1 then
+    excel_visibility = true
+Else
+    excel_visibility = false
+End if
+
+'Checks if you're on a TIKL, and asks if this is a training scenario
+EMReadScreen TIKL_check, 4, 6, 6
+If TIKL_check = "TIKL" then
+    TIKL_processing_confirmation = MsgBox("You seem to be running this on a TIKL. Are you testing the script? If you aren't, something has gone wrong.", vbYesNo)
+    If TIKL_processing_confirmation = vbNo then stopscript
+End if
+
 '~~~~~~~~~~~~~~~~~~~~Reads each message
 
 '~~~~~~~~~~~~~~~~~~~~Sorts each message into Excel column by PMI (and divides each into a share of each message based on total PMIs)
