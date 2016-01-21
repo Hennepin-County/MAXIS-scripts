@@ -1,3 +1,8 @@
+contact_phone_number = "UUDDLRLRBA"
+worker_number_editbox = "x127ex3"
+worker_signature = "VKC"
+max_reviews_per_worker = "10"
+
 'OPTION EXPLICIT
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - REVS SCRUBBER.vbs"
@@ -340,6 +345,9 @@ DO
 	IF err_msg <> "" THEN msgbox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
+'Converts to integer
+max_reviews_per_worker = abs(max_reviews_per_worker)
+
 'Opening the Excel file, (now that the dialog is done)
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -386,6 +394,9 @@ CALL navigate_to_MAXIS_screen("REPT", "REVS")
 EMWriteScreen revs_month, 20, 55
 EMWriteScreen revs_year, 20, 58
 transmit
+
+'<<<<<<<<<<<<TEMP
+worker_number = worker_number_editbox
 
 'Checking to see if the worker running the script is the the worker selected, if not it will enter the selected worker's number
 EMReadScreen current_worker, 7, 21, 6
@@ -437,6 +448,8 @@ Loop until last_page_check = "THIS IS THE LAST PAGE"
 
 'Now the script will go through STAT/REVW for each case and check that the case is at CSR or ER and remove the cases that are at CSR from the list.
 excel_row = 2		'Resets the variable to 2, as it needs to look through all of the cases on the Excel sheet!
+reviews_total = 0	'Sets this to 0 for the following do...loop. It'll exit once it's hit the reviews cap
+
 DO 'Loops until there are no more cases in the Excel list
 
 	'Grabs the case number
@@ -509,9 +522,13 @@ FOR i = 1 to num_of_days
 			FOR j = 1 TO appointments_per_time_slot					'Having the script create appointments_per_time_slot for each day and time.
 				objExcel.Cells(excel_row, 2).Value = appointment_time_for_viewing
 				excel_row = excel_row + 1
+				reviews_total = reviews_total + 1	'Adds one to the reviews total (will end when the loop starts if we're at the reviews total)
+				if reviews_total = max_reviews_per_worker then exit for		'If we're at the reviews total, it will exit this for
+
 				IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT FOR
 			NEXT
 			IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT DO
+			if reviews_total = max_reviews_per_worker then exit do		'If we're at the reviews total, it will exit this do
 
 			'This is where the script adds minutes for the next appointment.
 			appointment_time = DateAdd("N", appointment_length_listbox, appointment_time)
@@ -569,7 +586,9 @@ FOR i = 1 to num_of_days
 			LOOP UNTIL (DatePart("H", appointment_time_for_comparison) > DatePart("H", last_appointment_listbox_for_comparison)) OR ((DatePart("H", appointment_time_for_comparison) >= DatePart("H", last_appointment_listbox_for_comparison)) AND DatePart("N", appointment_time_for_comparison) > DatePart("N", last_appointment_listbox_for_comparison))
 
 		END IF
-		IF objExcel.Cells(excel_row, 1) = "" THEN EXIT FOR		'Because we're all out of cases at this point
+		IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT FOR		'Because we're all out of cases at this point
+		if objExcel.Cells(excel_row, 1).Value <> "" and reviews_total = max_reviews_per_worker then objExcel.Cells(excel_row, 2).Value = "SKIPPED"
+		if reviews_total = max_reviews_per_worker then exit for		'If we're at the reviews total, it will exit this for
 	END IF
 NEXT
 
