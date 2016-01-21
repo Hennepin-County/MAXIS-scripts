@@ -568,7 +568,7 @@ For each case_number in case_number_array
 		call create_MAXIS_friendly_date(APPL_date, 0, 10, 44)
 		call create_MAXIS_friendly_date(APPL_date, 0, 10, 55)
 	End if
-	If HC_application = True then call create_MAXIS_friendly_date(APPL_date, 0, 12, 33)		'No interview or elig begin dt for HC
+	If HC_application = True then Transmit 'MAXIS will navigate to a HCRE panel in edit mode if a PROG is completed showing HC. 
 	
 	'Enters migrant worker info
 	EMWriteScreen PROG_mig_worker, 18, 67
@@ -2170,7 +2170,7 @@ FOR EACH case_number IN case_number_array
 				'Adding 1 to the elig month
 				EMReadScreen elig_month, 2, 20, 54
 				EMReadScreen elig_year, 2, 20, 57
-				ga_bene_month = elig_month & "/" & elig_year
+				ga_bene_month = elig_month & "/01/" & elig_year
 				ga_bene_month = DateAdd("M", 1, ga_bene_month)
 				elig_month = DatePart ("M", ga_bene_month)
 				elig_year = right(DatePart("YYYY", ga_bene_month), 2)
