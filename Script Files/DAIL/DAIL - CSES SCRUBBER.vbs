@@ -1,8 +1,8 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'GATHERING STATS===========================================================================================================
 name_of_script = "DAIL - CSES SCRUBBER.vbs"
 start_time = timer
 
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY==========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
@@ -42,13 +42,40 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'END FUNCTIONS LIBRARY BLOCK===============================================================================================
 
-'Required for statistical purposes==========================================================================================
+'Required for statistical purposes=========================================================================================
 STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
 STATS_manualtime = 54          'manual run time in seconds
 STATS_denomination = "I"       'I is for each dail message
-'END OF stats block==============================================================================================
+'END OF stats block========================================================================================================
+
+'DIALOGS===================================================================================================================
+BeginDialog CSES_initial_dialog, 0, 0, 296, 40, "CSES Dialog"
+  CheckBox 5, 5, 290, 10, "Check here if you would like to see an Excel sheet of the CSES scrubber calculations.", excel_visible_checkbox
+  EditBox 70, 20, 90, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 185, 20, 50, 15
+    CancelButton 240, 20, 50, 15
+  Text 5, 25, 65, 10, "Worker signature:"
+EndDialog
+'END DIALOGS===============================================================================================================
+'THE SCRIPT================================================================================================================
+
+'Connects to MAXIS
+EMConnect ""
+
+'Displays initial dialog (script assumes you're on a CSES message by virtue of the DAIL scrubber). Dialog has no mandatory fields, so there's no loop.
+Dialog CSES_initial_dialog
+If ButtonPressed = cancel then stopscript
+
+'If the worker signature is the Konami code (UUDDLRLRBA), developer mode will be triggered
+If worker_signature = "UUDDLRLRBA" then
+    MsgBox "Developer mode: ACTIVATED!"
+    developer_mode = true           'This will be helpful later
+    collecting_statistics = false   'Lets not collect this, shall we?
+    excel_visible_checkbox = 1      'Forces this to be checked
+End if
 
 '~~~~~~~~~~~~~~~~~~~~Reads each message
 
