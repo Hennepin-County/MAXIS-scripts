@@ -1874,24 +1874,17 @@ FOR EACH case_number IN case_number_array
 				EMWriteScreen "APP", 20, 71
 				transmit
 				DO
+					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-					EMReadScreen what_is_next, 5, 13, 50
-				LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED" OR what_is_next = "(Y/N)"
-				DO
-					EMReadScreen REI_popup, 3, 9, 13
-				LOOP UNTIL REI_popup = "REI"
-				EMWriteScreen "N", 13, 57
-				EMWriteScreen "N", 15, 57
-				transmit
-				DO
-					EMReadScreen continue_with, 5, 16, 44
-				LOOP UNTIL continue_with = "(Y/N)"
-				EMWriteScreen "Y", 16, 51
-				transmit
-				DO
-					EMReadScreen package_approved, 8, 4, 38' =======  FIX ME!!!!!!!!!!!!!!!!!!!!!!
-				LOOP Until package_approved = "approved" '<==========
+					MFIP_rei_screen = ""
+					CALL find_variable("(Y/", MFIP_rei_screen, 1)
+					IF MFIP_rei_screen = "N" THEN
+						EMSendKey "Y"
+						transmit
+					END IF
+					EMReadScreen package_approved, 8, 4, 38 
+				LOOP Until package_approved = "approved" 
 				transmit
 				'======= This handles the WF1 referral =========
 				EMReadScreen work_screen_check, 4, 2, 51
