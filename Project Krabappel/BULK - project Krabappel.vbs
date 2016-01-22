@@ -2247,6 +2247,7 @@ FOR EACH case_number IN case_number_array
 					LOOP UNTIL ffb1 = "FFB1"
 					EMWriteScreen "X", 10, 5
 					transmit
+					EMWriteScreen "         ", 9, 23     'clearing variable as sometimes GA gets budgetted into SNAP already. 
 					EMWriteScreen ga_array(i, 1), 9, 23
 					DO
 						transmit
@@ -2276,6 +2277,7 @@ FOR EACH case_number IN case_number_array
 						EMWriteScreen "APP", 19, 70
 						transmit
 						CALL find_variable("THIS IS AN EXPEDITED ", expedited_status, 4)
+						ups_delivery_confirmation = ""  'resetting variable
 						CALL find_variable("PLEASE EXAMINE THE FOLLOWING ", ups_delivery_confirmation, 7)
 						IF expedited_status = "CASE" THEN 
 							EMSendKey "Y"
@@ -2350,6 +2352,7 @@ FOR EACH case_number IN case_number_array
 						MsgBox "The script is struggling to find the correct space to confirm the approval. Please enter a Y in the correct space, and press OK for the script to continue." & vbCr & vbCr & "PLEASE DO NOT TRANSMIT!!"
 					END IF
 					transmit
+					ups_delivery_confirmation = ""  'resetting variable
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
@@ -2370,6 +2373,7 @@ FOR EACH case_number IN case_number_array
 						emsendkey "y"
 						transmit
 					End If
+					ups_delivery_confirmation = ""  'resetting variable
 					CALL find_variable("Package ", ups_delivery_confirmation, 8)
 				LOOP UNTIL ups_delivery_confirmation = "approved"
 				transmit
