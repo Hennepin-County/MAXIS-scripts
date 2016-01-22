@@ -68,8 +68,8 @@ EndDialog
 EMConnect ""
 
 'Displays initial dialog (script assumes you're on a CSES message by virtue of the DAIL scrubber). Dialog has no mandatory fields, so there's no loop.
-Dialog CSES_initial_dialog
-If ButtonPressed = cancel then stopscript
+'Dialog CSES_initial_dialog			<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
+'If ButtonPressed = cancel then stopscript	<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
 
 'If the worker signature is the Konami code (UUDDLRLRBA), developer mode will be triggered
 If worker_signature = "UUDDLRLRBA" then
@@ -89,8 +89,8 @@ End if
 'Checks if you're on a TIKL, and asks if this is a training scenario
 EMReadScreen TIKL_check, 4, 6, 6
 If TIKL_check = "TIKL" then
-    TIKL_processing_confirmation = MsgBox("You seem to be running this on a TIKL. Are you testing the script? If you aren't, something has gone wrong.", vbYesNo)
-    If TIKL_processing_confirmation = vbNo then stopscript
+    'TIKL_processing_confirmation = MsgBox("You seem to be running this on a TIKL. Are you testing the script? If you aren't, something has gone wrong.", vbYesNo)		<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
+    'If TIKL_processing_confirmation = vbNo then stopscript																												<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
 	message_type_code = "TIKL"		'Uses this later on to determine if we're on the right messages on a DAIL
 Else
 	message_type_code = "CSES"		'Uses this later on to determine if we're on the right messages on a DAIL
@@ -149,6 +149,7 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
     	ObjExcel.Cells(excel_row, 1).Value = message_number					'Each message is numbered in sequence
     	ObjExcel.Cells(excel_row, 2).Value = PMI_number						'We want this PMI for obvious reasons
     	ObjExcel.Cells(excel_row, 4).Value = COEX_amt/COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
+		'<<<<<<<<<<<<<<<<<<<<PROBABLY WHERE PENNY ISSUE SHOULD GO, MAYBE JUST ADD PARTIALS TO THE FIRST MEMB????????
     	ObjExcel.Cells(excel_row, 5).Value = CS_type						'This is the type, and it's helpful to know this when we write to UNEA
     	ObjExcel.Cells(excel_row, 6).Value = issue_date						'The date it was issued
     	excel_row = excel_row + 1											'Increments up one in order to start on the next Excel row
@@ -160,9 +161,55 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	message_number = message_number + 1
 Next
 
-'~~~~~~~~~~~~~~~~~~~~Sorts each message into Excel column by PMI (and divides each into a share of each message based on total PMIs)
 
-'~~~~~~~~~~~~~~~~~~~~Navigates to CASE/CURR to determine programs open
+
+'===================================================================================================================================DETERMINING WHAT PROGRAMS ARE OPEN
+'Navigates to CASE/CURR directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
+EMWriteScreen "h", 6, 3
+transmit
+
+'First, checks for inactive cases and just shuts down if it finds one
+row = 1
+col = 1
+EMSearch "Case: INACTIVE", row, col
+If row <> 0 then script_end_procedure("This case is inactive in MAXIS. The script will now stop.")
+
+'Then it checks for HC active. For right now, it'll just create a pop-up saying it doesn't do anything for HC at present
+row = 1
+col = 1
+EMSearch "HC:", row, col
+If row <> 0 then MsgBox "As of February 2016 the health care sections have been removed from the CSES Scrubber. Evaluate any health care ramifications manually."
+
+'Then it checks for MFIP status
+row = 1
+col = 1
+EMSearch "MFIP:", row, col
+If row <> 0 then
+	MFIP_active = True
+Else
+	MFIP_active = False
+End if
+
+'Then it checks for SNAP status
+row = 1
+col = 1
+EMSearch "FS:", row, col
+If row <> 0 then
+	SNAP_active = True
+Else
+	SNAP_active = False
+End if
+
+'Writes program status to the Excel sheet, because it's prettier that way (and will be helpful for debugging)
+ObjExcel.Cells(1, 8).Value = "MFIP open:"
+ObjExcel.Cells(1, 9).Value = MFIP_active
+ObjExcel.Cells(2, 8).Value = "SNAP open:"
+ObjExcel.Cells(2, 9).Value = SNAP_active
+
+'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
+For col_to_autofit = 1 to 9
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
 
 '~~~~~~~~~~~~~~~~~~~~Decision: Is MFIP/DWP open? IF YES...
 
