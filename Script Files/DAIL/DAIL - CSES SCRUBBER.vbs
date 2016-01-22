@@ -1,4 +1,5 @@
 excel_visible_checkbox = 1		'<<<<<<<<<<<<<<<<<<<THIS IS TEMPORARY, JUST FOR TESTING
+run_locally = true				'<<<<<<<<<<<<<<<<<<<THIS IS TEMPORARY, JUST FOR TESTING
 
 'GATHERING STATS===========================================================================================================
 name_of_script = "DAIL - CSES SCRUBBER.vbs"
@@ -62,6 +63,10 @@ BeginDialog CSES_initial_dialog, 0, 0, 296, 40, "CSES Dialog"
   Text 5, 25, 65, 10, "Worker signature:"
 EndDialog
 'END DIALOGS===============================================================================================================
+
+
+
+
 'THE SCRIPT================================================================================================================
 
 'Connects to MAXIS
@@ -106,6 +111,10 @@ objExcel.DisplayAlerts = excel_visibility
 'We need these variables for the next part
 excel_row = 1 		'What row should Excel be on? Let's start with this one.
 message_number = 1	'We want to count how many messages we process in here
+
+
+
+
 
 '===================================================================================================================================READS EACH MESSAGE!
 For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
@@ -163,6 +172,7 @@ Next
 
 
 
+
 '===================================================================================================================================DETERMINING WHAT PROGRAMS ARE OPEN
 'Navigates to CASE/CURR directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
 EMWriteScreen "h", 6, 3
@@ -206,10 +216,59 @@ ObjExcel.Cells(1, 9).Value = MFIP_active
 ObjExcel.Cells(2, 8).Value = "SNAP open:"
 ObjExcel.Cells(2, 9).Value = SNAP_active
 
-'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
-For col_to_autofit = 1 to 9
-	ObjExcel.columns(col_to_autofit).AutoFit()
-Next
+'If both SNAP and MFIP aren't open, the script will exit
+If SNAP_active = False and MFIP_active = False then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
+
+
+
+
+'===================================================================================================================================ASSOCIATING PMIS WITH HH MEMBER NUMBERS
+'Now it has to get to STAT/MEMB to associate the HH members with the PMIs
+'We do this manually instead of using funclib to maintain the tie to DAIL/DAIL for navigating efficiency while processing many DAILs
+EMWriteScreen "stat", 20, 22
+EMWriteScreen "memb", 20, 69
+If message_type_code = "TIKL" then			'If we're using a TIKL, the month will be all wrong, and it needs to compensate :(
+	EMWriteScreen CM_plus_1_mo, 20, 54
+	EMWriteScreen CM_plus_1_yr, 20, 57
+End if
+transmit
+
+'Now we're in STAT/MEMB, and the script will associate each member with their PMI
+excel_row = 1 'setting the variable for the following Do...Loop
+
+'Looping through the panels until it reads each one, which it adds to Excel
+Do
+	EMReadScreen ref_nbr_on_MEMB, 	2, 4, 33					'Ref nbr = HH memb number
+	EMReadScreen PMI_nbr_on_MEMB, 	8, 4, 46					'Reads PMI number on panel
+	EMReadScreen current_panel, 	1, 2, 73					'Sees what panel we're on at present
+	EMReadScreen amount_of_panels, 	1, 2, 78					'Sees the total number of panels
+	PMI_nbr_on_MEMB = Replace(PMI_nbr_on_MEMB, "_", "")			'This allows Ramsey County can use the script. They have underscores here for some reason. Possibly "CAFE"?
+	ObjExcel.Cells(excel_row, 11).Value = ref_nbr_on_MEMB		'Adds ref nbr to Excel
+	ObjExcel.Cells(excel_row, 12).Value = PMI_nbr_on_MEMB		'Adds PMI nbr to Excel
+	excel_row = excel_row + 1									'Adds 1 to the Excel row, so that the next panel starts on the next row
+	transmit													'Goes to the next panel
+Loop until current_panel = amount_of_panels						'Exits loop once the current panel is the last/only one
+
+'If there's just one memb panel, it means it's a single-individual household, which is not currently a covered option (no logic exists to evaluate it and the policy is murky)
+If amount_of_panels = "1" then script_end_procedure("This is a single-individual household, and is not supported by the script. Process manually.")
+
+'Now it's going to use the list of the case's PMIs it just made, and associate a HH member number with each one
+'setting the variable for the following Do...Loop
+excel_row = 1 			'Resetting this to look at the memb list
+
+
+Do							'Loops until the HH memb list is out of PMIs
+	excel_message_row = 1	'Introducing a new variable which it'll use for comparing the memb side with the message side
+
+	Do						'Loops until the message list is out of messages
+		'If...	the PMI from the CSES message equals...			the PMI from the MEMB list...				then the HH member column in the message list...	should equal the ref nbr from the HH memb list.
+		If 		ObjExcel.Cells(excel_message_row, 2).Value = 	ObjExcel.Cells(excel_row, 12).Value then 	ObjExcel.Cells(excel_message_row, 3).Value = 		ObjExcel.Cells(excel_row, 11).Value
+		excel_message_row = excel_message_row + 1					'Add one more to the excel_message_row so we can check the next message on the next loop
+	Loop until ObjExcel.Cells(excel_message_row, 2).Value = ""		'Out of messages
+
+	excel_row = excel_row + 1 'Raising the excel row one so that it looks to the next PMI
+Loop until ObjExcel.Cells(excel_row, 12).Value = ""		'Out of PMIs!!
+
 
 '~~~~~~~~~~~~~~~~~~~~Decision: Is MFIP/DWP open? IF YES...
 
@@ -230,5 +289,10 @@ Next
 '~~~~~~~~~~~~~~~~~~~~Decision: Does user want Excel breakdown of info? IF YES...
 
     '~~~~~~~~~~~~~~~~~~~~Make Excel visible
+
+'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
+For col_to_autofit = 1 to 100		'<<<SET THIS TO BE MORE ACCURATE
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
 
 script_end_procedure("")
