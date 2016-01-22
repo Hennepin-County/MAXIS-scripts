@@ -1,3 +1,5 @@
+excel_visible_checkbox = 1		'<<<<<<<<<<<<<<<<<<<THIS IS TEMPORARY, JUST FOR TESTING
+
 'GATHERING STATS===========================================================================================================
 name_of_script = "DAIL - CSES SCRUBBER.vbs"
 start_time = timer
@@ -73,7 +75,7 @@ If ButtonPressed = cancel then stopscript
 If worker_signature = "UUDDLRLRBA" then
     MsgBox "Developer mode: ACTIVATED!"
     developer_mode = true           'This will be helpful later
-    collecting_statistics = false   'Lets not collect this, shall we?
+    collecting_statistics = false   'Lets not collect this, shall we?		'<<<<CHECK THIS, I THINK THE VARIABLE IS CALLED SOMETHING DIFFERENT IN THE FUNCTION
     excel_visible_checkbox = 1      'Forces this to be checked
 End if
 
@@ -89,9 +91,74 @@ EMReadScreen TIKL_check, 4, 6, 6
 If TIKL_check = "TIKL" then
     TIKL_processing_confirmation = MsgBox("You seem to be running this on a TIKL. Are you testing the script? If you aren't, something has gone wrong.", vbYesNo)
     If TIKL_processing_confirmation = vbNo then stopscript
+	message_type_code = "TIKL"		'Uses this later on to determine if we're on the right messages on a DAIL
+Else
+	message_type_code = "CSES"		'Uses this later on to determine if we're on the right messages on a DAIL
 End if
 
-'~~~~~~~~~~~~~~~~~~~~Reads each message
+'EXCEL BLOCK------------------------------
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = excel_visibility
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = excel_visibility
+'END EXCEL BLOCK--------------------------
+
+'We need these variables for the next part
+excel_row = 1 		'What row should Excel be on? Let's start with this one.
+message_number = 1	'We want to count how many messages we process in here
+
+'===================================================================================================================================READS EACH MESSAGE!
+For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
+	EMReadScreen message_type_check, 4, MAXIS_row, 6				'Makes sure it's the right type of message
+	If message_type_check <> message_type_code then exit for 		'This was determined above based on TIKL vs actual CSES messages. If we aren't on the right message, it will exit
+	EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
+	transmit														'Transmits
+
+	'READS THE TYPE
+	row = 1
+	col = 1
+	EMSearch "TYPE", row, col
+	EMReadScreen CS_type, 2, row, col + 5
+
+	'<<<<SPOUSAL HANDLING SHOULD GO HERE BUT FOR NOW I'M SKIPPING IT
+
+	'REDECLARES THESE VARIABLES (TYPE IS IN A DIFFERENT PLACE THAN THE AMOUNT) '<<<CAN'T WE FLIP THIS AROUND MAYBE?
+	row = 1
+	col = 1
+
+	'READS THE AMOUNT
+	EMSearch "$", row, col
+	EMReadScreen COEX_amt, 6, row, col + 1
+	COEX_amt = Replace(COEX_amt, "F", "")		'I've seen an "F" in here and I'm not totally sure why
+
+	'READS THE TOTAL NUMBER OF KIDS THIS RELATES TO (TO BE USED AS A DENOMINATOR IN OUR CALCULATIONS)
+	EMSearch "CHILD(REN)", row, col
+    EMReadScreen COEX_PMI_total, 1, row, col - 2
+
+	'READS THE PMIS AND DATE FROM THE MESSAGE
+	EMSearch " TO PMI(S): ", row, col										'First it finds the PMIs on the screen
+	EMReadScreen issue_date, 				08, row, col - 8				'The date is always before the "TO PMI(S): " string, apparently
+	EMReadScreen raw_PMI_numbers_initial, 	40, row, col + 12				'Reads the contents immediately after the "TO PMI(S): " string, because sometimes a PMI number sneaks in there
+	EMReadScreen raw_PMI_numbers_overflow, 	70, row + 1, 5					'Reads the next line in its entirety (all that would be here are PMIs)
+	raw_PMI_numbers = raw_PMI_numbers_initial & raw_PMI_numbers_overflow	'Concatenates the two strings together
+	PMI_numbers_no_spaces = Replace(raw_PMI_numbers, " ", "")				'Removes spaces from the lines
+	PMI_array = Split(PMI_numbers_no_spaces, ",")							'Splits PMIs into an array
+
+	'ADDS THE INFO TO EXCEL BASED ON PMI
+	For each PMI_number in PMI_array
+    	ObjExcel.Cells(excel_row, 1).Value = message_number					'Each message is numbered in sequence
+    	ObjExcel.Cells(excel_row, 2).Value = PMI_number						'We want this PMI for obvious reasons
+    	ObjExcel.Cells(excel_row, 4).Value = COEX_amt/COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
+    	ObjExcel.Cells(excel_row, 5).Value = CS_type						'This is the type, and it's helpful to know this when we write to UNEA
+    	ObjExcel.Cells(excel_row, 6).Value = issue_date						'The date it was issued
+    	excel_row = excel_row + 1											'Increments up one in order to start on the next Excel row
+    Next
+	'GETS OUT OF THE MESSAGE
+	transmit
+
+	'ADDS ONE TO THE MESSAGE NUMBER SO WE CAN KEEP A GOOD COUNT
+	message_number = message_number + 1
+Next
 
 '~~~~~~~~~~~~~~~~~~~~Sorts each message into Excel column by PMI (and divides each into a share of each message based on total PMIs)
 
