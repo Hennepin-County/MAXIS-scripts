@@ -44,30 +44,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 39                      'manual run time in seconds
 STATS_denomination = "C"       						 'C is for each CASE
 'END OF stats block==============================================================================================
 
-'CUSTOM FUNCTIONS---------------------------------------------------------------------------------------------
-'This one creates a quasi-two-dimensional array of all cases, using "|" to split cases and "~" to split case info within cases.
-Function combine_CEI_data_to_array(info_array)
-	If case_number_01 <> "" then info_array = info_array & case_number_01 & "~" & CEI_amount_01 & "~" & Mo_Yr_01 & "~" & date_01 & "|"
-	If case_number_02 <> "" then info_array = info_array & case_number_02 & "~" & CEI_amount_02 & "~" & Mo_Yr_02 & "~" & date_02 & "|"
-	If case_number_03 <> "" then info_array = info_array & case_number_03 & "~" & CEI_amount_03 & "~" & Mo_Yr_03 & "~" & date_03 & "|"
-	If case_number_04 <> "" then info_array = info_array & case_number_04 & "~" & CEI_amount_04 & "~" & Mo_Yr_04 & "~" & date_04 & "|"
-	If case_number_05 <> "" then info_array = info_array & case_number_05 & "~" & CEI_amount_05 & "~" & Mo_Yr_05 & "~" & date_05 & "|"
-	If case_number_06 <> "" then info_array = info_array & case_number_06 & "~" & CEI_amount_06 & "~" & Mo_Yr_06 & "~" & date_06 & "|"
-End function
-
 'CONNECTS TO MAXIS & grabs footer month/year
 EMConnect ""
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
-BeginDialog misc_non_magi_hcdeduction_list_generator_dialog, 0, 0, 156, 115, "MISC NON-MAGI HC DEDUCTION list generator dialog"
+BeginDialog non_magi_HC_info_list_generator_dialog, 0, 0, 156, 115, "NON-MAGI HC INFO list generator dialog"
   DropListBox 65, 5, 85, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
   EditBox 55, 25, 20, 15, MAXIS_footer_month
   EditBox 130, 25, 20, 15, MAXIS_footer_year
@@ -83,12 +71,14 @@ BeginDialog misc_non_magi_hcdeduction_list_generator_dialog, 0, 0, 156, 115, "MI
 EndDialog
 
 DO
-	'DISPLAYS DIALOG
-	Dialog misc_non_magi_hcdeduction_list_generator_dialog
-		If buttonpressed = cancel then stopscript
-		IF MAXIS_footer_month = "" OR MAXIS_footer_year = "" THEN MsgBox "Please provide a footer month & year."
-		IF worker_number = "" THEN MsgBox "Please provide a worker number."
-LOOP UNTIL MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" AND worker_number <> "" AND ButtonPressed = -1
+	err_msg = ""
+	Dialog non_magi_HC_info_list_generator_dialog
+	If buttonpressed = 0 then stopscript
+	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+	If IsNumeric(case_number) = False or Len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP until err_msg = ""
 
 'checks for active MAXIS session
 CALL check_for_MAXIS(False)
@@ -118,7 +108,6 @@ If SELF_check = "SELF" then script_end_procedure("Can't get past SELF menu. Chec
 
 'DEFINES THE EXCEL_ROW VARIABLE FOR WORKING WITH THE SPREADSHEET
 excel_row = 2
-
 'OPENS A NEW EXCEL SPREADSHEET
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -126,35 +115,26 @@ Set objWorkbook = objExcel.Workbooks.Add()
 
 'FORMATS THE EXCEL SPREADSHEET WITH THE HEADERS, AND SETS THE COLUMN WIDTH
 ObjExcel.Cells(1, 1).Value = "WORKER"
-objExcel.Cells(1, 1).Font.Bold = TRUE
-ObjExcel.Cells(1, 2).Value = "M#"
-objExcel.Cells(1, 2).Font.Bold = TRUE
-objExcel.Cells(1, 2).ColumnWidth = 9
-ObjExcel.Cells(1, 3).Value = "Name"
-objExcel.Cells(1, 3).Font.Bold = TRUE
-objExcel.Cells(1, 3).ColumnWidth = 27
-ObjExcel.Cells(1, 4).Value = "Pickle Disregard"
-objExcel.Cells(1, 4).Font.Bold = TRUE
-objExcel.Cells(1, 4).ColumnWidth = 15
-ObjExcel.Cells(1, 5).Value = "Disabled Widow Diregard"
-objExcel.Cells(1, 5).Font.Bold = TRUE
-objExcel.Cells(1, 5).ColumnWidth = 24
-ObjExcel.Cells(1, 6).Value = "Disabled Adult Child"
-objExcel.Cells(1, 6).Font.Bold = TRUE
-objExcel.Cells(1, 6).ColumnWidth = 20
-ObjExcel.Cells(1, 7).Value = "Widow/ers Disregard"
-objExcel.Cells(1, 7).Font.Bold = TRUE
-objExcel.Cells(1, 7).ColumnWidth = 20
-ObjExcel.Cells(1, 8).Value = "Other Unearned Income Disregard"
-objExcel.Cells(1, 8).Font.Bold = TRUE
-objExcel.Cells(1, 8).ColumnWidth = 31
-ObjExcel.Cells(1, 9).Value = "Other Earned Income Disregard"
-objExcel.Cells(1, 9).Font.Bold = TRUE
-objExcel.Cells(1, 9).ColumnWidth = 29
+ObjExcel.Cells(1, 2).Value = "CASE Number"
+ObjExcel.Cells(1, 3).Value = "Client Name (Last, First, M)"
+ObjExcel.Cells(1, 4).Value = "Next REVW date"
+ObjExcel.Cells(1, 5).Value = "Guardianship Fee"
+ObjExcel.Cells(1, 6).Value = "Rep payee Fee"
+ObjExcel.Cells(1, 7).Value = "Pickle Disregard"
+ObjExcel.Cells(1, 8).Value = "Disabled Adult Child"
+ObjExcel.Cells(1, 9).Value = "Disabled Widow Disregard"
+ObjExcel.Cells(1, 10).Value = "Widow/ers Disregard"
+ObjExcel.Cells(1, 11).Value = "Other Unearned Income Disregard"
+ObjExcel.Cells(1, 12).Value = "Other Earned Income Disregard"
+ObjExcel.Cells(1, 13).Value = "Shel/spec need"
+
+FOR i = 1 to 13		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	objExcel.Columns(i).AutoFit()						'sizing the colums'
+NEXT
 
 'Splitting array for use by the for...next statement
 worker_number_array = split(worker_number, ",")
-
 For each worker in worker_number_array
 	If trim(worker) = "" then exit for
 	worker_ID = trim(worker)
@@ -174,6 +154,7 @@ For each worker in worker_number_array
 	Do
 		EMReadScreen last_page_check, 21, 24, 02
 		'This Do...loop checks for the password prompt.
+		'This Do...loop checks for the password prompt.
 		Do
 			EMReadScreen password_prompt, 38, 2, 23
 			IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then MsgBox "You are locked out of your case. Type your password then try again."
@@ -184,21 +165,24 @@ For each worker in worker_number_array
 			If REPT_panel = "REPT/ACTV" then
 				EMReadScreen case_number, 8, row, 12 'grabbing case number
 				EMReadScreen client_name, 18, row, 21 'grabbing client name
+				EMReadScreen next_REVW_date, 8, row, 42	'grabbing the revw date'
 			Else
 				EMReadScreen case_number, 8, row, 6 'grabbing case number
 				EMReadScreen client_name, 15, row, 16 'grabbing client name
 			End if
 			IF trim(case_number) <> "" THEN
+				STATS_counter = STATS_counter + 1
 				ObjExcel.Cells(excel_row, 1).Value = worker_ID
 				ObjExcel.Cells(excel_row, 2).Value = trim(case_number)
 				ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
+				ObjExcel.Cells(excel_row, 4).Value = replace(next_REVW_date, " ", "/")
 			END IF
 			excel_row = excel_row + 1
 			row = row + 1
 		Loop until row = 19 or trim(case_number) = ""
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
-Next
+	Next
 
 'NOW THE SCRIPT IS CHECKING STAT/PDED FOR EACH CASE.----------------------------------------------------------------------------------------------------
 excel_row = 2 'Resetting the case row to investigate.
@@ -220,38 +204,48 @@ do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no mor
 	ELSEIF pickle_disregard = "2" THEN
 		pickle_disregard = "Potentially Pickle Elig"
 	END IF
-
-	ObjExcel.Cells(excel_row, 4).Value = pickle_disregard
-	EMReadScreen disabled_widow_disregard, 1, 7, 60
-	If disabled_widow_disregard = "_" then disabled_widow_disregard = ""
-	ObjExcel.Cells(excel_row, 5).Value = diabled_widow_disregard
+	ObjExcel.Cells(excel_row, 7).Value = pickle_disregard
+	'guardianship fee'
+	EMReadScreen guard_fee, 8, 15, 44
+	guard_fee = replace(guard_fee, "_", "")
+	ObjExcel.Cells(excel_row, 5).Value = guard_fee
+	'rep payee'
+	EMReadScreen payee_fee, 8, 15, 70
+	payee_fee = replace(payee_fee, "_", "")
+	ObjExcel.Cells(excel_row, 6).Value = payee_fee
+	'DAC'
 	EMReadScreen disabled_adult_child_disregard, 1, 8, 60
 	If disabled_adult_child_disregard = "_" then disabled_adult_child_disregard = ""
-	ObjExcel.Cells(excel_row, 6).Value = diabled_adult_child_disregard
+	ObjExcel.Cells(excel_row, 8).Value = diabled_adult_child_disregard
+	'DISA widow'
+	EMReadScreen disabled_widow_disregard, 1, 7, 60
+	If disabled_widow_disregard = "_" then disabled_widow_disregard = ""
+	ObjExcel.Cells(excel_row, 9).Value = diabled_widow_disregard
+	'Widow'
 	EMReadScreen widowers_disregard, 1, 9, 60
 	If widowers_disregard = "_" then widowers_disregard = ""
-	ObjExcel.Cells(excel_row, 7).Value = widowers_disregard
+	ObjExcel.Cells(excel_row, 10).Value = widowers_disregard
+	'unearned income'
 	EMReadScreen other_unearned_disregard, 8, 10, 62
 	other_unearned_disregard = replace(other_unearned_disregard, "_", "")
-	ObjExcel.Cells(excel_row, 8).Value = other_unearned_disregard
+	ObjExcel.Cells(excel_row, 11).Value = other_unearned_disregard
+	'earned income'
 	EMReadScreen other_earned_disregard, 8, 11, 62
 	other_earned_disregard = replace(other_earned_disregard, "_", "")
-	ObjExcel.Cells(excel_row, 9).Value = other_earned_disregard
+	ObjExcel.Cells(excel_row, 12).Value = other_earned_disregard
+	'spec shel need '
+	EMReadScreen shel_spec_need, 1, 18, 78
+	shel_spec_need = replace(shel_spec_need, "_", "")
+	ObjExcel.Cells(excel_row, 13).Value = shel_spec_need
 
-	'Deleting blank rows
-	IF objExcel.Cells(excel_row, 4).Value = "" AND _
-	  objExcel.Cells(excel_row, 5).Value = "" AND _
-	  objExcel.Cells(excel_row, 6).Value = "" AND _
-	  objExcel.Cells(excel_row, 7).Value = "" AND _
-	  objExcel.Cells(excel_row, 8).Value = "" AND _
-	  objExcel.Cells(excel_row, 9).Value = "" THEN
-			SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-			objRange.Delete
-			excel_row = excel_row - 1
-	END IF
-  excel_row = excel_row + 1 'setting up the script to check the next row.
-	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-loop
+	excel_row = excel_row + 1 'setting up the script to check the next row.
+	                     	'adds one instance to the stats counter
+	loop
 
-STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+FOR i = 1 to 13		'formatting the columns'
+	objExcel.Columns(i).AutoFit()
+NEXT
+
+STATS_counter = STATS_counter - 1                     'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+Msgbox STATS_counter
 script_end_procedure("Success! Your list has been created.")
