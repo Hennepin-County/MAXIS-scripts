@@ -46,19 +46,39 @@ END IF
 
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 42                               'manual run time in seconds
+STATS_manualtime = 25                               'manual run time, per line, in seconds
 STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
-BeginDialog x_dlg, 0, 0, 146, 105, "x1 Number"
-  EditBox 45, 60, 55, 15, x_number
+BeginDialog bulk_dail_report_dialog, 0, 0, 361, 80, "Bulk DAIL report dialog"
+  EditBox 10, 35, 345, 15, x_number_editbox
   ButtonGroup ButtonPressed
-    OkButton 25, 85, 50, 15
-    CancelButton 75, 85, 50, 15
-  Text 10, 10, 120, 35, "Please enter the x1 number of the caseload you wish to check (NOTE: please enter the entire 7-digit number):"
+    OkButton 250, 55, 50, 15
+    CancelButton 305, 55, 50, 15
+  Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
+  Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
+  Text 10, 55, 185, 10, "Note: please enter the entire 7-digit number x1 number."
+  Text 20, 65, 160, 10, "(Example: ''x100abc, x100abc'')"
 EndDialog
 
+'Connects to MAXIS
 EMConnect ""
+
+'Checks to make sure we're in MAXIS
+CALL check_for_MAXIS(false)
+
+'Looks up an existing user for autofilling the next dialog
+CALL find_variable("User: ", x_number_editbox, 7)
+
+'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
+dialog bulk_dail_report_dialog
+if ButtonPressed = 0 THEN stopscript
+
+'Checks to make sure we're (still) in MAXIS
+CALL check_for_MAXIS(false)
+
+'splits the results of the editbox into an array
+x_number_array = split(x_number_editbox, ",")
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -67,113 +87,136 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Excel headers and formatting the columns
-objExcel.Cells(1, 1).Value = "CASE NBR"
+objExcel.Cells(1, 1).Value = "X1 NUMBER"
 objExcel.Cells(1, 1).Font.Bold = True
-objExcel.Cells(1, 2).Value = "CLIENT NAME"
+objExcel.Cells(1, 2).Value = "CASE NBR"
 objExcel.Cells(1, 2).Font.Bold = True
-objExcel.Cells(1, 3).Value = "DAIL TYPE"
+objExcel.Cells(1, 3).Value = "CLIENT NAME"
 objExcel.Cells(1, 3).Font.Bold = True
-objExcel.Cells(1, 4).Value = "DAIL MONTH"
+objExcel.Cells(1, 4).Value = "DAIL TYPE"
 objExcel.Cells(1, 4).Font.Bold = True
-objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
+objExcel.Cells(1, 5).Value = "DAIL MONTH"
 objExcel.Cells(1, 5).Font.Bold = True
+objExcel.Cells(1, 6).Value = "DAIL MESSAGE"
+objExcel.Cells(1, 6).Font.Bold = True
 
-CALL check_for_MAXIS(false)
-CALL find_variable("User: ", x_number, 7)
-DIALOG x_dlg
-	IF ButtonPressed = 0 THEN stopscript
-
-back_to_SELF
-CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-EMWriteScreen x_number, 21, 6
-transmit
-
+'Sets variable for all of the Excel stuff
 excel_row = 2
-DO
-	'Reading and trimming the MAXIS case number and dumping it in Excel
-	EMReadScreen maxis_case_number, 8, 5, 73
-	maxis_case_number = trim(maxis_case_number)
-	objExcel.Cells(excel_row, 1).Value = maxis_case_number
 
-	'This bit of code grabs the client name. The do/loop expands the search area until the value for
-	'next_two equals "--" ... at which time the script determines that the cl name has ended
-	dail_col = 6
-	name_len = 1
-	DO
-		EMReadScreen client_name, name_len, 5, 5
-		EMReadScreen next_two, 2, 5, dail_col
-		IF next_two <> "--" THEN
-			name_len = name_len + 1
-			dail_col = dail_col + 1
-		END IF
-	LOOP UNTIL next_two = "--"
-	'Dumping the client name in Excel
-	objExcel.Cells(excel_row, 2).Value = client_name
+'This for...next contains each worker indicated above
+For each x_number in x_number_array
 
-	'This is where the script starts reading the DAIL messages.
-	'Because the script brings each new case to the top of the page, dail_row starts at 6.
-	dail_row = 6
+	'Trims the x_number so that we don't have glitches
+	x_number = trim(x_number)
+
+	back_to_SELF
+	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+	EMWriteScreen x_number, 21, 6
+	transmit
+
 	DO
-		'Determining if there is a new case number...
-		EMReadScreen new_case, 8, dail_row, 63
-		new_case = trim(new_case)
-		IF new_case <> "CASE NBR" THEN
-			'...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-			EMReadScreen dail_type, 4, dail_row, 6
-			EMReadScreen dail_month, 8, dail_row, 11
-			dail_month = trim(dail_month)
-			EMReadScreen dail_msg, 61, dail_row, 20
-			dail_msg = trim(dail_msg)
-			IF dail_msg <> "" AND dail_type <> "    " and dail_month <> "" THEN
-				'...and put that biznass in Excel.
-				objExcel.Cells(excel_row, 1).Value = maxis_case_number
-				objExcel.Cells(excel_row, 2).Value = client_name
-				objExcel.Cells(excel_row, 3).Value = dail_type
-				objExcel.Cells(excel_row, 4).Value = dail_month
-				objExcel.Cells(excel_row, 5).Value = dail_msg
+		'Reading and trimming the MAXIS case number and dumping it in Excel
+		EMReadScreen maxis_case_number, 8, 5, 73
+		maxis_case_number = trim(maxis_case_number)
+		objExcel.Cells(excel_row, 2).Value = maxis_case_number
+
+		'This bit of code grabs the client name. The do/loop expands the search area until the value for
+		'next_two equals "--" ... at which time the script determines that the cl name has ended
+		dail_col = 6
+		name_len = 1
+		DO
+			EMReadScreen client_name, name_len, 5, 5
+			EMReadScreen next_two, 2, 5, dail_col
+			IF next_two <> "--" THEN
+				name_len = name_len + 1
+				dail_col = dail_col + 1
 			END IF
+		LOOP UNTIL next_two = "--"
+		'Dumping the client name in Excel
+		objExcel.Cells(excel_row, 3).Value = client_name
 
-			'...going to the next ding dang row...
-			dail_row = dail_row + 1
-			'adds one instance to the stats counter
-			STATS_counter = STATS_counter + 1
+		'This is where the script starts reading the DAIL messages.
+		'Because the script brings each new case to the top of the page, dail_row starts at 6.
+		dail_row = 6
+		DO
+			'Determining if there is a new case number...
+			EMReadScreen new_case, 8, dail_row, 63
+			new_case = trim(new_case)
+			IF new_case <> "CASE NBR" THEN
+				'...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+				EMReadScreen dail_type, 4, dail_row, 6
+				EMReadScreen dail_month, 8, dail_row, 11
+				dail_month = trim(dail_month)
+				EMReadScreen dail_msg, 61, dail_row, 20
+				dail_msg = trim(dail_msg)
+				IF dail_msg <> "" AND dail_type <> "    " and dail_month <> "" THEN
+					'...and put that in Excel.
+					objExcel.Cells(excel_row, 1).Value = x_number
+					objExcel.Cells(excel_row, 2).Value = maxis_case_number
+					objExcel.Cells(excel_row, 3).Value = client_name
+					objExcel.Cells(excel_row, 4).Value = dail_type
+					objExcel.Cells(excel_row, 5).Value = dail_month
+					objExcel.Cells(excel_row, 6).Value = dail_msg
+				END IF
 
-			'...going to the next page if necessary
-			IF dail_row = 19 AND dail_msg <> "" THEN
-				PF8
-				dail_row = 6
-			ELSEIF dail_row = 19 AND dail_msg = "" THEN
-				EMReadScreen more_pages, 7, 19, 3
-				IF more_pages = "More: -" OR more_pages = "       " THEN
-					all_done = True
-					'If the script determines that it is on the last page, it EXITS DO...
-					exit do
-				ELSE
+				'...going to the next ding dang row...
+				dail_row = dail_row + 1
+
+
+				'...going to the next page if necessary
+				IF dail_row = 19 AND dail_msg <> "" THEN
 					PF8
 					dail_row = 6
-				END IF
-			END IF
+				ELSEIF dail_row = 19 AND dail_msg = "" THEN
+					EMReadScreen more_pages, 7, 19, 3
+					if more_pages = "More: -" OR more_pages = "       " then
+						all_done = true
+						'If the script determines that it is on the last page, it EXITS DO...
+						exit do
+					else
+						PF8
+						dail_row = 6
+					end if
+				end if
 
-			excel_row = excel_row + 1
-		ELSEIF new_case = "CASE NBR" THEN
-			'...if the script does find that there is a new case number (indicated by the presence
-			'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that
-			'   case number to the top of your DAIL
-			EMWriteScreen "T", dail_row + 1, 3
-			transmit
-		END IF
-	LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "     " AND dail_msg = "")
-	IF all_done = true THEN exit do
-LOOP
+				if objExcel.Cells(excel_row, 2).value <> "" then
+					excel_row = excel_row + 1			'only does this if there's data there (if no data has been entered, it means we're at the end of a DAIL list of some type somehow)
+					STATS_counter = STATS_counter + 1 	'adds one instance to the stats counter
+				end if
+			ELSEIF new_case = "CASE NBR" THEN
+				'...if the script does find that there is a new case number (indicated by the presence
+				'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that
+				'   case number to the top of your DAIL
+				EMWriteScreen "T", dail_row + 1, 3
+				transmit
+			END IF
+		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "     " AND dail_msg = "")
+		IF all_done = true THEN exit do
+	LOOP
+
+	if x_number <> x_number_array(ubound(x_number_array)) then all_done = false
+Next
+
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+
+'Enters info about runtime for the benefit of folks using the script
+objExcel.Cells(2, 8).Value = "Lines added to Excel sheet:"
+objExcel.Cells(3, 8).Value = "Average time to find/select/copy/paste one line (in seconds):"
+objExcel.Cells(4, 8).Value = "Estimated manual processing time (lines x average):"
+objExcel.Cells(5, 8).Value = "Script run time (in seconds):"
+objExcel.Cells(6, 8).Value = "Estimated time savings by using script (in minutes):"
+objExcel.Columns(8).Font.Bold = true
+objExcel.Cells(2, 9).Value = STATS_counter
+objExcel.Cells(3, 9).Value = STATS_manualtime
+objExcel.Cells(4, 9).Value = STATS_counter * STATS_manualtime
+objExcel.Cells(5, 9).Value = timer - start_time
+objExcel.Cells(6, 9).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 
 'Formatting the column width.
-FOR i = 1 to 5
+FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success!!")
 
-'Now that you have your Excel spreadsheet, photons will enter your eye balls, hit your retina, and create a signal that will
-'be passed to your brain. Your brain will create an image from those signals, giving you a view of the world as it exists
-'in MAXIS, specifically, DAIl/DAIL.
+
+script_end_procedure("Success! The workers' DAILs are now entered.")
