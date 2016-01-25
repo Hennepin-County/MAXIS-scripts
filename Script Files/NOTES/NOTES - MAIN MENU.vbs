@@ -113,21 +113,21 @@ FUNCTION create_NOTES_main_menu(dialog_name)
 
 EndDialog
         ELSEIF dialog_name = "D-F" THEN
-        	BeginDialog dialog_name, 0, 0, 516, 260, "D - F NOTES Scripts"
+				BeginDialog dialog_name, 0, 0, 516, 265, "D - F NOTES Scripts"
 		ButtonGroup ButtonPressed
-		CancelButton 460, 240, 50, 15
+		CancelButton 460, 245, 50, 15
 		PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
 		PushButton 5, 70, 60, 10, "Denied programs", DENIED_PROGRAMS_button
 		PushButton 5, 85, 55, 10, "Docs Received", DOCUMENTS_RECEIVED_button
 		PushButton 5, 100, 40, 10, "Drug felon", DRUG_FELON_button
 		PushButton 5, 115, 50, 10, "DWP budget", DWP_BUDGET_button
-		PushButton 5, 130, 45, 10, "Emergency", EMERGENCY_button
-		PushButton 5, 145, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
-		PushButton 5, 160, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button
-		PushButton 5, 175, 45, 10, "ES Referral", ES_REFERRAL_button
+		PushButton 5, 130, 85, 10, "EDRS DISQ match found", EDRS_DISQ_button
+		PushButton 5, 145, 45, 10, "Emergency", EMERGENCY_button
+		PushButton 5, 160, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
+		PushButton 5, 175, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button
 		PushButton 5, 190, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-		PushButton 5, 205, 115, 10, "Explanation of Income Budgeted ", EXPLANATION_INCOME_BUDGETED_button
-		PushButton 5, 220, 40, 10, "Fraud info", FRAUD_INFO_button
+		PushButton 5, 205, 40, 10, "Fraud info", FRAUD_INFO_button
+		PushButton 5, 220, 55, 10, "FSET sanction ", FSET_sanction_button
 		PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
 		PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
 		PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
@@ -139,14 +139,14 @@ EndDialog
 		Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
 		Text 50, 100, 215, 10, "--- Template for noting drug felon info."
 		Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
-		Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
+		Text 55, 145, 240, 10, "--- Template for EA/EGA applications.*"
 		Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
-		Text 100, 160, 315, 10, "--- Template for noting information about an employment verification received by the agency."
-		Text 55, 175, 245, 10, "--- New 11/2015!!! Template for sending an MFIP or DWP referral to employment services."
+		Text 100, 160, 370, 10, "--- New 08/2015!!! -- Template for noting information about an employment verification received by the agency."
 		Text 85, 190, 220, 10, "--- Template for screening a client for expedited status."
-		Text 50, 220, 200, 10, "--- Template for noting fraud info."
+		Text 50, 205, 200, 10, "--- Template for noting fraud info."
+		Text 65, 220, 395, 10, "--- NEW 07/2015!!! -- Template for for imposing or resolving an FSET sanction which will also update the MAXIS WREG panel."
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
-		Text 125, 205, 265, 10, "---  NEW 01/2016!!! Template for explaining the income budgeted for a case."
+		Text 100, 130, 330, 10, "---New 02/2016 - Template for case noting actions if a DISQ match is found in eDRS per TE02.08.127."
 		EndDialog
 	ELSEIF dialog_name = "G-L" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (G-L) scripts main menu dialog"
@@ -255,7 +255,6 @@ EndDialog
 		  Text 110, 130, 345, 10, "--- Template for when a worker sends a case to be reviewed by a supervisor or coworker."
 		  Text 85, 145, 270, 10, "--- Template for when verifications are needed (enters each verification clearly)."
 		EndDialog
-
 	ELSEIF dialog_name = "LTC" THEN
        BeginDialog dialog_name, 0, 0, 516, 270, "Notes (LTC) scripts main menu dialog"
          Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*).		"
@@ -348,6 +347,7 @@ IF ButtonPressed = DENIED_PROGRAMS_button							THEN CALL run_from_GitHub(script
 IF ButtonPressed = DOCUMENTS_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DOCUMENTS RECEIVED.vbs")
 IF ButtonPressed = DRUG_FELON_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DRUG FELON.vbs")
 IF ButtonPressed = DWP_BUDGET_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DWP BUDGET.vbs")
+IF ButtonPressed = EDRS_DISQ_button									THEN Call run_from_GitHub(script_repository & "NOTES/NOTES - EDRS DISQ MATCH FOUND.vbs")
 IF ButtonPressed = EMERGENCY_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")
 IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
 IF ButtonPressed = EMPLOYMENT_VERIFICATION_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EVF RECEIVED.vbs")
@@ -370,7 +370,6 @@ IF ButtonPressed = INTERVIEW_NO_SHOW_button						THEN CALL run_from_GitHub(scrip
 IF ButtonPressed = LEP_EMA_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - EMA.vbs")
 IF ButtonPressed = LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
 IF ButtonPressed = LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
-
 
 IF ButtonPressed = MEDICAL_OPINION_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
 IF ButtonPressed = MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
