@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,73 +44,79 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 600                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block==============================================================================================
+
 'SECTION 01 -- Dialogs
-BeginDialog opening_dialog_01, 0, 0, 311, 425, "LTC Burial Assets"
-  EditBox 80, 20, 70, 15, case_number
-  EditBox 70, 40, 80, 15, hh_member
-  EditBox 120, 60, 100, 15, worker_signature
-  DropListBox 155, 110, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
-  EditBox 90, 130, 80, 15, account_identifier
-  EditBox 195, 150, 95, 15, why_not_seperated
-  EditBox 155, 170, 65, 15, account_create_date
-  EditBox 85, 190, 60, 15, counted_value_designated
-  EditBox 75, 210, 215, 15, BFE_information_designated
-  EditBox 90, 260, 80, 15, insurance_policy_number
-  EditBox 110, 280, 130, 15, insurance_company
-  EditBox 155, 300, 65, 15, insurance_create_date
-  EditBox 130, 320, 60, 15, insurance_csv
-  EditBox 80, 340, 65, 15, insurance_counted_value
-  EditBox 90, 360, 195, 15, insurance_BFE_steps_info
+BeginDialog opening_dialog_01, 0, 0, 311, 420, "LTC Burial Assets"
+  EditBox 95, 25, 60, 15, case_number
+  EditBox 225, 25, 30, 15, hh_member
+  DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
+  EditBox 135, 65, 120, 15, worker_signature
+  DropListBox 110, 105, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
+  EditBox 240, 105, 60, 15, account_identifier
+  EditBox 180, 130, 120, 15, why_not_seperated
+  EditBox 90, 155, 65, 15, account_create_date
+  EditBox 225, 155, 75, 15, counted_value_designated
+  EditBox 70, 180, 230, 15, BFE_information_designated
+  EditBox 65, 230, 80, 15, insurance_policy_number
+  EditBox 220, 230, 80, 15, insurance_create_date
+  EditBox 80, 255, 220, 15, insurance_company
+  EditBox 105, 280, 60, 15, insurance_csv
+  EditBox 235, 280, 65, 15, insurance_counted_value
+  EditBox 75, 305, 225, 15, insurance_BFE_steps_info
   ButtonGroup ButtonPressed
-    PushButton 95, 400, 50, 15, "Next", open_dialog_next_button
-    CancelButton 150, 400, 50, 15
-  GroupBox 5, 5, 295, 80, "Case and Worker Information"
-  Text 20, 25, 55, 10, "Case Number:"
-  Text 20, 45, 45, 10, "HH Member:"
-  Text 20, 65, 100, 10, "Please sign your case note:"
-  GroupBox 5, 95, 295, 140, "Designated Account Information"
-  Text 20, 115, 120, 10, "Type of designated account:"
-  Text 20, 135, 65, 10, "Account Identifier:"
-  Text 20, 155, 170, 10, "Reason funds could not be separated as applicable:"
-  Text 20, 175, 130, 10, "Date Account Created (MM/DD/YYYY):"
-  Text 20, 195, 60, 10, "Counted value:"
-  Text 20, 215, 50, 10, "Info on BFE:"
-  GroupBox 5, 245, 290, 140, "Non-Term Life Insurance Information"
-  Text 20, 265, 60, 10, "Policy Number:"
-  Text 20, 285, 80, 10, "Insurance Company:"
-  Text 20, 305, 130, 10, "Date Policy Created (MM/DD/YYYY):"
-  Text 20, 325, 100, 10, "CSV/FV Designated to BFE:"
-  Text 20, 345, 55, 10, "Counted Value:"
-  Text 20, 365, 70, 10, "Info/Steps on BFE:"
+    PushButton 195, 375, 50, 15, "Next", open_dialog_next_button
+    CancelButton 250, 375, 50, 15
+  Text 40, 30, 50, 10, "Case Number:"
+  Text 175, 30, 45, 10, "HH Member:"
+  Text 40, 70, 95, 10, "Please sign your case note:"
+  GroupBox 5, 90, 300, 110, "Designated Account Information"
+  Text 10, 110, 95, 10, "Type of designated account:"
+  Text 180, 110, 60, 10, "Account Identifier:"
+  Text 10, 135, 170, 10, "Reason funds could not be separated as applicable:"
+  Text 10, 160, 75, 10, "Date Account Created:"
+  Text 170, 160, 50, 10, "Counted value:"
+  Text 10, 185, 55, 10, "BFE information:"
+  GroupBox 5, 215, 300, 110, "Non-Term Life Insurance Information"
+  Text 10, 235, 50, 10, "Policy Number:"
+  Text 10, 260, 70, 10, "Insurance Company:"
+  Text 150, 235, 70, 10, "Date Policy Created:"
+  Text 10, 285, 90, 10, "CSV/FV Designated to BFE:"
+  Text 180, 285, 50, 10, "Counted Value:"
+  Text 10, 310, 65, 10, "Info/Steps on BFE:"
+  Text 40, 50, 125, 10, "Program asset is being evaluated for"
+  GroupBox 35, 5, 230, 80, "Case and Worker Information"
+  Text 25, 350, 260, 20, "Please refer to CM 0015.21 (burial funds) and CM 0015.24 (burial contracts) for information on how to evaluate burial assets for each program."
+  GroupBox 5, 335, 300, 65, "Each program evaluates burial assets differently"
 EndDialog
 
 'Burial Agreement Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog burial_assets_dialog_01, 0, 0, 286, 160, "Burial assets dialog (01)"
-  CheckBox 5, 20, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-  DropListBox 95, 35, 45, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
-  EditBox 210, 35, 65, 15, purchase_date
-  EditBox 55, 55, 125, 15, issuer_name
-  EditBox 215, 55, 55, 15, policy_number
-  EditBox 50, 75, 50, 15, face_value
-  EditBox 165, 75, 115, 15, funeral_home
-  CheckBox 5, 95, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
-  CheckBox 5, 110, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
-  CheckBox 5, 125, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
+BeginDialog burial_assets_dialog_01, 0, 0, 301, 190, "Burial assets dialog (01)"
+  CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
+  DropListBox 95, 40, 55, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  EditBox 215, 40, 65, 15, purchase_date
+  EditBox 55, 60, 125, 15, issuer_name
+  EditBox 225, 60, 55, 15, policy_number
+  EditBox 55, 80, 55, 15, face_value
+  EditBox 165, 80, 115, 15, funeral_home
+  CheckBox 10, 105, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
+  CheckBox 10, 120, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
+  CheckBox 10, 135, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
   ButtonGroup ButtonPressed
-    PushButton 50, 140, 50, 15, "Previous", previous
-    PushButton 110, 140, 50, 15, "Next", next_button
-    CancelButton 170, 140, 50, 15
-  Text 5, 5, 160, 10, "Burial Agreement"
-  Text 5, 40, 90, 10, "Type of burial agreement:"
-  Text 155, 40, 50, 10, "Purchase date:"
-  Text 5, 60, 50, 10, "Issuer name:"
-  Text 185, 60, 30, 10, "Policy #:"
-  Text 5, 80, 40, 10, "Face value:"
-  Text 110, 80, 50, 10, "Funeral home:"
+    PushButton 95, 165, 50, 15, "Next", next_to_02_button
+    CancelButton 155, 165, 50, 15
+  Text 5, 45, 90, 10, "Type of burial agreement:"
+  Text 160, 45, 50, 10, "Purchase date:"
+  Text 5, 65, 50, 10, "Issuer name:"
+  Text 195, 65, 30, 10, "Policy #:"
+  Text 5, 85, 40, 10, "Face value:"
+  Text 115, 85, 50, 10, "Funeral home:"
+  GroupBox 0, 5, 290, 150, "Burial agreements"
 EndDialog
-
-
-
 
 BeginDialog burial_assets_dialog_02, 0, 0, 305, 380, "Burial Assets Dialog (02)"
   CheckBox 10, 25, 110, 10, "Basic service funeral director", basic_service_funeral_director_check
@@ -170,8 +174,8 @@ BeginDialog burial_assets_dialog_02, 0, 0, 305, 380, "Burial Assets Dialog (02)"
   EditBox 140, 340, 55, 15, direct_cremation_value
   DropListBox 215, 340, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", direct_cremation_status
   ButtonGroup ButtonPressed
-    PushButton 45, 360, 50, 15, "previous", previous_button
-    PushButton 105, 360, 50, 15, "next", next_button
+    PushButton 45, 360, 50, 15, "previous", previous_to_01_button
+    PushButton 105, 360, 50, 15, "next", next_to_03_button
     CancelButton 165, 360, 50, 15
 EndDialog
 
@@ -213,12 +217,12 @@ BeginDialog burial_assets_dialog_03, 0, 0, 305, 260, "Burial Assets Dialog (03)"
   EditBox 140, 220, 55, 15, niches_value
   DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", niches_status
   ButtonGroup ButtonPressed
-    PushButton 45, 240, 50, 15, "previous", previous_button
-    PushButton 105, 240, 50, 15, "next", next_button
+    PushButton 45, 240, 50, 15, "previous", previous_to_02_button
+    PushButton 105, 240, 50, 15, "next", next_to_04_button
     CancelButton 165, 240, 50, 15
 EndDialog
 
-BeginDialog burial_assets_dialog_04, 0, 0, 306, 351, "Burial Assets Dialog (04)"
+BeginDialog burial_assets_dialog_04, 0, 0, 306, 370, "Burial Assets Dialog (04)"
   Text 30, 5, 80, 10, "CASH ADVANCED ITEM"
   Text 155, 5, 25, 10, "VALUE"
   Text 240, 5, 30, 10, "STATUS"
@@ -252,31 +256,30 @@ BeginDialog burial_assets_dialog_04, 0, 0, 306, 351, "Burial Assets Dialog (04)"
   CheckBox 10, 205, 110, 10, "Service folders/prayer cards", service_folders_prayer_cards_check
   EditBox 140, 200, 55, 15, service_folders_prayer_cards_value
   DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", service_folders_prayer_cards_status
-  Text 10, 225, 30, 10, "Other(1):"
-  EditBox 45, 220, 85, 15, other_01
-  EditBox 140, 220, 55, 15, other_01_value
-  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", other_01_status
-  Text 40, 240, 35, 10, "This is a: "
-  DropListBox 80, 240, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_01_type
-  Text 10, 260, 30, 10, "Other(2):"
-  EditBox 45, 255, 85, 15, other_02
-  EditBox 140, 255, 55, 15, other_02_value
-  DropListBox 215, 255, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", other_02_status
-  Text 40, 275, 35, 10, "This is a: "
-  DropListBox 80, 275, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_02_type
-  Text 10, 295, 45, 10, "Case action:"
-  EditBox 55, 290, 235, 15, case_action
+  Text 10, 230, 30, 10, "Other(1):"
+  EditBox 45, 225, 85, 15, other_01
+  EditBox 140, 225, 55, 15, other_01_value
+  DropListBox 215, 225, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", other_01_status
+  Text 40, 245, 35, 10, "This is a: "
+  DropListBox 80, 245, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_01_type
+  Text 10, 275, 30, 10, "Other(2):"
+  EditBox 45, 270, 85, 15, other_02
+  EditBox 140, 270, 55, 15, other_02_value
+  DropListBox 215, 270, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", other_02_status
+  Text 40, 290, 35, 10, "This is a: "
+  DropListBox 80, 290, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_02_type
+  Text 5, 320, 50, 10, "Actions taken:"
+  EditBox 55, 315, 240, 15, case_action
   ButtonGroup ButtonPressed
-    PushButton 70, 330, 50, 15, "previous", previous_button
-    OkButton 125, 330, 50, 15
-    CancelButton 180, 330, 50, 15
+    PushButton 75, 340, 50, 15, "previous", previous_to_03_button
+    OkButton 130, 340, 50, 15
+    CancelButton 185, 340, 50, 15
 EndDialog
 
-'SECTION 2 -- Functions
-'check for 4th page of case note
-function case_note_page_four
+'SECTION 2: Functions----------------------------------------------------------------------------------------------------
+function case_note_page_four 'check for 4th page of case note
   line_one_for_part_one = "**BURIAL ASSETS (1 of 2) -- Memb: " + hh_member
-  line_one_for_part_two = "**BURIAL ASSETS (2 of 2) -- Memb: " + hh_member  
+  line_one_for_part_two = "**BURIAL ASSETS (2 of 2) -- Memb: " + hh_member
   EMReadScreen page_four, 20, 24, 2
   IF page_four = "A MAXIMUM OF 4 PAGES" THEN
     PF7
@@ -291,88 +294,66 @@ function case_note_page_four
   END IF
 END function
 
+'SECTION 03: The script----------------------------------------------------------------------------------------------------
+EMConnect "" 		'connecting to MAXIS
+Call MAXIS_case_number_finder(case_number)	'grabbing the case number
 
-'SECTION 03 -- Script
-EMConnect ""
+insurance_policy_number = "none"			'establishing value of the variable
 
-insurance_policy_number = "none"
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False THEN case_number = ""
-
-check_for_maxis(true)
-
+'calling the initial dialog					
 DO
-  DO
-    DO
-      DO
-        DO
-          DO
-            DO
-              Dialog opening_dialog_01
-		    IF ButtonPressed = 0 THEN
-			  confirm_cancel = MsgBox("Are you sure you want to CANCEL? Press YES to cancel, press NO to return to the script.", vbYesNo)
-		      IF confirm_cancel = vbYes THEN stopscript
-		      IF confirm_cancel = vbNo THEN EXIT DO
-		    END IF
-		  IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN 
-		    counted_value_designated = "INVALID"
-		    MSGBOX "Designated Account Counted Value is not a number. Do not include letters or special characters."
-		  END IF
-		  IF insurance_policy_number <> "none" AND isnumeric(insurance_counted_value) = FALSE THEN
-		    insurance_counted_value = "INVALID"
-		    MSGBOX "Insurance Counted Value is not a number. Do not include letters or special characters."
-		  END IF  
-		  IF len(case_number) > 8 THEN MSGBOX "You must provide a valid case number -- less than 8 digits."
-		  IF isnumeric(case_number) = FALSE THEN MSGBOX "Please provide a valid case number -- no letters or special characters."
-		  IF hh_member = "" THEN MSGBOX "Please provide a household member."
-		  IF worker_signature = "" THEN MSGBOX "Please sign your case note."
-            LOOP UNTIL isnumeric(case_number) = TRUE
-          LOOP UNTIL len(case_number) < 9
-        LOOP UNTIL hh_member <> ""
-      LOOP UNTIL worker_signature <> ""
-    LOOP UNTIL isnumeric(counted_value_designated) = TRUE OR counted_value_designated = ""
-  LOOP UNTIL isnumeric(insurance_counted_value) = TRUE OR insurance_counted_value = ""
+	err_msg = "" 					'established the perimeter that err_msg = ""
+	Dialog opening_dialog_01		'calls the initial dialog
+	cancel_confirmation				'if cancel is pressed, this function gives the user the option to proceed or back out of the cancel request
+	IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN err_msg = err_msg & vbNewLine & _
+	"Designated Account Counted Value is not a number. Do not include letters or special characters."
+	IF insurance_policy_number <> "none" AND isnumeric(insurance_counted_value) = FALSE THEN err_msg = err_msg & vbNewLine & _
+	"Insurance Counted Value is not a number. Do not include letters or special characters."
+	If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
+	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
+	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
+
 Do
-  IF buttonpressed = previous THEN EXIT DO
-  Do
 	Do
-      Dialog burial_assets_dialog_01
-	  cancel_confirmation
-	  If type_of_burial_agreement = "Select One..." Then msgbox "You must select a type of burial agreement. Select none if n/a."
-	Loop until type_of_burial_agreement <> "Select One..."
-      IF buttonpressed = previous THEN EXIT DO
-    Do
-      Dialog burial_assets_dialog_02
-      cancel_confirmation
-      If buttonpressed = previous_button then exit do
-      Do
-        Dialog burial_assets_dialog_03
-        If buttonpressed = previous_button then exit do
-        cancel_confirmation
-        Do
-          Dialog burial_assets_dialog_04
-          If buttonpressed = previous_button then exit do
-          cancel_confirmation
-          transmit
-          EMReadScreen MAXIS_check, 5, 1, 39
-          If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You don't appear to be in MAXIS. You might be locked out of your case. Please get back into MAXIS production before continuing."
-        Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-      Loop until buttonpressed = -1
-    Loop until buttonpressed = -1
-  Loop until buttonpressed = -1
-Loop until buttonpressed = -1
-Loop until buttonpressed = -1
+		err_msg = ""
+		Dialog burial_assets_dialog_01
+		cancel_confirmation
+		If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
+		If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
+		If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
+		If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
+		If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
+	Do
+		Do
+			Dialog burial_assets_dialog_02
+			cancel_confirmation
+			If ButtonPressed = previous_to_01_button then exit do
+		Loop until ButtonPressed = next_to_03_button or ButtonPressed = previous_to_01_button
+		If ButtonPressed = previous_to_01_button then exit do
+		Do
+			Do
+				Dialog burial_assets_dialog_03
+				cancel_confirmation
+				If buttonpressed = previous_to_02_button then exit do
+			Loop until ButtonPressed = next_to_04_button or ButtonPressed = previous_to_02_button
+			If buttonpressed = previous_to_02_button then exit do
+			Do
+				Dialog burial_assets_dialog_04
+				cancel_confirmation
+				If buttonpressed = previous_to_03_button then exit do
+			Loop until ButtonPressed = -1	
+		LOOP until ButtonPressed = -1
+	LOOP until ButtonPressed = -1
+LOOP until ButtonPressed = -1
 
+Call check_for_MAXIS(False) 'checking for an active MAXIS session
 
-call navigate_to_screen ("case", "note")
-PF9
-
-'Converting DESIGNATED ACCOUNT INFORMATION
-
-
-'SECTION 03
+'SECTION 04: Converting DESIGNATED ACCOUNT INFORMATION----------------------------------------------------------------------------------------------------
 'Must convert non-numeric "values" to numeric for calculations to work
 If isnumeric(basic_service_funeral_director_value) = False then basic_service_funeral_director_value = 0
 If isnumeric(embalming_value) = False then embalming_value = 0
@@ -449,7 +430,6 @@ If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_statu
 If other_01 <> "" and other_01_type = "CAI" and other_01_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_01_value)
 If other_02 <> "" and other_02_type = "CAI" and other_02_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_02_value)
 
-
 'This adds all counted fields together.
 If basic_service_funeral_director_check = 1 and basic_service_funeral_director_status = "counted" then total_counted_amount = total_counted_amount + cint(basic_service_funeral_director_value)
 If embalming_check = 1 and embalming_status = "counted" then total_counted_amount = total_counted_amount + cint(embalming_value)
@@ -499,17 +479,13 @@ If total_BS_BSI_excluded_amount = "" then total_BS_BSI_excluded_amount = "0"
 If total_unavailable_CAI_amount = "" then total_unavailable_CAI_amount = "0"
 If total_counted_amount = "" then total_counted_amount = "0"
 
-
-
-
-'SECTION 04
-
+'SECTION 05: The CASE NOTE----------------------------------------------------------------------------------------------------
 DIM MAXIS_service_row
 DIM MAXIS_col
 
-
-'NOTE: "Other" sections need to be included in correct sections. 
-CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member)
+'NOTE: "Other" sections need to be included in correct sections.
+start_a_blank_CASE_NOTE
+CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member & " for " & programs & "**")
 IF type_of_designated_account <> "None" then
 	call write_variable_in_case_note("---Designated Account----")
 	call write_bullet_and_variable_in_case_note("Type of designated account", type_of_designated_account)
@@ -534,170 +510,170 @@ IF type_of_burial_agreement <> "None" THEN
 	CALL write_variable_in_case_note("* Issuer: " & issuer_name & ". Policy #: " & policy_number & ".")
 	CALL write_bullet_and_variable_in_case_note("Face value", face_value)
 	CALL write_bullet_and_variable_in_case_note("Funeral home", funeral_home)
-	IF Primary_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Primary beneficiary is: Any funeral provider whose interest may appear                irrevocably")             
+	IF Primary_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Primary beneficiary is: Any funeral provider whose interest may appear                irrevocably")
 	IF Contingent_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Contingent Beneficiary is: The estate of the insured")
 	IF policy_CSV_check = 1 THEN Call write_variable_in_case_note ("* Policy's CSV is irrevocably designated to the funeral provider")
 	CALL write_variable_in_case_note("--------------SERVICE--------------------AMOUNT----------STATUS------------")
 	case_note_page_four
-	If basic_service_funeral_director_check = 1 then 
+	If basic_service_funeral_director_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "     Basic service funeral director:", 44, "$" & basic_service_funeral_director_value, 59, basic_service_funeral_director_status)
-	End if	
-	
+	End if
+
 	case_note_page_four
-	If embalming_check = 1 then 
+	If embalming_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                          Embalming:", 44, "$" & embalming_value, 59, embalming_status)
 	End if
 	case_note_page_four
-	If other_preparation_to_body_check = 1 then 
+	If other_preparation_to_body_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "          Other preparation to body:", 44, "$" & other_preparation_to_body_value, 59, other_preparation_to_body_status)
 	End if
 	case_note_page_four
-	If visitation_at_funeral_chapel_check = 1 then 
+	If visitation_at_funeral_chapel_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "       Visitation at funeral chapel:", 44, "$" & visitation_at_funeral_chapel_value, 59, visitation_at_funeral_chapel_status)
 	End if
 	case_note_page_four
-	If visitation_at_other_facility_check = 1 then 
+	If visitation_at_other_facility_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "       Visitation at other facility:", 44, "$" & visitation_at_other_facility_value, 59, visitation_at_other_facility_status)
 	End if
 	case_note_page_four
-	If funeral_serv_at_funeral_chapel_check = 1 then 
+	If funeral_serv_at_funeral_chapel_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "     Funeral serv at funeral chapel:", 44, "$" & funeral_serv_at_funeral_chapel_value, 59, funeral_serv_at_funeral_chapel_status)
 	End if
 	case_note_page_four
-	If funeral_serv_at_other_facility_check = 1 then 
+	If funeral_serv_at_other_facility_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "     Funeral serv at other facility:", 44, "$" & funeral_serv_at_other_facility_value, 59, funeral_serv_at_other_facility_status)
 	End if
 	case_note_page_four
-	If memorial_serv_at_funeral_chapel_check = 1 then 
+	If memorial_serv_at_funeral_chapel_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "    Memorial serv at funeral chapel:", 44, "$" & memorial_serv_at_funeral_chapel_value, 59, memorial_serv_at_funeral_chapel_status)
 	End if
 	case_note_page_four
-	If memorial_serv_at_other_facility_check = 1 then 
+	If memorial_serv_at_other_facility_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "    Memorial serv at other facility:", 44, "$" & memorial_serv_at_other_facility_value, 59, memorial_serv_at_other_facility_status)
 	End if
 	case_note_page_four
-	If graveside_service_check = 1 then 
+	If graveside_service_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                  Graveside service:", 44, "$" & graveside_service_value, 59, graveside_service_status)
 	End if
 	case_note_page_four
-	If transfer_remains_to_funeral_home_check = 1 then 
+	If transfer_remains_to_funeral_home_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "   Transfer remains to funeral home:", 44, "$" & transfer_remains_to_funeral_home_value, 59, transfer_remains_to_funeral_home_status)
 	End if
 	case_note_page_four
-	If funeral_coach_check = 1 then 
+	If funeral_coach_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                      Funeral coach:", 44, "$" & funeral_coach_value, 59, funeral_coach_status)
 	End if
 	case_note_page_four
-	If funeral_sedan_check = 1 then 
+	If funeral_sedan_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                      Funeral sedan:", 44, "$" & funeral_sedan_value, 59, funeral_sedan_status)
 	End if
 	case_note_page_four
-	If service_vehicle_check = 1 then 
+	If service_vehicle_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                    Service vehicle:", 44, "$" & service_vehicle_value, 59, service_vehicle_status)
 	End if
 	case_note_page_four
-	If forwarding_of_remains_check = 1 then 
+	If forwarding_of_remains_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "              Forwarding of remains:", 44, "$" & forwarding_of_remains_value, 59, forwarding_of_remains_status)
 	End if
 	case_note_page_four
-	If receiving_of_remains_check = 1 then 
+	If receiving_of_remains_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "               Receiving of remains:", 44, "$" & receiving_of_remains_value, 59, receiving_of_remains_status)
 	End if
 	case_note_page_four
-	If direct_cremation_check = 1 then 
+	If direct_cremation_check = 1 then
 	  new_service_heading
 	  call write_three_columns_in_case_note(3, "                   Direct cremation:", 44, "$" & direct_cremation_value, 59, direct_cremation_status)
 	End if
 	case_note_page_four
-	If other_01 <> "" and other_01_type = "service" then 
+	If other_01 <> "" and other_01_type = "service" then
 	  new_service_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
 	End if
 	case_note_page_four
-	If other_02 <> "" and other_02_type = "service" then 
+	If other_02 <> "" and other_02_type = "service" then
 	  new_service_heading
 	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
 	End if
 	case_note_page_four
 	CALL write_variable_in_case_note("--------BURIAL SPACE/ITEMS---------------AMOUNT----------STATUS------------")
 	case_note_page_four
-	If markers_headstone_check = 1 then 
+	If markers_headstone_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                  Markers headstone:", 44, "$" & markers_headstone_value, 59, markers_headstone_status)
-	End if	
+	End if
 	case_note_page_four
-	If engraving_check = 1 then 
+	If engraving_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                          Engraving:", 44, "$" & engraving_value, 59, engraving_status)
 	End if
 	case_note_page_four
-	If opening_closing_of_space_check = 1 then 
+	If opening_closing_of_space_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "           Opening closing of space:", 44, "$" & opening_closing_of_space_value, 59, opening_closing_of_space_status)
 	End if
 	case_note_page_four
-	If perpetual_care_check = 1 then 
+	If perpetual_care_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                     Perpetual care:", 44, "$" & perpetual_care_value, 59, perpetual_care_status)
 	End if
 	case_note_page_four
-	If casket_check = 1 then 
+	If casket_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                             Casket:", 44, "$" & casket_value, 59, casket_status)
 	End if
 	case_note_page_four
-	If vault_check = 1 then 
+	If vault_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                              Vault:", 44, "$" & vault_value, 59, vault_status)
 	End if
 	case_note_page_four
-	If cemetery_plot_check = 1 then 
+	If cemetery_plot_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                      Cemetery plot:", 44, "$" & cemetery_plot_value, 59, cemetery_plot_status)
 	End if
 	case_note_page_four
-	If crypt_check = 1 then 
+	If crypt_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                              Crypt:", 44, "$" & crypt_value, 59, crypt_status)
 	End if
 	case_note_page_four
-	If mausoleum_check = 1 then 
+	If mausoleum_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                          Mausoleum:", 44, "$" & mausoleum_value, 59, mausoleum_status)
 	End if
 	case_note_page_four
-	If urns_check = 1 then 
+	If urns_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                               Urns:", 44, "$" & urns_value, 59, urns_status)
 	End if
 	case_note_page_four
-	If niches_check = 1 then 
+	If niches_check = 1 then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(3, "                             Niches:", 44, "$" & niches_value, 59, niches_status)
 	End if
 	case_note_page_four
-	If other_01 <> "" and other_01_type = "BS-BSI" then 
+	If other_01 <> "" and other_01_type = "BS-BSI" then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
 	End if
 	case_note_page_four
-	If other_02 <> "" and other_02_type = "BS-BSI" then 
+	If other_02 <> "" and other_02_type = "BS-BSI" then
 	  new_BS_BSI_heading
 	  other_02_length = len(other_02)
 	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
@@ -705,62 +681,62 @@ IF type_of_burial_agreement <> "None" THEN
 	case_note_page_four
 	CALL write_variable_in_case_note("--------CASH ADVANCE ITEMS---------------AMOUNT----------STATUS------------")
 	case_note_page_four
-	If certified_death_certificate_check = 1 then 
+	If certified_death_certificate_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "        Certified death certificate:", 44, "$" & certified_death_certificate_value, 59, certified_death_certificate_status)
 	End if
 	case_note_page_four
-	If motor_escort_check = 1 then 
+	If motor_escort_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                       Motor escort:", 44, "$" & motor_escort_value, 59, motor_escort_status)
 	End if
 	case_note_page_four
-	If clergy_honorarium_check = 1 then 
+	If clergy_honorarium_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                  Clergy honorarium:", 44, "$" & clergy_honorarium_value, 59, clergy_honorarium_status)
 	End if
 	case_note_page_four
-	If music_honorarium_check = 1 then 
+	If music_honorarium_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                   Music honorarium:", 44, "$" & music_honorarium_value, 59, music_honorarium_status)
 	End if
 	case_note_page_four
-	If flowers_check = 1 then 
+	If flowers_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                            Flowers:", 44, "$" & flowers_value, 59, flowers_status)
 	End if
 	case_note_page_four
-	If obituary_notice_check = 1 then 
+	If obituary_notice_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                    Obituary notice:", 44, "$" & obituary_notice_value, 59, obituary_notice_status)
 	End if
 	case_note_page_four
-	If crematory_charges_check = 1 then 
+	If crematory_charges_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                  Crematory charges:", 44, "$" & crematory_charges_value, 59, crematory_charges_status)
 	End if
 	case_note_page_four
-	If acknowledgement_card_check = 1 then 
+	If acknowledgement_card_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "               Acknowledgement card:", 44, "$" & acknowledgement_card_value, 59, acknowledgement_card_status)
 	End if
 	case_note_page_four
-	If register_book_check = 1 then 
+	If register_book_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "                      Register book:", 44, "$" & register_book_value, 59, register_book_status)
 	End if
 	case_note_page_four
-	If service_folders_prayer_cards_check = 1 then 
+	If service_folders_prayer_cards_check = 1 then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(3, "       Service folders prayer cards:", 44, "$" & service_folders_prayer_cards_value, 59, service_folders_prayer_cards_status)
 	End if
 	case_note_page_four
-	If other_01 <> "" and other_01_type = "CAI" then 
+	If other_01 <> "" and other_01_type = "CAI" then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
 	End if
 	case_note_page_four
-	If other_02 <> "" and other_02_type = "CAI" then 
+	If other_02 <> "" and other_02_type = "CAI" then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
 	End if
@@ -774,8 +750,7 @@ IF type_of_burial_agreement <> "None" THEN
 	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & total_unavailable_CAI_amount) ' & "<newline>"
 END IF
 
-
-case_note_page_four	
+case_note_page_four
 CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
 case_note_page_four
 CALL write_variable_in_case_note( "* Total counted amount: $" & total_counted_amount) ' & "<newline>"

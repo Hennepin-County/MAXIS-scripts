@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 70                               'manual run time in seconds
+STATS_denomination = "M"       'M is for each MEMBER
+'END OF stats block==============================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog MNsure_info_dialog, 0, 0, 196, 120, "MNsure Info Dialog"
@@ -91,13 +94,13 @@ If radiogroup1 = 0 then
 	'Updates to show HC only memos
 	EMWriteScreen "Y", 3, 74
 	transmit
-	
+
 	FOR each HH_member in HH_member_array
 		DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
 			EMReadScreen more_pages, 8, 18, 72
 			IF more_pages = "MORE:  -" THEN PF7
 		LOOP until more_pages <> "MORE:  -"
-	
+
 		read_row = 7
 		DO
 			waiting_check = ""
@@ -111,12 +114,12 @@ If radiogroup1 = 0 then
 				EMReadScreen client_copy_check, 11, 1, 38
 				If client_copy_check = "Client Copy" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 				'Sends the home key to get to the top of the memo.
-				EMSendKey "<home>" 
-				
+				EMSendKey "<home>"
+
 				'Enters different text for denials vs closures. This adds the different text to the first line
-				If how_case_ended = "denied" then EMSendKey "Your application was denied " 
-				If how_case_ended = "closed" then EMSendKey "Your case was closed " 
-				
+				If how_case_ended = "denied" then EMSendKey "Your application was denied "
+				If how_case_ended = "closed" then EMSendKey "Your case was closed "
+
 				'Now it sends the rest of the memo, saves the memo and exits the memo screen
 				EMSendKey "effective " & denial_effective_date & "." & "<newline>" & "<newline>" & "You may be able to purchase medical insurance through MNsure. If your family is under an income limit you may get financial help to purchase insurance. You can apply online at www.mnsure.org. If you have questions or need help to apply you can call the MNsure Call Center at 1-855-366-7873."
 				PF4
@@ -131,29 +134,31 @@ If radiogroup1 = 0 then
 				read_row = 7
 			End if
 		LOOP until reference_number = "  "
+		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	NEXT
 	If WCOM_count = 0 THEN
 		MSGbox "No Waiting HC elig results were found in this month for this HH member."
-		Stopscript	
+		Stopscript
 	END IF
 Else
 	'Navigating to SPEC/MEMO
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")  
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
 	EMWriteScreen "x", 5, 10
 	transmit
 	'Sends the home key to get to the top of the memo.
-	EMSendKey "<home>" 
-	
+	EMSendKey "<home>"
+
 	'Enters different text for denials vs closures. This adds the different text to the first line
-	If how_case_ended = "denied" then EMSendKey "Your application was denied " 
-	If how_case_ended = "closed" then EMSendKey "Your case was closed " 
-	
+	If how_case_ended = "denied" then EMSendKey "Your application was denied "
+	If how_case_ended = "closed" then EMSendKey "Your case was closed "
+
 	'Now it sends the rest of the memo, saves the memo and exits the memo screen
 	EMSendKey "effective " & denial_effective_date & "." & "<newline>" & "<newline>" & "You may be able to purchase medical insurance through MNsure. If your family is under an income limit you may get financial help to purchase insurance. You can apply online at www.mnsure.org. If you have questions or need help to apply you can call the MNsure Call Center at 1-855-366-7873."
 	PF4
 	PF3
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
 
 
@@ -162,4 +167,5 @@ start_a_blank_CASE_NOTE
 If radiogroup1 = 0 then EMSendKey "Added MNsure info to client notice via WCOM. -" & worker_signature
 If radiogroup1 = 1 then EMSendKey "Sent client MNsure info via MEMO. -" & worker_signature
 
+STATS_counter = STATS_counter - 1                      'subtracts one instance to the stats counter
 script_end_procedure("")

@@ -8,10 +8,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -22,7 +20,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -33,7 +31,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -48,6 +46,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
 
 'DIALOGS----------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
@@ -65,10 +69,12 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data in
   Text 70, 25, 65, 10, "Worker(s) to check:"
   Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 70, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
+'Determining specific county for multicounty agencies...
+CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
 
 'Connects to BlueZone
 EMConnect ""
@@ -88,11 +94,10 @@ query_start_time = timer
 'Checking for MAXIS
 Call check_for_MAXIS(True)
 
-
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 4 col as worker, case number, name, and APPL date
@@ -157,12 +162,12 @@ If all_workers_check = checked then
 Else
 	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
-	'Need to add the worker_county_code to each one
+	'formatting array
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = trim(x1_number)		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -190,10 +195,10 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			
+
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
@@ -218,7 +223,7 @@ For each worker in worker_array
 				'Cash requires different handling due to containing multiple program types in one column
 				If (instr(cash_status, " A ") <> 0 or instr(cash_status, " P ") <> 0) and cash_check = checked then add_case_info_to_Excel = True
 
-				If add_case_info_to_Excel = True then 
+				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -234,15 +239,16 @@ For each worker in worker_array
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
 				case_number = ""			'Blanking out variable
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			Loop until MAXIS_row = 19
 			PF8
-			
+
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
 
 If collect_COLA_stats = True then
-	'Reset Excel Row		
+	'Reset Excel Row
 	excel_row = 2
 
 	'This loop will navigate to UNEA and check each case for the specified types of income
@@ -317,4 +323,5 @@ For col_to_autofit = 1 to col_to_use
 Next
 
 'Logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

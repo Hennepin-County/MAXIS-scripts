@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-------------------------------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT PND1 data into Excel dialog"
   EditBox 150, 20, 130, 15, worker_number
@@ -56,10 +60,12 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT PND1 da
   Text 5, 25, 65, 10, "Worker(s) to check:"
   Text 5, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 5, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 5, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 5, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
+'Determining specific county for multicounty agencies...
+CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
 
 'Connects to BlueZone
 EMConnect ""
@@ -77,9 +83,8 @@ Call check_for_MAXIS(True)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
-
 
 'Setting the first 4 col as worker, case number, name, and APPL date
 ObjExcel.Cells(1, 1).Value = "WORKER"
@@ -106,9 +111,9 @@ Else
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -133,7 +138,7 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 3			'Reading case number
 				EMReadScreen client_name, 25, MAXIS_row, 13		'Reading client name
 				EMReadScreen appl_date, 8, MAXIS_row, 41		      'Reading application date
@@ -146,7 +151,7 @@ For each worker in worker_array
 				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
 
 				If case_number = "        " then exit do			'Exits do if we reach the end
-				
+
 				ObjExcel.Cells(excel_row, 1).Value = worker
 				ObjExcel.Cells(excel_row, 2).Value = case_number
 				ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -165,10 +170,10 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
 'col_to_use is normally used for setting a variable amount of columns. PND1, however, always uses the same amount. I'm setting it as a firm variable here, but this could just as easily include a "col_to_use = col_to_use + 2", like in the PND2 script. -VKC, 01/12/2015
-
 col_to_use = 10
 
 'Query date/time/runtime info
@@ -185,4 +190,5 @@ For col_to_autofit = 1 to col_to_use
 Next
 
 'logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

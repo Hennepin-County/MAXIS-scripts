@@ -1,8 +1,5 @@
 'Option Explicit
-'DIM beta_agency
-'DIM url, req, fso, name_of_script, start_time, Funclib_url,run_another_script_fso, fso_command, text_from_the_other_script, run_locally, default_directory
-
-'beta_agency = True
+'DIM beta_agency, url, req, fso, name_of_script, start_time, Funclib_url,run_another_script_fso, fso_command, text_from_the_other_script, run_locally, default_directory
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - GOOD CAUSE CLAIMED.vbs"
@@ -11,10 +8,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -25,7 +20,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -36,7 +31,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -51,6 +46,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, Claim_date, Expiration_date, Date_DHS_Claim_Docs, Date_DHS_Exp_Docs, Docs_provided_check, Good_Cause_Claimed_Dialog, Case_Number, Date_DHS_docs_sent, List_programs, Supporting_doc_date, GC_Review_Date, Other_comments, Worker_signature, Claim_Type_droplist
 
@@ -75,7 +76,7 @@ BeginDialog Good_Cause_Claimed_Dialog, 0, 0, 251, 310, "Child Support Good Cause
   GroupBox 5, 50, 250, 35, "Date Good Cause"
   Text 30, 65, 30, 15, "Claimed"
   Text 135, 65, 35, 15, "Expiration"
-  Text 5, 90, 135, 15, "Date DHS-3627 and DHS-3979 were sent:"
+  Text 5, 90, 135, 15, "Date DHS-3627, DHS-3632, and DHS-3979 were sent:"
   Text 5, 115, 135, 15, "Date DHS-3630 and DHS-3631 were sent:"
   Text 5, 145, 40, 15, "Programs:"
   Text 5, 185, 175, 15, "Deadline given to provide supporting documentation:"
@@ -129,5 +130,3 @@ CALL write_variable_in_case_note(worker_signature)
 
 
 CALL script_end_procedure("")
-
-

@@ -1,13 +1,11 @@
+'OPTION EXPLICIT
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs"
 start_time = timer
 
-'Option Explicit
+'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
 
-DIM beta_agency
-DIM FuncLib_URL, req, fso
-
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
@@ -50,6 +48,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 196, 130, "Status Update / Employment Plan"

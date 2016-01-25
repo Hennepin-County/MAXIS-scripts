@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN					'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,39 +44,42 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 255, "Memos scripts main menu dialog"
-  ButtonGroup ButtonPressed
-    CancelButton 390, 235, 50, 15
-    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
-    PushButton 5, 25, 65, 10, "12 month contact", TWELVE_MONTH_CONTACT_button
-    PushButton 5, 50, 65, 10, "Appointment letter", APPOINTMENT_LETTER_button
-    PushButton 5, 65, 100, 10, "Duplicate assistance WCOM", DUPLICATE_ASSISTANCE_button
-    PushButton 5, 90, 125, 10, "GRH overpayment (client left facility)", GRH_OP_CL_LEFT_FACI_button
-    PushButton 5, 105, 70, 10, "LTC - Asset transfer", LTC_ASSET_TRANSFER_button
-    PushButton 5, 120, 115, 10, "MAEPD - No initial premium paid", MAEPD_NO_PREMIUM_button
-    PushButton 5, 135, 60, 10, "MFIP orientation", MFIP_ORIENTATION_button
-    PushButton 5, 150, 55, 10, "MNsure memo", MNSURE_MEMO_button
-    PushButton 5, 165, 25, 10, "NOMI", NOMI_button
-    PushButton 5, 180, 55, 10, "Overdue baby", OVERDUE_BABY_button
-    PushButton 5, 205, 65, 10, "Significant change", SIGNIFICANT_CHANGE_button
-    PushButton 5, 220, 70, 10, "SNAP E and T letter", SNAP_E_AND_T_LETTER_button
-  Text 5, 5, 235, 10, "Memos scripts main menu: select the script to run from the choices below."
-  Text 75, 25, 375, 20, "--- Sends a MEMO to the client reminding them of their reporting responsibilities (required for SNAP 2-year certification periods, per POLI/TEMP TE02.08.165)."
-  Text 75, 50, 300, 10, "--- Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
-  Text 115, 65, 340, 20, "--- NEW 07/2015!!! -- Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
-  Text 140, 90, 310, 10, "--- Sends a MEMO to a facility indicating that an overpayment is due because a client left."
-  Text 80, 105, 200, 10, "--- Sends a MEMO to a LTC client regarding asset transfers."
-  Text 130, 120, 225, 10, "--- NEW 08/2015 !!! Sends a WCOM on a denial for no initial MA-EPD premium."
-  Text 70, 135, 185, 10, "--- Sends a MEMO to a client regarding MFIP orientation."
-  Text 65, 150, 160, 10, "--- Sends a MEMO to a client regarding MNsure."
-  Text 35, 165, 375, 10, "--- Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
-  Text 65, 180, 355, 20, "--- Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
-  Text 75, 205, 340, 10, "--- NEW 08/2015!!! -- Sends a MEMO when a client reports significant change requiring additional action."
-  Text 80, 220, 300, 10, "--- Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
-  ButtonGroup ButtonPressed
-EndDialog
 
+'DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 280, "Memos scripts main menu dialog"
+  ButtonGroup ButtonPressed
+    PushButton 5, 20, 65, 10, "12 month contact", TWELVE_MONTH_CONTACT_button
+    PushButton 5, 45, 115, 10, "ABAWD with child in HH WCOM", ABAWD_WITH_CHILD_IN_HH_WCOM_button
+    PushButton 5, 65, 65, 10, "Appointment letter", APPOINTMENT_LETTER_button
+    PushButton 5, 80, 100, 10, "Duplicate assistance WCOM", DUPLICATE_ASSISTANCE_button
+    PushButton 5, 95, 110, 10, "DWP/MFIP CS Disregard WCOM", CS_DISREGARD_button
+    PushButton 5, 110, 125, 10, "GRH overpayment (client left facility)", GRH_OP_CL_LEFT_FACI_button
+    PushButton 5, 125, 70, 10, "LTC - Asset transfer", LTC_ASSET_TRANSFER_button
+    PushButton 5, 140, 115, 10, "MAEPD - No initial premium paid", MAEPD_NO_PREMIUM_button
+    PushButton 5, 155, 60, 10, "MFIP orientation", MFIP_ORIENTATION_button
+    PushButton 5, 170, 55, 10, "MNsure memo", MNSURE_MEMO_button
+    PushButton 5, 185, 25, 10, "NOMI", NOMI_button
+    PushButton 5, 200, 55, 10, "Overdue baby", OVERDUE_BABY_button
+    PushButton 5, 225, 80, 10, "Postponed WREG verif", POSTPONED_WREG_button
+    PushButton 5, 250, 70, 10, "SNAP E and T letter", SNAP_E_AND_T_LETTER_button
+    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
+    CancelButton 390, 265, 50, 15
+  Text 5, 5, 235, 10, "Memos scripts main menu: select the script to run from the choices below."
+  Text 125, 45, 320, 10, "---NEW 01/2016 Adds a WCOM to a notice for an ABAWD adult receiving child under 18 exemption."
+  Text 75, 20, 375, 20, "--- Sends a MEMO to the client reminding them of their reporting responsibilities (required for SNAP 2-year certification periods, per POLI/TEMP TE02.08.165)."
+  Text 75, 65, 300, 10, "--- Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
+  Text 110, 80, 305, 10, "--- Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
+  Text 120, 95, 320, 10, "--- NEW 01/2016!! Adds required WCOM to a notice when applying the CS Disregard to DWP/MFIP."
+  Text 135, 110, 310, 10, "--- Sends a MEMO to a facility indicating that an overpayment is due because a client left."
+  Text 80, 125, 200, 10, "--- Sends a MEMO to a LTC client regarding asset transfers."
+  Text 130, 140, 225, 10, "--- Sends a WCOM on a denial for no initial MA-EPD premium."
+  Text 70, 155, 185, 10, "--- Sends a MEMO to a client regarding MFIP orientation."
+  Text 65, 170, 160, 10, "--- Sends a MEMO to a client regarding MNsure."
+  Text 35, 185, 375, 10, "--- Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
+  Text 65, 200, 355, 20, "--- Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
+  Text 95, 225, 345, 20, "--- Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
+  Text 80, 250, 300, 10, "--- Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
+EndDialog
 
 
 
@@ -86,7 +87,6 @@ EndDialog
 IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Shows main menu dialog, which asks user which memo to generate. Loops until a button other than the SIR instructions button is clicked.
 Do
 	dialog MEMOS_scripts_main_menu_dialog
@@ -94,27 +94,27 @@ Do
 	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Memos%20scripts.aspx")
 Loop until buttonpressed <> SIR_instructions_button
 
-
 'Connecting to BlueZone
 EMConnect ""
 
 'Hennepin handling (they don't use the Appt Letter or NOMI scripts because they have permission (at least temporarily) to schedule using a time range instead of a single time. Because of this, the NOMI and Appt letter scripts would technically cause incorrect information to be sent to the clients. This is a simple solution until their procedures are updated.)
 If ucase(worker_county_code) = "X127" then
 	IF ButtonPressed = APPOINTMENT_LETTER_button 	THEN script_end_procedure("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user or your supervisor if you have questions.")
-	IF ButtonPressed = NOMI_button 					THEN script_end_procedure("The NOMI script is not available to Hennepin users at this time. Contact an alpha user or your supervisor if you have questions.")
 End if
 
 IF ButtonPressed = TWELVE_MONTH_CONTACT_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - 12 MONTH CONTACT.vbs")
+IF ButtonPressed = ABAWD_WITH_CHILD_IN_HH_WCOM_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - ABAWD WITH CHILD IN HH WCOM.vbs")
 IF ButtonPressed = APPOINTMENT_LETTER_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - APPOINTMENT LETTER.vbs")
 IF ButtonPressed = DUPLICATE_ASSISTANCE_button  THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - DUPLICATE ASSISTANCE WCOM.vbs")
+IF ButtonPressed = CS_DISREGARD_button 		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - CS DISREGARD WCOM.vbs")
 IF ButtonPressed = GRH_OP_CL_LEFT_FACI_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - GRH OP CL LEFT FACI.vbs")
 IF ButtonPressed = LTC_ASSET_TRANSFER_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - LTC - ASSET TRANSFER.vbs")
-IF ButtonPressed = MAEPD_NO_PREMIUM_button 		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - MA-EPD NO INITIAL PREMIUM")
+IF ButtonPressed = MAEPD_NO_PREMIUM_button		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - MA-EPD NO INITIAL PREMIUM.vbs")
 IF ButtonPressed = MFIP_ORIENTATION_button 		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - MFIP ORIENTATION.vbs")
 IF ButtonPressed = MNSURE_MEMO_button 			THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - MNSURE MEMO.vbs")
 IF ButtonPressed = NOMI_button 					THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - NOMI.vbs")
 IF ButtonPressed = OVERDUE_BABY_button			THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - OVERDUE BABY.vbs")
-IF ButtonPressed = SIGNIFICANT_CHANGE_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - SIGNIFICANT CHANGE.vbs")
+IF ButtonPressed = POSTPONED_WREG_button		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - POSTPONED WREG VERIFS.vbs")
 IF ButtonPressed = SNAP_E_AND_T_LETTER_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - SNAP E AND T LETTER.vbs")
 
 'Logging usage stats

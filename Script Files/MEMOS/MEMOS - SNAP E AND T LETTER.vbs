@@ -7,11 +7,9 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN	'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN		'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -22,7 +20,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -33,7 +31,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -49,12 +47,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 180                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
 county_FSET_offices = array("")
 
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
-'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them 
+'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them
 IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center")
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
@@ -66,7 +70,7 @@ IF worker_county_code = "x108" THEN county_FSET_offices = array("Minnesota Valle
 IF worker_county_code = "x109" THEN county_FSET_offices = array("Carlton County Human Services")
 'IF worker_county_code = "x110" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x111" THEN county_FSET_offices = array("Select one...",
-IF worker_county_code = "x112" THEN county_FSET_offices = array("Chippewa County Workforce Center")
+IF worker_county_code = "x112" THEN county_FSET_offices = array("Montevideo Workforce Center")
 'IF worker_county_code = "x113" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x114" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x115" THEN county_FSET_offices = array("Select one...",
@@ -78,10 +82,10 @@ IF worker_county_code = "x120" THEN county_FSET_offices = array("Workforce Devel
 IF worker_county_code = "x121" THEN county_FSET_offices = array("Alexandria Workforce Center")
 IF worker_county_code = "x122" THEN county_FSET_offices = array("Fairmont Workforce Center Fairbault County")
 IF worker_county_code = "x123" THEN county_FSET_offices = array("Workforce Development Office")
-'IF worker_county_code = "x124" THEN county_FSET_offices = array("Select one...", 
+'IF worker_county_code = "x124" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x125" THEN county_FSET_offices = array("Workforce Development Inc. (Redwing)")
 IF worker_county_code = "x126" THEN county_FSET_offices = array("Grant County Social Services")
-IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one...", "Century Plaza", "Sabathani Community Center")
+'IF worker_county_code = "x127" THEN county_FSET_offices = array("Select one...", "Health Services Building", "Sabathani Community Center")
 IF worker_county_code = "x128" THEN county_FSET_offices = array("Workforce Development Inc.")
 'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x130" THEN county_FSET_offices = array("Cambridge MN Workforce Center")
@@ -120,11 +124,11 @@ IF worker_county_code = "x161" THEN county_FSET_offices = array("Minnesota Workf
 IF worker_county_code = "x163" THEN county_FSET_offices = array("Minnesota Workforce Center: Red Lake")
 IF worker_county_code = "x164" THEN county_FSET_offices = array("Southwest Health & Human Services")
 IF worker_county_code = "x165" THEN county_FSET_offices = array("Central MN Jobs and Training Services Olivia")
-'IF worker_county_code = "x166" THEN county_FSET_offices = array("Select one...", 
-IF worker_county_code = "x167" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Luverne") 
+'IF worker_county_code = "x166" THEN county_FSET_offices = array("Select one...",
+IF worker_county_code = "x167" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Luverne")
 IF worker_county_code = "x168" THEN county_FSET_offices = array("Roseau County Social Services")
 IF worker_county_code = "x169" THEN county_FSET_offices = array("Select one...", "MN Workforce Center: Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota Workforce Center: Hibbing")
-'IF worker_county_code = "x170" THEN county_FSET_offices = array("Select one...", 
+'IF worker_county_code = "x170" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x171" THEN county_FSET_offices = array("Central MN Jobs and Training Services Monticello")
 'IF worker_county_code = "x172" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x173" THEN county_FSET_offices = array("Select one...",
@@ -146,44 +150,41 @@ IF worker_county_code = "x187" THEN county_FSET_offices = array("Yellow Medicine
 'If the array isn't blank, then create a new array called FSET_list containing these items as a droplist. This will be used by the dialog.
 IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (county_FSET_offices, FSET_list)
 
-If worker_county_code = "x127" THEN 
-	SNAPET_contact = "the EZ Info Line"
-	SNAPET_phone = "612-596-1300"
-END IF
-
 'DIALOGS----------------------------------------------------------------------------------------------------
 ' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
-BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 110, "SNAP E&T Appointment Letter"
-  EditBox 70, 5, 55, 15, case_number
-  EditBox 205, 5, 20, 15, member_number
-  EditBox 70, 25, 55, 15, appointment_date
-  EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
-  EditBox 215, 25, 20, 15, appointment_time_post_editbox
-  DropListBox 235, 25, 60, 15, "Select one..."+chr(9)+"AM"+chr(9)+"PM", AM_PM
-  DropListBox 115, 50, 180, 15, FSET_list, interview_location
-  EditBox 60, 70, 65, 15, SNAPET_contact
-  EditBox 185, 70, 65, 15, SNAPET_phone
-  EditBox 120, 90, 65, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 190, 90, 50, 15
-    CancelButton 245, 90, 50, 15
-  Text 5, 50, 105, 10, "Location (select from dropdown)"
-  Text 60, 95, 60, 10, "Worker Signature:"
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 130, 10, 70, 10, "HH Member Number:"
-  Text 130, 30, 60, 10, "Appointment Time:"
-  Text 10, 75, 50, 10, "Contact name: "
-  Text 5, 30, 60, 10, "Appointment Date:"
-  Text 135, 75, 50, 10, "Contact phone:"
-EndDialog
-
-
-'This dialog is for counties that have not provided FSET office address(s)
-BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 185, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
+  EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
+  EditBox 215, 25, 20, 15, appointment_time_post_editbox
+  DropListBox 240, 25, 60, 15, "Select one..."+chr(9)+"AM"+chr(9)+"PM", AM_PM
+  DropListBox 115, 50, 185, 15, FSET_list, interview_location
+  EditBox 55, 70, 65, 15, SNAPET_contact
+  EditBox 185, 70, 65, 15, SNAPET_phone
+  CheckBox 5, 95, 295, 10, "Check here if HH member is using banked ABAWD month (manual referral will be made.)", banked_months_check
+  EditBox 125, 115, 65, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 195, 115, 50, 15
+    CancelButton 250, 115, 50, 15
+  Text 65, 120, 60, 10, "Worker Signature:"
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 130, 10, 70, 10, "HH Member Number:"
+  Text 130, 30, 60, 10, "Appointment Time:"
+  Text 5, 75, 50, 10, "Contact name: "
+  Text 5, 30, 60, 10, "Appointment Date:"
+  Text 130, 75, 50, 10, "Contact phone:"
+  Text 5, 50, 105, 10, "Location (select from dropdown)"
+  GroupBox 5, 140, 295, 40, "If the HH member is using an ABAWD banked month:"
+  Text 10, 155, 285, 15, "If you checked that the client is using a banked ABAWD month, then a manual referral will be made containing the information in the E and T appointment letter. "
+EndDialog
+
+'This dialog is for counties that have not provided FSET office address(s)
+BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 215, "SNAP E&T Appointment Letter"
+  EditBox 65, 5, 55, 15, case_number
+  EditBox 215, 5, 20, 15, member_number
+  EditBox 65, 25, 55, 15, appointment_date
   EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 215, 25, 20, 15, appointment_time_post_editbox
   DropListBox 240, 25, 55, 15, "Select one..."+chr(9)+"AM"+chr(9)+"PM", AM_PM
@@ -194,49 +195,152 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 150, "SNAP E&T Appointment 
   EditBox 210, 85, 45, 15, SNAPET_zip
   EditBox 65, 105, 65, 15, SNAPET_contact
   EditBox 185, 105, 70, 15, SNAPET_phone
-  EditBox 120, 125, 65, 15, worker_signature
+  CheckBox 5, 130, 295, 10, "Check here if HH member is using banked ABAWD month (manual referral will be made.)", banked_months_check
+  EditBox 80, 150, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 190, 125, 50, 15
-    CancelButton 245, 125, 50, 15
-  Text 5, 30, 60, 10, "Appointment Date:"
+    OkButton 150, 150, 50, 15
+    CancelButton 205, 150, 50, 15
   Text 130, 30, 60, 15, "Appointment Time:"
   Text 5, 50, 55, 10, "Provider Name:"
   Text 5, 70, 55, 10, "Address line 1:"
   Text 10, 110, 55, 10, "Contact Name:"
   Text 135, 110, 50, 10, "Contact Phone:"
-  Text 60, 130, 60, 10, "Worker Signature:"
+  Text 20, 155, 60, 10, "Worker Signature:"
   Text 10, 10, 50, 10, "Case Number:"
   Text 10, 90, 55, 10, "City/State/Zip:"
   Text 130, 10, 70, 10, "HH Member Number:"
+  Text 5, 30, 60, 10, "Appointment Date:"
+  GroupBox 5, 175, 290, 35, "If the HH member is using an ABAWD banked month:"
+  Text 15, 190, 275, 20, "If you checked that the client is using a banked ABAWD month, then a manual referral will be made containing the information in the E and T appointment letter. "
 EndDialog
 
+'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
+BeginDialog SNAPET_Hennepin_dialog, 0, 0, 371, 165, "SNAP E&T Appointment Letter"
+  EditBox 75, 10, 60, 15, case_number
+  EditBox 200, 10, 25, 15, member_number
+  DropListBox 75, 35, 185, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 1:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Sabathani, next Tuesday @ 1:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
+  CheckBox 10, 60, 255, 10, "Check here if HH members if HH member is using banked ABAWD months. ", banked_months_check
+  EditBox 75, 80, 75, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 155, 80, 50, 15
+    CancelButton 210, 80, 50, 15
+  Text 5, 85, 60, 10, "Worker Signature:"
+  Text 5, 15, 50, 10, "Case Number:"
+  Text 145, 15, 50, 10, "HH Member #:"
+  GroupBox 5, 105, 260, 55, "For non-English speaking ABAWD's:"
+  Text 15, 120, 245, 35, "HSRs: Do not use this script. Contact Mark Scherer at 612-596-7411 (if not available send email) and request language-specific SNAP E and T Orientation/intake. Provide ABAWD with Mark’s contact information, and instruct to contact him to schedule orientation within one week."
+  Text 5, 40, 70, 10, "Region of residence: "
+  Text 270, 35, 95, 70, "If you checked that the client is using a banked ABAWD month, then a manual referral will be made in INFC/WF1M containing the information in the E and T appointment letter."
+  Text 270, 20, 50, 10, "Note: "
+EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone default screen
+'Connects to BlueZone default screen & 'Searches for a case number
 EMConnect ""
-'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(case_number)
 
-'Main dialog 
-DO	
+'defaults the member_number to 01
+member_number = "01"
+
+'Main dialog
+DO
 	'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 	err_msg = ""
-	'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)  	
-	IF worker_county_code = "x105" OR _
+	'these counties are exempt from participation per the FNS'
+	If worker_county_code = "x101" OR _
+		worker_county_code = "x115" OR _
+		worker_county_code = "x129" OR _
+		worker_county_code = "x133" OR _
+		worker_county_code = "x136" OR _
+		worker_county_code = "x139" THEN
+			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
+	ElseIF worker_county_code = "x127" THEN
+		Dialog SNAPET_Hennepin_dialog
+		'Hennepin specific information===================================================================================================
+		If worker_county_code = "x127" THEN
+			SNAPET_contact = "the EZ Info Line"
+			SNAPET_phone = "612-596-7411"
+		END IF
+		'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
+		'Central NE
+		IF interview_location = "Central NE (HSB, next Wednesday @ 1:00 p.m.)" THEN
+			SNAPET_name = "Health Services Building"
+			SNAPET_address_01 = "525 Portland Ave, 5th floor"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55415"
+			appointment_time_prefix_editbox = "01"
+			appointment_time_post_editbox = "00"
+			AM_PM = "PM"
+			appointment_date = Date + 8 - Weekday(Date, vbWednesday)
+		'North
+		ElseIF interview_location = "North (HSB, next Wednesday @ 10:00 a.m.)" THEN
+			SNAPET_name = "Health Services Building"
+			SNAPET_address_01 = "525 Portland Ave, 5th floor"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55415"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbWednesday)
+		'Northwest
+		ElseIf interview_location = "Northwest(Sabathani, next Tuesday @ 1:00 p.m.)" THEN
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "01"
+			appointment_time_post_editbox = "00"
+			AM_PM = "PM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		'South Minneapolis
+		ElseIf interview_location = "South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)" THEN
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		'South Suburban
+		ElseIf interview_location = "South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)" THEN
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		'West
+		ElseIf interview_location = "West (Sabathani, next Tuesday @ 10:00 a.m.)" THEN
+			SNAPET_name = "Sabathani Community Center"
+			SNAPET_address_01 = "310 East 38th Street #120"
+			SNAPET_city = "Minneapolis"
+			SNAPET_ST = "MN"
+			SNAPET_zip = "55409"
+			appointment_time_prefix_editbox = "10"
+			appointment_time_post_editbox = "00"
+			AM_PM = "AM"
+			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+		END IF
+	'Counties listed here (starting with x105 and ending with x185 did not provide E & T office information, hence will need to use the dialog requiring them to enter in their own address and contact information)
+	ELSEIF worker_county_code = "x105" OR _
 	worker_county_code = "x106" OR _
 	worker_county_code = "x110" OR _
 	worker_county_code = "x111" OR _
 	worker_county_code = "x113" OR _
 	worker_county_code = "x114" OR _
-	worker_county_code = "x115" OR _
 	worker_county_code = "x116" OR _
 	worker_county_code = "x117" OR _
 	worker_county_code = "x124" OR _
-	worker_county_code = "x129" OR _
 	worker_county_code = "x132" OR _
-	worker_county_code = "x133" OR _
 	worker_county_code = "x134" OR _
-	worker_county_code = "x136" OR _
 	worker_county_code = "x148" OR _
 	worker_county_code = "x149" OR _
 	worker_county_code = "x152" OR _
@@ -247,10 +351,10 @@ DO
 	worker_county_code = "x172" OR _
 	worker_county_code = "x173" OR _
 	worker_county_code = "x183" OR _
-	worker_county_code = "x185" OR _ 
-	worker_county_code = "" THEN											  
-		Dialog SNAPET_manual_address_dialog 
-	ELSE 
+	worker_county_code = "x185" OR _
+	worker_county_code = "" THEN
+		Dialog SNAPET_manual_address_dialog
+	ELSE
 		Dialog SNAPET_automated_adress_dialog
 		'next 5 lines are tricking the script to read <> "" since they are declared as "_"
 		SNAPET_name = "_"
@@ -259,14 +363,15 @@ DO
 		SNAPET_ST = "_"
 		SNAPET_zip = "_"
 	END IF
-	'asks if they really want to cancel script	
-	cancel_confirmation 
+	'asks if they really want to cancel script
+	cancel_confirmation
 	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If isdate(appointment_date) = FALSE then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-	If DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
-	IF len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid member number."		
+	'The DateValue condition does not apply to Hennepin County users which is why it is excluded in the line below
+	IF worker_county_code <> "x127" AND DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
+	IF len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid member number."
 	IF SNAPET_name = "" then err_msg = err_msg & vbNewLine & "* Enter a E and T office location."
-	IF SNAPET_address_01 = "" then err_msg = err_msg & vbNewLine & "* Enter a street address."			
+	IF SNAPET_address_01 = "" then err_msg = err_msg & vbNewLine & "* Enter a street address."
 	IF appointment_time_prefix_editbox = "" then err_msg = err_msg & vbNewLine & "* Enter a valid appointment time."
 	IF appointment_time_post_editbox = "" then err_msg = err_msg & vbNewLine & "* Enter a valid appointment time."
 	If AM_PM = "Select one..." then err_msg = err_msg & vbNewLine & "* Select either AM or PM for your appointment time."
@@ -277,12 +382,24 @@ DO
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until err_msg = ""
 
+'The Hennepin County worker must confirm the appointment time and date, and gives them the option to select another date
+If worker_county_code = "x127" THEN
+	DO
+		orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
+		"                                                  " & appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & _
+		AM_PM, vbYesNoCancel, "Please confirm the SNAP E & T orientation referral date")
+		If orientation_date_confirmation = vbCancel then stopscript
+		If orientation_date_confirmation = vbYes then exit do
+		If orientation_date_confirmation = vbNo then appointment_date = dateadd("d", 7, appointment_date)
+	LOOP until orientation_date_confirmation = vbYes
+END IF
+
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
 'CO #01 AITKIN COUNTY address
-IF interview_location = "Aitkin Workforce Center" THEN 
+IF interview_location = "Aitkin Workforce Center" THEN
 	SNAPET_name = "Aitkin Workforce Center"
 	SNAPET_address_01 = "20 3rd Street NE"
 	SNAPET_city = "Aitkin"
@@ -291,7 +408,7 @@ IF interview_location = "Aitkin Workforce Center" THEN
 END IF
 
 'CO #02 Anoka County address
-IF interview_location = "Minnesota WorkForce Center Blaine" THEN 
+IF interview_location = "Minnesota WorkForce Center Blaine" THEN
 	SNAPET_name = "Minnesota WorkForce Center Blaine"
 	SNAPET_address_01 = "1201 89th Avenue NE Suite 235"
 	SNAPET_city = "Blaine"
@@ -300,7 +417,7 @@ IF interview_location = "Minnesota WorkForce Center Blaine" THEN
 END IF
 
 'CO #3 BECKER COUNTY address
-IF interview_location = "Rural MN CEP Detroit Lakes" THEN 
+IF interview_location = "Rural MN CEP Detroit Lakes" THEN
 	SNAPET_name = "Rural MN CEP Detroit Lakes"
 	SNAPET_address_01 = "1803 Roosevelt Ave"
 	SNAPET_city = "Detroit Lakes"
@@ -309,25 +426,25 @@ IF interview_location = "Rural MN CEP Detroit Lakes" THEN
 END IF
 
 'CO #04 BELTRAMI COUNTY addresses
-IF interview_location = "RMCEP" THEN 
+IF interview_location = "RMCEP" THEN
 	SNAPET_name = "RMCEP"
 	SNAPET_address_01 = "616 America Ave NW Suite 210"
 	SNAPET_city = "Bemedji"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56601"
-ElseIf interview_location = "MCT" THEN 
+ElseIf interview_location = "MCT" THEN
 	SNAPET_name = "MCT"
 	SNAPET_address_01 = "15542 State Hwy 371 NW"
 	SNAPET_city = "Cass Lake"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56633"
-ElseIf interview_location = "Leach Lake New" THEN 
+ElseIf interview_location = "Leach Lake New" THEN
 	SNAPET_name = "Leach Lake New"
 	SNAPET_address_01 = "190 Sail Drive NW"
 	SNAPET_city = "Cass Lake"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "56633"
-ElseIf interview_location = "Red Lake Oshkiimaajitahdah" THEN 
+ElseIf interview_location = "Red Lake Oshkiimaajitahdah" THEN
 	SNAPET_name = "Red Lake Oshkiimaajitahdah"
 	SNAPET_address_01 = "MN-1"
 	SNAPET_city = "Redby"
@@ -336,7 +453,7 @@ ElseIf interview_location = "Red Lake Oshkiimaajitahdah" THEN
 END IF
 
 'CO #7 BLUE EARTH COUNTY address
-IF interview_location = "Blue Earth County Employment Services" THEN 
+IF interview_location = "Blue Earth County Employment Services" THEN
 	SNAPET_name = "Blue Earth County Employment Services"
 	SNAPET_address_01 = "421 E Hickory Street, Suite 400"
 	SNAPET_city = "Mankato"
@@ -345,7 +462,7 @@ IF interview_location = "Blue Earth County Employment Services" THEN
 END IF
 
 'CO #8 BROWN COUNTY address
-IF interview_location = "Minnesota Valley Action Council New Ulm" THEN 
+IF interview_location = "Minnesota Valley Action Council New Ulm" THEN
 	SNAPET_name = "Minnesota Valley Action Council New Ulm"
 	SNAPET_address_01 = "1618 Broadway"
 	SNAPET_city = "New Ulm"
@@ -354,7 +471,7 @@ IF interview_location = "Minnesota Valley Action Council New Ulm" THEN
 END IF
 
 'CO #9 CARLTON COUNTY address
-IF interview_location = "Carlton County Human Services" THEN 
+IF interview_location = "Carlton County Human Services" THEN
 	SNAPET_name = "Carlton County Human Services"
 	SNAPET_address_01 = "14 N. 11th Street"
 	SNAPET_city = "Cloquet"
@@ -363,7 +480,7 @@ IF interview_location = "Carlton County Human Services" THEN
 END IF
 
 'CO #12 CHIPPEWA COUNTY address
-IF interview_location = "Chippewa County Workforce Center" THEN 
+IF interview_location = "Chippewa County Workforce Center" THEN
 	SNAPET_name = "Chippewa County Workforce Center"
 	SNAPET_address_01 = "202 N 1st Street Suite 100"
 	SNAPET_city = "Montevideo"
@@ -372,7 +489,7 @@ IF interview_location = "Chippewa County Workforce Center" THEN
 END IF
 
 'CO #18 CROW WING COUNTY address
-IF interview_location =  "Rural MN CEP Brainerd" THEN 
+IF interview_location =  "Rural MN CEP Brainerd" THEN
 	SNAPET_name = "Rural MN CEP Brainerd"
 	SNAPET_address_01 = "204 Laurel Street Suite 21"
 	SNAPET_city = "Brainerd"
@@ -381,13 +498,13 @@ IF interview_location =  "Rural MN CEP Brainerd" THEN
 END IF
 
 'CO #19 DAKOTA COUNTY address
-IF interview_location = "Northern Service Center" THEN 
+IF interview_location = "Northern Service Center" THEN
 	SNAPET_name = "Northern Service Center"
 	SNAPET_address_01 = "1 Mendota Road W Suite 170"
 	SNAPET_city = "West St. Paul"
 	SNAPET_ST = "MN"
 	SNAPET_zip = "55118"
-ELSEIF interview_location = "Burnsville Workforce Center" THEN 
+ELSEIF interview_location = "Burnsville Workforce Center" THEN
 	SNAPET_name = "Burnsville Workforce Center"
 	SNAPET_address_01 = "2800 W County Road 42"
 	SNAPET_city = "Burnsville"
@@ -396,7 +513,7 @@ ELSEIF interview_location = "Burnsville Workforce Center" THEN
 END IF
 
 'CO #20 DODGE COUNTY address
-IF interview_location = "Workforce Development Inc. (Kasson)" THEN 
+IF interview_location = "Workforce Development Inc. (Kasson)" THEN
 	SNAPET_name = "Workforce Development Inc. (Kasson)"
 	SNAPET_address_01 = "504 S Mantorville Ave Suite 4"
 	SNAPET_city = "Kasson"
@@ -405,7 +522,7 @@ IF interview_location = "Workforce Development Inc. (Kasson)" THEN
 END IF
 
 'CO #21 DOUGLAS COUNTY address
-IF interview_location = "Alexandria Workforce Center" THEN 
+IF interview_location = "Alexandria Workforce Center" THEN
 	SNAPET_name = "Alexandria Workforce Center"
 	SNAPET_address_01 = "303 22nd Avenue W Suite 107"
 	SNAPET_city = "Alexandria"
@@ -414,7 +531,7 @@ IF interview_location = "Alexandria Workforce Center" THEN
 END IF
 
 'CO #22 FAIRBAULT COUNTY address
-IF interview_location =  "Fairmont Workforce Center Fairbault County" THEN 
+IF interview_location =  "Fairmont Workforce Center Fairbault County" THEN
 	SNAPET_name = "Fairmont Workforce Center Fairbault County"
 	SNAPET_address_01 = "301 N. Main Street"
 	SNAPET_city = "Blue Earth"
@@ -423,7 +540,7 @@ IF interview_location =  "Fairmont Workforce Center Fairbault County" THEN
 END IF
 
 'CO #23 FILLMORE COUNTY address
-IF interview_location = "Workforce Development Office" THEN 
+IF interview_location = "Workforce Development Office" THEN
 	SNAPET_name = "Workforce Development Office"
 	SNAPET_address_01 = "100 South Main"
 	SNAPET_city = "Preston"
@@ -432,7 +549,7 @@ IF interview_location = "Workforce Development Office" THEN
 END IF
 
 'CO #25 GOODHUE COUNTY address
-IF interview_location = "Workforce Development Inc. (Redwing)" THEN 
+IF interview_location = "Workforce Development Inc. (Redwing)" THEN
 	SNAPET_name = "Workforce Development Inc. (Redwing)"
 	SNAPET_address_01 = "1606 West 3rd Street"
 	SNAPET_city = "Red Wing"
@@ -441,7 +558,7 @@ IF interview_location = "Workforce Development Inc. (Redwing)" THEN
 END IF
 
 'CO #26 GRANT COUNTY address
-IF interview_location = "Grant County Social Services" THEN 
+IF interview_location = "Grant County Social Services" THEN
 	SNAPET_name = "Grant County Social Services"
 	SNAPET_address_01 = "28 Central Avenue S"
 	SNAPET_city = "Elbow Lake"
@@ -449,20 +566,7 @@ IF interview_location = "Grant County Social Services" THEN
 	SNAPET_zip = "56531"
 END IF
 
-'CO #27 HENNEPIN COUNTY addresses
-IF interview_location = "Century Plaza" THEN 
-	SNAPET_name = "Century Plaza"
-	SNAPET_address_01 = "330 South 12th Street #3650"
-	SNAPET_city = "Minneapolis"
-	SNAPET_ST = "MN"
-	SNAPET_zip = "55404"
-ElseIf interview_location = "Sabathani Community Center" THEN 
-	SNAPET_name = "Sabathani Community Center"
-	SNAPET_address_01 = "310 East 38th Street #120"
-	SNAPET_city = "Minneapolis"
-	SNAPET_ST = "MN"
-	SNAPET_zip = "55409"
-END IF
+'CO #27 Hennepin County address is listed at the top of the script as there are some Hennepin specific stuff in the script
 
 'CO #28 HOUSTON COUNTY address
 IF interview_location  = "Workforce Development Inc." THEN
@@ -690,7 +794,7 @@ ELSEIF interview_location  = "Polk County Social Services: Fosston" THEN
 END IF
 
 'CO #61 POPE COUNTY address
-IF interview_location = "Minnesota Workforce Center Alexandria" THEN 
+IF interview_location = "Minnesota Workforce Center Alexandria" THEN
 	SNAPET_name = "Minnesota Workforce Center Alexandria"
 	SNAPET_address_01 = "303 22nd Avenue W Suite 107"
 	SNAPET_city = "Alexandria"
@@ -912,6 +1016,12 @@ END IF
 call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMWriteScreen member_number, 20, 76
 transmit
+EMReadScreen memb_error_check, 7, 8, 22
+If memb_error_check = "Arrival" then	'checking for valid HH member
+	PF3
+	PF10
+	script_end_procedure("The HH member is invalid. Please review your case, and the HH memeber number before trying the script again.")
+END IF 	
 EMReadScreen last_name, 24, 6, 30
 EMReadScreen first_name, 11, 6, 63
 last_name = trim(replace(last_name, "_", ""))
@@ -919,6 +1029,8 @@ first_name = trim(replace(first_name, "_", ""))
 
 'Updates the WREG panel with the appointment_date
 Call navigate_to_MAXIS_screen("STAT", "WREG")
+EMWriteScreen member_number, 20, 76
+transmit 
 PF9
 Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
 PF3
@@ -936,16 +1048,16 @@ CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 'The SPEC/LETR----------------------------------------------------------------------------------------------------
-call navigate_to_MAXIS_screen("SPEC", "LETR") 
+call navigate_to_MAXIS_screen("SPEC", "LETR")
 'Opens up the SNAP E&T Orientation LETR. If it's unable the script will stop.
 EMWriteScreen "x", 8, 12
 transmit
 EMReadScreen LETR_check, 4, 2, 49
 If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 
-'Writes the info into the LETR. 
+'Writes the info into the LETR.
 EMWriteScreen first_name & " " & last_name, 4, 28
-call create_MAXIS_friendly_date_three_spaces_between(appointment_date, 0, 6, 28) 
+call create_MAXIS_friendly_date_three_spaces_between(appointment_date, 0, 6, 28)
 EMWriteScreen appointment_time_prefix_editbox, 7, 28
 EMWriteScreen appointment_time_post_editbox, 7, 33
 EMWriteScreen AM_PM, 7, 38
@@ -955,5 +1067,36 @@ EMWriteScreen SNAPET_city & ", " & SNAPET_ST & " " &  SNAPET_zip, 11, 28
 call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-digits if listed in variable, and formats phone number for the field
 EMWriteScreen SNAPET_contact, 16, 28
 PF4		'saves and sends memo
+PF3
+PF3
 
-script_end_procedure("If you haven't made the E & T referral, please do so now.  Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
+'Manual referral creation if banked months are used
+If banked_months_check = 1 then											'if banked months are being used then a manual referral to E & T is needed
+	Call navigate_to_MAXIS_screen("INFC", "WF1M")			'navigates to WF1M to create the manual referral'
+	EMWriteScreen "01", 4, 47													'this is the manual referral code that DHS has approved
+	EMWriteScreen "FS", 8, 46													'this is a program for ABAWD's for SNAP is the only option for banked months
+	EMWriteScreen member_number, 8, 9									'enters member number
+	Call create_MAXIS_friendly_date(appointment_date, 0, 8, 65)			'enters the E & T referral date
+	EMWriteScreen "Banked AWAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
+	EMWriteScreen "x", 8, 53																				'selects the ES provider
+	transmit																												'navigates to the ES provider selection screen
+		If worker_county_code = "x127" then				'HENNEPIN CO specific info'
+			EMWriteScreen "x", 5, 9									'selects the 1st option'
+			transmit																'transmits back to the main WF1M
+			EMWriteScreen appointment_date & ", " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM & ", " & SNAPET_name, 18, 6		'enters the location, date and time for Hennepin Co ES providers (per request)'
+			PF3																			'saves referral
+			EMWriteScreen "Y", 11, 64								'Y to confirm save
+			transmit																'confirms saving the referral
+			script_end_procedure("Your orientation letter has been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client.")
+		Else
+			script_end_procedure("Please select your agency's ES provider, and PF3 to save your referral.")		'if agency is not Hennepin, then user is asked to select the ES provider and save'
+		END IF
+END IF
+
+If worker_county_code = "x127" then			'specific closing message to Hennepin County message
+	script_end_procedure("Your orientation letter has been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+	vbNewLine & vbNewLine & "Make sure that you have made your E & T referral, and that you have sent the Diamond form: ABAWD FS RULES to the client.")
+ELSE
+	script_end_procedure("If you haven't made the E & T referral, please do so now.  Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
+END IF

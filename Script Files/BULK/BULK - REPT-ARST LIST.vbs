@@ -8,10 +8,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -22,7 +20,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -33,7 +31,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -48,6 +46,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
 
 'DIALOGS-------------------------------------------------------
 BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
@@ -80,14 +84,12 @@ BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
 EndDialog
 
 'DEFINING VARIABLES----------------------------------------------------------------------------------------------------
-
 excel_row = 3 'this is the row the workers will start on the spreadsheet
 footer_month = datepart("m", date) & ""		'Footer month defaults to this month
 If len(footer_month) = 1 then footer_month = "0" & footer_month	'In case this month is a single digit month
 footer_year = right(datepart("yyyy", date), 2)	'Footer year is the right two digits of the current year
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
 
@@ -151,7 +153,7 @@ Call check_for_MAXIS(True)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker and name, using row 2 because row 1 will contain headers for programs
@@ -556,7 +558,7 @@ accumulations_timestamp = trim(accumulations_timestamp)
 For each worker_number in worker_array
 	EMWriteScreen worker_number, 3, 27	'Putting worker number onto ARST
 	transmit
-	
+
 	'The following will determine if the worker is active or inactive. Inactive workers will show a 0 for all numbers, and will not be entered into the spreadsheet
 	EMReadScreen total_cases, 9, 5, 47
 	EMReadScreen CAF_I_APPL_taken, 9, 12, 47
@@ -571,7 +573,7 @@ For each worker_number in worker_array
 	trim(CAF_II_APPL_taken) <> "0" or _
 	trim(cases_auto_denied) <> "0" or _
 	trim(address_changes_count) <> "0" or _
-	trim(ASET_versions_approved) <> "0" then 
+	trim(ASET_versions_approved) <> "0" then
 		worker_is_active = True
 	Else
 		worker_is_active = false
@@ -580,7 +582,7 @@ For each worker_number in worker_array
 	If worker_is_active = True then
 
 		PF8							'Navigating to next screen
-	
+
 		'Reading cash info
 		EMReadScreen cash_active_count, 7, 9, 21
 		EMReadScreen cash_REIN_count, 7, 9, 29
@@ -631,7 +633,7 @@ For each worker_number in worker_array
 		EMReadScreen HC_pending_31_to_45_count, 7, 8, 53
 		EMReadScreen HC_pending_46_to_60_count, 7, 8, 61
 		EMReadScreen HC_pending_over_60_count, 7, 8, 69
-		
+
 		'Getting back to first screen
 		PF7
 		PF7
@@ -743,6 +745,8 @@ ObjExcel.Cells(3, col_to_use).Value = accumulations_timestamp
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The statistics have loaded.")

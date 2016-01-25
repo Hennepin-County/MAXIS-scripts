@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 180                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each MEMBER
+'END OF stats block==============================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 'Must modify county_office_list manually each time to force recognition of variable from functions file. In other words, remove it from quotes.
@@ -73,7 +76,6 @@ BeginDialog MFIP_orientation_dialog, 0, 0, 366, 155, "MFIP orientation letter"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
@@ -82,16 +84,16 @@ call MAXIS_case_number_finder(case_number)
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 Do
-	Do 
+	Do
 		Do
-			Do 
+			Do
 				Do
 					Do
 						Do
 							Dialog MFIP_orientation_dialog
 							cancel_confirmation
 							If buttonPressed = refresh_button then
-								IF interview_location <> "" then 
+								IF interview_location <> "" then
 									call assign_county_address_variables(county_address_line_01, county_address_line_02)
 									MFIP_address_line_01 = county_address_line_01
 									MFIP_address_line_02 = county_address_line_02
@@ -101,7 +103,7 @@ Do
 						If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
 					Loop until isnumeric(case_number) = True and len(case_number) <= 8
 					If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
-				Loop until isdate(orientation_date) = True 
+				Loop until isdate(orientation_date) = True
 				If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
 			Loop until orientation_time <> ""
 			If member_list = "" then MsgBox "You must enter at least one household member to attend the interview."
@@ -115,9 +117,8 @@ transmit
 'checking for active MAXIS session
 Call check_for_MAXIS(False)
 
-
 'Creating an array from the member number list to get names for notice
-member_array = split(member_list, ",") 
+member_array = split(member_list, ",")
 	for each member in member_array
 		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		member = replace(member, " ", "")
@@ -147,8 +148,8 @@ call write_variable_in_SPEC_MEMO("**********************************************
 call write_variable_in_SPEC_MEMO("You are required to attend a Minnesota Family Investment Program financial orientation. The following members of your household need to attend this appointment: " & members_to_attend)
 call write_variable_in_SPEC_MEMO("Your orientation is scheduled on " & orientation_date & " at " & orientation_time & ".")
 call write_variable_in_SPEC_MEMO("Your orientation is scheduled at the " & interview_location & " office located at: ")
-call write_variable_in_SPEC_MEMO(county_address_line_01) 
-call write_variable_in_SPEC_MEMO(county_address_line_02) 
+call write_variable_in_SPEC_MEMO(county_address_line_01)
+call write_variable_in_SPEC_MEMO(county_address_line_02)
 call write_variable_in_SPEC_MEMO("If you cannot attend this orientation, please contact the agency office to reschedule.  Failure to attend an orientation will result in a sanction of your MFIP benefits.")
 call write_variable_in_SPEC_MEMO("************************************************************")
 'Exits the MEMO

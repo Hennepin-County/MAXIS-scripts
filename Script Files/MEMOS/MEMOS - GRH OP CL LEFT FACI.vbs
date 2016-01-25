@@ -1,5 +1,4 @@
 'OPTION EXPLICIT
-
 name_of_script = "MEMOS - GRH OP CL LEFT FACI.vbs"
 start_time = timer
 
@@ -12,14 +11,11 @@ start_time = timer
 'DIM req
 'DIM fso
 
-
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -30,7 +26,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -41,7 +37,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -55,7 +51,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 150                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
 'DECLARING VARIABLES----------------------------------------------------------------------------------------------------
 'DIM ButtonPressed
@@ -93,7 +95,6 @@ END IF
 'DIM send_OP_to_DHS_check
 'DIM set_TIKL_check
 'DIM worker_signature
-
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 190, "GRH overpayment due to leaving facility dialog"
@@ -143,7 +144,6 @@ BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 190, "GRH overpayment due to 
   Text 55, 170, 60, 10, "Worker signature:"
 EndDialog
 
-
 BeginDialog GRH_OP_LEAVING_FACI_ADDR_dialog, 0, 0, 306, 220, "GRH overpayment due to leaving facility ADDR dialog"
   EditBox 70, 15, 230, 15, facility_name
   EditBox 70, 35, 230, 15, facility_address_line_01
@@ -173,13 +173,11 @@ BeginDialog GRH_OP_LEAVING_FACI_ADDR_dialog, 0, 0, 306, 220, "GRH overpayment du
   GroupBox 0, 105, 305, 90, "**AGENCY ADDRESS WHERE THE OVERPAYMENT WILL BE SENT**"
 EndDialog
 
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to MAXIS
 EMConnect ""
 'searches for a case number
 call MAXIS_case_number_finder(case_number)
-
 
 'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
 DO
@@ -191,7 +189,7 @@ DO
 						DO
 							DO
 								Dialog GRH_OP_LEAVING_FACI_dialog
-								cancel_confirmation	
+								cancel_confirmation
 								If case_number = "" or isnumeric(case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
 								If worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
 								If discovery_date = "" THEN MsgBox "You must enter the discovery date"
@@ -201,17 +199,17 @@ DO
 								If OP_reason = "" THEN MsgBox "You must enter the reason for the overpayment."
 							Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and discovery_date <> "" and established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> "" and OP_reason <> ""
 							If (OP_date_01 = "" AND OP_amt_01 <> "") OR (OP_date_01 <> "" AND OP_amt_01 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-						LOOP UNTIL(OP_date_01 = "" AND OP_amt_01 = "") OR (OP_date_01 <> "" AND OP_amt_01 <> "")	
+						LOOP UNTIL(OP_date_01 = "" AND OP_amt_01 = "") OR (OP_date_01 <> "" AND OP_amt_01 <> "")
 						If (OP_date_02 = "" AND OP_amt_02 <> "") OR (OP_date_02 <> "" AND OP_amt_02 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-					LOOP UNTIL(OP_date_02 = "" AND OP_amt_02 = "") OR (OP_date_02 <> "" AND OP_amt_02 <> "")		
+					LOOP UNTIL(OP_date_02 = "" AND OP_amt_02 = "") OR (OP_date_02 <> "" AND OP_amt_02 <> "")
 					If (OP_date_03 = "" AND OP_amt_03 <> "") OR (OP_date_03 <> "" AND OP_amt_03 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
 				LOOP UNTIL (OP_date_03 = "" AND OP_amt_03 = "") OR (OP_date_03 <> "" AND OP_amt_03 <> "")
 				If (OP_date_04 = "" AND OP_amt_04 <> "") OR (OP_date_04 <> "" AND OP_amt_04 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
 			LOOP UNTIL (OP_date_04 = "" AND OP_amt_04 = "") OR (OP_date_04 <> "" AND OP_amt_04 <> "")
 			If (OP_date_05 = "" AND OP_amt_05 <> "") OR (OP_date_05 <> "" AND OP_amt_05 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-		LOOP UNTIL (OP_date_05 = "" AND OP_amt_05 = "") OR (OP_date_05 <> "" AND OP_amt_05 <> "") 	
+		LOOP UNTIL (OP_date_05 = "" AND OP_amt_05 = "") OR (OP_date_05 <> "" AND OP_amt_05 <> "")
 		If (OP_date_06 = "" AND OP_amt_06 <> "") OR (OP_date_06 <> "" AND OP_amt_06 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
-	LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "") 
+	LOOP UNTIL (OP_date_06 = "" AND OP_amt_06 = "") OR (OP_date_06 <> "" AND OP_amt_06 <> "")
 	If ButtonPressed = OP_total_button THEN
 		'makes the overpayment amounts = 0 so the Abs(number) function work
 		If OP_amt_01 = "" THEN OP_amt_01 = "0"
@@ -219,7 +217,7 @@ DO
 		If OP_amt_03 = "" THEN OP_amt_03 = "0"
 		If OP_amt_04 = "" THEN OP_amt_04 = "0"
 		If OP_amt_05 = "" THEN OP_amt_05 = "0"
-		If OP_amt_06 = "" THEN OP_amt_06 = "0"	
+		If OP_amt_06 = "" THEN OP_amt_06 = "0"
 		OP_total = (Abs(OP_amt_01) + Abs(OP_amt_02) + Abs(OP_amt_03) + Abs(OP_amt_04) + Abs(OP_amt_05) + Abs(OP_amt_06)) & ""
 	END IF
 		'This reverses this logic listed above (makes the overpayment amounts = 0 so the Abs(number) function work)
@@ -240,7 +238,7 @@ Loop until ButtonPressed = -1
 			If facility_state = "" THEN MsgBox "You must enter the facility's state"
 			If facility_zip = "" THEN MsgBox "You must enter the facility's zip code"
 		LOOP UNTIL (facility_name <> "" and facility_address_line_01 <> "" and facility_city <> "" and facility_state <> "" and facility_zip <> "")
-		IF(send_OP_to_DHS_check = 1 AND (county_name_dept <> "" OR county_address_line_01 <> "" OR county_address_line_02 <> "" OR county_address_city <> "" OR county_address_state <> "" OR county_address_zip <> "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."	
+		IF(send_OP_to_DHS_check = 1 AND (county_name_dept <> "" OR county_address_line_01 <> "" OR county_address_line_02 <> "" OR county_address_city <> "" OR county_address_state <> "" OR county_address_zip <> "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
 		IF(send_OP_to_DHS_check = 0 AND (county_name_dept = "" OR county_address_line_01 = "" OR county_address_city = "" OR county_address_state = "" OR county_address_zip = "")) THEN MsgBox "You must select either 'send the payment to DHS' or enter the county mailing information, not both options."
 	LOOP UNTIL (send_OP_to_DHS_check = 1 AND (county_name_dept = "" AND county_address_line_01 = "" AND county_address_city = "" AND county_address_state = "" AND county_address_zip = "")) OR _
 	(send_OP_to_DHS_check = 0 AND (county_name_dept <> "" AND county_address_line_01 <> "" AND county_address_city <> "" AND county_address_state <> "" AND county_address_zip <> ""))
@@ -248,10 +246,20 @@ Loop until ButtonPressed = -1
 'Checking to see that we're in MAXIS
 Call check_for_MAXIS(False)
 
-
 'Actions and calculations----------------------------------------------------------------------------------------------------
-'Dollar bill symbol will be added to numeric variables 
-IF total_OP_amt <> "" THEN total_OP_amt = "$" & total_OP_amt
+'Calculate OP total if nothing is entered.
+IF OP_total = "" THEN
+	If OP_amt_01 = "" THEN OP_amt_01 = "0"
+	If OP_amt_02 = "" THEN OP_amt_02 = "0"
+	If OP_amt_03 = "" THEN OP_amt_03 = "0"
+	If OP_amt_04 = "" THEN OP_amt_04 = "0"
+	If OP_amt_05 = "" THEN OP_amt_05 = "0"
+	If OP_amt_06 = "" THEN OP_amt_06 = "0"
+	OP_total = (Abs(OP_amt_01) + Abs(OP_amt_02) + Abs(OP_amt_03) + Abs(OP_amt_04) + Abs(OP_amt_05) + Abs(OP_amt_06)) & ""
+END IF
+
+'Dollar bill symbol will be added to numeric variables
+IF OP_total <> "" THEN OP_total = "$" & OP_total
 IF OP_amt_01 <> "" THEN OP_amt_01 = "$" & OP_amt_01
 IF OP_amt_02 <> "" THEN OP_amt_02 = "$" & OP_amt_02
 IF OP_amt_03 <> "" THEN OP_amt_03 = "$" & OP_amt_03
@@ -261,11 +269,10 @@ IF OP_amt_06 <> "" THEN OP_amt_06 = "$" & OP_amt_06
 IF client_amt <> "" THEN client_amt = "$" & client_amt
 IF client_amt = "" THEN client_amt = "$0"
 
-
 'Sending the TIKL to the worker
-If set_TIKL_check = checked THEN 
-	'navigates to DAIL/WRIT 
-	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
+If set_TIKL_check = checked THEN
+	'navigates to DAIL/WRIT
+	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
 	'The following will generate a TIKL formatted date for 10 days from now.
 	Call create_MAXIS_friendly_date(date, 30, 5, 18)
 	'Writes TIKL to worker
@@ -275,13 +282,17 @@ If set_TIKL_check = checked THEN
 	PF3
 END If
 
-
 'Sending the SPEC/MEMO to FACI----------------------------------------------------------------------------------------------------
-'Navigates to SPEC/MEMO and selects a new MEMO 
+'Navigates to SPEC/MEMO and selects a new MEMO
 call navigate_to_MAXIS_screen("SPEC", "MEMO")
-PF5 
+PF5
 'Selects "other recipient of your choosing" instead of the client to send the MEMO to
-EMWritescreen "x", 6, 10
+other_row = 6    
+DO				'loop to search for OTHER recipient
+	EMReadscreen find_other, 5, other_row, 12
+	If find_other <> "OTHER" THEN other_row = other_row + 1
+LOOP until find_other = "OTHER"
+EMWritescreen "x", other_row, 10   'writes X on row where the phrase OTHER was found. 
 transmit
 'Writes in Name of Facility and the address which MEMO is being sent
 EMWritescreen facility_name, 13, 24
@@ -295,7 +306,6 @@ transmit
 transmit
 transmit
 
-
 'Writes the information in the SPEC/MEMO
 Call write_variable_in_SPEC_MEMO ("Due to a change in placement, A GRH overpayment has occurred for this case for the following month(s):")
 IF OP_amt_01 <> "" and OP_date_01 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_01 & " for " & OP_date_01)
@@ -304,11 +314,11 @@ IF OP_amt_03 <> "" and OP_date_03 <> "" THEN Call write_variable_in_SPEC_MEMO("*
 IF OP_amt_04 <> "" and OP_date_04 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_04 & " for " & OP_date_04)
 IF OP_amt_05 <> "" and OP_date_05 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_05 & " for " & OP_date_05)
 IF OP_amt_06 <> "" and OP_date_06 <> "" THEN Call write_variable_in_SPEC_MEMO("* " & OP_amt_06 & " for " & OP_date_06)
-Call write_variable_in_SPEC_MEMO("The total amount of the overpayment to be returned is: " & total_OP_amt)
+Call write_variable_in_SPEC_MEMO("The total amount of the overpayment to be returned is: " & OP_total)
 Call write_variable_in_SPEC_MEMO("Reason for the overpayment(s):" & OP_reason)
-Call write_variable_in_SPEC_MEMO("Amount client is responsible to pay for GRH during overpayment months (this amount is not to be subtracted from the total overpayment amount):" & client_amt) 
+Call write_variable_in_SPEC_MEMO("Amount client is responsible to pay for GRH during overpayment months (this amount is not to be subtracted from the total overpayment amount):" & client_amt)
 Call write_variable_in_SPEC_MEMO("Please submit payment to:")
-If send_OP_to_DHS_check = 1 THEN 
+If send_OP_to_DHS_check = 1 THEN
 	Call write_variable_in_SPEC_MEMO("Minnesota Department of Human Services")
 	Call write_variable_in_SPEC_MEMO("MAXIS Cashier - 211")
 	Call write_variable_in_SPEC_MEMO("PO BOX 64835")
@@ -325,7 +335,6 @@ Call write_variable_in_SPEC_MEMO("Please include the case name, case number, mon
 PF4
 PF3
 
-
 'THE CASE NOTE -----------------------------------------------------------------------------------------------------------------
 'Navigates to a blank case note
 Call start_a_blank_CASE_NOTE
@@ -338,8 +347,8 @@ Call write_variable_in_CASE_NOTE ("*")
 Call write_bullet_and_variable_in_case_note("Reason for overpayment(s)", OP_reason)
 Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 Call write_bullet_and_variable_in_case_note("Established date", established_date)
-Call write_bullet_and_variable_in_case_note("Total overpayment amount", total_OP_amt)
-Call write_bullet_and_variable_in_case_note("Amount client is responsible to pay for GRH during overpayment months",client_amt) 
+Call write_bullet_and_variable_in_case_note("Total overpayment amount", OP_total)
+Call write_bullet_and_variable_in_case_note("Amount client is responsible to pay for GRH during overpayment months",client_amt)
 IF OP_amt_01 <> "" and OP_date_01 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_01 & " for " & OP_date_01)
 IF OP_amt_02 <> "" and OP_date_02 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_02 & " for " & OP_date_02)
 IF OP_amt_03 <> "" and OP_date_03 <> "" THEN Call write_variable_in_CASE_NOTE("* " & OP_amt_03 & " for " & OP_date_03)

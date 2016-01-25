@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 345         'manual run time in seconds
+STATS_denomination = "C"       'C is for Case
+'END OF stats block==============================================================================================
+
+
 
 'DIALOGS----------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
@@ -99,6 +105,8 @@ End if
 
 'Navigating to case/curr
 EMSendKey "h"
+EMReadScreen case_number, 8, 5, 73
+case_number = trim(case_number)
 transmit
 
 'Searching for active SNAP
@@ -112,23 +120,14 @@ Else
 End if
 
 'Navigating to STAT/JOBS for the HH_memb in question
-EMWriteScreen "stat", 20, 22
-EMWriteScreen "jobs", 20, 69
-EMWriteScreen HH_memb, 20, 74
+CALL navigate_to_MAXIS_screen("STAT", "JOBS")
+EMWriteScreen HH_memb, 20, 76
+EMWriteScreen "01", 20, 79
 transmit
-
-'Searching for abended cases. If it's abended, it'll transmit
-row = 1
-col = 1
-EMSearch "abended", row, col
-If row <> 0 then transmit
 
 'Checking to make sure we're in STAT. If not, script will exit.
 EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure("This case couldn't get to stat. MAXIS may have slowed down or be in background. Try again in a few seconds. If this continues to happen and MAXIS is up, send the case number to the script administrator.")
-
-'Checks for the error screen, and if found, transmits
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 'Checking for the HH memb on the message. If not found, script will exit.
 EMReadScreen HH_memb_check, 31, 24, 02
@@ -194,17 +193,8 @@ End if
 'Gets out of case
 transmit
 
-'Presses PF3 until we're back on the DAIL
-Do
-	EMReadScreen DAIL_check, 4, 2, 48
-	If DAIL_check = "DAIL" then exit do
-	PF3
-Loop until DAIL_check = "DAIL"
-
-'Navigating to case note
-EMSendKey "n"
-transmit
-PF9
+'Navigating to case note and creating a new case note
+start_a_blank_CASE_NOTE
 
 'Sending case note
 EMSendKey "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer & "<newline>" 
@@ -216,17 +206,13 @@ PF3
 PF3
 
 'Opening a blank TIKL
-EMSendKey "w"
-transmit
+CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)
 
-'Setting cursor on the text area
-EMSetCursor 9, 3
-
-'Sending TIKL
-EMSendKey "Verification of new employer (via CS message) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)."
+'Writing TIKL
+call write_variable_in_TIKL("Verification of " & employer & " job (via CS message) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 transmit
 PF3
 

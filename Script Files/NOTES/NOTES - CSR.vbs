@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 600          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 
@@ -54,24 +58,25 @@ If len(footer_month) = 1 then footer_month = "0" & footer_month
 footer_year = datepart("yyyy", next_month)
 footer_year = "" & footer_year - 2000
 
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 166, 205, "Case number dialog"
+BeginDialog case_number_dialog, 0, 0, 166, 265, "Case number dialog"
   EditBox 75, 5, 70, 15, case_number
   EditBox 80, 25, 30, 15, footer_month
   EditBox 115, 25, 30, 15, footer_year
   CheckBox 10, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 95, 60, 30, 10, "HC", HC_checkbox
   CheckBox 10, 80, 100, 10, "Is this an exempt (*) IR?", paperless_checkbox
+  EditBox 70, 100, 75, 15, Worker_signature
   ButtonGroup ButtonPressed
-    OkButton 35, 100, 50, 15
-    CancelButton 95, 100, 50, 15
+    OkButton 35, 135, 50, 15
+    CancelButton 95, 135, 50, 15
   Text 10, 10, 50, 10, "Case number:"
   Text 10, 30, 65, 10, "Footer month/year:"
   GroupBox 5, 45, 140, 30, "Programs recertifying"
-  Text 10, 140, 145, 25, "If you select ''Is this an exempt IR'', the case note will only read that the paperless IR was cleared (no case information listed)."
-  GroupBox 5, 125, 155, 75, "Exempt IR checkbox warning:"
-  Text 10, 175, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+  Text 10, 105, 60, 10, "Worker Signature"
+  GroupBox 10, 165, 155, 75, "Exempt IR checkbox warning:"
+  Text 15, 180, 145, 25, "If you select ''Is this an exempt IR'', the case note will only read that the paperless IR was cleared (no case information listed)."
+  Text 15, 215, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
 EndDialog
 
 BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
@@ -86,7 +91,7 @@ BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
   EditBox 60, 155, 95, 15, SHEL_HEST
   EditBox 225, 155, 95, 15, COEX_DCEX
   ButtonGroup ButtonPressed
-    OKButton 340, 205, 50, 15
+    Pushbutton 340, 205, 50, 15, "Next", next_button
     CancelButton 395, 205, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
@@ -131,36 +136,36 @@ BeginDialog CSR_dialog02, 0, 0, 451, 260, "CSR dialog"
   EditBox 45, 65, 400, 15, changes
   EditBox 60, 85, 385, 15, verifs_needed
   EditBox 60, 105, 385, 15, actions_taken
-  EditBox 380, 220, 65, 15, worker_signature
   CheckBox 190, 155, 110, 10, "Send forms to AREP?", sent_arep_checkbox
   CheckBox 190, 170, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
   CheckBox 190, 185, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
   CheckBox 190, 200, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
-  EditBox 60, 180, 90, 15, MAEPD_premium
-  CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
   ButtonGroup ButtonPressed
-    PushButton 275, 245, 60, 10, "Previous", previous_button
-    OkButton 340, 240, 50, 15
-    CancelButton 395, 240, 50, 15
+    PushButton 275, 225, 60, 10, "Previous", previous_button
+    OkButton 340, 220, 50, 15
+    CancelButton 395, 220, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
     PushButton 10, 140, 25, 10, "BUSI", BUSI_button
     PushButton 35, 140, 25, 10, "JOBS", JOBS_button
-    PushButton 35, 150, 25, 10, "UNEA", UNEA_button
     PushButton 75, 140, 25, 10, "ACCT", ACCT_button
     PushButton 100, 140, 25, 10, "CARS", CARS_button
     PushButton 125, 140, 25, 10, "CASH", CASH_button
     PushButton 150, 140, 25, 10, "OTHR", OTHR_button
-    PushButton 75, 150, 25, 10, "REST", REST_button
-    PushButton 100, 150, 25, 10, "SECU", SECU_button
-    PushButton 125, 150, 25, 10, "TRAN", TRAN_button
     PushButton 190, 140, 25, 10, "MEMB", MEMB_button
     PushButton 215, 140, 25, 10, "MEMI", MEMI_button
     PushButton 240, 140, 25, 10, "REVW", REVW_button
+    PushButton 35, 150, 25, 10, "UNEA", UNEA_button
+    PushButton 75, 150, 25, 10, "REST", REST_button
+    PushButton 100, 150, 25, 10, "SECU", SECU_button
+    PushButton 125, 150, 25, 10, "TRAN", TRAN_button
+  EditBox 60, 180, 90, 15, MAEPD_premium
+  CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
+  ButtonGroup ButtonPressed
     PushButton 80, 200, 65, 10, "SIR mail", SIR_mail_button
   Text 5, 30, 95, 10, "FIAT reasons (if applicable):"
   Text 5, 50, 40, 10, "Other notes:"
@@ -169,7 +174,6 @@ BeginDialog CSR_dialog02, 0, 0, 451, 260, "CSR dialog"
   Text 5, 110, 50, 10, "Actions taken:"
   GroupBox 5, 130, 175, 35, "Income and asset panels"
   GroupBox 185, 130, 85, 25, "other STAT panels:"
-  Text 315, 225, 65, 10, "Worker signature:"
   GroupBox 5, 170, 150, 45, "If MA-EPD..."
   Text 10, 185, 50, 10, "New premium:"
   GroupBox 255, 5, 50, 25, "ELIG panels:"
@@ -190,11 +194,14 @@ call MAXIS_case_number_finder(case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
-Do
+DO
+	err_msg = ""
 	Dialog case_number_dialog
-	cancel_confirmation
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+		cancel_confirmation
+		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+LOOP UNTIL err_msg = ""
 
 'Checking for an active MAXIS session
 Call check_for_MAXIS(False)
@@ -204,7 +211,6 @@ If paperless_checkbox = 1 then
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_case_note("***Cleared paperless IR for " & footer_month & "/" & footer_year & "***")
 	Call write_variable_in_case_note("---")
-	worker_signature = InputBox ("Sign your case note:", "worker signature")
 	Call write_variable_in_case_note(worker_signature)
 	call script_end_procedure("")
 End if
@@ -267,9 +273,10 @@ DO
 				Dialog CSR_dialog01
 				cancel_confirmation
 				If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
+				'If next_button = pressed THEN msgbox next_button
 			Loop until ButtonPressed <> no_cancel_button
 			MAXIS_dialog_navigation
-		LOOP until ButtonPressed = -1
+		LOOP until ButtonPressed = next_button
 		IF CSR_datestamp = "" THEN 														err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
 		IF CSR_status = "select one..." THEN 											err_msg = err_msg & vbCr & "* Please select the status of the CSR."
 		IF HH_comp = "" THEN 															err_msg = err_msg & vbCr & "* Please enter household composition information."
@@ -287,7 +294,6 @@ DO
 		LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
 		err_msg = ""
 		IF actions_taken = "" THEN 		err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
-		IF worker_signature = "" THEN 	err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = "" OR ButtonPressed = previous_button
 LOOP WHILE ButtonPressed = previous_button
@@ -314,6 +320,7 @@ call write_bullet_and_variable_in_case_note("Programs recertifying", programs_re
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+call write_bullet_and_variable_in_case_note("Notes on Income", notes_on_income)
 call write_bullet_and_variable_in_case_note("ABAWD Notes", notes_on_abawd)
 call write_bullet_and_variable_in_case_note("Assets", assets)
 call write_bullet_and_variable_in_case_note("SHEL/HEST", SHEL_HEST)

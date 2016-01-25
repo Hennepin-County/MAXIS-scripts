@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 420          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   EditBox 60, 5, 90, 15, case_number
@@ -57,7 +61,7 @@ BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   Text 10, 10, 50, 10, "Case number:"
   Text 10, 30, 50, 10, "Footer month:"
   Text 95, 30, 20, 10, "Year:"
-
+EndDialog
   
 BeginDialog LTC_app_recd_dialog, 0, 0, 286, 415, "LTC application received dialog"
   EditBox 75, 35, 65, 15, appl_date
@@ -167,23 +171,17 @@ End if
 
 'The main dialog
 Do
-	Do
-		Do
-			Do
-				Do
-					Dialog LTC_app_recd_dialog
-					cancel_confirmation
-					If buttonpressed <> -1 then Call MAXIS_dialog_navigation
-				Loop until buttonpressed = -1 or buttonpressed = 0
-				If actions_taken = "" then MsgBox "You must fill in the actions taken section. Please try again."
-			Loop until actions_taken <> ""
-			If worker_signature = "" then MsgBox "You must sign your case note!"
-		Loop until worker_signature <> ""
-		If basis_of_elig_droplist = "Select one..." THEN MsgBox "You must select the client's MA basis of eligibility."
-	Loop until basis_of_elig_droplist <> "Select one..."
-	IF TIKL_45_day_check = 1 and TIKL_60_day_check = 1 then MsgBox "You must choose to TIKL out for 45 or 60 days, not both."
-LOOP until (TIKL_45_day_check = 1 AND TIKL_60_day_check = 0) or (TIKL_45_day_check = 0 AND TIKL_60_day_check = 0) OR (TIKL_45_day_check = 0 AND TIKL_60_day_check = 1)
-
+	err_msg = ""
+	Dialog LTC_app_recd_dialog
+		cancel_confirmation
+		If buttonpressed <> -1 then Call MAXIS_dialog_navigation
+	IF appl_date = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter an application date."
+	IF basis_of_elig_droplist = "Select one..." AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please select an MA basis of eligibility."
+	IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please discuss the actions taken."
+	IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+	IF (TIKL_45_day_check = 1 AND TIKL_60_day_check = 1) AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* You cannot TIKL for both 45 and 60 days. Please select one or neither."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+Loop UNTIL err_msg = "" AND ButtonPressed = -1
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)

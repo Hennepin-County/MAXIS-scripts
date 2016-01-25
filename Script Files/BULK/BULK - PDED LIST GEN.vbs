@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -44,20 +42,25 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 39                      'manual run time in seconds
+STATS_denomination = "C"      						 'C is for each CASE
+'END OF stats block==============================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog pull_cases_into_excel_dialog, 0, 0, 176, 135, "Pull cases into Excel dialog"
+BeginDialog pull_cases_into_excel_dialog, 0, 0, 176, 105, "Pull cases into Excel dialog"
   EditBox 75, 10, 90, 15, x_number
   CheckBox 10, 65, 150, 10, "Check HERE to run for entire agency.", all_workers_check
   ButtonGroup ButtonPressed
-    OkButton 70, 115, 50, 15
-    CancelButton 120, 115, 50, 15
+    OkButton 65, 85, 50, 15
+    CancelButton 115, 85, 50, 15
   Text 10, 15, 60, 10, "Worker to check:"
   Text 10, 45, 145, 10, "* For multiple, separate with comma."
-  Text 10, 30, 145, 10, "* Enter 3-digit worker number ONLY."
+  Text 10, 30, 145, 10, "* Enter 7-digit worker number ONLY."
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to BlueZone
@@ -69,9 +72,8 @@ DIALOG pull_cases_into_excel_dialog
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
-
 
 'Setting the first 3 col as worker, case number, and name
 ObjExcel.Cells(1, 1).Value = "X Number"
@@ -98,9 +100,9 @@ excel_row = 2
 If all_workers_check = 1 then
 	CALL create_array_of_all_active_x_numbers_in_county(x_array, right(worker_county_code, 2))
 Else
-	IF len(x_number) > 3 THEN 
+	IF len(x_number) > 3 THEN
 		x_array = split(x_number, ", ")
-	ELSE		
+	ELSE
 		x_array = split(x_number)
 	END IF
 End if
@@ -109,14 +111,13 @@ For each worker in x_array
 	IF worker <> "" THEN
 		Call navigate_to_screen("rept", "actv")
 		IF worker <> "" THEN
-			IF len(worker) = 3 THEN worker = worker_county_code & worker
 			EMWriteScreen worker, 21, 13
 			transmit
 		END IF
 		EMReadScreen user_id, 7, 21, 71
 		EMReadScreen check_worker, 7, 21, 13
 		IF user_id = check_worker THEN PF7
-	
+
 		'Grabbing each case number on screen
 		Do
 			MAXIS_row = 7
@@ -139,13 +140,13 @@ For each worker in x_array
 next
 
 'Resetting excel_row variable, now we need to start looking people up
-excel_row = 2 
+excel_row = 2
 
-Do 
+Do
 	case_number = ObjExcel.Cells(excel_row, 2).Value
 	If case_number = "" then exit do
 	call navigate_to_MAXIS_screen("STAT", "PDED")
-	
+
 	' >>>>> DETERMINING THE PEOPLE IN THE HOUSEHOLD FOR WHICH TO BE CHECKING THE PDED <<<<<
 	pded_hh_array = ""
 	pded_row = 5
@@ -163,10 +164,10 @@ Do
 	pded_hh_array = split(pded_hh_array)
 
 	FOR EACH hh_memb IN pded_hh_array
-		IF hh_memb <> "" THEN 
+		IF hh_memb <> "" THEN
 			CALL write_value_and_transmit(hh_memb, 20, 76)
 			EMReadScreen num_of_PDED, 1, 2, 78
-			IF num_of_PDED <> "0" THEN 
+			IF num_of_PDED <> "0" THEN
 			  ' >>>>> Reading the values <<<<<
 				EMReadScreen pickle_disregard, 1, 6, 60
 				EMReadScreen dac_disregard, 1, 8, 60
@@ -175,37 +176,37 @@ Do
 				EMReadScreen guard_fee, 8, 15, 44
 				EMReadScreen payee_fee, 8, 15, 70
 				EMReadScreen shel_spec_need, 1, 18, 78
-				
+
 				' >>>>> Populating Excel <<<<<
-				IF pickle_disregard = "1" THEN 
+				IF pickle_disregard = "1" THEN
 					objExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & hh_memb & " - Pickle Elig; "
-				ELSEIF pickle_disregard = "2" THEN 
+				ELSEIF pickle_disregard = "2" THEN
 					objExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & hh_memb & " - Potential Pickle Elig; "
 				END IF
-				
+
 				IF dac_disregard = "Y" THEN objExcel.Cells(excel_row, 6).Value = objExcel.Cells(excel_row, 6).Value & hh_memb & " - YES; "
-				
+
 				unea_inc_disregard = replace(unea_inc_disregard, "_", "")
 				unea_inc_disregard = trim(unea_inc_disregard)
 				IF unea_inc_disregard <> "" THEN objExcel.Cells(excel_row, 7).Value = objExcel.Cells(excel_row, 7).Value & hh_memb & " (" & unea_inc_disregard & ")" & "; "
-				
+
 				earn_inc_disregard = replace(earn_inc_disregard, "_", "")
 				earn_inc_disregard = trim(earn_inc_disregard)
 				IF earn_inc_disregard <> "" THEN objExcel.Cells(excel_row, 8).Value = objExcel.Cells(excel_row, 8).Value & hh_memb & " (" & earn_inc_disregard & ")" & "; "
-				
+
 				guard_fee = replace(guard_fee, "_", "")
 				guard_fee = trim(guard_fee)
 				IF guard_fee <> "" THEN objExcel.Cells(excel_row, 9).Value = objExcel.Cells(excel_row, 9).Value & hh_memb & " (" & guard_fee & ")" & "; "
-				
+
 				payee_fee = replace(payee_fee, "_", "")
 				payee_fee = trim(payee_fee)
 				IF payee_fee <> "" THEN objExcel.Cells(excel_row, 10).Value = objExcel.Cells(excel_row, 10).Value & hh_memb & " (" & payee_fee & ")" & "; "
-				
+
 				IF shel_spec_need = "Y" THEN objExcel.Cells(excel_row, 11).Value = objExcel.Cells(excel_row, 11).Value & hh_memb & " - YES; "
 			END IF
 		END IF
 	NEXT
-	
+
 	' >>>>> Deleting blank rows <<<<<
 	IF objExcel.Cells(excel_row, 5).Value = "" AND _
 		objExcel.Cells(excel_row, 6).Value = "" AND _
@@ -213,13 +214,14 @@ Do
 		objExcel.Cells(excel_row, 8).Value = "" AND _
 		objExcel.Cells(excel_row, 9).Value = "" AND _
 		objExcel.Cells(excel_row, 10).Value = "" AND _
-		objExcel.Cells(excel_row, 11).Value = "" THEN 
+		objExcel.Cells(excel_row, 11).Value = "" THEN
 			SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 			objRange.Delete
 			excel_row = excel_row - 1
-	END IF	
-	
+	END IF
+
 	excel_row = excel_row + 1
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Loop until case_number = ""
 
 FOR i = 1 to 11
@@ -227,4 +229,5 @@ FOR i = 1 to 11
 NEXT
 
 'Logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")

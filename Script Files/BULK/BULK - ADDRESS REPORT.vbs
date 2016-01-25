@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +44,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 36                               'manual run time in seconds
+STATS_denomination = "I"       'I is for each Item
+'END OF stats block==============================================================================================
+
+'Dialog
 BeginDialog x_dlg, 0, 0, 176, 140, "x1 Number"
   EditBox 55, 45, 65, 15, x_number
   CheckBox 20, 65, 140, 10, "Check here to run for the entire county.", all_workers_check
@@ -59,22 +64,20 @@ EndDialog
 'Custom function----------------------------------------------------------------------------------------------------
 FUNCTION find_MAXIS_worker_number(x_number)
 	EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
-	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates				
+	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates
 		EMReadScreen x_number, 7, 22, 8
 	ELSE
 		Call find_variable("PW: ", x_number, 7)	'if not, then the PW: variable is searched to find the worker #
 		If isnumeric(MAXIS_worker_number) = true then 	 'making sure that the worker # is a number
 			MAXIS_worker_number = x_number				'delcares the MAXIS_worker_number to be the x_number
-		End if	
+		End if
 	END if
 END FUNCTION
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
 
 CALL check_for_MAXIS(True)
-
 Call find_MAXIS_worker_number(x_number)
 
 'Shows dialog
@@ -88,9 +91,6 @@ DO
 	If x_number <> "" and all_workers_check = 1 THEN MsgBox "You need to enter your worker number OR check to run the entire agency, not both options."
 LOOP until (x_number = "" AND all_workers_check = 1) OR (x_number <> "" AND all_workers_check = 0)
 
-x_number = right(x_number, 3)  'grabs right 3 numbers entered into worker number field to combine it with worker_county_code from global variables file, note if running locally you will need to account for this. 
-
-
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -100,9 +100,9 @@ Else
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = x_number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & x_number 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -113,7 +113,7 @@ End if
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Creating columns
@@ -163,10 +163,10 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			
+
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 
@@ -185,7 +185,7 @@ For each worker in worker_array
 				case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
-			
+
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
@@ -194,14 +194,14 @@ excel_row = 2
 Do
 	'Assign case number from Excel
 	case_number = ObjExcel.Cells(excel_row, 2)
-	
+
 	'Exiting if the case number is blank
 	If case_number = "" then exit do
 
 	'Navigate to stat/addr to grab address
 	call navigate_to_MAXIS_screen("STAT", "ADDR")
 	EMReadScreen priv_check, 4, 2, 50
-	If priv_check = "SELF" then 
+	If priv_check = "SELF" then
 		objExcel.Cells(excel_row, 4) = "Privileged"
 	Else
 		'Reading and cleaning up Residence address
@@ -226,7 +226,7 @@ Do
 		mailing_city = replace(mailing_city, "_", "")
 		mailing_State = replace(mailing_State, "_", "")
 		mailing_Zip_code = replace(mailing_Zip_code, "_", "")
-		'Writing both addresses into excel 
+		'Writing both addresses into excel
 		objExcel.Cells(excel_row, 4) = addr_line_1
 		objExcel.Cells(excel_row, 5) = addr_line_2
 		objExcel.Cells(excel_row, 6) = city
@@ -238,7 +238,7 @@ Do
 		objExcel.Cells(excel_row, 12) = mailing_State
 		objExcel.Cells(excel_row, 13) = mailing_Zip_code
 	End IF
-	
+
 	'Clearing variables for next loop.
 	addr_line_1 = ""
 	addr_line_2 = ""
@@ -250,17 +250,18 @@ Do
 	mailing_city = ""
 	mailing_State = ""
 	mailing_Zip_code = ""
-	
-	excel_row = excel_row + 1
 
+	excel_row = excel_row + 1
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Loop until case_number = ""
-	
+
 'formatting excel columns to fit
 FOR i = 1 to 13
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-'making excel document visible. 
+'making excel document visible.
 objExcel.Visible = True
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")

@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 120                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
 'DIALOG---------------------------------------------------------------------------------------------------------------------
 BeginDialog memos_overdue_baby_dialog, 0, 0, 141, 85, "MEMOS - OVERDUE BABY"
@@ -61,7 +65,6 @@ EndDialog
 EndDialog
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------
-
 'Connects to BlueZone default screen
 EMConnect ""
 
@@ -69,7 +72,6 @@ EMConnect ""
 call MAXIS_case_number_finder(case_number)
 
 Do
-  
 	Dialog memos_overdue_baby_dialog
 	If ButtonPressed = 0 then stopscript
 	If case_number = ""  or isnumeric(case_number) = false then MsgBox "You did not enter a valid case number. Please try again."
@@ -78,12 +80,11 @@ Loop until case_number <> "" and isnumeric(case_number) = true and worker_signat
 transmit
 call check_for_MAXIS(True)
 
-
 'Navigates into SPEC/MEMO
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 'Checks to make sure we're past the SELF menu
-	EMReadScreen still_self, 27, 2, 28 
+	EMReadScreen still_self, 27, 2, 28
 	If still_self = "Select Function Menu (SELF)" then script_end_procedure("Script was not able to get past SELF menu. Is case in background?")
 
 'Creates a new MEMO. If it's unable the script will stop.
@@ -97,11 +98,11 @@ call check_for_MAXIS(True)
 EMSetCursor 3, 15
 call write_variable_in_SPEC_MEMO("Our records indicate your due date has passed and you did not report the birth of your child or the pregnancy end date. Please contact us within 10 days of this notice with the following information or your case may close:")
 call write_variable_in_SPEC_MEMO("")
-call write_variable_in_SPEC_MEMO("* Date of the birth or pregnancy end date.")  
+call write_variable_in_SPEC_MEMO("* Date of the birth or pregnancy end date.")
 call write_variable_in_SPEC_MEMO("* Baby's sex and full name.")
-call write_variable_in_SPEC_MEMO("* Baby's social security number.") 
-call write_variable_in_SPEC_MEMO("* Full name of the baby's father.") 
-call write_variable_in_SPEC_MEMO("* Does the baby's father live in your home?") 
+call write_variable_in_SPEC_MEMO("* Baby's social security number.")
+call write_variable_in_SPEC_MEMO("* Full name of the baby's father.")
+call write_variable_in_SPEC_MEMO("* Does the baby's father live in your home?")
 call write_variable_in_SPEC_MEMO("* If so, does the father have a source of income?")
 call write_variable_in_SPEC_MEMO("  (If so, what is the source of income?)")
 call write_variable_in_SPEC_MEMO("* Is there other health insurance available through any       household member's employer, or privately?")
@@ -121,10 +122,8 @@ call write_variable_in_CASE_NOTE("      date, within 10 days or their case may c
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-
 'Navigates to TIKL (if selected)
-
-If tikl_for_ten_day_follow_up_checkbox = checked then 
+If tikl_for_ten_day_follow_up_checkbox = checked then
 	call navigate_to_MAXIS_screen("DAIL", "WRIT")
 	call create_MAXIS_friendly_date(date, 10, 5, 18)
 	call write_variable_in_TIKL("Has information on new baby/end of pregnancy been received? If not, consider case closure/take appropriate action.")
