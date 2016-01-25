@@ -1,4 +1,3 @@
-'OPTION EXPLICIT
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - EDRS DISQ MATCH FOUND.vbs"
 start_time = timer
