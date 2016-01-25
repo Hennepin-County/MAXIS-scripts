@@ -225,26 +225,28 @@ scriptwriter_array(scriptwriter_counter).formerrole		= 	"-"
 scriptwriter_array(scriptwriter_counter).email			= 	"roy.walz@co.stearns.mn.us"
 scriptwriter_counter = scriptwriter_counter + 1
 
-FUNCTION the_whole_thing(ButtonPressed)
+
+'This function contains a dialog and logic to return to this script after updating the worker signature file.
+FUNCTION display_info_dialog(ButtonPressed)
 	'Grabbing the worker's signature
 	'This is basically the code from ACTIONS - UPDATE WORKER SIGNATURE.vbs
 	'The script appears to need this additional code. From testing, relying on the GlobVar was insufficient
 	'Additionally, this code sets worker_signature to "No default signature" when the file is not found
-	Set objNet = CreateObject("WScript.NetWork") 
+	Set objNet = CreateObject("WScript.NetWork")
 	windows_user_ID = objNet.UserName
-	
-	Dim oTxtFile 
+
+	Dim oTxtFile
 	With (CreateObject("Scripting.FileSystemObject"))
 		If .FileExists("C:\users\" & windows_user_ID & "\my documents\workersig.txt") Then
 			Set get_worker_sig = CreateObject("Scripting.FileSystemObject")
 			Set worker_sig_command = get_worker_sig.OpenTextFile("C:\users\" & windows_user_ID & "\my documents\workersig.txt")
 			worker_sig = worker_sig_command.ReadAll
-			IF worker_sig <> "" THEN worker_signature = worker_sig	
+			IF worker_sig <> "" THEN worker_signature = worker_sig
 			worker_sig_command.Close
 		Else
 			worker_signature = "No default signature"
 		END IF
-	END WITH	
+	END WITH
 
 	'Here's the actual dialog---------------------------------------------
 	'Text layout: X, Y, size X, size Y
@@ -252,17 +254,17 @@ FUNCTION the_whole_thing(ButtonPressed)
 	ButtonGroup ButtonPressed
 		OkButton 320, 430, 50, 15
 		PushButton 275, 69, 95, 12, "<-- Update Worker Signature", UTILITIES_update_worker_signature_button
-	
+
 		'header
 		Text 5, 10, 370, 10, "============================= BLUEZONE SCRIPTS INFORMATION ============================="
-	
+
 		'We want to see right away if we're using the master branch
 		If use_master_branch = true then
 			Text 290, 30, 80, 10, "Branch used: MASTER"
 		Else
 			Text 290, 30, 80, 10, "Branch used: RELEASE"
 		End if
-	
+
 		'This stuff is all pulled from global variables
 		Text 5, 30, 200, 10, "Scripts most recent install date: " & scripts_updated_date
 		Text 5, 40, 365, 10, "Worker county code: " & worker_county_code
@@ -274,7 +276,7 @@ FUNCTION the_whole_thing(ButtonPressed)
 		Text 5, 100, 365, 10, "Emergency ''percent rule'' amount: " & emer_percent_rule_amt & "%"
 		Text 5, 110, 365, 10, "Number of days-worth-of-income to be verified for emergency: " & emer_number_of_income_days
 		Text 5, 120, 365, 10, "CLS x1 number: " & CLS_x1_number
-	
+
 		'The users who select a worker is either set to True (for everyone in the agency), or set to False and manually entered into global variables. This reads off who's covered by that.
 		If all_users_select_a_worker = True then
 			Text 5, 130, 365, 30, "Nav scripts users set to select a worker mode: ALL"
@@ -287,7 +289,7 @@ FUNCTION the_whole_thing(ButtonPressed)
 			user_string = replace(user_string, ", none!", "")
 			Text 5, 130, 365, 30, "Nav scripts users set to select a worker mode: " & user_string
 		End if
-	
+
 		'This should only be tripped by scriptwriters who are running scripts locally
 		If run_locally = true then
 			Text 5, 160, 300, 10, "==========================================================================="
@@ -300,7 +302,7 @@ FUNCTION the_whole_thing(ButtonPressed)
 			Text 5, 180, 300, 10, "         is used a storage medium for the latest scripts, and was approved for our"
 			Text 5, 190, 300, 10, "         use by state IT in 2014."
 		End if
-	
+
 		'Here's some logic to create a list of scriptwriters based on the above info--------------
 		'First some headers
 		Text 5, 210, 370, 10, 	"========================= LIST OF SCRIPTWRITERS AS OF 12/02/2015 ========================="
@@ -309,7 +311,7 @@ FUNCTION the_whole_thing(ButtonPressed)
 		Text 155, 220, 90, 10, "---CURRENT ROLE---"
 		Text 245, 220, 90, 10, "---FORMER ROLE---"
 		Text 335, 220, 35, 10, "---EMAIL---"
-	
+
 		'This loop takes info from above and turns it into coordinates on the dialog
 		For i = 0 to ubound(scriptwriter_array)
 			y_pos = (i * 10) + 230
@@ -320,15 +322,15 @@ FUNCTION the_whole_thing(ButtonPressed)
 			If scriptwriter_array(i).email <> "" THEN PushButton 335, y_pos, 35, 10, "email", email_button_array(i)
 		Next
 	EndDialog
-	
+
 	'Shows the dialog
 	Dialog info_dialog
-	
+
 	'Allowing the worker to update their worker signature directly from the utilities script
-	IF ButtonPressed = UTILITIES_update_worker_signature_button THEN 
-		IF worker_signature <> "No default signature" THEN 
+	IF ButtonPressed = UTILITIES_update_worker_signature_button THEN
+		IF worker_signature <> "No default signature" THEN
 			worker_signature = InputBox("Please enter your new worker signature...")
-			IF worker_signature <> "" THEN 
+			IF worker_signature <> "" THEN
 				SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
 				SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
 				update_worker_sig_command.Write(worker_signature)
@@ -336,7 +338,7 @@ FUNCTION the_whole_thing(ButtonPressed)
 			END IF
 		ELSE
 			worker_signature = InputBox("Please enter your new worker signature...")
-			IF worker_signature <> "" THEN 
+			IF worker_signature <> "" THEN
 				SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
 				SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
 				update_worker_sig_command.Write(worker_signature)
@@ -344,22 +346,22 @@ FUNCTION the_whole_thing(ButtonPressed)
 				SET update_worker_sig_command = Nothing
 				SET update_worker_sig_fso = Nothing
 				'ending the script as we are getting an exception access violation
-				'>>>> THIS IS AN AREA THAT COULD USE ADDITIONAL WORK. I (ROBERT) WOULD PREFER 
-				'>>>> THAT THE SCRIPT CONTINUE LOOPING, BUT IT SEEMS TO BE A PROBLEM WHEN THE 
+				'>>>> THIS IS AN AREA THAT COULD USE ADDITIONAL WORK. I (ROBERT) WOULD PREFER
+				'>>>> THAT THE SCRIPT CONTINUE LOOPING, BUT IT SEEMS TO BE A PROBLEM WHEN THE
 				'>>>> SCRIPT HAS TO CREATE THE .TXT FILE.
 				script_end_procedure("Worker signature created.")
-			END IF			
+			END IF
 		END IF
-	ELSEIF ButtonPressed <> OK and ButtonPressed <> Cancel AND ButtonPressed <> UTILITIES_update_worker_signature_button THEN 
+	ELSEIF ButtonPressed <> OK and ButtonPressed <> Cancel AND ButtonPressed <> UTILITIES_update_worker_signature_button THEN
 		For i = 0 to ubound(email_button_array)
 			If ButtonPressed = email_button_array(i) then CreateObject("WScript.Shell").Run("mailto:" & scriptwriter_array(i).email)
 		Next
-	End if	
+	End if
 END FUNCTION
 
 'Calling the function that builds the dialog. The script will loop around the function to allow the worker to update their worker signature and then send an email.
 DO
-	CALL the_whole_thing(ButtonPressed)
+	CALL display_info_dialog(ButtonPressed)
 LOOP UNTIL ButtonPressed <> UTILITIES_update_worker_signature_button
 
 
