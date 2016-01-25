@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 480          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
   EditBox 30, 15, 350, 15, unearned_income
@@ -73,7 +79,7 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
     PushButton 20, 25, 70, 15, "Jump to STAT/BILS", BILS_button
     PushButton 100, 25, 70, 15, "Stay in ELIG/HC", ELIG_button
     CancelButton 135, 55, 50, 15
-EndDialog 
+EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -82,7 +88,7 @@ Dim row
 Dim col
 HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
 
-'THE SUB routine----------------------------------------------------------------------------------------------------  
+'THE SUB routine----------------------------------------------------------------------------------------------------
 Function approval_summary
   PF3
   Call check_for_MAXIS(False)
@@ -96,15 +102,15 @@ Function approval_summary
   EMWriteScreen "16", 20, 46
   EMWriteScreen "hcmi", 21, 70
   transmit
-  
+
   EMReadScreen HCMI_check, 4, 2, 55 'Error prone checking
   If HCMI_check <> "HCMI" then transmit
-  
+
   EMReadScreen spenddown_option, 2, 10, 57
   If spenddown_option <> "__" then
     EMWriteScreen "faci", 20, 71
     transmit
-  
+
   'Now it checks to see if there are multiple FACI panels. It will automatically go to the most recent one.
     Do
       EMReadScreen in_year_check_01, 4, 14, 53
@@ -126,7 +132,7 @@ Function approval_summary
       EMReadScreen FACI_total_check, 1, 2, 78
       transmit
     Loop until FACI_current_panel = FACI_total_check
-  
+
   'Now it sends the most recent FACI to the designated_provider variable.
     EMReadScreen FACI_name, 30, 6, 43
     FACI_name = replace(FACI_name, "_", "")
@@ -145,7 +151,7 @@ Function approval_summary
   End if
   back_to_self
 
-'navigates to elig HC for first month of the year.     
+'navigates to elig HC for first month of the year.
   EMWriteScreen "elig", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen case_number, 18, 43
@@ -161,11 +167,11 @@ Function approval_summary
   End if
   If person_check <> "NO" then EMWriteScreen "x", 8, 26
   transmit
-  
+
   row = 3
   col = 1
   EMSearch "01/16", row, col
-  If row = 0 then 
+  If row = 0 then
     MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
     stopscript
   End if
@@ -174,7 +180,7 @@ Function approval_summary
   EMReadScreen budget_type, 1, 13, col + 2
   EMWriteScreen "x", 9, col + 2
   transmit
-  'Reads which BUD screen it ended up on and then acts accordingly 
+  'Reads which BUD screen it ended up on and then acts accordingly
   EMReadScreen LBUD_check, 4, 3, 45
   If LBUD_check = "LBUD" then
     EMReadScreen recipient_amt, 10, 15, 70
@@ -204,7 +210,7 @@ Function approval_summary
     EMReadScreen other_deductions, 10, 13, 70
     If other_deductions <> "__________" then deductions = deductions & "Other deductions ($" & replace(other_deductions, "_", "") & "). "
   End if
-  
+
   EMReadScreen SBUD_check, 4, 3, 44
   If SBUD_check = "SBUD" then
     EMReadScreen recipient_amt, 10, 16, 71
@@ -232,7 +238,7 @@ Function approval_summary
     EMReadScreen other_deductions, 10, 14, 71
     If other_deductions <> "__________" then deductions = deductions & "Other deductions ($" & replace(other_deductions, "_", "") & "). "
   End if
-  
+
   EMReadScreen BBUD_check, 4, 3, 47
   If BBUD_check = "BBUD" then
     EMReadScreen income, 10, 12, 32
@@ -256,7 +262,7 @@ Function approval_summary
     End if
   End if
 
-'---Dialog is dynamically created and needs results from BBUD to be created therefore needs to be seperate from other dialogs. 
+'---Dialog is dynamically created and needs results from BBUD to be created therefore needs to be seperate from other dialogs.
 BeginDialog COLA_dialog, 0, 0, 376, 147, "COLA"
   DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX", elig_type
   DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
@@ -305,7 +311,7 @@ EndDialog
 			 row = 3
   			 col = 1
   			 EMSearch "01/16", row, col
- 			 If row = 0 then 
+ 			 If row = 0 then
  			   MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
  			   stopscript
 			  End if
@@ -324,7 +330,7 @@ EndDialog
   Loop until buttonpressed = OK
   back_to_self
   EMWriteScreen case_number, 18, 43
-  
+
   Call start_a_blank_CASE_NOTE
   EMSendKey "**Approved COLA updates 01/16: " & elig_type & "-" & budget_type & " " & recipient_amt
   If budget_type = "L" then EMSendKey " LTC SD**"
@@ -345,19 +351,19 @@ end function
 
 ' Function for script--------------------------------------------------------------------------------------------------------
 function income_summary
-	
+
 	EMConnect ""
-	
+
 	'FORCING THE CASE INTO FOOTER MONTH 01/15
 	back_to_self
 	EMWriteScreen "01", 20, 43
 	EMWriteScreen "16", 20, 46
-	
+
 	'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	call navigate_to_MAXIS_screen("stat", "unea")
 	'checking for an active MAXIS session
 	Call check_for_MAXIS(False)
-	
+
 	'THE FOLLOWING DIALOG WILL DYNAMICALLY CHANGE DEPENDING ON THE HH COMP. IT WILL ALLOW A WORKER TO SELECT WHICH HH MEMBERS NEED TO BE INCLUDED IN THE SCRIPT.
 	EMReadScreen HH_member_01, 18, 5, 3                                       'THIS GATHERS THE HH MEMBERS DIRECTLY FROM A MAXIS SCREEN.
 	EMReadScreen HH_member_02, 18, 6, 3
@@ -375,7 +381,7 @@ function income_summary
 	EMReadScreen HH_member_14, 18, 18, 3
 	EMReadScreen HH_member_15, 18, 19, 3
 	dialog_size_variable = 50             'DEFAULT IS 50, BUT IT CHANGES DEPENDING ON THE AMOUNT OF HH MEMBERS.
-	If HH_member_03 <> "                  " then dialog_size_variable = 65     
+	If HH_member_03 <> "                  " then dialog_size_variable = 65
 	If HH_member_04 <> "                  " then dialog_size_variable = 80
 	If HH_member_05 <> "                  " then dialog_size_variable = 95
 	If HH_member_06 <> "                  " then dialog_size_variable = 110
@@ -424,12 +430,12 @@ function income_summary
 	If HH_member_14 <> "                  " then CheckBox 10, 215, 120, 10, HH_member_14, client_14_check
 	If HH_member_15 <> "                  " then CheckBox 10, 230, 120, 10, HH_member_15, client_15_check
 	EndDialog
-	
+
 	'NOW IT SHOWS THE DIALOG FROM THE LAST SCREEN
 	Dialog HH_memb_dialog
 	cancel_confirmation
 	Call check_for_MAXIS(False)
-	
+
 	'DETERMINING WHICH HH MEMBERS TO LOOK AT
 	If client_01_check = 1 then HH_member_array = HH_member_array & left(HH_member_01, 2) & " "
 	If client_02_check = 1 then HH_member_array = HH_member_array & left(HH_member_02, 2) & " "
@@ -448,7 +454,7 @@ function income_summary
 	If client_15_check = 1 then HH_member_array = HH_member_array & left(HH_member_15, 2) & " "
 	HH_member_array = trim(HH_member_array)
 	HH_member_array = split(HH_member_array, " ")
-	
+
 	'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	'DETERMINES THE UNEARNED INCOME RECEIVED BY THE CLIENT
 	For each HH_member in HH_member_array
@@ -457,7 +463,7 @@ function income_summary
 	EMWriteScreen "01", 20, 79
 	transmit
 	EMReadScreen UNEA_total, 1, 2, 78
-	If UNEA_total <> 0 then 
+	If UNEA_total <> 0 then
 		Do
 		If HH_member = "01" then
 			call add_UNEA_to_variable(unearned_income)
@@ -469,7 +475,7 @@ function income_summary
 		Loop until cint(UNEA_panel_current) = cint(UNEA_total)
 	End if
 	Next
-	
+
 	'DETERMINES THE JOBS INCOME RECEIVED BY THE CLIENT
 	For each HH_member in HH_member_array
 	call navigate_to_MAXIS_screen("stat", "jobs")
@@ -477,7 +483,7 @@ function income_summary
 	EMWriteScreen "01", 20, 79
 	transmit
 	EMReadScreen JOBS_total, 1, 2, 78
-	If JOBS_total <> 0 then 
+	If JOBS_total <> 0 then
 		Do
 		If HH_member = "01" then
 			call add_JOBS_to_variable(earned_income)
@@ -489,7 +495,7 @@ function income_summary
 		Loop until cint(JOBS_panel_current) = cint(JOBS_total)
 	End if
 	Next
-	
+
 	'DETERMINES THE BUSI INCOME RECEIVED BY THE CLIENT
 	For each HH_member in HH_member_array
 	call navigate_to_MAXIS_screen("stat", "busi")
@@ -497,7 +503,7 @@ function income_summary
 	EMWriteScreen "01", 20, 79
 	transmit
 	EMReadScreen BUSI_total, 1, 2, 78
-	If BUSI_total <> 0 then 
+	If BUSI_total <> 0 then
 		Do
 		If HH_member = "01" then
 			call add_BUSI_to_variable(earned_income)
@@ -509,7 +515,7 @@ function income_summary
 		Loop until cint(BUSI_panel_current) = cint(BUSI_total)
 	End if
 	Next
-	
+
 	'DETERMINES THE RBIC INCOME RECEIVED BY THE CLIENT
 	For each HH_member in HH_member_array
 	call navigate_to_MAXIS_screen("stat", "rbic")
@@ -517,7 +523,7 @@ function income_summary
 	EMWriteScreen "01", 20, 79
 	transmit
 	EMReadScreen RBIC_total, 1, 2, 78
-	If RBIC_total <> 0 then 
+	If RBIC_total <> 0 then
 		Do
 		If HH_member = "01" then
 			call add_RBIC_to_variable(earned_income)
@@ -529,19 +535,19 @@ function income_summary
 		Loop until cint(RBIC_panel_current) = cint(RBIC_total)
 	End if
 	Next
-	
+
 	'DETERMINES THE MEDICARE PART B PAID BY THE CLIENT
 	call navigate_to_MAXIS_screen("stat", "medi")
 	EMWriteScreen "01", 20, 76
 	transmit
 	EMReadScreen MEDI_total, 1, 2, 78
-	If MEDI_total <> 0 then 
+	If MEDI_total <> 0 then
 	EMReadScreen medicare_part_B, 8, 7, 73
 	medicare_part_B = "$" & trim(medicare_part_B)
 	End if
-	
+
 	'IT HAS TO CLEAN UP EDIT BOXES--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	'CLEANS UP THE unearned_income EDITBOX
 	unearned_income = trim(unearned_income)
 	if right(unearned_income, 1) = ";" then unearned_income = left(unearned_income, len(unearned_income) - 1)
@@ -551,7 +557,7 @@ function income_summary
 	unearned_income = replace(unearned_income, "$________/weekly", "amt unknown")
 	unearned_income = replace(unearned_income, "$________/biweekly", "amt unknown")
 	unearned_income = replace(unearned_income, "$________/semimonthly", "amt unknown")
-	
+
 	'CLEANS UP THE earned_income EDITBOX
 	earned_income = trim(earned_income)
 	if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
@@ -561,7 +567,7 @@ function income_summary
 	earned_income = replace(earned_income, "$________/weekly", "amt unknown")
 	earned_income = replace(earned_income, "$________/biweekly", "amt unknown")
 	earned_income = replace(earned_income, "$________/semimonthly", "amt unknown")
-	
+
 	'CLEANS UP THE unearned_income_spouse EDITBOX
 	unearned_income_spouse = trim(unearned_income_spouse)
 	if right(unearned_income_spouse, 1) = ";" then unearned_income_spouse = left(unearned_income_spouse, len(unearned_income_spouse) - 1)
@@ -571,7 +577,7 @@ function income_summary
 	unearned_income_spouse = replace(unearned_income_spouse, "$________/weekly", "amt unknown")
 	unearned_income_spouse = replace(unearned_income_spouse, "$________/biweekly", "amt unknown")
 	unearned_income_spouse = replace(unearned_income_spouse, "$________/semimonthly", "amt unknown")
-	
+
 	'CLEANS UP THE earned_income_spouse EDITBOX
 	earned_income_spouse = trim(earned_income_spouse)
 	if right(earned_income_spouse, 1) = ";" then earned_income_spouse = left(earned_income_spouse, len(earned_income_spouse) - 1)
@@ -581,12 +587,12 @@ function income_summary
 	earned_income_spouse = replace(earned_income_spouse, "$________/weekly", "amt unknown")
 	earned_income_spouse = replace(earned_income_spouse, "$________/biweekly", "amt unknown")
 	earned_income_spouse = replace(earned_income_spouse, "$________/semimonthly", "amt unknown")
-	
+
 	'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Dialog COLA_income_dialog
 	cancel_confirmation
 	Call check_for_MAXIS(False)
-	
+
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE ("===COLA 2016 INCOME SUMMARY===")
 	call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
@@ -607,10 +613,10 @@ col = 1
 EMSearch "Case Nbr:", row, col
 If row <> 0 then EMReadScreen case_number, 8, row, col + 10
 
-If date <= "12/01/2015" then 
-	MsgBox("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
-	script_end_procedure("")
-Else 
+'Checking to see that we are in an appropriate footer month to be updating in CY2016
+If DateDiff("D", #12/01/2015#, date) < 0 THEN
+	script_end_procedure("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
+Else
 	BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
 	EditBox 100, 0, 60, 15, case_number
 	CheckBox 45, 30, 75, 10, "Approval Summary", approval_summary_check
@@ -621,12 +627,12 @@ Else
 	Text 10, 5, 85, 10, "Enter your case number:"
 	GroupBox 40, 20, 85, 40, "COLA case note types"
 	EndDialog
-	
+
 	Dialog COLA_case_number_dialog
 	cancel_confirmation
-	
+
 	If approval_summary_check = 1 then call approval_summary
 	If income_summary_check = 1 then call income_summary
-END IF 
+END IF
 
 script_end_procedure("")

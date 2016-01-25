@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
+
 'DIALOGS-----------------------------------------------------------------------------------
 BeginDialog worker_dialog, 0, 0, 171, 45, "Worker dialog"
   Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"

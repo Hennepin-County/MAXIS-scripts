@@ -43,7 +43,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 90                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
+'Dialog--------------------------------------------
 BeginDialog dup_dlg, 0, 0, 156, 95, "Duplicate Assistance WCOM"
   EditBox 65, 5, 75, 15, case_number
   EditBox 75, 25, 65, 15, worker_signature
@@ -58,6 +64,7 @@ BeginDialog dup_dlg, 0, 0, 156, 95, "Duplicate Assistance WCOM"
   Text 85, 45, 40, 20, "Footer Year (YY):"
 EndDialog
 
+'The script-------------------------------------
 EMConnect ""
 
 'warning box
@@ -65,9 +72,9 @@ Msgbox "Warning: If you have multiple waiting SNAP or MFIP results this script m
 		"- If this case includes members who are residing in a battered women's shelter please review approval." & vbNewLine &_
 		"- If this was an expedited case where client reported they did not receive benefits in another state please review approval" & vbNewLine &_
 		"- See CM 001.21 for more details on these two situations and how they qualify for duplicate assistance."
-		
+
 'the dialog
-Do	
+Do
 	Do
 		Do
 			dialog dup_dlg
@@ -82,7 +89,6 @@ Loop until worker_signature <> ""
 'Converting dates into useable forms
 If len(footer_month) < 2 THEN footer_month = "0" & footer_month
 If len(footer_year) > 2 THEN footer_year = right(footer_year, 2)
-
 
 'Navigating to the spec wcom screen
 CALL Check_for_MAXIS(false)

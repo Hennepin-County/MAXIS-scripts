@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 300          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 '>>>>NOTE: these were added as a batch process. Check below for any 'StopScript' functions and convert manually to the script_end_procedure("") function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
@@ -68,7 +74,7 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
 EndDialog
 
 BeginDialog approval_dialog, 0, 0, 376, 140, "Approval dialog"
-  DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
+  DropListBox 45, 5, 30, 15, "AX"+chr(9)+"EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
   DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
   EditBox 285, 5, 85, 15, recipient_amt
   EditBox 90, 25, 280, 15, income

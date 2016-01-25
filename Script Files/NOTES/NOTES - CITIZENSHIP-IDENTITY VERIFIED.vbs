@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 55           'manual run time in seconds
+STATS_denomination = "M"        'M is for each member
+'END OF stats block=========================================================================================================
+
 'DIALOG-------------------------------------------------------------------
 BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
   Text 5, 10, 50, 10, "Case number:"
@@ -124,6 +130,7 @@ EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
 EMSendKey string(77, "-") 
 EMSendKey "    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF" & "<newline>"
 If HH_memb_01 <> "" then 
+        STATS_counter = STATS_counter                      'does not add one instance to the stats counter as it starts at one and this is the first person
 	EMWriteScreen string(76, " "), 7, 3
 	EMWriteScreen HH_memb_01, 7, 5
 	IF exempt_reason_01 <> "(select or type here)" then EMWriteScreen exempt_reason_01, 7, 22
@@ -131,6 +138,7 @@ If HH_memb_01 <> "" then
 	IF ID_proof_01 <> "(select or type here)" then EMWriteScreen ID_proof_01, 7, 63
 End if
 If HH_memb_02 <> "" then
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	EMWriteScreen string(76, " "), 8, 3
 	EMWriteScreen HH_memb_02, 8, 5
 	IF exempt_reason_02 <> "(select or type here)" then EMWriteScreen exempt_reason_02, 8, 22
@@ -138,6 +146,7 @@ If HH_memb_02 <> "" then
 	IF ID_proof_02 <> "(select or type here)" then EMWriteScreen ID_proof_02, 8, 63
 End if
 If HH_memb_03 <> "" then
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	EMWriteScreen string(76, " "), 9, 3
 	EMWriteScreen HH_memb_03, 9, 5
 	IF exempt_reason_03 <> "(select or type here)" then EMWriteScreen exempt_reason_03, 9, 22
@@ -145,6 +154,7 @@ If HH_memb_03 <> "" then
 	IF ID_proof_03 <> "(select or type here)" then EMWriteScreen ID_proof_03, 9, 63
 End if
 If HH_memb_04 <> "" then
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	EMWriteScreen string(76, " "), 10, 3
 	EMWriteScreen HH_memb_04, 10, 5
 	IF exempt_reason_04 <> "(select or type here)" then EMWriteScreen exempt_reason_04, 10, 22
@@ -152,6 +162,7 @@ If HH_memb_04 <> "" then
 	IF ID_proof_04 <> "(select or type here)" then EMWriteScreen ID_proof_04, 10, 63
 End if
 If HH_memb_05 <> "" then
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	EMWriteScreen string(76, " "), 11, 3
 	EMWriteScreen HH_memb_05, 11, 5
 	IF exempt_reason_05 <> "(select or type here)" then EMWriteScreen exempt_reason_05, 11, 22
@@ -159,6 +170,7 @@ If HH_memb_05 <> "" then
 	IF ID_proof_05 <> "(select or type here)" then EMWriteScreen ID_proof_05, 11, 63
 End if
 If HH_memb_06 <> "" then
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	EMWriteScreen string(76, " "), 12, 3
 	EMWriteScreen HH_memb_06, 12, 5
 	IF exempt_reason_06 <> "(select or type here)" then EMWriteScreen exempt_reason_06, 12, 22
@@ -166,6 +178,7 @@ If HH_memb_06 <> "" then
 	IF ID_proof_06 <> "(select or type here)" then EMWriteScreen ID_proof_06, 12, 63
 End if
 If HH_memb_07 <> "" then
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	EMWriteScreen string(76, " "), 13, 3
 	EMWriteScreen HH_memb_07, 13, 5
 	IF exempt_reason_07 <> "(select or type here)" then EMWriteScreen exempt_reason_07, 13, 22
@@ -173,6 +186,7 @@ If HH_memb_07 <> "" then
 	IF ID_proof_07 <> "(select or type here)" then EMWriteScreen ID_proof_07, 13, 63
 End if
 If HH_memb_08 <> "" then
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	EMWriteScreen string(76, " "), 14, 3
 	EMWriteScreen HH_memb_08, 14, 5
 	IF exempt_reason_08 <> "(select or type here)" then EMWriteScreen exempt_reason_08, 14, 22

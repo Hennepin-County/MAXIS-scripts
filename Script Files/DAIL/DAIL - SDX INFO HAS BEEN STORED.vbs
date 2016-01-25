@@ -44,6 +44,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 10          'manual run time in seconds
+STATS_denomination = "C"       'C is for Case
+'END OF stats block==============================================================================================
+
+
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 

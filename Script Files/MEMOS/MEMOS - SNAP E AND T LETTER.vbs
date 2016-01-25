@@ -47,6 +47,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 180                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
 county_FSET_offices = array("")
 
@@ -157,7 +163,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 185, "SNAP E&T Appointmen
   DropListBox 115, 50, 185, 15, FSET_list, interview_location
   EditBox 55, 70, 65, 15, SNAPET_contact
   EditBox 185, 70, 65, 15, SNAPET_phone
-  CheckBox 10, 95, 210, 10, "Check here if HH member is using banked ABAWD month(s).", banked_months_check
+  CheckBox 5, 95, 295, 10, "Check here if HH member is using banked ABAWD month (manual referral will be made.)", banked_months_check
   EditBox 125, 115, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 195, 115, 50, 15
@@ -189,7 +195,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 215, "SNAP E&T Appointment 
   EditBox 210, 85, 45, 15, SNAPET_zip
   EditBox 65, 105, 65, 15, SNAPET_contact
   EditBox 185, 105, 70, 15, SNAPET_phone
-  CheckBox 15, 130, 205, 10, "Check here if HH member is using banked ABAWD month(s).", banked_months_check
+  CheckBox 5, 130, 295, 10, "Check here if HH member is using banked ABAWD month (manual referral will be made.)", banked_months_check
   EditBox 80, 150, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 150, 150, 50, 15
@@ -213,7 +219,7 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 371, 165, "SNAP E&T Appointment Letter
   EditBox 75, 10, 60, 15, case_number
   EditBox 200, 10, 25, 15, member_number
   DropListBox 75, 35, 185, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 1:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Sabathani, next Tuesday @ 1:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  CheckBox 5, 60, 255, 10, "Check here if HH members if HH member is using banked ABAWD months. ", banked_months_check
+  CheckBox 10, 60, 255, 10, "Check here if HH members if HH member is using banked ABAWD months. ", banked_months_check
   EditBox 75, 80, 75, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 155, 80, 50, 15
@@ -224,7 +230,7 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 371, 165, "SNAP E&T Appointment Letter
   GroupBox 5, 105, 260, 55, "For non-English speaking ABAWD's:"
   Text 15, 120, 245, 35, "HSRs: Do not use this script. Contact Mark Scherer at 612-596-7411 (if not available send email) and request language-specific SNAP E and T Orientation/intake. Provide ABAWD with Mark’s contact information, and instruct to contact him to schedule orientation within one week."
   Text 5, 40, 70, 10, "Region of residence: "
-  Text 270, 30, 95, 55, "If you checked that the client is using a banked ABAWD month, then a manual referral will be made containing the information in the E and T appointment letter."
+  Text 270, 35, 95, 70, "If you checked that the client is using a banked ABAWD month, then a manual referral will be made in INFC/WF1M containing the information in the E and T appointment letter."
   Text 270, 20, 50, 10, "Note: "
 EndDialog
 
@@ -240,7 +246,15 @@ member_number = "01"
 DO
 	'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 	err_msg = ""
-	IF worker_county_code = "x127" THEN
+	'these counties are exempt from participation per the FNS'
+	If worker_county_code = "x101" OR _
+		worker_county_code = "x115" OR _
+		worker_county_code = "x129" OR _
+		worker_county_code = "x133" OR _
+		worker_county_code = "x136" OR _
+		worker_county_code = "x139" THEN
+			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
+	ElseIF worker_county_code = "x127" THEN
 		Dialog SNAPET_Hennepin_dialog
 		'Hennepin specific information===================================================================================================
 		If worker_county_code = "x127" THEN
@@ -322,15 +336,11 @@ DO
 	worker_county_code = "x111" OR _
 	worker_county_code = "x113" OR _
 	worker_county_code = "x114" OR _
-	worker_county_code = "x115" OR _
 	worker_county_code = "x116" OR _
 	worker_county_code = "x117" OR _
 	worker_county_code = "x124" OR _
-	worker_county_code = "x129" OR _
 	worker_county_code = "x132" OR _
-	worker_county_code = "x133" OR _
 	worker_county_code = "x134" OR _
-	worker_county_code = "x136" OR _
 	worker_county_code = "x148" OR _
 	worker_county_code = "x149" OR _
 	worker_county_code = "x152" OR _
@@ -1006,6 +1016,12 @@ END IF
 call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMWriteScreen member_number, 20, 76
 transmit
+EMReadScreen memb_error_check, 7, 8, 22
+If memb_error_check = "Arrival" then	'checking for valid HH member
+	PF3
+	PF10
+	script_end_procedure("The HH member is invalid. Please review your case, and the HH memeber number before trying the script again.")
+END IF 	
 EMReadScreen last_name, 24, 6, 30
 EMReadScreen first_name, 11, 6, 63
 last_name = trim(replace(last_name, "_", ""))
@@ -1013,6 +1029,8 @@ first_name = trim(replace(first_name, "_", ""))
 
 'Updates the WREG panel with the appointment_date
 Call navigate_to_MAXIS_screen("STAT", "WREG")
+EMWriteScreen member_number, 20, 76
+transmit 
 PF9
 Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
 PF3
@@ -1059,8 +1077,8 @@ If banked_months_check = 1 then											'if banked months are being used then 
 	EMWriteScreen "FS", 8, 46													'this is a program for ABAWD's for SNAP is the only option for banked months
 	EMWriteScreen member_number, 8, 9									'enters member number
 	Call create_MAXIS_friendly_date(appointment_date, 0, 8, 65)			'enters the E & T referral date
-	EMWriteScreen "Banked AWAWD month referral", 17, 6							'DHS wants these referrals marked, this marks them
-	EMWriteScreen "x", 8, 53																				'selcts the ES provider
+	EMWriteScreen "Banked AWAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
+	EMWriteScreen "x", 8, 53																				'selects the ES provider
 	transmit																												'navigates to the ES provider selection screen
 		If worker_county_code = "x127" then				'HENNEPIN CO specific info'
 			EMWriteScreen "x", 5, 9									'selects the 1st option'
@@ -1070,7 +1088,7 @@ If banked_months_check = 1 then											'if banked months are being used then 
 			EMWriteScreen "Y", 11, 64								'Y to confirm save
 			transmit																'confirms saving the referral
 			script_end_procedure("Your orientation letter has been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
-			vbNewLine & vbNewLine & "Make sure that you have sent the Diamond form: ABAWD FS RULES to the client.")
+			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client.")
 		Else
 			script_end_procedure("Please select your agency's ES provider, and PF3 to save your referral.")		'if agency is not Hennepin, then user is asked to select the ES provider and save'
 		END IF

@@ -44,8 +44,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 90                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
-'DIALOGS
+'DIALOG
 BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
   EditBox 95, 0, 60, 15, case_number
@@ -55,7 +60,6 @@ BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
     OkButton 25, 40, 50, 15
     CancelButton 85, 40, 50, 15
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'grabbing case number & connecting to MAXIS
@@ -67,7 +71,6 @@ cancel_confirmation
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(True)
-
 
 'THE MEMO----------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("spec", "memo")

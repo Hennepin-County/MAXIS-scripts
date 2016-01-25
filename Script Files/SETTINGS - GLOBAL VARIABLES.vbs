@@ -9,20 +9,20 @@
 default_directory = "C:\DHS-MAXIS-Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = False
+run_locally = true
 
 '========================================================================================================================================
 
 'COUNTY NAME AND INFO==========================
 
 'This is used by almost every script which calls a specific agency worker number (like the REPT/ACTV nav and list gen scripts).
-worker_county_code = "x102"
+worker_county_code = "MULTICOUNTY"
 
 'This is used for MEMO scripts, such as appointment letter
 county_name = "Anoka County"
 
 'This merely exists to help the installer determine which dropdown box to default. It is not used by any scripts.
-code_from_installer = "02 - Anoka County"
+code_from_installer = "SCRIPTWRITER"
 
 'This is an "updated date" variable, which is updated dynamically by the intaller.
 scripts_updated_date = "01/01/2099"
@@ -46,7 +46,10 @@ emer_percent_rule_amt = "30"
 emer_number_of_income_days = "30"
 
 'This is the X1/PW number to send closed cases to in the INAC scrubber.
-CLS_x1_number = "X102CLS"
+CLS_x1_number = ""
+
+'This is a TRUE/FALSE that will tell the INAC scrubber to hold onto MAGI cases that closed for no/incomplete renewals for 4 months or not.
+MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE
 
 
 'NAVIGATION SCRIPT CONFIGURATION================
@@ -65,6 +68,9 @@ collecting_statistics = False
 
 'This is the file path for the statistics Access database.
 stats_database_path = "C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
+
+'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
+STATS_enhanced_db = false
 
 
 'BRANCH CONFIGURATION=====================
