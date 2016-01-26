@@ -50,6 +50,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================	
+STATS_counter = 1			 'sets the stats counter at one	
+STATS_manualtime = 304			 'manual run time in seconds	
+STATS_denomination = "C"		 'C is for each case	
+'END OF stats block==============================================================================================	
+	
 'Declaring variables
 'DIM month, use_date, num_of_days, next_month, month_array, month_to_use
 'DIM first_appointment_listbox, olAppointmentItem, olRecursDaily
@@ -501,6 +507,7 @@ DO 'Loops until there are no more cases in the Excel list
 			END If
 		END IF
 	END IF
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter	
 	excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list of cases to check for recert is complete
 
