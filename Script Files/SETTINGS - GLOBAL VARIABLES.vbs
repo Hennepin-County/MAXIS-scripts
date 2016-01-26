@@ -78,6 +78,11 @@ STATS_enhanced_db = false
 'This is a variable which sets the scripts to use the master branch (common with scriptwriters)
 use_master_branch = False
 
+'TRAINING CASE SCENARIO SETTINGS==========
+
+'This is a variable which decides the default location of training case scenario Excel sheets
+training_case_creator_excel_file_path = "C:\DHS-MAXIS-Scripts\SETTINGS - TRAINING CASE SCENARIOS.xlsx"
+
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
 
