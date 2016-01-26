@@ -51,9 +51,9 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Required for statistical purposes==========================================================================================	
-STATS_counter = 1                          'sets the stats counter at one	
-STATS_manualtime = 304                      'manual run time in seconds	
-STATS_denomination = "C"      ............. 'C is for each case	
+STATS_counter = 1			 'sets the stats counter at one	
+STATS_manualtime = 304			 'manual run time in seconds	
+STATS_denomination = "C"		 'C is for each case	
 'END OF stats block==============================================================================================	
 	
 'Declaring variables
