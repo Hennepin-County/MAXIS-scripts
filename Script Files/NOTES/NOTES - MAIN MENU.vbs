@@ -110,7 +110,8 @@ FUNCTION create_NOTES_main_menu(dialog_name)
   	Text 70, 205, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
   	Text 60, 220, 250, 10, "--- Template for the Combined Annual Renewal.*"
   	Text 30, 235, 120, 10, "--- Template for the CSR.*"
-
+  	Text 100, 250, 145, 10, "--- Template for the County Burial Application.*"
+  	GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 EndDialog
         ELSEIF dialog_name = "D-F" THEN
 		BeginDialog dialog_name, 0, 0, 516, 260, "D - F NOTES Scripts"
