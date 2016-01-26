@@ -46,12 +46,15 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog UTILITIES_scripts_main_menu_dialog, 0, 0, 461, 120, "Utilities scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 405, 100, 50, 20
+    CancelButton 405, 100, 50, 15
     PushButton 5, 20, 40, 10, "INFO", INFO_button
+    PushButton 5, 35, 80, 10, "Training Case Creator", TRAINING_CASE_CREATOR_button
     PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
   Text 5, 5, 250, 10, "Utilities scripts main menu: select the script to run from the choices below."
-  Text 50, 20, 320, 10, "--- NEW 01/2016!!! Displays information about your BlueZone Scripts installation."
+  Text 50, 20, 265, 10, "--- NEW 01/2016!!! Displays information about your BlueZone Scripts installation."
+  Text 90, 35, 300, 10, "--- NEW 02/2016!!! Creates training case scenarios en masse and XFERs them to workers."
 EndDialog
+
 
 'Variables to declare
 IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
@@ -67,7 +70,8 @@ Loop until buttonpressed <> SIR_instructions_button
 'Connecting to BlueZone
 EMConnect ""
 
-IF buttonpressed = INFO_button 				then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - INFO.vbs")
+IF buttonpressed = INFO_button 						then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - INFO.vbs")
+IF buttonpressed = TRAINING_CASE_CREATOR_button 	then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - TRAINING CASE CREATOR.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
