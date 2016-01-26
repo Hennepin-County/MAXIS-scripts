@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes===========================================================================================	
+STATS_counter = 1				'sets the stats counter at one	
+STATS_manualtime = 225			'manual run time in seconds	
+STATS_denomination = "C"        'C is for each case	
+'END OF stats block==========================================================================================================	
+	
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	'defines an intial date from the initial_month and initial_year parameters
@@ -506,7 +512,6 @@ For i = 0 to ubound(footer_month_array)
 		Next
 	Next
 
-
 	'ABAWD_months_array(i).gross_wages = cstr(jobs_income)
 	'storing all total amounts / adding trims so they read correctly in dialog
 	jobs_income = trim(jobs_income)
@@ -523,8 +528,6 @@ For i = 0 to ubound(footer_month_array)
 	gross_BUSI = trim(gross_BUSI)
 	total_COEX_deduction = trim(total_COEX_deduction)
 	fmed_total_amt = trim(fmed_total_amt)
-
-
 
  '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
 		BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD banked months income and deductions dialog"
