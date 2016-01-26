@@ -54,7 +54,7 @@ DIM BABY_BORN_button, BURIAL_ASSETS_button
 DIM CAF_button, CHANGE_REPORT_FORM_RECEIVED_button, CHANGE_REPORTED_button, CITIZENSHIP_IDENTITY_VERIFIED_button, CLIENT_CONTACT_button, CLOSED_PROGRAMS_button, COMBINED_AR_button, CSR_button, COUNTY_BURIAL_button
 
 DIM DENIED_PROGRAMS_button, DOCUMENTS_RECEIVED_button, DRUG_FELON_button, DWP_BUDGET_button
-DIM EMERGENCY_button, EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EMPLOYMENT_VERIFICATION_button, ES_REFERRAL_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button
+DIM EDRS_DISQ_button, EMERGENCY_button, EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button, EMPLOYMENT_VERIFICATION_button, ES_REFERRAL_button, EXPEDITED_SCREENING_button, FRAUD_INFO_button
 DIM EXPLANATION_INCOME_BUDGETED_button
 
 DIM GAS_CARDS_ISSUED_button, GOOD_CAUSE_CLAIMED_button, GRH_HRF_button
@@ -110,10 +110,11 @@ FUNCTION create_NOTES_main_menu(dialog_name)
   	Text 70, 205, 430, 10, "--- Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
   	Text 60, 220, 250, 10, "--- Template for the Combined Annual Renewal.*"
   	Text 30, 235, 120, 10, "--- Template for the CSR.*"
-
+  	Text 100, 250, 145, 10, "--- Template for the County Burial Application.*"
+  	GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 EndDialog
         ELSEIF dialog_name = "D-F" THEN
-        	BeginDialog dialog_name, 0, 0, 516, 260, "D - F NOTES Scripts"
+		BeginDialog dialog_name, 0, 0, 516, 260, "D - F NOTES Scripts"
 		ButtonGroup ButtonPressed
 		CancelButton 460, 240, 50, 15
 		PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
@@ -121,32 +122,34 @@ EndDialog
 		PushButton 5, 85, 55, 10, "Docs Received", DOCUMENTS_RECEIVED_button
 		PushButton 5, 100, 40, 10, "Drug felon", DRUG_FELON_button
 		PushButton 5, 115, 50, 10, "DWP budget", DWP_BUDGET_button
-		PushButton 5, 130, 45, 10, "Emergency", EMERGENCY_button
-		PushButton 5, 145, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
-		PushButton 5, 160, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button
-		PushButton 5, 175, 45, 10, "ES Referral", ES_REFERRAL_button
-		PushButton 5, 190, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
-		PushButton 5, 205, 115, 10, "Explanation of Income Budgeted ", EXPLANATION_INCOME_BUDGETED_button
-		PushButton 5, 220, 40, 10, "Fraud info", FRAUD_INFO_button
+		PushButton 5, 130, 90, 10, "EDRS DISQ match found", EDRS_DISQ_button
+		PushButton 5, 145, 45, 10, "Emergency", EMERGENCY_button
+		PushButton 5, 160, 120, 10, "Employment plan or status update", EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button
+		PushButton 5, 175, 90, 10, "Employment Verif Recv'd", EMPLOYMENT_VERIFICATION_button
+		PushButton 5, 190, 45, 10, "ES Referral", ES_REFERRAL_button
+		PushButton 5, 205, 75, 10, "Expedited screening", EXPEDITED_SCREENING_button
+		PushButton 5, 220, 115, 10, "Explanation of Income Budgeted ", EXPLANATION_INCOME_BUDGETED_button
+		PushButton 5, 235, 40, 10, "Fraud info", FRAUD_INFO_button
 		PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
 		PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
 		PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
 		PushButton 105, 35, 30, 15, "M - Q", m_through_Q_notes_button
 		PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
 		PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
-		Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
 		Text 70, 70, 435, 10, "--- Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
 		Text 65, 85, 440, 10, "--- Template for case noting information about documents received."
 		Text 50, 100, 215, 10, "--- Template for noting drug felon info."
 		Text 60, 115, 215, 10, "--- Template for noting DWP budgets."
-		Text 55, 130, 240, 10, "--- Template for EA/EGA applications.*"
-		Text 130, 145, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
-		Text 100, 160, 315, 10, "--- Template for noting information about an employment verification received by the agency."
-		Text 55, 175, 245, 10, "--- New 11/2015!!! Template for sending an MFIP or DWP referral to employment services."
-		Text 85, 190, 220, 10, "--- Template for screening a client for expedited status."
-		Text 50, 220, 200, 10, "--- Template for noting fraud info."
+		Text 55, 145, 240, 10, "--- Template for EA/EGA applications.*"
+		Text 130, 160, 345, 10, "--- Template for case noting an employment plan or status update for family cash cases."
+		Text 100, 175, 315, 10, "--- Template for noting information about an employment verification received by the agency."
+		Text 55, 190, 245, 10, "--- Template for sending an MFIP or DWP referral to employment services."
+		Text 85, 205, 220, 10, "--- Template for screening a client for expedited status."
+		Text 50, 235, 200, 10, "--- Template for noting fraud info."
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
-		Text 125, 205, 265, 10, "---  NEW 01/2016!!! Template for explaining the income budgeted for a case."
+		Text 125, 220, 265, 10, "---  NEW 01/2016!!! Template for explaining the income budgeted for a case."
+		Text 100, 130, 370, 10, "---  NEW 02/2016!!! Template for noting the action steps when a SNAP recipient has an eDRS DISQ per TE02.08.127."
+		Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
 		EndDialog
 	ELSEIF dialog_name = "G-L" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (G-L) scripts main menu dialog"
@@ -185,7 +188,7 @@ EndDialog
   Text 95, 165, 215, 10, "--- Template to case note when a IEVS notice is returned."
   Text 60, 180, 290, 10, "--- Template to note details of an incarceration, and also updates STAT/FACI if necessary."
   Text 90, 195, 325, 10, "--- Template to case note an interview being completed but no stat panels updated."
-  Text 80, 210, 260, 10, "--- NEW for 1/16!!! Template for case noting a client's no-showing their in-office or phone appointment."
+  Text 80, 210, 260, 10, "--- NEW 01/2016!!! Template for case noting a client's no-showing their in-office or phone appointment."
   Text 55, 225, 255, 10, "--- Template for EMA applications."
   Text 55, 240, 255, 10, "--- Template for the SAVE system for verifying immigration status."
   Text 90, 255, 310, 10, "--- Template for the sponsor income deeming calculation (it will also help calculate it for you)."
@@ -227,7 +230,7 @@ EndDialog
 		Text 85, 220, 415, 10, "--- Template for documenting proof of relationship between a member 01 and someone else in the household."
 		ButtonGroup ButtonPressed
 			CancelButton 460, 245, 50, 15
-		Text 45, 175, 290, 10, "--- NEW 10/2015!!!! Template for case noting an MTAF (MFIP Transition Application Form)."
+		Text 45, 175, 290, 10, "--- Template for case noting an MTAF (MFIP Transition Application Form)."
 		EndDialog
 	ELSEIF dialog_name = "R-Z" THEN
 		BeginDialog dialog_name, 0, 0, 516, 270, "Notes (R-Z) scripts main menu dialog"
@@ -348,6 +351,7 @@ IF ButtonPressed = DENIED_PROGRAMS_button							THEN CALL run_from_GitHub(script
 IF ButtonPressed = DOCUMENTS_RECEIVED_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DOCUMENTS RECEIVED.vbs")
 IF ButtonPressed = DRUG_FELON_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DRUG FELON.vbs")
 IF ButtonPressed = DWP_BUDGET_button								THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - DWP BUDGET.vbs")
+IF ButtonPressed = EDRS_DISQ_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EDRS DISQ MATCH FOUND.vbs")
 IF ButtonPressed = EMERGENCY_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMERGENCY.vbs")
 IF ButtonPressed = EMPLOYMENT_PLAN_OR_STATUS_UPDATE_button			THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs")
 IF ButtonPressed = EMPLOYMENT_VERIFICATION_button					THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - EVF RECEIVED.vbs")
@@ -370,7 +374,7 @@ IF ButtonPressed = INTERVIEW_NO_SHOW_button						THEN CALL run_from_GitHub(scrip
 IF ButtonPressed = LEP_EMA_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - EMA.vbs")
 IF ButtonPressed = LEP_SAVE_button									THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SAVE.vbs")
 IF ButtonPressed = LEP_SPONSOR_INCOME_button						THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - LEP - SPONSOR INCOME.vbs")
-							
+
 
 IF ButtonPressed = MEDICAL_OPINION_FORM_RECEIVED_button				THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MEDICAL OPINION FORM RECEIVED.vbs")
 IF ButtonPressed = MFIP_SANCTION_AND_DWP_DISQUALIFICATION_button	THEN CALL run_from_GitHub(script_repository & "/NOTES/NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs")
