@@ -1,3 +1,4 @@
+'worker_county_code = "x127"
 'Option Explicit
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
@@ -177,7 +178,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 185, "SNAP E&T Appointmen
   Text 130, 75, 50, 10, "Contact phone:"
   Text 5, 50, 105, 10, "Location (select from dropdown)"
   GroupBox 5, 140, 295, 40, "If the HH member is using an ABAWD banked month:"
-  Text 10, 155, 285, 15, "If you checked that the client is using a banked ABAWD month, then a manual referral will be made containing the information in the E and T appointment letter. "
+  Text 10, 155, 285, 15, "If you checked that the client is using an ABAWD banked month, then a manual referral will be made containing the information in the E and T appointment letter. "
 EndDialog
 
 'This dialog is for counties that have not provided FSET office address(s)
@@ -195,7 +196,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 215, "SNAP E&T Appointment 
   EditBox 210, 85, 45, 15, SNAPET_zip
   EditBox 65, 105, 65, 15, SNAPET_contact
   EditBox 185, 105, 70, 15, SNAPET_phone
-  CheckBox 5, 130, 295, 10, "Check here if HH member is using banked ABAWD month (manual referral will be made.)", banked_months_check
+  CheckBox 5, 130, 295, 10, "Check here if HH member is using an ABAWD banked month (manual referral will be made.)", banked_months_check
   EditBox 80, 150, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 150, 150, 50, 15
@@ -219,7 +220,7 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 371, 165, "SNAP E&T Appointment Letter
   EditBox 75, 10, 60, 15, case_number
   EditBox 200, 10, 25, 15, member_number
   DropListBox 75, 35, 185, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 1:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Sabathani, next Tuesday @ 1:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  CheckBox 10, 60, 255, 10, "Check here if HH members if HH member is using banked ABAWD months. ", banked_months_check
+  CheckBox 10, 60, 255, 10, "Check here if HH member is using an ABAWD banked month (manual referral will be made.)", banked_months_check
   EditBox 75, 80, 75, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 155, 80, 50, 15
