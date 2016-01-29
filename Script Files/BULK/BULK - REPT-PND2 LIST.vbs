@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOG-----------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
   EditBox 150, 20, 130, 15, worker_number
@@ -60,11 +66,10 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data in
   Text 70, 25, 65, 10, "Worker(s) to check:"
   Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 70, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
-
 'Gathering county code for multi-county...
 CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
 
@@ -154,9 +159,9 @@ Else
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -229,6 +234,7 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
 'Resetting excel_row variable, now we need to start looking people up
@@ -333,7 +339,6 @@ If SNAP_check = checked then
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
 
-
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -376,7 +381,6 @@ If cash_check = checked then
 	objExcel.Cells(2, 4).Font.Bold = TRUE
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
-
 
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
@@ -421,7 +425,6 @@ If HC_check = checked then
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
 
-
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -465,7 +468,6 @@ If EA_check = checked then
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
 
-
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
@@ -491,7 +493,6 @@ End if
 
 'Provides additional statistics for GRH cases
 If GRH_check = checked then
-
 	'Going to another sheet, to enter worker-specific statistics
 	ObjExcel.Worksheets.Add().Name = "GRH stats by worker"
 
@@ -508,7 +509,6 @@ If GRH_check = checked then
 	objExcel.Cells(2, 4).Font.Bold = TRUE
 	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
 	objExcel.Cells(2, 5).Font.Bold = TRUE
-
 
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
@@ -534,4 +534,5 @@ If GRH_check = checked then
 End if
 
 'Logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 301, 120, "Pull REPT data into Excel dialog"
   EditBox 155, 20, 140, 15, worker_number
@@ -55,17 +61,15 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 301, 120, "Pull REPT data in
     CancelButton 245, 100, 50, 15
   Text 85, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 95, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 85, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 85, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
   GroupBox 5, 20, 75, 60, "Month to scan"
   Text 85, 25, 65, 10, "Worker(s) to check:"
   Text 10, 40, 40, 10, "Month (MM):"
   Text 10, 60, 35, 10, "Year (YY):"
 EndDialog
 
-
 'THE SCRIPT----------------------------------------------------------------------------------
-
-'inserting month - 1 into footer month section as this is likely the most commonly needed inac month. 
+'inserting month - 1 into footer month section as this is likely the most commonly needed inac month.
 inac_month = datepart("m", dateadd("m", -1, date))
 inac_year = right(dateadd("m", -1, date), 2)
 If len(inac_month) = 1 then inac_month = "0" & inac_month
@@ -90,7 +94,7 @@ Call check_for_MAXIS(false)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker, case number, and name
@@ -111,12 +115,12 @@ If all_workers_check = checked then
 Else
 	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
-	'Need to add the worker_county_code to each one
+	'building array
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -131,6 +135,8 @@ For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "inac")
 	EMWriteScreen worker, 21, 16
+	EMWriteScreen inac_month, 20, 54
+	EMWriteScreen inac_year, 20, 57
 	transmit
 
 	'Skips workers with no info
@@ -141,7 +147,7 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 3			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 14		'Reading client name
 				EMReadScreen appl_date, 8, MAXIS_row, 39		'Reading appl date
@@ -154,7 +160,7 @@ For each worker in worker_array
 				If case_number = "        " then exit do			'Exits do if we reach the end
 
 				'Adding the case to Excel
-				If case_numer <> "        " then 
+				If case_numer <> "        " then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -170,8 +176,8 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
-
 
 'Query date/time/runtime info
 objExcel.Cells(1, 6).Font.Bold = TRUE
@@ -187,4 +193,5 @@ For col_to_autofit = 1 to 7
 Next
 
 'Logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

@@ -48,36 +48,37 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog MEMOS_scripts_main_menu_dialog, 0, 0, 451, 270, "Memos scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 390, 250, 50, 15
-    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
     PushButton 5, 25, 65, 10, "12 month contact", TWELVE_MONTH_CONTACT_button
     PushButton 5, 50, 65, 10, "Appointment letter", APPOINTMENT_LETTER_button
     PushButton 5, 65, 100, 10, "Duplicate assistance WCOM", DUPLICATE_ASSISTANCE_button
-    PushButton 5, 90, 125, 10, "GRH overpayment (client left facility)", GRH_OP_CL_LEFT_FACI_button
-    PushButton 5, 105, 70, 10, "LTC - Asset transfer", LTC_ASSET_TRANSFER_button
-    PushButton 5, 120, 115, 10, "MAEPD - No initial premium paid", MAEPD_NO_PREMIUM_button
-    PushButton 5, 135, 60, 10, "MFIP orientation", MFIP_ORIENTATION_button
-    PushButton 5, 150, 55, 10, "MNsure memo", MNSURE_MEMO_button
-    PushButton 5, 165, 25, 10, "NOMI", NOMI_button
-    PushButton 5, 180, 55, 10, "Overdue baby", OVERDUE_BABY_button
-    PushButton 5, 205, 80, 10, "Postponed WREG verif", POSTPONED_WREG_button
-    PushButton 5, 230, 65, 10, "Significant change", SIGNIFICANT_CHANGE_button
-    PushButton 5, 245, 70, 10, "SNAP E and T letter", SNAP_E_AND_T_LETTER_button
+    PushButton 5, 80, 110, 10, "DWP/MFIP CS Disregard WCOM", CS_DISREGARD_button
+    PushButton 5, 95, 125, 10, "GRH overpayment (client left facility)", GRH_OP_CL_LEFT_FACI_button
+    PushButton 5, 110, 70, 10, "LTC - Asset transfer", LTC_ASSET_TRANSFER_button
+    PushButton 5, 125, 115, 10, "MAEPD - No initial premium paid", MAEPD_NO_PREMIUM_button
+    PushButton 5, 140, 60, 10, "MFIP orientation", MFIP_ORIENTATION_button
+    PushButton 5, 155, 55, 10, "MNsure memo", MNSURE_MEMO_button
+    PushButton 5, 170, 25, 10, "NOMI", NOMI_button
+    PushButton 5, 185, 55, 10, "Overdue baby", OVERDUE_BABY_button
+    PushButton 5, 210, 80, 10, "Postponed WREG verif", POSTPONED_WREG_button
+    PushButton 5, 235, 70, 10, "SNAP E and T letter", SNAP_E_AND_T_LETTER_button
+    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
+    CancelButton 390, 250, 50, 15
   Text 5, 5, 235, 10, "Memos scripts main menu: select the script to run from the choices below."
   Text 75, 25, 375, 20, "--- Sends a MEMO to the client reminding them of their reporting responsibilities (required for SNAP 2-year certification periods, per POLI/TEMP TE02.08.165)."
   Text 75, 50, 300, 10, "--- Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
-  Text 115, 65, 340, 20, "--- Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
-  Text 140, 90, 310, 10, "--- Sends a MEMO to a facility indicating that an overpayment is due because a client left."
-  Text 80, 105, 200, 10, "--- Sends a MEMO to a LTC client regarding asset transfers."
-  Text 130, 120, 225, 10, "--- Sends a WCOM on a denial for no initial MA-EPD premium."
-  Text 70, 135, 185, 10, "--- Sends a MEMO to a client regarding MFIP orientation."
-  Text 65, 150, 160, 10, "--- Sends a MEMO to a client regarding MNsure."
-  Text 35, 165, 375, 10, "--- Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
-  Text 65, 180, 355, 20, "--- Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
-  Text 95, 205, 345, 20, "--- NEW 10/2015!!! Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
-  Text 75, 230, 340, 10, "--- Sends a MEMO when a client reports significant change requiring additional action."
-  Text 80, 245, 300, 10, "--- Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
+  Text 110, 65, 305, 10, "--- Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
+  Text 120, 80, 320, 10, "--- NEW 01/2016!! Adds required WCOM to a notice when applying the CS Disregard to DWP/MFIP."
+  Text 135, 95, 310, 10, "--- Sends a MEMO to a facility indicating that an overpayment is due because a client left."
+  Text 80, 110, 200, 10, "--- Sends a MEMO to a LTC client regarding asset transfers."
+  Text 130, 125, 225, 10, "--- Sends a WCOM on a denial for no initial MA-EPD premium."
+  Text 70, 140, 185, 10, "--- Sends a MEMO to a client regarding MFIP orientation."
+  Text 65, 155, 160, 10, "--- Sends a MEMO to a client regarding MNsure."
+  Text 35, 170, 375, 10, "--- Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
+  Text 65, 185, 355, 20, "--- Sends a MEMO informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close."
+  Text 95, 210, 345, 20, "--- Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
+  Text 80, 235, 300, 10, "--- Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
 EndDialog
+
 
 'Variables to declare
 IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
@@ -101,6 +102,7 @@ End if
 IF ButtonPressed = TWELVE_MONTH_CONTACT_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - 12 MONTH CONTACT.vbs")
 IF ButtonPressed = APPOINTMENT_LETTER_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - APPOINTMENT LETTER.vbs")
 IF ButtonPressed = DUPLICATE_ASSISTANCE_button  THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - DUPLICATE ASSISTANCE WCOM.vbs")
+IF ButtonPressed = CS_DISREGARD_button 		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - CS DISREGARD WCOM.vbs")
 IF ButtonPressed = GRH_OP_CL_LEFT_FACI_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - GRH OP CL LEFT FACI.vbs")
 IF ButtonPressed = LTC_ASSET_TRANSFER_button 	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - LTC - ASSET TRANSFER.vbs")
 IF ButtonPressed = MAEPD_NO_PREMIUM_button		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - MA-EPD NO INITIAL PREMIUM.vbs")
@@ -109,7 +111,6 @@ IF ButtonPressed = MNSURE_MEMO_button 			THEN CALL run_from_GitHub(script_reposi
 IF ButtonPressed = NOMI_button 					THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - NOMI.vbs")
 IF ButtonPressed = OVERDUE_BABY_button			THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - OVERDUE BABY.vbs")
 IF ButtonPressed = POSTPONED_WREG_button		THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - POSTPONED WREG VERIFS.vbs")
-IF ButtonPressed = SIGNIFICANT_CHANGE_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - SIGNIFICANT CHANGE.vbs")
 IF ButtonPressed = SNAP_E_AND_T_LETTER_button	THEN CALL run_from_GitHub(script_repository & "/MEMOS/MEMOS - SNAP E AND T LETTER.vbs")
 
 'Logging usage stats

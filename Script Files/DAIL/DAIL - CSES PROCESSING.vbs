@@ -44,6 +44,15 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.  
+STATS_manualtime = 54          'manual run time in seconds
+STATS_denomination = "I"       'I is for each dail message 
+'END OF stats block==============================================================================================
+
+
+
+
 'SECTION 02: THE SCRIPT
 EMConnect ""
 
@@ -142,6 +151,7 @@ Do
   PF3
   MAXIS_row = MAXIS_row + 1
   message_number = message_number + 1
+  STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter	
 Loop until line_check <> "DISB"
 
 'THE FOLLOWING LINES OF CODE WERE COPIED FROM DAKOTA'S ANDREW FINK, AND MODIFIED FOR OUR PURPOSES - VKC, 10/02/2014
@@ -772,6 +782,14 @@ EndDialog
     If ObjExcel.Cells(excel_row, 10).Value = "SSN checked" then excel_row = excel_row + 1
   Loop until ObjExcel.Cells(excel_row, 10).Value = ""
 
+	' >>>>>> ONE LINE ADDED BY ROBERT FEWINS-KALB 01/15/2016 <<<<<<<<
+	'Explanation -- because I'm not sure it was being articulated on GH, but users on SIR are reporting the problem as well...
+	'This gets out of the do...loop if there is no SSN indicated. 
+	'In testing with Excel visible, I was seeing where the script was reading new rows to the point that the SSN cell is blank.
+	'The script would then try to dump a blank SSN into PRISM and read how many cases were there, except that PRISM would not be navigating to the pop up where the number of cases are, because of the blank SSN.
+	'I am not able to identify what about the cases causes this error to occur -- because it does not happen on every case -- but it's a real thing.
+	IF ObjExcel.Cells(excel_row, 9).Value = "" THEN Exit DO
+
   EMWriteScreen "PESE", 21, 18
   transmit
 
@@ -791,7 +809,7 @@ EndDialog
   EMWriteScreen "N", 12, 54
 
   EMWritescreen left(current_SSN, 3), 10, 13
-  EMWritescreen right(left(current_SSN, 6), 2), 10, 17
+  EMWritescreen right(left(current_SSN, 5), 2), 10, 17
   EMwritescreen right(current_SSN, 4), 10, 20
   transmit
 
@@ -863,6 +881,7 @@ MsgBox "PRISM checked, no CMI/CMS/CCC obl types indicated on CAFS. The script fi
 'Manually closing workbooks so that the stats script can finish up
 objExcel.Workbooks.Close
 objExcel.quit
+
 
 'ending script
 script_end_procedure("")

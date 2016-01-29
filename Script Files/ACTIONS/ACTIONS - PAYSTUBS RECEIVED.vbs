@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 458                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'CUSTOM FUNCTIONS
 Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, total_prospective_pay, total_prospective_hours) 'Creates variables for total_prospective_pay and total_prospective_hours
@@ -77,7 +81,7 @@ End function
 
 Function retro_paystubs_info_adder(pay_date, gross_amt, hours, retro_hours)
   If isdate(pay_date) = True then
-    If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 2 then 
+    If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 2 then
       If len(datepart("m", pay_date)) = 2 then
         EMWriteScreen datepart("m", pay_date), MAXIS_row, 25
       Else
@@ -126,8 +130,8 @@ FUNCTION create_paystubs_received_dialog(worker_signature, number_of_paystubs, p
 	  Text 10, (125 + (20 * (number_of_paystubs - 1))), 60, 10, "JOBS verif code:"
 	  Text 10, (145 + (20 * (number_of_paystubs - 1))), 60, 10, "Worker signature:"
 	EndDialog
-	
-	DO	
+
+	DO
 		err_msg = ""
 		DIALOG paystubs_received_dialog
 			IF ButtonPressed = 0 THEN stopscript
@@ -148,7 +152,7 @@ FUNCTION create_paystubs_received_dialog(worker_signature, number_of_paystubs, p
 				IF paystubs_array(i, 1) = "" OR paystubs_array(i, 2) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay information blank."
 			NEXT
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""	
+	LOOP UNTIL err_msg = ""
 END FUNCTION
 
 BeginDialog number_of_paystubs_dlg, 0, 0, 211, 65, "Number of Pay Dates"
@@ -212,33 +216,33 @@ DO
 	'Shows the case number dialog
 	Dialog paystubs_received_case_number_dialog
 		If buttonpressed = 0 then stopscript
-		
+
 	CALL check_for_MAXIS(False)
-	
+
 	'Checks to see if it's in STAT, and checks footer month/year. If it isn't in STAT or the right footer month/year, the script will leave the case.
 	EMReadScreen STAT_check, 4, 20, 21
 	EMReadScreen STAT_case_number, 8, 20, 37
 	EMReadScreen STAT_footer_month_check, 2, 20, 55
 	EMReadScreen STAT_footer_year_check, 2, 20, 58
 	If STAT_check <> "STAT" or trim(replace(STAT_case_number, "_", "")) <> case_number or STAT_footer_month_check <> footer_month or STAT_footer_year_check <> footer_year then back_to_SELF
-	
+
 	call navigate_to_MAXIS_screen("stat", "jobs")
-	
+
 	'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
 	EMReadScreen SELF_check, 4, 2, 50
 	If SELF_check = "SELF" then stopscript
-	
+
 	'Navigates to the JOBS panel for the right person
-	If HH_member <> "01" then 
+	If HH_member <> "01" then
 		EMWriteScreen HH_member, 20, 76
 		EMWriteScreen "01", 20, 79
 		transmit
 	End if
-	
+
 	'Checks to make sure there are JOBS panels for this member. If none exist the script will close
 	EMReadScreen total_amt_of_panels, 1, 2, 78
 	If total_amt_of_panels = "0" then script_end_procedure("No JOBS panels exist for this client. Please add a JOBS panel and run through background before trying again. The script will now stop.")
-	
+
 	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
 	If total_amt_of_panels <> "0" then
 		Do
@@ -246,11 +250,11 @@ DO
 			EMReadScreen employer_name, 30, 7, 42
 			employer_check = MsgBox("Is this your employer? Employer name: " & trim(replace(employer_name, "_", "")), 3)
 			If employer_check = 2 then stopscript
-			If employer_check = 6 then 
+			If employer_check = 6 then
 				employer_found = True
 				exit do
 			END IF
-			If employer_check = 7 and current_panel_number = total_amt_of_panels then 
+			If employer_check = 7 and current_panel_number = total_amt_of_panels then
 				employer_found = False
 				pick_a_different_household_member = MsgBox("You have run through all the possible employers for this person. If you need to select a different household member, press OK. If you need to stop the script to change the case number, create a new job, etc, press CANCEL.", vbOKCancel)
 				IF pick_a_different_household_member = vbCancel THEN stopscript
@@ -259,10 +263,10 @@ DO
 			transmit
 		Loop until current_panel_number = total_amt_of_panels
 	End if
-	
+
 	'Reads employer name for case note
 	EMReadScreen employer_name, 30, 7, 42			'Read the name
-	employer_name = replace(employer_name, "_", "")		'Clean up the name with replacing underscores 
+	employer_name = replace(employer_name, "_", "")		'Clean up the name with replacing underscores
 	call fix_case(employer_name, 3)				'and using custom fix_case function to set case
 
 LOOP UNTIL employer_found = True
@@ -286,18 +290,18 @@ DO
 		weekday_baseline = weekday(cdate(paystubs_array(0, 0)))
 		list_of_weekdays = "Select one..."
 		list_of_weekdays = list_of_weekdays+chr(9)+WeekDayName(weekday(cdate(paystubs_array(0, 0))))
-		
+
 		FOR i = 1 TO (number_of_paystubs - 1)
-			IF paystubs_array(i, 0) <> "" THEN 
-				IF WeekDay(CDate(paystubs_array(i, 0))) <> weekday_baseline THEN 
+			IF paystubs_array(i, 0) <> "" THEN
+				IF WeekDay(CDate(paystubs_array(i, 0))) <> weekday_baseline THEN
 					err_msg = err_msg & vbCr & (paystubs_array(i, 0) & " is on a different pay date than the first pay date on the script.")
 					IF InStr(list_of_weekdays, WeekDayName(weekday(cdate(paystubs_array(i, 0))))) = 0 THEN list_of_weekdays = list_of_weekdays+chr(9)+WeekDayName(weekday(cdate(paystubs_array(i, 0))))
 				END IF
 			END IF
 		NEXT
 	END IF
-	
-	IF err_msg <> "" THEN 
+
+	IF err_msg <> "" THEN
 		dates_not_aligned = MsgBox("*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "The script is going to ask you to pick a specific day of the week to use for prospecting income. Press OK to continue. If you do not want to do this, press CANCEL (the script will end).", vbOKCancel)
 		IF dates_not_aligned = vbCancel THEN script_end_procedure("")
 
@@ -309,7 +313,7 @@ DO
             OkButton 85, 130, 50, 15
             CancelButton 135, 130, 50, 15
         EndDialog
-		
+
 		DO
 			err_msg = ""
 			DIALOG weekday_dlg
@@ -326,7 +330,7 @@ PF9
 
 'Declares variables it'll need for the next part
 dim paystubs_received
-dim total_prospective_pay 
+dim total_prospective_pay
 dim total_prospective_hours
 
 'Totals the prospective amounts, inserts "01/01/2000" for dates that were left blank, using function.
@@ -343,16 +347,16 @@ average_hours_per_paystub = abs(total_prospective_hours / paystubs_received)
 Do
 	'If SNAP was active the script must update the PIC.
 	If update_PIC_check = 1 then
-		IF number_of_paystubs > 10 THEN 
+		IF number_of_paystubs > 10 THEN
 			MsgBox "You indicated you are using more than 10 pay dates. The PIC cannot handle more than 10 pay dates. The script will not be able to update the PIC. You will need to process the PIC manually."
 		ELSE
 			EMWriteScreen "x", 19, 38
 			transmit
-		
+
 			'Determining if there is a page 2 on the PIC
 			PF20
 			EMReadScreen complete_the_page, 17, 20, 6
-			IF complete_the_page <> "COMPLETE THE PAGE" THEN 
+			IF complete_the_page <> "COMPLETE THE PAGE" THEN
 				FOR a = 9 to 13
 					EMSetCursor a, 13
 					EMSendKey "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>"
@@ -362,8 +366,8 @@ Do
 			END IF
 			'Clears existing info off PIC
 			EMSendKey "<home>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>" + "<tab>" + "<eraseeof>"
-	
-			'The following will generate a MAXIS formatted date for today. 
+
+			'The following will generate a MAXIS formatted date for today.
 			current_day = DatePart("D", date)
 			If len(current_day) = 1 then current_day = "0" & current_day
 			current_month = DatePart("M", date)
@@ -380,7 +384,7 @@ Do
 			PIC_row = 9
 			'Uses function to add each PIC pay date, income, and hours. Doesn't add any if they show "01/01/2000" as those are dummy numbers
 			FOR i = 0 to (number_of_paystubs - 1)
-				IF paystubs_array(i, 0) <> "01/01/2000" THEN 
+				IF paystubs_array(i, 0) <> "01/01/2000" THEN
 					If isdate(paystubs_array(i, 0)) = True then
 						CALL create_MAXIS_friendly_date(paystubs_array(i, 0), 0, PIC_row, 13)
 						EMWriteScreen paystubs_array(i, 1), PIC_row, 25
@@ -390,14 +394,14 @@ Do
 							PF20
 							PF20
 							PIC_row = 9
-						END IF 
+						END IF
 					End If
 				END IF
 			NEXT
-			
+
 			'Transmits in order to format the PIC
 			transmit
-			transmit  
+			transmit
 			'Reads the contents of the PIC for case noting.
 			EMReadScreen PIC_line_01, 26, 5, 49
 			EMReadScreen PIC_line_02, 28, 8, 13
@@ -413,33 +417,33 @@ Do
 			transmit
 		END IF
   End if
-  
-  
+
+
 	'Clears JOBS data before updating the JOBS panel
 	EMSetCursor 12, 25
 	EMSendKey "___________________________________________________________________________________________________________________________________________________"
-  
+
 	'Updates for retrospective income by checking each pay date's month against the footer month using a function. If the footer month is two months ahead of the pay month it will add to JOBS and keep a tally of hours.
 	MAXIS_row = 12 'Needs this for the following functions
 	Dim retro_hours
 	FOR i = 0 TO (number_of_paystubs - 1)
 		CALL retro_paystubs_info_adder(paystubs_array(i, 0), paystubs_array(i, 1), paystubs_array(i, 2), retro_hours)
 	NEXT
-  
+
 	'Must convert retro hours into an integer for MAXIS
 	retro_hours = retro_hours + .00000000000001 'This will force rounding to go half-up, as the CINT function rounds half down, which goes against procedure.
 	retro_hours = cint(retro_hours)
-  
+
 	'Puts hours worked in the retro months in. This was determined using the previous functions.
 	If retro_hours > 999 then retro_hours = 999 'In case there are over 999 hours, this is the procedure
 	If retro_hours <> "" and retro_hours <> 0 then EMWriteScreen retro_hours, 18, 43
 	retro_hours = 0 'Clears variable so it can be used in multiple months if needed
-  
+
 	'Determines the paydate to put in the prospective side. It moves forward for instances where the footer month is ahead of the first paydate, otherwise it moves backward until it lands on the right date.
 	first_prospective_pay_date = ""
 	FOR i = 0 TO (number_of_paystubs - 1)
-		IF WeekDayName(WeekDay(paystubs_array(i, 0))) = weekday_to_use THEN 
-			IF first_prospective_pay_date = "" THEN 
+		IF WeekDayName(WeekDay(paystubs_array(i, 0))) = weekday_to_use THEN
+			IF first_prospective_pay_date = "" THEN
 				first_prospective_pay_date = paystubs_array(i, 0)
 			ELSE
 				'If the paystubs_array(i, 0) is earlier than the existing first_prospective_pay_date THEN the script resets first_prospective_pay_date with the value of paystubs_array(i, 0)
@@ -447,7 +451,7 @@ Do
 			END IF
 		END IF
 	NEXT
-  
+
 	If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) > 0 then 'For instances where the footer month is ahead of the first paydate.
 		Do
 			If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0 then exit do
@@ -466,7 +470,7 @@ Do
 		Loop until datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0
 	End if
 	'This checks to make sure the earliest possible paydate is selected in each prospective month.
-	If pay_frequency = "Two Times Per Month" or pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then 
+	If pay_frequency = "Two Times Per Month" or pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then
 		Do
 			If pay_frequency = "Two Times Per Month" and datepart("d", first_prospective_pay_date) > 15 then first_prospective_pay_date = dateadd("d", -15, first_prospective_pay_date)
 			If pay_frequency = "Every Other Week" and datepart("d", first_prospective_pay_date) > 14 then first_prospective_pay_date = dateadd("d", -14, first_prospective_pay_date)
@@ -487,7 +491,7 @@ Do
 	If pay_frequency = "Two Times Per Month" then pay_multiplier = 15
 	If pay_frequency = "Every Other Week" then pay_multiplier = 14
 	If pay_frequency = "Every Week" then pay_multiplier = 7
-  
+
 	Do
 		If pay_frequency = "One Time Per Month" and total_prospective_dates >= 1 then exit do 'Shouldn't be more than one entry if pay is once per month.
 		If pay_frequency = "Two Times Per Month" and total_prospective_dates >= 2 then exit do 'Shouldn't be more than two entries if pay is twice per month.
@@ -514,18 +518,18 @@ Do
 	If pay_frequency = "Two Times Per Month" then EMWriteScreen "2", 18, 35
 	If pay_frequency = "Every Other Week" then EMWriteScreen "3", 18, 35
 	If pay_frequency = "Every Week" then EMWriteScreen "4", 18, 35
-  
+
 	'Puts average hours in. Added a small imperfection ".0000000000001" so that if any hourly amounts land on exactly ".5", they will round half-up instead of half down.
 	If pay_frequency = "One Time Per Month" then EMWriteScreen cint(average_hours_per_paystub + .0000000000001), 18, 72
 	If pay_frequency = "Two Times Per Month" then EMWriteScreen cint((average_hours_per_paystub + .0000000000001) * total_prospective_dates), 18, 72
 	If pay_frequency = "Every Other Week" then EMWriteScreen cint((average_hours_per_paystub + .0000000000001) * total_prospective_dates), 18, 72
 	If pay_frequency = "Every Week" then EMWriteScreen cint((average_hours_per_paystub + .0000000000001) * total_prospective_dates), 18, 72
-  
+
 	'Puts pay verification type in
 	EMWriteScreen left(JOBS_verif_code, 1), 6, 38
-  
+
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
-	If update_HC_popup_check = 1 and datediff("m", date, footer_month & "/01/" & footer_year) = 1 then 
+	If update_HC_popup_check = 1 and datediff("m", date, footer_month & "/01/" & footer_year) = 1 then
 		EMWriteScreen "x", 19, 54
 		transmit
 		EMWriteScreen "________", 11, 63
@@ -536,18 +540,18 @@ Do
 			If HC_popup_check <> "HC Income Estimate" then updated_HC_popup = True
 		Loop until HC_popup_check <> "HC Income Estimate"
 	End if
-  
+
 	'Transmits after ending the JOBS panel updating
 	Do
 		transmit
 		EMReadScreen display_mode_check, 1, 20, 8
 	Loop until display_mode_check = "D"
-  
+
 	If datediff("m", date, footer_month & "/01/" & footer_year) = 1 then in_future_month = True
-  
+
 	'If just on SNAP, the case does not have to update future months, so the script can now case note.
 	If future_months_check = 0 or in_future_month = True then exit do
-  
+
 	'Navigates to the current month + 1 footer month, then back into the JOBS panel
 	CALL write_value_and_transmit("BGTX", 20, 71)
 	CALL write_value_and_transmit("y", 16, 54)
@@ -563,7 +567,7 @@ Loop until in_future_month = True
 
 'Determines if the case note should add additional info about which HH member had the paystubs
 If HH_member <> "01" then
-	HH_memb_for_case_note = " for memb " & HH_member 
+	HH_memb_for_case_note = " for memb " & HH_member
 Else
 	HH_memb_for_case_note = ""
 End if
@@ -584,7 +588,7 @@ If update_PIC_check = 1 then
 	EMWriteScreen PIC_line_09, 7, 35
 	EMWriteScreen PIC_line_10, 8, 35
 	EMWriteScreen PIC_line_11, 9, 35
-	If explanation_of_income <> "" then 
+	If explanation_of_income <> "" then
 		EMSendKey "---" & "<newline>"
 		call write_bullet_and_variable_in_CASE_NOTE("How income was calculated", explanation_of_income)
 	End if
@@ -604,7 +608,7 @@ If case_note_check = 1 then
 	FOR i = 0 TO (number_of_paystubs - 1)
 		IF paystubs_array(i, 0) <> "01/01/2000" THEN CALL write_three_columns_in_case_note(12, paystubs_array(i, 0), 27, "$" & paystubs_array(i, 1), 39, paystubs_array(i, 2))
 	NEXT
-	If explanation_of_income <> "" then 
+	If explanation_of_income <> "" then
 		EMSendKey "---" & "<newline>"
 		call write_bullet_and_variable_in_CASE_NOTE("How income was calculated", explanation_of_income)
 	End if
@@ -616,9 +620,9 @@ If case_note_check = 1 then
 	PF3
 End if
 
-IF number_of_paystubs > 5 THEN 
+IF number_of_paystubs > 5 THEN
 	MsgBox "Success!! Your JOBS panel has been updated. However, because you have used more than 5 pay dates, the script may not have updated the retro side appropriately, please double check the retro side of your JOBS panel. You may need to manually update it to get the pay information updated correctly."
 ELSE
-	MsgBox "Success!! Your JOBS panel has been updated with the paystubs you've entered in. Send your case through background, review the results, and take action as appropriate. Don't forget to case note!" 
+	MsgBox "Success!! Your JOBS panel has been updated with the paystubs you've entered in. Send your case through background, review the results, and take action as appropriate. Don't forget to case note!"
 END IF
 script_end_procedure("")

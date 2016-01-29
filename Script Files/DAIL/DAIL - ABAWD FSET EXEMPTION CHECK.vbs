@@ -2,6 +2,7 @@
 name_of_script = "DAIL - ABAWD FSET EXEMPTION CHECK.vbs"
 start_time = timer
 
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -43,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 98          'manual run time in seconds
+STATS_denomination = "M"       'M is for each MEMBER
+'END OF stats block==============================================================================================
 
 'The script========
 EMConnect""

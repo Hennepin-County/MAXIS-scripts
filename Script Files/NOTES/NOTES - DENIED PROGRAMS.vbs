@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 420          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 'VARIABLE REQUIRED TO RESIZE DIALOG BASED ON A GLOBAL VARIABLE IN FUNCTIONS FILE
 If case_noting_intake_dates = False then dialog_shrink_amt = 105
 
@@ -265,6 +271,9 @@ If emer_check = 1 then
   emer_last_REIN_date = emer_intake_date & ", after which a new CAF is required."
 End if
 
+'deleting last / from progs_withdrawn
+progs_denied = left(progs_denied, len(progs_denied) - 1)
+
 'IT HAS TO FIGURE OUT WHICH DATE IS THE LATEST DATE, AS THAT WOULD BE THE DATE THE CLIENT HAS TO BE REASSIGNED TO INTAKE.
 If HC_intake_date > SNAP_intake_date then
   If HC_check = 1 then
@@ -390,37 +399,34 @@ call write_bullet_and_variable_in_case_note("Other notes: ", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-'NOW THE SCRIPT STOPS, IF NO TIKL WAS REQUESTED.
-If TIKL_check = 0 then 
-	IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but the script could not find any notices denied for no proofs. Please check your denial reasons and edit manually if needed."
-	script_end_procedure("")
+'TIKL PORTION -------------------------------------------------------------------------------------------------------------
+If TIKL_check = 1 THEN
+	'IF PROGRAMS ARE STILL OPEN, BUT THE "TIKL TO SEND TO CLS" PARAMETER WAS SET, THE SCRIPT NEEDS TO STOP, AS THE CASE CAN'T GO TO CLS.
+	If open_prog_check = 1 then 
+		MsgBox "Because you checked the open programs box, the script will not TIKL to send to CLS."
+		IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
+		script_end_procedure("")
+	End if
+	
+	'IT NAVIGATES TO DAIL/WRIT.
+	call navigate_to_MAXIS_screen("dail", "writ")
+	
+	'DETERMINES THE CORRECT FORMATTING FOR THE DATE CLIENT BECOMES AN INTAKE.
+	TIKL_day = datepart("d", intake_date)
+	If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
+	TIKL_month = datepart("m", intake_date)
+	If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
+	TIKL_year = right(intake_date, 2)
+	
+	'WRITES TIKL TO SEND TO CLS
+	EMWriteScreen TIKL_month, 5, 18
+	EMWriteScreen TIKL_day, 5, 21
+	EMWriteScreen TIKL_year, 5, 24
+	EMSetCursor 9, 3
+	EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
+	'SAVES THE TIKL
+	PF3
 END IF
-
-'IF PROGRAMS ARE STILL OPEN, BUT THE "TIKL TO SEND TO CLS" PARAMETER WAS SET, THE SCRIPT NEEDS TO STOP, AS THE CASE CAN'T GO TO CLS.
-If open_prog_check = 1 then 
-  MsgBox "Because you checked the open programs box, the script will not TIKL to send to CLS."
-  IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
-  script_end_procedure("")
-End if
-
-'IT NAVIGATES TO DAIL/WRIT.
-call navigate_to_MAXIS_screen("dail", "writ")
-
-'DETERMINES THE CORRECT FORMATTING FOR THE DATE CLIENT BECOMES AN INTAKE.
-TIKL_day = datepart("d", intake_date)
-If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
-TIKL_month = datepart("m", intake_date)
-If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
-TIKL_year = (datepart("yyyy", intake_date)) - 2000
-
-'WRITES TIKL TO SEND TO CLS
-EMWriteScreen TIKL_month, 5, 18
-EMWriteScreen TIKL_day, 5, 21
-EMWriteScreen TIKL_year, 5, 24
-EMSetCursor 9, 3
-EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
-'SAVES THE TIKL
-PF3
 
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."

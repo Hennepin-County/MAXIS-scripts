@@ -46,6 +46,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
+
 BeginDialog search_dialog, 0, 0, 186, 135, "Client Look Up"
   EditBox 120, 10, 55, 15, person_look_up
   EditBox 120, 65, 55, 15, case_load_look_up
