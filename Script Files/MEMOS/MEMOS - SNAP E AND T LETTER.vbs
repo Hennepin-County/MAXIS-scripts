@@ -48,8 +48,8 @@ END IF
 
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 180                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
+STATS_manualtime = 280                     'manual run time in seconds
+STATS_denomination = "C"       			   'C is for each CASE
 'END OF stats block==============================================================================================
 
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
@@ -1074,6 +1074,15 @@ PF4		'saves and sends memo
 PF3
 PF3
 
+'Creates a 30 day TILK to check for compliance with E & T'
+If manual_referral <> "Select one..." then
+	call navigate_to_MAXIS_screen("dail", "writ")
+	call create_MAXIS_friendly_date(appointment_date, 30, 5, 18) 
+	Call write_variable_in_TIKL("Manual referral was made for " & manual_referral & " recipeint 30 days ago. Please review case to see if verification of E and T compliance was sent to recipient, and that they are complying.")
+	transmit	
+	PF3
+End if
+
 'Manual referral creation if banked months are used
 If manual_referral <> "Select one..." then 					'if banked months or eligible student are noted, then a manual referral to E & T is needed
 	Call navigate_to_MAXIS_screen("INFC", "WF1M")			'navigates to WF1M to create the manual referral'
@@ -1095,7 +1104,7 @@ If manual_referral <> "Select one..." then 					'if banked months or eligible st
 			PF3																			'saves referral
 			EMWriteScreen "Y", 11, 64								'Y to confirm save
 			transmit																'confirms saving the referral
-			script_end_procedure("Your orientation letter has been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+			script_end_procedure("Your orientation letter has been created, and a 30 day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
 			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client.")
 		Else
 			script_end_procedure("Please select your agency's ES provider, and PF3 to save your referral.")		'if agency is not Hennepin, then user is asked to select the ES provider and save'
@@ -1103,7 +1112,7 @@ If manual_referral <> "Select one..." then 					'if banked months or eligible st
 END IF
 
 If worker_county_code = "x127" then			'specific closing message to Hennepin County message
-	script_end_procedure("Your orientation letter has been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+	script_end_procedure("Your orientation letter has been created, and a 30 day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
 	vbNewLine & vbNewLine & "Make sure that you have made your E & T referral, and that you have sent the form: ABAWD FS RULES to the client.")
 ELSE
 	script_end_procedure("If you haven't made the E & T referral, please do so now.  Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
