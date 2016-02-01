@@ -1048,6 +1048,7 @@ CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
 Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date.")
 Call write_variable_in_case_note("* Manual referral made for: " & manual_referral & " recipient.")
+If manual_referral <> "Select one..." then Call write_variable_in_case_note("* TIKL set for 30 days for proof of compliance with E & T.")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
@@ -1077,7 +1078,7 @@ PF3
 'Creates a 30 day TILK to check for compliance with E & T'
 If manual_referral <> "Select one..." then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(appointment_date, 30, 5, 18) 
+	call create_MAXIS_friendly_date(date, 30, 5, 18) 
 	Call write_variable_in_TIKL("Manual referral was made for " & manual_referral & " recipeint 30 days ago. Please review case to see if verification of E and T compliance was sent to recipient, and that they are complying.")
 	transmit	
 	PF3
