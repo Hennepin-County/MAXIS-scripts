@@ -476,6 +476,11 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 		End If 
 	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" Then 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
+		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
+		row = 1
+		col = 1
+		EMSearch "(MFSC)", row, col
+		IF row <> 0 THEN transmit
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
 		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59 
 		EMWriteScreen "MFSM", 20, 71 
