@@ -101,7 +101,7 @@ FUNCTION create_NOTES_main_menu(dialog_name)
     		CancelButton 460, 245, 50, 15
 			Text 90, 70, 330, 10, "--- Template for documenting details about an application recevied."
 			Text 80, 85, 325, 10, "--- Template for when you approve a client's programs."
-			Text 90, 100, 325, 10, "--- NEW 1/16!!! Template for when you receive an AREP form."
+			Text 90, 100, 325, 10, "--- NEW 01/2016!!! Template for when you receive an AREP form."
 			Text 55, 115, 270, 10, "--- Template for a baby born and added to household."
 			Text 60, 130, 135, 10, "--- Template for burial assets."
 			Text 30, 145, 390, 10, "--- Template for when you're processing a CAF. Works for intake as well as recertification and reapplication.*"
