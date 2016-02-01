@@ -111,7 +111,7 @@ call write_variable_in_case_note("* Client and AREP signed AREP form.")
 IF AREP_ID_check = checked THEN write_variable_in_CASE_NOTE("* AREP ID on file.")
 IF TIKL_check = checked THEN write_variable_in_CASE_NOTE("* TIKL'd for 12 months to get new HC AREP form.")
 Call write_variable_in_case_note("---")
-call write_variable_in_case_note("* Please see AREP panel to check if AREP is still current and active. This case note does not take the place of an AREP panel.")
+call write_variable_in_case_note("* Please see AREP panel to check if AREP is still current and active. This          case note does not take the place of an AREP panel.") 'added spacing to acheive an indent
 Call write_variable_in_case_note("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
