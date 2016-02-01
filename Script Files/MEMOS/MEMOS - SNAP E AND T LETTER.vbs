@@ -1,5 +1,3 @@
-worker_county_code = "x127"
-'Option Explicit
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
@@ -164,7 +162,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 230, "SNAP E&T Appointmen
   DropListBox 115, 50, 185, 15, FSET_list, interview_location
   EditBox 60, 70, 110, 15, SNAPET_contact
   EditBox 235, 70, 65, 15, SNAPET_phone
-  DropListBox 90, 95, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Eligible students", manual_referral
+  DropListBox 90, 95, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Eligible student", manual_referral
   EditBox 100, 120, 90, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 195, 120, 50, 15
@@ -198,7 +196,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 255, "SNAP E&T Appointment 
   EditBox 210, 85, 45, 15, SNAPET_zip
   EditBox 65, 105, 65, 15, SNAPET_contact
   EditBox 185, 105, 70, 15, SNAPET_phone
-  DropListBox 100, 130, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Eligible students", manual_referral
+  DropListBox 100, 130, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Eligible student", manual_referral
   EditBox 75, 155, 110, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 190, 155, 50, 15
@@ -224,7 +222,7 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 190, "SNAP E&T Appointment Letter
   EditBox 90, 10, 60, 15, case_number
   EditBox 245, 10, 25, 15, member_number
   DropListBox 90, 35, 180, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 1:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Sabathani, next Tuesday @ 1:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Eligible students", manual_referral
+  DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Eligible student", manual_referral
   EditBox 70, 80, 90, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 165, 80, 50, 15
@@ -1049,7 +1047,7 @@ CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
 Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date.")
-Call write_bullet_and_variable_in_case_note("Manual referral made for: ", manual_referral)
+Call write_variable_in_case_note("* Manual referral made for: " & manual_referral & " recipient.")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
@@ -1077,7 +1075,7 @@ PF3
 PF3
 
 'Manual referral creation if banked months are used
-If manual_referral <> "Select one..." then 					'if banked months or eligible students are noted, then a manual referral to E & T is needed
+If manual_referral <> "Select one..." then 					'if banked months or eligible student are noted, then a manual referral to E & T is needed
 	Call navigate_to_MAXIS_screen("INFC", "WF1M")			'navigates to WF1M to create the manual referral'
 	EMWriteScreen "01", 4, 47													'this is the manual referral code that DHS has approved
 	EMWriteScreen "FS", 8, 46													'this is a program for ABAWD's for SNAP is the only option for banked months
@@ -1085,7 +1083,7 @@ If manual_referral <> "Select one..." then 					'if banked months or eligible st
 	Call create_MAXIS_friendly_date(appointment_date, 0, 8, 65)			'enters the E & T referral date
 	If manual_referral = "Banked months" then 
 		EMWriteScreen "Banked AWAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
-	ELSEIF manual_referral = "Eligible students" then
+	ELSEIF manual_referral = "Eligible student" then
 		EMWriteScreen "Student", 17, 6
 	END IF 
 	EMWriteScreen "x", 8, 53																				'selects the ES provider
