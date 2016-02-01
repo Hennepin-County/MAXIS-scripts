@@ -99,7 +99,6 @@ FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	initial_date = initial_month & "/1/" & initial_year
 	'defines a date_list, which starts with just the initial date
 	date_list = initial_date
-
 	'This loop creates a list of dates
 	Do
 		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
@@ -583,8 +582,8 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 	ElseIf bene_amount_array(0, all_elig_results) = "GA" THEN
 		'GA portion
 		call navigate_to_MAXIS_screen("ELIG", "GA")
-		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
-		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
+		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 54 
+		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 57
 		EMWRiteScreen "GASM", 20, 70
 		transmit
 		EMReadScreen cash_approved_version, 8, 3, 3
@@ -733,6 +732,7 @@ IF snap_approved_check = checked THEN
 		approved_programs = approved_programs & "SNAP/"
 	END IF
 END IF
+
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
 IF emer_approved_check = checked THEN approved_programs = approved_programs & "EMER/"
@@ -770,16 +770,16 @@ IF autofill_check = checked THEN
 			End If
 		End If
 	Next 			
-	FOR msa_approvals = 0 to UBound(bene_amount_array,2) 
+	FOR msa_approvals = 0 to UBound(bene_amount_array, 2) 
 		IF bene_amount_array (0,msa_approvals) = "MSA" THEN
 			msa_header = ("MSA for " & bene_amount_array(1,msa_approvals) & "/" & bene_amount_array(2, msa_approvals))
-			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(3,msa_approvals)))
+			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(9,msa_approvals)))
 		End If
 	Next 
-	FOR ga_approvals = 0 to UBound(bene_amount_array,2) 
+	FOR ga_approvals = 0 to UBound(bene_amount_array, 2) 
 		IF bene_amount_array (0,ga_approvals) = "GA" THEN
 			ga_header = ("GA for " & bene_amount_array(1,ga_approvals) & "/" & bene_amount_array(2,ga_approvals))
-			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(3,ga_approvals)))
+			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(9,ga_approvals)))
 			IF bene_amount_array (4, ga_approvals) <> "" THEN
 				Call write_bullet_and_variable_in_CASE_NOTE ("    Prorated from: ", bene_amount_array(4,ga_approvals))
 			End If
