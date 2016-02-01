@@ -712,7 +712,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen ABAWD_months_array(i).SHEL_insa, 7, 29
 		EMWritescreen ABAWD_months_array(i).HEST_elect, 8, 29
 		EMWritescreen ABAWD_months_array(i).HEST_heat, 9, 29
-		EMWritescreen ABAWD_months_array(i).HEST_phone, 10, 29
+		EMWritescreen ABAWD_months_array(i).HEST_phone, 11, 29
 		EMWriteScreen ABAWD_months_array(i).SHEL_other, 12, 29
 		'this enters the proration date in the initial month'
 		IF abs(footer_month) = abs(left(proration_date, 2)) THEN
