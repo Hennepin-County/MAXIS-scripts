@@ -260,8 +260,7 @@ If revw_check = checked then
 			'---------------NOW IT CASE NOTES
 			If inquiry_testing <> vbYes then
 
-				PF4
-				PF9
+				call start_a_blank_CASE_NOTE
 
 				If HC_review_code = "I" or FS_review_code = "I" or cash_review_code = "I" then
 					call write_new_line_in_case_note("---Programs closing for incomplete review---")

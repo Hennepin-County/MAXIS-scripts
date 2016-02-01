@@ -145,6 +145,9 @@ FUNCTION create_paystubs_received_dialog(worker_signature, number_of_paystubs, p
 				If isdate(paystubs_array(i, 0)) = False AND paystubs_array(i, 0) <> "" THEN err_msg = err_msg & vbCr & "* Your pay date must be ''MM/DD/YYYY'' format. Please try again."
 			NEXT
 			FOR i = 0 TO (number_of_paystubs - 1)
+				If isdate(paystubs_array(i, 0)) = True AND datediff("d", date, paystubs_array(i, 0)) >= 0 THEN err_msg = err_msg & vbCr & "* You cannot enter a paydate in the future. Please remove and try again."
+			NEXT
+			FOR i = 0 TO (number_of_paystubs - 1)
 				If isdate(paystubs_array(i, 0)) = True and (Isnumeric(paystubs_array(i, 1)) = False or Isnumeric(paystubs_array(i, 2)) = False) then err_msg = err_msg & vbCr & "* You must include a gross pay amount as well as an hours amount."
 			NEXT
 			FOR i = 0 TO (number_of_paystubs - 1)
