@@ -575,7 +575,7 @@ For each case_number in case_number_array
 		call create_MAXIS_friendly_date(APPL_date, 0, 10, 44)
 		call create_MAXIS_friendly_date(APPL_date, 0, 10, 55)
 	End if
-	If HC_application = True then Transmit 'MAXIS will navigate to a HCRE panel in edit mode if a PROG is completed showing HC.
+	If HC_application = True then call create_MAXIS_friendly_date(APPL_date, 0, 12, 33)
 
 	'Enters migrant worker info
 	EMWriteScreen PROG_mig_worker, 18, 67
@@ -585,7 +585,7 @@ For each case_number in case_number_array
 	LOOP UNTIL still_on_prog <> "PROG"
 
 	'If the case is HC, the script will handle HCRE
-	If HC_application = True then CALL write_panel_to_MAXIS_HCRE(appl_date, hcre_appl_addnd_date_input, hcre_retro_months_input, hcre_recvd_by_service_date_input)
+	If HC_application = True then Transmit 'MAXIS will navigate to a HCRE panel in edit mode if a PROG is completed showing HC.
 
 
 	'Now we're on REVW and it needs to take different actions for each program. We need to know 6 month and 12 month dates though, for the sake of figuring out review months.
