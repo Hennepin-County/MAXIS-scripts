@@ -290,8 +290,8 @@ IF SNAP_banked_mo_check = checked THEN
 			Next
 			
 			Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
-			
-			IF banked_months_db_tracking = True Then		'This is David Courtright's code for using Access
+			'This is David Courtright's code for using Access
+			IF banked_months_db_tracking = True Then 'This global variable needs to be set to true in the global variables file for counties using this method		
 				'----------------THis section updates an access database for ABAWD banked months---------------------------------'
 				abawd_member_array = Split(ABAWD_member_list, ",")
 
@@ -304,12 +304,15 @@ IF SNAP_banked_mo_check = checked THEN
 				'Creating objects for Access
 				Set objConnection = CreateObject("ADODB.Connection")
 				Set objRecordSet = CreateObject("ADODB.Recordset")
-				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & stats_database_path & "" 
+				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & stats_database_path & ""
 				'This looks for an existing case number and edits it if needed
-				FOR i = 0 to UBound(BM_Clients_Array,2) 
-					banked_month = Used_ABAWD_Months_Array(0)
-					banked_month_2 = Used_ABAWD_Months_Array(1)
-					banked_month_3 = Used_ABAWD_Months_Array(2)
+				FOR i = 0 to UBound(BM_Clients_Array,2)
+					slash_loc = instr(Used_ABAWD_Months_Array(0), "/") 'this helps us get rid of the year info to match the database formatting.'
+					banked_month = left(Used_ABAWD_Months_Array(0), slash_loc - 1) ' This does the removal of the year, so the months match the database columns
+					slash_loc = instr(Used_ABAWD_Months_Array(1), "/")
+					banked_month_2 = left(Used_ABAWD_Months_Array(1), slash_loc - 1)
+					slash_loc = instr(Used_ABAWD_Months_Array(2), "/")
+					banked_month_3 = left(Used_ABAWD_Months_Array(2), slash_loc - 1)
 					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
 
 					IF NOT(abawdrs.EOF) THEN 'There is an existing case, we need to update
@@ -324,7 +327,8 @@ IF SNAP_banked_mo_check = checked THEN
 					END IF
 				NEXT
 				objConnection.close
-			Else 
+			Else
+
 				'For counties with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
 				'Opening the Excel file
 				Set objExcel = CreateObject("Excel.Application")
