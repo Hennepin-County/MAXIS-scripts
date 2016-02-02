@@ -1,29 +1,26 @@
 BlueZone Scripts | DHS-MAXIS-Scripts
 ===
 
-Table of contents
+Table of contents for this README
 ---
-* [Introduction](#introduction)
-* [State Administrators](#state-administrators)
-* [GitHub workflow and organization](#github-workflow-and-organization)
-* [Issue List](#issue-list)
+* **[Introduction](#introduction)**
+* **[State Administrators](#state-administrators)**
+* **[GitHub workflow and organization](#github-workflow-and-organization)**
+* **[Issue List](#issue-list)**
   * [Issue guidelines/best practices](#issue-guidelinesbest-practices)
   * [Critical issues](#critical-issues)
   * [Script freezes](#script-freezes)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
-* [](#)
+* **[Pull Requests](#pull-requests)**
+  * [Anatomy of a pull request](#anatomy-of-a-pull-request)
+    * [Title](#title)
+    * ["The Blip"](#the-blip)
+  * [Pull Request Feedback](#pull-request-feedback)
+  * [When to wait on your pull request](#when-to-wait-on-your-pull-request)
+  * [What to do if there's a merge conflict](#what-to-do-if-theres-a-merge-conflict)
+* [Scriptwriters and Hackathons](#scriptwriters-and-hackathons)
+* [About the Functions Library (FuncLib)](#about-the-functions-library-funclib)
+* [About the Installer/Configuration Utility](#about-the-installerconfiguration-utility)
+
 
 Introduction
 ---
@@ -201,6 +198,6 @@ END IF
 
 ```
 
-About the Installer/Configuration Utility 
+About the Installer/Configuration Utility
 ---
 The BlueZone Scripts are "installed" (more like "configured" as they are simply script files inserted into a directory) using a utility written in VB.net and Windows Forms. This project requires Microsoft Visual Studio, and is considerably more technical than our other scripts. You can find the [repository for the installer utility here](https://github.com/MN-Script-Team/BlueZone-Scripts-Installer).
