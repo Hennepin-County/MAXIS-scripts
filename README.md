@@ -4,9 +4,16 @@ BlueZone Scripts | DHS-MAXIS-Scripts
 Introduction
 ---
 
-Welcome to the GitHub repository and project site for the MAXIS BlueZone Scripts! This project aims to automate repetetive, error prone tasks using simple extensions to the BlueZone Mainframe Display system. These scripts do not contain any confidential data, nor do they contain information about how to log in to our various state systems. 
+Welcome to the GitHub repository and project site for the MAXIS BlueZone Scripts! This project (formally kicked off in June 2014) aims to automate repetetive, error prone tasks using simple extensions to the BlueZone Mainframe Display system. These scripts do not contain any confidential data, nor do they contain information about how to log in to our various state systems. 
 
 If you have questions about BlueZone Scripts and work in a Minnesota human services agency, please ask a supervisor about getting started.
+
+State Administrators
+---
+As of June 2014, there is only one state administrator for the BlueZone Scripts project: 
+* **[Veronica Cary](mailto:veronica.cary@state.mn.us)**: Project Manager and SNAP Data Analyst
+
+In addition to our state administrators, numerous county/tribal agency personnel are involved in much of the writing and testing of BlueZone Scripts. Their contribution is appreciated!
 
 GitHub workflow and organization
 ---
