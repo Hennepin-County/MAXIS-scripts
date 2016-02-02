@@ -17,9 +17,9 @@ Table of contents for this README
   * [Pull Request Feedback](#pull-request-feedback)
   * [When to wait on your pull request](#when-to-wait-on-your-pull-request)
   * [What to do if there's a merge conflict](#what-to-do-if-theres-a-merge-conflict)
-* [Scriptwriters and Hackathons](#scriptwriters-and-hackathons)
-* [About the Functions Library (FuncLib)](#about-the-functions-library-funclib)
-* [About the Installer/Configuration Utility](#about-the-installerconfiguration-utility)
+* **[Scriptwriters and Hackathons](#scriptwriters-and-hackathons)**
+* **[About the Functions Library (FuncLib)](#about-the-functions-library-funclib)**
+* **[About the Installer/Configuration Utility](#about-the-installerconfiguration-utility)**
 
 
 Introduction
