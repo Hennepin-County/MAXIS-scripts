@@ -112,15 +112,11 @@ A "merge conflict" is a conflict in which one version of a file conflicts with a
 * If you're using GitHub Desktop, try following the recommended "command line instructions" (which are included within the pull request).
 * If all else fails, contact a state administrator and ask them! We're ready to help resolve these (but it might take a bit of time).
 
-Other
+Scriptwriters and Hackathons
 ---
+A typical (potential) BlueZone Scriptwriter has excellent critical thinking skills, is well organized, and reasonably computer savvy. Previous coding experience isn't required, but definitely helps. We use VBScript predominantly, run through the BlueZone Script Host (taking advantage of the custom functions that we've built, and the built-in custom functions of BlueZone). There are numerous online courses for VBScript and computer programming in general.
 
-This is a casual (and, dare I say, fun) group, but we're doing a pretty epic project, with the goal of saving thousands of hours in work for all of Minnesota. So please be ready with a working knowledge of VBScript, an understanding of Minnesota's assistance programs, and a sense of humor, and I'm sure this will go well.
+Trainings for BlueZone Scriptwriters are conducted on occasion. Contact a script administrator if you're interested in this.
 
-If you don't have a great working knowledge of VBScript, you can find out more by checking out the Wiki on this repository!
+BlueZone Scripts "hackathons" take place the 2nd and 4th Monday of each month. Any trained scriptwriter is permitted to attend with permission from their supervisor and state administrators. Contact a script administrator to find out more.
 
-Oh, and don't be surprised if I'm pushing commits late in the evening. Frankly, I'm pretty obsessed with this project. ;)
-
-Welcome to it!
-
-Veronica Kahl Cary (VKC), Project Manager and SNAP Data Analyst, Minnesota DHS
