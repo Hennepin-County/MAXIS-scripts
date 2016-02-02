@@ -291,7 +291,8 @@ IF SNAP_banked_mo_check = checked THEN
 			
 			Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
 			'This is David Courtright's code for using Access
-			IF banked_months_db_tracking = True Then 'This global variable needs to be set to true in the global variables file for counties using this method		
+			IF banked_months_db_tracking = True Then 'This global variable needs to be set to true in the global variables file for counties using this method
+			'Counties also need to define the location of the database file using banked_month_database_path in global variables.
 				'----------------THis section updates an access database for ABAWD banked months---------------------------------'
 				abawd_member_array = Split(ABAWD_member_list, ",")
 
@@ -304,7 +305,7 @@ IF SNAP_banked_mo_check = checked THEN
 				'Creating objects for Access
 				Set objConnection = CreateObject("ADODB.Connection")
 				Set objRecordSet = CreateObject("ADODB.Recordset")
-				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & stats_database_path & ""
+				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & banked_month_database_path & ""
 				'This looks for an existing case number and edits it if needed
 				FOR i = 0 to UBound(BM_Clients_Array,2)
 					slash_loc = instr(Used_ABAWD_Months_Array(0), "/") 'this helps us get rid of the year info to match the database formatting.'
