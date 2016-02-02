@@ -21,7 +21,7 @@ Table of contents for this README
 * **[About the Functions Library (FuncLib)](#about-the-functions-library-funclib)**
 * **[About the Installer/Configuration Utility](#about-the-installerconfiguration-utility)**
 
-
+---
 Introduction
 ---
 
@@ -29,6 +29,9 @@ Welcome to the GitHub repository and project site for the MAXIS BlueZone Scripts
 
 If you have questions about BlueZone Scripts and work in a Minnesota human services agency, please ask a supervisor about getting started.
 
+_[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
+
+---
 State Administrators
 ---
 As of June 2014, there is only one state administrator for the BlueZone Scripts project: 
@@ -36,6 +39,10 @@ As of June 2014, there is only one state administrator for the BlueZone Scripts 
 
 In addition to our state administrators, numerous county/tribal agency personnel are involved in much of the writing and testing of BlueZone Scripts. Their contribution is appreciated!
 
+
+_[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
+
+---
 GitHub workflow and organization
 ---
 
@@ -48,6 +55,10 @@ Changes proposed here (assuming they "pass muster" with any policy/procedural fo
 
 The newest/upcoming draft of release notes (upcoming changes that have already been built) is [located here](https://gist.github.com/theVKC/16fea8523efbb3df1917). Scriptwriters and power users are encouraged to "star" this document to get updates on the newest changes as soon as they are available for testing.
 
+
+_[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
+
+---
 Issue list
 ---
 
@@ -84,6 +95,10 @@ Script freezes are needed for making sure each new script, bug fix, and enhancem
 
 When there are over 40 issues, no new scripts or enhancements will be allowed on the GitHub issue list, unless they are critical from a policy standpoint (bug fixes are always welcome). Administrators may institute script freezes at other times dependent on need, and in these cases an email will be sent to scriptwriters.
 
+
+_[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
+
+---
 Pull Requests
 ---
 A "pull request" is the process of requesting that the script administrator "pull" your changes in to the main branch. The process of making a pull request is fully documented elsewhere.
@@ -140,6 +155,10 @@ A "merge conflict" is a conflict in which one version of a file conflicts with a
 * If you're using GitHub Desktop, try following the recommended "command line instructions" (which are included within the pull request).
 * If all else fails, contact a state administrator and ask them! We're ready to help resolve these (but it might take a bit of time).
 
+
+_[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
+
+---
 Scriptwriters and Hackathons
 ---
 A typical (potential) BlueZone Scriptwriter has excellent critical thinking skills, is well organized, and reasonably computer savvy. Previous coding experience isn't required, but definitely helps. We use VBScript predominantly, run through the BlueZone Script Host (taking advantage of the custom functions that we've built, and the built-in custom functions of BlueZone). There are numerous online courses for VBScript and computer programming in general.
@@ -148,6 +167,10 @@ Trainings for BlueZone Scriptwriters are conducted on occasion. Contact a script
 
 BlueZone Scripts "hackathons" take place the 2nd and 4th Monday of each month. Any trained scriptwriter is permitted to attend with permission from their supervisor and state administrators. Contact a script administrator to find out more.
 
+
+_[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
+
+---
 About the Functions Library (FuncLib)
 ---
 The BlueZone Scripts "Functions Library" (or "FuncLib") is a centrally located repository for the common "shared functions" associated with MAXIS scripts. We use a separate repository for it, as it does not always follow the same release cycle as other scripts, and we want to keep the highly-technical conversation (and associated notifications) to a minimum for non-technical followers of our work. The FuncLib repository can be [found here](https://github.com/MN-Script-Team/BZS-FuncLib).
@@ -198,6 +221,10 @@ END IF
 
 ```
 
+
+_[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
+
+---
 About the Installer/Configuration Utility
 ---
 The BlueZone Scripts are "installed" (more like "configured" as they are simply script files inserted into a directory) using a utility written in VB.net and Windows Forms. This project requires Microsoft Visual Studio, and is considerably more technical than our other scripts. You can find the [repository for the installer utility here](https://github.com/MN-Script-Team/BlueZone-Scripts-Installer).
