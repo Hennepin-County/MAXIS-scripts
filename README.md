@@ -1,6 +1,30 @@
 BlueZone Scripts | DHS-MAXIS-Scripts
 ===
 
+Table of contents
+---
+* [Introduction](#introduction)
+* [State Administrators](#state-administrators)
+* [GitHub workflow and organization](#github-workflow-and-organization)
+* [Issue List](#issue-list)
+  * [Issue guidelines/best practices](#issue-guidelinesbest-practices)
+  * [Critical issues](#critical-issues)
+  * [Script freezes](#script-freezes)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+* [](#)
+
 Introduction
 ---
 
