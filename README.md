@@ -170,3 +170,6 @@ END IF
 
 ```
 
+About the Installer/Configuration Utility 
+---
+The BlueZone Scripts are "installed" (more like "configured" as they are simply script files inserted into a directory) using a utility written in VB.net and Windows Forms. This project requires Microsoft Visual Studio, and is considerably more technical than our other scripts. You can find the [repository for the installer utility here](https://github.com/MN-Script-Team/BlueZone-Scripts-Installer).
