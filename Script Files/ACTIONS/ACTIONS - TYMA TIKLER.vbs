@@ -73,7 +73,7 @@ STATS_denomination = "C"		'C is for case
 	Text 5, 30, 90, 10, "1st Quarter form send date"
 	Text 5, 90, 90, 10, "3rd Quarter form send date"
 	Text 5, 50, 90, 10, "2nd Quarter form send date"
-	Text 5, 125, 80, 10, "TYMA closing message"
+	Text 5, 125, 80, 10, "TYMA closing reminder"
 	Text 5, 70, 90, 10, "2nd Quarter form due date"
 	Text 5, 110, 90, 10, "3rd Quarter form due date"
 	Text 10, 145, 235, 20, "Once you click OK the script will TIKL for the events above on the dates above. Then you can use the DAIL scrubber to resolve the TIKLs."
@@ -116,25 +116,29 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 		Do
 			dialog TYMA_tikler
 			cancel_confirmation
-			If buttonpressed = calculate_button Then
-				If len(start_month) < 2 THEN start_month = 0 & start_month    '
-				If len(start_year) > 2 THEN start_year = right(start_year, 2)
-				TYMA_start_date = start_month & "/01/" & start_year
-				first_quart_send = DatePart("m", DateAdd("M", 2, TYMA_start_date)) & "/20/" & DatePart("YYYY", DateAdd("M", 3, TYMA_start_date))
-				second_quart_send = DatePart("m", DateAdd("M", 5, TYMA_start_date)) & "/20/" & DatePart("YYYY", DateAdd("M", 5, TYMA_start_date))
-				second_quart_due = DatePart("m", DateAdd("M", 6, TYMA_start_date)) & "/21/" & DatePart("YYYY", DateAdd("M", 6, TYMA_start_date))
-				third_quart_send = DatePart("m", DateAdd("M", 8, TYMA_start_date)) & "/20/" & DatePart("YYYY", DateAdd("M", 8, TYMA_start_date))
-				third_quart_due = DatePart("m", DateAdd("M", 9, TYMA_start_date)) & "/21/" & DatePart("YYYY", DateAdd("M", 9, TYMA_start_date))
-				TYMA_close = DatePart("m", DateAdd("M", 11, TYMA_start_date)) & "/01/" & DatePart("YYYY", DateAdd("M", 11, TYMA_start_date))
+			If buttonpressed = calculate_button Then     'calculate button will calculate the TYMA dates if it is pressed, uses the MM/YY TYMA start date entered by worker. 
+				If start_month = "" or start_year = "" THEN    'safeguard in case someone clicks calculate without entering a starter month/year
+					Msgbox "Please enter a TYMA start month/year in MM YY format then click the calculate button."
+				ELSE
+					If len(start_month) < 2 THEN start_month = 0 & start_month    '
+					If len(start_year) > 2 THEN start_year = right(start_year, 2)
+					TYMA_start_date = start_month & "/01/" & start_year
+					first_quart_send = DatePart("m", DateAdd("M", 2, TYMA_start_date)) & "/20/" & DatePart("YYYY", DateAdd("M", 3, TYMA_start_date))  'date to send 1st quarter report form
+					second_quart_send = DatePart("m", DateAdd("M", 5, TYMA_start_date)) & "/20/" & DatePart("YYYY", DateAdd("M", 5, TYMA_start_date))  'date to send 2nd quarter report form
+					second_quart_due = DatePart("m", DateAdd("M", 6, TYMA_start_date)) & "/21/" & DatePart("YYYY", DateAdd("M", 6, TYMA_start_date))    'date 2nd quarter report form is due
+					third_quart_send = DatePart("m", DateAdd("M", 8, TYMA_start_date)) & "/20/" & DatePart("YYYY", DateAdd("M", 8, TYMA_start_date))    'date to send 3rd quarter report form
+					third_quart_due = DatePart("m", DateAdd("M", 9, TYMA_start_date)) & "/21/" & DatePart("YYYY", DateAdd("M", 9, TYMA_start_date))		'date 3rd quarter report form is due
+					TYMA_close = DatePart("m", DateAdd("M", 11, TYMA_start_date)) & "/01/" & DatePart("YYYY", DateAdd("M", 11, TYMA_start_date))		'date to remind worker of TYMA closure
+				End If
 			End If
 		Loop until buttonpressed = OK
-		If case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."
+		If case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."     'error message handling builds an error message based on items left off of the dialog.
 		If isdate(first_quart_send) = False THEN err_msg = err_msg & vbcr & "1st quarter send date is invalid"
 		If isdate(second_quart_send) = False THEN err_msg = err_msg & vbcr & "2nd quarter send date is invalid"
 		If isdate(second_quart_due) = False THEN err_msg = err_msg & vbcr & "2nd quarter due date is invalid"
 		If isdate(third_quart_send) = False THEN err_msg = err_msg & vbcr & "3rd quarter send date is invalid"
 		If isdate(third_quart_due) = False THEN err_msg = err_msg & vbcr & "3rd quarter due date is invalid"
-		If isdate(TYMA_close) = False THEN err_msg = err_msg & vbcr & "ER send date is invalid"
+		If isdate(TYMA_close) = False THEN err_msg = err_msg & vbcr & "TYMA end date warning is invalid"
 		If worker_signature = "" THEN err_msg = err_msg & Vbcr & "You must enter a worker signature."
 		IF err_msg <> "" THEN msgbox err_msg
 	Loop until err_msg = ""
@@ -146,7 +150,7 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 	Call navigate_to_MAXIS_screen("dail", "writ")
 	Call create_MAXIS_friendly_date(first_quart_send, 0, 5, 18)
 	Transmit
-			Call write_variable_in_TIKL("~*~Consider sending 1st Quarterly Report form. TYMA start: " & TYMA_start_date & ",  Take appropriate action. This TIKL was generated via script.")
+	Call write_variable_in_TIKL("~*~Consider sending 1st Quarterly Report form. TYMA start: " & TYMA_start_date & ",  Take appropriate action. This TIKL was generated via script.")
 	Transmit
 	PF3
 	'TIKLS TO SEND SECOND FORM AND DUE DATE
