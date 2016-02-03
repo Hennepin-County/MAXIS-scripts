@@ -106,7 +106,7 @@ BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
   EditBox 95, 50, 60, 15, date_reported
   Text 165, 55, 45, 10, "Effective Date"
   EditBox 215, 50, 70, 15, effective_date
-  CheckBox 110, 70, 110, 10, "Check if the change is temporary.", temporary_change_checkbo1
+  CheckBox 110, 70, 110, 10, "Check if the change is temporary.", temporary_change_checkbox
   Text 10, 90, 45, 10, "Action Taken"
   EditBox 60, 85, 225, 15, actions_taken
   Text 5, 110, 60, 10, "Additional Notes"
