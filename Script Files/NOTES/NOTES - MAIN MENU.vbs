@@ -71,6 +71,79 @@ DIM VERIFICATIONS_NEEDED_button
 DIM LTC_APPLICATION_RECEIVED_button, LTC_ASSET_ASSESSMENT_button, LTC_COLA_SUMMARY_2016_button, LTC_INTAKE_APPROVAL_button, LTC_MA_APPROVAL_button
 DIM LTC_RENEWAL_button, LTC_TRANSFER_PENALTY_button, LTC_1503_button, LTC_5181_button
 
+'Here's some constants
+const MM_script_name 	= 0
+const MM_file_name		= 1
+const MM_description	= 2
+const MM_button			= 3
+
+'How many scripts are there <<<<<<<<<FIGURE THIS OUT DYNAMICALLY SOMEHOW
+total_scripts = 1
+
+'4 parameters in the array:
+
+Dim script_array(1, 3)
+
+'For the Application Received script
+script_array(current_script, MM_script_name) 	= "Application Received"																		'Script name
+script_array(current_script, MM_file_name) 		= "NOTES - APPLICATION RECEIVED.vbs"															'Script URL
+script_array(current_script, MM_description) 	= "Template for documenting details about an application recevied."								'Script description
+current_script = current_script + 1
+
+'For the Application Received script
+script_array(current_script, MM_script_name) 	= "Approved programs"																			'Script name
+script_array(current_script, MM_file_name) 		= "NOTES - APPROVED PROGRAMS.vbs"																'Script URL
+script_array(current_script, MM_description) 	= "Template for when you approve a client's programs."											'Script description
+current_script = current_script + 1
+
+'MsgBox script_array(0, 0) & "|" & script_array(0, 1) & "|" & script_array(0, 2)
+
+BeginDialog dialog_1, 0, 0, 516, 280, "# - C NOTES Scripts"
+ Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
+  ButtonGroup ButtonPressed
+	 PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
+	 PushButton 45, 35, 30, 15, "D - F", d_through_f_notes_button
+	 PushButton 75, 35, 30, 15, "G - L", g_through_l_notes_button
+	 PushButton 105, 35, 30, 15, "M - Q", m_through_q_notes_button
+	 PushButton 135, 35, 30, 15, "R - Z", r_through_z_notes_button
+	 PushButton 165, 35, 30, 15, "LTC", ltc_notes_button
+	 PushButton 445, 10, 65, 10, "SIR instructions", SIR_instructions_button
+
+	 'This starts here, but it shouldn't end here :)
+	 vert_button_position = 70
+	 
+	 
+	'This array displays all of the scripts above
+	For current_script = 0 to total_scripts
+
+		'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
+		button_size = round ( len( script_array(current_script, MM_script_name) ) * 3.5 ) + 10
+
+		'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+		'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH		ITEM HEIGHT		ITEM TEXT/LABEL											BUTTON VARIABLE
+		PushButton 		5, 						vert_button_position, 	button_size, 	10, 			script_array(current_script, MM_script_name), 			script_array(current_script, MM_button)
+		Text 			(button_size + 10), 	vert_button_position, 	330, 			10, 			"--- " & script_array(current_script, MM_description)
+		 
+		'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+		vert_button_position = vert_button_position + 15
+	
+	next
+	 
+	 CancelButton 460, 245, 50, 15
+	 
+	 GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
+EndDialog
+
+'Displays the dialog
+dialog dialog_1
+ 
+'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll MsgBox (eventually it will simply run_from_GitHub but this is a demo)
+For script_selected_check = 0 to total_scripts
+	If buttonpressed = script_array(script_selected_check, MM_button) then MsgBox "you selected " & script_array(script_selected_check, MM_file_name)
+Next
+
+stopscript
+
 'The function that creates the 4 dialogs depending on the dialog_name being sent through.
 FUNCTION create_NOTES_main_menu(dialog_name)
 	IF dialog_name = "#-C" THEN
