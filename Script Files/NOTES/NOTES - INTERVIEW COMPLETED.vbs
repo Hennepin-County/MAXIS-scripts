@@ -64,7 +64,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
-  DropListBox 70, 80, 75, 15, "Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
+  DropListBox 70, 80, 75, 15, "Select One..."+chr(9)+"Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
   ButtonGroup ButtonPressed
 	OkButton 35, 100, 50, 15
 	CancelButton 95, 100, 50, 15
@@ -140,7 +140,8 @@ Do
   Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
   cancel_confirmation
   If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+  If CAF_type = "Select One..." then MsgBox "You must select the type of CAF you interviewed"
+Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8 and CAF_type <> "Select One..."
 transmit
 call check_for_MAXIS(True)
 
@@ -161,6 +162,7 @@ If CAF_type = "Recertification" then                                            
 Else
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
 End if
+IF DateDiff ("d", CAF_datestamp, date) > 60 THEN CAF_datestamp = ""							'This will disregard Application Dates that are older than 60 days. IF and old dste is pulled, the next dialog will require the worker to enter the correct date
 If HC_checkbox = checked and CAF_type <> "Recertification" then call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)     'Grabbing retro info for HC cases that aren't recertifying
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)                                                                        'Grabbing HH comp info from MEMB.
 If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", HH_comp)                                                 'Grabbing EATS info for SNAP cases, puts on HH_comp variable
