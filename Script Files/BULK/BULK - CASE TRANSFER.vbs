@@ -180,6 +180,7 @@ MsgBox "The script will now create an Excel Spreadsheet to display case informat
    vbCr & "Please do not alter this spreadsheet until after the script has completed." & _ 
    vbCR & "Altering the spreadsheet will not change how the script runs and will only cause the data listed on it to be incorrect."
    
+
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -416,7 +417,8 @@ For each worker in worker_array
 	EMReadScreen user_worker, 7, 21, 71		'
 	EMReadScreen p_worker, 7, 21, 13
 	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
-
+	
+	PF5 'Changes to case number sort for a better variety of cases.
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
 	If has_content_check <> " " then
@@ -795,7 +797,7 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 			Loop until end_of_dail_check = "LAST PAGE"
 		End If  
 	End If	
-	
+
 	'///// This is where the script determines which of the cases meet the criteria the user selected. 
 	'If Save_case_for_transfer is True once this Do Loop completes then the case information is saved for the transfer part in another array
 	'This also determines which cases will be added to Excel
@@ -1101,6 +1103,8 @@ For each x1_number in x1s_from_dialog_two
 	End if
 Next
 
+cases_to_xfer_numb = abs(cases_to_xfer_numb)	'Sometimes the script thinks this is a string and does not do math correctly.
+
 'Creating the array of all workers to receive cases
 receiving_worker_array = split(receiving_worker_array, ", ")
 
@@ -1125,7 +1129,7 @@ If transfer_check = checked then
 			MsgBox "This case " & case_number & " cannot be transferred and has been noted on the spreadsheet"
 			PF10 
 			ObjExcel.Cells (All_case_information_array(19,p), xfered_col).Value = "N" 
-		ElseIf confirm_xfer = "CASE" then 'For some reason  only the first case is being case noted ???
+		ElseIf confirm_xfer = "CASE" then 
 			ObjExcel.Cells (All_case_information_array(19,p), xfered_col).Value = "Y" 
 			ObjExcel.Cells (All_case_information_array(19,p), new_worker_col).Value = receiving_worker_array(r)
 			total_cases_transfered = total_cases_transfered + 1 	'This counts the successful transfers 
@@ -1160,11 +1164,12 @@ If transfer_check = checked then
 				PF3
 				memo_check = checked 'adding this because sometimes the loop loses this value for some reason
 			End If 
+			'If cases_to_xfer_numb = total_cases_transfered Then Exit Do 
 		End If 
 		case_number = "" 'Blanking out variable
 		p = p + 1 
 		If p = UBound(All_case_information_array,2) Then Exit Do 
-	Loop until cases_to_xfer_numb = total_cases_transfered 'continues to attempt to transfer until the requested number is reached 
+	Loop until total_cases_transfered = cases_to_xfer_numb 'continues to attempt to transfer until the requested number is reached 
 End If 
 
 If total_cases_transfered = "" then total_cases_transfered = 0 
