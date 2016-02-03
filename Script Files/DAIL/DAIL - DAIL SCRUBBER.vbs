@@ -125,6 +125,14 @@ If SCHL_check = "STUDENT INCOME HAS ENDED - REVIEW FS AND/OR HC RESULTS/APP" the
 EMReadScreen TPQY_check, 31, 6, 30
 If TPQY_check = "TPQY RESPONSE RECEIVED FROM SSA" then call run_from_GitHub(script_repository & "DAIL/DAIL - TPQY RESPONSE.vbs")
 
+'TYMA scrubber for agencies TIKLING TYMA as you go (loads TYMA Scrubber)
+EMReadScreen TYMA_check, 23, 6, 20
+IF TYMA_check = "~*~CONSIDER SENDING 1ST" THEN call run_from_GitHub(script_repository & "DAIL/DAIL - TYMA SCRUBBER.vbs")
+IF TYMA_check = "~*~CONSIDER SENDING 2ND" THEN Call run_from_GitHub(script_repository & "DAIL/DAIL - TYMA SCRUBBER.vbs")
+IF TYMA_check = "~*~2ND QUARTERLY REPORT" THEN call run_from_GitHub(script_repository & "DAIL/DAIL - TYMA SCRUBBER.vbs")
+IF TYMA_check = "~*~CONSIDER SENDING 3RD" THEN call run_from_GitHub(script_repository & "DAIL/DAIL - TYMA SCRUBBER.vbs")
+IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN call run_from_GitHub(script_repository & "DAIL/DAIL - TYMA SCRUBBER.vbs")
+
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
 IF ABAWD_elig_end = "FS ABAWD ELIGIBILITY HAS EXPIRED" THEN CALL run_from_GitHub(script_repository & "DAIL/DAIL - ABAWD FSET EXEMPTION CHECK.vbs")
