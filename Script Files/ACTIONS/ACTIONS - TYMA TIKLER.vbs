@@ -104,8 +104,6 @@ EMConnect""
 ' TIKLS as you go: Script will create the first TIKL then the worker will use the DAIL Scrubber to create the additional TIKLS. 
 'The divide will be based on the following variable in the GLOBAL VARIABLES file TYMA_TIKL_ALL_AT_ONCE, the variable will be TRUE/FALSE and restrict an agency to once or the other. 
 
-TYMA_TIKL_ALL_AT_ONCE = TRUE
-
 'FIRST HALF------------------------------------------------------------------------------------------------------------------------------------
 IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLing all at once. 	
 	call MAXIS_case_number_finder(case_number)
@@ -207,7 +205,7 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 END If
 
 'SECOND HALF------------------------------------------------------------------------------------------------------------------------------------
-IF TYMA_TIKL_ALL_AT_ONCE = FALSE THEN  'This portion will just add the first TIKL then the worker can use the DAIL scrubber on future TIKLS. 
+IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This portion will just add the first TIKL then the worker can use the DAIL scrubber on future TIKLS. 
 	call MAXIS_case_number_finder(case_number)
 	call check_for_MAXIS(false)
 	Do
