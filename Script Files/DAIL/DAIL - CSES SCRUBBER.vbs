@@ -65,6 +65,9 @@ EndDialog
 'END DIALOGS===============================================================================================================
 
 
+'VARIABLES AND CONSTANTS WE WANT TO USE====================================================================================
+excel_center = -4108		'This apparently means "centered" in Excel's VBA
+'END VARIABLES=============================================================================================================
 
 
 'THE SCRIPT================================================================================================================
@@ -108,8 +111,26 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = excel_visibility
 'END EXCEL BLOCK--------------------------
 
+'Headers for the Excel spreadsheet
+ObjExcel.Range("A1:F1").Merge
+ObjExcel.Cells(1, 1).Value = "Message/disbursement info"
+ObjExcel.Cells(1, 1).Font.Bold = True
+objExcel.Cells(1, 1).HorizontalAlignment = excel_center
+ObjExcel.Cells(2, 1).Value = "Message #"
+ObjExcel.Cells(2, 2).Value = "PMI"
+ObjExcel.Cells(2, 3).Value = "HH memb"
+ObjExcel.Cells(2, 4).Value = "Amount alloted"
+ObjExcel.Cells(2, 5).Value = "CS type"
+ObjExcel.Cells(2, 6).Value = "Issue date"
+
+'Make the headers bold
+For i = 1 to 6
+	objExcel.Cells(2, i).Font.Bold = TRUE
+Next
+
+
 'We need these variables for the next part
-excel_row = 1 		'What row should Excel be on? Let's start with this one.
+excel_row = 3 		'What row should Excel be on? Let's start with this one.
 message_number = 1	'We want to count how many messages we process in here
 
 
@@ -157,7 +178,7 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	For each PMI_number in PMI_array
     	ObjExcel.Cells(excel_row, 1).Value = message_number					'Each message is numbered in sequence
     	ObjExcel.Cells(excel_row, 2).Value = PMI_number						'We want this PMI for obvious reasons
-    	ObjExcel.Cells(excel_row, 4).Value = COEX_amt/COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
+    	ObjExcel.Cells(excel_row, 4).Value = COEX_amt / COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
 		'<<<<<<<<<<<<<<<<<<<<PROBABLY WHERE PENNY ISSUE SHOULD GO, MAYBE JUST ADD PARTIALS TO THE FIRST MEMB????????
     	ObjExcel.Cells(excel_row, 5).Value = CS_type						'This is the type, and it's helpful to know this when we write to UNEA
     	ObjExcel.Cells(excel_row, 6).Value = issue_date						'The date it was issued
@@ -211,10 +232,16 @@ Else
 End if
 
 'Writes program status to the Excel sheet, because it's prettier that way (and will be helpful for debugging)
-ObjExcel.Cells(1, 8).Value = "MFIP open:"
-ObjExcel.Cells(1, 9).Value = MFIP_active
-ObjExcel.Cells(2, 8).Value = "SNAP open:"
-ObjExcel.Cells(2, 9).Value = SNAP_active
+ObjExcel.Cells(1, 8).Value = "CASE/CURR status"
+ObjExcel.Cells(1, 8).Font.Bold = TRUE
+objExcel.Cells(1, 8).HorizontalAlignment = excel_center
+ObjExcel.Range("H1:I1").Merge
+ObjExcel.Cells(2, 8).Value = "MFIP open:"
+ObjExcel.Cells(2, 8).Font.Bold = TRUE
+ObjExcel.Cells(2, 9).Value = MFIP_active
+ObjExcel.Cells(3, 8).Value = "SNAP open:"
+ObjExcel.Cells(3, 8).Font.Bold = TRUE
+ObjExcel.Cells(3, 9).Value = SNAP_active
 
 'If both SNAP and MFIP aren't open, the script will exit
 If SNAP_active = False and MFIP_active = False then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
@@ -234,7 +261,17 @@ End if
 transmit
 
 'Now we're in STAT/MEMB, and the script will associate each member with their PMI
-excel_row = 1 'setting the variable for the following Do...Loop
+excel_row = 3 'setting the variable for the following Do...Loop
+
+'Creating headers for the HH member list
+ObjExcel.Cells(1, 11).Value = "MEMB/PMI list"
+ObjExcel.Cells(1, 11).Font.Bold = True
+objExcel.Cells(1, 11).HorizontalAlignment = excel_center
+ObjExcel.Range("K1:L1").Merge
+ObjExcel.Cells(2, 11).Value = "HH memb"
+ObjExcel.Cells(2, 11).Font.Bold = True
+ObjExcel.Cells(2, 12).Value = "PMI"
+ObjExcel.Cells(2, 12).Font.Bold = True
 
 'Looping through the panels until it reads each one, which it adds to Excel
 Do
@@ -254,7 +291,7 @@ If amount_of_panels = "1" then script_end_procedure("This is a single-individual
 
 'Now it's going to use the list of the case's PMIs it just made, and associate a HH member number with each one
 'setting the variable for the following Do...Loop
-excel_row = 1 			'Resetting this to look at the memb list
+excel_row = 3 			'Resetting this to look at the memb list
 
 
 Do							'Loops until the HH memb list is out of PMIs
