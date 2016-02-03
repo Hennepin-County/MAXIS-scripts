@@ -83,7 +83,7 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 350, "Actions scripts m
   Text 110, 250, 340, 20, "-- NEW 01/2016!! Enter shelter expense and address information in a single dialog and the script updates SHEL, HEST, and ADDR and case notes."
   Text 65, 275, 90, 10, "--- Sends a SVES/QURY."
   Text 75, 295, 330, 10, "--- SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
-  Text 80, 310, 355, 10, "--- NEW 01/2016!!! TIKLS for TYMA report forms to be sent. "
+  Text 80, 310, 355, 10, "--- NEW 02/2016!!! TIKLS for TYMA report forms to be sent. "
   Text 105, 325, 190, 10, "--- Updates the default worker signature on your scripts."
   Text 5, 5, 250, 10, "Action scripts main menu: select the script to run from the choices below."
   Text 120, 20, 335, 10, "-- NEW 01/2016!! FIATS SNAP eligibility, income and deductions for HH members using banked months."
