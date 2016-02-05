@@ -67,14 +67,13 @@ BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
 EndDialog
 
 BeginDialog baby_born_dialog, 0, 0, 211, 300, "BABY BORN"
-  EditBox 60, 5, 80, 15, case_number
-  EditBox 60, 25, 95, 15, babys_name
-  EditBox 60, 45, 80, 15, date_of_birth
-  EditBox 60, 65, 80, 15, SSN
-  DropListBox 85, 85, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", father_in_household
-  EditBox 80, 105, 85, 15, fathers_name
-  EditBox 80, 125, 85, 15, fathers_employer
-  EditBox 80, 145, 85, 15, mothers_employer
+  EditBox 55, 5, 95, 15, case_number
+  EditBox 55, 25, 95, 15, babys_name
+  EditBox 55, 45, 95, 15, date_of_birth
+  DropListBox 85, 70, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", father_in_household
+  EditBox 70, 90, 85, 15, fathers_name
+  EditBox 70, 115, 85, 15, fathers_employer
+  EditBox 70, 140, 85, 15, mothers_employer
   DropListBox 80, 165, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", other_health_insurance
   EditBox 115, 190, 80, 15, OHI_source
   EditBox 60, 215, 105, 15, other_notes
@@ -82,21 +81,20 @@ BeginDialog baby_born_dialog, 0, 0, 211, 300, "BABY BORN"
   EditBox 155, 255, 40, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 5, 280, 50, 15
-  Text 5, 25, 55, 15, "Baby's Name:"
+  Text 5, 25, 50, 15, "Baby's Name:"
   Text 5, 45, 45, 15, "Date of Birth:"
-  Text 5, 85, 75, 15, "Father In Household?"
-  Text 5, 125, 70, 15, "Father's Employer:"
-  Text 5, 145, 70, 10, "Mother's Employer: "
+  Text 5, 70, 75, 15, "Father In Household?"
+  Text 5, 115, 65, 15, "Father's Employer:"
+  Text 5, 140, 65, 10, "Mother's Employer: "
   Text 55, 165, 20, 10, "OHI?"
   Text 5, 195, 110, 15, "If yes to OHI, source of the OHI:"
   Text 10, 220, 45, 15, "Other Notes:"
   Text 5, 240, 50, 15, "Actions Taken:"
   Text 90, 255, 65, 15, "Worker Signature:"
-  Text 5, 65, 40, 15, "Babys SSN:"
   ButtonGroup ButtonPressed
     CancelButton 155, 280, 50, 15
-  Text 20, 105, 50, 10, "Fathers Name:"
-  Text 5, 5, 55, 15, "Case Number: "
+  Text 20, 90, 50, 10, "Fathers Name:"
+  Text 5, 5, 50, 15, "Case Number: "
 EndDialog
 
 BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
@@ -108,7 +106,7 @@ BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
   EditBox 95, 50, 60, 15, date_reported
   Text 165, 55, 45, 10, "Effective Date"
   EditBox 215, 50, 70, 15, effective_date
-  CheckBox 110, 70, 100, 10, "Is the change temporary?", temporary_change_checkbox
+  CheckBox 110, 70, 110, 10, "Check if the change is temporary.", temporary_change_checkbox
   Text 10, 90, 45, 10, "Action Taken"
   EditBox 60, 85, 225, 15, actions_taken
   Text 5, 110, 60, 10, "Additional Notes"
@@ -163,7 +161,6 @@ DO
 	IF Case_Number = "" THEN err_msg = "You must enter case number!"
 	IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
 	IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
-	IF SSN = "" THEN err_msg = err_msg & vbNewLine &  "You must enter baby's Social Security Number"
 	IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
 	IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
 	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
@@ -208,7 +205,6 @@ IF List1 = "Baby Born" THEN
 	CALL write_variable_in_Case_Note("--Client reports birth of baby--")
 	CALL write_bullet_and_variable_in_Case_Note("Baby's name", babys_name)	
 	CALL write_bullet_and_variable_in_Case_Note("Date of birth", date_of_birth)
-	CALL write_bullet_and_variable_in_Case_Note("Baby's SSN", SSN)
 	CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name)
 	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
 	CALL write_bullet_and_variable_in_Case_Note("Mother's employer", mothers_employer)
@@ -227,8 +223,9 @@ IF List1 = "HHLD Comp Change" THEN
 	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", Action_Taken)
 	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", Additional_Notes)
 
-	'case notes if the change is temporary checkboxes
+	'case notes if the change is temporary
 	IF Temporary_Change_Checkbox = 1 THEN CALL write_variable_in_Case_Note("***Change is temporary***")
+	IF Temporary_Change_Checkbox = 0 THEN CALL write_variable_in_Case_Note("***Change is NOT temporary***")
 
 END IF
 

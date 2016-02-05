@@ -173,7 +173,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	transmit
 	
 	'Checks to make sure the selected worker number is the default. If not it will navigate to that person.
-	EMReadScreen worker_number_check, 3, 21, 16
+	EMReadScreen worker_number_check, 7, 21, 16
 	If ucase(worker_number_check) <> ucase(worker_number) then
 		EMWriteScreen worker_number, 21, 16
 		transmit
