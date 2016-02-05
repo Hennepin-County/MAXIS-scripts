@@ -99,7 +99,6 @@ FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	initial_date = initial_month & "/1/" & initial_year
 	'defines a date_list, which starts with just the initial date
 	date_list = initial_date
-
 	'This loop creates a list of dates
 	Do
 		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
@@ -290,8 +289,9 @@ IF SNAP_banked_mo_check = checked THEN
 			Next
 			
 			Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
-			
-			IF banked_months_db_tracking = True Then		'This is David Courtright's code for using Access
+			'This is David Courtright's code for using Access
+			IF banked_months_db_tracking = True Then 'This global variable needs to be set to true in the global variables file for counties using this method
+			'Counties also need to define the location of the database file using banked_month_database_path in global variables.
 				'----------------THis section updates an access database for ABAWD banked months---------------------------------'
 				abawd_member_array = Split(ABAWD_member_list, ",")
 
@@ -304,12 +304,15 @@ IF SNAP_banked_mo_check = checked THEN
 				'Creating objects for Access
 				Set objConnection = CreateObject("ADODB.Connection")
 				Set objRecordSet = CreateObject("ADODB.Recordset")
-				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & stats_database_path & "" 
+				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & banked_month_database_path & ""
 				'This looks for an existing case number and edits it if needed
-				FOR i = 0 to UBound(BM_Clients_Array,2) 
-					banked_month = Used_ABAWD_Months_Array(0)
-					banked_month_2 = Used_ABAWD_Months_Array(1)
-					banked_month_3 = Used_ABAWD_Months_Array(2)
+				FOR i = 0 to UBound(BM_Clients_Array,2)
+					slash_loc = instr(Used_ABAWD_Months_Array(0), "/") 'this helps us get rid of the year info to match the database formatting.'
+					banked_month = left(Used_ABAWD_Months_Array(0), slash_loc - 1) ' This does the removal of the year, so the months match the database columns
+					slash_loc = instr(Used_ABAWD_Months_Array(1), "/")
+					banked_month_2 = left(Used_ABAWD_Months_Array(1), slash_loc - 1)
+					slash_loc = instr(Used_ABAWD_Months_Array(2), "/")
+					banked_month_3 = left(Used_ABAWD_Months_Array(2), slash_loc - 1)
 					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
 
 					IF NOT(abawdrs.EOF) THEN 'There is an existing case, we need to update
@@ -324,7 +327,8 @@ IF SNAP_banked_mo_check = checked THEN
 					END IF
 				NEXT
 				objConnection.close
-			Else 
+			Else
+
 				'For counties with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
 				'Opening the Excel file
 				Set objExcel = CreateObject("Excel.Application")
@@ -477,6 +481,11 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 		End If 
 	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" Then 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
+		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
+		row = 1
+		col = 1
+		EMSearch "(MFSC)", row, col
+		IF row <> 0 THEN transmit
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
 		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59 
 		EMWriteScreen "MFSM", 20, 71 
@@ -583,8 +592,8 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 	ElseIf bene_amount_array(0, all_elig_results) = "GA" THEN
 		'GA portion
 		call navigate_to_MAXIS_screen("ELIG", "GA")
-		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
-		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
+		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 54 
+		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 57
 		EMWRiteScreen "GASM", 20, 70
 		transmit
 		EMReadScreen cash_approved_version, 8, 3, 3
@@ -733,6 +742,7 @@ IF snap_approved_check = checked THEN
 		approved_programs = approved_programs & "SNAP/"
 	END IF
 END IF
+
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
 IF emer_approved_check = checked THEN approved_programs = approved_programs & "EMER/"
@@ -770,16 +780,16 @@ IF autofill_check = checked THEN
 			End If
 		End If
 	Next 			
-	FOR msa_approvals = 0 to UBound(bene_amount_array,2) 
+	FOR msa_approvals = 0 to UBound(bene_amount_array, 2) 
 		IF bene_amount_array (0,msa_approvals) = "MSA" THEN
 			msa_header = ("MSA for " & bene_amount_array(1,msa_approvals) & "/" & bene_amount_array(2, msa_approvals))
-			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(3,msa_approvals)))
+			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(9,msa_approvals)))
 		End If
 	Next 
-	FOR ga_approvals = 0 to UBound(bene_amount_array,2) 
+	FOR ga_approvals = 0 to UBound(bene_amount_array, 2) 
 		IF bene_amount_array (0,ga_approvals) = "GA" THEN
 			ga_header = ("GA for " & bene_amount_array(1,ga_approvals) & "/" & bene_amount_array(2,ga_approvals))
-			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(3,ga_approvals)))
+			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(9,ga_approvals)))
 			IF bene_amount_array (4, ga_approvals) <> "" THEN
 				Call write_bullet_and_variable_in_CASE_NOTE ("    Prorated from: ", bene_amount_array(4,ga_approvals))
 			End If
