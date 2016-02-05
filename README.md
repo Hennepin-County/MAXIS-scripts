@@ -81,11 +81,13 @@ Scriptwriters are encouraged to tackle any issues on the issue list, so long as 
 * If you have a question, it should only be posted if you believe a change to a script is necessary or wise. If it's a general scripts question, it is better addressed on the SIR discussion forum or via email.
 
 #### Critical issues
-Sometimes a bug or enhancement needs to be prioritized over other issues. We can mark those issues as "critical", which gets our attention. Here are the two situations in which a bug or enhancement is considered "critical":
+Sometimes a bug or enhancement needs to be prioritized over other issues. We can mark those issues as "critical", which gets our attention. Here are the two typical situations in which a bug or enhancement is considered "critical":
 * A script **in the release branch** has an inhibiting edit which is completely impassible.
 * A script **in the release branch** is doing an action which has been (or will be) considered "incorrect policy".
  
 _Please note_: script issues that only occur in the master branch are _not_ considered critical, as _the master branch is considered a test ground_. For this reason, **it is recommended that all master branch users also have access to the release branch**.
+
+An issue or enhancement may also be marked as critical if it's causing confusion or logic problems in county/tribal agencies, for example, a panel or notification changing names mid-month. In these cases, marking an issue as critical will be left to the discretion of the state coordinators (and scriptwriters should feel free to guide them with feedback).
 
 #### Script freezes
 Script freezes are needed for making sure each new script, bug fix, and enhancement is properly tested. Generally speaking, enhancement/new script freezes are in effect in the following instances:
