@@ -1,7 +1,7 @@
 'This script combines the name search and phone number search OTHER NAV scripts. By Tim DeLong.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - PHONE NUMBER OR NAME LOOK UP"
+name_of_script = "NAV - PHONE NUMBER OR NAME LOOK UP.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
