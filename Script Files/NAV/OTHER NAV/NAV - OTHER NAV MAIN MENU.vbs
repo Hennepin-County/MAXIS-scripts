@@ -53,7 +53,7 @@ BeginDialog OTHER_NAV_scripts_main_menu_dialog, 0, 0, 456, 140, "Other NAV scrip
     PushButton 5, 20, 100, 10, "Look up MAXIS case in MMIS", 		LOOK_UP_MAXIS_CASE_IN_MMIS_button
     PushButton 5, 35, 100, 10, "Look up MMIS PMI in MAXIS", 		LOOK_UP_MMIS_PMI_IN_MAXIS_button
     PushButton 5, 50, 120, 10, "Move production screen to inquiry", 	MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button
-    PushButton 5, 70, 120, 10, "Phone number OR Name look up",          CLIENT_LOOK_UP_button
+    PushButton 5, 70, 120, 10, "Phone number OR Name look up",          PHONE_NUMBER_OR_NAME_LOOK_UP_button
     PushButton 5, 95, 40, 10, "View INFC", 					VIEW_INFC_button
   Text 5, 5, 245, 10, "Other nav scripts main menu: select the script to run from the choices below."
   Text 110, 20, 250, 10, "--- Navigates to RELG in MMIS for a selected case. Navigates to person 01."
