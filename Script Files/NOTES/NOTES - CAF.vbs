@@ -220,7 +220,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
   EditBox 55, 260, 230, 15, other_notes
   EditBox 55, 280, 390, 15, verifs_needed
   EditBox 55, 300, 390, 15, actions_taken
-  ComboBox 330, 260, 115, 15, "incomplete"+chr(9)+"approved", CAF_status
+  ComboBox 330, 260, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
   CheckBox 15, 335, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
   CheckBox 15, 350, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
   CheckBox 15, 365, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
