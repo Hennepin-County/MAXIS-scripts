@@ -1,3 +1,7 @@
+name_of_script = "NOTES - FOSTER CARE REVIEW.vbs"
+start_time = timer
+
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -47,7 +51,6 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog FC_HC_REVIEW, 0, 0, 256, 250, "FOSTER CARE HC REVIEW"
 BeginDialog FC_HC_REVIEW, 0, 0, 256, 250, "FOSTER CARE HC REVIEW"
   EditBox 65, 5, 65, 15, Case_number
   EditBox 65, 25, 65, 15, Received
