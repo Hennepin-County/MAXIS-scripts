@@ -82,7 +82,7 @@ EMConnect ""
 If buttonpressed = LOOK_UP_MAXIS_CASE_IN_MMIS_button						then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - LOOK UP MAXIS CASE IN MMIS.vbs")
 If buttonpressed = LOOK_UP_MMIS_PMI_IN_MAXIS_button						then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - LOOK UP MMIS PMI IN MAXIS.vbs")
 If buttonpressed = MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button					then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - MOVE PRODUCTION SCREEN TO INQUIRY.vbs")
-IF ButtonPressed = CLIENT_LOOK_UP_button								then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - CLIENT LOOK UP.vbs")
+IF ButtonPressed = PHONE_NUMBER_OR_NAME_LOOK_UP_button								then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - PHONE NUMBER OR NAME LOOK UP.vbs")
 If buttonpressed = VIEW_INFC_button									then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - VIEW INFC.vbs")
 
 'Logging usage stats
