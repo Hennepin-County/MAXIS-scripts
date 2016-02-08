@@ -372,9 +372,9 @@ call write_bullet_and_variable_in_case_note("SNAP denial date", SNAP_denial_date
 call write_bullet_and_variable_in_case_note("HC denial date", HC_denial_date)
 call write_bullet_and_variable_in_case_note("cash denial date", cash_denial_date)
 call write_bullet_and_variable_in_case_note("Emer denial date", emer_denial_date)
-call write_bullet_and_variable_in_case_note("Application date: ", application_date)
-call write_bullet_and_variable_in_case_note("Reason for denial: ", reason_for_denial)
-call write_bullet_and_variable_in_case_note("Verifs needed: ", verifs_needed)
+call write_bullet_and_variable_in_case_note("Application date", application_date)
+call write_bullet_and_variable_in_case_note("Reason for denial", reason_for_denial)
+call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If disabled_client_check = 1 then call write_variable_in_case_note("* Client is disabled.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
@@ -386,16 +386,16 @@ If case_noting_intake_dates = True then
 	If cash_check = 1 then call write_bullet_and_variable_in_case_note("Last cash REIN date", cash_last_REIN_date)
 	If emer_check = 1 then call write_bullet_and_variable_in_case_note("Last emer REIN date", emer_last_REIN_date)
 	If open_prog_check = 1 or HH_membs_on_HC_check = 1 then 
-		If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs: ", open_progs)
-		If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC: ", HH_membs_on_HC)
+		If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
+		If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC", HH_membs_on_HC)
 	Else
 		call write_variable_in_case_note("* All programs denied. Case becomes intake again on " & intake_date & ".")
 	End if
 Else
-	If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs: ", open_progs)
-	If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC: ", HH_membs_on_HC)
+	If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
+	If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC", HH_membs_on_HC)
 End if
-call write_bullet_and_variable_in_case_note("Other notes: ", other_notes)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
