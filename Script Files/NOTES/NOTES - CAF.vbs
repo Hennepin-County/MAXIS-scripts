@@ -50,17 +50,35 @@ STATS_manualtime = 720                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block==============================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", date)
-footer_month = cstr(footer_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = cstr(right(datepart("yyyy", date), 2))
+'Function for checking and changing the footer month to the MAXIS_footer_month & MAXIS_footer_year selected by the user in the inital dialog if necessary
+FUNCTION MAXIS_footer_month_confirmation	'Must use MAXIS_footer_month & MAXIS footer_year as variables for this function to work 
+	EMReadScreen SELF_check, 4, 2, 50			'Does this to check to see if we're on SELF screen
+	IF SELF_check = "SELF" THEN
+		EMReadScreen panel_footer_month, 2, 20, 43
+		EMReadScreen panel_footer_year, 2, 20, 46
+	ELSE
+		Call find_variable("Month: ", MAXIS_footer, 5)	'finding footer month and year if not on the SELF screen
+		panel_footer_month = left(MAXIS_footer, 2)
+		panel_footer_year = right(MAXIS_footer, 2)
+		If row <> 0 then 
+  			panel_footer_month = panel_footer_month		'Establishing variables
+			panel_footer_year =panel_footer_year
+		END IF
+	END IF
+	panel_date = panel_footer_month & panel_footer_year		'creating new variable combining month and year for the date listed on the MAXIS panel
+	dialog_date = MAXIS_footer_month & MAXIS_footer_year	'creating new variable combining the MAXIS_footer_month & MAXIS_footer_year to measure against the panel date
+	IF panel_date <> dialog_date then 						'if dates are not equal 
+		back_to_SELF		
+		EMWriteScreen MAXIS_footer_month, 20, 43			'goes back to self and enters the date that the user selcted'
+		EMWriteScreen MAXIS_footer_year, 20, 46
+	END IF
+END FUNCTION
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, case_number
-  EditBox 80, 25, 30, 15, footer_month
-  EditBox 110, 25, 30, 15, footer_year
+  EditBox 80, 25, 30, 15, MAXIS_footer_month
+  EditBox 110, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
@@ -268,13 +286,7 @@ application_signed_checkbox = checked 'The script should default to having the a
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 Call MAXIS_case_number_finder(case_number)
-
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'initial dialog
 Do
@@ -287,6 +299,7 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
+Call MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")
@@ -392,7 +405,7 @@ Do
 	call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
+Call check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then 
@@ -474,7 +487,7 @@ END IF
 '--------------------END OF TIKL BUSINESS
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
-start_a_blank_CASE_NOTE
+Call start_a_blank_CASE_NOTE
 
 'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
 If CAF_status <> "" then CAF_status = ": " & CAF_status
