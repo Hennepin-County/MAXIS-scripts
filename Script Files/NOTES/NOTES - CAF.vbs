@@ -95,10 +95,10 @@ EndDialog
 
 BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
-  ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
+  ComboBox 175, 5, 70, 15, "phone"+chr(9)+"office", interview_type
   EditBox 60, 25, 50, 15, interview_date
-  ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed"+chr(9)+"emailed", how_app_was_received
-  ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)", HC_document_received
+  ComboBox 230, 25, 95, 15, "in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed"+chr(9)+"emailed", how_app_was_received
+  ComboBox 220, 45, 105, 15, "DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
   EditBox 390, 45, 50, 15, HC_datestamp
   EditBox 75, 70, 370, 15, HH_comp
   EditBox 35, 90, 200, 15, cit_id
@@ -111,37 +111,37 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 35, 180, 410, 15, ABPS
   EditBox 55, 210, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-	PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
-	CancelButton 395, 240, 50, 15
-	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-	PushButton 335, 25, 45, 10, "next panel", next_panel_button
-	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-	PushButton 395, 25, 45, 10, "next memb", next_memb_button
-	PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
-	PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
-	PushButton 5, 115, 25, 10, "AREP/", AREP_button
-	PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
-	PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
-	PushButton 215, 115, 25, 10, "STIN/", STIN_button
-	PushButton 240, 115, 25, 10, "STEC:", STEC_button
-	PushButton 5, 135, 25, 10, "DISA/", DISA_button
-	PushButton 30, 135, 25, 10, "PDED:", PDED_button
-	PushButton 280, 135, 25, 10, "FACI:", FACI_button
-	PushButton 5, 165, 25, 10, "PREG:", PREG_button
-	PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
-	PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
-	PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
-	PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
-	PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
-	PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
-	PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
-	PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
-	PushButton 150, 240, 25, 10, "ADDR", ADDR_button
-	PushButton 175, 240, 25, 10, "MEMB", MEMB_button
-	PushButton 200, 240, 25, 10, "MEMI", MEMI_button
-	PushButton 225, 240, 25, 10, "PROG", PROG_button
-	PushButton 250, 240, 25, 10, "REVW", REVW_button
-	PushButton 275, 240, 25, 10, "TYPE", TYPE_button
+    PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
+    CancelButton 395, 240, 50, 15
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
+    PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
+    PushButton 5, 115, 25, 10, "AREP/", AREP_button
+    PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
+    PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
+    PushButton 215, 115, 25, 10, "STIN/", STIN_button
+    PushButton 240, 115, 25, 10, "STEC:", STEC_button
+    PushButton 5, 135, 25, 10, "DISA/", DISA_button
+    PushButton 30, 135, 25, 10, "PDED:", PDED_button
+    PushButton 280, 135, 25, 10, "FACI:", FACI_button
+    PushButton 5, 165, 25, 10, "PREG:", PREG_button
+    PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
+    PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
+    PushButton 150, 240, 25, 10, "ADDR", ADDR_button
+    PushButton 175, 240, 25, 10, "MEMB", MEMB_button
+    PushButton 200, 240, 25, 10, "MEMI", MEMI_button
+    PushButton 225, 240, 25, 10, "PROG", PROG_button
+    PushButton 250, 240, 25, 10, "REVW", REVW_button
+    PushButton 275, 240, 25, 10, "TYPE", TYPE_button
   Text 5, 10, 55, 10, "CAF datestamp:"
   Text 120, 10, 50, 10, "Interview type:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
