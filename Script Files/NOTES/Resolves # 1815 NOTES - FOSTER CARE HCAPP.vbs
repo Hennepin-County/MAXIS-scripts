@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - COUNTY BURIAL APPLICATION.vbs"
+name_of_script = "NOTES - FOSTER CARE HCAPP.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -46,7 +46,7 @@ END IF
 
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 500          'manual run time in seconds
+STATS_manualtime = 250         'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -92,7 +92,7 @@ Call MAXIS_case_number_finder(case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	Dialog County_Burial_Application_Received
+	Dialog FOSTER CARE HCAPP_Received
 	IF buttonpressed = 0 THEN stopscript
 	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
 	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
