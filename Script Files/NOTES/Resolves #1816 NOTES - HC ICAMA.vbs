@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
  
 'THE DIALOG----------------------------------------------------------------------------------------------------------
 
-BeginDialog HC_ICAMA, 0, 0, 286, 380, "HC ICAMA"
+BeginDialog HC_ICAMA_dialog, 0, 0, 286, 380, "HC ICAMA"
   EditBox 80, 10, 65, 15, case_number
   EditBox 140, 30, 75, 15, icama_recd
   EditBox 60, 55, 160, 15, state
@@ -65,7 +65,7 @@ BeginDialog HC_ICAMA, 0, 0, 286, 380, "HC ICAMA"
   EditBox 90, 230, 130, 15, pmap_ex
   EditBox 125, 255, 95, 15, faxed_date
   CheckBox 35, 280, 95, 15, "MA Coverage Form Sent", coverage_checkbox
-  CheckBox 35, 300, 245, 15, "Navigate to DAIL/WRIT to Create a TILK to Approve next 6 Month Budget", tikl_checkbox
+  CheckBox 35, 300, 245, 15, "Navigate to DAIL/WRIT to Create a TIKL to Approve next 6 Month Budget", tikl_checkbox
   EditBox 90, 325, 130, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 165, 355, 50, 15
@@ -97,11 +97,11 @@ CALL MAXIS_case_number_finder(case_number)
 DO
 	err_msg = ""		
 	Dialog HC_ICAMA_dialog
-		IF ButtonPressed = 0 THEN StopScript
-		IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
-		IF type_dropdown = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select Adoption or Foster Care!"
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	IF ButtonPressed = 0 THEN StopScript
+	IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+	IF type_dropdown = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select Adoption or Foster Care!"
+	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
 'Checks Maxis for password prompt
