@@ -92,7 +92,7 @@ Call MAXIS_case_number_finder(case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	Dialog FOSTER CARE HCAPP_Received
+	Dialog Foster_Care_HCAPP
 	IF buttonpressed = 0 THEN stopscript
 	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
 	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
