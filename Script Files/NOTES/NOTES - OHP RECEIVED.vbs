@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "UTILITIES - MAIN MENU.vbs"
+name_of_script = "NOTES - OHP RECEIVED.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -43,32 +43,57 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog UTILITIES_scripts_main_menu_dialog, 0, 0, 461, 120, "Utilities scripts main menu dialog"
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
+'Dialog---------------------------------------------------------------------------------------------------------------------------
+BeginDialog OHP_dialog, 0, 0, 301, 160, "OHP received"
+  EditBox 90, 5, 75, 15, Case_number
+  EditBox 145, 25, 65, 15, OOHP_date
+  EditBox 65, 45, 90, 15, Date_change
+  EditBox 65, 70, 145, 15, Change
+  EditBox 65, 90, 150, 15, Action_taken
+  EditBox 80, 115, 110, 15, Worker_Signature
   ButtonGroup ButtonPressed
-    CancelButton 405, 100, 50, 20
-    PushButton 5, 20, 40, 10, "INFO", INFO_button
-		PushButton 5, 35, 140, 10, "BANKED MONTH DATABASE UPDATER", banked_month_database_updater_button
-    PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
-  Text 5, 5, 250, 10, "Utilities scripts main menu: select the script to run from the choices below."
-  Text 50, 20, 320, 10, "--- NEW 01/2016!!! Displays information about your BlueZone Scripts installation."
-	Text 150, 35, 305, 10, "-- NEW 02/2016!!! Updates cases in the banked month database with actual MAXIS status."
+    OkButton 160, 140, 50, 15
+    CancelButton 230, 140, 50, 15
+  Text 5, 5, 70, 10, "Case number:"
+  Text 5, 25, 130, 10, "Out of home placement form received:"
+  Text 5, 45, 60, 10, "Date of change:"
+  Text 5, 70, 45, 10, "Change: "
+  Text 5, 95, 50, 15, "Action Taken: "
+  Text 5, 115, 65, 10, "Worker Signature: "
 EndDialog
-'Variables to declare
-IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Shows dialog, which asks user which script to run.
-Do
-	dialog UTILITIES_scripts_main_menu_dialog
-	If buttonpressed = cancel then stopscript
-	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Utilities%20scripts.aspx")
-Loop until buttonpressed <> SIR_instructions_button
 
-'Connecting to BlueZone
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
+'connecting to BlueZone, and grabbing the case number
 EMConnect ""
+Call MAXIS_case_number_finder(case_number)
 
-IF buttonpressed = INFO_button 													then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - INFO.vbs")
-IF buttonpressed = banked_month_database_updater_button then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - BANKED MONTH DATABASE UPDATER.vbs")
-'Logging usage stats
-script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
+'calling the dialog---------------------------------------------------------------------------------------------------------------
+DO
+	Dialog OHP_dialog
+	IF buttonpressed = 0 THEN stopscript
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF Worker_Signature = "" THEN MsgBox "You must enter a worker signature."
+LOOP until Case_number <> "" and Worker_Signature <> ""
+
+'checking for an active MAXIS session
+CALL check_for_MAXIS(FALSE)
+
+'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+CALL write_variable_in_CASE_NOTE("***Out Of Home Placement Received***")
+CALL write_bullet_and_variable_in_CASE_NOTE("OHP date Received", OOHP_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Date of change", Date_change)
+CALL write_bullet_and_variable_in_CASE_NOTE("Change", Change)
+CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", Action_taken)
+CALL write_variable_in_CASE_NOTE(Worker_Signature)
+
+Script_end_procedure("")
