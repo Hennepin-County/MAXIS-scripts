@@ -164,7 +164,7 @@ IF search_where = "REPT/INAC" THEN
 				MAXIS_row = 7
 				EMReadScreen last_page_check, 21, 24, 2
 				Do
-					EMReadScreen case_number, 8, MAXIS_row, 12
+					EMReadScreen case_number, 8, MAXIS_row, 3
 					If case_number = "        " then exit do
 					case_number = replace(case_number, " ", "")
 					case_number_array = case_number_array & " " & case_number
@@ -212,7 +212,7 @@ IF search_where = "REPT/PND1" THEN
 				MAXIS_row = 7
 				EMReadScreen last_page_check, 21, 24, 2
 				Do
-					EMReadScreen case_number, 8, MAXIS_row, 12
+					EMReadScreen case_number, 8, MAXIS_row, 3
 					If case_number = "        " then exit do
 					case_number = replace(case_number, " ", "")
 					case_number_array = case_number_array & " " & case_number
@@ -260,7 +260,7 @@ IF search_where = "REPT/PND2" THEN
 				MAXIS_row = 7
 				EMReadScreen last_page_check, 21, 24, 2
 				Do
-					EMReadScreen case_number, 8, MAXIS_row, 12
+					EMReadScreen case_number, 8, MAXIS_row, 5
 					If case_number = "        " then exit do
 					case_number = replace(case_number, " ", "")
 					case_number_array = case_number_array & " " & case_number
@@ -308,7 +308,7 @@ IF search_where = "REPT/REVW" THEN
 				MAXIS_row = 7
 				EMReadScreen last_page_check, 21, 24, 2
 				Do
-					EMReadScreen case_number, 8, MAXIS_row, 12
+					EMReadScreen case_number, 8, MAXIS_row, 6
 					If case_number = "        " then exit do
 					case_number = replace(case_number, " ", "")
 					case_number_array = case_number_array & " " & case_number
