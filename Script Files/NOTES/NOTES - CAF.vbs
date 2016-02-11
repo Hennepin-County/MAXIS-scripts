@@ -211,7 +211,7 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
 EndDialog
 
 'CAF_status needs to have the " "+chr(9)+ manually added each time.
-BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
+BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
   EditBox 60, 45, 385, 15, INSA
   EditBox 35, 65, 410, 15, ACCI
   EditBox 35, 85, 175, 15, DIET
@@ -221,30 +221,32 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   EditBox 180, 130, 265, 15, reason_expedited_wasnt_processed
   EditBox 100, 150, 345, 15, FIAT_reasons
   CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
-  CheckBox 100, 190, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
-  CheckBox 175, 190, 70, 10, "EBT referral sent?", EBT_referral_checkbox
-  CheckBox 255, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
-  CheckBox 315, 190, 50, 10, "Expedited?", expedited_checkbox
-  CheckBox 375, 190, 70, 10, "IAAs/OMB given?", IAA_checkbox
-  CheckBox 15, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
-  CheckBox 100, 205, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
-  CheckBox 210, 205, 110, 10, "Managed care referral made?", managed_care_referral_checkbox
-  CheckBox 330, 205, 65, 10, "R/R explained?", R_R_checkbox
-  CheckBox 15, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
-  CheckBox 90, 220, 95, 10, "Workforce referral made?", WF1_checkbox
-  CheckBox 190, 220, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
-  CheckBox 280, 220, 115, 10, "Informed client of recert period?", recert_period_checkbox
-  EditBox 55, 240, 230, 15, other_notes
-  ComboBox 330, 240, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-  EditBox 55, 260, 390, 15, verifs_needed
-  EditBox 55, 280, 390, 15, actions_taken
-  CheckBox 15, 315, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
-  CheckBox 15, 330, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
-  CheckBox 15, 345, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
-  EditBox 395, 325, 50, 15, worker_signature
+  CheckBox 15, 205, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
+  CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox 
+  CheckBox 15, 235, 70, 10, "EBT referral sent?", EBT_referral_checkbox
+  CheckBox 115, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
+  CheckBox 115, 205, 50, 10, "Expedited?", expedited_checkbox
+  CheckBox 115, 235, 70, 10, "IAAs/OMB given?", IAA_checkbox
+  CheckBox 200, 190, 115, 10, "Informed client of recert period?", recert_period_checkbox
+  CheckBox 200, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
+  CheckBox 200, 220, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
+  CheckBox 200, 235, 105, 10, "Managed care referral made?", managed_care_referral_checkbox
+  CheckBox 345, 190, 65, 10, "R/R explained?", R_R_checkbox
+  CheckBox 345, 205, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 345, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
+  CheckBox 345, 235, 95, 10, "Workforce referral made?", WF1_checkbox
+  EditBox 55, 260, 230, 15, other_notes
+  EditBox 55, 280, 390, 15, verifs_needed
+  EditBox 55, 300, 390, 15, actions_taken
+  ComboBox 330, 260, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
+  CheckBox 15, 335, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
+  CheckBox 15, 350, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
+  CheckBox 15, 365, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
+  EditBox 395, 345, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 345, 50, 15
-    CancelButton 395, 345, 50, 15
+    PushButton 290, 370, 45, 10, "prev. page", previous_to_page_02_button
+    OkButton 340, 365, 50, 15
+    CancelButton 395, 365, 50, 15
     PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
     PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
     PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
@@ -253,29 +255,32 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
     PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
     PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
+  GroupBox 5, 5, 130, 25, "ELIG panels:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+  ButtonGroup ButtonPressed
     PushButton 5, 50, 25, 10, "INSA/", INSA_button
     PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
     PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
     PushButton 5, 90, 25, 10, "DIET:", DIET_button
-    PushButton 215, 90, 25, 10, "BILS:", BILS_button
     PushButton 5, 110, 25, 10, "FMED:", FMED_button
-    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-    PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
-  GroupBox 5, 5, 130, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
   Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
-  GroupBox 5, 175, 440, 60, "Common elements workers should case note:"
-  Text 5, 245, 50, 10, "Other notes:"
-  Text 290, 245, 40, 10, "CAF status:"
-  Text 5, 265, 50, 10, "Verifs needed:"
-  Text 5, 285, 50, 10, "Actions taken:"
-  GroupBox 5, 300, 280, 60, "Actions the script can do:"
-  Text 330, 330, 60, 10, "Worker signature:"
+  GroupBox 5, 175, 440, 75, "Common elements workers should case note:"
+  Text 5, 265, 50, 10, "Other notes:"
+  Text 290, 265, 40, 10, "CAF status:"
+  Text 5, 285, 50, 10, "Verifs needed:"
+  Text 5, 305, 50, 10, "Actions taken:"
+  GroupBox 5, 320, 280, 60, "Actions the script can do:"
+  Text 330, 350, 60, 10, "Worker signature:"
+  ButtonGroup ButtonPressed
+    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
+    PushButton 215, 90, 25, 10, "BILS:", BILS_button
 EndDialog
+
+
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
@@ -548,6 +553,7 @@ IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* R/R explained
 IF updated_MMIS_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated MMIS.")
 IF WF1_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Workforce referral made.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
+IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("*Client is willing to participate with E&T")
 IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
 IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)

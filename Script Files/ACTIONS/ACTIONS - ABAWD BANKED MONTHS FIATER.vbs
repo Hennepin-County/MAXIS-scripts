@@ -699,7 +699,8 @@ For i = 0 to ubound(footer_month_array)
 			transmit
 			transmit
 		END IF
-
+		EMwritescreen "FFB2", 20, 70 'This is to make sure we end up in the right place'
+		transmit
 		'Now on FFB2
 		EMWriteScreen "         ", 5, 29
 		EMWriteScreen "         ", 6, 29
