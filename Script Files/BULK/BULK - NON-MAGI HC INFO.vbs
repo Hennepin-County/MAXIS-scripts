@@ -76,7 +76,7 @@ DO
 	If buttonpressed = 0 then stopscript
 	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
 	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-	If IsNumeric(case_number) = False or Len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+	If Len(worker_number) <> 7 then err_msg = err_msg & vbNewLine & "* You must enter a valid 7 DIGIT worker number."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until err_msg = ""
 
@@ -154,7 +154,6 @@ For each worker in worker_number_array
 	Do
 		EMReadScreen last_page_check, 21, 24, 02
 		'This Do...loop checks for the password prompt.
-		'This Do...loop checks for the password prompt.
 		Do
 			EMReadScreen password_prompt, 38, 2, 23
 			IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then MsgBox "You are locked out of your case. Type your password then try again."
@@ -169,6 +168,7 @@ For each worker in worker_number_array
 			Else
 				EMReadScreen case_number, 8, row, 6 'grabbing case number
 				EMReadScreen client_name, 15, row, 16 'grabbing client name
+				EMReadScreen next_REVW_date, 8, 2, 42
 			End if
 			IF trim(case_number) <> "" THEN
 				STATS_counter = STATS_counter + 1
@@ -180,8 +180,10 @@ For each worker in worker_number_array
 			excel_row = excel_row + 1
 			row = row + 1
 		Loop until row = 19 or trim(case_number) = ""
+		If trim(case_number) = "" then exit do		'exisis the do loop if case number is blank otherwise it will read/write last page again
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
+	
 	Next
 
 'NOW THE SCRIPT IS CHECKING STAT/PDED FOR EACH CASE.----------------------------------------------------------------------------------------------------
@@ -216,11 +218,11 @@ do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no mor
 	'DAC'
 	EMReadScreen disabled_adult_child_disregard, 1, 8, 60
 	If disabled_adult_child_disregard = "_" then disabled_adult_child_disregard = ""
-	ObjExcel.Cells(excel_row, 8).Value = diabled_adult_child_disregard
+	ObjExcel.Cells(excel_row, 8).Value = disabled_adult_child_disregard
 	'DISA widow'
 	EMReadScreen disabled_widow_disregard, 1, 7, 60
 	If disabled_widow_disregard = "_" then disabled_widow_disregard = ""
-	ObjExcel.Cells(excel_row, 9).Value = diabled_widow_disregard
+	ObjExcel.Cells(excel_row, 9).Value = disabled_widow_disregard
 	'Widow'
 	EMReadScreen widowers_disregard, 1, 9, 60
 	If widowers_disregard = "_" then widowers_disregard = ""
@@ -247,5 +249,4 @@ FOR i = 1 to 13		'formatting the columns'
 NEXT
 
 STATS_counter = STATS_counter - 1                     'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-Msgbox STATS_counter
 script_end_procedure("Success! Your list has been created.")
