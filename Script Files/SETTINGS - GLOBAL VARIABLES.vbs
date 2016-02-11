@@ -69,10 +69,19 @@ users_using_select_a_user = array()
 collecting_statistics = False
 
 'This is the file path for the statistics Access database.
-stats_database_path = "C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
+stats_database_path = "C:\DHS-MAXIS-Scripts\Databases for script usage\usage statistics.accdb"
 
 'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
 STATS_enhanced_db = false
+
+
+'ABAWD BANKED MONTHS TRACKING CONFIG================
+
+'This determines whether-or-not banked months tracking happens at all
+banked_months_db_tracking = false
+
+'Add the path to the database file using banked_month_database_path, replacing this path with wherever you have the file installed
+banked_month_database_path = "C:\DHS-MAXIS-Scripts\Databases for script usage\banked month tracking.accdb"
 
 
 'BRANCH CONFIGURATION=====================
