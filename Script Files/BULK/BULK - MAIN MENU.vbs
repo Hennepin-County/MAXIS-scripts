@@ -48,8 +48,8 @@ DIM ButtonPressed
 DIM SIR_instructions_button, dialog_name
 DIM BULK_list_scripts_button, other_BULK_scripts_button
 DIM BULK_TIKLER_button, CASE_NOTE_FROM_EXCEL_LIST_button, BULK_CASE_TRANSFER_Button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
-DIM ACTV_LIST_button, DAIL_REPORT_button, EOMC_LIST_button, PND1_LIST_button, PND2_LIST_button, REVS_LIST_button, REVW_LIST_button, MFCM_LIST_button, ADDRESS_LIST_button, ARST_LIST_button, CHECK_SNAP_FOR_GA_RCA_button, LTC_GRH_LIST_GENERATOR_button, MAEPD_MEDICARE_LIST_button, MISC_NON_MAGI_HC_DEDUCTIONS_button, SWKR_LIST_GENERATOR_button
-DIM BULK_PDED_button, FIND_PANEL_button
+DIM ACTV_LIST_button, DAIL_REPORT_button, EOMC_LIST_button, PND1_LIST_button, PND2_LIST_button, REVS_LIST_button, REVW_LIST_button, MFCM_LIST_button, ADDRESS_LIST_button, ARST_LIST_button, CHECK_SNAP_FOR_GA_RCA_button, LTC_GRH_LIST_GENERATOR_button, MAEPD_MEDICARE_LIST_button, SWKR_LIST_GENERATOR_button
+DIM NON_MAGI_HC_INFO_button, FIND_PANEL_button
 DIM INAC_LIST_button
 
 FUNCTION create_BULK_main_menu(dialog_name)
@@ -102,8 +102,7 @@ EndDialog
 		    PushButton 125, 135, 80, 10, "Find updated panels", FIND_PANEL_button
 		    PushButton 125, 160, 65, 10, "LTC-GRH list gen", LTC_GRH_LIST_GENERATOR_button
 		    PushButton 125, 185, 80, 10, "MA-EPD/Medi Pt B CEI", MAEPD_MEDICARE_LIST_button
-		    PushButton 125, 210, 105, 10, "Misc. non-MAGI HC deductions", MISC_NON_MAGI_HC_DEDUCTIONS_button
-		    PushButton 125, 225, 30, 10, "PDED", BULK_PDED_button
+		    PushButton 125, 210, 80, 10, "Non-MAGI HC info", NON_MAGI_HC_INFO_button
 		    PushButton 125, 240, 55, 10, "SWKR list gen", SWKR_LIST_GENERATOR_button
 		    CancelButton 400, 295, 50, 15
 		  Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
@@ -116,8 +115,7 @@ EndDialog
 		  Text 210, 135, 225, 15, "--- Creates a list of cases from one more more case loads showing when selected panels have been updated."
 		  Text 195, 160, 250, 20, "--- Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload (or group of caseloads)."
 		  Text 210, 185, 230, 20, "--- Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
-		  Text 160, 225, 260, 10, "--- Creates a list of cases with PDED information."
-		  Text 235, 210, 185, 10, "--- Creates a list of cases with non-MAGI HC deductions."
+		  Text 210, 210, 220, 20, "--- NEW 02/2016!!! Creates a list of cases with non-MAGI HC/PDED information."
 		  Text 185, 240, 260, 20, "--- Creates a list of SWKRs assigned to the various cases in a caseload (or group of caseloads)."
 		EndDialog
 	END IF
@@ -163,7 +161,7 @@ If ButtonPressed = ARST_LIST_button then 						call run_from_GitHub(script_repos
 IF ButtonPressed = CHECK_SNAP_FOR_GA_RCA_button THEN 			CALL run_from_GitHub(script_repository & "/BULK/BULK - CHECK SNAP FOR GA RCA.vbs")
 If ButtonPressed = LTC_GRH_LIST_GENERATOR_button then 			call run_from_GitHub(script_repository & "/BULK/BULK - LTC-GRH LIST GENERATOR.vbs")
 IF ButtonPressed = MAEPD_MEDICARE_LIST_button THEN 				CALL run_from_GitHub(script_repository & "/BULK/BULK - FIND MAEPD MEDI CEI.vbs")
-If ButtonPressed = MISC_NON_MAGI_HC_DEDUCTIONS_button then 		call run_from_GitHub(script_repository & "/BULK/BULK - MISC NON-MAGI HC DEDUCTIONS.vbs")
+If ButtonPressed = NON_MAGI_HC_INFO_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - NON-MAGI HC INFO.vbs")
 If ButtonPressed = SWKR_LIST_GENERATOR_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - SWKR LIST GENERATOR.vbs")
 If ButtonPressed = CASE_NOTE_FROM_LIST_button then 		call run_from_GitHub(script_repository & "/BULK/BULK - CASE NOTE FROM EXCEL LIST.vbs")
 If ButtonPressed = CEI_PREMIUM_NOTER_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - CEI PREMIUM NOTER.vbs")
@@ -174,7 +172,6 @@ If ButtonPressed = MEMO_FROM_LIST_button then 					call run_from_GitHub(script_r
 If ButtonPressed = RETURNED_MAIL_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - RETURNED MAIL.vbs")
 If ButtonPressed = REVW_MONT_CLOSURES_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - REVW-MONT CLOSURES.vbs")
 If ButtonPressed = TIKL_FROM_LIST_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - TIKL_FROM_LIST.vbs")
-IF ButtonPressed = BULK_PDED_button THEN 						CALL run_from_GitHub(script_repository & "/BULK/BULK - PDED LIST GEN.vbs")
 IF ButtonPressed = FIND_PANEL_button THEN 						CALL run_from_GitHub(script_repository & "/BULK/BULK - FIND PANEL UPDATE DATE.vbs")
 
 'Logging usage stats
