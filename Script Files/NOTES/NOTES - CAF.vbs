@@ -527,7 +527,7 @@ IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* R/R explained
 IF updated_MMIS_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated MMIS.")
 IF WF1_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Workforce referral made.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
-IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("*Client is willing to participate with E&T")
+IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client is willing to participate with E&T.")
 IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
 IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)
