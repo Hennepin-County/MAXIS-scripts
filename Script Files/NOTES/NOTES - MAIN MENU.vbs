@@ -77,28 +77,65 @@ const MM_file_name		= 1
 const MM_description	= 2
 const MM_button			= 3
 
-'How many scripts are there <<<<<<<<<FIGURE THIS OUT DYNAMICALLY SOMEHOW
-total_scripts = 1
+'Let's try classes
+class script
 
-'4 parameters in the array:
+	public script_name
+	public file_name
+	public description
+	public button
 
-Dim script_array(1, 3)
+	public property get button_size	'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
+		button_size = round ( len( script_name ) * 3.5 ) + 10
+	end property
 
-'For the Application Received script
-script_array(current_script, MM_script_name) 	= "Application Received"																		'Script name
-script_array(current_script, MM_file_name) 		= "NOTES - APPLICATION RECEIVED.vbs"															'Script URL
-script_array(current_script, MM_description) 	= "Template for documenting details about an application recevied."								'Script description
-current_script = current_script + 1
+end class
 
-'For the Application Received script
-script_array(current_script, MM_script_name) 	= "Approved programs"																			'Script name
-script_array(current_script, MM_file_name) 		= "NOTES - APPROVED PROGRAMS.vbs"																'Script URL
-script_array(current_script, MM_description) 	= "Template for when you approve a client's programs."											'Script description
-current_script = current_script + 1
 
-'MsgBox script_array(0, 0) & "|" & script_array(0, 1) & "|" & script_array(0, 2)
+script_array_0_to_C = array()
+script_array_D_to_F = array()
 
-BeginDialog dialog_1, 0, 0, 516, 280, "# - C NOTES Scripts"
+'-------------------------------------------------------------------------------------------------------------------------0 through C
+
+'Resetting the variable
+script_num = 0
+ReDim Preserve script_array_0_to_C(script_num)
+Set script_array_0_to_C(script_num) = new script
+script_array_0_to_C(script_num).script_name 			= "Application Received"																		'Script name
+script_array_0_to_C(script_num).file_name 				= "NOTES - APPLICATION RECEIVED.vbs"															'Script URL
+script_array_0_to_C(script_num).description 			= "Template for documenting details about an application recevied."
+
+script_num = script_num + 1
+ReDim Preserve script_array_0_to_C(script_num)
+Set script_array_0_to_C(script_num) = new script
+script_array_0_to_C(script_num).script_name 			= "Approved programs"																		'Script name
+script_array_0_to_C(script_num).file_name 				= "NOTES - APPROVED PROGRAMS.vbs"															'Script URL
+script_array_0_to_C(script_num).description 			= "Template for when you approve a client's programs."
+
+
+
+'-------------------------------------------------------------------------------------------------------------------------D through F
+script_num = 0
+ReDim Preserve script_array_D_to_F(script_num)
+Set script_array_D_to_F(script_num) = new script
+script_array_D_to_F(script_num).script_name 			= "Dapplication Received"																		'Script name
+script_array_D_to_F(script_num).file_name 				= "NOTES - DPPLICATION RECEIVED.vbs"															'Script URL
+script_array_D_to_F(script_num).description 			= "Template for documenting details about an Dapplication recevied."
+
+
+
+
+
+
+'Starting this with a very high number, higher than the normal possible amount of buttons.
+'	We're doing this because we want to assign a value to each button pressed, and we want
+'	that value to change with each button. Each this value will be placed in the .button
+'	property for each script item. This allows it to both escape the Function and resize
+'	near infinitely.
+button_placeholder = 24601
+
+Function declare_NOTES_menu_dialog(script_array)
+BeginDialog NOTES_dialog, 0, 0, 516, 280, "NOTES Scripts"
  Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
   ButtonGroup ButtonPressed
 	 PushButton 15, 35, 30, 15, "# - C", number_through_c_notes_button
@@ -111,35 +148,49 @@ BeginDialog dialog_1, 0, 0, 516, 280, "# - C NOTES Scripts"
 
 	 'This starts here, but it shouldn't end here :)
 	 vert_button_position = 70
-	 
-	 
-	'This array displays all of the scripts above
-	For current_script = 0 to total_scripts
 
-		'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
-		button_size = round ( len( script_array(current_script, MM_script_name) ) * 3.5 ) + 10
 
+	For current_script = 0 to ubound(script_array)
 		'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-		'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH		ITEM HEIGHT		ITEM TEXT/LABEL											BUTTON VARIABLE
-		PushButton 		5, 						vert_button_position, 	button_size, 	10, 			script_array(current_script, MM_script_name), 			script_array(current_script, MM_button)
-		Text 			(button_size + 10), 	vert_button_position, 	330, 			10, 			"--- " & script_array(current_script, MM_description)
-		 
-		'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
-		vert_button_position = vert_button_position + 15
-	
+		'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+		PushButton 		5, 													vert_button_position, 	script_array(current_script).button_size, 	10, 			script_array(current_script).script_name, 			button_placeholder
+		Text 			script_array(current_script).button_size + 10, 		vert_button_position, 	330, 										10, 			"--- " & script_array(current_script).description
+		'----------
+		vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+		'----------
+		script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+		button_placeholder = button_placeholder + 1
 	next
-	 
+
 	 CancelButton 460, 245, 50, 15
-	 
 	 GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 EndDialog
 
+
+
+End function
+
 'Displays the dialog
-dialog dialog_1
- 
+Do
+
+	If buttonpressed = "" or 	ButtonPressed = number_through_c_notes_button 	then declare_NOTES_menu_dialog(script_array_0_to_C)
+	If 							buttonpressed = d_through_f_notes_button 		then declare_NOTES_menu_dialog(script_array_D_to_F)
+
+	dialog NOTES_dialog
+	If buttonpressed = 0 then stopscript
+Loop until buttonpressed <> number_through_c_notes_button and buttonpressed <> d_through_f_notes_button
+
+'MsgBox buttonpressed = script_array_0_to_C(0).button
+
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll MsgBox (eventually it will simply run_from_GitHub but this is a demo)
-For script_selected_check = 0 to total_scripts
-	If buttonpressed = script_array(script_selected_check, MM_button) then MsgBox "you selected " & script_array(script_selected_check, MM_file_name)
+For i = 0 to ubound(script_array_0_to_C)
+	If buttonpressed = script_array_0_to_C(i).button then
+		CALL run_from_GitHub(script_repository & "/NOTES/" & script_array_0_to_C(i).file_name)
+	End if
+Next
+
+For i = 0 to ubound(script_array_D_to_F)
+	If buttonpressed = script_array_D_to_F(i).button then MsgBox "you selected " & script_array_D_to_F(i).file_name
 Next
 
 stopscript
