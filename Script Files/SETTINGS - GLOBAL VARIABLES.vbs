@@ -51,6 +51,8 @@ CLS_x1_number = ""
 'This is a TRUE/FALSE that will tell the INAC scrubber to hold onto MAGI cases that closed for no/incomplete renewals for 4 months or not.
 MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE
 
+'This is a setting for the TYMA TIKLer script. When set to "true", TYMA TIKLer will TIKL all TYMA months simultaneously, as opposed to only the first month. Defaullt is "false".
+TYMA_TIKL_all_at_once = false
 
 'NAVIGATION SCRIPT CONFIGURATION================
 

@@ -64,9 +64,11 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 350, "Actions scripts m
     PushButton 5, 250, 100, 10, "Shelter Expense Verif Recv'd", SHELTER_EXPENSE_button
     PushButton 5, 275, 50, 10, "Send SVES", SEND_SVES_button
     PushButton 5, 295, 60, 10, "Transfer case", TRANSFER_CASE_button
-    PushButton 5, 310, 65, 10, "TYMA TIKLER", TYMA_TIKLER_button
-    PushButton 5, 325, 90, 10, "Update worker signature", UPDATE_WORKER_SIGNATURE_button
+    PushButton 5, 310, 65, 10, "TYMA TIKLer", TYMA_TIKLER_button
+    PushButton 310, 5, 65, 10, "UTILITIES scripts", UTILITIES_SCRIPTS_button
     PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
+  Text 5, 5, 250, 10, "Action scripts main menu: select the script to run from the choices below."
+  Text 120, 20, 335, 10, "-- NEW 01/2016!! FIATS SNAP eligibility, income and deductions for HH members using banked months."
   Text 125, 35, 320, 10, "--- Double checks a case to see if any possible ABAWD/FSET exemptions exist."
   Text 105, 50, 270, 10, "--- A tool to walk through a screening to determine if client is ABAWD."
   Text 65, 65, 220, 10, "--- Updates a BILS panel with reoccurring or actual BILS received."
@@ -84,9 +86,6 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 350, "Actions scripts m
   Text 65, 275, 90, 10, "--- Sends a SVES/QURY."
   Text 75, 295, 330, 10, "--- SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
   Text 80, 310, 355, 10, "--- NEW 02/2016!!! TIKLS for TYMA report forms to be sent. "
-  Text 105, 325, 190, 10, "--- Updates the default worker signature on your scripts."
-  Text 5, 5, 250, 10, "Action scripts main menu: select the script to run from the choices below."
-  Text 120, 20, 335, 10, "-- NEW 01/2016!! FIATS SNAP eligibility, income and deductions for HH members using banked months."
 EndDialog
 
 
@@ -122,7 +121,8 @@ If buttonpressed = SEND_SVES_button then call run_from_GitHub(script_repository 
 IF ButtonPressed = SHELTER_EXPENSE_button THEN CALL run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - SHELTER EXPENSE VERIF RECEIVED.vbs")
 If buttonpressed = TRANSFER_CASE_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - TRANSFER CASE.vbs")
 If buttonpressed = TYMA_TIKLER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - TYMA TIKLER.vbs")
-If ButtonPressed = UPDATE_WORKER_SIGNATURE_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - UPDATE WORKER SIGNATURE.vbs")
+
+If ButtonPressed = UTILITIES_SCRIPTS_button then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - MAIN MENU.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")

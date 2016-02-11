@@ -1,7 +1,7 @@
 'This script was developed by Charles Potter & Robert Kalb from Anoka County
 
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - MA-EPD NO INITIAL PREMIUM.vbs"
+name_of_script = "NOTICES - MA-EPD NO INITIAL PREMIUM.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================

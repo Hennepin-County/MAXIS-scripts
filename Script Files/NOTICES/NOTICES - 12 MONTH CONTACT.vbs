@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - 12 MO CONTACT.vbs"
+name_of_script = "NOTICES - 12 MO CONTACT.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================

@@ -1,5 +1,5 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - LTC - ASSET TRANSFER.vbs"
+'STATS GATHERING--------------------------------------------------------------------------------------------------------------
+name_of_script = "UTILITIES - UPDATE WORKER SIGNATURE.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -44,37 +44,30 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 70                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
-
-BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 82, "LTC asset transfer dialog"
-  EditBox 35, 0, 85, 15, client
-  EditBox 35, 20, 85, 15, spouse
-  EditBox 70, 40, 50, 15, renewal_footer_month_year
-  ButtonGroup LTC_asset_transfer_dialog_ButtonPressed
-    OkButton 10, 60, 50, 15
-    CancelButton 65, 60, 50, 15
-  Text 5, 5, 30, 10, "Client:"
-  Text 5, 25, 30, 10, "Spouse:"
-  Text 5, 45, 65, 10, "ER date (MM/YY):"
+'----------DIALOGS----------
+BeginDialog update_worker_signature_dialog, 0, 0, 191, 105, "Update Worker Signature"
+  EditBox 10, 60, 175, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 45, 85, 50, 15
+    CancelButton 95, 85, 50, 15
+  Text 10, 10, 175, 10, "Enter what you would like for your default signature."
+  Text 10, 25, 170, 25, "NOTE: This will be pre-loaded in every script. Once the script has started, you can still modify your signature in the appropriate editbox."
 EndDialog
 
-'The script------------------------
-'connecting to MAXIS
-EMConnect ""
-Do
-  Dialog LTC_asset_transfer_dialog
-  If LTC_asset_transfer_dialog_ButtonPressed = 0 then stopscript
-  EMSendKey "<enter>"
-  EMWaitReady 1, 1
-  EMReadScreen WCOM_input_check, 27, 2, 28
-  If WCOM_input_check <> "Worker Comment Input Screen" and WCOM_input_check <> "  Client Memo Input Screen " then MsgBox "You need to be on a notice in SPEC/WCOM or SPEC/MEMO for this to work. Please try again."
-Loop until WCOM_input_check = "Worker Comment Input Screen" or WCOM_input_check = "  Client Memo Input Screen "
+'----------THE SCRIPT----------
+dialog update_worker_signature_dialog				'Shows the dialog
+IF ButtonPressed = cancel THEN stopscript			'Handling for if cancel is pressed
+IF worker_signature = "" THEN stopscript			'If they enter nothing, it exits
 
-EMSendKey "<home>" + "The ownership of " + client + "'s assets must be transferred to " + spouse + " to avoid having them counted in future eligibility determinations. You are encouraged to do this as soon as possible. This transfer of assets must be done before " + client + "'s first annual renewal for " + renewal_footer_month_year + ". Verification of the transfer can be provided at any time. " + "<newline>" + "<newline>"
-EMSendKey "At the first annual renewal in " + renewal_footer_month_year + " the value of all assets that list " + client + " as an owner or co-owner will be applied towards the Medical Assistance Asset limit of $3,000.00.  If the total value of all countable assets for " + client + " is more than $3,000.00, Medical Assistance may be closed for " + renewal_footer_month_year + "."
+'This creates an object which collects the username from the Windows logon. We need this to determine the correct location for the My Documents folder.
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName		'Saves the .UserName object as a new variable, windows_user_ID
 
+'Opens an FSO, opens workersig.txt, writes the new signature in, and exits
+SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
+SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
+update_worker_sig_command.Write(worker_signature)
+update_worker_sig_command.Close
+
+'Script ends
 script_end_procedure("")
