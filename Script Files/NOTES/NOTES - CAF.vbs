@@ -50,30 +50,6 @@ STATS_manualtime = 720                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block==============================================================================================
 
-'Function for checking and changing the footer month to the MAXIS_footer_month & MAXIS_footer_year selected by the user in the inital dialog if necessary
-FUNCTION MAXIS_footer_month_confirmation	'Must use MAXIS_footer_month & MAXIS footer_year as variables for this function to work 
-	EMReadScreen SELF_check, 4, 2, 50			'Does this to check to see if we're on SELF screen
-	IF SELF_check = "SELF" THEN
-		EMReadScreen panel_footer_month, 2, 20, 43
-		EMReadScreen panel_footer_year, 2, 20, 46
-	ELSE
-		Call find_variable("Month: ", MAXIS_footer, 5)	'finding footer month and year if not on the SELF screen
-		panel_footer_month = left(MAXIS_footer, 2)
-		panel_footer_year = right(MAXIS_footer, 2)
-		If row <> 0 then 
-  			panel_footer_month = panel_footer_month		'Establishing variables
-			panel_footer_year =panel_footer_year
-		END IF
-	END IF
-	panel_date = panel_footer_month & panel_footer_year		'creating new variable combining month and year for the date listed on the MAXIS panel
-	dialog_date = MAXIS_footer_month & MAXIS_footer_year	'creating new variable combining the MAXIS_footer_month & MAXIS_footer_year to measure against the panel date
-	IF panel_date <> dialog_date then 						'if dates are not equal 
-		back_to_SELF		
-		EMWriteScreen MAXIS_footer_month, 20, 43			'goes back to self and enters the date that the user selcted'
-		EMWriteScreen MAXIS_footer_year, 20, 46
-	END IF
-END FUNCTION
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, case_number
@@ -279,8 +255,6 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
     PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
     PushButton 215, 90, 25, 10, "BILS:", BILS_button
 EndDialog
-
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
