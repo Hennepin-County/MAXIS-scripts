@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
- name_of_script = "MEMOS - METHOD B WCOM.vbs"
+ name_of_script = "NOTICES - METHOD B WCOM.vbs"
  start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
