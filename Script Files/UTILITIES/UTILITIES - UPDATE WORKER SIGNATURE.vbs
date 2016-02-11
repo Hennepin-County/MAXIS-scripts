@@ -1,5 +1,5 @@
 'STATS GATHERING--------------------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - UPDATE WORKER SIGNATURE.vbs"
+name_of_script = "UTILITIES - UPDATE WORKER SIGNATURE.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -45,7 +45,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 '----------DIALOGS----------
-BeginDialog worker_sig_dlg, 0, 0, 191, 105, "Update Worker Signature"
+BeginDialog update_worker_signature_dialog, 0, 0, 191, 105, "Update Worker Signature"
   EditBox 10, 60, 175, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 45, 85, 50, 15
@@ -55,16 +55,19 @@ BeginDialog worker_sig_dlg, 0, 0, 191, 105, "Update Worker Signature"
 EndDialog
 
 '----------THE SCRIPT----------
-DIALOG worker_sig_dlg
-	IF ButtonPressed = 0 THEN stopscript
-	IF worker_signature = "" THEN stopscript
+dialog update_worker_signature_dialog				'Shows the dialog
+IF ButtonPressed = cancel THEN stopscript			'Handling for if cancel is pressed
+IF worker_signature = "" THEN stopscript			'If they enter nothing, it exits
 
+'This creates an object which collects the username from the Windows logon. We need this to determine the correct location for the My Documents folder.
 Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
+windows_user_ID = objNet.UserName		'Saves the .UserName object as a new variable, windows_user_ID
 
+'Opens an FSO, opens workersig.txt, writes the new signature in, and exits
 SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
 SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
 update_worker_sig_command.Write(worker_signature)
 update_worker_sig_command.Close
 
+'Script ends
 script_end_procedure("")
