@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTICES - SNAP E AND T LETTER.vbs"
+name_of_script = "MEMO - SNAP E AND T LETTER.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -150,7 +150,7 @@ IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (count
 'DIALOGS----------------------------------------------------------------------------------------------------
 ' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
-BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 240, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 250, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
@@ -160,7 +160,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 240, "SNAP E&T Appointmen
   DropListBox 115, 50, 185, 15, FSET_list, interview_location
   EditBox 60, 70, 110, 15, SNAPET_contact
   EditBox 235, 70, 65, 15, SNAPET_phone
-  DropListBox 90, 95, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Student", manual_referral
+  DropListBox 90, 95, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 100, 120, 90, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 195, 120, 50, 15
@@ -172,16 +172,17 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 240, "SNAP E&T Appointmen
   Text 5, 30, 60, 10, "Appointment Date:"
   Text 180, 75, 50, 10, "Contact phone:"
   Text 5, 50, 105, 10, "Location (select from dropdown):"
-  GroupBox 5, 145, 295, 85, "When is a manual referral needed"
-  Text 15, 160, 275, 10, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18."
+  GroupBox 5, 145, 295, 95, "When is a manual referral needed"
+  Text 15, 160, 275, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
   Text 10, 10, 50, 10, "Case Number:"
   Text 5, 100, 80, 10, "Manual referral needed:"
-  Text 15, 175, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 205, 280, 15, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
+  Text 15, 185, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
+  Text 15, 215, 280, 15, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
 EndDialog
 
+
 'This dialog is for counties that have not provided FSET office address(s)
-BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 280, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 290, "SNAP E&T Appointment Letter"
   EditBox 65, 5, 55, 15, case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 65, 25, 55, 15, appointment_date
@@ -195,7 +196,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 280, "SNAP E&T Appointment 
   EditBox 210, 85, 45, 15, SNAPET_zip
   EditBox 65, 105, 65, 15, SNAPET_contact
   EditBox 185, 105, 70, 15, SNAPET_phone
-  DropListBox 100, 130, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Student", manual_referral
+  DropListBox 100, 130, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 75, 155, 110, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 190, 155, 50, 15
@@ -209,35 +210,35 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 280, "SNAP E&T Appointment 
   Text 10, 90, 55, 10, "City/State/Zip:"
   Text 130, 10, 70, 10, "HH Member Number:"
   Text 5, 30, 60, 10, "Appointment Date:"
-  GroupBox 5, 180, 290, 90, "When is a manual referral needed"
-  Text 15, 195, 275, 10, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18."
-  Text 15, 210, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
+  GroupBox 5, 180, 290, 100, "When is a manual referral needed"
+  Text 15, 195, 275, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
+  Text 15, 220, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
   Text 130, 30, 60, 15, "Appointment Time:"
   Text 10, 135, 80, 10, "Manual referral needed:"
-  Text 15, 245, 275, 15, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
+  Text 15, 255, 275, 15, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
 EndDialog
 
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
-BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 190, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 195, "SNAP E&T Appointment Letter"
   EditBox 90, 10, 60, 15, case_number
   EditBox 245, 10, 25, 15, member_number
   DropListBox 90, 35, 180, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 1:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Sabathani, next Tuesday @ 1:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Student", manual_referral
+  DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 70, 80, 90, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 165, 80, 50, 15
     CancelButton 220, 80, 50, 15
   Text 20, 15, 50, 10, "Case Number:"
   Text 190, 15, 50, 10, "HH Member #:"
-  GroupBox 5, 110, 420, 70, "When is a manual referral needed"
-  Text 15, 125, 390, 10, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18."
+  GroupBox 5, 110, 420, 80, "When is a manual referral needed"
+  Text 15, 125, 390, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
   Text 5, 40, 70, 10, "Region of residence: "
   Text 290, 30, 130, 70, "HSRs: Do not use this script. Contact Mark Scherer at 612-596-7411 (if not available send email) and request language-specific SNAP E and T Orientation/intake. Provide ABAWD with Mark’s contact information, and instruct to contact him to schedule orientation within one week."
   Text 5, 85, 60, 10, "Worker Signature:"
   Text 5, 60, 80, 10, "Manual referral needed:"
   GroupBox 280, 15, 145, 90, "For non-English speaking ABAWD's:"
-  Text 15, 140, 390, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 165, 360, 10, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
+  Text 15, 150, 390, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
+  Text 15, 175, 360, 10, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -1096,6 +1097,8 @@ If manual_referral <> "Select one..." then 					'if banked months or student are
 		EMWriteScreen "Banked AWAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
 	ELSEIF manual_referral = "Student" then
 		EMWriteScreen "Student", 17, 6
+	ELSEIF manual_referral = "Working with CBO" then 
+		EMWriteScreen "Working with Community Based Organization", 17, 6
 	END IF 
 	EMWriteScreen "x", 8, 53																				'selects the ES provider
 	transmit																												'navigates to the ES provider selection screen
@@ -1106,16 +1109,16 @@ If manual_referral <> "Select one..." then 					'if banked months or student are
 			PF3																			'saves referral
 			EMWriteScreen "Y", 11, 64								'Y to confirm save
 			transmit																'confirms saving the referral
-			script_end_procedure("Your orientation letter has been created, and a 30 day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
-			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client.")
+			script_end_procedure("Your orientation letter, manual referral, and a 30 day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client AND a verification request form.")
 		Else
 			script_end_procedure("Please select your agency's ES provider, and PF3 to save your referral.")		'if agency is not Hennepin, then user is asked to select the ES provider and save'
 		END IF
 END IF
 
 If worker_county_code = "x127" then			'specific closing message to Hennepin County message
-	script_end_procedure("Your orientation letter has been created, and a 30 day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+	script_end_procedure("Your orientation letter and case note have been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
 	vbNewLine & vbNewLine & "Make sure that you have made your E & T referral, and that you have sent the form: ABAWD FS RULES to the client.")
 ELSE
-	script_end_procedure("If you haven't made the E & T referral, please do so now.  Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
+	script_end_procedure("If you haven't made the E & T referral, please do so now. Your orientation letter and case note have been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client.")
 END IF
