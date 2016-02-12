@@ -329,13 +329,6 @@ script_array_D_to_F(script_num).description 			= "Template for noting fraud info
 script_num = 0
 ReDim Preserve script_array_G_to_L(script_num)
 Set script_array_G_to_L(script_num) = new script
-script_array_G_to_L(script_num).script_name 			= "Gas cards issued"
-script_array_G_to_L(script_num).file_name				= "NOTES - GAS CARDS ISSUED.vbs"
-script_array_G_to_L(script_num).description				= "Template for gas card issuance. Consult with a supervisor to make sure this is appropriate for your agency."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "Good Cause Claimed"
 script_array_G_to_L(script_num).file_name				= "NOTES - GOOD CAUSE CLAIMED.vbs"
 script_array_G_to_L(script_num).description				= "Template for requests of good cause to not receive child support."
