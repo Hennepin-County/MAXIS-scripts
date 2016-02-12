@@ -1,6 +1,6 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - 12 MO CONTACT.vbs"
+name_of_script = "NOTES - FOSTER CARE REVIEW.vbs"
 start_time = timer
+
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -45,51 +45,62 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
-'DIALOG
-BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
-  Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 95, 0, 60, 15, case_number
-  Text 5, 25, 70, 10, "Sign your case note:"
-  EditBox 80, 20, 75, 15, worker_sig
+'Dialog---------------------------------------------------------------------------------------------------------------------------
+BeginDialog FC_HC_REVIEW, 0, 0, 256, 250, "FOSTER CARE HC REVIEW"
+  EditBox 65, 5, 65, 15, Case_number
+  EditBox 65, 25, 65, 15, Received
+  EditBox 65, 45, 65, 15, Completed_By
+  EditBox 130, 70, 105, 15, Social_Worker_or_Probation_Officer
+  EditBox 105, 90, 85, 15, Extended_Foster_Care_Date
+  EditBox 40, 125, 55, 15, Income
+  EditBox 40, 145, 70, 15, Results
+  EditBox 75, 190, 110, 15, Worker_Signature
   ButtonGroup ButtonPressed
-    OkButton 25, 40, 50, 15
-    CancelButton 85, 40, 50, 15
+    OkButton 125, 230, 50, 15
+    CancelButton 190, 230, 50, 15
+  Text 5, 5, 55, 10, "Case number:"
+  Text 5, 25, 45, 10, "Received: "
+  Text 5, 45, 60, 10, "Completed By: "
+  Text 5, 70, 120, 10, "Social Worker or Probation Officer:"
+  Text 5, 95, 95, 15, "Extended Foster Care Date: "
+  Text 5, 125, 35, 15, "Income: "
+  Text 5, 150, 30, 15, "Results:"
+  Text 5, 190, 65, 10, "Worker Signature: "
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'grabbing case number & connecting to MAXIS
+
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
+'connecting to BlueZone, and grabbing the case number
 EMConnect ""
 Call MAXIS_case_number_finder(case_number)
 
-dialog case_number_dialog
-cancel_confirmation
+'calling the dialog---------------------------------------------------------------------------------------------------------------
+DO
+	Dialog County_Burial_Application_Received
+	IF buttonpressed = 0 THEN stopscript
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
+LOOP until case_number <> "" and worker_signature <> ""
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(True)
+CALL check_for_MAXIS(FALSE)
 
-'THE MEMO----------------------------------------------------------------------------------------------------
-call navigate_to_MAXIS_screen("spec", "memo")
-PF5
-EMReadScreen MEMO_edit_mode_check, 26, 2, 28
-If MEMO_edit_mode_check <> "Notice Recipient Selection" then
-  MsgBox "You do not appear to be able to make a MEMO for this case. Are you in inquiry? Is this case out of county? Check these items and try again."
-  Stopscript
-End if
-EMWriteScreen "x", 5, 10
-transmit
-Call write_variable_in_SPEC_MEMO ("************************************************************")
-Call write_variable_in_SPEC_MEMO ("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
-Call write_variable_in_SPEC_MEMO ("************************************************************")
-PF4
+'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+CALL write_variable_in_CASE_NOTE("***Foster Care HC REVIEW***")
+CALL write_bullet_and_variable_in_CASE_NOTE("Received", Received)
+CALL write_bullet_and_variable_in_CASE_NOTE("Completed By", Completed_By)
+CALL write_bullet_and_variable_in_CASE_NOTE("Social Worker or Probation Officer", Social_Worker_or_Probation_Officer)
+CALL write_bullet_and_variable_in_CASE_NOTE("Extended Foster Care Date", Extended_Foster_Care_Date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Income", Income)
+CALL write_bullet_and_variable_in_CASE_NOTE("Results", Results)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
+Script_end_procedure("")
 
-'THE CASE NOTE
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-Call write_variable_in_CASE_NOTE("Sent 12 month contact letter via SPEC/MEMO on " & date & ". -" & worker_sig)
-
-script_end_procedure("")

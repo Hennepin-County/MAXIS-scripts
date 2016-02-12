@@ -50,17 +50,11 @@ STATS_manualtime = 720                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block==============================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", date)
-footer_month = cstr(footer_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = cstr(right(datepart("yyyy", date), 2))
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, case_number
-  EditBox 80, 25, 30, 15, footer_month
-  EditBox 110, 25, 30, 15, footer_year
+  EditBox 80, 25, 30, 15, MAXIS_footer_month
+  EditBox 110, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
@@ -80,7 +74,7 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
   EditBox 60, 25, 50, 15, interview_date
   ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed"+chr(9)+"emailed", how_app_was_received
-  ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)", HC_document_received
+  ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
   EditBox 390, 45, 50, 15, HC_datestamp
   EditBox 75, 70, 370, 15, HH_comp
   EditBox 35, 90, 200, 15, cit_id
@@ -93,37 +87,37 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 35, 180, 410, 15, ABPS
   EditBox 55, 210, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-	PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
-	CancelButton 395, 240, 50, 15
-	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-	PushButton 335, 25, 45, 10, "next panel", next_panel_button
-	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-	PushButton 395, 25, 45, 10, "next memb", next_memb_button
-	PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
-	PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
-	PushButton 5, 115, 25, 10, "AREP/", AREP_button
-	PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
-	PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
-	PushButton 215, 115, 25, 10, "STIN/", STIN_button
-	PushButton 240, 115, 25, 10, "STEC:", STEC_button
-	PushButton 5, 135, 25, 10, "DISA/", DISA_button
-	PushButton 30, 135, 25, 10, "PDED:", PDED_button
-	PushButton 280, 135, 25, 10, "FACI:", FACI_button
-	PushButton 5, 165, 25, 10, "PREG:", PREG_button
-	PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
-	PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
-	PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
-	PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
-	PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
-	PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
-	PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
-	PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
-	PushButton 150, 240, 25, 10, "ADDR", ADDR_button
-	PushButton 175, 240, 25, 10, "MEMB", MEMB_button
-	PushButton 200, 240, 25, 10, "MEMI", MEMI_button
-	PushButton 225, 240, 25, 10, "PROG", PROG_button
-	PushButton 250, 240, 25, 10, "REVW", REVW_button
-	PushButton 275, 240, 25, 10, "TYPE", TYPE_button
+    PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
+    CancelButton 395, 240, 50, 15
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
+    PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
+    PushButton 5, 115, 25, 10, "AREP/", AREP_button
+    PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
+    PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
+    PushButton 215, 115, 25, 10, "STIN/", STIN_button
+    PushButton 240, 115, 25, 10, "STEC:", STEC_button
+    PushButton 5, 135, 25, 10, "DISA/", DISA_button
+    PushButton 30, 135, 25, 10, "PDED:", PDED_button
+    PushButton 280, 135, 25, 10, "FACI:", FACI_button
+    PushButton 5, 165, 25, 10, "PREG:", PREG_button
+    PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
+    PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
+    PushButton 150, 240, 25, 10, "ADDR", ADDR_button
+    PushButton 175, 240, 25, 10, "MEMB", MEMB_button
+    PushButton 200, 240, 25, 10, "MEMI", MEMI_button
+    PushButton 225, 240, 25, 10, "PROG", PROG_button
+    PushButton 250, 240, 25, 10, "REVW", REVW_button
+    PushButton 275, 240, 25, 10, "TYPE", TYPE_button
   Text 5, 10, 55, 10, "CAF datestamp:"
   Text 120, 10, 50, 10, "Interview type:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
@@ -193,7 +187,7 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
 EndDialog
 
 'CAF_status needs to have the " "+chr(9)+ manually added each time.
-BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
+BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
   EditBox 60, 45, 385, 15, INSA
   EditBox 35, 65, 410, 15, ACCI
   EditBox 35, 85, 175, 15, DIET
@@ -203,30 +197,32 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
   EditBox 180, 130, 265, 15, reason_expedited_wasnt_processed
   EditBox 100, 150, 345, 15, FIAT_reasons
   CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
-  CheckBox 100, 190, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
-  CheckBox 175, 190, 70, 10, "EBT referral sent?", EBT_referral_checkbox
-  CheckBox 255, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
-  CheckBox 315, 190, 50, 10, "Expedited?", expedited_checkbox
-  CheckBox 375, 190, 70, 10, "IAAs/OMB given?", IAA_checkbox
-  CheckBox 15, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
-  CheckBox 100, 205, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
-  CheckBox 210, 205, 110, 10, "Managed care referral made?", managed_care_referral_checkbox
-  CheckBox 330, 205, 65, 10, "R/R explained?", R_R_checkbox
-  CheckBox 15, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
-  CheckBox 90, 220, 95, 10, "Workforce referral made?", WF1_checkbox
-  CheckBox 190, 220, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
-  CheckBox 280, 220, 115, 10, "Informed client of recert period?", recert_period_checkbox
-  EditBox 55, 240, 230, 15, other_notes
-  ComboBox 330, 240, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-  EditBox 55, 260, 390, 15, verifs_needed
-  EditBox 55, 280, 390, 15, actions_taken
-  CheckBox 15, 315, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
-  CheckBox 15, 330, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
-  CheckBox 15, 345, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
-  EditBox 395, 325, 50, 15, worker_signature
+  CheckBox 15, 205, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
+  CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox 
+  CheckBox 15, 235, 70, 10, "EBT referral sent?", EBT_referral_checkbox
+  CheckBox 115, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
+  CheckBox 115, 205, 50, 10, "Expedited?", expedited_checkbox
+  CheckBox 115, 235, 70, 10, "IAAs/OMB given?", IAA_checkbox
+  CheckBox 200, 190, 115, 10, "Informed client of recert period?", recert_period_checkbox
+  CheckBox 200, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
+  CheckBox 200, 220, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
+  CheckBox 200, 235, 105, 10, "Managed care referral made?", managed_care_referral_checkbox
+  CheckBox 345, 190, 65, 10, "R/R explained?", R_R_checkbox
+  CheckBox 345, 205, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 345, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
+  CheckBox 345, 235, 95, 10, "Workforce referral made?", WF1_checkbox
+  EditBox 55, 260, 230, 15, other_notes
+  EditBox 55, 280, 390, 15, verifs_needed
+  EditBox 55, 300, 390, 15, actions_taken
+  ComboBox 330, 260, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
+  CheckBox 15, 335, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
+  CheckBox 15, 350, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
+  CheckBox 15, 365, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
+  EditBox 395, 345, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 345, 50, 15
-    CancelButton 395, 345, 50, 15
+    PushButton 290, 370, 45, 10, "prev. page", previous_to_page_02_button
+    OkButton 340, 365, 50, 15
+    CancelButton 395, 365, 50, 15
     PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
     PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
     PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
@@ -235,28 +231,29 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 365, "CAF dialog part 3"
     PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
     PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
+  GroupBox 5, 5, 130, 25, "ELIG panels:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+  ButtonGroup ButtonPressed
     PushButton 5, 50, 25, 10, "INSA/", INSA_button
     PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
     PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
     PushButton 5, 90, 25, 10, "DIET:", DIET_button
-    PushButton 215, 90, 25, 10, "BILS:", BILS_button
     PushButton 5, 110, 25, 10, "FMED:", FMED_button
-    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-    PushButton 290, 350, 45, 10, "prev. page", previous_to_page_02_button
-  GroupBox 5, 5, 130, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
   Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
-  GroupBox 5, 175, 440, 60, "Common elements workers should case note:"
-  Text 5, 245, 50, 10, "Other notes:"
-  Text 290, 245, 40, 10, "CAF status:"
-  Text 5, 265, 50, 10, "Verifs needed:"
-  Text 5, 285, 50, 10, "Actions taken:"
-  GroupBox 5, 300, 280, 60, "Actions the script can do:"
-  Text 330, 330, 60, 10, "Worker signature:"
+  GroupBox 5, 175, 440, 75, "Common elements workers should case note:"
+  Text 5, 265, 50, 10, "Other notes:"
+  Text 290, 265, 40, 10, "CAF status:"
+  Text 5, 285, 50, 10, "Verifs needed:"
+  Text 5, 305, 50, 10, "Actions taken:"
+  GroupBox 5, 320, 280, 60, "Actions the script can do:"
+  Text 330, 350, 60, 10, "Worker signature:"
+  ButtonGroup ButtonPressed
+    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
+    PushButton 215, 90, 25, 10, "BILS:", BILS_button
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -268,13 +265,7 @@ application_signed_checkbox = checked 'The script should default to having the a
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 Call MAXIS_case_number_finder(case_number)
-
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
-End if
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'initial dialog
 Do
@@ -287,6 +278,7 @@ Do
 Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
+Call MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")
@@ -392,7 +384,7 @@ Do
 	call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
+Call check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then 
@@ -474,7 +466,7 @@ END IF
 '--------------------END OF TIKL BUSINESS
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
-start_a_blank_CASE_NOTE
+Call start_a_blank_CASE_NOTE
 
 'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
 If CAF_status <> "" then CAF_status = ": " & CAF_status
@@ -535,6 +527,7 @@ IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* R/R explained
 IF updated_MMIS_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated MMIS.")
 IF WF1_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Workforce referral made.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
+IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client is willing to participate with E&T.")
 IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
 IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)

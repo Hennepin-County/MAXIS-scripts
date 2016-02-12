@@ -1,5 +1,5 @@
 'OPTION EXPLICIT
-name_of_script = "MEMOS - GRH OP CL LEFT FACI.vbs"
+name_of_script = "NOTICES - GRH OP CL LEFT FACI.vbs"
 start_time = timer
 
 'DIM name_of_script

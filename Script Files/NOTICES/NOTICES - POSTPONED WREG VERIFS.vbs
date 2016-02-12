@@ -1,7 +1,7 @@
 'This script was developed by Charles Potter from Anoka County
 
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - POSTPONED WREG VERIFS.vbs"
+name_of_script = "NOTICES - POSTPONED WREG VERIFS.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
