@@ -1,5 +1,5 @@
-'STATS GATHERING--------------------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - UPDATE WORKER SIGNATURE.vbs"
+'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "NOTES - OHP RECEIVED.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -44,27 +44,56 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'----------DIALOGS----------
-BeginDialog worker_sig_dlg, 0, 0, 191, 105, "Update Worker Signature"
-  EditBox 10, 60, 175, 15, worker_signature
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
+'Dialog---------------------------------------------------------------------------------------------------------------------------
+BeginDialog OHP_dialog, 0, 0, 301, 160, "OHP received"
+  EditBox 90, 5, 75, 15, Case_number
+  EditBox 145, 25, 65, 15, OOHP_date
+  EditBox 65, 45, 90, 15, Date_change
+  EditBox 65, 70, 145, 15, Change
+  EditBox 65, 90, 150, 15, Action_taken
+  EditBox 80, 115, 110, 15, Worker_Signature
   ButtonGroup ButtonPressed
-    OkButton 45, 85, 50, 15
-    CancelButton 95, 85, 50, 15
-  Text 10, 10, 175, 10, "Enter what you would like for your default signature."
-  Text 10, 25, 170, 25, "NOTE: This will be pre-loaded in every script. Once the script has started, you can still modify your signature in the appropriate editbox."
+    OkButton 160, 140, 50, 15
+    CancelButton 230, 140, 50, 15
+  Text 5, 5, 70, 10, "Case number:"
+  Text 5, 25, 130, 10, "Out of home placement form received:"
+  Text 5, 45, 60, 10, "Date of change:"
+  Text 5, 70, 45, 10, "Change: "
+  Text 5, 95, 50, 15, "Action Taken: "
+  Text 5, 115, 65, 10, "Worker Signature: "
 EndDialog
 
-'----------THE SCRIPT----------
-DIALOG worker_sig_dlg
-	IF ButtonPressed = 0 THEN stopscript
-	IF worker_signature = "" THEN stopscript
 
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
 
-SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
-SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
-update_worker_sig_command.Write(worker_signature)
-update_worker_sig_command.Close
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
+'connecting to BlueZone, and grabbing the case number
+EMConnect ""
+Call MAXIS_case_number_finder(case_number)
 
-script_end_procedure("")
+'calling the dialog---------------------------------------------------------------------------------------------------------------
+DO
+	Dialog OHP_dialog
+	IF buttonpressed = 0 THEN stopscript
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF Worker_Signature = "" THEN MsgBox "You must enter a worker signature."
+LOOP until Case_number <> "" and Worker_Signature <> ""
+
+'checking for an active MAXIS session
+CALL check_for_MAXIS(FALSE)
+
+'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+CALL write_variable_in_CASE_NOTE("***Out Of Home Placement Received***")
+CALL write_bullet_and_variable_in_CASE_NOTE("OHP date Received", OOHP_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Date of change", Date_change)
+CALL write_bullet_and_variable_in_CASE_NOTE("Change", Change)
+CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", Action_taken)
+CALL write_variable_in_CASE_NOTE(Worker_Signature)
+
+Script_end_procedure("")

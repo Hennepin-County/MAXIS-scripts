@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "UTILITIES - MAIN MENU.vbs"
+name_of_script = "NOTES - MSQ.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -43,37 +43,87 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog UTILITIES_scripts_main_menu_dialog, 0, 0, 461, 85, "Utilities scripts main menu dialog"
+
+'Required for statistical purposes===========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 300          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block==========================================================================================================
+ 
+'THE DIALOG----------------------------------------------------------------------------------------------------------
+BeginDialog msq_dialog, 0, 0, 321, 125, "MSQ"
+  EditBox 80, 5, 70, 15, case_number
+  EditBox 75, 30, 70, 15, member_injured
+  EditBox 205, 30, 70, 15, injury_date
+  EditBox 75, 65, 175, 15, other_notes
+  EditBox 80, 95, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    CancelButton 405, 65, 50, 15
-    PushButton 5, 20, 95, 10, "Banked Month DB Updater", banked_month_database_updater_button
-    PushButton 60, 35, 40, 10, "INFO", INFO_button
-    PushButton 5, 50, 95, 10, "Update Worker Signature", UPDATE_WORKER_SIGNATURE_button
-    PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
-  Text 5, 5, 250, 10, "Utilities scripts main menu: select the script to run from the choices below."
-  Text 105, 20, 305, 10, "-- NEW 02/2016!!! Updates cases in the banked month database with actual MAXIS status."
-  Text 105, 35, 265, 10, "-- NEW 01/2016!!! Displays information about your BlueZone Scripts installation."
-  Text 105, 50, 195, 10, "-- Sets or updates the default worker signature for this user."
+    OkButton 200, 95, 50, 15
+    CancelButton 255, 95, 50, 15
+  Text 5, 70, 70, 10, "Action Taken/Notes:"
+  Text 165, 35, 40, 10, "Injury Date:"
+  Text 5, 35, 70, 10, "HH Member Injured:"
+  Text 5, 100, 70, 10, "Sign your Case Note:"
+  Text 5, 10, 70, 10, "Maxis Case Number:"
+  Text 75, 45, 40, 10, "(Ex: 01, 02)"
+  Text 205, 45, 70, 10, "(Ex: MM/DD/YY)"
 EndDialog
 
-'Variables to declare
-IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Shows dialog, which asks user which script to run.
-Do
-	dialog UTILITIES_scripts_main_menu_dialog
-	If buttonpressed = cancel then stopscript
-	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Utilities%20scripts.aspx")
-Loop until buttonpressed <> SIR_instructions_button
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------
 
-'Connecting to BlueZone
+'Connects to BLUEZONE
 EMConnect ""
 
-IF buttonpressed = banked_month_database_updater_button 		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - BANKED MONTH DATABASE UPDATER.vbs")
-IF buttonpressed = INFO_button 									then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - INFO.vbs")
-IF buttonpressed = UPDATE_WORKER_SIGNATURE_button				then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - UPDATE WORKER SIGNATURE.vbs")
+'Grabs the MAXIS case number            
+CALL MAXIS_case_number_finder(case_number)
 
-'Logging usage stats
-script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
+'Shows dialog
+DO
+	err_msg = ""		
+	Dialog msq_dialog
+		IF ButtonPressed = 0 THEN StopScript
+		IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+LOOP UNTIL err_msg = ""
+
+'Checks Maxis for password prompt
+CALL check_for_MAXIS(True)
+
+'The script reads what member number was manually entered, and navigates to that member's STAT/ACCI panel
+CALL navigate_to_MAXIS_screen("STAT", "ACCI")
+EMWriteScreen member_injured, 20, 76
+EMWriteScreen "nn", 20, 79
+transmit
+
+EMWriteScreen "n", 8, 75
+
+'Writes 13 in Accident Type field
+EMWriteScreen "13", 6, 47
+
+'Writes the Injury Date in the Injury date field
+CALL create_MAXIS_friendly_date(injury_date, 0, 6, 73)
+
+'Writes N in the Med Cooperation field
+EMWriteScreen "N", 7, 47
+
+'Writes N in the Good cause field
+EMWriteScreen "N", 7, 73
+
+'Writes a N in Pend Litigation
+EMWritescreen "N", 9, 47
+
+'Opens new case note
+start_a_blank_case_note
+
+
+'Writes the Case Note
+CALL write_variable_in_case_note("*** MSQ Form ***")
+CALL write_bullet_and_variable_in_case_note("Household Member Injured", member_injured)
+CALL write_bullet_and_variable_in_case_note("Injury Date", injury_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken/Notes", other_notes)
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
+
+script_end_procedure("Success! Remember to update MMIS.")
