@@ -51,7 +51,7 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog FC_HC_REVIEW, 0, 0, 256, 250, "FOSTER CARE HC REVIEW"
+BeginDialog FC_HC_review_dialog, 0, 0, 256, 250, "FOSTER CARE HC REVIEW"
   EditBox 65, 5, 65, 15, Case_number
   EditBox 65, 25, 65, 15, Received
   EditBox 65, 45, 65, 15, Completed_By
@@ -82,7 +82,7 @@ Call MAXIS_case_number_finder(case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
-	Dialog County_Burial_Application_Received
+	Dialog FC_HC_review_dialog
 	IF buttonpressed = 0 THEN stopscript
 	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
 	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
@@ -103,4 +103,3 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Results", Results)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 Script_end_procedure("")
-
