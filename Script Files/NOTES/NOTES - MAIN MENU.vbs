@@ -289,6 +289,13 @@ script_array_D_to_F(script_num).description 			= "Template for sending an MFIP o
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_D_to_F(script_num).script_name 			= "Expedited determination"
+script_array_D_to_F(script_num).file_name				= "NOTES - EXPEDITED DETERMINATION.vbs"
+script_array_D_to_F(script_num).description 			= "Template for noting detail about how expedited was determined for a case."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
+Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Expedited screening"
 script_array_D_to_F(script_num).file_name				= "NOTES - EXPEDITED SCREENING.vbs"
 script_array_D_to_F(script_num).description 			= "Template for screening a client for expedited status."
