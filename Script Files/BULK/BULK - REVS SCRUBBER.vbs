@@ -1,5 +1,5 @@
 contact_phone_number = "UUDDLRLRBA"
-worker_number_editbox = "x127ex3"
+worker_number_editbox = "X127EJ6"
 worker_signature = "VKC"
 max_reviews_per_worker = "10"
 
@@ -83,6 +83,11 @@ STATS_denomination = "C"		 'C is for each case
 'Variables needed for the script-----------------------------------------------------------------------------------------------------
 appt_time_list = "15 mins"+chr(9)+"30 mins"+chr(9)+"45 mins"+chr(9)+"60 mins"		'Used by the dialog to display possible times/lengths of appointments
 call convert_array_to_droplist_items(time_array_30_min, time_array)					'Schedules time blocks in 30 minute increments
+
+'CONSTANTS WE LIKE--------------------------------------------------------------
+const case_number_col 		= 1
+const interview_time_col 	= 2
+const privileged_case_col	= 5
 
 'Custom functions (should merge with FuncLib when tested/confirmed to work)---------------------------------------------------
 'Function to create dynamic calendar out of checkboxes
@@ -373,12 +378,12 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'formatting excel file with columns for case number and interview date/time
-objExcel.cells(1, 1).Value = "CASE NUMBER"
-objExcel.Cells(1, 1).Font.Bold = TRUE
-objExcel.Cells(1, 2).Value = "Interview Date & Time"
-objExcel.cells(1, 2).Font.Bold = TRUE
-objExcel.cells(1, 5).Value = "Privileged Cases"
-objExcel.cells(1, 5).Font.Bold = TRUE
+objExcel.cells(1, case_number_col).value 			= "CASE NUMBER"
+objExcel.Cells(1, case_number_col).Font.Bold 		= TRUE
+objExcel.Cells(1, interview_time_col).value 		= "Interview Date & Time"
+objExcel.cells(1, interview_time_col).Font.Bold 	= TRUE
+objExcel.cells(1, privileged_case_col).value 		= "Privileged Cases"
+objExcel.cells(1, privileged_case_col).Font.Bold 	= TRUE
 
 'If the appointments_per_time_slot variable isn't declared, it defaults to 1
 IF appointments_per_time_slot = "" THEN appointments_per_time_slot = 1
@@ -447,7 +452,7 @@ DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
 
 		'Adding the case to Excel
 		If add_case_info_to_Excel = True then
-			ObjExcel.Cells(excel_row, 1).Value = case_number
+			ObjExcel.Cells(excel_row, case_number_col).value = case_number
 			excel_row = excel_row + 1
 		End if
 
@@ -471,7 +476,7 @@ reviews_total = 0	'Sets this to 0 for the following do...loop. It'll exit once i
 DO 'Loops until there are no more cases in the Excel list
 
 	'Grabs the case number
-	case_number = objExcel.cells(excel_row, 1).Value
+	case_number = objExcel.cells(excel_row, case_number_col).value
 
 	'Goes to STAT/REVW
 	CALL navigate_to_MAXIS_screen("STAT", "REVW")
@@ -521,7 +526,7 @@ DO 'Loops until there are no more cases in the Excel list
 	END IF
 	STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
 	excel_row = excel_row + 1
-LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list of cases to check for recert is complete
+LOOP UNTIL objExcel.Cells(excel_row, case_number_col).value = ""	'looping until the list of cases to check for recert is complete
 
 'Now the script needs to go back to the start of the Excel file and start assigning appointments.
 'FOR EACH day that is not checked, start assigning appointments according to DatePart("N", appointment) because DatePart"N" is minutes. Once datepart("N") = last_appointment_time THEN the script needs to jump to the next day.
@@ -539,14 +544,14 @@ FOR i = 1 to num_of_days
 			appointment_time_for_viewing = appointment_time			'creating a new variable to handle the display of time to get it out of military time.
 			IF DatePart("H", appointment_time_for_viewing) >= 13 THEN appointment_time_for_viewing = DateAdd("H", -12, appointment_time_for_viewing)
 			FOR j = 1 TO appointments_per_time_slot					'Having the script create appointments_per_time_slot for each day and time.
-				objExcel.Cells(excel_row, 2).Value = appointment_time_for_viewing
+				objExcel.Cells(excel_row, interview_time_col).value = appointment_time_for_viewing
 				excel_row = excel_row + 1
 				reviews_total = reviews_total + 1	'Adds one to the reviews total (will end when the loop starts if we're at the reviews total)
 				if reviews_total = max_reviews_per_worker then exit for		'If we're at the reviews total, it will exit this for
 
-				IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT FOR
+				IF objExcel.Cells(excel_row, case_number_col).value = "" THEN EXIT FOR
 			NEXT
-			IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT DO
+			IF objExcel.Cells(excel_row, case_number_col).value = "" THEN EXIT DO
 			if reviews_total = max_reviews_per_worker then exit do		'If we're at the reviews total, it will exit this do
 
 			'This is where the script adds minutes for the next appointment.
@@ -569,7 +574,7 @@ FOR i = 1 to num_of_days
 			END IF
 		LOOP UNTIL (DatePart("H", appointment_time_for_comparison) > DatePart("H", last_appointment_listbox_for_comparison)) OR ((DatePart("H", appointment_time_for_comparison) >= DatePart("H", last_appointment_listbox_for_comparison)) AND DatePart("N", appointment_time_for_comparison) > DatePart("N", last_appointment_listbox_for_comparison))
 
-		IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT FOR	'If there's nothing in the row, it means it's over.
+		IF objExcel.Cells(excel_row, case_number_col).value = "" THEN EXIT FOR	'If there's nothing in the row, it means it's over.
 
 		IF alt_first_appointment_listbox <> "Select one..." THEN 	'Same as above but for the second block 'o time
 			appointment_time = appt_month & "/" & i & "/" & appt_year & " " & alt_first_appointment_listbox
@@ -578,11 +583,11 @@ FOR i = 1 to num_of_days
 				appointment_time_for_viewing = appointment_time			'creating a new variable to handle the display of time to get it out of military time.
 				IF DatePart("H", appointment_time_for_viewing) >= 13 THEN appointment_time_for_viewing = DateAdd("H", -12, appointment_time_for_viewing)
 				FOR k = 1 TO alt_appointments_per_time_slot					'Having the script create appointments_per_time_slot for each day and time.
-					objExcel.Cells(excel_row, 2).Value = appointment_time_for_viewing
+					objExcel.Cells(excel_row, interview_time_col).value = appointment_time_for_viewing
 					excel_row = excel_row + 1
-					IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT FOR
+					IF objExcel.Cells(excel_row, case_number_col).value = "" THEN EXIT FOR
 				NEXT
-				IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT DO
+				IF objExcel.Cells(excel_row, case_number_col).value = "" THEN EXIT DO
 
 				'This is where the script adds minutes for the next appointment.
 				appointment_time = DateAdd("N", alt_appointment_length_listbox, appointment_time)
@@ -605,15 +610,30 @@ FOR i = 1 to num_of_days
 			LOOP UNTIL (DatePart("H", appointment_time_for_comparison) > DatePart("H", last_appointment_listbox_for_comparison)) OR ((DatePart("H", appointment_time_for_comparison) >= DatePart("H", last_appointment_listbox_for_comparison)) AND DatePart("N", appointment_time_for_comparison) > DatePart("N", last_appointment_listbox_for_comparison))
 
 		END IF
-		IF objExcel.Cells(excel_row, 1).Value = "" THEN EXIT FOR		'Because we're all out of cases at this point
-		if objExcel.Cells(excel_row, 1).Value <> "" and reviews_total = max_reviews_per_worker then objExcel.Cells(excel_row, 2).Value = "SKIPPED"
-		if reviews_total = max_reviews_per_worker then exit for		'If we're at the reviews total, it will exit this for
+		IF objExcel.Cells(excel_row, case_number_col).Value = "" THEN EXIT FOR		'Because we're all out of cases at this point
+
+		'If we'rve hit our max reviews, it's going to add "skipped" to the remaining reviews
+		if objExcel.Cells(excel_row, case_number_col).Value <> "" and reviews_total = max_reviews_per_worker then
+			Do
+				objExcel.Cells(excel_row, interview_time_col).Value = "SKIPPED"
+				excel_row = excel_row + 1
+			Loop until objExcel.Cells(excel_row, case_number_col).Value = ""
+		End if
+
+		'If we're at the reviews total, it will exit this for...loop
+		if reviews_total = max_reviews_per_worker then exit for
 	END IF
 NEXT
 
+'Formatting the columns to autofit after they are all finished being created.
+objExcel.Columns(case_number_col).autofit()
+objExcel.Columns(interview_time_col).autofit()
+
+
+
 'VbOKCancel allows the user to review and confirm the scheduled appointments prior to case notes, TIKL's and MEMOs being sent
 recertificaiton_date_confirmation = MsgBox("Please review your Excel spreadsheet carefully to ensure that the dates and times are accurate." & vbNewLine & vbNewLine & "Press OK to confirm the dates and times of your scheduled appointments. Press cancel to stop the script.", vbOKCancel, "Please review and confirm")
-		If recertificaiton_date_confirmation = vbCancel then stopscript
+If recertificaiton_date_confirmation = vbCancel then stopscript
 
 Call check_for_MAXIS(False)
 
@@ -623,8 +643,8 @@ If developer_mode = true Then
 		recert_status = ""			'resetting recert status for each run through the loop/case number
 		forms_to_arep = ""
 		forms_to_swkr = ""
-		case_number = objExcel.cells(excel_row, 1).Value
-		interview_time = objExcel.Cells(excel_row, 2).Value
+		case_number = objExcel.cells(excel_row, case_number_col).value
+		interview_time = objExcel.Cells(excel_row, interview_time_col).value
 		IF DatePart("H", interview_time) < 7 OR DatePart("H", interview_time) = 12 THEN    'converting from military time
 			am_pm = "PM"
 		ELSE
@@ -705,7 +725,7 @@ If developer_mode = true Then
 
 		excel_row = excel_row + 1
 
-	LOOP until objExcel.cells(excel_row, 1).Value = ""
+	LOOP until objExcel.cells(excel_row, case_number_col).value = "" or objExcel.cells(excel_row, interview_time_col).value = "SKIPPED" 'If this was skipped it needs to stop here
 
 	'Formatting the columns to autofit after they are all finished being created.
 	objExcel.Columns(1).autofit()
@@ -719,8 +739,8 @@ Else    'if worker is actually running the script it will do this
 		recert_status = ""			'resetting recert status for each run through the loop/case number
 		forms_to_arep = ""
 		forms_to_swkr = ""
-		case_number = objExcel.cells(excel_row, 1).Value
-		interview_time = objExcel.Cells(excel_row, 2).Value
+		case_number = objExcel.cells(excel_row, case_number_col).value
+		interview_time = objExcel.Cells(excel_row, interview_time_col).value
 		IF DatePart("H", interview_time) < 7 OR DatePart("H", interview_time) = 12 THEN    'converting from military time
 			am_pm = "PM"
 		ELSE
@@ -864,20 +884,15 @@ Else    'if worker is actually running the script it will do this
 
 		excel_row = excel_row + 1
 
-	LOOP until objExcel.cells(excel_row, 1).Value = ""
+	LOOP until objExcel.cells(excel_row, case_number_col).value = "" or objExcel.Cells(excel_row, interview_time_col).value = "SKIPPED"
 
-	'Formatting the columns to autofit after they are all finished being created.
-	objExcel.Columns(1).autofit()
-	objExcel.Columns(2).autofit()
-	objExcel.Columns(3).autofit()
-	objExcel.Columns(4).autofit()
 End IF
 'Creating the list of privileged cases and adding to the spreadsheet
 prived_case_array = split(priv_case_list, "|")
 excel_row = 2
 
 FOR EACH case_number in prived_case_array
-	objExcel.cells(excel_row, 5).value = case_number
+	objExcel.cells(excel_row, privileged_case_col).value = case_number
 	excel_row = excel_row + 1
 NEXT
 
