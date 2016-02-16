@@ -57,6 +57,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 120                              'manual run time in seconds  this run time only includes appl'ing the case. it gets time added it to as panels are added and approvals are made. 
+STATS_denomination = "C"       'I is for each case
+'END OF stats block==============================================================================================
+
 '========================================================================TRANSFER CASES========================================================================
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	'Creates an array of the workers selected in the dialog
@@ -501,6 +507,9 @@ For cases_to_make = 1 to how_many_cases_to_make
 	IF addr_warning = "Warning" THEN transmit
 	transmit
 	PF3
+	
+	STATS_counter = STATS_counter + 1   'counting each case made to supply the multiplier for stats.
+
 Next
 
 'Removing the last "|" from the case_number_array so as to avoid it trying to work a blank case number through PND1
@@ -643,6 +652,8 @@ For each case_number in case_number_array
 
 	transmit
 	transmit
+	STATS_manualtime = STATS_manualtime + 40   'adding manualtime for processing PROG/REVW
+
 
 Next
 
@@ -1414,23 +1425,35 @@ For each case_number in case_number_array
 		EMReadScreen SSN_last, 4, 7, 49
 
 		'ACCT
-		If ACCT_type <> "" then call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
-
+		If ACCT_type <> "" then 
+			call write_panel_to_MAXIS_ACCT(ACCT_type, ACCT_numb, ACCT_location, ACCT_balance, ACCT_bal_ver, ACCT_date, ACCT_withdraw, ACCT_cash_count, ACCT_snap_count, ACCT_HC_count, ACCT_GRH_count, ACCT_IV_count, ACCT_joint_owner, ACCT_share_ratio, ACCT_interest_date_mo, ACCT_interest_date_yr)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'ACUT
-		If ACUT_shared <> "" then call write_panel_to_MAXIS_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electric, ACUT_fuel, ACUT_garbage, ACUT_water, ACUT_sewer, ACUT_other, ACUT_phone, ACUT_heat_verif, ACUT_air_verif, ACUT_electric_verif, ACUT_fuel_verif, ACUT_garbage_verif, ACUT_water_verif, ACUT_sewer_verif, ACUT_other_verif)
-
+		If ACUT_shared <> "" then 
+			call write_panel_to_MAXIS_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electric, ACUT_fuel, ACUT_garbage, ACUT_water, ACUT_sewer, ACUT_other, ACUT_phone, ACUT_heat_verif, ACUT_air_verif, ACUT_electric_verif, ACUT_fuel_verif, ACUT_garbage_verif, ACUT_water_verif, ACUT_sewer_verif, ACUT_other_verif)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'BILS
-		IF BILS_bill_1_ref_num <> "" THEN CALL write_panel_to_MAXIS_BILS(BILS_bill_1_ref_num, BILS_bill_1_serv_date, BILS_bill_1_serv_type, BILS_bill_1_gross_amt, BILS_bill_1_third_party, BILS_bill_1_verif, BILS_bill_1_BILS_type, BILS_bill_2_ref_num, BILS_bill_2_serv_date, BILS_bill_2_serv_type, BILS_bill_2_gross_amt, BILS_bill_2_third_party, BILS_bill_2_verif, BILS_bill_2_BILS_type, BILS_bill_3_ref_num, BILS_bill_3_serv_date, BILS_bill_3_serv_type, BILS_bill_3_gross_amt, BILS_bill_3_third_party, BILS_bill_3_verif, BILS_bill_3_BILS_type, BILS_bill_4_ref_num, BILS_bill_4_serv_date, BILS_bill_4_serv_type, BILS_bill_4_gross_amt, BILS_bill_4_third_party, BILS_bill_4_verif, BILS_bill_4_BILS_type, BILS_bill_5_ref_num, BILS_bill_5_serv_date, BILS_bill_5_serv_type, BILS_bill_5_gross_amt, BILS_bill_5_third_party, BILS_bill_5_verif, BILS_bill_5_BILS_type, BILS_bill_6_ref_num, BILS_bill_6_serv_date, BILS_bill_6_serv_type, BILS_bill_6_gross_amt, BILS_bill_6_third_party, BILS_bill_6_verif, BILS_bill_6_BILS_type, BILS_bill_7_ref_num, BILS_bill_7_serv_date, BILS_bill_7_serv_type, BILS_bill_7_gross_amt, BILS_bill_7_third_party, BILS_bill_7_verif, BILS_bill_7_BILS_type, BILS_bill_8_ref_num, BILS_bill_8_serv_date, BILS_bill_8_serv_type, BILS_bill_8_gross_amt, BILS_bill_8_third_party, BILS_bill_8_verif, BILS_bill_8_BILS_type, BILS_bill_9_ref_num, BILS_bill_9_serv_date, BILS_bill_9_serv_type, BILS_bill_9_gross_amt, BILS_bill_9_third_party, BILS_bill_9_verif, BILS_bill_9_BILS_type)
-
+		IF BILS_bill_1_ref_num <> "" THEN 
+			CALL write_panel_to_MAXIS_BILS(BILS_bill_1_ref_num, BILS_bill_1_serv_date, BILS_bill_1_serv_type, BILS_bill_1_gross_amt, BILS_bill_1_third_party, BILS_bill_1_verif, BILS_bill_1_BILS_type, BILS_bill_2_ref_num, BILS_bill_2_serv_date, BILS_bill_2_serv_type, BILS_bill_2_gross_amt, BILS_bill_2_third_party, BILS_bill_2_verif, BILS_bill_2_BILS_type, BILS_bill_3_ref_num, BILS_bill_3_serv_date, BILS_bill_3_serv_type, BILS_bill_3_gross_amt, BILS_bill_3_third_party, BILS_bill_3_verif, BILS_bill_3_BILS_type, BILS_bill_4_ref_num, BILS_bill_4_serv_date, BILS_bill_4_serv_type, BILS_bill_4_gross_amt, BILS_bill_4_third_party, BILS_bill_4_verif, BILS_bill_4_BILS_type, BILS_bill_5_ref_num, BILS_bill_5_serv_date, BILS_bill_5_serv_type, BILS_bill_5_gross_amt, BILS_bill_5_third_party, BILS_bill_5_verif, BILS_bill_5_BILS_type, BILS_bill_6_ref_num, BILS_bill_6_serv_date, BILS_bill_6_serv_type, BILS_bill_6_gross_amt, BILS_bill_6_third_party, BILS_bill_6_verif, BILS_bill_6_BILS_type, BILS_bill_7_ref_num, BILS_bill_7_serv_date, BILS_bill_7_serv_type, BILS_bill_7_gross_amt, BILS_bill_7_third_party, BILS_bill_7_verif, BILS_bill_7_BILS_type, BILS_bill_8_ref_num, BILS_bill_8_serv_date, BILS_bill_8_serv_type, BILS_bill_8_gross_amt, BILS_bill_8_third_party, BILS_bill_8_verif, BILS_bill_8_BILS_type, BILS_bill_9_ref_num, BILS_bill_9_serv_date, BILS_bill_9_serv_type, BILS_bill_9_gross_amt, BILS_bill_9_third_party, BILS_bill_9_verif, BILS_bill_9_BILS_type)
+			STATS_manualtime = STATS_manualtime + 50
+		END IF
 		'BUSI
-		If BUSI_type <> "" then call write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
-
+		If BUSI_type <> "" then 
+			call write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
+			STATS_manualtime = STATS_manualtime + 60
+		END IF
 		'CARS
-		If CARS_type <> "" then call write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio)
-
+		If CARS_type <> "" then 
+			call write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio)
+			STATS_manualtime = STATS_manualtime + 25
+		END IF
 		'CASH
-		If CASH_amount <> "" then call write_panel_to_MAXIS_CASH(cash_amount)
-
+		If CASH_amount <> "" then 
+			call write_panel_to_MAXIS_CASH(cash_amount)
+			STATS_manualtime = STATS_manualtime + 5
+		END IF
 		'COEX
 		IF COEX_support_retro <> "" OR _
 			COEX_support_prosp <> "" OR _
@@ -1448,83 +1471,135 @@ For each case_number in case_number_array
 			COEX_HC_expense_support <> "" OR _
 			COEX_HC_expense_alimony <> "" OR _
 			COEX_HC_expense_tax_dep <> "" OR _
-			COEX_HC_expense_other <> "" THEN CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif, COEX_change_in_circumstances, COEX_HC_expense_support, COEX_HC_expense_alimony, COEX_HC_expense_tax_dep, COEX_HC_expense_other)
-
+			COEX_HC_expense_other <> "" THEN 
+				CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif, COEX_change_in_circumstances, COEX_HC_expense_support, COEX_HC_expense_alimony, COEX_HC_expense_tax_dep, COEX_HC_expense_other)
+				STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'DCEX
-		If DCEX_provider <> "" then call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
-
+		If DCEX_provider <> "" then 
+			call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'DFLN
-		IF DFLN_conv_1_dt <> "" THEN CALL write_panel_to_MAXIS_DFLN(DFLN_conv_1_dt, DFLN_conv_1_juris, DFLN_conv_1_state, DFLN_conv_2_dt, DFLN_conv_2_juris, DFLN_conv_2_state, DFLN_rnd_test_1_dt, DFLN_rnd_test_1_provider, DFLN_rnd_test_1_result, DFLN_rnd_test_2_dt, DFLN_rnd_test_2_provider, DFLN_rnd_test_2_result)
-
+		IF DFLN_conv_1_dt <> "" THEN 
+			CALL write_panel_to_MAXIS_DFLN(DFLN_conv_1_dt, DFLN_conv_1_juris, DFLN_conv_1_state, DFLN_conv_2_dt, DFLN_conv_2_juris, DFLN_conv_2_state, DFLN_rnd_test_1_dt, DFLN_rnd_test_1_provider, DFLN_rnd_test_1_result, DFLN_rnd_test_2_dt, DFLN_rnd_test_2_provider, DFLN_rnd_test_2_result)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'DIET
-		If DIET_mfip_1 <> "" or DIET_MSA_1 <> "" then call write_panel_to_MAXIS_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DIET_mfip_2_ver, DIET_msa_1, DIET_msa_1_ver, DIET_msa_2, DIET_msa_2_ver, DIET_msa_3, DIET_msa_3_ver, DIET_msa_4, DIET_msa_4_ver)
-
+		If DIET_mfip_1 <> "" or DIET_MSA_1 <> "" then 
+			call write_panel_to_MAXIS_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DIET_mfip_2_ver, DIET_msa_1, DIET_msa_1_ver, DIET_msa_2, DIET_msa_2_ver, DIET_msa_3, DIET_msa_3_ver, DIET_msa_4, DIET_msa_4_ver)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'DISA
-		If DISA_begin_date <> "" then call write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
-
+		If DISA_begin_date <> "" then 
+			call write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
+			STATS_manualtime = STATS_manualtime + 30
+		END IF
 		'DSTT
-		If DSTT_ongoing_income <> "" then call write_panel_to_MAXIS_DSTT(DSTT_ongoing_income, DSTT_HH_income_stop_date, DSTT_income_expected_amt)
-
+		If DSTT_ongoing_income <> "" then 
+			call write_panel_to_MAXIS_DSTT(DSTT_ongoing_income, DSTT_HH_income_stop_date, DSTT_income_expected_amt)
+			STATS_manualtime = STATS_manualtime + 10
+		END IF
 		'EATS
-		If EATS_together <> "" then call write_panel_to_MAXIS_EATS(eats_together, eats_boarder, eats_group_one, eats_group_two, eats_group_three)
-
+		If EATS_together <> "" then 
+			call write_panel_to_MAXIS_EATS(eats_together, eats_boarder, eats_group_one, eats_group_two, eats_group_three)
+			STATS_manualtime = STATS_manualtime + 18
+		END IF
 		'EMMA
-		If EMMA_medical_emergency <> "" then call write_panel_to_MAXIS_EMMA(EMMA_medical_emergency, EMMA_health_consequence, EMMA_verification, EMMA_begin_date, EMMA_end_date)
-
+		If EMMA_medical_emergency <> "" then 
+			call write_panel_to_MAXIS_EMMA(EMMA_medical_emergency, EMMA_health_consequence, EMMA_verification, EMMA_begin_date, EMMA_end_date)
+			STATS_manualtime = STATS_manualtime + 15
+		END IF
 		'EMPS
-		If EMPS_memb_at_home <> "" then call write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_attended, EMPS_good_cause, EMPS_sanc_begin, EMPS_sanc_end, EMPS_memb_at_home, EMPS_care_family, EMPS_crisis, EMPS_hard_employ, EMPS_under1, EMPS_DWP_date)
-
+		If EMPS_memb_at_home <> "" then 
+			call write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_attended, EMPS_good_cause, EMPS_sanc_begin, EMPS_sanc_end, EMPS_memb_at_home, EMPS_care_family, EMPS_crisis, EMPS_hard_employ, EMPS_under1, EMPS_DWP_date)
+			STATS_manualtime = STATS_manualtime + 35
+		END IF
 		'FACI
-		If FACI_name <> "" then call write_panel_to_MAXIS_FACI(FACI_vendor_number, FACI_name, FACI_type, FACI_FS_eligible, FACI_FS_facility_type, FACI_date_in, FACI_date_out)
-
+		If FACI_name <> "" then 
+			call write_panel_to_MAXIS_FACI(FACI_vendor_number, FACI_name, FACI_type, FACI_FS_eligible, FACI_FS_facility_type, FACI_date_in, FACI_date_out)
+			STATS_manualtime = STATS_manualtime + 32
+		END IF
 		'FMED
-		IF FMED_medical_mileage <> "" OR FMED_1_type <> "" OR FMED_2_type <> "" OR FMED_3_type <> "" OR FMED_4_type <> "" THEN CALL write_panel_to_MAXIS_FMED(FMED_medical_mileage, FMED_1_type, FMED_1_verif, FMED_1_ref_num, FMED_1_category, FMED_1_begin, FMED_1_end, FMED_1_amount, FMED_2_type, FMED_2_verif, FMED_2_ref_num, FMED_2_category, FMED_2_begin, FMED_2_end, FMED_2_amount, FMED_3_type, FMED_3_verif, FMED_3_ref_num, FMED_3_category, FMED_3_begin, FMED_3_end, FMED_3_amount, FMED_4_type, FMED_4_verif, FMED_4_ref_num, FMED_4_category, FMED_4_begin, FMED_4_end, FMED_4_amount)
-
+		IF FMED_medical_mileage <> "" OR FMED_1_type <> "" OR FMED_2_type <> "" OR FMED_3_type <> "" OR FMED_4_type <> "" THEN 
+			CALL write_panel_to_MAXIS_FMED(FMED_medical_mileage, FMED_1_type, FMED_1_verif, FMED_1_ref_num, FMED_1_category, FMED_1_begin, FMED_1_end, FMED_1_amount, FMED_2_type, FMED_2_verif, FMED_2_ref_num, FMED_2_category, FMED_2_begin, FMED_2_end, FMED_2_amount, FMED_3_type, FMED_3_verif, FMED_3_ref_num, FMED_3_category, FMED_3_begin, FMED_3_end, FMED_3_amount, FMED_4_type, FMED_4_verif, FMED_4_ref_num, FMED_4_category, FMED_4_begin, FMED_4_end, FMED_4_amount)
+			STATS_manualtime = STATS_manualtime + 25
+		END IF
 		'HEST
-		If HEST_FS_choice_date <> "" then call write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
-
+		If HEST_FS_choice_date <> "" then 
+			call write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
+			STATS_manualtime = STATS_manualtime + 10
+		END IF
 		'IMIG
-		If IMIG_imigration_status <> "" THEN CALL write_panel_to_MAXIS_IMIG(IMIG_imigration_status, IMIG_entry_date, IMIG_status_date, IMIG_status_ver, IMIG_status_LPR_adj_from, IMIG_nationality, IMIG_40_soc_sec, IMIG_40_soc_sec_verif, IMIG_battered_spouse_child, IMIG_battered_spouse_child_verif, IMIG_military_status, IMIG_military_status_verif, IMIG_hmong_lao_nat_amer, IMIG_st_prog_esl_ctzn_coop, IMIG_st_prog_esl_ctzn_coop_verif, IMIG_fss_esl_skills_training)
-
+		If IMIG_imigration_status <> "" THEN 
+			CALL write_panel_to_MAXIS_IMIG(IMIG_imigration_status, IMIG_entry_date, IMIG_status_date, IMIG_status_ver, IMIG_status_LPR_adj_from, IMIG_nationality, IMIG_40_soc_sec, IMIG_40_soc_sec_verif, IMIG_battered_spouse_child, IMIG_battered_spouse_child_verif, IMIG_military_status, IMIG_military_status_verif, IMIG_hmong_lao_nat_amer, IMIG_st_prog_esl_ctzn_coop, IMIG_st_prog_esl_ctzn_coop_verif, IMIG_fss_esl_skills_training)
+			STATS_manualtime = STATS_manualtime + 27
+		END IF
 		'INSA
-		If INSA_pers_coop_ohi <> "" then call write_panel_to_MAXIS_INSA(INSA_pers_coop_ohi,INSA_good_cause_status,INSA_good_cause_cliam_date,INSA_good_cause_evidence,INSA_coop_cost_effect,INSA_insur_name,INSA_prescrip_drug_cover,INSA_prescrip_end_date, INSA_persons_covered)
-
+		If INSA_pers_coop_ohi <> "" then 
+			call write_panel_to_MAXIS_INSA(INSA_pers_coop_ohi,INSA_good_cause_status,INSA_good_cause_cliam_date,INSA_good_cause_evidence,INSA_coop_cost_effect,INSA_insur_name,INSA_prescrip_drug_cover,INSA_prescrip_end_date, INSA_persons_covered)
+			STATS_manualtime = STATS_manualtime + 16
+		END IF
 		'JOBS1
-		If JOBS_1_inc_type <> "" then call write_panel_to_MAXIS_JOBS("01", JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
-
+		If JOBS_1_inc_type <> "" then 
+			call write_panel_to_MAXIS_JOBS("01", JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
+			STATS_manualtime = STATS_manualtime + 50
+		END IF
 		'JOBS2
-		If JOBS_2_inc_type <> "" then call write_panel_to_MAXIS_JOBS("02", JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
-
+		If JOBS_2_inc_type <> "" then 
+			call write_panel_to_MAXIS_JOBS("02", JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
+			STATS_manualtime = STATS_manualtime + 50
+		END IF
 		'JOBS3
-		If JOBS_3_inc_type <> "" then call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
-
+		If JOBS_3_inc_type <> "" then 
+			call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
+			STATS_manualtime = STATS_manualtime + 50
+		END IF
 		'MEDI
-		If MEDI_claim_number_suffix <> "" then call write_panel_to_MAXIS_MEDI(SSN_first, SSN_mid, SSN_last, MEDI_claim_number_suffix, MEDI_part_A_premium, MEDI_part_B_premium, MEDI_part_A_begin_date, MEDI_part_B_begin_date, MEDI_apply_prem_to_spdn, MEDI_apply_prem_end_date)
-
+		If MEDI_claim_number_suffix <> "" then 
+			call write_panel_to_MAXIS_MEDI(SSN_first, SSN_mid, SSN_last, MEDI_claim_number_suffix, MEDI_part_A_premium, MEDI_part_B_premium, MEDI_part_A_begin_date, MEDI_part_B_begin_date, MEDI_apply_prem_to_spdn, MEDI_apply_prem_end_date)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'MMSA
-		If MMSA_liv_arr <> "" then call write_panel_to_MAXIS_MMSA(MMSA_liv_arr, MMSA_cont_elig, MMSA_spous_inc, MMSA_shared_hous)
-
+		If MMSA_liv_arr <> "" then 
+			call write_panel_to_MAXIS_MMSA(MMSA_liv_arr, MMSA_cont_elig, MMSA_spous_inc, MMSA_shared_hous)
+			STATS_manualtime = STATS_manualtime + 10
+		END IF
 		'MSUR
-		If MSUR_begin_date <> "" then call write_panel_to_MAXIS_MSUR(MSUR_begin_date)
-
+		If MSUR_begin_date <> "" then 
+			call write_panel_to_MAXIS_MSUR(MSUR_begin_date)
+			STATS_manualtime = STATS_manualtime + 7
+		END IF
 		'OTHR
-		If OTHR_type <> "" then call write_panel_to_MAXIS_OTHR(OTHR_type, OTHR_cash_value, OTHR_cash_value_ver, OTHR_owed, OTHR_owed_ver, OTHR_date, OTHR_cash_count, OTHR_SNAP_count, OTHR_HC_count, OTHR_IV_count, OTHR_joint, OTHR_share_ratio)
-
+		If OTHR_type <> "" then 
+			call write_panel_to_MAXIS_OTHR(OTHR_type, OTHR_cash_value, OTHR_cash_value_ver, OTHR_owed, OTHR_owed_ver, OTHR_date, OTHR_cash_count, OTHR_SNAP_count, OTHR_HC_count, OTHR_IV_count, OTHR_joint, OTHR_share_ratio)
+			STATS_manualtime = STATS_manualtime + 16
+		END IF
 		'PARE
-		If PARE_child_1 <> "" then call write_panel_to_MAXIS_PARE(appl_date, reference_number, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
-
+		If PARE_child_1 <> "" then 
+			call write_panel_to_MAXIS_PARE(appl_date, reference_number, PARE_child_1, PARE_child_1_relation, PARE_child_1_verif, PARE_child_2, PARE_child_2_relation, PARE_child_2_verif, PARE_child_3, PARE_child_3_relation, PARE_child_3_verif, PARE_child_4, PARE_child_4_relation, PARE_child_4_verif, PARE_child_5, PARE_child_5_relation, PARE_child_5_verif, PARE_child_6, PARE_child_6_relation, PARE_child_6_verif)
+			STATS_manualtime = STATS_manualtime + 14
+		END IF
 		'ABPS (must do after PARE, because the ABPS function checks PARE for a child list)
-		If abps_supp_coop <> "" then call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
-
+		If abps_supp_coop <> "" then 
+			call write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
+			STATS_manualtime = STATS_manualtime + 45
+		END IF
 		'PBEN 1
-		If PBEN_1_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_1_referal_date, PBEN_1_type, PBEN_1_appl_date, PBEN_1_appl_ver, PBEN_1_IAA_date, PBEN_1_disp)
-
+		If PBEN_1_IAA_date <> "" then 
+			call write_panel_to_MAXIS_PBEN(PBEN_1_referal_date, PBEN_1_type, PBEN_1_appl_date, PBEN_1_appl_ver, PBEN_1_IAA_date, PBEN_1_disp)
+			STATS_manualtime = STATS_manualtime + 25
+		END IF
 		'PBEN 2
-		If PBEN_2_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_2_referal_date, PBEN_2_type, PBEN_2_appl_date, PBEN_2_appl_ver, PBEN_2_IAA_date, PBEN_2_disp)
-
+		If PBEN_2_IAA_date <> "" then 
+			call write_panel_to_MAXIS_PBEN(PBEN_2_referal_date, PBEN_2_type, PBEN_2_appl_date, PBEN_2_appl_ver, PBEN_2_IAA_date, PBEN_2_disp)
+			STATS_manualtime = STATS_manualtime + 25
+		END IF
 		'PBEN 3
-		If PBEN_3_IAA_date <> "" then call write_panel_to_MAXIS_PBEN(PBEN_3_referal_date, PBEN_3_type, PBEN_3_appl_date, PBEN_3_appl_ver, PBEN_3_IAA_date, PBEN_3_disp)
-
+		If PBEN_3_IAA_date <> "" then 
+			call write_panel_to_MAXIS_PBEN(PBEN_3_referal_date, PBEN_3_type, PBEN_3_appl_date, PBEN_3_appl_ver, PBEN_3_IAA_date, PBEN_3_disp)
+			STATS_manualtime = STATS_manualtime + 25
+		END IF
 		'PDED
 		If PDED_wid_deduction <> "" OR _
 			PDED_adult_child_disregard <> "" OR _
@@ -1539,56 +1614,90 @@ For each case_number in case_number_array
 			PDED_other_expense <> "" OR _
 			PDED_shel_spcl_needs <> "" OR _
 			PDED_excess_need <> "" OR _
-			PDED_restaurant_meals <> "" THEN CALL write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
-
+			PDED_restaurant_meals <> "" THEN 
+				CALL write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregard, PDED_wid_disregard, PDED_unea_income_deduction_reason, PDED_unea_income_deduction_value, PDED_earned_income_deduction_reason, PDED_earned_income_deduction_value, PDED_ma_epd_inc_asset_limit, PDED_guard_fee, PDED_rep_payee_fee, PDED_other_expense, PDED_shel_spcl_needs, PDED_excess_need, PDED_restaurant_meals)
+				STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'PREG
-		If PREG_conception_date <> "" then call write_panel_to_MAXIS_PREG(PREG_conception_date, PREG_conception_date_ver, PREG_third_trimester_ver,PREG_due_date, PREG_multiple_birth)
-
+		If PREG_conception_date <> "" then 
+			call write_panel_to_MAXIS_PREG(PREG_conception_date, PREG_conception_date_ver, PREG_third_trimester_ver,PREG_due_date, PREG_multiple_birth)
+			STATS_manualtime = STATS_manualtime + 30
+		END IF
 		'RBIC
-		If rbic_type <> "" then call write_panel_to_MAXIS_RBIC(rbic_type, rbic_start_date, rbic_end_date, rbic_group_1, rbic_retro_income_group_1, rbic_prosp_income_group_1, rbic_ver_income_group_1, rbic_group_2, rbic_retro_income_group_2, rbic_prosp_income_group_2, rbic_ver_income_group_2, rbic_group_3, rbic_retro_income_group_3, rbic_prosp_income_group_3, rbic_ver_income_group_3, rbic_retro_hours, rbic_prosp_hours, rbic_exp_type_1, rbic_exp_retro_1, rbic_exp_prosp_1, rbic_exp_ver_1, rbic_exp_type_2, rbic_exp_retro_2, rbic_exp_prosp_2, rbic_exp_ver_2)
-
+		If rbic_type <> "" then 
+			call write_panel_to_MAXIS_RBIC(rbic_type, rbic_start_date, rbic_end_date, rbic_group_1, rbic_retro_income_group_1, rbic_prosp_income_group_1, rbic_ver_income_group_1, rbic_group_2, rbic_retro_income_group_2, rbic_prosp_income_group_2, rbic_ver_income_group_2, rbic_group_3, rbic_retro_income_group_3, rbic_prosp_income_group_3, rbic_ver_income_group_3, rbic_retro_hours, rbic_prosp_hours, rbic_exp_type_1, rbic_exp_retro_1, rbic_exp_prosp_1, rbic_exp_ver_1, rbic_exp_type_2, rbic_exp_retro_2, rbic_exp_prosp_2, rbic_exp_ver_2)
+			STATS_manualtime = STATS_manualtime + 28
+		END IF
 		'REST
-		If rest_type <> "" then call write_panel_to_MAXIS_REST(rest_type, rest_type_ver, rest_market, rest_market_ver, rest_owed, rest_owed_ver, rest_date, rest_status, rest_joint, rest_share_ratio, rest_agreement_date)
-
+		If rest_type <> "" then 
+			call write_panel_to_MAXIS_REST(rest_type, rest_type_ver, rest_market, rest_market_ver, rest_owed, rest_owed_ver, rest_date, rest_status, rest_joint, rest_share_ratio, rest_agreement_date)
+			STATS_manualtime = STATS_manualtime + 26
+		END IF
 		'SCHL
-		If SCHL_status <> "" then call write_panel_to_MAXIS_SCHL(appl_date, SCHL_status, SCHL_ver, SCHL_type, SCHL_district_nbr, SCHL_kindergarten_start_date, SCHL_grad_date, SCHL_grad_date_ver, SCHL_primary_secondary_funding, SCHL_FS_eligibility_status, SCHL_higher_ed)
-
+		If SCHL_status <> "" then 
+			call write_panel_to_MAXIS_SCHL(appl_date, SCHL_status, SCHL_ver, SCHL_type, SCHL_district_nbr, SCHL_kindergarten_start_date, SCHL_grad_date, SCHL_grad_date_ver, SCHL_primary_secondary_funding, SCHL_FS_eligibility_status, SCHL_higher_ed)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'SECU
-		If secu_type <> "" then call write_panel_to_MAXIS_SECU(secu_type, secu_pol_numb, secu_name, secu_cash_val, secu_date, secu_cash_ver, secu_face_val, secu_withdraw, secu_cash_count, secu_SNAP_count, secu_HC_count, secu_GRH_count, secu_IV_count, secu_joint, secu_share_ratio)
-
+		If secu_type <> "" then 
+			call write_panel_to_MAXIS_SECU(secu_type, secu_pol_numb, secu_name, secu_cash_val, secu_date, secu_cash_ver, secu_face_val, secu_withdraw, secu_cash_count, secu_SNAP_count, secu_HC_count, secu_GRH_count, secu_IV_count, secu_joint, secu_share_ratio)
+			STATS_manualtime = STATS_manualtime + 23
+		END IF
 		'SHEL
-		If SHEL_subsidized <> "" then call write_panel_to_MAXIS_SHEL(SHEL_subsidized, SHEL_shared, SHEL_paid_to, SHEL_rent_retro, SHEL_rent_retro_ver, SHEL_rent_pro, SHEL_rent_pro_ver, SHEL_lot_rent_retro, SHEL_lot_rent_retro_ver, SHEL_lot_rent_pro, SHEL_lot_rent_pro_ver, SHEL_mortgage_retro, SHEL_mortgage_retro_ver, SHEL_mortgage_pro, SHEL_mortgage_pro_ver, SHEL_insur_retro, SHEL_insur_retro_ver, SHEL_insur_pro, SHEL_insur_pro_ver, SHEL_taxes_retro, SHEL_taxes_retro_ver, SHEL_taxes_pro, SHEL_taxes_pro_ver, SHEL_room_retro, SHEL_room_retro_ver, SHEL_room_pro, SHEL_room_pro_ver, SHEL_garage_retro, SHEL_garage_retro_ver, SHEL_garage_pro, SHEL_garage_pro_ver, SHEL_subsidy_retro, SHEL_subsidy_retro_ver, SHEL_subsidy_pro, SHEL_subsidy_pro_ver)
-
+		If SHEL_subsidized <> "" then 
+			call write_panel_to_MAXIS_SHEL(SHEL_subsidized, SHEL_shared, SHEL_paid_to, SHEL_rent_retro, SHEL_rent_retro_ver, SHEL_rent_pro, SHEL_rent_pro_ver, SHEL_lot_rent_retro, SHEL_lot_rent_retro_ver, SHEL_lot_rent_pro, SHEL_lot_rent_pro_ver, SHEL_mortgage_retro, SHEL_mortgage_retro_ver, SHEL_mortgage_pro, SHEL_mortgage_pro_ver, SHEL_insur_retro, SHEL_insur_retro_ver, SHEL_insur_pro, SHEL_insur_pro_ver, SHEL_taxes_retro, SHEL_taxes_retro_ver, SHEL_taxes_pro, SHEL_taxes_pro_ver, SHEL_room_retro, SHEL_room_retro_ver, SHEL_room_pro, SHEL_room_pro_ver, SHEL_garage_retro, SHEL_garage_retro_ver, SHEL_garage_pro, SHEL_garage_pro_ver, SHEL_subsidy_retro, SHEL_subsidy_retro_ver, SHEL_subsidy_pro, SHEL_subsidy_pro_ver)
+			STATS_manualtime = STATS_manualtime + 19
+		END IF
 		'SIBL
-		If SIBL_group_1 <> "" then call write_panel_to_MAXIS_SIBL(SIBL_group_1, SIBL_group_2, SIBL_group_3)
-
+		If SIBL_group_1 <> "" then 
+			call write_panel_to_MAXIS_SIBL(SIBL_group_1, SIBL_group_2, SIBL_group_3)
+			STATS_manualtime = STATS_manualtime + 9
+		END IF
 		'SPON
-		If SPON_type <> "" then call write_panel_to_MAXIS_SPON(SPON_type, SPON_ver, SPON_name, SPON_state)
-
+		If SPON_type <> "" then 
+			call write_panel_to_MAXIS_SPON(SPON_type, SPON_ver, SPON_name, SPON_state)
+			STATS_manualtime = STATS_manualtime + 27
+		END IF
 		'STEC
-		If STEC_type_1 <> "" then call write_panel_to_MAXIS_STEC(STEC_type_1, STEC_amt_1, STEC_actual_from_thru_months_1, STEC_ver_1, STEC_earmarked_amt_1, STEC_earmarked_from_thru_months_1, STEC_type_2, STEC_amt_2, STEC_actual_from_thru_months_2, STEC_ver_2, STEC_earmarked_amt_2, STEC_earmarked_from_thru_months_2)
-
+		If STEC_type_1 <> "" then 
+			call write_panel_to_MAXIS_STEC(STEC_type_1, STEC_amt_1, STEC_actual_from_thru_months_1, STEC_ver_1, STEC_earmarked_amt_1, STEC_earmarked_from_thru_months_1, STEC_type_2, STEC_amt_2, STEC_actual_from_thru_months_2, STEC_ver_2, STEC_earmarked_amt_2, STEC_earmarked_from_thru_months_2)
+			STATS_manualtime = STATS_manualtime + 30
+		END IF
 		'STIN
-		If STIN_type_1 <> "" then call write_panel_to_MAXIS_STIN(STIN_type_1, STIN_amt_1, STIN_avail_date_1, STIN_months_covered_1, STIN_ver_1, STIN_type_2, STIN_amt_2, STIN_avail_date_2, STIN_months_covered_2, STIN_ver_2)
-
+		If STIN_type_1 <> "" then 
+			call write_panel_to_MAXIS_STIN(STIN_type_1, STIN_amt_1, STIN_avail_date_1, STIN_months_covered_1, STIN_ver_1, STIN_type_2, STIN_amt_2, STIN_avail_date_2, STIN_months_covered_2, STIN_ver_2)
+			STATS_manualtime = STATS_manualtime + 33
+		END IF
 		'STWK
-		If STWK_empl_name <> "" then call write_panel_to_MAXIS_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_stop_date_verif, STWK_inc_stop_date, STWK_refused_empl_yn, STWK_vol_quit, STWK_ref_empl_date, STWK_gc_cash, STWK_gc_grh, STWK_gc_fs, STWK_fs_pwe, STWK_maepd_ext)
-
+		If STWK_empl_name <> "" then 
+			call write_panel_to_MAXIS_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_stop_date_verif, STWK_inc_stop_date, STWK_refused_empl_yn, STWK_vol_quit, STWK_ref_empl_date, STWK_gc_cash, STWK_gc_grh, STWK_gc_fs, STWK_fs_pwe, STWK_maepd_ext)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'UNEA 1
-		If UNEA_1_inc_type <> "" then call write_panel_to_MAXIS_UNEA("01", UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
-
+		If UNEA_1_inc_type <> "" then 
+			call write_panel_to_MAXIS_UNEA("01", UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
+			STATS_manualtime = STATS_manualtime + 33
+		END IF
 		'UNEA 2
-		If UNEA_2_inc_type <> "" then call write_panel_to_MAXIS_UNEA("02", UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
-
+		If UNEA_2_inc_type <> "" then 
+			call write_panel_to_MAXIS_UNEA("02", UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
+			STATS_manualtime = STATS_manualtime + 30
+		END IF
 		'UNEA 3
-		If UNEA_3_inc_type <> "" then call write_panel_to_MAXIS_UNEA("03", UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
-
+		If UNEA_3_inc_type <> "" then 
+			call write_panel_to_MAXIS_UNEA("03", UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
+			STATS_manualtime = STATS_manualtime + 30
+		END IF
 		'WKEX
-		IF WKEX_program <> "" THEN CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
-
+		IF WKEX_program <> "" THEN 
+			CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
+			STATS_manualtime = STATS_manualtime + 20
+		END IF
 		'WREG
-		If WREG_fs_pwe <> "" OR WREG_ga_basis <> "" then call write_panel_to_MAXIS_WREG(WREG_fs_pwe, WREG_fset_status, WREG_defer_fs, WREG_fset_orientation_date, WREG_fset_sanction_date, WREG_num_sanctions, WREG_abawd_status, WREG_ga_basis)
-
+		If WREG_fs_pwe <> "" OR WREG_ga_basis <> "" then 
+			call write_panel_to_MAXIS_WREG(WREG_fs_pwe, WREG_fset_status, WREG_defer_fs, WREG_fset_orientation_date, WREG_fset_sanction_date, WREG_num_sanctions, WREG_abawd_status, WREG_ga_basis)
+			STATS_manualtime = STATS_manualtime + 15
+		END IF
 	Next
 
 	DO
@@ -1791,7 +1900,10 @@ For each case_number in case_number_array
 
 			'---Below are all the panels that need to be updated for each benefit month.
 			'BUSI
-			If BUSI_type <> "" then call write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
+			If BUSI_type <> "" then 
+				call write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est)
+				STATS_manualtime = STATS_manualtime + 60
+			END IF
 			'COEX
 			IF COEX_support_retro <> "" AND _
 				COEX_support_prosp <> "" AND _
@@ -1809,20 +1921,47 @@ For each case_number in case_number_array
 				COEX_HC_expense_support <> "" AND _
 				COEX_HC_expense_alimony <> "" AND _
 				COEX_HC_expense_tax_dep <> "" AND _
-				COEX_HC_expense_other <> "" THEN CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif, COEX_change_in_circumstances, COEX_HC_expense_support, COEX_HC_expense_alimony, COEX_HC_expense_tax_dep, COEX_HC_expense_other)
+				COEX_HC_expense_other <> "" THEN 
+					CALL write_panel_to_MAXIS_COEX(COEX_support_retro, COEX_support_prosp, COEX_support_verif, COEX_alimony_retro, COEX_alimony_prosp, COEX_alimony_verif, COEX_tax_dep_retro, COEX_tax_dep_prosp, COEX_tax_dep_verif, COEX_other_retro, COEX_other_prosp, COEX_other_verif, COEX_change_in_circumstances, COEX_HC_expense_support, COEX_HC_expense_alimony, COEX_HC_expense_tax_dep, COEX_HC_expense_other)
+					STATS_manualtime = STATS_manualtime + 20
+			END IF			
 			'DCEX
-			If DCEX_provider <> "" then call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
+			If DCEX_provider <> "" then 
+				call write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCEX_child_number1, DCEX_child_number1_ver, DCEX_child_number1_retro, DCEX_child_number1_pro, DCEX_child_number2, DCEX_child_number2_ver, DCEX_child_number2_retro, DCEX_child_number2_pro, DCEX_child_number3, DCEX_child_number3_ver, DCEX_child_number3_retro, DCEX_child_number3_pro, DCEX_child_number4, DCEX_child_number4_ver, DCEX_child_number4_retro, DCEX_child_number4_pro, DCEX_child_number5, DCEX_child_number5_ver, DCEX_child_number5_retro, DCEX_child_number5_pro, DCEX_child_number6, DCEX_child_number6_ver, DCEX_child_number6_retro, DCEX_child_number6_pro)
+				STATS_manualtime = STATS_manualtime + 20
+			END IF
 			'JOBS
-			IF JOBS_1_inc_type <> "" THEN call write_panel_to_MAXIS_JOBS("01", JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
-			If JOBS_2_inc_type <> "" then call write_panel_to_MAXIS_JOBS("02", JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
-			If JOBS_3_inc_type <> "" then call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
+			IF JOBS_1_inc_type <> "" THEN 
+				call write_panel_to_MAXIS_JOBS("01", JOBS_1_inc_type, JOBS_1_inc_verif, JOBS_1_employer_name, JOBS_1_inc_start, JOBS_1_wkly_hrs, JOBS_1_hrly_wage, JOBS_1_pay_freq)
+				STATS_manualtime = STATS_manualtime + 50
+			END IF
+			If JOBS_2_inc_type <> "" then 
+				call write_panel_to_MAXIS_JOBS("02", JOBS_2_inc_type, JOBS_2_inc_verif, JOBS_2_employer_name, JOBS_2_inc_start, JOBS_2_wkly_hrs, JOBS_2_hrly_wage, JOBS_2_pay_freq)
+				STATS_manualtime = STATS_manualtime + 50
+			END IF
+			If JOBS_3_inc_type <> "" then 
+				call write_panel_to_MAXIS_JOBS("03", JOBS_3_inc_type, JOBS_3_inc_verif, JOBS_3_employer_name, JOBS_3_inc_start, JOBS_3_wkly_hrs, JOBS_3_hrly_wage, JOBS_3_pay_freq)
+				STATS_manualtime = STATS_manualtime + 50
+			END IF
 			'UNEA
-			If UNEA_1_inc_type <> "" then call write_panel_to_MAXIS_UNEA("01", UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
-			If UNEA_2_inc_type <> "" then call write_panel_to_MAXIS_UNEA("02", UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
-			If UNEA_3_inc_type <> "" then call write_panel_to_MAXIS_UNEA("03", UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
+			If UNEA_1_inc_type <> "" then 
+				call write_panel_to_MAXIS_UNEA("01", UNEA_1_inc_type, UNEA_1_inc_verif, UNEA_1_claim_suffix, UNEA_1_start_date, UNEA_1_pay_freq, UNEA_1_inc_amount, SSN_first, SSN_mid, SSN_last)
+				STATS_manualtime = STATS_manualtime + 33
+			END IF			
+			If UNEA_2_inc_type <> "" then 
+				call write_panel_to_MAXIS_UNEA("02", UNEA_2_inc_type, UNEA_2_inc_verif, UNEA_2_claim_suffix, UNEA_2_start_date, UNEA_2_pay_freq, UNEA_2_inc_amount, SSN_first, SSN_mid, SSN_last)
+				STATS_manualtime = STATS_manualtime + 33
+			END IF			
+			If UNEA_3_inc_type <> "" then 
+				call write_panel_to_MAXIS_UNEA("03", UNEA_3_inc_type, UNEA_3_inc_verif, UNEA_3_claim_suffix, UNEA_3_start_date, UNEA_3_pay_freq, UNEA_3_inc_amount, SSN_first, SSN_mid, SSN_last)
+				STATS_manualtime = STATS_manualtime + 33
+			END IF			
 			'WKEX
-			IF WKEX_program <> "" THEN CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
-		NEXT
+			IF WKEX_program <> "" THEN 
+				CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
+				STATS_manualtime = STATS_manualtime + 20
+			END IF
+			NEXT
 	LOOP UNTIL benefit_month = future_month
 	'Gets back to self
 	back_to_self
@@ -1879,6 +2018,7 @@ FOR EACH case_number IN case_number_array
 				EMWriteScreen "MFSM", 20, 71
 				transmit
 				EMWriteScreen "APP", 20, 71
+				STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
 				transmit
 				DO
 					transmit
@@ -1963,6 +2103,7 @@ FOR EACH case_number IN case_number_array
 					transmit
 					DO
 					EMWriteScreen "APP", 20, 71
+					STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
 					transmit
 						EMReadScreen not_allowed, 11, 24, 18
 						EMReadScreen locked_by_background, 6, 24, 19
@@ -2065,6 +2206,7 @@ FOR EACH case_number IN case_number_array
 					EMWriteScreen "1", 17, 54
 					EMWriteScreen "__", 18, 54
 					EMWriteScreen "APP", 20, 70
+					STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
 					transmit
 
 					EMReadScreen error_message, 20, 24, 2
@@ -2189,6 +2331,7 @@ FOR EACH case_number IN case_number_array
 
 			EMWriteScreen "1", 15, 53
 			EMWriteScreen "APP", 20, 70
+			STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
 			transmit
 			DO 'getting REI screen and selecting Y
 				total_package = ""
@@ -2275,6 +2418,7 @@ FOR EACH case_number IN case_number_array
 							EMReadScreen FSSM, 4, 3, 54
 						LOOP UNTIL FSSM = "FSSM"
 						EMWriteScreen "APP", 19, 70
+						STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
 						transmit
 						CALL find_variable("THIS IS AN EXPEDITED ", expedited_status, 4)
 						ups_delivery_confirmation = ""  'resetting variable
@@ -2330,6 +2474,7 @@ FOR EACH case_number IN case_number_array
 					not_allowed = ""
 					locked_by_background = ""
 					EMWriteScreen "APP", 19, 70
+					STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
@@ -2565,6 +2710,7 @@ FOR EACH case_number IN case_number_array
 				LOOP UNTIL bhsm = "BHSM" OR mesm = "MESM"
 
 				EMWriteScreen "APP", 20, 71
+				STATS_manualtime = STATS_manualtime + 90    'adding manualtime for approval processing
 				transmit
 
 				'=====This portion of the script selects the possible HC programs and places an X on all of them for approval.=====
@@ -2661,6 +2807,8 @@ FOR EACH case_number IN case_number_array
 	End if
 NEXT
 
+STATS_counter = STATS_counter - 1 'removing extra counted case as it starts at 1.
+msgbox stats_counter &"*"& STATS_manualtime & "=" & stats_counter * STATS_manualtime
 
 If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
 script_end_procedure("Success! Cases made and approved, per your request.")
