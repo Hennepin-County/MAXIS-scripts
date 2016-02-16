@@ -50,14 +50,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================	
-STATS_counter = 1			 'sets the stats counter at one	
-STATS_manualtime = 304			 'manual run time in seconds	
-STATS_denomination = "C"		 'C is for each case	
-'END OF stats block==============================================================================================	
-	
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1			 'sets the stats counter at one
+STATS_manualtime = 304			 'manual run time in seconds
+STATS_denomination = "C"		 'C is for each case
+'END OF stats block==============================================================================================
+
 'Declaring variables
-'DIM month, use_date, num_of_days, next_month, month_array, month_to_use
+'DIM month, full_date_to_display, num_of_days, next_month, available_dates_array, month_to_use
 'DIM first_appointment_listbox, olAppointmentItem, olRecursDaily
 'DIM appointment_length_listbox, last_appointment_listbox, time_array_30_min
 'DIM alt_appointment_length_listbox, alt_first_appointment_listbox
@@ -73,7 +73,7 @@ STATS_denomination = "C"		 'C is for each case
 'DIM appt_time_list, appt_subject, appt_start_time, appt_reminder
 'DIM current_year, current_worker, current_month, y, i, x, appt_year
 'DIM MAXIS_row, case_number, excel_row, excel, revs_year, revs_month
-'DIM alt_last_appointment_listbox, calendar_dlg, SNAP_popup_check, SNAP_status
+'DIM alt_last_appointment_listbox, calendar_dialog, SNAP_popup_check, SNAP_status
 'DIM cash_status, last_page_check, HC_status, add_case_info_to_Excel, CSR_mo
 'DIM CSR_yr, recert_mo, recert_status, recert_yr, appointment_time
 'DIM appointment_time_for_comparison, appointment_time_for_viewing, appointments, j
@@ -86,35 +86,47 @@ call convert_array_to_droplist_items(time_array_30_min, time_array)					'Schedul
 
 'Custom functions (should merge with FuncLib when tested/confirmed to work)---------------------------------------------------
 'Function to create dynamic calendar out of checkboxes
-FUNCTION create_calendar(month_to_use, month_array)
+Function create_dynamic_calendar_dialog(month_to_use, available_dates_array)
 	'Generating a calendar
 	'Determining the number of days in the calendar month.
-	next_month = DateAdd("M", 1, month_to_use)
-	next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
-	num_of_days = DatePart("D", (DateAdd("D", -1, next_month)))
+	next_month = DateAdd("M", 1, month_to_use)												'This is the next calendar month (1 month ahead of the date in month_to_use)
+	next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)			'Converts whatever the next_month variable is to a MM/01/YYYY format
+	num_of_days = DatePart("D", (DateAdd("D", -1, next_month)))								'Determines the number of days in a month by using DatePart to get the day of the last day of the month, and just using the day variable gives us a total
 
-	ReDim month_array(num_of_days, 0)
+	'Redeclares the available dates array to be sized appropriately (with the right amount of dates) and another dimension for whether-or-not it was selected
+	ReDim available_dates_array(num_of_days, 0)
 
-	'=====Another dialog=====
-	BeginDialog calendar_dlg, 0, 0, 280, 190, month_to_use
+	'Actually displays the dialog
+	BeginDialog calendar_dialog, 0, 0, 280, 190, month_to_use
 		Text 5, 10, 270, 25, "Please check the days to schedule appointments. You cannot schedule appointments prior to the 8th."
 		Text 5, 35, 270, 25, "Please note that Auto-Close Notices are sent on the 16th. To reduce confusion, you may want to schedule before the 16th."
-		Text 5, 65, 265, 10, ("Check appointment dates in " & MonthName(DatePart("M", month_to_use)) & ", " & DatePart("YYYY", month_to_use) & ", for " & MonthName(DatePart("M", next_month)) & ", " & DatePart("YYYY", next_month) & ", recertifications.")
-		y = 85
-		FOR i = 1 TO num_of_days
-			use_date = (DatePart("M", month_to_use) & "/" & i & "/" & DatePart("YYYY", month_to_use))
-			x = 15 + (40 * (WeekDay(use_date) - 1))
-			IF WeekDay(use_date) = 1 AND i <> 1 THEN y = y + 15
-			IF WeekDay(use_date) = 1 OR WeekDay(use_date) = 7 THEN
-				month_array(i, 0) = 0
+		'This next part`creates a line similar to "Check appointment dates in February 2016 for March 2016 recertifications."
+		'														The month name of month_to_use					The year of month_to_use					Next month name									Next month year
+		Text 5, 65, 265, 10, ("Check appointment dates in " & MonthName(DatePart("M", month_to_use)) & " " & DatePart("YYYY", month_to_use) & " for " & MonthName(DatePart("M", next_month)) & " " & DatePart("YYYY", next_month) & " recertifications.")
+
+		'Defining the vertical position starting point for the for...next which displays dates in the dialog
+		vertical_position = 85
+
+		'This for...next displays dates in the dialog, and has checkboxes for available dates (defined in-code as dates before the 8th)
+		for day_to_display = 1 to num_of_days																						'From first day of month to last day of month...
+
+			full_date_to_display = (DatePart("M", month_to_use) & "/" & day_to_display & "/" & DatePart("YYYY", month_to_use))		'Determines the full date to display in the dialog. It needs the full date to determine the day-of-week (we obviously don't want weekends)
+			horizontal_position = 15 + (40 * (WeekDay(full_date_to_display) - 1))													'horizontal position of this is the weekday numeric value (1-7) * 40, minus 1, and plus 15 pixels
+			IF WeekDay(full_date_to_display) = vbSunday AND day_to_display <> 1 THEN vertical_position = vertical_position + 15		'If the day of the week isn't Sunday and the day isn't first of the month, kick the vertical position up another 15 pixels
+
+			'If the weekday is a Sunday or Saturday, then we'll uncheck it. Otherwise it's checked.
+			IF WeekDay(full_date_to_display) = vbSunday OR WeekDay(full_date_to_display) = vbSaturday THEN
+				available_dates_array(day_to_display, 0) = unchecked
 			Else
-				month_array(i, 0) = 1
+				available_dates_array(day_to_display, 0) = checked
 			End If
-			IF i < 8 THEN
-				Text x, y, 30, 10, " x " & i
-				month_array(i, 0) = o 'unchecking so selections cannot be made for DD 01-07
+
+			'This blocks out anything that's an unavailable date, currently defined as any date before the 8th. Other dates display as a checkbox.
+			IF day_to_display < 8 THEN
+				Text horizontal_position, vertical_position, 30, 10, " x " & day_to_display
+				available_dates_array(day_to_display, 0) = o 'unchecking so selections cannot be made for DD 01-07
 			ELSE
-				CheckBox x, y, 35, 10, i, month_array(i, 0)
+				CheckBox horizontal_position, vertical_position, 35, 10, day_to_display, available_dates_array(day_to_display, 0)
 			END IF
 		NEXT
 		ButtonGroup ButtonPressed
@@ -122,8 +134,8 @@ FUNCTION create_calendar(month_to_use, month_array)
 		CancelButton 225, 170, 50, 15
 	EndDialog
 
-	Dialog calendar_dlg
-		IF ButtonPressed = 0 THEN stopscript
+	Dialog calendar_dialog
+	IF ButtonPressed = cancel THEN stopscript
 END FUNCTION
 
 FUNCTION create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
@@ -260,8 +272,8 @@ next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
 num_of_days = DatePart("D", (DateAdd("D", -1, next_month)))
 
 'Generating the calendar
-ReDim month_array(num_of_days, 0)
-CALL create_calendar(calendar_month, month_array)
+ReDim available_dates_array(num_of_days, 0)
+CALL create_dynamic_calendar_dialog(calendar_month, available_dates_array)
 
 'Determining the appropriate times to set appointments.
 DO
@@ -507,7 +519,7 @@ DO 'Loops until there are no more cases in the Excel list
 			END If
 		END IF
 	END IF
-	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter	
+	STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
 	excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list of cases to check for recert is complete
 
@@ -520,7 +532,7 @@ alt_appointment_length_listbox = left(alt_appointment_length_listbox, 2)
 excel_row = 2	'Declaring variable prior to the next for...next loop
 
 FOR i = 1 to num_of_days
-	IF month_array(i, 0) = 1 THEN		'These are the dates that the user has determined the agency/unit/worker
+	IF available_dates_array(i, 0) = 1 THEN		'These are the dates that the user has determined the agency/unit/worker
 		appointment_time = appt_month & "/" & i & "/" & appt_year & " " & first_appointment_listbox		'putting together the date and time values.
 		DO
 			appointment_time = DateAdd("N", 0, appointment_time)	'Putting the date in a MM/DD/YYYY HH:MM format. It just looks nicer.
