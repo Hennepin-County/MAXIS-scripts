@@ -47,7 +47,7 @@ END IF
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 180                               'manual run time in seconds
-STATS_denomination = "I"       'I is for each Item
+STATS_denomination = "C"       'C is for each Case
 'END OF stats block==============================================================================================
 
 'Dialogs
@@ -326,5 +326,5 @@ IF privileged_array <> "" THEN
 	MsgBox "The script could not generate a memo for the following cases..." & vbCr & privileged_array
 END IF
 
-STATS_counter = STATS_county - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")
