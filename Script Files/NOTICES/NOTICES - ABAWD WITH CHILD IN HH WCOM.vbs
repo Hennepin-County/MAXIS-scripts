@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - ABAWD WITH CHILD IN HH WCOM.vbs"
+name_of_script = "NOTICES - ABAWD WITH CHILD IN HH WCOM.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================

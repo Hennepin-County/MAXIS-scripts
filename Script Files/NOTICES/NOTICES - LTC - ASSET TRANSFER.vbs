@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - 12 MO CONTACT.vbs"
+name_of_script = "NOTICES - LTC - ASSET TRANSFER.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -46,50 +46,36 @@ END IF
 
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
+STATS_manualtime = 70                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 
-'DIALOG
-BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
-  Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 95, 0, 60, 15, case_number
-  Text 5, 25, 70, 10, "Sign your case note:"
-  EditBox 80, 20, 75, 15, worker_sig
-  ButtonGroup ButtonPressed
-    OkButton 25, 40, 50, 15
-    CancelButton 85, 40, 50, 15
+BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 82, "LTC asset transfer dialog"
+  EditBox 35, 0, 85, 15, client
+  EditBox 35, 20, 85, 15, spouse
+  EditBox 70, 40, 50, 15, renewal_footer_month_year
+  ButtonGroup LTC_asset_transfer_dialog_ButtonPressed
+    OkButton 10, 60, 50, 15
+    CancelButton 65, 60, 50, 15
+  Text 5, 5, 30, 10, "Client:"
+  Text 5, 25, 30, 10, "Spouse:"
+  Text 5, 45, 65, 10, "ER date (MM/YY):"
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'grabbing case number & connecting to MAXIS
+'The script------------------------
+'connecting to MAXIS
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Do
+  Dialog LTC_asset_transfer_dialog
+  If LTC_asset_transfer_dialog_ButtonPressed = 0 then stopscript
+  EMSendKey "<enter>"
+  EMWaitReady 1, 1
+  EMReadScreen WCOM_input_check, 27, 2, 28
+  If WCOM_input_check <> "Worker Comment Input Screen" and WCOM_input_check <> "  Client Memo Input Screen " then MsgBox "You need to be on a notice in SPEC/WCOM or SPEC/MEMO for this to work. Please try again."
+Loop until WCOM_input_check = "Worker Comment Input Screen" or WCOM_input_check = "  Client Memo Input Screen "
 
-dialog case_number_dialog
-cancel_confirmation
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(True)
-
-'THE MEMO----------------------------------------------------------------------------------------------------
-call navigate_to_MAXIS_screen("spec", "memo")
-PF5
-EMReadScreen MEMO_edit_mode_check, 26, 2, 28
-If MEMO_edit_mode_check <> "Notice Recipient Selection" then
-  MsgBox "You do not appear to be able to make a MEMO for this case. Are you in inquiry? Is this case out of county? Check these items and try again."
-  Stopscript
-End if
-EMWriteScreen "x", 5, 10
-transmit
-Call write_variable_in_SPEC_MEMO ("************************************************************")
-Call write_variable_in_SPEC_MEMO ("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
-Call write_variable_in_SPEC_MEMO ("************************************************************")
-PF4
-
-'THE CASE NOTE
-call navigate_to_MAXIS_screen("case", "note")
-PF9
-Call write_variable_in_CASE_NOTE("Sent 12 month contact letter via SPEC/MEMO on " & date & ". -" & worker_sig)
+EMSendKey "<home>" + "The ownership of " + client + "'s assets must be transferred to " + spouse + " to avoid having them counted in future eligibility determinations. You are encouraged to do this as soon as possible. This transfer of assets must be done before " + client + "'s first annual renewal for " + renewal_footer_month_year + ". Verification of the transfer can be provided at any time. " + "<newline>" + "<newline>"
+EMSendKey "At the first annual renewal in " + renewal_footer_month_year + " the value of all assets that list " + client + " as an owner or co-owner will be applied towards the Medical Assistance Asset limit of $3,000.00.  If the total value of all countable assets for " + client + " is more than $3,000.00, Medical Assistance may be closed for " + renewal_footer_month_year + "."
 
 script_end_procedure("")
+NOTICES

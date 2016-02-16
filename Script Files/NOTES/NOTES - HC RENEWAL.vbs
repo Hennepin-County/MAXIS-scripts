@@ -229,4 +229,4 @@ If MADE_check = checked then call write_variable_in_case_note("* Emailed MADE.")
 If MAEPD_premium <> "" or MADE_check = checked then call write_variable_in_case_note("---")		'Does this for MAEPD <> blank because if it's blank and there's no MADE_check, it means there's nothing in this section after the ---, and we don't want two in a row now, do we?
 call write_variable_in_case_note(worker_signature)
 
-script_end_procedure("")
+call script_end_procedure("Success! Remember to update MMIS.")
