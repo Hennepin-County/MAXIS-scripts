@@ -473,13 +473,6 @@ script_array_M_to_Q(script_num).description				= "NEW 02/2016!!! Template for no
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_M_to_Q(script_num).script_name 			= "Mileage reimbursement request"
-script_array_M_to_Q(script_num).file_name				= "NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs"
-script_array_M_to_Q(script_num).description				= "Template for actions taken on medical mileage reimbursements."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
-Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MNsure - Documents requested"
 script_array_M_to_Q(script_num).file_name				= "NOTES - MNSURE - DOCUMENTS REQUESTED.vbs"
 script_array_M_to_Q(script_num).description				= "Template for when MNsure documents have been requested."
