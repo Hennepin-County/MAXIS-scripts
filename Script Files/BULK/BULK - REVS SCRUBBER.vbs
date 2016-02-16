@@ -723,6 +723,27 @@ If developer_mode = true Then
 		MsgBox "Dail: ~*~*~CLIENT HAD RECERT INTERVIEW APPT AT " & interview_time & ". IF MISSED SEND NOMI." & vbNewLine &_
 				"tikl date: " & tikl_date
 
+		'adding appointment time and date to outlook calendar if requested by worker
+		IF outlook_calendar_check = 1 THEN
+			appt_date_for_outlook = DatePart("M", interview_time) & "/" & DatePart("D", interview_time) & "/" & DatePart("YYYY", interview_time)
+			appt_time_for_outlook = DatePart("H", interview_time) & ":" & DatePart("N", interview_time)
+			IF DatePart("N", interview_time) = 0 THEN appt_time_for_outlook = DatePart("H", interview_time) & ":00"
+			appt_end_time_for_outlook = DateAdd("N", appointment_length_listbox, interview_time)
+			appt_end_time_for_outlook = DatePart("H", appt_end_time_for_outlook) & ":" & DatePart("N", appt_end_time_for_outlook)
+			IF DatePart("N", interview_time) = 0 THEN appt_end_time_for_outlook = DatePart("H", appt_end_time_for_outlook) & ":00"
+			appointment_subject = "SNAP RECERT"
+			appointment_body = "Case Number: " & case_number
+			IF phone_number = "            " THEN
+				appointment_location = "No phone number in MAXIS as of " & date & "."
+			ELSE
+				appointment_location = "Phone: " & phone_number
+			END IF
+			appointment_reminder = 5	'5 minutes
+			appointment_category = "Recertification Interview"
+			'using the variables created above to generate the Outlook Appointment from the custom function.
+			CALL create_outlook_appointment(appt_date_for_outlook, appt_time_for_outlook, appt_end_time_for_outlook, appointment_subject, appointment_body, appointment_location, appointment_reminder, appointment_category)
+		END IF
+
 		excel_row = excel_row + 1
 
 	LOOP until objExcel.cells(excel_row, case_number_col).value = "" or objExcel.cells(excel_row, interview_time_col).value = "SKIPPED" 'If this was skipped it needs to stop here
@@ -866,7 +887,7 @@ Else    'if worker is actually running the script it will do this
 			ELSE
 				appointment_location = "Phone: " & phone_number
 			END IF
-			appointment_reminder = True
+			appointment_reminder = 5	'5 minutes
 			appointment_category = "Recertification Interview"
 			'using the variables created above to generate the Outlook Appointment from the custom function.
 			CALL create_outlook_appointment(appt_date_for_outlook, appt_time_for_outlook, appt_end_time_for_outlook, appointment_subject, appointment_body, appointment_location, appointment_reminder, appointment_category)
