@@ -1,7 +1,7 @@
 contact_phone_number = "UUDDLRLRBA"
-worker_number_editbox = "X127EJ6"
+worker_number_editbox = "X127EJ6, X127EJ3"
 worker_signature = "VKC"
-max_reviews_per_worker = "10"
+max_reviews_per_worker = "1"
 
 'OPTION EXPLICIT
 'STATS GATHERING----------------------------------------------------------------------------------------------------
@@ -85,8 +85,9 @@ appt_time_list = "15 mins"+chr(9)+"30 mins"+chr(9)+"45 mins"+chr(9)+"60 mins"		'
 call convert_array_to_droplist_items(time_array_30_min, time_array)					'Schedules time blocks in 30 minute increments
 
 'CONSTANTS WE LIKE--------------------------------------------------------------
-const case_number_col 		= 1
-const interview_time_col 	= 2
+const worker_number_col 	= 1
+const case_number_col 		= 2
+const interview_time_col 	= 3
 const privileged_case_col	= 5
 
 'Custom functions (should merge with FuncLib when tested/confirmed to work)---------------------------------------------------
@@ -378,6 +379,8 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'formatting excel file with columns for case number and interview date/time
+objExcel.cells(1, worker_number_col).value 			= "x1 number"
+objExcel.Cells(1, worker_number_col).Font.Bold 		= TRUE
 objExcel.cells(1, case_number_col).value 			= "CASE NUMBER"
 objExcel.Cells(1, case_number_col).Font.Bold 		= TRUE
 objExcel.Cells(1, interview_time_col).value 		= "Interview Date & Time"
@@ -418,60 +421,78 @@ EMWriteScreen revs_month, 20, 55
 EMWriteScreen revs_year, 20, 58
 transmit
 
-'<<<<<<<<<<<<TEMP
-worker_number = worker_number_editbox
+worker_number_array = split(worker_number_editbox, ",")
 
-'Checking to see if the worker running the script is the the worker selected, if not it will enter the selected worker's number
-EMReadScreen current_worker, 7, 21, 6
-IF UCASE(current_worker) <> UCASE(worker_number) THEN
-	EMWriteScreen UCASE(worker_number), 21, 6
-	transmit
-END IF
+excel_row = 2	'Declaring variable prior to do...loops
 
-'Grabbing case numbers from REVS for requested worker
-Excel_row = 2	'Declaring variable prior to do...loops
-DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
-	MAXIS_row = 7	'Setting or resetting this to look at the top of the list
-	DO		'All of this loops until MAXIS_row = 19
-		'Reading case information (case number, SNAP status, and cash status)
-		EMReadScreen case_number, 8, MAXIS_row, 6
-		EMReadScreen SNAP_status, 1, MAXIS_row, 45
-		EMReadScreen cash_status, 1, MAXIS_row, 34
+For each worker_number in worker_number_array
 
-		'Navigates though until it runs out of case numbers to read
-		IF case_number = "        " then exit do
+	'Trims any spaces off the worker_number
+	worker_number = trim(worker_number)
 
-		'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
-		If cash_status = "-" 	then cash_status = ""
-		If SNAP_status = "-" 	then SNAP_status = ""
-		If HC_status = "-" 		then HC_status = ""
+	'Checking to see if the worker running the script is the the worker selected, if not it will enter the selected worker's number
+	EMReadScreen current_worker, 7, 21, 6
+	IF UCASE(current_worker) <> UCASE(worker_number) THEN
+		EMWriteScreen UCASE(worker_number), 21, 6
+		transmit
+	END IF
 
-		'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
-		If trim(SNAP_status) = "N" or trim(SNAP_status) = "I" or trim(SNAP_status) = "U" then add_case_info_to_Excel = True
-		If trim(cash_status) = "N" or trim(cash_status) = "I" or trim(cash_status) = "U" then add_case_info_to_Excel = True
+	'Grabbing case numbers from REVS for requested worker
+	reviews_total = 0	'Sets this to 0 for the following do...loop. It'll exit once it's hit the reviews cap
 
-		'Adding the case to Excel
-		If add_case_info_to_Excel = True then
-			ObjExcel.Cells(excel_row, case_number_col).value = case_number
-			excel_row = excel_row + 1
-		End if
+	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
+		MAXIS_row = 7	'Setting or resetting this to look at the top of the list
+		DO		'All of this loops until MAXIS_row = 19
+			'Reading case information (case number, SNAP status, and cash status)
+			EMReadScreen case_number, 8, MAXIS_row, 6
+			EMReadScreen SNAP_status, 1, MAXIS_row, 45
+			EMReadScreen cash_status, 1, MAXIS_row, 34
 
-		'On the next loop it must look to the next row
-		MAXIS_row = MAXIS_row + 1
+			'Navigates though until it runs out of case numbers to read
+			IF case_number = "        " then exit do
 
-		'Clearing variables before next loop
-		add_case_info_to_Excel = ""
-		case_number = ""
-	Loop until MAXIS_row = 19		'Last row in REPT/REVS
+			'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
+			If cash_status = "-" 	then cash_status = ""
+			If SNAP_status = "-" 	then SNAP_status = ""
+			If HC_status = "-" 		then HC_status = ""
 
-	'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
-	PF8
-	EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-Loop until last_page_check = "THIS IS THE LAST PAGE"
+			'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
+			If ( ( trim(SNAP_status) = "N" or trim(SNAP_status) = "I" or trim(SNAP_status) = "U" ) or ( trim(cash_status) = "N" or trim(cash_status) = "I" or trim(cash_status) = "U" ) ) and reviews_total <= max_reviews_per_worker then
+				add_case_info_to_Excel = True
+				reviews_total = reviews_total + 1
+			End if
+
+			'Adding the case to Excel
+			If add_case_info_to_Excel = True then
+				ObjExcel.Cells(excel_row, worker_number_col).value = worker_number
+				ObjExcel.Cells(excel_row, case_number_col).value = case_number
+				excel_row = excel_row + 1
+			End if
+
+			'On the next loop it must look to the next row
+			MAXIS_row = MAXIS_row + 1
+
+			'Clearing variables before next loop
+			add_case_info_to_Excel = ""
+			case_number = ""
+
+			If reviews_total >= max_reviews_per_worker then exit do
+
+		Loop until MAXIS_row = 19		'Last row in REPT/REVS
+
+		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
+		PF8
+		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+
+		If reviews_total >= max_reviews_per_worker then exit do
+
+	Loop until last_page_check = "THIS IS THE LAST PAGE"
+
+next
 
 'Now the script will go through STAT/REVW for each case and check that the case is at CSR or ER and remove the cases that are at CSR from the list.
 excel_row = 2		'Resets the variable to 2, as it needs to look through all of the cases on the Excel sheet!
-reviews_total = 0	'Sets this to 0 for the following do...loop. It'll exit once it's hit the reviews cap
+
 
 DO 'Loops until there are no more cases in the Excel list
 
@@ -536,7 +557,9 @@ appointment_length_listbox = left(appointment_length_listbox, 2)	'Hacking the "m
 alt_appointment_length_listbox = left(alt_appointment_length_listbox, 2)
 excel_row = 2	'Declaring variable prior to the next for...next loop
 
+
 FOR i = 1 to num_of_days
+
 	IF available_dates_array(i, 0) = 1 THEN		'These are the dates that the user has determined the agency/unit/worker
 		appointment_time = appt_month & "/" & i & "/" & appt_year & " " & first_appointment_listbox		'putting together the date and time values.
 		DO
@@ -547,12 +570,10 @@ FOR i = 1 to num_of_days
 				objExcel.Cells(excel_row, interview_time_col).value = appointment_time_for_viewing
 				excel_row = excel_row + 1
 				reviews_total = reviews_total + 1	'Adds one to the reviews total (will end when the loop starts if we're at the reviews total)
-				if reviews_total = max_reviews_per_worker then exit for		'If we're at the reviews total, it will exit this for
-
 				IF objExcel.Cells(excel_row, case_number_col).value = "" THEN EXIT FOR
 			NEXT
 			IF objExcel.Cells(excel_row, case_number_col).value = "" THEN EXIT DO
-			if reviews_total = max_reviews_per_worker then exit do		'If we're at the reviews total, it will exit this do
+
 
 			'This is where the script adds minutes for the next appointment.
 			appointment_time = DateAdd("N", appointment_length_listbox, appointment_time)
@@ -611,21 +632,11 @@ FOR i = 1 to num_of_days
 
 		END IF
 		IF objExcel.Cells(excel_row, case_number_col).Value = "" THEN EXIT FOR		'Because we're all out of cases at this point
-
-		'If we'rve hit our max reviews, it's going to add "skipped" to the remaining reviews
-		if objExcel.Cells(excel_row, case_number_col).Value <> "" and reviews_total = max_reviews_per_worker then
-			Do
-				objExcel.Cells(excel_row, interview_time_col).Value = "SKIPPED"
-				excel_row = excel_row + 1
-			Loop until objExcel.Cells(excel_row, case_number_col).Value = ""
-		End if
-
-		'If we're at the reviews total, it will exit this for...loop
-		if reviews_total = max_reviews_per_worker then exit for
 	END IF
 NEXT
 
 'Formatting the columns to autofit after they are all finished being created.
+objExcel.Columns(worker_number_col).autofit()
 objExcel.Columns(case_number_col).autofit()
 objExcel.Columns(interview_time_col).autofit()
 
