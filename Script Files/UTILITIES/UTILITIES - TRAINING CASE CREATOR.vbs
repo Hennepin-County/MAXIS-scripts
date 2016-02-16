@@ -2808,7 +2808,5 @@ FOR EACH case_number IN case_number_array
 NEXT
 
 STATS_counter = STATS_counter - 1 'removing extra counted case as it starts at 1.
-msgbox stats_counter &"*"& STATS_manualtime & "=" & stats_counter * STATS_manualtime
-
 If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
 script_end_procedure("Success! Cases made and approved, per your request.")
