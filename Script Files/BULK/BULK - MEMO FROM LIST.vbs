@@ -324,6 +324,7 @@ FOR EACH case_number IN case_number_array
 			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 			transmit    
 			CALL write_variable_in_SPEC_MEMO(memo_text)
+			STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
 			PF4
 		END IF
 	END IF
@@ -334,4 +335,5 @@ IF privileged_array <> "" THEN
 	MsgBox "The script could not generate a memo for the following cases..." & vbCr & privileged_array
 END IF
 
+STATS_counter = STATS_county - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")
