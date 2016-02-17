@@ -50,24 +50,33 @@ STATS_manualtime = 276         'manual run time in seconds
 STATS_denomination = "C"       'C is for case
 'END OF stats block==============================================================================================
 
-'Dialogs
-BeginDialog Hennepin_worker_signature, 0, 0, 176, 80, "Hennepin County worker signature and client region"
-  DropListBox 80, 10, 90, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
-  EditBox 80, 30, 90, 15, worker_signature
+'Dialogs----------------------------------------------------------------------------------------------------
+BeginDialog Hennepin_worker_signature, 0, 0, 186, 100, "Hennepin County worker signature and client region"
+  DropListBox 80, 10, 100, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
+  EditBox 80, 30, 55, 15, last_day_for_recert
+  EditBox 80, 50, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 40, 55, 50, 15
-    CancelButton 105, 55, 50, 15
+    OkButton 75, 75, 50, 15
+    CancelButton 130, 75, 50, 15
+  Text 10, 55, 60, 10, "Worker signature:"
   Text 5, 15, 70, 10, "Region of residence: "
-  Text 5, 35, 60, 10, "Worker signature:"
+  Text 10, 35, 65, 10, "Last day for recert:"
 EndDialog
 
-BeginDialog worker_signature_dialog, 0, 0, 191, 55, "Worker signature"
-  EditBox 80, 10, 105, 15, worker_signature
+BeginDialog worker_signature_dialog, 0, 0, 191, 80, "Worker signature"
+  EditBox 80, 10, 55, 15, last_day_for_recert
+  EditBox 80, 30, 105, 15, worker_signature
   ButtonGroup ButtonPressed_worker_signature_dialog
-    OkButton 80, 30, 50, 15
-    CancelButton 135, 30, 50, 15
-  Text 5, 15, 70, 10, "Sign your case note:"
+    OkButton 80, 50, 50, 15
+    CancelButton 135, 50, 50, 15
+  Text 5, 35, 70, 10, "Sign your case note:"
+  Text 10, 15, 65, 10, "Last day for recert:"
 EndDialog
+
+'logic to autofill the 'last_day_for_recert' into the notice
+next_month = DateAdd("M", 1, date)
+next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
+last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string			
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER; As such, it does NOT include protections to be ran independently.
 EMConnect ""
