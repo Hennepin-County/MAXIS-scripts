@@ -61,12 +61,12 @@ BeginDialog Hennepin_worker_signature, 0, 0, 176, 80, "Hennepin County worker si
   Text 5, 35, 60, 10, "Worker signature:"
 EndDialog
 
-BeginDialog worker_signature_dialog, 0, 0, 191, 57, "Worker signature"
-  EditBox 35, 25, 50, 15, worker_signature
+BeginDialog worker_signature_dialog, 0, 0, 191, 55, "Worker signature"
+  EditBox 80, 10, 105, 15, worker_signature
   ButtonGroup ButtonPressed_worker_signature_dialog
-    OkButton 135, 10, 50, 15
+    OkButton 80, 30, 50, 15
     CancelButton 135, 30, 50, 15
-  Text 25, 10, 75, 10, "Sign your case note."
+  Text 5, 15, 70, 10, "Sign your case note:"
 EndDialog
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER; As such, it does NOT include protections to be ran independently.
@@ -95,26 +95,30 @@ interview_confirm = MsgBox("Was an interview completed for this case's recertifi
 	If interview_confirm = vbNo then interview_confirm = FALSE
 
 If interview_confirm = TRUE then 
-	script_end_procedure("A NOMI is not required if your case's recertification interview is complete." & vbNewLine & "Please review the case for completion.")
+	PF3 	'returns user back to DAIL/DAIL and stops the script since no further action is required
+	script_end_procedure("Success! A NOMI is not required if the recertification interview is complete." & vbNewLine & "Please review the case for completion if necessary.")
 ELSE
 	'Msgbox asking the user to confirm if the client has sent a CAF or if no contact has been made by the client
-	recert_forms_confirm = MsgBox("A NOMI is needed when a SNAP recipient does not contact the agency about their recertification, and no CAF is received." & vbNewLine & vbNewLine & "Press Yes if forms provided, OR contact was made by the recipient." & _
-	vbNewLine & vbNewLine & "Press No if no forms/contact has been made." & vbNewLine & vbNewLine & "Press Cancel to end the script.", vbYesNoCancel, "Client contact confirmation")
+	recert_forms_confirm = MsgBox("A NOMI is needed when a SNAP recipient has not made contact with the agency about their recertification, AND the CAF has not been received." & vbNewLine & vbNewLine & "Press Yes to send the NOMI." & _
+	vbNewLine & "Press No if client contact has not been made with the agency." & vbNewLine & "Press Cancel to end the script.", vbYesNoCancel, "Client contact confirmation")
 		If recert_forms_confirm = vbCancel then stopscript
 		If recert_forms_confirm = vbYes then result_of_msgbox = TRUE
 		If recert_forms_confirm = vbNo then result_of_msgbox = FALSE
 END IF
 
-If result_of_msgbox = FALSE then
+If result_of_msgbox = FALSE then		'if false a case note will be made, but a NOMI will not be sent as this is not necessary. 
 	dialog worker_signature_dialog
 	If ButtonPressed_worker_signature_dialog = 0 then stopscript
 	PF9	'goes directly into edit mode
 	Call write_variable_in_CASE_NOTE ("**Client missed SNAP recertification interview**")
-	Call write_variable_in_CASE_NOTE("Appointment was scheduled for: " & interview_date & " at " & interview_time & ".")
-	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO HAS NOT been sent. Per POLI/TEMP TE02.05.15: When there is no request for further assistance the client will receive the proper closing.")
+	Call write_variable_in_CASE_NOTE("* Interview appointment was scheduled for: " & interview_date & " at " & interview_time & ".")
+	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO has not been sent.")
 	Call write_variable_in_CASE_NOTE ("---")
 	Call write_variable_in_CASE_NOTE (worker_signature & ", using automated script.")
-	script_end_procedure("Success! A SNAP NOMI for recertification case note has been made. A SPEC/MEMO has NOT been sent.")
+	PF3	'saves the case note'
+	Call navigate_to_MAXIS_screen("DAIL", "DAIL")	'brings user back to DAIL'
+	script_end_procedure("A SNAP NOMI for recertification case note has been made, but a SPEC/MEMO has NOT been sent." & vbNewLine & vbNewLine & _
+	"Per POLI/TEMP TE02.05.15: When there is no request for further assistance the client will receive the proper closing (the autoclose notice).")
 END IF
 
 IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sent
@@ -184,7 +188,7 @@ IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sen
 	  Call write_variable_in_SPEC_MEMO("The Combined Application Form (DHS-5223), the interview by phone or in the office, and the mandatory verifications needed to process your renewal must be completed by " & last_day_for_recert & ", or your SNAP case will Auto-Close on this date.")
 		Call write_variable_in_SPEC_MEMO("************************************************************")
 	ELSE
-		'Writes the info into the MEMO.
+		'Writes the info into the SPEC/MEMO for other users
 		Call write_variable_in_SPEC_MEMO("************************************************************")
 		Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & interview_date & " at " & interview_time & ".")
 		Call write_variable_in_SPEC_MEMO(" ")
@@ -195,13 +199,13 @@ IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sen
 	END IF
 	PF4	'saves and exits from SPEC/MEMO
 	PF3
-
 	Call start_a_blank_case_note 'Navigates to a blank case note & writes the case note
 	Call write_variable_in_CASE_NOTE ("**Client missed SNAP recertification interview**")
-	Call write_variable_in_CASE_NOTE("Appointment was scheduled for: " & interview_date & " at " & interview_time & ".")
-	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO has been sent to the client informing them of their missed interview.")
+	Call write_variable_in_CASE_NOTE("* Appointment was scheduled for: " & interview_date & " at " & interview_time & ".")
+	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO has been sent.")
 	Call write_variable_in_CASE_NOTE ("---")
 	Call write_variable_in_CASE_NOTE (worker_signature & ", using automated script.")
-	PF3
-	script_end_procedure("Success! A SNAP NOMI for recertification SPEC/MEMO has been sent.")
+	PF3	'saves the case note'
+	Call navigate_to_MAXIS_screen("DAIL", "DAIL") 'brings user back to DAIL'
+	script_end_procedure("Success! A SNAP NOMI for recertification SPEC/MEMO has been sent.")	
 END IF
