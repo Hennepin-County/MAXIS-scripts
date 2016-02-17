@@ -124,7 +124,7 @@ IF worker_county_code = "x165" THEN county_FSET_offices = array("Central MN Jobs
 'IF worker_county_code = "x166" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x167" THEN county_FSET_offices = array("Southwest MN Private Industry Council Inc. Luverne")
 IF worker_county_code = "x168" THEN county_FSET_offices = array("Roseau County Social Services")
-IF worker_county_code = "x169" THEN county_FSET_offices = array("Select one...", "Minnesota Workforce Center Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota Workforce Center: Hibbing")
+IF worker_county_code = "x169" THEN county_FSET_offices = array("Select one...", "Minnesota WorkForce Center: Duluth", "Minnesota WorkForce Center: Virginia", "Minnesota WorkForce Center: Hibbing")
 'IF worker_county_code = "x170" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x171" THEN county_FSET_offices = array("Central MN Jobs and Training Services Monticello")
 'IF worker_county_code = "x172" THEN county_FSET_offices = array("Select one...",
@@ -855,7 +855,7 @@ IF interview_location  = "Roseau County Social Services" THEN
 END IF
 
 'CO #69 SAINT LOUIS COUNTY address
-IF interview_location  = "Minnesota WorkForce Center Duluth" THEN
+IF interview_location  = "Minnesota WorkForce Center: Duluth" THEN
     SNAPET_name = "Minnesota WorkForce Center: Duluth"
     SNAPET_address_01 = "402 W. 1st Street Room 119"
     SNAPET_city = "Duluth"
