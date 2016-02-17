@@ -47,9 +47,9 @@ END IF
 DIM ButtonPressed
 DIM SIR_instructions_button, dialog_name
 DIM BULK_list_scripts_button, other_BULK_scripts_button
-DIM BULK_TIKLER_button, CASE_NOTE_FROM_LIST_button, BULK_CASE_TRANSFER_Button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
+DIM BULK_CASE_TRANSFER_Button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
 DIM ACTV_LIST_button, DAIL_REPORT_button, EOMC_LIST_button, PND1_LIST_button, PND2_LIST_button, REVS_LIST_button, REVW_LIST_button, MFCM_LIST_button, ADDRESS_LIST_button, ARST_LIST_button, CHECK_SNAP_FOR_GA_RCA_button, LTC_GRH_LIST_GENERATOR_button, MAEPD_MEDICARE_LIST_button, SWKR_LIST_GENERATOR_button
-DIM NON_MAGI_HC_INFO_button, FIND_PANEL_button
+DIM NON_MAGI_HC_INFO_button, FIND_PANEL_button, MEMO_FROM_LIST_button, TIKL_FROM_LIST_button, CASE_NOTE_FROM_LIST_button
 DIM INAC_LIST_button
 
 FUNCTION create_BULK_main_menu(dialog_name)
@@ -109,7 +109,8 @@ EndDialog
 		  Text 65, 30, 375, 10, "-- This will navigate you to the menu for the Other BULK scripts."
 		  GroupBox 5, 60, 110, 85, "Case lists"
 		  Text 10, 75, 100, 25, "Case list scripts pull a list of cases into an Excel spreadsheet."
-		  GroupBox 120, 60, 330, 205, "Other bulk lists Text 155"
+		  GroupBox 120, 60, 330, 205, "Other bulk lists"
+		  Text 155, 75, 215, 10, "--- Creates a list of all addresses from a caseload(or entire county)."
 		  Text 155, 90, 215, 10, "--- Caseload stats by worker. Includes most MAXIS programs."
 		  Text 225, 110, 205, 20, "--- Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
 		  Text 210, 135, 225, 15, "--- Creates a list of cases from one more more case loads showing when selected panels have been updated."
@@ -168,10 +169,10 @@ If ButtonPressed = CEI_PREMIUM_NOTER_button then 				call run_from_GitHub(script
 If ButtonPressed = BULK_CASE_TRANSFER_Button then 				call run_from_GitHub(script_repository & "/BULK/BULK - CASE TRANSFER.vbs")
 If ButtonPressed = COLA_AUTO_APPROVED_DAIL_NOTER_button then 	call run_from_GitHub(script_repository & "/BULK/BULK - COLA AUTO APPROVED DAIL NOTER.vbs")
 If ButtonPressed = INAC_SCRUBBER_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - INAC SCRUBBER.vbs")
-If ButtonPressed = MEMO_FROM_LIST_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - MEMO_FROM_LIST.vbs")
+If ButtonPressed = MEMO_FROM_LIST_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - MEMO FROM LIST.vbs")
 If ButtonPressed = RETURNED_MAIL_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - RETURNED MAIL.vbs")
 If ButtonPressed = REVW_MONT_CLOSURES_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - REVW-MONT CLOSURES.vbs")
-If ButtonPressed = TIKL_FROM_LIST_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - TIKL_FROM_LIST.vbs")
+If ButtonPressed = TIKL_FROM_LIST_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - TIKL FROM LIST.vbs")
 IF ButtonPressed = FIND_PANEL_button THEN 						CALL run_from_GitHub(script_repository & "/BULK/BULK - FIND PANEL UPDATE DATE.vbs")
 
 'Logging usage stats
