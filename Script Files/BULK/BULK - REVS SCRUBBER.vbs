@@ -1,8 +1,3 @@
-contact_phone_number = "UUDDLRLRBA"
-worker_number_editbox = "X127EJ6, X127EJ3"
-worker_signature = "VKC"
-max_reviews_per_worker = "1"
-
 'OPTION EXPLICIT
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - REVS SCRUBBER.vbs"
@@ -189,8 +184,7 @@ BeginDialog REVS_scrubber_initial_dialog, 0, 0, 501, 130, "REVS scrubber initial
   GroupBox 5, 65, 350, 40, "PLEASE NOTE"
   Text 10, 75, 340, 25, "The script will not be available for use until the 16th of each month, as the script goes into current month plus two to schedule the appointments with proper advance notice (example: REVS scrubber will be available 02/16/16 to schedule recertification interviews for March reviews)."
 EndDialog
-
-BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 270, "REVS Scrubber Time Dialog"
+BeginDialog REVS_scrubber_time_dialog, 0, 0, 291, 270, "REVS Scrubber Time Dialog"
   DropListBox 75, 25, 60, 15, "Select one..."+chr(9)+time_array, first_appointment_listbox
   DropListBox 215, 25, 60, 15, "Select one..."+chr(9)+time_array, last_appointment_listbox
   DropListBox 110, 50, 50, 15, "Select one..."+chr(9)+appt_time_list, appointment_length_listbox
@@ -202,7 +196,7 @@ BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 270, "REVS Scrubber Time Dialo
   CheckBox 10, 185, 135, 10, "Duplicate appointments per time slot?", alt_duplicate_appt_times
   EditBox 240, 180, 35, 15, alt_appointments_per_time_slot
   CheckBox 10, 215, 200, 10, "Check here to add appointments to your Outlook calendar.", outlook_calendar_check
-  EditBox 210, 230, 55, 15, max_reviews_per_worker
+  EditBox 230, 230, 55, 15, max_reviews_per_worker
   ButtonGroup ButtonPressed
     OkButton 175, 250, 50, 15
     CancelButton 230, 250, 50, 15
@@ -216,10 +210,11 @@ BeginDialog REVS_scrubber_time_dialog, 0, 0, 286, 270, "REVS Scrubber Time Dialo
   Text 150, 140, 60, 10, "Last appointment:"
   Text 10, 165, 95, 10, "Time between Appointments:"
   Text 160, 185, 80, 10, "How many per time slot:"
-  Text 10, 235, 190, 10, "Maximum reviews to schedule per worker (leave blank for no cap):"
+  Text 10, 235, 215, 10, "Maximum reviews to schedule per worker (leave blank for no cap):"
   GroupBox 5, 10, 275, 85, "Main Appointment Block"
   GroupBox 5, 100, 275, 105, "Additional Appointment Block"
 EndDialog
+
 
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
@@ -370,7 +365,7 @@ DO
 LOOP UNTIL err_msg = ""
 
 'Converts to integer
-max_reviews_per_worker = abs(max_reviews_per_worker)
+IF max_reviews_per_worker <> "" THEN max_reviews_per_worker = abs(max_reviews_per_worker)
 
 'Opening the Excel file, (now that the dialog is done)
 Set objExcel = CreateObject("Excel.Application")
