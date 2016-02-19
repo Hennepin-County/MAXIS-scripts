@@ -405,7 +405,7 @@ Do
 				EMReadScreen PIC2_line_03, 28, 11, 13
 				EMReadScreen PIC2_line_04, 28, 12, 13
 				EMReadScreen PIC2_line_05, 28, 13, 13
-				PIC2_line_01 = Replace(PIC2_line_01, "$", "")
+				PIC2_line_01 = Replace(PIC2_line_01, "$", " ")
 				PIC2_line_01 = Replace(PIC2_line_01, "__ __ __    ________  ______", "")
 				PIC2_line_02 = Replace(PIC2_line_02, "__ __ __    ________  ______", "")
 				PIC2_line_03 = Replace(PIC2_line_03, "__ __ __    ________  ______", "")
@@ -584,12 +584,12 @@ If update_PIC_check = 1 then
 	EMSendKey PIC_line_04 & "                 " & "<newline>"
 	EMSendKey PIC_line_05 & "                 " & "<newline>"
 	EMSendKey PIC_line_06 & "                 " & "<newline>"
+	EMSendKey PIC_line_07 & "                 " & "<newline>"
 	IF PIC2_line_01 <> "" then EMSendKey PIC2_line_01 & "                 " & "<newline>"
 	IF PIC2_line_02 <> "" then EMSendKey PIC2_line_02 & "                 " & "<newline>"
 	IF PIC2_line_03 <> "" then EMSendKey PIC2_line_03 & "                 " & "<newline>"
 	IF PIC2_line_04 <> "" then EMSendKey PIC2_line_04 & "                 " & "<newline>"
 	IF PIC2_line_05 <> "" then EMSendKey PIC2_line_05 & "                 " & "<newline>"
-	EMSendKey PIC_line_07 & "<newline>"
 	EMSendKey PIC_line_08 & "<newline>"
 	EMWriteScreen PIC_line_01, 6, 48
 	EMWriteScreen PIC_line_09, 7, 35
