@@ -87,7 +87,7 @@ banked_month_database_path = "C:\DHS-MAXIS-Scripts\Databases for script usage\ba
 'BRANCH CONFIGURATION=====================
 
 'This is a variable which sets the scripts to use the master branch (common with scriptwriters)
-use_master_branch = False
+use_master_branch = true
 
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
