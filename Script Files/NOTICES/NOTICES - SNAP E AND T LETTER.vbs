@@ -1095,7 +1095,7 @@ If manual_referral <> "Select one..." then 					'if banked months or student are
 	EMWriteScreen member_number, 8, 9									'enters member number
 	Call create_MAXIS_friendly_date(appointment_date, 0, 8, 65)			'enters the E & T referral date
 	If manual_referral = "Banked months" then 
-		EMWriteScreen "Banked AWAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
+		EMWriteScreen "Banked ABAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
 	ELSEIF manual_referral = "Student" then
 		EMWriteScreen "Student", 17, 6
 	ELSEIF manual_referral = "Working with CBO" then 
