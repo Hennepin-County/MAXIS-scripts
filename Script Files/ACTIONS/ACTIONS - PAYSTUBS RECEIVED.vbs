@@ -62,7 +62,7 @@ Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, tot
 End function
 
 Function prospective_pay_analyzer(pay_date, gross_amt)
-  If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 0 then
+  If datediff("m", pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then
     If len(datepart("m", pay_date)) = 2 then
       EMWriteScreen datepart("m", pay_date), MAXIS_row, 54
     Else
@@ -81,7 +81,7 @@ End function
 
 Function retro_paystubs_info_adder(pay_date, gross_amt, hours, retro_hours)
   If isdate(pay_date) = True then
-    If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 2 then
+    If datediff("m", pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 2 then
       If len(datepart("m", pay_date)) = 2 then
         EMWriteScreen datepart("m", pay_date), MAXIS_row, 25
       Else
@@ -454,22 +454,22 @@ Do
 		END IF
 	NEXT
 
-	If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) > 0 then 'For instances where the footer month is ahead of the first paydate.
+	If datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) > 0 then 'For instances where the footer month is ahead of the first paydate.
 		Do
-			If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0 then exit do
+			If datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then exit do
 			If pay_frequency = "One Time Per Month" then first_prospective_pay_date = dateadd("m", 1, first_prospective_pay_date)
 			If pay_frequency = "Two Times Per Month" then first_prospective_pay_date = dateadd("m", 1, first_prospective_pay_date)
 			If pay_frequency = "Every Other Week" then first_prospective_pay_date = dateadd("d", 14, first_prospective_pay_date)
 			If pay_frequency = "Every Week" then first_prospective_pay_date = dateadd("d", 7, first_prospective_pay_date)
-		Loop until datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0
-	Elseif datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) < 0 then 'For instances where the footer month is behind the first paydate (ex: paydate is 06/26/2013 but footer month is 05/13).
+		Loop until datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0
+	Elseif datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) < 0 then 'For instances where the footer month is behind the first paydate (ex: paydate is 06/26/2013 but footer month is 05/13).
 		Do
-			If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0 then exit do
+			If datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then exit do
 			If pay_frequency = "One Time Per Month" then first_prospective_pay_date = dateadd("m", -1, first_prospective_pay_date)
 			If pay_frequency = "Two Times Per Month" then first_prospective_pay_date = dateadd("m", -1, first_prospective_pay_date)
 			If pay_frequency = "Every Other Week" then first_prospective_pay_date = dateadd("d", -14, first_prospective_pay_date)
 			If pay_frequency = "Every Week" then first_prospective_pay_date = dateadd("d", -7, first_prospective_pay_date)
-		Loop until datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0
+		Loop until datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0
 	End if
 	'This checks to make sure the earliest possible paydate is selected in each prospective month.
 	If pay_frequency = "Two Times Per Month" or pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then
@@ -498,7 +498,7 @@ Do
 		If pay_frequency = "One Time Per Month" and total_prospective_dates >= 1 then exit do 'Shouldn't be more than one entry if pay is once per month.
 		If pay_frequency = "Two Times Per Month" and total_prospective_dates >= 2 then exit do 'Shouldn't be more than two entries if pay is twice per month.
 		prospective_pay_date = dateadd("d", total_prospective_dates * pay_multiplier, first_prospective_pay_date)
-		If datediff("m", prospective_pay_date, footer_month & "/01/" & footer_year) = 0 then
+		If datediff("m", prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then
 			If len(datepart("m", prospective_pay_date)) = 2 then
 				EMWriteScreen datepart("m", prospective_pay_date), MAXIS_row, 54
 			Else
@@ -514,7 +514,7 @@ Do
 			MAXIS_row = MAXIS_row + 1
 			total_prospective_dates = total_prospective_dates + 1
 		End if
-	Loop until datediff("m", prospective_pay_date, footer_month & "/01/" & footer_year) <> 0
+	Loop until datediff("m", prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) <> 0
 	'Updates pay frequency
 	If pay_frequency = "One Time Per Month" then EMWriteScreen "1", 18, 35
 	If pay_frequency = "Two Times Per Month" then EMWriteScreen "2", 18, 35
@@ -531,7 +531,7 @@ Do
 	EMWriteScreen left(JOBS_verif_code, 1), 6, 38
 
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
-	If update_HC_popup_check = 1 and datediff("m", date, footer_month & "/01/" & footer_year) = 1 then
+	If update_HC_popup_check = 1 and datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then
 		EMWriteScreen "x", 19, 54
 		transmit
 		EMWriteScreen "________", 11, 63
@@ -549,7 +549,7 @@ Do
 		EMReadScreen display_mode_check, 1, 20, 8
 	Loop until display_mode_check = "D"
 
-	If datediff("m", date, footer_month & "/01/" & footer_year) = 1 then in_future_month = True
+	If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
 
 	'If just on SNAP, the case does not have to update future months, so the script can now case note.
 	If future_months_check = 0 or in_future_month = True then exit do
@@ -557,8 +557,8 @@ Do
 	'Navigates to the current month + 1 footer month, then back into the JOBS panel
 	CALL write_value_and_transmit("BGTX", 20, 71)
 	CALL write_value_and_transmit("y", 16, 54)
-	EMReadScreen footer_month, 2, 20, 55
-	EMReadScreen footer_year, 2, 20, 58
+	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	EMReadScreen MAXIS_footer_year, 2, 20, 58
 	EMWriteScreen "jobs", 20, 71
 	EMWriteScreen HH_member, 20, 76
 	If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
