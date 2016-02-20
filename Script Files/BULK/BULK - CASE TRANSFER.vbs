@@ -106,7 +106,7 @@ BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameter
   Text 280, 150, 85, 25, "Use the Spacebar to check and uncheck boxes without your mouse"
   Text 5, 25, 65, 10, "Worker(s) to check:"
   Text 5, 75, 235, 10, " This will not give a transfer option but will look for all possible criteria."
-  Text 5, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 5, 40, 210, 20, "Note: please enter the entire 7-digit number x1 number (x100abc), separated by a comma."
   Text 5, 95, 235, 10, "Check all that apply - What type of cases do you want to transfer?"
   Text 65, 5, 100, 10, "***Case Parameters to Pull***"
 EndDialog
@@ -129,7 +129,7 @@ Do
 		IF query_all_check = unchecked AND snap_check = unchecked AND mfip_check = unchecked AND DWP_check = unchecked AND EA_check = unchecked AND HC_check = unchecked AND ga_check = unchecked AND msa_check = unchecked AND GRH_check = unchecked Then err_msg = err_msg & _ 
 		  vbCr & "You must select a type of program for the cases you want to transfer, please pick one - SNAP, MFIP, DWP, EA, HC, GA, MSA, or GRH"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	Loop until query_all_check = checked OR snap_check = checked OR mfip_check = checked OR DWP_check = checked OR EA_check = checked OR HC_check = checked OR ga_check = checked OR msa_check = checked OR GRH_check = checked AND worker_number <> ""
+	Loop until err_msg = "" 
 	err_msg = ""
 	If SNAP_check = unchecked then 
 		IF SNAP_Only_check = checked OR SNAP_ABAWD_check = checked OR SNAP_UH_check = checked then err_msg = err_msg & vbCr & "If you select SNAP details, you must filter FOR SNAP cases - Check the SNAP box"
@@ -157,7 +157,7 @@ Loop until err_msg = ""
 query_start_time = timer
 
 'Checking for MAXIS
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'In order to make the code a little cleaner, this sets all the option check boxes to checked when the Query All option exists.
 IF query_all_check = checked THEN 
@@ -364,21 +364,8 @@ IF query_all_check = unchecked THEN
 	new_worker_letter_col = convert_digit_to_excel_column(new_worker_col)
 End IF 
 
-'create a single-object "array" just for simplicity of code.
-
-x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
-
-'Need to add the worker_county_code to each one
-For each x1_number in x1s_from_dialog
-	If worker_array = "" then
-		worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
-	Else
-		worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
-	End if
-Next
-
 'Split worker_array
-worker_array = split(worker_array, ", ")
+worker_array = split(worker_number, ", ")
 
 'Arrays that need delcaring and resizing 
 Dim All_case_information_array ()
@@ -491,8 +478,8 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 				EMReadScreen reg_mo, 2, 17, 69
 				EMReadScreen ext_mo, 3, 19, 69
 				If ext_mo = "   " then ext_mo = 0 
-				reg_mo = reg_mo * 1
-				ext_mo = ext_mo * 1 
+				reg_mo = abs(reg_mo)
+				ext_mo = abs(ext_mo)
 				TANF_used = abs(reg_mo) + abs(ext_mo)
 				PF3
 			End If
@@ -873,7 +860,10 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 			IF UH_SNAP = FALSE then Save_case_for_transfer = FALSE 
 		End If 
 		IF MFIP_tanf_check = checked then 
-			IF abs(TANF_used) < abs(tanf_months) then Save_case_for_transfer = FALSE 
+			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then 
+				IF TANF_used = "" then TANF_used = 0 
+				IF abs(TANF_used) < abs(tanf_months) then Save_case_for_transfer = FALSE 
+			End If
 		End If
 		IF child_only_mfip_check = checked AND adult_on_mfip = TRUE then Save_case_for_transfer = FALSE 
 		IF mont_rept_check = checked AND reporter_type <> "MONTHLY" then Save_case_for_transfer = FALSE 
@@ -1070,7 +1060,7 @@ BeginDialog case_transfer_dialog, 0, 0, 376, 130, "Select Transfer Options"
   Text 115, 10, 20, 10, cases_found
   Text 140, 10, 130, 10, "cases that meet your selected criteria"
   Text 165, 30, 60, 10, "of these cases to:"
-  Text 230, 40, 140, 25, "Enter the last 3 digits of the worker X1***** number. You may enter more than one worker, seperate workers by a comma."
+  Text 230, 40, 140, 25, "Enter the entire 7-digit number x1 number. You may enter more than one worker, seperate workers by a comma."
   Text 15, 85, 70, 10, "New Worker's Name"
   Text 15, 65, 65, 10, "Sign your case note"
   Text 170, 80, 170, 20, "This is optional, it only adds the worker's name to the case note - you can only enter one name."
@@ -1091,22 +1081,10 @@ Do
 	IF transfer_check = checked AND query_check = checked THEN MsgBox "You cannot select both"
 Loop until transfer_check = checked OR query_check = checked 
 
-'create an array of all the workers receiving cases
-x1s_from_dialog_two = split(worker_receiving_cases, ",")	'Splits the worker array based on commas
-
-'Need to add the worker_county_code to each one - WORKER NUMBERS MUST BE IN UPPERCASE BECAUSE MAXIS has issues sometimes when lowercase
-For each x1_number in x1s_from_dialog_two
-	If receiving_worker_array = "" then
-		receiving_worker_array = UCase(worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")))		'replaces worker_county_code if found in the typed x1 number
-	Else
-		receiving_worker_array = receiving_worker_array & ", " & UCase(worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))) 'replaces worker_county_code if found in the typed x1 number
-	End if
-Next
-
 cases_to_xfer_numb = abs(cases_to_xfer_numb)	'Sometimes the script thinks this is a string and does not do math correctly.
 
 'Creating the array of all workers to receive cases
-receiving_worker_array = split(receiving_worker_array, ", ")
+receiving_worker_array = split(worker_receiving_cases, ", ")
 
 r = 0 	'counter for the receiving worker array
 P = 0 	'Counter for the cases transferred 
