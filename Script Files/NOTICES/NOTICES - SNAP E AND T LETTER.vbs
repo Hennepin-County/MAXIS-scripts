@@ -56,7 +56,7 @@ county_FSET_offices = array("")
 'Array listed above Dialog as below the dialog, the droplist appeared blank
 'Creates an array of county FSET offices, which can be dynamically called in scripts which need it (SNAP ET LETTER for instance)
 'Certain counties are commented out as they did not submit information about their E & T site, but can be easily rendered if they provide them
-IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center")
+'IF worker_county_code = "x101" THEN county_FSET_offices = array("Aitkin Workforce Center")
 IF worker_county_code = "x102" THEN county_FSET_offices = array("Minnesota WorkForce Center Blaine")
 IF worker_county_code = "x103" THEN county_FSET_offices = array("Rural MN CEP Detroit Lakes")
 IF worker_county_code = "x104" THEN county_FSET_offices = array("Select one...", "RMCEP", "MCT", "Leach Lake New", "Red Lake Oshkiimaajitahdah")
@@ -99,7 +99,7 @@ IF worker_county_code = "x140" THEN county_FSET_offices = array("MVAC")
 IF worker_county_code = "x141" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x142" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x143" THEN county_FSET_offices = array("Mahnomen County Human Services")
-IF worker_county_code = "x144" THEN county_FSET_offices = array("Marshall County Social Services")
+'IF worker_county_code = "x144" THEN county_FSET_offices = array("Marshall County Social Services")
 IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
 IF worker_county_code = "x146" THEN county_FSET_offices = array("Central MN Jobs and Training Services Hutchinson")
 IF worker_county_code = "x147" THEN county_FSET_offices = array("Central MN Jobs and Training Services Litchfield")
@@ -259,7 +259,8 @@ DO
 		worker_county_code = "x129" OR _
 		worker_county_code = "x133" OR _
 		worker_county_code = "x136" OR _
-		worker_county_code = "x139" THEN
+		worker_county_code = "x139" OR _
+		worker_county_code = "x144" THEN
 			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
 	ElseIF worker_county_code = "x127" THEN
 		Dialog SNAPET_Hennepin_dialog
