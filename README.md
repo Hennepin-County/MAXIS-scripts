@@ -53,7 +53,7 @@ GitHub can be somewhat complex and daunting for beginners. For our organization,
 
 Changes proposed here (assuming they "pass muster" with any policy/procedural folks involved at DHS) will first be merged into "master", then into "release" after **at least** a week of testing. **Scriptwriters (and a few select "power users" in each agency) are expected to work off of the master branch, and _contribute feedback_ throughout the month**. The recommended procedure is to give all master branch users access to both master and release versions of the scripts (using separate installations and "ZMD" configuration profiles). Agencies may stray from this procedure, but it is not recommended (as the master branch is the statewide "test" branch).
 
-The newest/upcoming draft of release notes (upcoming changes that have already been built) is [located here](https://gist.github.com/theVKC/16fea8523efbb3df1917). Scriptwriters and power users are encouraged to "star" this document to get updates on the newest changes as soon as they are available for testing.
+The newest/upcoming draft of release notes (upcoming changes that have already been built) is [located here](https://github.com/MN-Script-Team/Release-Notes). Scriptwriters and power users are encouraged to "star" this document to get updates on the newest changes as soon as they are available for testing.
 
 
 _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
