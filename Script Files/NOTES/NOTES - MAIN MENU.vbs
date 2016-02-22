@@ -653,6 +653,8 @@ Do
 	dialog NOTES_dialog
 
 	If ButtonPressed = 0 then stopscript
+    'Opening the SIR Instructions
+	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notes%20scripts.aspx")
 Loop until 	ButtonPressed <> SIR_instructions_button and _
 			ButtonPressed <> a_to_c_button and _
 			ButtonPressed <> d_to_f_button and _
