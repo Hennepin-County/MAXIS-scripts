@@ -123,7 +123,6 @@ IF row <> 0 THEN
 	Next 
 ELSEIF row = 0 THEN 
 	XFS_Screening_CNote = FALSE
-	
 END IF 
 
 'Script is gathering the income/asset/expense information from the XFS Screening note
@@ -257,9 +256,14 @@ End If
 navigate_to_MAXIS_screen "STAT", "PNLR"
 For pnlr_row = 3 to 19 
 	EMReadScreen asset_panel_type, 4, pnlr_row, 5
-	IF asset_panel_type = "CASH" THEN EMReadScreen asset_amount, 6, 3, 26
-	IF asset_panel_type = "ACCT" THEN EMReadScreen asset_amount, 6, 4, 31 
-	asset_amount = abs(trim(asset_amount))
+	IF asset_panel_type = "CASH" THEN 
+		EMReadScreen asset_listed, 6, 3, 26
+	ELSEIF asset_panel_type = "ACCT" THEN 
+		EMReadScreen asset_listed, 6, 4, 31 
+	Else 
+		asset_listed = 0
+	End If	
+	asset_amount = asset_amount + abs(trim(asset_listed))
 Next 
 
 'Notifying the worker as to if the script found the XFS screening information

@@ -209,6 +209,7 @@ IF List1 = "Baby Born" THEN
 	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
 	CALL write_bullet_and_variable_in_Case_Note("Mother's employer", mothers_employer)
 	IF OHI_Checkbox = 1 THEN CALL write_bullet_and_variable_in_Case_Note("OHI", OHI_Source)
+	CALL write_bullet_and_variable_in_Case_Note("Other Notes", other_notes)
 	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
 	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", additional_notes)
 END IF
