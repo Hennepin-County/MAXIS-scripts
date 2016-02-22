@@ -125,7 +125,7 @@ Do
 	CALL create_NOTICES_main_menu(dialog_name)
 		IF ButtonPressed = 0 THEN stopscript
 		'Opening the SIR Instructions
-		IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
+		IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 
 		'If the user selects the other sub-menu, the script do-loops with the new dialog_name
 		'Here is where you can add additional menus with more else if statements. 
