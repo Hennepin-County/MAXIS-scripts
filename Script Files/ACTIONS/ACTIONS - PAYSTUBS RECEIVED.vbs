@@ -384,7 +384,6 @@ Do
 
 			'Reading the PIC if update_PIC_check was checked
 			PF19 									'navigates to the 1st page of the PIC (even if there's only one PIC)'
-			msgbox "page one of PIC?"
 			'Reads the contents of the PIC for case noting.
 			EMReadScreen PIC_line_01, 26, 5, 49
 			EMReadScreen PIC_line_02, 28, 8, 13
@@ -412,11 +411,6 @@ Do
 				PIC2_line_04 = Replace(PIC2_line_04, "__ __ __    ________  ______", "")
 				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")				
 			END IF 	
-				Msgbox PIC2_line_01
-				Msgbox PIC2_line_02
-				Msgbox PIC2_line_03
-				Msgbox PIC2_line_04
-				Msgbox PIC2_line_05
 			transmit
 		END IF
   End if
