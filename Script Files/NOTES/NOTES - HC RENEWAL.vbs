@@ -50,13 +50,6 @@ STATS_manualtime = 540          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
@@ -142,22 +135,12 @@ Dim col
 HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
 
 'Grabbing the case number
 call MAXIS_case_number_finder(case_number)
-
-'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	MAXIS_footer_month = MAXIS_footer_month
-	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
-End if
-
-footer_month = CStr(footer_month)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog 	
 Do		
@@ -201,17 +184,16 @@ recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'Showing case note dialog, with navigation and required answers logic
 Do
-	Do
-		Do
-			Dialog HC_ER_dialog				'Displays the dialog
-			cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
-			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
-			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
-		Loop until ButtonPressed = -1 		'Loops until OK is selected
-		If recert_status = "(select one...)" or actions_taken = "" or recert_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, recert status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."			'Warns the user if everything isn't pressed.
-	Loop until recert_status <> "(select one...)" and actions_taken <> "" and recert_datestamp <> "" and worker_signature <> "" 
-	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+	Do		
+		err_msg = ""	
+		Dialog HC_ER_dialog				'Displays the dialog
+		cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
+		MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
+		If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
+	Loop until ButtonPressed = -1 		'Loops until OK is selected	
+	If recert_status = "(select one...)" or actions_taken = "" or recert_datestamp = "" or worker_signature = "" then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp, recert status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."			'Warns the user if everything isn't pressed.	
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine	
+LOOP until err_msg = ""		
 
 'The case note----------------------------------------------------------------------------------------------------
 call start_a_blank_case_note
