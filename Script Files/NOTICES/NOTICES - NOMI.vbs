@@ -399,7 +399,7 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
-	If time_of_missed_interview = "Select one..." Then
+	If time_of_missed_interview = "" Then
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
 	ELSE
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
