@@ -193,7 +193,7 @@ Do
 	Loop until ButtonPressed = -1 		'Loops until OK is selected	
 	If recert_datestamp = "" or IsDate(recert_datestamp) = False then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp."
 	If recert_status = "(select one...)" then err_msg = err_msg & vbNewLine & "* You need to select a recert status."
-	If actions-taken = "" then err_msg = err_msg & vbNewLine & "You need to complete the actions taken field."
+	If actions_taken = "" then err_msg = err_msg & vbNewLine & "You need to complete the actions taken field."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine	
 LOOP until err_msg = ""		
@@ -212,8 +212,8 @@ call write_bullet_and_variable_in_case_note("Changes", changes)
 call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_variable_in_case_note("---")
 If MMIS_updated_checkbox = 1 then Call write_variable_in_case_note("* MMIS updated.")
+call write_variable_in_case_note("---")
 call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
 If MADE_check = checked then call write_variable_in_case_note("* Emailed MADE.")
 If MAEPD_premium <> "" or MADE_check = checked then call write_variable_in_case_note("---")		'Does this for MAEPD <> blank because if it's blank and there's no MADE_check, it means there's nothing in this section after the ---, and we don't want two in a row now, do we?
