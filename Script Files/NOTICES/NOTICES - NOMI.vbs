@@ -1,3 +1,4 @@
+worker_county_code = "x127"
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTICES - NOMI.vbs"
 start_time = timer
@@ -95,25 +96,27 @@ BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
 EndDialog
 
 'Hennepin County specific dialogs
-BeginDialog Hennepin_application_NOMI, 0, 0, 286, 140, "Hennepin County Application SNAP NOMI"
-  DropListBox 80, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
-  EditBox 225, 10, 55, 15, case_number
-  EditBox 80, 35, 55, 15, date_of_missed_interview
-  EditBox 225, 35, 55, 15, time_of_missed_interview
-  EditBox 65, 65, 55, 15, application_date
-  CheckBox 130, 70, 150, 10, "Check here to update PND2 for client delay.", client_delay_check
-  EditBox 90, 90, 190, 15, contact_attempts
-  EditBox 65, 115, 105, 15, worker_signature
+BeginDialog Hennepin_application_NOMI, 0, 0, 306, 165, "Hennepin County Application SNAP NOMI"
+  DropListBox 90, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
+  EditBox 240, 10, 55, 15, case_number
+  EditBox 90, 35, 60, 15, date_of_missed_interview
+  EditBox 240, 35, 55, 15, time_of_missed_interview
+  EditBox 90, 65, 60, 15, application_date
+  DropListBox 225, 65, 70, 15, "Select one..."+chr(9)+"First NOMI"+chr(9)+"Second NOMI", NOMI_selection
+  EditBox 90, 90, 205, 15, contact_attempts
+  CheckBox 5, 115, 150, 10, "Check here to update PND2 for client delay.", client_delay_check
+  EditBox 70, 135, 115, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 115, 50, 15
-    CancelButton 230, 115, 50, 15
-  Text 170, 15, 45, 10, "Case number:"
-  Text 5, 15, 70, 10, "Region of residence: "
-  Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
+    OkButton 190, 135, 50, 15
+    CancelButton 245, 135, 50, 15
   Text 5, 40, 75, 10, "Missed interview date:"
-  Text 5, 70, 55, 10, "Application date:"
-  Text 5, 120, 60, 10, "Worker signature:"
+  Text 20, 70, 55, 10, "Application date:"
+  Text 5, 140, 60, 10, "Worker signature:"
   Text 5, 95, 85, 10, "Attempts to contact client:"
+  Text 185, 15, 45, 10, "Case number:"
+  Text 5, 15, 70, 10, "Region of residence: "
+  Text 160, 35, 75, 20, "Missed interview time (if applicable):"
+  Text 160, 70, 60, 10, "Which NOMI sent:"
 EndDialog
 
 BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 140, "Hennepin County ER SNAP NOMI"
@@ -144,8 +147,8 @@ Call MAXIS_case_number_finder(case_number)
 
 'Asks if this is a recert. A recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add-a-programs.
 recert_check = MsgBox("Is this a missed SNAP recertification interview?" & Chr(13) & Chr(13) & "If yes, the SNAP missed recert interview notice will be sent. " & Chr(13) & Chr(13) & "If no, the regular NOMI will be sent.", 3)
-If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox
-If recert_check = 6 then 'This is the "yes" button on a MsgBox
+If recert_check = vbCancel then stopscript		'This is the cancel button on a MsgBox
+If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	'Shows dialog, checks for password promp
 	If worker_county_code = "x127" then
 		DO
@@ -199,7 +202,7 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 		ELSEIF region_residence = "North" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	    ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "South MPLS" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then
@@ -236,7 +239,7 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 	Call write_variable_in_CASE_NOTE(worker_signature)
 	MsgBox "Success! A SPEC/MEMO has been sent with the correct language for a missed SNAP renewal, and a case note has been made."
 
-Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
+Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	'Shows dialog, checks for password prompt
 	If worker_county_code = "x127" then		'Hennepin county specific dialog
 		DO
@@ -293,7 +296,7 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		ELSEIF region_residence = "North" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	    ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "South MPLS" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then
@@ -356,7 +359,11 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 			client_delay_check = 0
 		End if
 	End if
-
+	
+	If NOMI_selection = "First NOMI" then 
+		Call navigate
+	
+	
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
@@ -374,7 +381,6 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	MsgBox "Success! The NOMI has been sent, and a case note has been made."
 End if
 
-script_end_procedure("")
+script_end_procedure("Success! The NOMI has been sent, and a case note has been made.")
