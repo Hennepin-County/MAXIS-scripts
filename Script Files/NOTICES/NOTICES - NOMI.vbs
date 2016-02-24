@@ -161,17 +161,20 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	'Shows dialog, checks for password promp
 	If worker_county_code = "x127" then
 		DO
-			Err_msg = ""
-			Dialog Hennepin_ER_NOMI
-			cancel_confirmation
-			'Opening the the HSR manual to the NOMI page
-			IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""
+			DO
+				Err_msg = ""
+				Dialog Hennepin_ER_NOMI
+				cancel_confirmation
+				'Opening the the HSR manual to the NOMI page
+				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
+				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			LOOP until err_msg = ""
+		LOOP until ButtonPressed = -1	
 	ELSE
 		DO
 			Err_msg = ""
@@ -246,27 +249,30 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	END IF
 	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
 	Call write_variable_in_CASE_NOTE("* A SPEC/MEMO has been sent to the client informing them of missed interview.")
-	Call write_bullet_and_variable_in_CASE_NOTE("Other information," other_info)
+	Call write_bullet_and_variable_in_CASE_NOTE("Other information", other_info)
+	Call write_variable_in_CASE_NOTE("* Case will auto-close on " & last_day_for_recert & " if recertification is not completed.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	MsgBox "Success! A SPEC/MEMO has been sent with the correct language for a missed SNAP renewal, and a case note has been made."
 
 Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	'Shows dialog, checks for password prompt
 	If worker_county_code = "x127" then		'Hennepin county specific dialog
 		DO
-			Err_msg = ""
-			Dialog Hennepin_application_NOMI
-			cancel_confirmation
-			'Opening the the HSR manual to the NOMI page
-			IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""
+			DO
+				Err_msg = ""
+				Dialog Hennepin_application_NOMI
+				cancel_confirmation
+				'Opening the the HSR manual to the NOMI page
+				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
+				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
+				If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			LOOP until err_msg = ""
+		Loop until ButtonPressed = -1 		
 	ELSE
 		DO
 			Err_msg = ""
@@ -384,7 +390,7 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	
 	If NOMI_selection = "Second NOMI" then 
 		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(application_date, 30, 5, 18) 
+		call create_MAXIS_friendly_date(application_date, 31, 5, 18) 
 		Call write_variable_in_TIKL(NOMI_selection & " was sent 11 days ago. Check case notes to see if interview has been conducted. Deny the case if the client has not completed the interview to date.")
 		transmit	
 		PF3
@@ -399,15 +405,21 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
 	END IF
 	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
-	Call write_bullet_and_variable_in_CASE_NOTE("Other information," other_info)
+	Call write_bullet_and_variable_in_CASE_NOTE("Other information", other_info)
 	IF worker_county_code = "x127" and NOMI_selection = "First NOMI" then
 		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/MEMO informing them of missed interview.")
 	ELSE
 		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
 	END IF
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
-	If NOMI_selection = "First NOMI" then Call write_variable_in_CASE_NOTE("* A TIKL has been made for 11 days from now to follow-up on application progress.")
-	If NOMI_selection = "Second NOMI" then call write_variable_in_CASE_NOTE("* A TIKL has been made for 30 days from now to follow- up on application progress.")
+	If NOMI_selection = "First NOMI" then 
+		Call write_variable_in_CASE_NOTE("* First NOMI has been sent")
+		Call write_variable_in_CASE_NOTE("* A TIKL has been made for 11 days from now to follow-up on application progress.")
+	END IF
+	If NOMI_selection = "Second NOMI" then 
+		Call write_variable_in_CASE_NOTE("* Second NOMI has been sent")
+		call write_variable_in_CASE_NOTE("* A TIKL has been made for 30 days from now to follow- up on application progress.")
+	END IF 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 End if
