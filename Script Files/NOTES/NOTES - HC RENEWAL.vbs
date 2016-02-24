@@ -62,9 +62,9 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
@@ -85,6 +85,10 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   EditBox 55, 230, 395, 15, actions_taken
   EditBox 60, 260, 90, 15, MAEPD_premium
   CheckBox 10, 280, 65, 10, "Emailed MADE?", MADE_check
+  ButtonGroup ButtonPressed
+    PushButton 85, 280, 65, 10, "SIR mail", SIR_mail_button
+  CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+  CheckBox 175, 270, 85, 10, "MMIS updated?", 
   EditBox 400, 250, 50, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 345, 270, 50, 15
@@ -110,9 +114,6 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
     PushButton 400, 30, 45, 10, "next memb", next_memb_button
     PushButton 5, 135, 25, 10, "COEX/", COEX_button
     PushButton 30, 135, 25, 10, "DCEX:", DCEX_button
-    PushButton 85, 280, 65, 10, "SIR mail", SIR_mail_button
-  GroupBox 5, 5, 60, 40, "Income panels"
-  GroupBox 70, 5, 110, 40, "Asset panels"
   GroupBox 185, 5, 85, 30, "other STAT panels:"
   GroupBox 275, 5, 55, 30, "ELIG panels:"
   GroupBox 335, 5, 115, 40, "STAT-based navigation"
@@ -129,17 +130,16 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   Text 5, 235, 50, 10, "Actions taken:"
   GroupBox 5, 250, 150, 45, "If MA-EPD..."
   Text 10, 265, 50, 10, "New premium:"
-  CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+  GroupBox 70, 5, 110, 40, "Asset panels"
   Text 335, 255, 65, 10, "Worker signature:"
+  GroupBox 5, 5, 60, 40, "Income panels"
 EndDialog
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 Dim row
 Dim col
 HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
