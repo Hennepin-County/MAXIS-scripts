@@ -88,7 +88,7 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   ButtonGroup ButtonPressed
     PushButton 85, 280, 65, 10, "SIR mail", SIR_mail_button
   CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
-  CheckBox 175, 270, 85, 10, "MMIS updated?", 
+  CheckBox 175, 270, 85, 10, "MMIS updated?", MMIS_updated_checkbox
   EditBox 400, 250, 50, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 345, 270, 50, 15
@@ -152,27 +152,31 @@ call MAXIS_case_number_finder(case_number)
 'Grabbing the footer month/year
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
+	MAXIS_footer_month = MAXIS_footer_month
+	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
+	If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
 End if
 
 footer_month = CStr(footer_month)
 
-'Showing the case number dialog 
-Do
-	Dialog case_number_and_footer_month_dialog
-	If ButtonPressed = 0 then stopscript
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+'Showing the case number dialog 	
+Do		
+	err_msg = ""	
+	Do	
+  		Dialog case_number_and_footer_month_dialog    'initial dialog	
+  		If ButtonPressed = 0 then Stopscript    'if cancel is pressed then the script ends	
+  		Call check_for_password(are_we_passworded_out)    'function to see if users is password-ed out	
+	Loop until are_we_passworded_out = false  	'will loop until user is password-ed back in
+	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."	
+	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."	
+	If IsNumeric(case_number) = False or Len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."	
+  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		
+LOOP until err_msg = ""		
 
-'Checking for MAXIS
-CALL check_for_MAXIS(FALSE)
-
+'initial navigation
+Call MAXIS_footer_month_confirmation	'confirming that the footer month/year in the MAXIS panel and the dialog box selected by the user are the same'
 'Navigating to STAT, checks for abended cases
 call navigate_to_MAXIS_screen("stat", "memb")
-
-
 'Creating a custom dialog for determining who the HH members are
 CALL HH_member_custom_dialog(HH_member_array)
 
@@ -193,7 +197,7 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'Creating variable for recert_month
-recert_month = footer_month & "/" & footer_year
+recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'Showing case note dialog, with navigation and required answers logic
 Do
@@ -224,6 +228,7 @@ call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_variable_in_case_note("---")
+If MMIS_updated_checkbox = 1 then Call write_variable_in_case_note("* MMIS updated.")
 call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
 If MADE_check = checked then call write_variable_in_case_note("* Emailed MADE.")
 If MAEPD_premium <> "" or MADE_check = checked then call write_variable_in_case_note("---")		'Does this for MAEPD <> blank because if it's blank and there's no MADE_check, it means there's nothing in this section after the ---, and we don't want two in a row now, do we?
