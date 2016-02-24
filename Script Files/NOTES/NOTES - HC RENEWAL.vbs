@@ -71,6 +71,7 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   EditBox 70, 90, 380, 15, unearned_income
   EditBox 40, 110, 410, 15, assets
   EditBox 60, 130, 95, 15, COEX_DCEX
+  EditBox 265, 130, 185, 15, CEI_availability
   EditBox 100, 150, 350, 15, FIAT_reasons
   EditBox 50, 170, 400, 15, other_notes
   EditBox 45, 190, 405, 15, changes
@@ -102,12 +103,11 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
     PushButton 240, 20, 25, 10, "REVW", REVW_button
     PushButton 285, 20, 35, 10, "HC", ELIG_HC_button
     PushButton 340, 20, 45, 10, "prev. panel", prev_panel_button
-    PushButton 340, 30, 45, 10, "next panel", next_panel_button
     PushButton 400, 20, 45, 10, "prev. memb", prev_memb_button
+    PushButton 340, 30, 45, 10, "next panel", next_panel_button
     PushButton 400, 30, 45, 10, "next memb", next_memb_button
     PushButton 5, 135, 25, 10, "COEX/", COEX_button
     PushButton 30, 135, 25, 10, "DCEX:", DCEX_button
-  GroupBox 185, 5, 85, 30, "other STAT panels:"
   GroupBox 275, 5, 55, 30, "ELIG panels:"
   GroupBox 335, 5, 115, 40, "STAT-based navigation"
   Text 5, 55, 65, 10, "Recert datestamp:"
@@ -126,6 +126,8 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   GroupBox 70, 5, 110, 40, "Asset panels"
   Text 335, 255, 65, 10, "Worker signature:"
   GroupBox 5, 5, 60, 40, "Income panels"
+  GroupBox 185, 5, 85, 30, "other STAT panels:"
+  Text 165, 135, 100, 10, "Cost-effective insa availablity:"
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -206,6 +208,7 @@ call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 call write_bullet_and_variable_in_case_note("Assets", assets)
 call write_bullet_and_variable_in_case_note("COEX/DCEX", COEX_DCEX)
+call write_bullet_and_variable_in_case_note("Cost-effective insurance availability",CEI_availability)
 call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_bullet_and_variable_in_case_note("Changes", changes)
