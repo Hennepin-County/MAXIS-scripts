@@ -191,7 +191,10 @@ Do
 		MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
 		If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
 	Loop until ButtonPressed = -1 		'Loops until OK is selected	
-	If recert_status = "(select one...)" or actions_taken = "" or recert_datestamp = "" or worker_signature = "" then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp, recert status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."			'Warns the user if everything isn't pressed.	
+	If recert_datestamp = "" or IsDate(recert_datestamp) = False then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp."
+	If recert_status = "(select one...)" then err_msg = err_msg & vbNewLine & "* You need to select a recert status."
+	If actions-taken = "" then err_msg = err_msg & vbNewLine & "You need to complete the actions taken field."
+	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine	
 LOOP until err_msg = ""		
 
