@@ -306,6 +306,8 @@ EMConnect ""
 
 'Searches for a case number
 call MAXIS_case_number_finder(case_number)
+'restricting the usage for Hennepin County users
+If worker_county_code = "x127" then script_end_procedure ("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user, or your supervisor if you have questions. Thank you.")
 
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
