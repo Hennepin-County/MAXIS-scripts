@@ -44,136 +44,299 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CUSTOM FUNCTIONS===========================================================================================================
+Function declare_BULK_menu_dialog(script_array)
+	BeginDialog BULK_dialog, 0, 0, 516, 340, "BULK Scripts"
+	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
+	  	ButtonGroup ButtonPressed
+		 	PushButton 015, 35, 30, 15, "BULK", 				BULK_main_button
+		 	PushButton 045, 35, 50, 15, "BULK LISTS", 				BULK_lists_button
+		 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
+
+		'This starts here, but it shouldn't end here :)
+		vert_button_position = 70
+
+		For current_script = 0 to ubound(script_array)
+			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+			'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+			PushButton 		5, 													vert_button_position, 	script_array(current_script).button_size, 	10, 			script_array(current_script).script_name, 			button_placeholder
+			Text 			script_array(current_script).button_size + 10, 		vert_button_position, 	500, 										10, 			"--- " & script_array(current_script).description
+			'----------
+			vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+			'----------
+			script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+			button_placeholder = button_placeholder + 1
+		next
+
+		CancelButton 460, 320, 50, 15
+		GroupBox 5, 20, 205, 35, "BULK Sub-Menus"
+	EndDialog
+End function
+'END CUSTOM FUNCTIONS=======================================================================================================
+
+'VARIABLES TO DECLARE=======================================================================================================
+
+'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
 DIM ButtonPressed
-DIM SIR_instructions_button, dialog_name
-DIM BULK_list_scripts_button, other_BULK_scripts_button
-DIM BULK_CASE_TRANSFER_Button, CEI_PREMIUM_NOTER_button, COLA_AUTO_APPROVED_DAIL_NOTER_button, INAC_SCRUBBER_button, RETURNED_MAIL_button, REVW_MONT_CLOSURES_button
-DIM ACTV_LIST_button, DAIL_REPORT_button, EOMC_LIST_button, PND1_LIST_button, PND2_LIST_button, REVS_LIST_button, REVW_LIST_button, MFCM_LIST_button, ADDRESS_LIST_button, ARST_LIST_button, CHECK_SNAP_FOR_GA_RCA_button, LTC_GRH_LIST_GENERATOR_button, MAEPD_MEDICARE_LIST_button, SWKR_LIST_GENERATOR_button
-DIM NON_MAGI_HC_INFO_button, FIND_PANEL_button, MEMO_FROM_LIST_button, TIKL_FROM_LIST_button, CASE_NOTE_FROM_LIST_button
-DIM INAC_LIST_button
+DIM SIR_instructions_button
+dim BULK_dialog
 
-FUNCTION create_BULK_main_menu(dialog_name)
-	IF dialog_name = "OTHER BULK" THEN
-BeginDialog dialog_name, 0, 0, 456, 325, "Other Bulk Scripts Main Menu"
-  ButtonGroup ButtonPressed
-    PushButton 5, 25, 55, 15, "BULK LISTS", BULK_list_scripts_button
-    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
-    PushButton 10, 75, 80, 10, "CASE/NOTE from list", CASE_NOTE_FROM_LIST_button
-    PushButton 10, 100, 55, 10, "Case Transfer", BULK_CASE_TRANSFER_Button
-    PushButton 10, 125, 70, 10, "CEI premium noter", CEI_PREMIUM_NOTER_button
-    PushButton 10, 140, 110, 10, "COLA auto approved DAIL noter", COLA_AUTO_APPROVED_DAIL_NOTER_button
-    PushButton 10, 165, 55, 10, "INAC scrubber", INAC_SCRUBBER_button
-    PushButton 10, 205, 75, 10, "MEMO from list", MEMO_FROM_LIST_button
-    PushButton 10, 230, 55, 10, "Returned mail", RETURNED_MAIL_button
-    PushButton 10, 255, 80, 10, "REVW/MONT closures", REVW_MONT_CLOSURES_button
-    PushButton 10, 280, 55, 10, "TIKL from list", TIKL_FROM_LIST_button
-    CancelButton 385, 305, 50, 15
-  Text 75, 280, 370, 20, "--- Creates the same TIKLa large number of cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice. "
-  Text 110, 75, 335, 20, "--- Creates the same CASE/NOTE on potentially hundreds of cases listed on REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
-  Text 85, 125, 240, 10, "--- Case notes recurring CEI premiums on multiple cases simultaneously."
-  Text 125, 140, 320, 20, "--- Case notes all cases on DAIL/DAIL that have a message indicating that COLA was auto-approved, copies the messages to an Excel spreadsheet, and deletes the DAIL."
-  Text 70, 165, 375, 35, "--- Checks all cases on REPT/INAC (in the month before the current footer month, or prior) for MMIS discrepancies, active claims, DAIL messages, and ABPS panels in need of update (for Good Cause status), and adds them to a Word document. After that, it case notes all of the cases without DAIL messages or MMIS discrepancies. If your agency uses a closed-file worker number, it will SPEC/XFER the cases from your number into that number."
-  Text 70, 230, 375, 20, "--- Case notes that returned mail (without a forwarding address) was received for up to 60 cases simultaneously, and TIKLs for 10-day return of proofs."
-  Text 95, 255, 350, 20, "--- Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER. Case notes ''last day of REIN'' as well as ''date case becomes an intake.''"
-  Text 65, 30, 375, 10, "-- This will navigate you to the menu for the BULK List Generators."
-  Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
-  Text 75, 100, 355, 20, "---Searches caseload(s) by selected parameters. Will then transfer a specified number of those cases to another worker. Also generates a list of these cases."
-  GroupBox 0, 60, 450, 240, "Other BULK Scripts"
-  Text 95, 205, 370, 20, "--- Creates the same MEMO on a large number of cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice. "
-EndDialog
+script_array_BULK_main = array()
+script_array_BULK_list = array()
 
-	ELSEIF dialog_name = "BULK LISTS" THEN
-		BeginDialog dialog_name, 0, 0, 456, 315, "BULK List Generators"
- 		 ButtonGroup ButtonPressed
-		    PushButton 5, 25, 55, 15, "OTHER BULK", other_BULK_scripts_button
-		    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
-		    PushButton 10, 105, 25, 10, "ACTV", ACTV_LIST_button
-		    PushButton 35, 105, 25, 10, "DAIL", DAIL_REPORT_button
-		    PushButton 60, 105, 25, 10, "EOMC", EOMC_LIST_button
-		    PushButton 85, 105, 25, 10, "INAC", INAC_LIST_button
-		    PushButton 10, 115, 25, 10, "PND1", PND1_LIST_button
-		    PushButton 35, 115, 25, 10, "PND2", PND2_LIST_button
-		    PushButton 60, 115, 25, 10, "REVS", REVS_LIST_button
-		    PushButton 85, 115, 25, 10, "REVW", REVW_LIST_button
-		    PushButton 10, 125, 25, 10, "MFCM", MFCM_LIST_button
-		    PushButton 125, 75, 25, 10, "ADDR", ADDRESS_LIST_button
-		    PushButton 125, 90, 25, 10, "ARST", ARST_LIST_button
-		    PushButton 125, 110, 90, 10, "Check SNAP for GA/RCA", CHECK_SNAP_FOR_GA_RCA_button
-		    PushButton 125, 135, 80, 10, "Find updated panels", FIND_PANEL_button
-		    PushButton 125, 160, 65, 10, "LTC-GRH list gen", LTC_GRH_LIST_GENERATOR_button
-		    PushButton 125, 185, 80, 10, "MA-EPD/Medi Pt B CEI", MAEPD_MEDICARE_LIST_button
-		    PushButton 125, 210, 80, 10, "Non-MAGI HC info", NON_MAGI_HC_INFO_button
-		    PushButton 125, 240, 55, 10, "SWKR list gen", SWKR_LIST_GENERATOR_button
-		    CancelButton 400, 295, 50, 15
-		  Text 5, 5, 235, 10, "Bulk scripts main menu: select the script to run from the choices below."
-		  Text 65, 30, 375, 10, "-- This will navigate you to the menu for the Other BULK scripts."
-		  GroupBox 5, 60, 110, 85, "Case lists"
-		  Text 10, 75, 100, 25, "Case list scripts pull a list of cases into an Excel spreadsheet."
-		  GroupBox 120, 60, 330, 205, "Other bulk lists"
-		  Text 155, 75, 215, 10, "--- Creates a list of all addresses from a caseload(or entire county)."
-		  Text 155, 90, 215, 10, "--- Caseload stats by worker. Includes most MAXIS programs."
-		  Text 225, 110, 205, 20, "--- Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
-		  Text 210, 135, 225, 15, "--- Creates a list of cases from one more more case loads showing when selected panels have been updated."
-		  Text 195, 160, 250, 20, "--- Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload (or group of caseloads)."
-		  Text 210, 185, 230, 20, "--- Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
-		  Text 210, 210, 220, 20, "--- NEW 02/2016!!! Creates a list of cases with non-MAGI HC/PDED information."
-		  Text 185, 240, 260, 20, "--- Creates a list of SWKRs assigned to the various cases in a caseload (or group of caseloads)."
-		EndDialog
-	END IF
 
-	DIALOG dialog_name
+'END VARIABLES TO DECLARE===================================================================================================
 
-END FUNCTION
+'CLASSES TO DEFINE==========================================================================================================
 
-'=====THE SCRIPT=====
-EMConnect ""
+'A class for each script item
+class script
 
-'Setting the default menu to the BULK LISTS
-dialog_name = "BULK LISTS"
-DO
-	'Calling the function that loads the dialogs
-	CALL create_BULK_main_menu(dialog_name)
-		IF ButtonPressed = 0 THEN stopscript
-		'Opening the SIR Instructions
-		IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
+	public script_name
+	public file_name
+	public description
+	public button
 
-		'If the user selects the other sub-menu, the script do-loops with the new dialog_name
-		IF ButtonPressed = BULK_list_scripts_button THEN
-			dialog_name = "BULK LISTS"
-		ELSEIF ButtonPressed = other_BULK_scripts_button THEN
-			dialog_name = "OTHER BULK"
-		END IF
+	public property get button_size	'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
+		button_size = round ( len( script_name ) * 3.5 ) + 10
+	end property
 
-		'If the user selects a script button, the script will exit the do-loop
-LOOP UNTIL ButtonPressed <> SIR_instructions_button AND ButtonPressed <> BULK_list_scripts_button AND ButtonPressed <> other_BULK_scripts_button
+end class
 
-'Available scripts
-If ButtonPressed = ACTV_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-ACTV LIST.vbs")
-IF ButtonPressed = DAIL_REPORT_button THEN 						CALL run_from_GitHub(script_repository & "/BULK/BULK - DAIL REPORT.vbs")
-If ButtonPressed = EOMC_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-EOMC LIST.vbs")
-If ButtonPressed = INAC_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-INAC LIST.vbs")
-If ButtonPressed = PND1_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND1 LIST.vbs")
-If ButtonPressed = PND2_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-PND2 LIST.vbs")
-If ButtonPressed = REVS_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-REVS LIST.vbs")
-If ButtonPressed = REVW_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-REVW LIST.vbs")
-If ButtonPressed = MFCM_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-MFCM LIST.vbs")
-IF ButtonPressed = ADDRESS_LIST_button THEN 					CALL run_from_GitHub(script_repository & "/BULK/BULK - ADDRESS REPORT.vbs")
-If ButtonPressed = ARST_LIST_button then 						call run_from_GitHub(script_repository & "/BULK/BULK - REPT-ARST LIST.vbs")
-IF ButtonPressed = CHECK_SNAP_FOR_GA_RCA_button THEN 			CALL run_from_GitHub(script_repository & "/BULK/BULK - CHECK SNAP FOR GA RCA.vbs")
-If ButtonPressed = LTC_GRH_LIST_GENERATOR_button then 			call run_from_GitHub(script_repository & "/BULK/BULK - LTC-GRH LIST GENERATOR.vbs")
-IF ButtonPressed = MAEPD_MEDICARE_LIST_button THEN 				CALL run_from_GitHub(script_repository & "/BULK/BULK - FIND MAEPD MEDI CEI.vbs")
-If ButtonPressed = NON_MAGI_HC_INFO_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - NON-MAGI HC INFO.vbs")
-If ButtonPressed = SWKR_LIST_GENERATOR_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - SWKR LIST GENERATOR.vbs")
-If ButtonPressed = CASE_NOTE_FROM_LIST_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - CASE NOTE FROM LIST.vbs")
-If ButtonPressed = CEI_PREMIUM_NOTER_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - CEI PREMIUM NOTER.vbs")
-If ButtonPressed = BULK_CASE_TRANSFER_Button then 				call run_from_GitHub(script_repository & "/BULK/BULK - CASE TRANSFER.vbs")
-If ButtonPressed = COLA_AUTO_APPROVED_DAIL_NOTER_button then 	call run_from_GitHub(script_repository & "/BULK/BULK - COLA AUTO APPROVED DAIL NOTER.vbs")
-If ButtonPressed = INAC_SCRUBBER_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - INAC SCRUBBER.vbs")
-If ButtonPressed = MEMO_FROM_LIST_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - MEMO FROM LIST.vbs")
-If ButtonPressed = RETURNED_MAIL_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - RETURNED MAIL.vbs")
-If ButtonPressed = REVW_MONT_CLOSURES_button then 				call run_from_GitHub(script_repository & "/BULK/BULK - REVW-MONT CLOSURES.vbs")
-If ButtonPressed = TIKL_FROM_LIST_button then 					call run_from_GitHub(script_repository & "/BULK/BULK - TIKL FROM LIST.vbs")
-IF ButtonPressed = FIND_PANEL_button THEN 						CALL run_from_GitHub(script_repository & "/BULK/BULK - FIND PANEL UPDATE DATE.vbs")
+'END CLASSES TO DEFINE==========================================================================================================
 
-'Logging usage stats
-script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
+'LIST OF SCRIPTS================================================================================================================
+
+'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
+
+'-------------------------------------------------------------------------------------------------------------------------BULK MAIN MENU
+
+'Resetting the variable
+script_num = 0
+ReDim Preserve script_array_BULK_main(script_num)
+Set script_array_BULK_main(script_num) = new script
+script_array_BULK_main(script_num).script_name 			= "CASE/NOTE from List"																		'Script name
+script_array_BULK_main(script_num).file_name 				= "BULK - CASE NOTE FROM LIST.vbs"															'Script URL
+script_array_BULK_main(script_num).description 			= "Creates the same case note on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name 			= "Case Transfer"																		'Script name
+script_array_BULK_main(script_num).file_name 				= "BULK - CASE TRANSFER.vbs"															'Script URL
+script_array_BULK_main(script_num).description 			= "Searches caseload(s) by selected parameters. Transfers a specified number of those cases to another worker. Creates list of these cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "CEI Premium Noter"
+script_array_BULK_main(script_num).file_name				= "BULK - CEI PREMIUM NOTER.vbs"
+script_array_BULK_main(script_num).description				= "Case notes recurring CEI premiums on multiple cases simultaneously."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "COLA Auto-approved Dail Noter"
+script_array_BULK_main(script_num).file_name				= "BULK - COLA AUTO APPROVED DAIL NOTER.vbs"
+script_array_BULK_main(script_num).description				= "Case notes all cases on DAIL/DAIL with Auto-approved COLA message, creates list of these messages, deletes the DAIL."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "INAC Scrubber"
+script_array_BULK_main(script_num).file_name				= "BULK - INAC SCRUBBER.vbs"
+script_array_BULK_main(script_num).description				= "Checks cases on REPT/INAC (for criteria see SIR) case notes if passes criteria, and transfers if agency uses closed-file worker number. "
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "MEMO from List"
+script_array_BULK_main(script_num).file_name				= "BULK - MEMO FROM LIST.vbs"
+script_array_BULK_main(script_num).description				= "Creates the same MEMO on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "Returned Mail"
+script_array_BULK_main(script_num).file_name				= "BULK - RETURNED MAIL.vbs"
+script_array_BULK_main(script_num).description				= "Case notes that returned mail (without a forwarding address) was received for up to 60 cases, TIKLs for 10-day return."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= " REVW/MONT Closures "													'needs spaces to generate button width properly.
+script_array_BULK_main(script_num).file_name				= "BULK - REVW-MONT CLOSURES.vbs"
+script_array_BULK_main(script_num).description				= "Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "TIKL from List"
+script_array_BULK_main(script_num).file_name				= "BULK - TIKL FROM LIST.vbs"
+script_array_BULK_main(script_num).description				= "Creates the same TIKL on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
+
+
+
+'-------------------------------------------------------------------------------------------------------------------------BULK LISTS
+'Resetting the variable
+script_num = 0
+ReDim Preserve script_array_BULK_list(script_num)
+Set script_array_BULK_list(script_num) = new script
+script_array_BULK_list(script_num).script_name 			= "ADDR"																		'Script name
+script_array_BULK_list(script_num).file_name			= "BULK - ADDRESS REPORT.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of all addresses from a caseload(or entire county)."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "ACTV"
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-ACTV LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/ACTV into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "ARST"
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-ARST LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/ARST into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " Check SNAP for GA/RCA "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - CHECK SNAP FOR GA RCA.vbs"
+script_array_BULK_list(script_num).description 			= "Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "DAIL"
+script_array_BULK_list(script_num).file_name			= "BULK - DAIL REPORT.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of DAILS in DAIL/DAIL into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " EOMC "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-EOMC LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/EOMC into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "Find Updated Panels"
+script_array_BULK_list(script_num).file_name			= "BULK - FIND PANEL UPDATE DATE.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of cases from a caseload(s) showing when selected panels have been updated."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "INAC"
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-INAC LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "LTC-GRH List Gen"
+script_array_BULK_list(script_num).file_name			= "BULK - LTC-GRH LIST GENERATOR.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload(s)."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "MA-EPD/Medi Pt B CEI"
+script_array_BULK_list(script_num).file_name			= "BULK - FIND MAEPD MEDI CEI.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " MFCM "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-MFCM LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MFCM into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "Non-MAGI HC Info"
+script_array_BULK_list(script_num).file_name			= "BULK - NON-MAGI HC INFO.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of cases with non-MAGI HC/PDED information."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "PND1"
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-PND1 LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/PND1 into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "PND2"
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-PND2 LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/PND2 into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " REVS "													'needs spaces to generate button width properly.							
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-REVS LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/REVS into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " REVW "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-REVW LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/REVW into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "SWKR List Gen"
+script_array_BULK_list(script_num).file_name			= "BULK - SWKR LIST GENERATOR.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of SWKRs assigned to the various cases in a caseload(s)."
+
+
+
+'Starting these with a very high number, higher than the normal possible amount of buttons.
+'	We're doing this because we want to assign a value to each button pressed, and we want
+'	that value to change with each button. The button_placeholder will be placed in the .button
+'	property for each script item. This allows it to both escape the Function and resize
+'	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
+'	to force the value of ButtonPressed to hold in near infinite iterations.
+button_placeholder 	= 24601
+BULK_main_button		= 1000
+BULK_lists_button		= 2000
+
+
+'Displays the dialog
+Do
+	If ButtonPressed = "" or ButtonPressed = BULK_main_button then
+		declare_BULK_menu_dialog(script_array_BULK_main)
+	ElseIf ButtonPressed = BULK_lists_button then
+		declare_BULK_menu_dialog(script_array_BULK_list)
+	End if
+
+	dialog BULK_dialog
+
+	If ButtonPressed = 0 then stopscript
+    'Opening the SIR Instructions
+	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
+Loop until 	ButtonPressed <> SIR_instructions_button and _
+			ButtonPressed <> BULK_main_button and _
+			ButtonPressed <> BULK_lists_button 
+
+'MsgBox buttonpressed = script_array_BULK_main(0).button
+
+'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
+For i = 0 to ubound(script_array_BULK_main)
+	If ButtonPressed = script_array_BULK_main(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_main(i).file_name)
+Next
+
+For i = 0 to ubound(script_array_BULK_list)
+	If ButtonPressed = script_array_BULK_list(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_list(i).file_name)
+Next
+
+stopscript
