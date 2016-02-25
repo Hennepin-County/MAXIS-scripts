@@ -77,7 +77,7 @@ Scriptwriters are encouraged to tackle any issues on the issue list, so long as 
 * Issue title should be short (under 75 characters, or about the size of a case note header). This goes in the subject line for emails, so keep it clean.
 * For existing scripts, please indicate the script category/name at the beginning of the issue (ex. "NOTES - CAF: needs longer space for 'other notes'"). This is helpful for organization.
 * If there are multiple issues with an existing script, create separate issues for each. This is easier both for release notes tracking and for recipients of GitHub update emails.
-* Don't upload screenshots of code, as it does not meet accessibility standards (and can't easily be copy/pasted). If you want to discuss code snippets, copy/paste them and surround them in blocks using GitHub markdown's default format (3 backticks: ```).
+* Don't upload screenshots of code, as it does not meet accessibility standards (and can't easily be copy/pasted). If you want to discuss code snippets, copy/paste them and surround them in blocks using GitHub markdown's default format (3 backticks).
 * If you have a question, it should only be posted if you believe a change to a script is necessary or wise. If it's a general scripts question, it is better addressed on the SIR discussion forum or via email.
 
 #### Critical issues
@@ -168,6 +168,8 @@ A typical (potential) BlueZone Scriptwriter has excellent critical thinking skil
 Trainings for BlueZone Scriptwriters are conducted on occasion. Contact a script administrator if you're interested in this.
 
 BlueZone Scripts "hackathons" take place the 2nd and 4th Monday of each month. Any trained scriptwriter is permitted to attend with permission from their supervisor and state administrators. Contact a script administrator to find out more.
+
+Our team maintains a [Slack organization](https://slack.com) which county and state scriptwriters can use to communicate quickly and easily. The organization can be found at [mn-script-team.slack.com](https://mn-script-team.slack.com).
 
 
 _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
