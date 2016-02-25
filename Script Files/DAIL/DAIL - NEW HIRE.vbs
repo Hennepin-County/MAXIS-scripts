@@ -231,7 +231,6 @@ Do
 	PF3
 Loop until DAIL_check = "DAIL"
 
-msgbox "Do you want to case note?"
 'Navigates to case note
 EMSendKey "n"
 transmit
