@@ -124,16 +124,16 @@ Do
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
 LOOP UNTIL worker_signature <> ""  
 
+'Checks for an active MAXIS session
+call check_for_MAXIS(False)
+'checking to make sure case is out of background
+MAXIS_background_check
+
 'navigating the script to the correct footer month
 back_to_self
 EMWriteScreen MAXIS_footer_month, 20, 43
 EMWriteScreen MAXIS_footer_year, 20, 46
 call navigate_to_MAXIS_screen("STAT", "FACI")
-
-'Checks for an active MAXIS session
-call check_for_MAXIS(False)
-'checking to make sure case is out of background
-MAXIS_background_check
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -183,6 +183,13 @@ End if
 'HCMI
 If HCMI_update_check = 1 THEN
 	call navigate_to_MAXIS_screen("stat", "hcmi") 
+	EMReadScreen HCMI_panel_check, 1, 2, 78
+	IF HCMI_panel_check <> 0 Then
+		PF9
+	ELSE
+		EMWriteScreen "nn", 20, 79
+		transmit
+	END IF 
 	EMWriteScreen "dp", 10, 57
 	transmit
 	transmit
