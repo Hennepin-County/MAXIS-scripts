@@ -50,21 +50,14 @@ STATS_manualtime = 540          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
@@ -78,6 +71,7 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   EditBox 70, 90, 380, 15, unearned_income
   EditBox 40, 110, 410, 15, assets
   EditBox 60, 130, 95, 15, COEX_DCEX
+  EditBox 265, 130, 185, 15, CEI_availability
   EditBox 100, 150, 350, 15, FIAT_reasons
   EditBox 50, 170, 400, 15, other_notes
   EditBox 45, 190, 405, 15, changes
@@ -85,6 +79,10 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   EditBox 55, 230, 395, 15, actions_taken
   EditBox 60, 260, 90, 15, MAEPD_premium
   CheckBox 10, 280, 65, 10, "Emailed MADE?", MADE_check
+  ButtonGroup ButtonPressed
+    PushButton 85, 280, 65, 10, "SIR mail", SIR_mail_button
+  CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+  CheckBox 175, 270, 85, 10, "MMIS updated?", MMIS_updated_checkbox
   EditBox 400, 250, 50, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 345, 270, 50, 15
@@ -105,15 +103,11 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
     PushButton 240, 20, 25, 10, "REVW", REVW_button
     PushButton 285, 20, 35, 10, "HC", ELIG_HC_button
     PushButton 340, 20, 45, 10, "prev. panel", prev_panel_button
-    PushButton 340, 30, 45, 10, "next panel", next_panel_button
     PushButton 400, 20, 45, 10, "prev. memb", prev_memb_button
+    PushButton 340, 30, 45, 10, "next panel", next_panel_button
     PushButton 400, 30, 45, 10, "next memb", next_memb_button
     PushButton 5, 135, 25, 10, "COEX/", COEX_button
     PushButton 30, 135, 25, 10, "DCEX:", DCEX_button
-    PushButton 85, 280, 65, 10, "SIR mail", SIR_mail_button
-  GroupBox 5, 5, 60, 40, "Income panels"
-  GroupBox 70, 5, 110, 40, "Asset panels"
-  GroupBox 185, 5, 85, 30, "other STAT panels:"
   GroupBox 275, 5, 55, 30, "ELIG panels:"
   GroupBox 335, 5, 115, 40, "STAT-based navigation"
   Text 5, 55, 65, 10, "Recert datestamp:"
@@ -129,10 +123,12 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   Text 5, 235, 50, 10, "Actions taken:"
   GroupBox 5, 250, 150, 45, "If MA-EPD..."
   Text 10, 265, 50, 10, "New premium:"
-  CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+  GroupBox 70, 5, 110, 40, "Asset panels"
   Text 335, 255, 65, 10, "Worker signature:"
+  GroupBox 5, 5, 60, 40, "Income panels"
+  GroupBox 185, 5, 85, 30, "other STAT panels:"
+  Text 165, 135, 100, 10, "Cost-effective insa availablity:"
 EndDialog
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -140,39 +136,32 @@ Dim row
 Dim col
 HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
 
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
 'Connecting to BlueZone
 EMConnect ""
 
 'Grabbing the case number
 call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
-End if
+'Showing the case number dialog 	
+Do		
+	err_msg = ""	
+	Do	
+  		Dialog case_number_and_footer_month_dialog    'initial dialog	
+  		If ButtonPressed = 0 then Stopscript    'if cancel is pressed then the script ends	
+  		Call check_for_password(are_we_passworded_out)    'function to see if users is password-ed out	
+	Loop until are_we_passworded_out = false  	'will loop until user is password-ed back in
+	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."	
+	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."	
+	If IsNumeric(case_number) = False or Len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."	
+  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		
+LOOP until err_msg = ""		
 
-footer_month = CStr(footer_month)
-
-'Showing the case number dialog 
-Do
-	Dialog case_number_and_footer_month_dialog
-	If ButtonPressed = 0 then stopscript
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
-
-'Checking for MAXIS
-CALL check_for_MAXIS(FALSE)
-
+'initial navigation
+Call MAXIS_footer_month_confirmation	'confirming that the footer month/year in the MAXIS panel and the dialog box selected by the user are the same'
 'Navigating to STAT, checks for abended cases
 call navigate_to_MAXIS_screen("stat", "memb")
-
-
 'Creating a custom dialog for determining who the HH members are
 CALL HH_member_custom_dialog(HH_member_array)
 
@@ -193,21 +182,23 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'Creating variable for recert_month
-recert_month = footer_month & "/" & footer_year
+recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'Showing case note dialog, with navigation and required answers logic
 Do
-	Do
-		Do
-			Dialog HC_ER_dialog				'Displays the dialog
-			cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
-			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
-			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
-		Loop until ButtonPressed = -1 		'Loops until OK is selected
-		If recert_status = "(select one...)" or actions_taken = "" or recert_datestamp = "" or worker_signature = "" then MsgBox "You need to fill in the datestamp, recert status, and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."			'Warns the user if everything isn't pressed.
-	Loop until recert_status <> "(select one...)" and actions_taken <> "" and recert_datestamp <> "" and worker_signature <> "" 
-	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+	Do		
+		err_msg = ""	
+		Dialog HC_ER_dialog				'Displays the dialog
+		cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
+		MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
+		If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
+	Loop until ButtonPressed = -1 		'Loops until OK is selected	
+	If recert_datestamp = "" or IsDate(recert_datestamp) = False then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp."
+	If recert_status = "(select one...)" then err_msg = err_msg & vbNewLine & "* You need to select a recert status."
+	If actions_taken = "" then err_msg = err_msg & vbNewLine & "You need to complete the actions taken field."
+	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine	
+LOOP until err_msg = ""		
 
 'The case note----------------------------------------------------------------------------------------------------
 call start_a_blank_case_note
@@ -217,12 +208,14 @@ call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 call write_bullet_and_variable_in_case_note("Assets", assets)
 call write_bullet_and_variable_in_case_note("COEX/DCEX", COEX_DCEX)
+call write_bullet_and_variable_in_case_note("Cost-effective insurance availability",CEI_availability)
 call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_bullet_and_variable_in_case_note("Changes", changes)
 call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+If MMIS_updated_checkbox = 1 then Call write_variable_in_case_note("* MMIS updated.")
 call write_variable_in_case_note("---")
 call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
 If MADE_check = checked then call write_variable_in_case_note("* Emailed MADE.")
