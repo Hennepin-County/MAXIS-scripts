@@ -1,4 +1,3 @@
-worker_county_code = "x127"
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTICES - NOMI.vbs"
 start_time = timer
