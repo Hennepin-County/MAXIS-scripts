@@ -434,7 +434,7 @@ Next
 
 'Here the script will use the program listed in the array to determine where to go to find the amounts - then add them to the array
 For all_elig_results = 0 to UBound (bene_amount_array,2)
-	If bene_amount_array(0, all_elig_results) = "Food" Then
+	If bene_amount_array(0, all_elig_results) = "Food" AND snap_approved_check = checked Then
 		Call navigate_to_MAXIS_screen("ELIG", "FS")
 		EMWriteScreen bene_amount_array (1, all_elig_results), 19, 54
 		EMWriteScreen bene_amount_array (2, all_elig_results), 19, 57
@@ -479,7 +479,7 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				End If
 			End If 
 		End If 
-	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" Then 
+	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" AND cash_approved_check = checked Then 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
 		row = 1
@@ -540,10 +540,10 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				End If
 			End If
 		End If
-	ElseIf bene_amount_array(0, all_elig_results) = "DWP" THEN
+	ElseIf bene_amount_array(0, all_elig_results) = "DWP" AND cash_approved_check = checked THEN
 		Call navigate_to_MAXIS_screen("ELIG", "DWP")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
-		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59 
+		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
 		EMWriteScreen "DWSM", 20, 71 
 		transmit
 		EMReadScreen cash_approved_version, 8, 3, 3 
@@ -589,7 +589,7 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				End If
 			End If 
 		End If
-	ElseIf bene_amount_array(0, all_elig_results) = "GA" THEN
+	ElseIf bene_amount_array(0, all_elig_results) = "GA" AND cash_approved_check = checked THEN
 		'GA portion
 		call navigate_to_MAXIS_screen("ELIG", "GA")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 54 
@@ -634,7 +634,7 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				END IF
 			End If 
 		END IF
-	ELSEIF bene_amount_array(0, all_elig_results) = "MSA" THEN
+	ELSEIF bene_amount_array(0, all_elig_results) = "MSA" AND cash_approved_check = checked THEN
 		'MSA portion
 		call navigate_to_MAXIS_screen("ELIG", "MSA")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
@@ -751,7 +751,7 @@ IF postponed_verif_check = checked THEN write_variable_in_CASE_NOTE("**EXPEDITED
 IF benefit_breakdown <> "" THEN call write_bullet_and_variable_in_case_note("Benefit Breakdown", benefit_breakdown)
 IF autofill_check = checked THEN
 	FOR snap_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,snap_approvals) = "Food" THEN
+		IF bene_amount_array (0,snap_approvals) = "Food" AND snap_approved_check = checked THEN
 			snap_header = ("SNAP for " & bene_amount_array(1,snap_approvals) & "/" & bene_amount_array(2,snap_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE (snap_header, FormatCurrency(bene_amount_array(3,snap_approvals)) & " " & bene_amount_array(10,snap_approvals))
 			IF bene_amount_array (4, snap_approvals) <> "" THEN
@@ -760,7 +760,7 @@ IF autofill_check = checked THEN
 		End If
 	Next 
 	FOR mfip_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,mfip_approvals) = "MFIP" THEN
+		IF bene_amount_array (0,mfip_approvals) = "MFIP" AND cash_approved_check = checked THEN
 			Call write_variable_in_CASE_NOTE ("MFIP for " & bene_amount_array(1,mfip_approvals) & "/" & bene_amount_array(2,mfip_approvals) & " " & bene_amount_array(10,mfip_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Cash Portion", FormatCurrency(bene_amount_array(5, mfip_approvals)))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Food Portion", FormatCurrency(bene_amount_array(3, mfip_approvals)))
@@ -771,7 +771,7 @@ IF autofill_check = checked THEN
 		End If
 	Next 
 	FOR dwp_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,dwp_approvals) = "DWP" THEN
+		IF bene_amount_array (0,dwp_approvals) = "DWP" AND cash_approved_check = checked THEN
 			Call write_variable_in_CASE_NOTE ("DWP for " & bene_amount_array(1,dwp_approvals) & "/" & bene_amount_array(2,dwp_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Shelter Benefit", FormatCurrency(bene_amount_array(7, dwp_approvals)))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Personal Needs", FormatCurrency(bene_amount_array(8, dwp_approvals)))
@@ -781,13 +781,13 @@ IF autofill_check = checked THEN
 		End If
 	Next 			
 	FOR msa_approvals = 0 to UBound(bene_amount_array, 2) 
-		IF bene_amount_array (0,msa_approvals) = "MSA" THEN
+		IF bene_amount_array (0,msa_approvals) = "MSA" AND cash_approved_check = checked THEN
 			msa_header = ("MSA for " & bene_amount_array(1,msa_approvals) & "/" & bene_amount_array(2, msa_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(9,msa_approvals)))
 		End If
 	Next 
 	FOR ga_approvals = 0 to UBound(bene_amount_array, 2) 
-		IF bene_amount_array (0,ga_approvals) = "GA" THEN
+		IF bene_amount_array (0,ga_approvals) = "GA" AND cash_approved_check = checked THEN
 			ga_header = ("GA for " & bene_amount_array(1,ga_approvals) & "/" & bene_amount_array(2,ga_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(9,ga_approvals)))
 			IF bene_amount_array (4, ga_approvals) <> "" THEN
