@@ -53,8 +53,8 @@ STATS_denomination = "C"                   'C is for each CASE
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, case_number
-  EditBox 80, 25, 30, 15, MAXIS_footer_month
-  EditBox 110, 25, 30, 15, MAXIS_footer_year
+  EditBox 80, 25, 30, 15, footer_month
+  EditBox 110, 25, 30, 15, footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
@@ -265,7 +265,7 @@ application_signed_checkbox = checked 'The script should default to having the a
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 Call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Call MAXIS_footer_finder(footer_month, footer_year)
 
 'initial dialog
 Do
@@ -449,11 +449,11 @@ If client_delay_TIKL_checkbox = checked then
 	PF3
 End if
 '----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
-'----IF the DatePart("M", CAF_datestamp) = MAXIS_footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then 
+'----IF the DatePart("M", CAF_datestamp) = footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then 
 '---------the script generates a TIKL.
 footer_comparison_month = DatePart("M", CAF_datestamp)
 IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
-IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
+IF CAF_type = "Recertification" AND footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
 	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
@@ -472,7 +472,7 @@ Call start_a_blank_CASE_NOTE
 If CAF_status <> "" then CAF_status = ": " & CAF_status
 
 'Adding footer month to the recertification case notes
-If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " recert"
+If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year & " recert"
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & CAF_status & "***")
