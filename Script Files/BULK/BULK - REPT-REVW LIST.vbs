@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-------------------------------------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
   EditBox 140, 20, 140, 15, worker_number
@@ -60,11 +64,10 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data in
   Text 70, 25, 65, 10, "Worker(s) to check:"
   Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 70, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------
-
 'Connects to BlueZone
 EMConnect ""
 
@@ -81,7 +84,7 @@ Call check_for_MAXIS(True)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker, case number, and name
@@ -91,7 +94,6 @@ ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 objExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(1, 3).Value = "NAME"
 objExcel.Cells(1, 3).Font.Bold = TRUE
-
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
@@ -150,9 +152,9 @@ Else
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 
@@ -177,7 +179,7 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-			Do			
+			Do
 				EMReadScreen case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
 				EMReadScreen cash_status, 1, MAXIS_row, 35		'Reading cash status
@@ -212,7 +214,7 @@ For each worker in worker_array
 				interview_date = trim(replace(interview_date, "__ __ __", ""))
 
 				'Adding the case to Excel
-				If add_case_info_to_Excel = True then 
+				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
@@ -220,7 +222,7 @@ For each worker in worker_array
 					ObjExcel.Cells(excel_row, interview_date_col).Value = replace(interview_date, " ", "/")
 					If SNAP_check = checked then ObjExcel.Cells(excel_row, snap_actv_col).Value = SNAP_status
 					If cash_check = checked then ObjExcel.Cells(excel_row, cash_actv_col).Value = cash_status
-					If HC_check = checked then 
+					If HC_check = checked then
 						ObjExcel.Cells(excel_row, HC_actv_col).Value = HC_status
 						ObjExcel.Cells(excel_row, exempt_IR_col).Value = exempt_IR_status
 						ObjExcel.Cells(excel_row, MAGI_col).Value = MAGI_status
@@ -235,6 +237,7 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
@@ -249,7 +252,7 @@ ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes ba
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
 'SNAP info
-If SNAP_check = checked then	
+If SNAP_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "SNAP cases with unapproved review:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & SNAP_letter_col & ":" & SNAP_letter_col & ") - 1"	'Excel formula
@@ -269,7 +272,7 @@ If SNAP_check = checked then
 End if
 
 'HC info
-If HC_check = checked then	
+If HC_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "HC cases with unapproved review:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & HC_letter_col & ":" & HC_letter_col & ") - 1"	'Excel formula
@@ -293,7 +296,7 @@ If HC_check = checked then
 End if
 
 'cash info
-If cash_check = checked then	
+If cash_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "Cash cases with unapproved review:"	'Row header
 	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTA(" & cash_letter_col & ":" & cash_letter_col & ") - 1"	'Excel formula
@@ -318,4 +321,5 @@ For col_to_autofit = 1 to col_to_use
 Next
 
 'Logging usage stats
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("")

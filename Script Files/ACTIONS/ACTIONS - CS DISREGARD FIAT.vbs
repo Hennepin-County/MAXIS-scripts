@@ -3,14 +3,11 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ACTIONS - CS DISREGARD FIAT.vbs"
 start_time = timer
-
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -21,7 +18,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -32,7 +29,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -48,8 +45,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOG
-'===========================================================================================================================
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 101                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
+
+'DIALOG===========================================================================================================================
 BeginDialog CSD_FIAT_dlg, 0, 0, 161, 95, "Child Support Disregard FIATer"
   EditBox 60, 5, 90, 15, case_number
   EditBox 60, 25, 20, 15, footer_month
@@ -316,6 +318,10 @@ IF DWP_cash_status <> "" THEN
 						Household_array(i, 6) = disregard_limit - applied_dwp_disregard
 						applied_dwp_disregard = applied_dwp_disregard + Household_array(i, 6)
 					End if
+					'For whatever reason, the script was creating a very very small value instead of 0 and
+					'using scientific notation to display it. This was causing a problem when it came time
+					'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+					'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
 					IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 					EMwritescreen FormatNumber(Household_array(i, 6)), 17, 50
 					MsgBox "The script is applying " & FormatNumber(Household_array(i, 6)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
@@ -401,6 +407,10 @@ IF MFIP_cash_status <> "" THEN
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 6)
 							MsgBox "The script is applying " & Household_array(i, 6) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."
 						END IF
+						'For whatever reason, the script was creating a very very small value instead of 0 and
+						'using scientific notation to display it. This was causing a problem when it came time
+						'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+						'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
 						IF Household_array(i, 6) < 0.01 THEN Household_array(i, 6) = 0
 						EMWriteScreen Household_array(i, 6), 21, 44
 						transmit
@@ -415,6 +425,10 @@ IF MFIP_cash_status <> "" THEN
 							Household_array(i, 5) = disregard_limit - applied_mfip_disregard
 							applied_mfip_disregard = applied_mfip_disregard + Household_array(i, 5)
 						END IF
+						'For whatever reason, the script was creating a very very small value instead of 0 and
+						'using scientific notation to display it. This was causing a problem when it came time
+						'to applying the disregard. Instead of applying $0.0000000000000284, the script was 
+						'applying $2.84 because the amount was help in scientific notation as 2.84 * 10^-14.
 						IF Household_array(i, 5) < 0.01 THEN Household_array(i, 5) = 0
 						EMWriteScreen FormatNumber(Household_array(i, 5)), 21, 44
 						MsgBox "The script is applying " & FormatNumber(Household_array(i, 5)) & " toward the disregard"  & vbCr & vbCr & "Press OK to continue."

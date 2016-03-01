@@ -15,7 +15,7 @@ IF run_locally = False THEN
 		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 		Execute req.responseText								'Executes the script code
 	ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-		MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+		MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 				vbCr & _
 				"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 				vbCr & _
@@ -26,7 +26,7 @@ IF run_locally = False THEN
 				vbTab & vbTab & "responsible for network issues." & vbCr &_
 				vbTab & "- The script URL indicated below (a screenshot should suffice)." & vbCr &_
 				vbCr & _
-				"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+				"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 				vbCr &_
 				"URL: " & script_URL
 				script_end_procedure("Script ended due to error connecting to GitHub.")

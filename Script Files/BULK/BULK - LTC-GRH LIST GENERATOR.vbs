@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,11 +44,16 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 80                      'manual run time in seconds
+STATS_denomination = "C"       						 'C is for each CASE
+'END OF stats block==============================================================================================
+
 'CONNECTS TO BlueZone
 EMConnect ""
 'grabbing current footer month/year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
 BeginDialog LTC_GRH_list_generator_dialog, 0, 0, 156, 115, "LTC-GRH list generator dialog"
@@ -65,9 +68,8 @@ BeginDialog LTC_GRH_list_generator_dialog, 0, 0, 156, 115, "LTC-GRH list generat
   Text 5, 30, 45, 10, "Footer month:"
   Text 85, 30, 40, 10, "Footer year:"
   Text 5, 50, 65, 10, "Worker number(s):"
-  Text 5, 65, 145, 25, "Enter last three digits of each, (ex: x100###). If entering multiple workers, separate each with a comma."
+  Text 5, 65, 145, 25, "Enter 7 digits of each, (ex: x######). If entering multiple workers, separate each with a comma."
 EndDialog
-
 
 'DISPLAYS DIALOG
 Dialog LTC_GRH_list_generator_dialog
@@ -104,9 +106,9 @@ If SELF_check = "SELF" then script_end_procedure("Can't get past SELF menu. Chec
 excel_row = 2
 
 'OPENS A NEW EXCEL SPREADSHEET
-Set objExcel = CreateObject("Excel.Application") 
-objExcel.Visible = True  
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
 
 'FORMATS THE EXCEL SPREADSHEET WITH THE HEADERS, AND SETS THE COLUMN WIDTH
 ObjExcel.Cells(1, 1).Value = "WORKER"
@@ -137,19 +139,18 @@ For each worker in worker_number_array
 
 	If trim(worker) = "" then exit for
 
-	worker_ID = worker_county_code & trim(worker)
+	worker_ID = trim(worker)
 
 	If REPT_panel = "REPT/ACTV" then 'THE REPT PANEL HAS THE worker NUMBER IN DIFFERENT COLUMNS. THIS WILL DETERMINE THE CORRECT COLUMN FOR THE worker NUMBER TO GO
 		worker_ID_col = 13
 	Else
 		worker_ID_col = 6
 	End if
-	EMReadScreen default_worker_number, 3, 21, worker_ID_col 'CHECKING THE CURRENT worker NUMBER. IF IT DOESN'T NEED TO CHANGE IT WON'T. OTHERWISE, THE SCRIPT WILL INPUT THE CORRECT NUMBER.
-	If ucase(worker_ID) <> default_worker_number then
+	EMReadScreen default_worker_number, 7, 21, worker_ID_col 'CHECKING THE CURRENT worker NUMBER. IF IT DOESN'T NEED TO CHANGE IT WON'T. OTHERWISE, THE SCRIPT WILL INPUT THE CORRECT NUMBER.
+	If ucase(worker_ID) <> ucase(default_worker_number) then
 		EMWriteScreen worker_ID, 21, worker_ID_col
 		transmit
 	End if
-
 
 	'THIS DO...LOOP DUMPS THE CASE NUMBER AND NAME OF EACH CLIENT INTO A SPREADSHEET
 	Do
@@ -178,9 +179,7 @@ For each worker in worker_number_array
 		Loop until row = 19 or trim(case_number) = ""
 
 		PF8 'going to the next screen
-
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
-
 next
 
 'NOW THE SCRIPT IS CHECKING STAT/FACI FOR EACH CASE.----------------------------------------------------------------------------------------------------
@@ -189,7 +188,7 @@ excel_row = 2 'Resetting the case row to investigate.
 
 do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no more case numbers
 	FACI_name = "" 'Resetting this variable in case a FACI cannot be found.
-	case_number = ObjExcel.Cells(excel_row, 2).Value 
+	case_number = ObjExcel.Cells(excel_row, 2).Value
 	If case_number = "" then exit do
 
 	'This Do...loop gets back to SELF
@@ -218,7 +217,7 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 		If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or (in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
 			currently_in_FACI = True
 			exit do
-		Elseif FACI_current_panel = FACI_total_check then 
+		Elseif FACI_current_panel = FACI_total_check then
 			currently_in_FACI = False
 			exit do
 		Else
@@ -249,8 +248,8 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	ObjExcel.Cells(excel_row, 6).Value = DISA_waiver_type
 
 	excel_row = excel_row + 1 'setting up the script to check the next row.
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 loop
 
-MsgBox "Success! Your list has been created."
-
-script_end_procedure("")
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+script_end_procedure("Success! Your list has been created.")

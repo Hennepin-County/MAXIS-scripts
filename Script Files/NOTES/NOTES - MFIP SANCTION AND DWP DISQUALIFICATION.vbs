@@ -1,17 +1,9 @@
 'OPTION EXPLICIT
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 start_time = timer
 
-'DIM name_of_script
-'DIM start_time
-'DIM FuncLib_URL
-'DIM run_locally
-'DIM default_directory
-'DIM beta_agency
-'DIM req
-'DIM fso
+'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
 
 ''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -56,6 +48,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 180          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'Dimming variables----------------------------------------------------------------------------------------------------
 'DIM MFIP_Sanction_DWP_Disq_Dialog
@@ -179,7 +177,7 @@ DO
 	IF IsDate(Date_Sanction) = FALSE THEN 
 			err_msg = err_msg & vbCr & "You need to enter a valid date of sanction (MM/DD/YYYY)."
 		'logic for figuring out if its the first of the month, if it's not, then it gives a more define date requirement
-		ELSEIf Date_Sanction <> datepart ("m", Date_Sanction) & "/01/" & datepart("yyyy", Date_Sanction) THEN  
+		ELSEIF datepart("d", Date_Sanction) <> 1 THEN  
 			err_msg = "You need to enter a valid date of sanction (MM/DD/YYYY), with DD = to first of the sanction month)"
 		END IF
 	IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
