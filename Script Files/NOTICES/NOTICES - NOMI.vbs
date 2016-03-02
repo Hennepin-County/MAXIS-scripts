@@ -95,7 +95,7 @@ BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
 EndDialog
 
 'Hennepin County specific dialogs
-BeginDialog Hennepin_application_NOMI, 0, 0, 306, 255, "Hennepin County Application SNAP NOMI"
+BeginDialog Hennepin_application_NOMI, 0, 0, 306, 270, "Hennepin County Application SNAP NOMI"
   DropListBox 90, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 240, 10, 55, 15, case_number
   EditBox 90, 35, 60, 15, date_of_missed_interview
@@ -105,12 +105,12 @@ BeginDialog Hennepin_application_NOMI, 0, 0, 306, 255, "Hennepin County Applicat
   EditBox 90, 90, 205, 15, contact_attempts
   EditBox 90, 115, 205, 15, other_info
   CheckBox 10, 140, 150, 10, "Check here to update PND2 for client delay.", client_delay_check
-  EditBox 70, 160, 115, 15, worker_signature
+  CheckBox 10, 155, 285, 10, "Check here if HH has applied for MFIP/DWP, and requires a face-to-face interview.", CASH_check
+  EditBox 70, 170, 115, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 190, 160, 50, 15
-    CancelButton 245, 160, 50, 15
+    OkButton 190, 170, 50, 15
+    CancelButton 245, 170, 50, 15
     PushButton 200, 135, 95, 15, "HSR manual NOMI page", HSR_NOMI_button
-  Text 5, 165, 60, 10, "Worker signature:"
   Text 5, 95, 85, 10, "Attempts to contact client:"
   Text 185, 15, 45, 10, "Case number:"
   Text 5, 15, 70, 10, "Region of residence: "
@@ -118,10 +118,11 @@ BeginDialog Hennepin_application_NOMI, 0, 0, 306, 255, "Hennepin County Applicat
   Text 160, 70, 60, 10, "Which NOMI sent:"
   Text 5, 40, 75, 10, "Missed interview date:"
   Text 15, 120, 60, 10, "Other information:"
-  GroupBox 5, 185, 290, 65, "Automatic TIKLs "
-  Text 15, 200, 270, 20, "If the 'First NOMI' is being sent to the recipient, A TIKL will be made for 11 days from the date sent."
-  Text 15, 225, 275, 20, "If the 'Second NOMI' is being sent to the recipient, A TIKL will be made for 30 days from the application date."
+  GroupBox 5, 195, 290, 65, "Automatic TIKLs "
+  Text 15, 210, 270, 20, "If the 'First NOMI' is being sent to the recipient, A TIKL will be made for 11 days from the date sent."
+  Text 15, 235, 275, 20, "If the 'Second NOMI' is being sent to the recipient, A TIKL will be made for 30 days from the application date."
   Text 20, 70, 55, 10, "Application date:"
+  Text 5, 175, 60, 10, "Worker signature:"
 EndDialog
 
 BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 170, "Hennepin County ER SNAP NOMI"
@@ -157,8 +158,7 @@ Call MAXIS_case_number_finder(case_number)
 recert_check = MsgBox("Is this a missed SNAP recertification interview?", vbYesNoCancel, "Recertification for SNAP?")
 If recert_check = vbCancel then stopscript		'This is the cancel button on a MsgBox
 If recert_check = vbYes then 'This is the "yes" button on a MsgBox
-	'Shows dialog, checks for password promp
-	If worker_county_code = "x127" then
+	If worker_county_code = "x127" then		'Hennepin specific ER NOMI
 		DO
 			DO
 				Err_msg = ""
@@ -174,10 +174,10 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP until err_msg = ""
 		LOOP until ButtonPressed = -1	
-	ELSE
-		DO
+	ELSE		
+		DO								
 			Err_msg = ""
-			Dialog SNAP_ER_NOMI_dialog
+			Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
 			cancel_confirmation
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
@@ -188,17 +188,40 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 		LOOP until err_msg = ""
 	END IF
 
-	'checking for an active MAXIS session
-	Call check_for_MAXIS(False)
-
-	'Navigates into SPEC/MEMO
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")
+	Call check_for_MAXIS(False)			'checking for an active MAXIS session
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
 	EMReadScreen memo_display_check, 12, 2, 33
 	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-	EMWriteScreen "x", 5, 10
-	transmit
+	
+	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+		arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+		PF5                                                     'PF5s again to initiate the new memo process
+	END IF
+	
+	'Checking for SWKR
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+		swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+		PF5                                           'PF5s again to initiate the new memo process
+	END IF
+	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	transmit  
 
 	If worker_county_code = "x127" then
 		'writes in the SPEC/MEMO for Hennepin County users
@@ -238,7 +261,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	END IF
 	PF4
 
-	'Writes the case note
+	'Writes the case note for the recert NOMI
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("**Client missed SNAP recertification interview**")
 	If time_of_missed_interview = "" Then
@@ -253,6 +276,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
+'If this is not a recert, then APPLICATION verbiage and options are available
 Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	'Shows dialog, checks for password prompt
 	If worker_county_code = "x127" then		'Hennepin county specific dialog
@@ -273,7 +297,7 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 			LOOP until err_msg = ""
 		Loop until ButtonPressed = -1 		
 	ELSE
-		DO
+		DO					'dialog for all other users
 			Err_msg = ""
 			Dialog NOMI_dialog
 			cancel_confirmation
@@ -290,14 +314,42 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	'checks for an active MAXIS session
 	Call check_for_MAXIS(False)
 
-	IF worker_county_code = "x127" and NOMI_selection = "First NOMI" then
-		call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigates into SPEC/MEMO
+	IF worker_county_code = "x127" and NOMI_selection = "First NOMI" then  'sends SPEC/MEMO, 2nd NOMI sends the SPEC/LETR
+		Call check_for_MAXIS(False)		'checking for an active MAXIS session
+		Call navigate_to_MAXIS_screen("SPEC", "MEMO")	'Navigating to SPEC/MEMO
 		'Creates a new MEMO. If it's unable the script will stop.
 		PF5
 		EMReadScreen memo_display_check, 12, 2, 33
 		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-		EMWriteScreen "x", 5, 10
-		transmit
+		
+		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+			arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+			call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+			EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+			PF5                                                     'PF5s again to initiate the new memo process
+		END IF
+		
+		'Checking for SWKR
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+			swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+			call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+			EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+			PF5                                           'PF5s again to initiate the new memo process
+		END IF
+		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		transmit 
+		
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("*************APPLICATION INTERVIEW REMINDER*************")
 		IF time_of_missed_interview <> "" then
@@ -307,7 +359,6 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 		END IF
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("An interview is required to process your application. You may be eligible for SNAP benefits within 24 hours of your interview.")
-		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("You must contact your team to complete the interview within the next 10 days. Please call 612-596-1300 if you would like a phone interview.")
 		Call write_variable_in_SPEC_MEMO(" ")
 		IF region_residence = "Central/NE" Then
@@ -323,6 +374,10 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 		ElseIF region_residence = "West" Then
 			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		END IF
+		If CASH_check = 1 Then 
+			Call write_variable_in_SPEC_MEMO(" ")
+			Call write_variable_in_SPEC_MEMO("If you are applying for cash, a face-to-face interview is required. If you have been on cash assistance in the last 12 months, you may not need to be interviewed in the office. You may be able to have a phone interview.")
+		END IF
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")
 		Call write_variable_in_SPEC_MEMO(" ")
@@ -330,6 +385,7 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("If you cannot attend an interview because of a hardship, please call our office.")
 		Call write_variable_in_SPEC_MEMO("************************************************************")
+		PF4
 	ELSE
 		'Navigates into SPEC/LETR
 		call navigate_to_MAXIS_screen("SPEC", "LETR")
@@ -344,9 +400,43 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 		call create_MAXIS_friendly_date(application_date, 0, 12, 38)
 		call create_MAXIS_friendly_date(date_of_missed_interview, 0, 14, 38)
 		transmit
+		PF4 	'saves the MEMO/LETR
+		
+		IF CASH_check = 1 then 		'CASH check is an option being tested by Hennepin County to inform MFIP/DWP applicants of possible in-person interviewing requirements
+			EMWriteScreen "WCOM", 20, 71		'CASH_check creates worker comments on the SPEC/LETR informing the user that a face to face interview may be necessary for CASH programs elig
+			transmit
+			'This DO/LOOP resets to the first page of notices in SPEC/WCOM
+			DO 								
+				EMReadScreen more_pages, 8, 18, 72
+				IF more_pages = "MORE:  -" THEN PF7
+			LOOP until more_pages <> "MORE:  -"
+			
+			read_row = 7
+			DO
+				waiting_check = ""
+				EMReadscreen prog_type, 2, read_row, 26
+				EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
+				If waiting_check = "Waiting" and prog_type = "FS" THEN 'checking program type and if it's been printed
+					EMSetcursor read_row, 13
+					EMSendKey "x"
+					Transmit
+					pf9
+					EMSetCursor 03, 15
+					CALL write_variable_in_SPEC_MEMO("If you are applying for cash, a face-to-face interview is required. If you have been on cash assistance in the last 12 months, you may not need to be interviewed in the office. You may be able to have a phone interview.")
+					PF4
+					PF3
+					exit do
+				ELSE
+					read_row = read_row + 1
+				END IF
+				IF read_row = 18 THEN
+					PF8          'Navigates to the next page of notices.  DO/LOOP until read_row = 18
+					read_row = 7
+				End if
+			LOOP until prog_type = "  "
+		END IF
 	END IF
-	PF4 	'saves the MEMO/LETR
-
+	
 	'Navigates to REPT/PND2 and updates for client delay if applicable.
 	If client_delay_check = checked then
 		call navigate_to_MAXIS_screen("rept", "pnd2")
