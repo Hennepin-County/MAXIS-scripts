@@ -285,7 +285,14 @@ script_array_BULK_list(script_num).description 			= "Pulls a list of cases in RE
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " REVS "													'needs spaces to generate button width properly.							
+script_array_BULK_list(script_num).script_name 			= "POLI TEMP LIST"
+script_array_BULK_list(script_num).file_name			= "BULK - POLI TEMP LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of current POLI TEMP topics, the TEMP reference and the revised date."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " REVS "													'needs spaces to generate button width properly.
 script_array_BULK_list(script_num).file_name			= "BULK - REPT-REVS LIST.vbs"
 script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/REVS into an Excel spreadsheet."
 
@@ -331,7 +338,7 @@ Do
 	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
 Loop until 	ButtonPressed <> SIR_instructions_button and _
 			ButtonPressed <> BULK_main_button and _
-			ButtonPressed <> BULK_lists_button 
+			ButtonPressed <> BULK_lists_button
 
 'MsgBox buttonpressed = script_array_BULK_main(0).button
 
