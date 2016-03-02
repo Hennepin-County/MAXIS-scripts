@@ -99,7 +99,7 @@ Do
 	PF8
 Loop until trim(title_info) = "TESTING UPLOAD PROCES"
 
-'Deleting the last line of POLI/TEMP to clean up the spreadsheet
+'Deleting the last line of POLI/TEMP to clean up the spreadsheet (the last line is "TESTING UPLOAD PROCES")
 SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 objRange.Delete
 
