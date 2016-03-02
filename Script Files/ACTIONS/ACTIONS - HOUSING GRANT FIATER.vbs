@@ -1,4 +1,4 @@
-'Created by Tim DeLong from Stearns County.
+'Created by Tim DeLong from Stearns County and Ilse Ferris from Hennepin County.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ACTIONS - HOUSING GRANT FIATER.vbs"
@@ -52,88 +52,89 @@ STATS_manualtime = 175                	'manual run time in seconds - INCLUDES A 
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
-'DIALOG
-'===========================================================================================================================
-BeginDialog HG_Fiater, 0, 0, 161, 95, "Housing Grant FIATer"
-  EditBox 60, 5, 90, 15, case_number
-  EditBox 60, 25, 20, 15, footer_month
-  EditBox 130, 25, 20, 15, footer_year
-  EditBox 75, 50, 75, 15, worker_signature
+'Function not yet added to the FuncLib----------------------------------------------------------------------------------------------------
+FUNCTION date_array_generator(initial_month, initial_year, date_array)
+	'defines an initial date from the initial_month and initial_year parameters
+	initial_date = initial_month & "/1/" & initial_year
+	'defines a date_list, which starts with just the initial date
+	date_list = initial_date
+
+	'This loop creates a list of dates
+	Do
+		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
+		working_date = dateadd("m", 1, right(date_list, len(date_list) - InStrRev(date_list,"|")))	'the working_date is the last-added date + 1 month. We use dateadd, then grab the rightmost characters after the "|" delimiter, which we determine the location of using InStrRev
+		date_list = date_list & "|" & working_date	'Adds the working_date to the date_list
+	Loop until datediff("m", date, working_date) = 1	'Loops until we're at current month plus one
+
+	'Splits this into an array
+	date_array = split(date_list, "|")
+End function
+
+'DIALOG===========================================================================================================================
+BeginDialog housing_grant_dialog, 0, 0, 271, 215, "MFIP Housing Grant FIATER"
+  EditBox 65, 10, 60, 15, case_number
+  EditBox 210, 10, 25, 15, initial_month
+  EditBox 240, 10, 25, 15, initial_year
   ButtonGroup ButtonPressed
-    OkButton 35, 70, 50, 15
-    CancelButton 90, 70, 50, 15
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 10, 30, 50, 10, "Footer Month:"
-  Text 85, 30, 45, 10, "Footer Year:"
-  Text 10, 55, 60, 10, "Worker Signature:"
+    OkButton 160, 190, 50, 15
+    CancelButton 215, 190, 50, 15
+  Text 10, 15, 50, 10, "Case Number:"
+  Text 145, 15, 60, 10, "Initial month/year:"
+  Text 15, 80, 100, 10, "* Caregivers age 60 or older"
+  GroupBox 5, 35, 260, 150, "MFIP Housing Grant $50 earned income exemption"
+  Text 15, 50, 245, 20, "Only certain people are eligible for the housing grant $50 unearned income exemption. These recipients include:"
+  Text 15, 95, 165, 10, "* Caregivers caring for a disabled family member"
+  Text 15, 110, 175, 10, "* Caregivers who meet Special Medical Criteria (SMC)"
+  Text 15, 125, 245, 20, "* Caregivers who are disabled and do not anticipated being able to work for 20+ hours for more than 30 days"
+  Text 15, 150, 100, 10, "* Caregivers who receive SSI"
+  Text 15, 165, 180, 10, "* Caregivers who receive Mille Lacs Band Tribal TANF"
 EndDialog
 
-
 '============================================================================================================================
-
+'Connects to MAXIS, grabbing the case case_number
 EMConnect ""
-
-'Finds the case number
 Call MAXIS_case_number_finder(case_number)
-
-'Finds the benefit month
-EMReadScreen on_SELF, 4, 2, 50
-IF on_SELF = "SELF" THEN
-	CALL find_variable("Benefit Period (MM YY): ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & footer_month & " ", footer_year, 2)
-ELSE
-	CALL find_variable("Month: ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Month: " & footer_month & " ", footer_year, 2)
-END IF
-
-'Warning/instruction box
-MsgBox "This script is intended for use for MFIP cases only." & vbNewLine & vbNewLine &_
-		"To be eligible for the Housing Grant the case must meet one of the criteria listed below:" & vbNewLine & vbNewline &_
-		vbTab & "EMPS status of:" & vbNewLine &_
-		vbtab & "      02 - Age > or = 60" & vbNewLine &_
-		vbtab & "      07 - Ill/Incap > 30 days" & vbNewLine &_
-		vbTab & "      08 - Care of Ill/Incapacitated Family Member" & vbNewLine &_
-		vbTab & "      12 - Special Med Criteria" & vbNewLine &_
-		vbTab & "      21 - Age 60 or Older (UP)" & vbNewLine &_
-		vbTab & "      23 - Ill/Incap > 30 Days (UP)" & vbNewLine &_
-		vbTab & "      24 - Care Ill/Incap Family Member (UP)" & vbNewLine &_
-		vbTab & "      27 - Special Med Criteria(UP)" & vbNewLine & vbNewLine &_
-		"For the following EMPS statuses, confirm that DISA has been coded as greater than 30 days." & vbNewLine & vbNewLine &_
-		vbTab & "EMPS status of:" & vbNewLine &_
-		vbTab & "      15 - Mentally Ill" & vbNewLine &_
-		vbTab & "      18 - SSI/RSDI Pending" & vbNewLine &_
-		vbTab & "      30 - Mentally Ill (UP)" & vbNewLine &_
-		vbTab & "      33  SSI/RSDI Pending (UP)" 
-
-check_for_maxis(False)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 DO
 	DO
 		err_msg = ""
-		'starts the Housing Grant FIATer dialog
-		Dialog HG_FIATer
-		'asks if you want to cancel and if "yes" is selected sends StopScript
-		cancel_confirmation 
-		'checks that there is a case number
-		IF case_number = FALSE THEN err_msg = err_msg & vbCr & "You must enter a case number."
-		'checks if the footer month has been entered
-		IF footer_month = "" THEN err_msg = err_msg & vbCr & "You must enter the footer month."
-		'checks if the footer year has been entered
-		IF footer_year = "" THEN err_msg = err_msg & vbCr & "You must enter the footer year."
-		'checks that the case note was signed
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!" 
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		dialog housing_grant_dialog
+		If buttonpressed = 0 THEN stopscript
+		IF len(case_number) > 8 or isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
+		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial month."
+		IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial year."
+		IF err_msg <> "" THEN msgbox err_msg & vbCr & "Please resolve to continue."
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = false			
+Loop until are_we_passworded_out = false
 
-check_for_maxis(False)
+Call MAXIS_footer_month_confirmation		'checking to make sure footer month/year selected by user is the footer month that MAXIS is in, if not it corrects it to the user selected footer month'
 
-back_to_self
+'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
+	'We will need to remove the string "/1/" from each element in the array
+call date_array_generator(initial_month, initial_year, footer_month_array)
 
-'starting at requested month
-EMwritescreen footer_month, 20, 43
-EMwritescreen footer_year, 20, 46
+'Create an array of all the counted months
+DIM MFIP_months_array()
+REDIM MFIP_months_array(ubound(footer_month_array))
+
+'Need to make sure we start in the correct year for maxis'
+footer_month = initial_month
+footer_year = initial_year
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 'Navigates to FIAT and selects MFIP.
 CALL navigate_to_MAXIS_screen("FIAT", "____")
@@ -144,20 +145,18 @@ CALL navigate_to_MAXIS_screen("FIAT", "____")
 'Selects View Case Budget.
 	EMwritescreen "x", 18, 4
 	transmit
-
-'Selects the Subsidy/Tribal popup then the Housing Subsidy sub-popup
+'Selects the Subsidy/Tribal pop-up then the Housing Subsidy sub-pop-up
 	EMwritescreen "x", 17, 5
 	transmit
 	EMwritescreen "x", 8, 13
 	transmit
-
 'Changes the prospective column to $0
 	EMwritescreen "0       ", 8, 51
 	transmit
 	transmit
 	transmit
 
-'script ends where the worker can see if the housing grant is showing as eligible and pops up a msg box to do so.	
+'script ends where the worker can see if the housing grant is showing as eligible and pops up a msg box to do so.
 script_end_procedure ("Verify that the results showing are what were expected." & vbNewline & vbNewline &_
 	"If results are correct, PF3 twice to exit FIAT then retain results." & vbNewline & vbNewline &_
 	"Run the script for any other months needed and approve.")
