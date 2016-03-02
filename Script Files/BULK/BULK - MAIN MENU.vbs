@@ -175,7 +175,12 @@ script_array_BULK_main(script_num).script_name				= "TIKL from List"
 script_array_BULK_main(script_num).file_name				= "BULK - TIKL FROM LIST.vbs"
 script_array_BULK_main(script_num).description				= "Creates the same TIKL on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
 
-
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "Update EOMC List"
+script_array_BULK_main(script_num).file_name				= "BULK - UPDATE EOMC LIST.vbs"
+script_array_BULK_main(script_num).description				= "Updates a saved REPT/EOMC excel file from previous month with current case status."
 
 '-------------------------------------------------------------------------------------------------------------------------BULK LISTS
 'Resetting the variable

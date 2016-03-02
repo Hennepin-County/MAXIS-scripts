@@ -229,6 +229,8 @@ If create_JOBS_checkbox = checked then
 		transmit
 	End if
 	transmit						'Transmits to submit the panel
+	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
+		If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 End if
 
 'Navigates back to DAIL
