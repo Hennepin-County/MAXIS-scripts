@@ -122,4 +122,4 @@ ELSE							'Everyone else (who isn't a scriptwriter) typically uses the release 
 END IF
 
 'If run locally is set to "True", the scripts will totally bypass GitHub and run locally.
-IF run_locally = TRUE THEN script_repository = "C:\DHS-MAXIS-Scripts\Script Files"
+IF run_locally = TRUE THEN script_repository = "C:\DHS-MAXIS-Scripts\Script Files\"
