@@ -130,7 +130,7 @@ current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
 current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
 current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
-msgbox current_month & current_month_minus_one
+msgbox current_month_minus_ten & vbnewline & current_month_minus_eleven
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -144,10 +144,10 @@ ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
 ObjExcel.Cells(1, 4).Value = "EMPS STATUS"
 ObjExcel.Cells(1, 5).Value = "DISA DATES"
-ObjExcel.Cells(1, 6).Value = "MFIP ELIG BEGIN DATE"
+ObjExcel.Cells(1, 6).Value = "MFIP BEGIN DATE"
 ObjExcel.Cells(1, 7).Value = "ISSUE DATE"
-ObjExcel.Cells(1, 8).Value = "TRANSACTION AMT"
-ObjExcel.Cells(1, 9).Value = current_month
+ObjExcel.Cells(1, 8).Value = "AMOUNT"
+ObjExcel.Cells(1, 9).Value = current_month					'using date calculations above, list will generate a rolling 12 months of information
 ObjExcel.Cells(1, 10).Value = current_month_minus_one
 ObjExcel.Cells(1, 11).Value = current_month_minus_two
 ObjExcel.Cells(1, 12).Value = current_month_minus_three
@@ -167,7 +167,7 @@ NEXT
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 'Below, use the "[blank]_col" variable to recall which col you set for which option.
-col_to_use = 21 'Starting with 21 because cols 1-20 are already used
+col_to_use = 23 'Starting with 21 because cols 1-20 are already used
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -192,10 +192,9 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("rept", "mfcm")
+	Call navigate_to_MAXIS_screen("REPT", "MFCM")
 	EMWriteScreen worker, 21, 13
 	transmit
-
 	'Skips workers with no info
 	EMReadScreen has_content_check, 29, 7, 6
     has_content_check = trim(has_content_check)
@@ -211,7 +210,11 @@ For each worker in worker_array
 				EMReadScreen case_number, 8, MAXIS_row, 6		  'Reading case number
 				EMReadScreen client_name, 20, MAXIS_row, 16		'Reading client name
 				EMReadScreen emps_status, 2, MAXIS_row, 52		'Reading Emps Status
-				
+				If trim(case_number) = "" AND trim(client_name) <> "" then 		'if more than one HH member is on the list then non-MEMB 01's don't have a case number listed, this fixes that
+					EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6	'if there's a name and no case number (from row above) then it reads the row above
+					case_number = alt_case_number						'restablishes that in this instance, alt case number = case number'
+				END IF
+				msgbox case_number & vbnewLine & client_name & vbnewline & emps_status 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
 				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
@@ -223,6 +226,7 @@ For each worker in worker_array
 				   	emps_status = "27" OR emps_status = "15" OR _
 				   	emps_status = "18" OR emps_status = "18" OR _
 				   	emps_status = "30" OR emps_status = "33" THEN
+					'add case/case information to Excel
         			ObjExcel.Cells(excel_row, 1).Value = worker
         			ObjExcel.Cells(excel_row, 2).Value = case_number
         			ObjExcel.Cells(excel_row, 3).Value = client_name
