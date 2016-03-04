@@ -66,7 +66,7 @@ EndDialog
 
 
 'VARIABLES AND CONSTANTS WE WANT TO USE====================================================================================
-excel_center = -4108		'This apparently means "centered" in Excel's VBA
+const excel_center = -4108		'This apparently means "centered" in Excel's VBA
 'END VARIABLES=============================================================================================================
 
 
