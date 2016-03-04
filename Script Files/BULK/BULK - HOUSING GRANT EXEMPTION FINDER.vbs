@@ -143,29 +143,27 @@ ObjExcel.Cells(1, 3).Value = "NAME"
 ObjExcel.Cells(1, 4).Value = "EMPS"
 ObjExcel.Cells(1, 5).Value = "DISA DATES"
 ObjExcel.Cells(1, 6).Value = "MFIP BEGIN DATE"
-ObjExcel.Cells(1, 7).Value = "ISSUE DATE"
-ObjExcel.Cells(1, 8).Value = "AMOUNT"
-ObjExcel.Cells(1, 9).Value = current_month					'using date calculations above, list will generate a rolling 12 months of information
-ObjExcel.Cells(1, 10).Value = current_month_minus_one
-ObjExcel.Cells(1, 11).Value = current_month_minus_two
-ObjExcel.Cells(1, 12).Value = current_month_minus_three
-ObjExcel.Cells(1, 13).Value = current_month_minus_four
-ObjExcel.Cells(1, 14).Value = current_month_minus_five
-ObjExcel.Cells(1, 15).Value = current_month_minus_six
-ObjExcel.Cells(1, 16).Value = current_month_minus_seven
-ObjExcel.Cells(1, 17).Value = current_month_minus_eight
-ObjExcel.Cells(1, 18).Value = current_month_minus_nine
-ObjExcel.Cells(1, 19).Value = current_month__minus_ten
-ObjExcel.Cells(1, 20).Value = current_month__minus_eleven
+ObjExcel.Cells(1, 7).Value = current_month					'using date calculations above, list will generate a rolling 12 months of information
+ObjExcel.Cells(1, 8).Value = current_month_minus_one
+ObjExcel.Cells(1, 9).Value = current_month_minus_two
+ObjExcel.Cells(1, 10).Value = current_month_minus_three
+ObjExcel.Cells(1, 11).Value = current_month_minus_four
+ObjExcel.Cells(1, 12).Value = current_month_minus_five
+ObjExcel.Cells(1, 13).Value = current_month_minus_six
+ObjExcel.Cells(1, 14).Value = current_month_minus_seven
+ObjExcel.Cells(1, 15).Value = current_month_minus_eight
+ObjExcel.Cells(1, 16).Value = current_month_minus_nine
+ObjExcel.Cells(1, 17).Value = current_month_minus_ten
+ObjExcel.Cells(1, 18).Value = current_month_minus_eleven
 
-FOR i = 1 to 20		'formatting the cells'
+FOR i = 1 to 18		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()						'sizing the colums'
 NEXT
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 'Below, use the "[blank]_col" variable to recall which col you set for which option.
-col_to_use = 23 'Starting with 21 because cols 1-20 are already used
+col_to_use = 19 'Starting with 19 because cols 1-18 are already used
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -237,6 +235,23 @@ For each worker in worker_array
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if                     
 next
+
+'Now the list will be generated with information gathered from MAXIS
+Do 
+	case_number = objExcel.cells(excel_row, case_number_col).value	're-establishing the case numbers
+	client_name = objExcel.cells(excel_row, client_name_col).value	're-establishing the case numbers
+	Call navigate_to_MAXIS_screen("STAT", "PROG")
+	EMReadScreen prog_one, 2, 6, 67
+	EMReadScreen prog_status_one, 4, 6, 74
+	EMReadScreen elig_begin_date_one, 8, 6, 44
+	If prog_one <> "MF" and prog_status_one <> "ACTV" then  
+		EMReadScreen prog_two, 2, 7, 67
+		EMReadScreen prog_status_two, 4, 7, 74
+		EMReadScreen elig_begin_date_one, 8, 7, 44
+	END IF 
+	IF If prog_one = "MF" and prog_status_one = "ACTV" then elig_begin_date 
+	
+	
 
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
 
