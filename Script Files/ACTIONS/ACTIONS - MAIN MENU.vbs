@@ -44,9 +44,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 335, "Actions scripts main menu dialog"
+BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 350, "Actions scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 405, 315, 50, 15
+    CancelButton 395, 330, 50, 15
     PushButton 5, 20, 110, 10, "ABAWD Banked Months FIATer", ABAWD_BANKED_MONTHS_button
     PushButton 5, 35, 110, 10, "ABAWD FSET Exemption Check", ABAWD_FSET_EXEMPTION_button
     PushButton 5, 50, 90, 10, "ABAWD Screening Tool", ABAWD_tool
@@ -64,8 +64,11 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 335, "Actions scripts m
     PushButton 5, 250, 100, 10, "Shelter Expense Verif Recv'd", SHELTER_EXPENSE_button
     PushButton 5, 275, 50, 10, "Send SVES", SEND_SVES_button
     PushButton 5, 295, 60, 10, "Transfer case", TRANSFER_CASE_button
-    PushButton 5, 310, 90, 10, "Update worker signature", UPDATE_WORKER_SIGNATURE_button
+    PushButton 5, 310, 65, 10, "TYMA TIKLer", TYMA_TIKLER_button
+    PushButton 310, 5, 65, 10, "UTILITIES scripts", UTILITIES_SCRIPTS_button
     PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
+  Text 5, 5, 250, 10, "Action scripts main menu: select the script to run from the choices below."
+  Text 120, 20, 335, 10, "-- NEW 01/2016!! FIATS SNAP eligibility, income and deductions for HH members using banked months."
   Text 125, 35, 320, 10, "--- Double checks a case to see if any possible ABAWD/FSET exemptions exist."
   Text 105, 50, 270, 10, "--- A tool to walk through a screening to determine if client is ABAWD."
   Text 65, 65, 220, 10, "--- Updates a BILS panel with reoccurring or actual BILS received."
@@ -73,7 +76,7 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 335, "Actions scripts m
   Text 125, 95, 330, 10, "--- FIATS in the CS disregard for MFIP and DWP as described in CM 17.15.03"
   Text 95, 110, 180, 10, "--- Copies MAXIS panels to Word en masse for a case."
   Text 75, 125, 370, 10, "--- Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
-  Text 95, 140, 350, 15, "--- NEW 12/15!!! FIATs out the SHEL Housing Subsidy making the MFIP case eligible for the Housing Grant."
+  Text 95, 140, 350, 15, "--- FIATs out the SHEL Housing Subsidy making the MFIP case eligible for the Housing Grant."
   Text 125, 155, 180, 10, "--- FIATs a spousal allocation across a budget period."
   Text 125, 175, 300, 10, "--- FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
   Text 75, 195, 380, 10, "--- Creates a JOBS panel, CASE/NOTE and TIKL when a new job is reported. Use the DAIL scrubber for new hire DAILs."
@@ -82,10 +85,9 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 335, "Actions scripts m
   Text 110, 250, 340, 20, "-- NEW 01/2016!! Enter shelter expense and address information in a single dialog and the script updates SHEL, HEST, and ADDR and case notes."
   Text 65, 275, 90, 10, "--- Sends a SVES/QURY."
   Text 75, 295, 330, 10, "--- SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
-  Text 105, 310, 190, 10, "--- Updates the default worker signature on your scripts."
-  Text 5, 5, 250, 10, "Action scripts main menu: select the script to run from the choices below."
-  Text 120, 20, 335, 10, "-- NEW 01/2016!! FIATS SNAP eligibility, income and deductions for HH members using banked months."
+  Text 80, 310, 355, 10, "--- NEW 02/2016!!! TIKLS for TYMA report forms to be sent. "
 EndDialog
+
 
 'Variables to declare
 IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
@@ -118,7 +120,9 @@ If buttonpressed = PAYSTUBS_RECEIVED_button then call run_from_GitHub(script_rep
 If buttonpressed = SEND_SVES_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - SEND SVES.vbs")
 IF ButtonPressed = SHELTER_EXPENSE_button THEN CALL run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - SHELTER EXPENSE VERIF RECEIVED.vbs")
 If buttonpressed = TRANSFER_CASE_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - TRANSFER CASE.vbs")
-If ButtonPressed = UPDATE_WORKER_SIGNATURE_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - UPDATE WORKER SIGNATURE.vbs")
+If buttonpressed = TYMA_TIKLER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - TYMA TIKLER.vbs")
+
+If ButtonPressed = UTILITIES_SCRIPTS_button then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - MAIN MENU.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")

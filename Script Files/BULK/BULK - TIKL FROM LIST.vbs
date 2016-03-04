@@ -47,7 +47,7 @@ END IF
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 37                               'manual run time in seconds
-STATS_denomination = "I"       'I is for each Item
+STATS_denomination = "C"       'C is for each Case
 'END OF stats block==============================================================================================
 
 'Dialogs
@@ -78,7 +78,7 @@ FUNCTION build_manual_entry_dlg(case_number_array, TIKL_text)
 				dlg_col = dlg_col + 65
 			END IF
 		NEXT
-		Text 10, 240, 90, 10, "Enter your MEMO text..."
+		Text 10, 240, 90, 10, "Enter your TIKL text..."
 		EditBox 10, 255, 310, 15, TIKL_text
 		Text 10, 280, 80, 10, "TIKL Date (MM/DD/YY):"
 		EditBox 95, 275, 80, 15, TIKL_date
@@ -111,7 +111,7 @@ FUNCTION build_manual_entry_dlg(case_number_array, TIKL_text)
 END FUNCTION
 
 '>>>>>DLG for Excel mode<<<<<
-BeginDialog memo_from_excel_dlg, 0, 0, 256, 135, "TIKL Information"
+BeginDialog TIKL_from_excel_dlg, 0, 0, 256, 135, "TIKL Information"
   EditBox 220, 10, 25, 15, excel_col
   EditBox 65, 30, 40, 15, excel_row
   EditBox 190, 30, 40, 15, end_row
@@ -261,7 +261,7 @@ DIALOG main_menu
 		'Gathering the information from the user about the fields in Excel to look for.
 		DO
 			err_msg = ""
-			DIALOG memo_from_excel_dlg
+			DIALOG TIKL_from_excel_dlg
 				IF ButtonPressed = 0 THEN stopscript
 				IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN 
 					err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
@@ -278,7 +278,7 @@ DIALOG main_menu
 		LOOP UNTIL err_msg = ""		
 		
 		CALL check_for_MAXIS(false)
-		'Generating a MEMO for each case.
+		'Generating a TIKL for each case.
 		FOR i = excel_row TO end_row
 			IF objExcel.Cells(i, excel_col).Value <> "" THEN 
 				case_number_array = case_number_array & objExcel.Cells(i, excel_col).Value & "~~~"
@@ -288,7 +288,7 @@ DIALOG main_menu
 
 CALL check_for_MAXIS(false)
 
-'The business of sending memos
+'The business of sending TIKLSs
 case_number_array = trim(case_number_array)
 case_number_array = split(case_number_array, "~~~")
 
@@ -304,6 +304,7 @@ FOR EACH case_number IN case_number_array
 		ELSE
 			call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)
 			call write_variable_in_TIKL(TIKL_text)
+			STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
 			PF3
 		END IF
 	END IF
@@ -311,7 +312,8 @@ NEXT
 
 IF privileged_array <> "" THEN 
 	privileged_array = replace(privileged_array, "~~~", vbCr)
-	MsgBox "The script could not generate a memo for the following cases..." & vbCr & privileged_array
+	MsgBox "The script could not generate a TIKL for the following cases..." & vbCr & privileged_array
 END IF
 
+STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")

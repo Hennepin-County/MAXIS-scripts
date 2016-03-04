@@ -53,7 +53,7 @@ GitHub can be somewhat complex and daunting for beginners. For our organization,
 
 Changes proposed here (assuming they "pass muster" with any policy/procedural folks involved at DHS) will first be merged into "master", then into "release" after **at least** a week of testing. **Scriptwriters (and a few select "power users" in each agency) are expected to work off of the master branch, and _contribute feedback_ throughout the month**. The recommended procedure is to give all master branch users access to both master and release versions of the scripts (using separate installations and "ZMD" configuration profiles). Agencies may stray from this procedure, but it is not recommended (as the master branch is the statewide "test" branch).
 
-The newest/upcoming draft of release notes (upcoming changes that have already been built) is [located here](https://gist.github.com/theVKC/16fea8523efbb3df1917). Scriptwriters and power users are encouraged to "star" this document to get updates on the newest changes as soon as they are available for testing.
+The newest/upcoming draft of release notes (upcoming changes that have already been built) is [located here](https://github.com/MN-Script-Team/Release-Notes). Scriptwriters and power users are encouraged to "star" this document to get updates on the newest changes as soon as they are available for testing.
 
 
 _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
@@ -77,15 +77,17 @@ Scriptwriters are encouraged to tackle any issues on the issue list, so long as 
 * Issue title should be short (under 75 characters, or about the size of a case note header). This goes in the subject line for emails, so keep it clean.
 * For existing scripts, please indicate the script category/name at the beginning of the issue (ex. "NOTES - CAF: needs longer space for 'other notes'"). This is helpful for organization.
 * If there are multiple issues with an existing script, create separate issues for each. This is easier both for release notes tracking and for recipients of GitHub update emails.
-* Don't upload screenshots of code, as it does not meet accessibility standards (and can't easily be copy/pasted). If you want to discuss code snippets, copy/paste them and surround them in blocks using GitHub markdown's default format (3 backticks: ```).
+* Don't upload screenshots of code, as it does not meet accessibility standards (and can't easily be copy/pasted). If you want to discuss code snippets, copy/paste them and surround them in blocks using GitHub markdown's default format (3 backticks).
 * If you have a question, it should only be posted if you believe a change to a script is necessary or wise. If it's a general scripts question, it is better addressed on the SIR discussion forum or via email.
 
 #### Critical issues
-Sometimes a bug or enhancement needs to be prioritized over other issues. We can mark those issues as "critical", which gets our attention. Here are the two situations in which a bug or enhancement is considered "critical":
+Sometimes a bug or enhancement needs to be prioritized over other issues. We can mark those issues as "critical", which gets our attention. Here are the two typical situations in which a bug or enhancement is considered "critical":
 * A script **in the release branch** has an inhibiting edit which is completely impassible.
 * A script **in the release branch** is doing an action which has been (or will be) considered "incorrect policy".
  
 _Please note_: script issues that only occur in the master branch are _not_ considered critical, as _the master branch is considered a test ground_. For this reason, **it is recommended that all master branch users also have access to the release branch**.
+
+An issue or enhancement may also be marked as critical if it's causing confusion or logic problems in county/tribal agencies, for example, a panel or notification changing names mid-month. In these cases, marking an issue as critical will be left to the discretion of the state coordinators (and scriptwriters should feel free to guide them with feedback).
 
 #### Script freezes
 Script freezes are needed for making sure each new script, bug fix, and enhancement is properly tested. Generally speaking, enhancement/new script freezes are in effect in the following instances:
@@ -166,6 +168,8 @@ A typical (potential) BlueZone Scriptwriter has excellent critical thinking skil
 Trainings for BlueZone Scriptwriters are conducted on occasion. Contact a script administrator if you're interested in this.
 
 BlueZone Scripts "hackathons" take place the 2nd and 4th Monday of each month. Any trained scriptwriter is permitted to attend with permission from their supervisor and state administrators. Contact a script administrator to find out more.
+
+Our team maintains a [Slack organization](https://slack.com) which county and state scriptwriters can use to communicate quickly and easily. The organization can be found at [mn-script-team.slack.com](https://mn-script-team.slack.com).
 
 
 _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
