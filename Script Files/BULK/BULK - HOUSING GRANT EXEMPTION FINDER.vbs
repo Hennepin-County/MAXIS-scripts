@@ -67,6 +67,9 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
+'remove after testing
+worker_number = "x127EZ5"
+
 'Shows dialog
 DO
 	Dialog pull_rept_data_into_Excel_dialog
@@ -78,19 +81,56 @@ LOOP until worker_number <> ""
 query_start_time = timer
 Call check_for_MAXIS(True)	'Checking for MAXIS
 
+'Fun with dates! --Creating variables for the rolling 12 calendar months
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month -2'
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+'current month -3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
+'current month -4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
+'current month -5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
+'current month -6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
+'current month -7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
+'current month -8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
+'current month -9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
+'current month -10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
+'current month -11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
+
 'Establishing value of variables
-current_month = CM_mo & "/" CM_yr
-current_month_minus_one = dateadd("M", -1, current_month)
-current_month_minus_two = dateadd("M", -2, current_month)
-current_month_minus_three = dateadd("M", -3, current_month)
-current_month_minus_four = dateadd("M", -4, current_month)
-current_month_minus_five = dateadd("M", -5, current_month)
-current_month_minus_six = dateadd("M", -6, current_month)
-current_month_minus_seven = dateadd("M", -7, current_month)
-current_month_minus_eight = dateadd("M", -8, current_month)
-current_month_minus_nine = dateadd("M", -9, current_month)
-current_month_minus_ten = dateadd("M", -10, current_month)
-current_month_minus_eleven = dateadd("M", -11, current_month)
+current_month = CM_mo & "/" & CM_yr
+current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
+current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
+current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
+current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
+current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
+current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
+current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
+current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
+current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
+current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
+current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
+
+msgbox current_month & current_month_minus_one
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -107,26 +147,26 @@ ObjExcel.Cells(1, 5).Value = "DISA DATES"
 ObjExcel.Cells(1, 6).Value = "MFIP ELIG BEGIN DATE"
 ObjExcel.Cells(1, 7).Value = "ISSUE DATE"
 ObjExcel.Cells(1, 8).Value = "TRANSACTION AMT"
-ObjExcel.Cells(1, 9).Value = "current_month"
-ObjExcel.Cells(1, 10).Value = "current_month_minus_one"
-ObjExcel.Cells(1, 11).Value = "current_month_minus_two"
-ObjExcel.Cells(1, 12).Value = "current_month_minus_three"
-ObjExcel.Cells(1, 13).Value = "current_month_minus_four"
-ObjExcel.Cells(1, 14).Value = "current_month_minus_five"
-ObjExcel.Cells(1, 15).Value = "current_month_minus_six"
-ObjExcel.Cells(1, 16).Value = "current_month_minus_seven"
-ObjExcel.Cells(1, 17).Value = "current_month_minus_eight"
-ObjExcel.Cells(1, 18).Value = "current_month_minus_nine"
-ObjExcel.Cells(1, 19).Value = "current_month__minus_ten"
-ObjExcel.Cells(1, 20).Value = "current_month__minus_eleven"
+ObjExcel.Cells(1, 9).Value = current_month
+ObjExcel.Cells(1, 10).Value = current_month_minus_one
+ObjExcel.Cells(1, 11).Value = current_month_minus_two
+ObjExcel.Cells(1, 12).Value = current_month_minus_three
+ObjExcel.Cells(1, 13).Value = current_month_minus_four
+ObjExcel.Cells(1, 14).Value = current_month_minus_five
+ObjExcel.Cells(1, 15).Value = current_month_minus_six
+ObjExcel.Cells(1, 16).Value = current_month_minus_seven
+ObjExcel.Cells(1, 17).Value = current_month_minus_eight
+ObjExcel.Cells(1, 18).Value = current_month_minus_nine
+ObjExcel.Cells(1, 19).Value = current_month__minus_ten
+ObjExcel.Cells(1, 20).Value = current_month__minus_eleven
 
 FOR i = 1 to 20		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()						'sizing the colums'
 NEXT
 
-Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
-Below, use the "[blank]_col" variable to recall which col you set for which option.
+'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
+'Below, use the "[blank]_col" variable to recall which col you set for which option.
 col_to_use = 21 'Starting with 21 because cols 1-20 are already used
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
@@ -165,7 +205,6 @@ For each worker in worker_array
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
-
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/MFCF it displays right away, instead of when the second F8 is sent
 			Do
@@ -177,8 +216,8 @@ For each worker in worker_array
 				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
 				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
 				If trim(case_number) = "" and trim(client_name) = "" then exit do			'Exits do if we reach the end
-		
-				If 	emps_status = "02" OR emps_status = "08" OR _		'checking the emps status for potentially exempt persons
+				
+				If emps_status = "02" OR emps_status = "08" OR _	
 				   	emps_status = "10" OR emps_status = "12" OR _
 				   	emps_status = "23" OR emps_status = "24" OR _
 				   	emps_status = "27" OR emps_status = "15" OR _
@@ -216,5 +255,5 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-
+msgbox STATS_counter
 script_end_procedure("Success! Please review the list generated.")
