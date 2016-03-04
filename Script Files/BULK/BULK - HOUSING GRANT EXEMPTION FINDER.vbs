@@ -130,8 +130,6 @@ current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
 current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
 current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
-msgbox current_month_minus_ten & vbnewline & current_month_minus_eleven
-
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -142,7 +140,7 @@ objExcel.DisplayAlerts = True
 ObjExcel.Cells(1, 1).Value = "WORKER"
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
-ObjExcel.Cells(1, 4).Value = "EMPS STATUS"
+ObjExcel.Cells(1, 4).Value = "EMPS"
 ObjExcel.Cells(1, 5).Value = "DISA DATES"
 ObjExcel.Cells(1, 6).Value = "MFIP BEGIN DATE"
 ObjExcel.Cells(1, 7).Value = "ISSUE DATE"
@@ -199,45 +197,43 @@ For each worker in worker_array
 	EMReadScreen has_content_check, 29, 7, 6
     has_content_check = trim(has_content_check)
 	If has_content_check <> "" then
-
 		'Grabbing each case number on screen
 		Do
-			'Set variable for next do...loop
-			MAXIS_row = 7
-			'Checking for the last page of cases.
-			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/MFCF it displays right away, instead of when the second F8 is sent
+			MAXIS_row = 7	'Set variable for next do...loop
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 6		  'Reading case number
-				EMReadScreen client_name, 20, MAXIS_row, 16		'Reading client name
 				EMReadScreen emps_status, 2, MAXIS_row, 52		'Reading Emps Status
-				If trim(case_number) = "" AND trim(client_name) <> "" then 		'if more than one HH member is on the list then non-MEMB 01's don't have a case number listed, this fixes that
-					EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6	'if there's a name and no case number (from row above) then it reads the row above
-					case_number = alt_case_number						'restablishes that in this instance, alt case number = case number'
-				END IF
-				msgbox case_number & vbnewLine & client_name & vbnewline & emps_status 
-				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
-				If trim(case_number) = "" and trim(client_name) = "" then exit do			'Exits do if we reach the end
-				
 				If emps_status = "02" OR emps_status = "08" OR _	
 				   	emps_status = "10" OR emps_status = "12" OR _
 				   	emps_status = "23" OR emps_status = "24" OR _
 				   	emps_status = "27" OR emps_status = "15" OR _
 				   	emps_status = "18" OR emps_status = "18" OR _
 				   	emps_status = "30" OR emps_status = "33" THEN
-					'add case/case information to Excel
+						EMReadScreen case_number, 8, MAXIS_row, 6		  'Reading case number
+						EMReadScreen client_name, 20, MAXIS_row, 16		'Reading client name
+						'if more than one HH member is on the list then non-MEMB 01's don't have a case number listed, this fixes that
+						If trim(case_number) = "" AND trim(client_name) <> "" then 			'if there's a name and no case number 
+							EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6				'then it reads the row above
+							case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'
+						END IF
+						'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+						If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
+						all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+						If trim(case_number) = "" and trim(client_name) = "" then exit do			'Exits do if we reach the end					
+					
+						'add case/case information to Excel
         			ObjExcel.Cells(excel_row, 1).Value = worker
         			ObjExcel.Cells(excel_row, 2).Value = case_number
         			ObjExcel.Cells(excel_row, 3).Value = client_name
         			ObjExcel.Cells(excel_row, 4).Value = emps_status
-        			excel_row = excel_row + 1	'moving excel row to next row'
-					MAXIS_row = MAXIS_row + 1	'adding one row to search for in MAXIS
+    				excel_row = excel_row + 1	'moving excel row to next row'
 					STATS_counter = STATS_counter + 1		 'adds one instance to the stats counter
-					case_number = ""			'Blanking out variable
-				END IF		
+					case_number = ""
+				END IF
+							'Blanking out variable
+				MAXIS_row = MAXIS_row + 1	'adding one row to search for in MAXIS		
 			Loop until MAXIS_row = 19
 			PF8
+			EMReadScreen last_page_check, 21, 24, 2	'Checking for the last page of cases.
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if                     
 next
