@@ -79,7 +79,7 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
 		Interim_array = split(client_array, "|")
 		all_clients_array(x, 0) = Interim_array(x)
-		all_clients_array(x, 1) = 1
+		all_clients_array(x, 1) = 0			'Defaulting to update none persons so the user has to update them thar persons
 	NEXT
 
 	BEGINDIALOG HH_memb_dialog, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
@@ -93,20 +93,30 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 	ENDDIALOG
 													'runs the dialog that has been dynamically created. Streamlined with new functions.
 	Call navigate_to_MAXIS_screen("DAIL","DAIL")
-	Dialog HH_memb_dialog
-	If buttonpressed = 0 then stopscript
-	check_for_maxis(True)
-
-	HH_member_array = ""					
 	
-	FOR i = 0 to total_clients
-		IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts. 
-			IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
-				'msgbox all_clients_
-				HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+	'Sticking a do/loop around the dialog call to verify that the user has selected some household members.
+	DO
+		Dialog HH_memb_dialog
+		If buttonpressed = 0 then stopscript
+		check_for_maxis(True)
+
+		HH_member_array = ""					
+	
+		FOR i = 0 to total_clients
+			IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts. 
+				IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+					'msgbox all_clients_
+					HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+				END IF
 			END IF
+		NEXT
+		
+		'If the user has not selected any household members, they will receive a msgbox informing them of that, requesting that they either try again or go home
+		IF HH_member_array = "" THEN 
+			nobody_selected = MsgBox("You have not selected any household members to update. Press OK to try again. Press CANCEL to stop the script.", vbOKCancel)
+			IF nobody_selected = vbCancel THEN stopscript
 		END IF
-	NEXT
+	LOOP UNTIL HH_member_array <> ""
 	
 	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
 	HH_member_array = SPLIT(HH_member_array, " ")
