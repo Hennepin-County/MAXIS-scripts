@@ -236,11 +236,46 @@ For each worker in worker_array
 	End if                     
 next
 
-'Now the list will be generated with information gathered from MAXIS
+'Now the script checks the potentially exempt members for subsidized housing
+excel_row = 2           're-establishing the row to start checking the members for 
 Do 
 	case_number = objExcel.cells(excel_row, case_number_col).value	're-establishing the case numbers
-	client_name = objExcel.cells(excel_row, client_name_col).value	're-establishing the case numbers
-	Call navigate_to_MAXIS_screen("STAT", "PROG")
+	client_name = objExcel.cells(excel_row, client_name_col).value	're-establishing the client_name
+	Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    DO
+        EMReadScreen first_name, 25, 6, 30
+        EMReadScreen last_name, 12, 6, 63
+        EmReadScreen middle_name, 1, 6, 79
+        name = trim(last_name & ", " & first_name & " " & middle_name)
+        If name = client_name then
+            EMReadScreen memb_number, 2, 4, 33
+            edit do
+        END IF
+        transmit
+    LOOP until name = client name
+    
+    'checking member for subsidized housing 
+    Call navigate_to_MAXIS_screen("STAT", "SHEL")
+    EMWriteScreen memb_number, 20, 76
+    transmit
+    EmReadScreen sub_housing, 1, 6, 46
+    If sub_housing <> "Y" then 
+        'Deleting the blank results to clean up the spreadsheet
+        SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+        objRange.Delete
+        excel_row = excel_row - 1
+    END IF
+    excel_row = excel_row + 1
+LOOP until 
+
+    
+    
+    
+    
+    
+    
+    
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
 	EMReadScreen prog_one, 2, 6, 67
 	EMReadScreen prog_status_one, 4, 6, 74
 	EMReadScreen elig_begin_date_one, 8, 6, 44
@@ -252,7 +287,7 @@ Do
 	IF If prog_one = "MF" and prog_status_one = "ACTV" then elig_begin_date 
 	
 	
-
+'------------------------------Post MAXIS coding-----------------------------------------------------------------------------
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
 
 'Query date/time/runtime info
