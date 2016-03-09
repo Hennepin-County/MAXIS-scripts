@@ -55,7 +55,7 @@ STATS_denomination = "I"       'I is for each dail message
 
 'DIALOGS===================================================================================================================
 BeginDialog CSES_initial_dialog, 0, 0, 296, 40, "CSES Dialog"
-  CheckBox 5, 5, 290, 10, "Check here if you would like to see an Excel sheet of the CSES scrubber calculations.", excel_visible_checkbox
+  'CheckBox 5, 5, 290, 10, "Check here if you would like to see an Excel sheet of the CSES scrubber calculations.", excel_visible_checkbox
   EditBox 70, 20, 90, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 185, 20, 50, 15
@@ -111,14 +111,6 @@ If worker_signature = "UUDDLRLRBA" then
     MsgBox "Developer mode: ACTIVATED!"
     developer_mode = true           'This will be helpful later
     collecting_statistics = false   'Lets not collect this, shall we?		'<<<<CHECK THIS, I THINK THE VARIABLE IS CALLED SOMETHING DIFFERENT IN THE FUNCTION
-    excel_visible_checkbox = 1      'Forces this to be checked
-End if
-
-'If excel_visible_checkbox is checked, it'll set the visibility for Excel to "true". Otherwise it'll be false.
-If excel_visible_checkbox = 1 then
-    excel_visibility = true
-Else
-    excel_visibility = false
 End if
 
 'Checks if you're on a TIKL, and asks if this is a training scenario
@@ -133,9 +125,9 @@ End if
 
 'EXCEL BLOCK------------------------------
 Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = excel_visibility
+objExcel.Visible = true
 Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = excel_visibility
+objExcel.DisplayAlerts = true
 'END EXCEL BLOCK--------------------------
 
 'Renames this sheet
