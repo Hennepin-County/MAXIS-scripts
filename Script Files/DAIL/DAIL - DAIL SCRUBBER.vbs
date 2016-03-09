@@ -93,7 +93,6 @@ If CSES_check = "CSES" or (CSES_check = "TIKL" and windows_user_ID = "Veronica")
 	If CSES_DISB_check = "DISB" then 
 		If windows_user_ID = "Veronica" or _
 		   windows_user_ID = "PWVKC45" then
-		   	MsgBox script_repository
 			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs")
 		Else
 			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES PROCESSING.vbs")
