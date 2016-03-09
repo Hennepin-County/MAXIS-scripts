@@ -80,8 +80,22 @@ const col_open_program_titles		= 9
 const col_open_program_status		= 10
 const col_HH_memb_PMI_list_memb_num	= 12
 const col_HH_memb_PMI_list_PMI		= 13
+
+message_array = array()			'A blank array which will be used when we move info between sheets on Excel
 'END VARIABLES=============================================================================================================
 
+'CLASSES===================================================================================================================
+'A MessageDetails class for use in sorting/filtering message details
+class MessageDetails
+	public MsgNum
+	public PMINum
+	public MEMBNum
+	public AmtAlloted
+	public CSType
+	public IssueDate
+	public UNEAPanel
+end class
+'END CLASSES===============================================================================================================
 
 'THE SCRIPT================================================================================================================
 
@@ -123,6 +137,9 @@ objExcel.Visible = excel_visibility
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = excel_visibility
 'END EXCEL BLOCK--------------------------
+
+'Renames this sheet
+ObjExcel.ActiveSheet.Name = "Message and Disb info"
 
 'Headers for the Excel spreadsheet
 ObjExcel.Range("A1:G1").Merge
@@ -403,8 +420,51 @@ Do
 
 Loop until ObjExcel.Cells(excel_row, col_msg_number).Value = ""			'Loop until we're out of messages
 
+'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
+For col_to_autofit = 1 to col_HH_memb_PMI_list_PMI
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
+
+'Resetting the variable before the next do...loop
+excel_row = 3
+
+'Before we create new data for these UNEA panels, we will copy each bit of message info into an array using a class (MessageDetails).
+Do
+	total_messages_run = excel_row - 2							'It's minus 2 to account for the two header rows
+	ReDim Preserve message_array(total_messages_run)			'Redims the array to account for the next message, preserves original content
+	Set message_array(total_messages_run) = new MessageDetails	'Turns this array item into a new MessageDetails object
+	
+	'This grabs each element-to-be-considered-for-the-budget
+	message_array(total_messages_run).MsgNum 		= ObjExcel.Cells(excel_row, col_msg_number).Value
+	message_array(total_messages_run).PMINum		= ObjExcel.Cells(excel_row, col_PMI_number).Value
+	message_array(total_messages_run).MEMBNum		= ObjExcel.Cells(excel_row, col_HH_memb_number).Value
+	message_array(total_messages_run).AmtAlloted	= ObjExcel.Cells(excel_row, col_amt_alloted).Value
+	message_array(total_messages_run).CSType		= ObjExcel.Cells(excel_row, col_CS_type).Value
+	message_array(total_messages_run).IssueDate		= ObjExcel.Cells(excel_row, col_issue_date).Value
+	message_array(total_messages_run).UNEAPanel		= ObjExcel.Cells(excel_row, col_UNEA_panel).Value
+	
+	'Increments excel_row + 1
+	excel_row = excel_row + 1
+
+Loop until ObjExcel.Cells(excel_row, col_msg_number).Value = ""		'Out of messages!
+
 
 '~~~~~~~~~~~~~~~~~~~~Decision: Is MFIP/DWP open? IF YES...
+If MFIP_active = true then
+
+	'We're going to start by creating a new "MFIP budget" sheet
+	ObjExcel.Sheets.Add.Name = "MFIP Budget"
+	
+	'Resetting excel_row for this loop
+	excel_row = 1
+	
+	'This will add info about each UNEA-panel-to-be-changed using a loop
+	'Do
+		'We'll start with a header consisting of the panel and its type
+		'ObjExcel.Cells(excel_row, 1).Value = 
+	
+	
+End if
 
     '~~~~~~~~~~~~~~~~~~~~Displays prospective estimated budget based on DAILs received
 
@@ -424,9 +484,5 @@ Loop until ObjExcel.Cells(excel_row, col_msg_number).Value = ""			'Loop until we
 
     '~~~~~~~~~~~~~~~~~~~~Make Excel visible
 
-'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
-For col_to_autofit = 1 to 100		'<<<SET THIS TO BE MORE ACCURATE
-	ObjExcel.columns(col_to_autofit).AutoFit()
-Next
 
 script_end_procedure("")
