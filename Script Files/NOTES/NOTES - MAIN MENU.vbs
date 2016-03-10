@@ -482,7 +482,7 @@ ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one mo
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MTAF"
 script_array_M_to_Q(script_num).file_name				= "NOTES - MTAF.vbs"
-script_array_M_to_Q(script_num).description				= "Template for the MFIP Transition Application form (MTAF)."
+script_array_M_to_Q(script_num).description				= "Template for the MN Transition Application form (MTAF)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
