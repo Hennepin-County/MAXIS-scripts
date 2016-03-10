@@ -232,7 +232,7 @@ If row <> 0 then script_end_procedure("This case is inactive in MAXIS. The scrip
 row = 1
 col = 1
 EMSearch "HC:", row, col
-If row <> 0 then MsgBox "As of March 2016 the health care sections have been removed from the CSES Scrubber. Evaluate any health care ramifications manually."
+If row <> 0 then MsgBox "As of March 2016 the health care sections have been removed from the CSES Scrubber. Evaluate any health care ramifications manually."		'<<<<<<<RESET THIS PLEASE, OR PUT IT IN THE DIALOG
 
 'Then it checks for MFIP status
 row = 1
@@ -467,22 +467,139 @@ If MFIP_active = true then
 	
 	'This will add info about each UNEA-panel-to-be-changed using a loop
 	For each UNEA_panel in UNEA_panel_array
-		'We'll start with a header consisting of the panel and its type
-		ObjExcel.Cells(excel_row, 1).Value = UNEA_panel 
-		excel_header_cols = "A" & excel_row & ":D" & excel_row
-		
-		ObjExcel.Range(excel_header_cols).Merge
 	
-		excel_row = excel_row + 9		'The next message should start 9 rows ahead
+		'If the UNEA_panel isn't "NONE" then it'll add info about the budgets-to-be
+		If UNEA_panel <> "NONE" then
+			'We'll start with headers consisting of the panel and assorted MFIP details
+			'ObjExcel.Cells(excel_row	, 1).Value = UNEA_panel 
+			ObjExcel.Cells(excel_row + 1, 1).Value = "Retrospective"
+			ObjExcel.Cells(excel_row + 1, 3).Value = "Prospective"
+			ObjExcel.Cells(excel_row + 2, 1).Value = "Date"
+			ObjExcel.Cells(excel_row + 2, 2).Value = "Amt"
+			ObjExcel.Cells(excel_row + 2, 3).Value = "Date"
+			ObjExcel.Cells(excel_row + 2, 4).Value = "Amt"
+			
+			'Now lets make the fonts bold, because it looks nicer
+			ObjExcel.Cells(excel_row	, 1).Font.Bold = True
+			ObjExcel.Cells(excel_row + 1, 1).Font.Bold = True
+			ObjExcel.Cells(excel_row + 1, 3).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 1).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 2).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 3).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 4).Font.Bold = True
+			
+			'Now we'll merge cells for the panel, retro, and pro headers
+			'excel_header_cols = "A" & excel_row & ":D" & excel_row
+			ObjExcel.Range("A" & excel_row 		& ":D" & excel_row).Merge
+			ObjExcel.Range("A" & excel_row + 1 	& ":B" & excel_row + 1).Merge
+			ObjExcel.Range("C" & excel_row + 1 	& ":D" & excel_row + 1).Merge
+			
+			'Creates a temporary header_row so that the next loop adds the TYPE info to the correct row
+			header_row = excel_row
+			
+			'Raises excel_row + 3, so we can start adding messages
+			excel_row = excel_row + 3
+			
+
+			
+			'Looks through each message in the array, and if it's for this UNEA panel, it will add it to the Excel sheet
+			For i = 0 to ubound(message_array)
+				If message_array(i).UNEAPanel <> "NONE" then
+					If UNEA_panel = message_array(i).UNEAPanel then 
+						ObjExcel.Cells(excel_row, 1).Value = message_array(i).IssueDate
+						ObjExcel.Cells(excel_row, 2).Value = message_array(i).AmtAlloted
+						ObjExcel.Cells(excel_row, 3).Value = dateadd("m", 2, message_array(i).IssueDate)
+						ObjExcel.Cells(excel_row, 4).Value = message_array(i).AmtAlloted
+						
+						ObjExcel.Cells(excel_row, 2).NumberFormat = "$#,##0.00"
+						ObjExcel.Cells(excel_row, 4).NumberFormat = "$#,##0.00"
+						
+						ObjExcel.Cells(header_row, 1).Value = UNEA_panel & " | " & "TYPE: " & message_array(i).CSType
+						
+						excel_row = excel_row + 1
+						
+					End if
+					
+				End if
+			Next
+			
+			excel_row = excel_row + 1		'The next message should start with a row in-between
+			
+		Else		'This means all UNEA_panels set to "NONE"
+			
+			'If there's a NONE as a UNEA_panel, it'll set this variable to "true", which will force the user to process manually.
+			process_manually = true
+			
+			'Creates a new excel_row, starting at 3, for messages without panels
+			excel_row_no_panel_found = 3
+				
+			'Now, if there was no match ("NONE" was listed on the first sheet), it will dump info about those 
+			For i = 0 to ubound(message_array)
+				
+				If message_array(i).UNEAPanel = "NONE" then
+				
+					ObjExcel.Cells(1, 6 ).Value = "MESSAGES WITHOUT UNEA PANELS (SPLIT BY HH MEMB)"
+				
+					ObjExcel.Cells(2, 6 ).Value = "HH member #"
+					ObjExcel.Cells(2, 7 ).Value = "CS type"
+					ObjExcel.Cells(2, 8 ).Value = "Amount alloted"
+					ObjExcel.Cells(2, 9 ).Value = "Issue date"
+					ObjExcel.Cells(2, 10).Value = "Message #"
+					
+					ObjExcel.Cells(2, 6 ).Font.Bold	= True
+					ObjExcel.Cells(2, 7 ).Font.Bold	= True
+					ObjExcel.Cells(2, 8 ).Font.Bold	= True
+					ObjExcel.Cells(2, 9 ).Font.Bold	= True
+					ObjExcel.Cells(2, 10).Font.Bold	= True
+					
+				
+				
+					ObjExcel.Cells(excel_row_no_panel_found, 6 ).Value = "'0" & message_array(i).MEMBNum
+					ObjExcel.Cells(excel_row_no_panel_found, 7 ).Value = message_array(i).CSType
+					ObjExcel.Cells(excel_row_no_panel_found, 8 ).Value = message_array(i).AmtAlloted
+					ObjExcel.Cells(excel_row_no_panel_found, 9 ).Value = message_array(i).IssueDate
+					ObjExcel.Cells(excel_row_no_panel_found, 10).Value = message_array(i).MsgNum
+					
+					ObjExcel.Cells(excel_row_no_panel_found, 8).NumberFormat = "$#,##0.00"
+					
+					excel_row_no_panel_found = excel_row_no_panel_found + 1
+					
+				End if
+			Next
+			
+			
+			ObjExcel.Range("F1:J1").Merge
+			
+			ObjExcel.Cells(1, 6).Font.Bold			 = True
+			
+		End if
+		
+
+		
+	
+
 	
 	Next
 	
+	'Centering contents
+	ObjExcel.Range("A:J").HorizontalAlignment = excel_center
+	
+
+	
+	'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
+	For col_to_autofit = 1 to 10
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+	
+	If process_manually = true then 
+		script_end_procedure("This case appears to be missing a UNEA panel based on the messages received. Evaluate the ''MESSAGES WITHOUT UNEA PANELS'' section of the Excel sheet, add the appropriate panels, and try again or process manually.")
+	Else
+		MFIP_evaluation_popup = MsgBox("The planned budget is indicated on the Excel spreadsheet. Evaluate the budget as indicated. If the budget appears correct for each UNEA panel indicated, press OK to update MAXIS and case note. Otherwise, press cancel and process manually.", vbOKCancel)
+		If MFIP_evaluation_popup = vbCancel then script_end_procedure("Script ended due to MFIP budget being marked as incorrect. The script will now close.")
+		'<<<<<<<<<<<<<<THIS IS WHERE THE MFIP BUDGET UPDATE WILL GO
+	End if
 	
 End if
-
-    '~~~~~~~~~~~~~~~~~~~~Displays prospective estimated budget based on DAILs received
-
-    '~~~~~~~~~~~~~~~~~~~~Decision: Does user want to update? IF YES...
 
         '~~~~~~~~~~~~~~~~~~~~Script updates UNEA for all messages with prospective amounts and actual amounts for retrospective budgeting
 
