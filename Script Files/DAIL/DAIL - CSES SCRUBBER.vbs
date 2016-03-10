@@ -422,7 +422,7 @@ excel_row = 3
 
 'Before we create new data for these UNEA panels, we will copy each bit of message info into an array using a class (MessageDetails).
 Do
-	total_messages_run = excel_row - 2							'It's minus 2 to account for the two header rows
+	total_messages_run = excel_row - 3							'It's minus 2 to account for the two header rows, and minus 1 more because arrays start with 0
 	ReDim Preserve message_array(total_messages_run)			'Redims the array to account for the next message, preserves original content
 	Set message_array(total_messages_run) = new MessageDetails	'Turns this array item into a new MessageDetails object
 	
@@ -440,6 +440,21 @@ Do
 
 Loop until ObjExcel.Cells(excel_row, col_msg_number).Value = ""		'Out of messages!
 
+'Creates a blank variable for the next loop
+UNEA_panel_array = ""
+
+
+'Creates an array of just the UNEA Panels
+For i = 0 to ubound(message_array)
+	UNEA_panel_from_big_array = message_array(i).UNEAPanel
+	If InStr (UNEA_panel_array, UNEA_panel_from_big_array) = 0 then UNEA_panel_array = UNEA_panel_array & UNEA_panel_from_big_array & "|"
+Next
+
+'UNEA_panel_array has an extra "|" at the end, so this gets rid of it
+UNEA_panel_array = left(UNEA_panel_array, len(UNEA_panel_array) - 1 )
+
+'Splits into an array
+UNEA_panel_array = split(UNEA_panel_array, "|")
 
 '~~~~~~~~~~~~~~~~~~~~Decision: Is MFIP/DWP open? IF YES...
 If MFIP_active = true then
@@ -451,9 +466,16 @@ If MFIP_active = true then
 	excel_row = 1
 	
 	'This will add info about each UNEA-panel-to-be-changed using a loop
-	'Do
+	For each UNEA_panel in UNEA_panel_array
 		'We'll start with a header consisting of the panel and its type
-		'ObjExcel.Cells(excel_row, 1).Value = 
+		ObjExcel.Cells(excel_row, 1).Value = UNEA_panel 
+		excel_header_cols = "A" & excel_row & ":D" & excel_row
+		
+		ObjExcel.Range(excel_header_cols).Merge
+	
+		excel_row = excel_row + 9		'The next message should start 9 rows ahead
+	
+	Next
 	
 	
 End if
