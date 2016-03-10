@@ -48,7 +48,6 @@ END IF
 'The amount of active scriptwriters needs to go in these arrays manually. Subtract one because 0 counts!
 Dim scriptwriter_array(17)
 Dim email_button_array(17)
-DIM UTILITIES_update_worker_signature_button
 
 'This creates a scriptwriter class. This class can be used to easily recall info about each scriptwriter. It's cleaner than a straight array.
 class scriptwriter
@@ -225,145 +224,88 @@ scriptwriter_array(scriptwriter_counter).formerrole		= 	"-"
 scriptwriter_array(scriptwriter_counter).email			= 	"roy.walz@co.stearns.mn.us"
 scriptwriter_counter = scriptwriter_counter + 1
 
+'Here's the actual dialog---------------------------------------------
+'Text layout: X, Y, size X, size Y
+BeginDialog info_dialog, 0, 0, 375, 450, "DHS BlueZone Scripts Info dialog"
+  ButtonGroup ButtonPressed
+    OkButton 320, 430, 50, 15
 
-'This function contains a dialog and logic to return to this script after updating the worker signature file.
-FUNCTION display_info_dialog(ButtonPressed)
-	'Grabbing the worker's signature
-	'This is basically the code from ACTIONS - UPDATE WORKER SIGNATURE.vbs
-	'The script appears to need this additional code. From testing, relying on the GlobVar was insufficient
-	'Additionally, this code sets worker_signature to "No default signature" when the file is not found
-	Set objNet = CreateObject("WScript.NetWork")
-	windows_user_ID = objNet.UserName
+	'header
+	Text 5, 10, 370, 10, "============================= BLUEZONE SCRIPTS INFORMATION ============================="
 
-	Dim oTxtFile
-	With (CreateObject("Scripting.FileSystemObject"))
-		If .FileExists("C:\users\" & windows_user_ID & "\my documents\workersig.txt") Then
-			Set get_worker_sig = CreateObject("Scripting.FileSystemObject")
-			Set worker_sig_command = get_worker_sig.OpenTextFile("C:\users\" & windows_user_ID & "\my documents\workersig.txt")
-			worker_sig = worker_sig_command.ReadAll
-			IF worker_sig <> "" THEN worker_signature = worker_sig
-			worker_sig_command.Close
-		Else
-			worker_signature = "No default signature"
-		END IF
-	END WITH
-
-	'Here's the actual dialog---------------------------------------------
-	'Text layout: X, Y, size X, size Y
-	BeginDialog info_dialog, 0, 0, 375, 460, "DHS BlueZone Scripts Info dialog"
-	ButtonGroup ButtonPressed
-		OkButton 320, 430, 50, 15
-		PushButton 275, 69, 95, 12, "<-- Update Worker Signature", UTILITIES_update_worker_signature_button
-
-		'header
-		Text 5, 10, 370, 10, "============================= BLUEZONE SCRIPTS INFORMATION ============================="
-
-		'We want to see right away if we're using the master branch
-		If use_master_branch = true then
-			Text 290, 30, 80, 10, "Branch used: MASTER"
-		Else
-			Text 290, 30, 80, 10, "Branch used: RELEASE"
-		End if
-
-		'This stuff is all pulled from global variables
-		Text 5, 30, 200, 10, "Scripts most recent install date: " & scripts_updated_date
-		Text 5, 40, 365, 10, "Worker county code: " & worker_county_code
-		Text 5, 50, 365, 10, "Agency code from installer: " & code_from_installer
-		Text 5, 60, 365, 10, "User logged in: " & windows_user_ID
-		Text 5, 70, 200, 10, "Worker Signature: " & worker_signature
-		Text 5, 80, 365, 10, "EDMS choice: " & EDMS_choice
-		Text 5, 90, 365, 10, "BNDX variance threshold: $" & county_bndx_variance_threshold
-		Text 5, 100, 365, 10, "Emergency ''percent rule'' amount: " & emer_percent_rule_amt & "%"
-		Text 5, 110, 365, 10, "Number of days-worth-of-income to be verified for emergency: " & emer_number_of_income_days
-		Text 5, 120, 365, 10, "CLS x1 number: " & CLS_x1_number
-
-		'The users who select a worker is either set to True (for everyone in the agency), or set to False and manually entered into global variables. This reads off who's covered by that.
-		If all_users_select_a_worker = True then
-			Text 5, 130, 365, 30, "Nav scripts users set to select a worker mode: ALL"
-		Else
-			For each user in users_using_select_a_user
-				user_string = user_string & user & ", "
-			Next
-			'This handy trick lops off the last character without tons of complex code, and adds a handy "none! if it's no users"
-			user_string = user_string & "none!"
-			user_string = replace(user_string, ", none!", "")
-			Text 5, 130, 365, 30, "Nav scripts users set to select a worker mode: " & user_string
-		End if
-
-		'This should only be tripped by scriptwriters who are running scripts locally
-		If run_locally = true then
-			Text 5, 160, 300, 10, "==========================================================================="
-			Text 5, 170, 300, 10, ">>>>>>>>>>>SCRIPTS ARE RUNNING LOCALLY, NOT THROUGH GITHUB<<<<<<<<<<<"
-			Text 5, 180, 300, 10, "     PROCEED WITH CAUTION, KNOWING YOUR SCRIPTS ARE RUNNING LOCALLY"
-			Text 5, 190, 300, 10, "==========================================================================="
-		Else
-			Text 5, 160, 300, 10, "Your BlueZone Scripts are being loaded from the repository at GitHub.com."
-			Text 5, 170, 300, 10, "         Please note: no client data is EVER passed through GitHub.com. Github"
-			Text 5, 180, 300, 10, "         is used a storage medium for the latest scripts, and was approved for our"
-			Text 5, 190, 300, 10, "         use by state IT in 2014."
-		End if
-
-		'Here's some logic to create a list of scriptwriters based on the above info--------------
-		'First some headers
-		Text 5, 210, 370, 10, 	"========================= LIST OF SCRIPTWRITERS AS OF 12/02/2015 ========================="
-		Text 5, 220, 70, 10, "---NAME---"
-		Text 75, 220, 40, 10, "---AGENCY---"
-		Text 155, 220, 90, 10, "---CURRENT ROLE---"
-		Text 245, 220, 90, 10, "---FORMER ROLE---"
-		Text 335, 220, 35, 10, "---EMAIL---"
-
-		'This loop takes info from above and turns it into coordinates on the dialog
-		For i = 0 to ubound(scriptwriter_array)
-			y_pos = (i * 10) + 230
-			Text 5, y_pos, 70, 10, scriptwriter_array(i).name
-			Text 75, y_pos, 80, 10, scriptwriter_array(i).agency
-			Text 155, y_pos, 90, 10, scriptwriter_array(i).role
-			Text 245, y_pos, 90, 10, scriptwriter_array(i).formerrole
-			If scriptwriter_array(i).email <> "" THEN PushButton 335, y_pos, 35, 10, "email", email_button_array(i)
-		Next
-	EndDialog
-
-	'Shows the dialog
-	Dialog info_dialog
-
-	'Allowing the worker to update their worker signature directly from the utilities script
-	IF ButtonPressed = UTILITIES_update_worker_signature_button THEN
-		IF worker_signature <> "No default signature" THEN
-			worker_signature = InputBox("Please enter your new worker signature...")
-			IF worker_signature <> "" THEN
-				SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
-				SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
-				update_worker_sig_command.Write(worker_signature)
-				update_worker_sig_command.Close
-			END IF
-		ELSE
-			worker_signature = InputBox("Please enter your new worker signature...")
-			IF worker_signature <> "" THEN
-				SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
-				SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
-				update_worker_sig_command.Write(worker_signature)
-				update_worker_sig_command.Close
-				SET update_worker_sig_command = Nothing
-				SET update_worker_sig_fso = Nothing
-				'ending the script as we are getting an exception access violation
-				'>>>> THIS IS AN AREA THAT COULD USE ADDITIONAL WORK. I (ROBERT) WOULD PREFER
-				'>>>> THAT THE SCRIPT CONTINUE LOOPING, BUT IT SEEMS TO BE A PROBLEM WHEN THE
-				'>>>> SCRIPT HAS TO CREATE THE .TXT FILE.
-				script_end_procedure("Worker signature created.")
-			END IF
-		END IF
-	ELSEIF ButtonPressed <> OK and ButtonPressed <> Cancel AND ButtonPressed <> UTILITIES_update_worker_signature_button THEN
-		For i = 0 to ubound(email_button_array)
-			If ButtonPressed = email_button_array(i) then CreateObject("WScript.Shell").Run("mailto:" & scriptwriter_array(i).email)
-		Next
+	'We want to see right away if we're using the master branch
+	If use_master_branch = true then
+		Text 290, 30, 80, 10, "Branch used: MASTER"
+	Else
+		Text 290, 30, 80, 10, "Branch used: RELEASE"
 	End if
-END FUNCTION
 
-'Calling the function that builds the dialog. The script will loop around the function to allow the worker to update their worker signature and then send an email.
-DO
-	CALL display_info_dialog(ButtonPressed)
-LOOP UNTIL ButtonPressed <> UTILITIES_update_worker_signature_button
+	'This stuff is all pulled from global variables
+  	Text 5, 30, 200, 10, "Scripts most recent install date: " & scripts_updated_date
+	Text 5, 40, 365, 10, "Worker county code: " & worker_county_code
+	Text 5, 50, 365, 10, "Agency code from installer: " & code_from_installer
+	Text 5, 60, 365, 10, "User logged in: " & windows_user_ID
+	Text 5, 70, 365, 10, "EDMS choice: " & EDMS_choice
+	Text 5, 80, 365, 10, "BNDX variance threshold: $" & county_bndx_variance_threshold
+	Text 5, 90, 365, 10, "Emergency ''percent rule'' amount: " & emer_percent_rule_amt & "%"
+	Text 5, 100, 365, 10, "Number of days-worth-of-income to be verified for emergency: " & emer_number_of_income_days
+	Text 5, 110, 365, 10, "CLS x1 number: " & CLS_x1_number
 
+	'The users who select a worker is either set to True (for everyone in the agency), or set to False and manually entered into global variables. This reads off who's covered by that.
+	If all_users_select_a_worker = True then
+		Text 5, 120, 365, 30, "Nav scripts users set to select a worker mode: ALL"
+	Else
+		For each user in users_using_select_a_user
+			user_string = user_string & user & ", "
+		Next
+		'This handy trick lops off the last character without tons of complex code, and adds a handy "none! if it's no users"
+		user_string = user_string & "none!"
+		user_string = replace(user_string, ", none!", "")
+		Text 5, 120, 365, 30, "Nav scripts users set to select a worker mode: " & user_string
+	End if
+
+	'This should only be tripped by scriptwriters who are running scripts locally
+	If run_locally = true then
+		Text 5, 150, 300, 10, "==========================================================================="
+		Text 5, 160, 300, 10, ">>>>>>>>>>>SCRIPTS ARE RUNNING LOCALLY, NOT THROUGH GITHUB<<<<<<<<<<<"
+		Text 5, 170, 300, 10, "     PROCEED WITH CAUTION, KNOWING YOUR SCRIPTS ARE RUNNING LOCALLY"
+		Text 5, 180, 300, 10, "==========================================================================="
+	Else
+		Text 5, 150, 300, 10, "Your BlueZone Scripts are being loaded from the repository at GitHub.com."
+		Text 5, 160, 300, 10, "         Please note: no client data is EVER passed through GitHub.com. Github"
+		Text 5, 170, 300, 10, "         is used a storage medium for the latest scripts, and was approved for our"
+		Text 5, 180, 300, 10, "         use by state IT in 2014."
+	End if
+
+	'Here's some logic to create a list of scriptwriters based on the above info--------------
+	'First some headers
+	Text 5, 200, 370, 10, 	"========================= LIST OF SCRIPTWRITERS AS OF 12/02/2015 ========================="
+  	Text 5, 210, 70, 10, "---NAME---"
+  	Text 75, 210, 40, 10, "---AGENCY---"
+  	Text 155, 210, 90, 10, "---CURRENT ROLE---"
+  	Text 245, 210, 90, 10, "---FORMER ROLE---"
+  	Text 335, 210, 35, 10, "---EMAIL---"
+
+	'This loop takes info from above and turns it into coordinates on the dialog
+	For i = 0 to ubound(scriptwriter_array)
+  		y_pos = (i * 10) + 220
+  		Text 5, y_pos, 70, 10, scriptwriter_array(i).name
+  		Text 75, y_pos, 80, 10, scriptwriter_array(i).agency
+  		Text 155, y_pos, 90, 10, scriptwriter_array(i).role
+  		Text 245, y_pos, 90, 10, scriptwriter_array(i).formerrole
+		If scriptwriter_array(i).email <> "" THEN PushButton 335, y_pos, 35, 10, "email", email_button_array(i)
+	Next
+EndDialog
+
+'Shows the dialog
+Dialog info_dialog
+
+'If the ButtonPressed wasn't OK or cancel, it ended because one of the email buttons was hit. This uses "mailto:" and a shell object to load a blank email addressed to the scriptwriter
+If ButtonPressed <> OK and ButtonPressed <> Cancel then
+	For i = 0 to ubound(email_button_array)
+		If ButtonPressed = email_button_array(i) then CreateObject("WScript.Shell").Run("mailto:" & scriptwriter_array(i).email)
+	Next
+End if
 
 'ends the script
 script_end_procedure("")

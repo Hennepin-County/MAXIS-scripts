@@ -130,7 +130,8 @@ If worker_county_code = "x101" OR _
 		worker_county_code = "x129" OR _
 		worker_county_code = "x133" OR _
 		worker_county_code = "x136" OR _
-		worker_county_code = "x139" THEN
+		worker_county_code = "x139" OR _ 
+		worker_county_code = "x144" THEN
 		script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
 END IF
 
@@ -699,7 +700,8 @@ For i = 0 to ubound(footer_month_array)
 			transmit
 			transmit
 		END IF
-
+		EMwritescreen "FFB2", 20, 70 'This is to make sure we end up in the right place'
+		transmit
 		'Now on FFB2
 		EMWriteScreen "         ", 5, 29
 		EMWriteScreen "         ", 6, 29

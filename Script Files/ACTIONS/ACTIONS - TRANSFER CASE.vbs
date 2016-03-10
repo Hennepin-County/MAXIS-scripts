@@ -513,6 +513,6 @@ IF XFERRadioGroup = 0 THEN
 	EMWriteScreen transfer_to, 18, 61
 
 
-	script_end_procedure("Success! The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER and transfer the case.")
+	script_end_procedure("Success! The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER, send the case file to the next county, and transfer the case.")
 
 END IF

@@ -166,7 +166,7 @@ IF bulk_check = checked THEN
 			'Reading the top case note header to see if it matches. If it does it will end the script as the script has derailed and needs to be stopped.
 			EMReadScreen double_message_catch, 55, 5, 25
 			IF trim(double_message_catch) = trim(cola_message) Then
-				catch_msgbox = ("Looks like this already was case noted, are you sure about this?", vbYesNo)
+				catch_msgbox = msgbox ("Looks like this already was case noted, are you sure about this?", vbYesNo)
 				IF catch_msgbox = vbNo then script_end_procedure("An error has occurred and the script is re-reading a dail causing it to duplicate a case note. Please check with your Alpha Script User.")
 			END IF
 
@@ -252,7 +252,7 @@ ELSE
 		'Reading the top case note header to see if it matches. If it does it will end the script as the script has derailed and needs to be stopped.
 		EMReadScreen double_message_catch, 55, 5, 25
 		IF trim(double_message_catch) = trim(cola_message) Then
-			catch_msgbox = ("Looks like this already was case noted, are you sure about this?", vbYesNo)
+			catch_msgbox = msgbox ("Looks like this already was case noted, are you sure about this?", vbYesNo)
 			IF catch_msgbox = vbNo then script_end_procedure("An error has occurred and the script is re-reading a dail causing it to duplicate a case note. Please check with your Alpha Script User.")
 		END IF
 

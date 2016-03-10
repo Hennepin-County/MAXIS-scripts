@@ -62,7 +62,7 @@ Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, tot
 End function
 
 Function prospective_pay_analyzer(pay_date, gross_amt)
-  If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 0 then
+  If datediff("m", pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then
     If len(datepart("m", pay_date)) = 2 then
       EMWriteScreen datepart("m", pay_date), MAXIS_row, 54
     Else
@@ -81,7 +81,7 @@ End function
 
 Function retro_paystubs_info_adder(pay_date, gross_amt, hours, retro_hours)
   If isdate(pay_date) = True then
-    If datediff("m", pay_date, footer_month & "/01/" & footer_year) = 2 then
+    If datediff("m", pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 2 then
       If len(datepart("m", pay_date)) = 2 then
         EMWriteScreen datepart("m", pay_date), MAXIS_row, 25
       Else
@@ -166,11 +166,10 @@ BeginDialog number_of_paystubs_dlg, 0, 0, 211, 65, "Number of Pay Dates"
   Text 10, 15, 145, 10, "Enter the number of pay dates being used..."
 EndDialog
 
-
 BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
   EditBox 100, 5, 60, 15, case_number
-  EditBox 70, 25, 25, 15, footer_month
-  EditBox 125, 25, 25, 15, footer_year
+  EditBox 70, 25, 25, 15, MAXIS_footer_month
+  EditBox 125, 25, 25, 15, MAXIS_footer_year
   EditBox 110, 45, 25, 15, HH_member
   CheckBox 15, 75, 110, 10, "Update and case note the PIC?", update_PIC_check
   CheckBox 15, 90, 75, 10, "Update HC popup?", update_HC_popup_check
@@ -191,26 +190,11 @@ BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
   Text 30, 115, 120, 10, "future months and send through BG."
 EndDialog
 
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
+'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-
-'Finds the case number
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
-
-'Default footer month is the month the worker is in, and if that isn't found, it's the current month.
-call find_variable("Month: ", footer_month, 5)
-footer_year = right(footer_month, 2)
-footer_month = left(footer_month, 2)
-If isnumeric(footer_month) = False or isnumeric(footer_year) = False then
-  footer_month = datepart("m", date)
-  If len(footer_month) = 1 then footer_month = "0" & footer_month
-  footer_year = right(datepart("yyyy", date), 2)
-End if
+Call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Default member is member 01
 HH_member = "01"
@@ -220,16 +204,9 @@ DO
 	Dialog paystubs_received_case_number_dialog
 		If buttonpressed = 0 then stopscript
 
-	CALL check_for_MAXIS(False)
-
-	'Checks to see if it's in STAT, and checks footer month/year. If it isn't in STAT or the right footer month/year, the script will leave the case.
-	EMReadScreen STAT_check, 4, 20, 21
-	EMReadScreen STAT_case_number, 8, 20, 37
-	EMReadScreen STAT_footer_month_check, 2, 20, 55
-	EMReadScreen STAT_footer_year_check, 2, 20, 58
-	If STAT_check <> "STAT" or trim(replace(STAT_case_number, "_", "")) <> case_number or STAT_footer_month_check <> footer_month or STAT_footer_year_check <> footer_year then back_to_SELF
-
-	call navigate_to_MAXIS_screen("stat", "jobs")
+	CALL check_for_MAXIS(False)							'checkng for an active MAXIS session
+	Call MAXIS_footer_month_confirmation				'confirming that user is in the correct footer month
+	call navigate_to_MAXIS_screen("stat", "jobs")		'navigates to STAT/JOBS
 
 	'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
 	EMReadScreen SELF_check, 4, 2, 50
@@ -394,17 +371,19 @@ Do
 						EMWriteScreen paystubs_array(i, 2), PIC_row, 35
 						PIC_row = PIC_row + 1
 						IF PIC_row = 14 THEN
-							PF20
+							PF20			'navigates to page 2 of the PIC'
 							PF20
 							PIC_row = 9
+						ELSE
+							Transmit		'Transmits in order to format the PIC, but cannot do this if page 2 of the PIC is going to be populated
+							Transmit		'It would just bring you back to the JOBS panel'
 						END IF
 					End If
 				END IF
 			NEXT
 
-			'Transmits in order to format the PIC
-			transmit
-			transmit
+			'Reading the PIC if update_PIC_check was checked
+			PF19 									'navigates to the 1st page of the PIC (even if there's only one PIC)'
 			'Reads the contents of the PIC for case noting.
 			EMReadScreen PIC_line_01, 26, 5, 49
 			EMReadScreen PIC_line_02, 28, 8, 13
@@ -417,10 +396,24 @@ Do
 			EMReadScreen PIC_line_09, 50, 16, 22
 			EMReadScreen PIC_line_10, 50, 17, 22
 			EMReadScreen PIC_line_11, 50, 18, 22
+			PF20										'shift PF8 to the next PIC screen'
+			EMReadScreen PIC_page_2_check, 8, 20, 6
+			IF PIC_page_2_check <> "COMPLETE" THEN 
+				EMReadScreen PIC2_line_01, 28, 9, 13		'reading the 2nd page of the PIC'
+				EMReadScreen PIC2_line_02, 28, 10, 13
+				EMReadScreen PIC2_line_03, 28, 11, 13
+				EMReadScreen PIC2_line_04, 28, 12, 13
+				EMReadScreen PIC2_line_05, 28, 13, 13
+				PIC2_line_01 = Replace(PIC2_line_01, "$", " ")
+				PIC2_line_01 = Replace(PIC2_line_01, "__ __ __    ________  ______", "")
+				PIC2_line_02 = Replace(PIC2_line_02, "__ __ __    ________  ______", "")
+				PIC2_line_03 = Replace(PIC2_line_03, "__ __ __    ________  ______", "")
+				PIC2_line_04 = Replace(PIC2_line_04, "__ __ __    ________  ______", "")
+				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")				
+			END IF 	
 			transmit
 		END IF
   End if
-
 
 	'Clears JOBS data before updating the JOBS panel
 	EMSetCursor 12, 25
@@ -455,22 +448,22 @@ Do
 		END IF
 	NEXT
 
-	If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) > 0 then 'For instances where the footer month is ahead of the first paydate.
+	If datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) > 0 then 'For instances where the footer month is ahead of the first paydate.
 		Do
-			If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0 then exit do
+			If datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then exit do
 			If pay_frequency = "One Time Per Month" then first_prospective_pay_date = dateadd("m", 1, first_prospective_pay_date)
 			If pay_frequency = "Two Times Per Month" then first_prospective_pay_date = dateadd("m", 1, first_prospective_pay_date)
 			If pay_frequency = "Every Other Week" then first_prospective_pay_date = dateadd("d", 14, first_prospective_pay_date)
 			If pay_frequency = "Every Week" then first_prospective_pay_date = dateadd("d", 7, first_prospective_pay_date)
-		Loop until datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0
-	Elseif datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) < 0 then 'For instances where the footer month is behind the first paydate (ex: paydate is 06/26/2013 but footer month is 05/13).
+		Loop until datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0
+	Elseif datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) < 0 then 'For instances where the footer month is behind the first paydate (ex: paydate is 06/26/2013 but footer month is 05/13).
 		Do
-			If datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0 then exit do
+			If datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then exit do
 			If pay_frequency = "One Time Per Month" then first_prospective_pay_date = dateadd("m", -1, first_prospective_pay_date)
 			If pay_frequency = "Two Times Per Month" then first_prospective_pay_date = dateadd("m", -1, first_prospective_pay_date)
 			If pay_frequency = "Every Other Week" then first_prospective_pay_date = dateadd("d", -14, first_prospective_pay_date)
 			If pay_frequency = "Every Week" then first_prospective_pay_date = dateadd("d", -7, first_prospective_pay_date)
-		Loop until datediff("m", first_prospective_pay_date, footer_month & "/01/" & footer_year) = 0
+		Loop until datediff("m", first_prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0
 	End if
 	'This checks to make sure the earliest possible paydate is selected in each prospective month.
 	If pay_frequency = "Two Times Per Month" or pay_frequency = "Every Other Week" or pay_frequency = "Every Week" then
@@ -499,7 +492,7 @@ Do
 		If pay_frequency = "One Time Per Month" and total_prospective_dates >= 1 then exit do 'Shouldn't be more than one entry if pay is once per month.
 		If pay_frequency = "Two Times Per Month" and total_prospective_dates >= 2 then exit do 'Shouldn't be more than two entries if pay is twice per month.
 		prospective_pay_date = dateadd("d", total_prospective_dates * pay_multiplier, first_prospective_pay_date)
-		If datediff("m", prospective_pay_date, footer_month & "/01/" & footer_year) = 0 then
+		If datediff("m", prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 0 then
 			If len(datepart("m", prospective_pay_date)) = 2 then
 				EMWriteScreen datepart("m", prospective_pay_date), MAXIS_row, 54
 			Else
@@ -515,7 +508,7 @@ Do
 			MAXIS_row = MAXIS_row + 1
 			total_prospective_dates = total_prospective_dates + 1
 		End if
-	Loop until datediff("m", prospective_pay_date, footer_month & "/01/" & footer_year) <> 0
+	Loop until datediff("m", prospective_pay_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) <> 0
 	'Updates pay frequency
 	If pay_frequency = "One Time Per Month" then EMWriteScreen "1", 18, 35
 	If pay_frequency = "Two Times Per Month" then EMWriteScreen "2", 18, 35
@@ -532,7 +525,7 @@ Do
 	EMWriteScreen left(JOBS_verif_code, 1), 6, 38
 
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
-	If update_HC_popup_check = 1 and datediff("m", date, footer_month & "/01/" & footer_year) = 1 then
+	If update_HC_popup_check = 1 and datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then
 		EMWriteScreen "x", 19, 54
 		transmit
 		EMWriteScreen "________", 11, 63
@@ -550,7 +543,7 @@ Do
 		EMReadScreen display_mode_check, 1, 20, 8
 	Loop until display_mode_check = "D"
 
-	If datediff("m", date, footer_month & "/01/" & footer_year) = 1 then in_future_month = True
+	If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
 
 	'If just on SNAP, the case does not have to update future months, so the script can now case note.
 	If future_months_check = 0 or in_future_month = True then exit do
@@ -558,8 +551,8 @@ Do
 	'Navigates to the current month + 1 footer month, then back into the JOBS panel
 	CALL write_value_and_transmit("BGTX", 20, 71)
 	CALL write_value_and_transmit("y", 16, 54)
-	EMReadScreen footer_month, 2, 20, 55
-	EMReadScreen footer_year, 2, 20, 58
+	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	EMReadScreen MAXIS_footer_year, 2, 20, 58
 	EMWriteScreen "jobs", 20, 71
 	EMWriteScreen HH_member, 20, 76
 	If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
@@ -585,7 +578,12 @@ If update_PIC_check = 1 then
 	EMSendKey PIC_line_04 & "                 " & "<newline>"
 	EMSendKey PIC_line_05 & "                 " & "<newline>"
 	EMSendKey PIC_line_06 & "                 " & "<newline>"
-	EMSendKey PIC_line_07 & "<newline>"
+	EMSendKey PIC_line_07 & "                 " & "<newline>"
+	IF PIC2_line_01 <> "" then EMSendKey PIC2_line_01 & "                 " & "<newline>"
+	IF PIC2_line_02 <> "" then EMSendKey PIC2_line_02 & "                 " & "<newline>"
+	IF PIC2_line_03 <> "" then EMSendKey PIC2_line_03 & "                 " & "<newline>"
+	IF PIC2_line_04 <> "" then EMSendKey PIC2_line_04 & "                 " & "<newline>"
+	IF PIC2_line_05 <> "" then EMSendKey PIC2_line_05 & "                 " & "<newline>"
 	EMSendKey PIC_line_08 & "<newline>"
 	EMWriteScreen PIC_line_01, 6, 48
 	EMWriteScreen PIC_line_09, 7, 35

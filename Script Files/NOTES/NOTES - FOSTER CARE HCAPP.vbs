@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - MILEAGE REIMBURSEMENT REQUEST.vbs"
+name_of_script = "NOTES - FOSTER CARE HCAPP.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -46,61 +46,76 @@ END IF
 
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 90           'manual run time in seconds
+STATS_manualtime = 250         'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog mileage_dialog, 0, 0, 306, 125, "Mileage Reimbursement"
-  EditBox 75, 5, 70, 15, case_number
-  EditBox 230, 5, 70, 15, date_docs_recd
-  EditBox 50, 25, 70, 15, total_reimbursement
-  EditBox 230, 25, 70, 15, date_to_accounting
-  EditBox 50, 45, 250, 15, docs_reqd
-  EditBox 50, 65, 250, 15, other_notes
-  EditBox 55, 85, 245, 15, actions_taken
-  EditBox 70, 105, 70, 15, worker_signature
+'Dialog---------------------------------------------------------------------------------------------------------------------------
+BeginDialog Foster_Care_HCAPP, 0, 0, 326, 335, "Foster Care HCAPP "
+  EditBox 65, 5, 65, 15, Case_number
+  EditBox 105, 25, 65, 15, Date_Received_In_Agency
+  EditBox 75, 45, 65, 15, Completed_By
+  EditBox 115, 70, 80, 15, Date_of_Agency_Responsiblity
+  EditBox 40, 90, 145, 15, IV_E
+  EditBox 130, 115, 105, 15, Social_Worker_or_Probation_Officer
+  EditBox 40, 135, 160, 15, AREP
+  EditBox 55, 155, 70, 15, Income
+  EditBox 75, 180, 90, 15, Retro_Requested
+  EditBox 45, 200, 130, 15, OHC
+  EditBox 95, 235, 160, 15, Verifications_Requested
+  EditBox 65, 260, 160, 15, Results
+  EditBox 75, 290, 110, 15, Worker_Signature
   ButtonGroup ButtonPressed
-    OkButton 195, 105, 50, 15
-    CancelButton 250, 105, 50, 15
-  Text 5, 10, 70, 10, "MAXIS case number:"
-  Text 170, 10, 55, 10, "Date Received:"
-  Text 5, 30, 45, 10, "Total Amount:"
-  Text 165, 30, 60, 10, "Date Sent to Acct:"
-  Text 5, 50, 40, 10, "Doc's req'd:"
-  Text 5, 70, 45, 10, "Other notes:"
-  Text 5, 90, 50, 10, "Actions taken:"
-  Text 5, 110, 60, 10, "Worker signature:"
+    OkButton 215, 320, 50, 15
+    CancelButton 275, 320, 50, 15
+  Text 5, 5, 55, 10, "Case number:"
+  Text 5, 25, 90, 10, "Date Received In Agency: "
+  Text 5, 45, 60, 10, "Completed By: "
+  Text 5, 70, 100, 10, "Date of Agency Responsiblity: "
+  Text 5, 90, 25, 10, "IV E:"
+  Text 5, 115, 120, 10, "Social Worker or Probation Officer:"
+  Text 5, 135, 35, 10, "AREP: "
+  Text 5, 155, 35, 15, "Income: "
+  Text 5, 180, 65, 15, "Retro Requested: "
+  Text 5, 200, 25, 15, "OHC:"
+  Text 5, 235, 85, 15, "Verifications Requested: "
+  Text 5, 260, 40, 10, "Results: "
+  Text 5, 290, 65, 10, "Worker Signature: "
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone
+
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
+'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-'Finds the case number
-call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(case_number)
 
-
-'Displays the dialog and navigates to case note
-Do
-	Dialog Mileage_dialog
-	cancel_confirmation
-	If case_number = "" then MsgBox "You must have a case number to continue!"
-Loop until case_number <> ""
+'calling the dialog---------------------------------------------------------------------------------------------------------------
+DO
+	Dialog Foster_Care_HCAPP
+	IF buttonpressed = 0 THEN stopscript
+	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
+LOOP until case_number <> "" and worker_signature <> ""
 
 'checking for an active MAXIS session
-Call check_for_MAXIS(False)
+CALL check_for_MAXIS(FALSE)
 
-'the CASE NOTE----------------------------------------------------------------------------------------------------
+'The case note---------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE(">>>>>MILEAGE REIMBURSEMENT REQUEST - ACTIONS TAKEN<<<<<")
-call write_bullet_and_variable_in_case_note("Date received", date_docs_recd)
-call write_bullet_and_variable_in_case_note("Total Amount", "$" & total_reimbursement)
-call write_bullet_and_variable_in_case_note("Date Sent to Accounting", date_to_accounting)
-call write_bullet_and_variable_in_case_note("Docs requested", docs_reqd)
-call write_bullet_and_variable_in_case_note("Other notes", other_notes)
-call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-If worker_county_code = "x179" then call write_variable_in_CASE_NOTE("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.")	'Should only do this for Wabasha County, unless other counties request it.
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE(worker_signature)
+CALL write_variable_in_CASE_NOTE("***Foster Care HCAPP***")
+CALL write_bullet_and_variable_in_CASE_NOTE("Date Received In Agency", Date_Received_In_Agency)
+CALL write_bullet_and_variable_in_CASE_NOTE("Completed By", Completed_By)
+CALL write_bullet_and_variable_in_CASE_NOTE("Date of Agency Responsibility", Date_Of_Agency_Responsiblity)
+CALL write_bullet_and_variable_in_CASE_NOTE("IV E", IV_E)
+CALL write_bullet_and_variable_in_CASE_NOTE("Social Worker or Probation Officer", Social_Worker_OR_Probation_Officer)
+CALL write_bullet_and_variable_in_CASE_NOTE("AREP", Arep)
+CALL write_bullet_and_variable_in_CASE_NOTE("Income", Income)
+CALL write_bullet_and_variable_in_CASE_NOTE("Retro Requested", Retro_Requested)
+CALL write_bullet_and_variable_in_CASE_NOTE("OHC", OHC)
+CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Requested", Verifications_Requested)
+CALL write_bullet_and_variable_in_CASE_NOTE("Results", Results)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+Script_end_procedure("")

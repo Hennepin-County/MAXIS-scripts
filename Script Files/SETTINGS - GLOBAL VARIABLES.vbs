@@ -51,6 +51,8 @@ CLS_x1_number = ""
 'This is a TRUE/FALSE that will tell the INAC scrubber to hold onto MAGI cases that closed for no/incomplete renewals for 4 months or not.
 MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE
 
+'This is a setting for the TYMA TIKLer script. When set to "true", TYMA TIKLer will TIKL all TYMA months simultaneously, as opposed to only the first month. Defaullt is "false".
+TYMA_TIKL_all_at_once = false
 
 'NAVIGATION SCRIPT CONFIGURATION================
 
@@ -67,16 +69,25 @@ users_using_select_a_user = array()
 collecting_statistics = False
 
 'This is the file path for the statistics Access database.
-stats_database_path = "C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
+stats_database_path = "C:\DHS-MAXIS-Scripts\Databases for script usage\usage statistics.accdb"
 
 'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
 STATS_enhanced_db = false
 
 
+'ABAWD BANKED MONTHS TRACKING CONFIG================
+
+'This determines whether-or-not banked months tracking happens at all
+banked_months_db_tracking = false
+
+'Add the path to the database file using banked_month_database_path, replacing this path with wherever you have the file installed
+banked_month_database_path = "C:\DHS-MAXIS-Scripts\Databases for script usage\banked month tracking.accdb"
+
+
 'BRANCH CONFIGURATION=====================
 
 'This is a variable which sets the scripts to use the master branch (common with scriptwriters)
-use_master_branch = False
+use_master_branch = true
 
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
@@ -111,4 +122,4 @@ ELSE							'Everyone else (who isn't a scriptwriter) typically uses the release 
 END IF
 
 'If run locally is set to "True", the scripts will totally bypass GitHub and run locally.
-IF run_locally = TRUE THEN script_repository = "C:\DHS-MAXIS-Scripts\Script Files"
+IF run_locally = TRUE THEN script_repository = "C:\DHS-MAXIS-Scripts\Script Files\"

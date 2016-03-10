@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - MFIP ORIENTATION.vbs"
+name_of_script = "NOTICES - MFIP ORIENTATION.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================

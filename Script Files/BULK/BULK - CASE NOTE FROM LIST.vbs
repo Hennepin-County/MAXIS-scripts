@@ -47,12 +47,12 @@ END IF
 'Required for statistical purposes==========================================================================================
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 180                               'manual run time in seconds
-STATS_denomination = "I"       'I is for each Item
+STATS_denomination = "C"       'C is for each Case
 'END OF stats block==============================================================================================
 
 'Dialogs
 '>>>>>Main dlg<<<<<
-BeginDialog main_menu, 0, 0, 201, 65, "MEMO from List"
+BeginDialog main_menu, 0, 0, 201, 65, "Case Note from List"
   DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
   ButtonGroup ButtonPressed
     OkButton 90, 40, 50, 15
@@ -266,7 +266,7 @@ DIALOG main_menu
 		'Gathering the information from the user about the fields in Excel to look for.
 		DO
 			err_msg = ""
-			DIALOG memo_from_excel_dlg
+			DIALOG CASE_NOTE_from_excel_dlg
 				IF ButtonPressed = 0 THEN stopscript
 				IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN 
 					err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
@@ -283,7 +283,7 @@ DIALOG main_menu
 		LOOP UNTIL err_msg = ""		
 		
 		CALL check_for_MAXIS(false)
-		'Generating a MEMO for each case.
+		'Generating a CASE NOTE for each case.
 		FOR i = excel_row TO end_row
 			IF objExcel.Cells(i, excel_col).Value <> "" THEN 
 				case_number_array = case_number_array & objExcel.Cells(i, excel_col).Value & "~~~"
@@ -293,7 +293,7 @@ DIALOG main_menu
 
 CALL check_for_MAXIS(false)
 
-'The business of sending memos
+'The business of sending Case notes
 case_number_array = trim(case_number_array)
 case_number_array = split(case_number_array, "~~~")
 
@@ -315,6 +315,7 @@ FOR EACH case_number IN case_number_array
 			'-----Added because the script was only case noting the header, footer and worker_signature on the first case.
 			FOR EACH message_part IN message_array
 				CALL write_variable_in_CASE_NOTE(message_part)
+				STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
 			NEXT
 		END IF
 	END IF
@@ -322,7 +323,8 @@ NEXT
 
 IF privileged_array <> "" THEN 
 	privileged_array = replace(privileged_array, "~~~", vbCr)
-	MsgBox "The script could not generate a memo for the following cases..." & vbCr & privileged_array
+	MsgBox "The script could not generate a CASE NOTE for the following cases..." & vbCr & privileged_array
 END IF
 
+STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success!!")
