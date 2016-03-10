@@ -84,8 +84,7 @@ EMSendKey "x"
 transmit
 
 'Reading date and time of recertification appointment from the TIKL--DAIL message that should be read is: "~*~*~CLIENT HAD RECERT INTERVIEW APPT AT..." This is the part that is static in the DAIL message
-EMReadScreen interview_date_time, 19, 9, 46
-'EMReadScreen interview_time, 8, 9, 56
+EMReadScreen interview_date_time, 19, 9, 46    'reads "MM/DD/YYYY HH:MM PM" (or any combination less) off of dail messate
 row  = 1
 col = 1
 EMSearch "Case Number: ", row, col
