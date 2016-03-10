@@ -273,9 +273,9 @@ If revw_check = checked then
 				If last_day_to_turn_in_cash_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
 				If last_day_to_turn_in_SNAP_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
 				If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
-				If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for cash on " & cash_intake_date & ".")
-				If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for SNAP on " & SNAP_intake_date & ".")
-				If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to reapply for HC after " & HC_intake_date & ".")
+				If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to turn in new application for cash on " & cash_intake_date & ".")
+				If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to turn in new application for SNAP on " & SNAP_intake_date & ".")
+				If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to turn in new application for HC after " & HC_intake_date & ".")
 
 				call write_new_line_in_case_note("---")
 				call write_new_line_in_case_note(worker_signature & ", via automated script.")
