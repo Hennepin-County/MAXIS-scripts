@@ -68,7 +68,7 @@ EndDialog
 EMConnect ""
 
 'remove after testing
-worker_number = "x127EZ5"
+worker_number = "x127EZ4"
 
 'Shows dialog
 DO
@@ -238,54 +238,63 @@ next
 
 'Now the script checks the potentially exempt members for subsidized housing
 excel_row = 2           're-establishing the row to start checking the members for 
-Do 
-	case_number = objExcel.cells(excel_row, case_number_col).value	're-establishing the case numbers
-	client_name = objExcel.cells(excel_row, client_name_col).value	're-establishing the client_name
+Do 						'Loops until there are no more cases in the Excel list
+	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
+	client_name = objExcel.cells(excel_row, 3).Value	're-establishing the client name
+	If case_number = "" then exit do	
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-    DO
-        EMReadScreen first_name, 25, 6, 30
-        EMReadScreen last_name, 12, 6, 63
+	DO					'Do Loop is searching for MEMB #, this is needed for SHEL and DISA
+        EMReadScreen last_name, 25, 6, 30
+        EMReadScreen first_name, 12, 6, 63
         EmReadScreen middle_name, 1, 6, 79
-        name = trim(last_name & ", " & first_name & " " & middle_name)
-        If name = client_name then
-            EMReadScreen memb_number, 2, 4, 33
-            edit do
-        END IF
-        transmit
-    LOOP until name = client name
+		last_name = Replace(last_name,"_","")
+        first_name = Replace(first_name,"_","")
+		middle_name= Replace(middle_name,"_","")
+		name_of_client = trim(last_name & ", " & first_name & " " & middle_name)		'adds the variables together to make a new name variable
+        msgbox name_of_client & vbnewline & client_name
+		If name_of_client = client_name  
+            EMReadScreen memb_number, 2, 4, 33								'if name matches, grabs the memb_number
+		ELSE 
+        	transmit														'if not, transmit and loop until client_name is found
+		END IF
+		If name_of_client = client_name then exit do
+    LOOP until name_of_client = client_name
     
     'checking member for subsidized housing 
     Call navigate_to_MAXIS_screen("STAT", "SHEL")
     EMWriteScreen memb_number, 20, 76
     transmit
     EmReadScreen sub_housing, 1, 6, 46
-    If sub_housing <> "Y" then 
+    If sub_housing <> "Y" then 				'if member doesn't have sub housing, then the sub housing fiater is not necessary
         'Deleting the blank results to clean up the spreadsheet
         SET objRange = objExcel.Cells(excel_row, 1).EntireRow
         objRange.Delete
-        excel_row = excel_row - 1
+        excel_row = excel_row - 1	
     END IF
     excel_row = excel_row + 1
-LOOP until 
+LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
 
-    
-    
-    
-    
-    
-    
-    
-    Call navigate_to_MAXIS_screen("STAT", "PROG")
-	EMReadScreen prog_one, 2, 6, 67
+'Now the script checks for MFIP start date, disa dates and  inputs payment history
+excel_row = 2           're-establishing the row to start checking the members for 
+DO	
+	case_number = objExcel.cells(excel_row, case_number_col).value	're-establishing the case numbers
+	Call navigate_to_MAXIS_screen("STAT", "PROG")
+	'reading the MFIP start date
+	EMReadScreen prog_one, 2, 6, 67				'checking 1st line of CASH PROG for elig MFIP
 	EMReadScreen prog_status_one, 4, 6, 74
 	EMReadScreen elig_begin_date_one, 8, 6, 44
-	If prog_one <> "MF" and prog_status_one <> "ACTV" then  
-		EMReadScreen prog_two, 2, 7, 67
+	If prog_one = "MF" and prog_status_one = "ACTV" then 
+		elig_begin_date = elig_begin_date_one
+	ELSE
+		EMReadScreen prog_two, 2, 7, 67				'checking 2nd line of CASH PROG for elig MFIP if 1st line isn't MFIP
 		EMReadScreen prog_status_two, 4, 7, 74
-		EMReadScreen elig_begin_date_one, 8, 7, 44
+		EMReadScreen elig_begin_date_two, 8, 7, 44
+		elig_begin_date = elig_begin_date_two
 	END IF 
-	IF If prog_one = "MF" and prog_status_one = "ACTV" then elig_begin_date 
+	ObjExcel.Cells(excel_row, 6).Value = elig_begin_date
 	
+	excel_row = excel_row + 1	'moving excel row to next row'
+LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
 	
 '------------------------------Post MAXIS coding-----------------------------------------------------------------------------
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
