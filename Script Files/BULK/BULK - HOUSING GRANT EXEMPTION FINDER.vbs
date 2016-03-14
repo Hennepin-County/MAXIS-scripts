@@ -312,10 +312,39 @@ DO
 	'adding disa date to Excel 
 	ObjExcel.Cells(excel_row, 5).Value = disa_dates
 	
-	stopscript
-	
-	excel_row = excel_row + 1	'moving excel row to next row'
-LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
+	'INQX/INQD PORTION
+	back_to_self
+	EMWriteScreen "________", 18, 43
+	EMWriteScreen case_number, 18, 43
+	Call navigate_to_MAXIS_screen("MONY", "INQX")
+	EMWriteScreen CM_minus_11_mo, 6, 38		'entering footer month/year 11 months prior to see full year
+	EMWriteScreen CM_minus_11_yr, 6, 41
+	EMWriteScreen CM_mo, 6, 53		'entering current footer month/year
+	EMWriteScreen CM_yr, 6, 56
+	EMWriteScreen "x", 10, 5		'selecting MFIP
+	transmit
+	'searching for the housing grant issued on the INQD screen(s)
+	DO
+		row = 6
+		DO
+			EMReadScreen housing_grant, 2, row, 19		'searching for housing grant issuance
+			If housing_grant = "__" then exit do
+			IF housing_grant = "HG" then
+				'reading the housing grant information
+				EMReadScreen EMER_type, 2, row, 19
+				EMReadScreen EMER_amt_issued, 7, row, 39
+				EMReadScreen HG_month, 2, row, 73
+				EMReadScreen HG_year, 2, row, 77
+			END IF	
+			row = row + 1
+		Loop until row = 18				'repeats until the end of the page
+			PF8
+			EMReadScreen last_page_check, 21, 24, 2
+			If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
+	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+		
+	'excel_row = excel_row + 1	'moving excel row to next row'
+'LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
 	
 '------------------------------Post MAXIS coding-----------------------------------------------------------------------------
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
