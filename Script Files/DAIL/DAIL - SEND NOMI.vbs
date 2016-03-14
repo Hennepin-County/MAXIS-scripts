@@ -83,9 +83,8 @@ EMConnect ""
 EMSendKey "x"
 transmit
 
-'Reading date and time of recertification appointment from the TIKL--DAIL message that should be read is: "~*~*~CLIENT HAD RECERT INTERVIEW AT..." This is the part that is static in the DAIL message
-EMReadScreen interview_date, 10, 9, 42
-EMReadScreen interview_time, 8, 9, 56
+'Reading date and time of recertification appointment from the TIKL--DAIL message that should be read is: "~*~*~CLIENT HAD RECERT INTERVIEW APPT AT..." This is the part that is static in the DAIL message
+EMReadScreen interview_date_time, 19, 9, 46    'reads "MM/DD/YYYY HH:MM PM" (or any combination less) off of dail messate
 row  = 1
 col = 1
 EMSearch "Case Number: ", row, col
@@ -120,7 +119,7 @@ If result_of_msgbox = FALSE then		'if false a case note will be made, but a NOMI
 	If ButtonPressed_worker_signature_dialog = 0 then stopscript
 	PF9	'goes directly into edit mode
 	Call write_variable_in_CASE_NOTE ("**Client missed SNAP recertification interview**")
-	Call write_variable_in_CASE_NOTE("* Interview appointment was scheduled for: " & interview_date & " at " & interview_time & ".")
+	Call write_variable_in_CASE_NOTE("* Interview appointment was scheduled for: " & interview_date_time)
 	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO has not been sent.")
 	Call write_variable_in_CASE_NOTE ("---")
 	Call write_variable_in_CASE_NOTE (worker_signature & ", using automated script.")
@@ -177,7 +176,7 @@ IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sen
 	If worker_county_code = "x127" then
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("************************************************************")
-		Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & interview_date & " at " & interview_time & ".")
+		Call write_variable_in_SPEC_MEMO("You have missed your SNAP interview that was scheduled for " & interview_date_time)
 		Call write_variable_in_SPEC_MEMO(" ")
 	  Call write_variable_in_SPEC_MEMO("Please contact your worker at 612-596-1300 to complete the required SNAP interview.")
 		IF region_residence = "Central/NE" Then
@@ -199,7 +198,7 @@ IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sen
 	ELSE
 		'Writes the info into the SPEC/MEMO for other users
 		Call write_variable_in_SPEC_MEMO("************************************************************")
-		Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & interview_date & " at " & interview_time & ".")
+		Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & interview_date_time)
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("Please contact your worker at the telephone number listed below to reschedule the required Food Support interview.")
 		Call write_variable_in_SPEC_MEMO(" ")
@@ -210,7 +209,7 @@ IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sen
 	PF3
 	Call start_a_blank_case_note 'Navigates to a blank case note & writes the case note
 	Call write_variable_in_CASE_NOTE ("**Client missed SNAP recertification interview**")
-	Call write_variable_in_CASE_NOTE("* Appointment was scheduled for: " & interview_date & " at " & interview_time & ".")
+	Call write_variable_in_CASE_NOTE("* Appointment was scheduled for: " & interview_date_time)
 	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO has been sent.")
 	Call write_variable_in_CASE_NOTE ("---")
 	Call write_variable_in_CASE_NOTE (worker_signature & ", using automated script.")
