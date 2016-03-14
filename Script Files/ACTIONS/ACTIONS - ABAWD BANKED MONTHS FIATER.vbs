@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 225                	'manual run time in seconds
+STATS_denomination = "C"       			'C is for each Case
+'END OF stats block=========================================================================================================			
+		
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	'defines an intial date from the initial_month and initial_year parameters
@@ -124,7 +130,8 @@ If worker_county_code = "x101" OR _
 		worker_county_code = "x129" OR _
 		worker_county_code = "x133" OR _
 		worker_county_code = "x136" OR _
-		worker_county_code = "x139" THEN
+		worker_county_code = "x139" OR _ 
+		worker_county_code = "x144" THEN
 		script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
 END IF
 
@@ -506,7 +513,6 @@ For i = 0 to ubound(footer_month_array)
 		Next
 	Next
 
-
 	'ABAWD_months_array(i).gross_wages = cstr(jobs_income)
 	'storing all total amounts / adding trims so they read correctly in dialog
 	jobs_income = trim(jobs_income)
@@ -523,8 +529,6 @@ For i = 0 to ubound(footer_month_array)
 	gross_BUSI = trim(gross_BUSI)
 	total_COEX_deduction = trim(total_COEX_deduction)
 	fmed_total_amt = trim(fmed_total_amt)
-
-
 
  '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
 		BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD banked months income and deductions dialog"
@@ -696,7 +700,8 @@ For i = 0 to ubound(footer_month_array)
 			transmit
 			transmit
 		END IF
-
+		EMwritescreen "FFB2", 20, 70 'This is to make sure we end up in the right place'
+		transmit
 		'Now on FFB2
 		EMWriteScreen "         ", 5, 29
 		EMWriteScreen "         ", 6, 29
@@ -709,7 +714,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen ABAWD_months_array(i).SHEL_insa, 7, 29
 		EMWritescreen ABAWD_months_array(i).HEST_elect, 8, 29
 		EMWritescreen ABAWD_months_array(i).HEST_heat, 9, 29
-		EMWritescreen ABAWD_months_array(i).HEST_phone, 10, 29
+		EMWritescreen ABAWD_months_array(i).HEST_phone, 11, 29
 		EMWriteScreen ABAWD_months_array(i).SHEL_other, 12, 29
 		'this enters the proration date in the initial month'
 		IF abs(footer_month) = abs(left(proration_date, 2)) THEN

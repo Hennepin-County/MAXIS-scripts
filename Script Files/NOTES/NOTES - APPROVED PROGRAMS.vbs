@@ -99,7 +99,6 @@ FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	initial_date = initial_month & "/1/" & initial_year
 	'defines a date_list, which starts with just the initial date
 	date_list = initial_date
-
 	'This loop creates a list of dates
 	Do
 		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
@@ -290,41 +289,52 @@ IF SNAP_banked_mo_check = checked THEN
 			Next
 			
 			Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
-			
-			IF banked_months_db_tracking = True Then		'This is David Courtright's code for using Access
-				'----------------THis section updates an access database for ABAWD banked months---------------------------------'
+			'This is David Courtright's code for using Access
+			IF banked_months_db_tracking = True Then 'This global variable needs to be set to true in the global variables file for counties using this method
+			'Counties also need to define the location of the database file using banked_month_database_path in global variables.
+			'----------------THis section updates an access database for ABAWD banked months---------------------------------'
 				abawd_member_array = Split(ABAWD_member_list, ",")
 
-				'Getting user name
-				Set objNet = CreateObject("WScript.NetWork")
-				user_ID = objNet.UserName
-				'Setting constants
-				Const adOpenStatic = 3
-				Const adLockOptimistic = 3
-				'Creating objects for Access
+			'Creating objects for Access
 				Set objConnection = CreateObject("ADODB.Connection")
 				Set objRecordSet = CreateObject("ADODB.Recordset")
-				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & stats_database_path & "" 
+				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & banked_month_database_path & ""
 				'This looks for an existing case number and edits it if needed
-				FOR i = 0 to UBound(BM_Clients_Array,2) 
-					banked_month = Used_ABAWD_Months_Array(0)
-					banked_month_2 = Used_ABAWD_Months_Array(1)
-					banked_month_3 = Used_ABAWD_Months_Array(2)
+				FOR i = 0 to UBound(BM_Clients_Array,2)
+					slash_loc = instr(Used_ABAWD_Months_Array(0), "/") 'this helps us get rid of the year info to match the database formatting.'
+					banked_month = left(Used_ABAWD_Months_Array(0), slash_loc - 1) ' This does the removal of the year, so the months match the database columns
+					if ubound(Used_ABAWD_Months_Array) > 0 THEN
+					slash_loc = instr(Used_ABAWD_Months_Array(1), "/")
+					banked_month_2 = left(Used_ABAWD_Months_Array(1), slash_loc - 1)
+					END IF
+					IF ubound(Used_ABAWD_Months_Array) > 1 THEN
+					slash_loc = instr(Used_ABAWD_Months_Array(2), "/")
+					banked_month_3 = left(Used_ABAWD_Months_Array(2), slash_loc - 1)
+					END IF
+
 					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
+					'These lines format the SQL string based on the number of months to update'
+					IF ubound(Used_ABAWD_Months_Array) = 2 THEN
+					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+					 insert_string = banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1', '-1')"
+					ELSEIF ubound(Used_ABAWD_Months_Array) = 1 THEN
+					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1 WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+					 insert_string = banked_month & ", " & banked_month_2 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1')"
+					ELSEIF ubound(Used_ABAWD_Months_Array) = 0 THEN
+						update_string = banked_month & " = -1 WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+						insert_string = banked_month & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1')"
+					END IF
 
 					IF NOT(abawdrs.EOF) THEN 'There is an existing case, we need to update
-
-						'This formats all the variables into the correct syntax
-						update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
 						objConnection.Execute "UPDATE banked_month_log SET " & update_string 'Here we are actually writing to the database
-						set abawdrs = nothing
 					ELSE 'There is no existing case, add a new one using the info pulled from the script
-						'Inserting the new record
-						objConnection.Execute "INSERT INTO banked_month_log (case_number, member_number, " & banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1', '-1')"
+						objConnection.Execute "INSERT INTO banked_month_log (case_number, member_number, " & insert_string
 					END IF
+					set abawdrs = nothing
 				NEXT
 				objConnection.close
-			Else 
+			Else
+
 				'For counties with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
 				'Opening the Excel file
 				Set objExcel = CreateObject("Excel.Application")
@@ -430,7 +440,7 @@ Next
 
 'Here the script will use the program listed in the array to determine where to go to find the amounts - then add them to the array
 For all_elig_results = 0 to UBound (bene_amount_array,2)
-	If bene_amount_array(0, all_elig_results) = "Food" Then
+	If bene_amount_array(0, all_elig_results) = "Food" AND snap_approved_check = checked Then
 		Call navigate_to_MAXIS_screen("ELIG", "FS")
 		EMWriteScreen bene_amount_array (1, all_elig_results), 19, 54
 		EMWriteScreen bene_amount_array (2, all_elig_results), 19, 57
@@ -450,32 +460,38 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 		ELSE
 			EMReadScreen approval_versions, 2, 2, 18
 			If trim(approval_versions) = "1" THEN 
-				MsgBox "This is not an approved version from today, SNAP amounts will not be case noted"
 				bene_amount_array(0, all_elig_results) = "NONE"
-			End If
-			approval_versions = abs(approval_versions)
-			approval_to_check = approval_versions - 1 
-			EMWriteScreen approval_to_check, 19, 78
-			transmit
-			EMReadScreen approval_date, 8, 3, 14 
-			approval_date = cdate(approval_date)
-			If approval_date = date THEN 
-				EMReadScreen snap_bene_amt, 8, 13, 73
-				EMReadScreen snap_reporter, 10, 8, 31
-				EMReadScreen partial_bene, 8, 9, 44
-				If partial_bene = "Prorated" then 
-					EMReadScreen prorated_date, 8, 9, 58 
-					bene_amount_array (4, all_elig_results) = prorated_date
-				End If 
-				bene_amount_array (3, all_elig_results) = trim(snap_bene_amt)
-				bene_amount_array (10, all_elig_results) = trim(snap_reporter) & " Reporter"
-			Else 
-				MsgBox "Your most recent SNAP approval for the benefit month chosen is not from today. This approval amount will not be case noted"
-				bene_amount_array(0, all_elig_results) = "NONE"
-			End If
+				IF snap_approved_check = checked THEN MsgBox "This is not an approved version from today, SNAP amounts will not be case noted"
+			Else
+				approval_versions = abs(approval_versions)
+				approval_to_check = approval_versions - 1 
+				EMWriteScreen approval_to_check, 19, 78
+				transmit
+				EMReadScreen approval_date, 8, 3, 14 
+				approval_date = cdate(approval_date)
+				If approval_date = date THEN 
+					EMReadScreen snap_bene_amt, 8, 13, 73
+					EMReadScreen snap_reporter, 10, 8, 31
+					EMReadScreen partial_bene, 8, 9, 44
+					If partial_bene = "Prorated" then 
+						EMReadScreen prorated_date, 8, 9, 58 
+						bene_amount_array (4, all_elig_results) = prorated_date
+					End If 
+					bene_amount_array (3, all_elig_results) = trim(snap_bene_amt)
+					bene_amount_array (10, all_elig_results) = trim(snap_reporter) & " Reporter"
+				Else 
+					IF snap_approved_check = checked THEN MsgBox "Your most recent SNAP approval for the benefit month chosen is not from today. This approval amount will not be case noted"
+					bene_amount_array(0, all_elig_results) = "NONE"
+				End If
+			End If 
 		End If 
-	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" Then 
+	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" AND cash_approved_check = checked Then 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
+		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
+		row = 1
+		col = 1
+		EMSearch "(MFSC)", row, col
+		IF row <> 0 THEN transmit
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
 		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59 
 		EMWriteScreen "MFSM", 20, 71 
@@ -497,42 +513,43 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				bene_amount_array (10, all_elig_results) = trim(mfip_reporter) & " Reporter"
 				If prorate_date <> "        " Then bene_amount_array (4, all_elig_results) = prorate_date
 			Else
-				MsgBox "This MFIP approval was not done today and the benefit amount will not be case noted"
+				IF cash_approved_check = checked THEN MsgBox "This MFIP approval was not done today and the benefit amount will not be case noted"
 				bene_amount_array(0, all_elig_results) = "NONE"
 			End If 
 		Else
 			EMReadScreen cash_approval_versions, 1, 2, 18
 			IF cash_approval_versions = "1" THEN 
-				MsgBox "You do not have an approved version of CASH in the selected benefit month. Please approve before running the script."
+				IF cash_approved_check = checked THEN MsgBox "You do not have an approved version of CASH in the selected benefit month. Please approve before running the script."
 				bene_amount_array(0, all_elig_results) = "NONE"
-			End If
-			cash_approval_versions = abs(cash_approval_versions)
-			cash_approval_to_check = cash_approval_versions - 1
-			EMWriteScreen cash_approval_to_check, 20, 79
-			transmit
-			EMReadScreen cash_approval_date, 8, 3, 14
-			IF cdate(cash_approval_date) = date THEN
-				EMReadScreen mfip_bene_cash_amt, 8, 14, 73 
-				EMReadScreen mfip_bene_food_amt, 8, 15, 73 
-				EMReadScreen mfip_bene_housing_amt, 8, 16, 73 
-				EMReadScreen mfip_reporter, 10, 8, 31 
-				EMWriteScreen "MFB2", 20, 71 
-				transmit 
-				EMReadScreen prorate_date, 8, 5, 19
-				bene_amount_array (5, all_elig_results) = trim(mfip_bene_cash_amt)
-				bene_amount_array (3, all_elig_results) = trim(mfip_bene_food_amt)
-				bene_amount_array (6, all_elig_results) = trim(mfip_bene_housing_amt)
-				bene_amount_array (10, all_elig_results) = trim(mfip_reporter) & " Reporter"
-				If prorate_date <> "        " Then bene_amount_array (4, all_elig_results) = prorate_date
-			Else 
-				MsgBox "Your most recent MFIP approval is not from today and benefit amounts will not be added to case note"
-				bene_amount_array(0, all_elig_results) = "NONE"
+			Else
+				cash_approval_versions = abs(cash_approval_versions)
+				cash_approval_to_check = cash_approval_versions - 1
+				EMWriteScreen cash_approval_to_check, 20, 79
+				transmit
+				EMReadScreen cash_approval_date, 8, 3, 14
+				IF cdate(cash_approval_date) = date THEN
+					EMReadScreen mfip_bene_cash_amt, 8, 14, 73 
+					EMReadScreen mfip_bene_food_amt, 8, 15, 73 
+					EMReadScreen mfip_bene_housing_amt, 8, 16, 73 
+					EMReadScreen mfip_reporter, 10, 8, 31 
+					EMWriteScreen "MFB2", 20, 71 
+					transmit 
+					EMReadScreen prorate_date, 8, 5, 19
+					bene_amount_array (5, all_elig_results) = trim(mfip_bene_cash_amt)
+					bene_amount_array (3, all_elig_results) = trim(mfip_bene_food_amt)
+					bene_amount_array (6, all_elig_results) = trim(mfip_bene_housing_amt)
+					bene_amount_array (10, all_elig_results) = trim(mfip_reporter) & " Reporter"
+					If prorate_date <> "        " Then bene_amount_array (4, all_elig_results) = prorate_date
+				Else 
+					IF cash_approved_check = checked THEN MsgBox "Your most recent MFIP approval is not from today and benefit amounts will not be added to case note"
+					bene_amount_array(0, all_elig_results) = "NONE"
+				End If
 			End If
 		End If
-	ElseIf bene_amount_array(0, all_elig_results) = "DWP" THEN
+	ElseIf bene_amount_array(0, all_elig_results) = "DWP" AND cash_approved_check = checked THEN
 		Call navigate_to_MAXIS_screen("ELIG", "DWP")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
-		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59 
+		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
 		EMWriteScreen "DWSM", 20, 71 
 		transmit
 		EMReadScreen cash_approved_version, 8, 3, 3 
@@ -548,40 +565,41 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				bene_amount_array (8, all_elig_results) = trim(DWP_bene_pers_amt)
 				IF prorate_date <> "__ __ __" Then bene_amount_array (10, all_elig_results) = Replace(prorate_date, " ", "/")
 			Else
-				MsgBox "This DWP approval was not done today and the benefit amount will not be case noted"
+				IF cash_approved_check = checked THEN MsgBox "This DWP approval was not done today and the benefit amount will not be case noted"
 				bene_amount_array(0, all_elig_results) = "NONE"
 			End If 
 		Else
 			EMReadScreen cash_approval_versions, 1, 2, 18
 			IF cash_approval_versions = "1" THEN 
-				MsgBox "You do not have an approved version of CASH in the selected benefit month. Please approve before running the script."
+				IF cash_approved_check = checked THEN MsgBox "You do not have an approved version of CASH in the selected benefit month. Please approve before running the script."
 				bene_amount_array(0, all_elig_results) = "NONE"
-			End If 
-			cash_approval_versions = abs(cash_approval_versions)
-			cash_approval_to_check = cash_approval_versions - 1
-			EMWriteScreen cash_approval_to_check, 20, 79
-			transmit
-			EMReadScreen cash_approval_date, 8, 3, 14
-			If cdate(cash_approval_date) = date Then
-				EMReadScreen DWP_bene_shel_amt, 8, 13, 73
-				EMReadScreen DWP_bene_pers_amt, 8, 14, 73
-				EMWriteScreen "DWB2", 20, 71 
-				transmit
-				EMReadScreen prorate_date, 8, 6, 18
-				'Add prorated information gathering
-				bene_amount_array (7, all_elig_results) = trim(DWP_bene_shel_amt)
-				bene_amount_array (8, all_elig_results) = trim(DWP_bene_pers_amt)
-				IF prorate_date <> "__ __ __" Then bene_amount_array (10, all_elig_results) = Replace(prorate_date, " ", "/")
 			Else 
-				MsgBox "Your most recent DWP approval is not from today and benefit amounts will not be added to case note"
-				bene_amount_array(0, all_elig_results) = "NONE"
-			End If
+				cash_approval_versions = abs(cash_approval_versions)
+				cash_approval_to_check = cash_approval_versions - 1
+				EMWriteScreen cash_approval_to_check, 20, 79
+				transmit
+				EMReadScreen cash_approval_date, 8, 3, 14
+				If cdate(cash_approval_date) = date Then
+					EMReadScreen DWP_bene_shel_amt, 8, 13, 73
+					EMReadScreen DWP_bene_pers_amt, 8, 14, 73
+					EMWriteScreen "DWB2", 20, 71 
+					transmit
+					EMReadScreen prorate_date, 8, 6, 18
+					'Add prorated information gathering
+					bene_amount_array (7, all_elig_results) = trim(DWP_bene_shel_amt)
+					bene_amount_array (8, all_elig_results) = trim(DWP_bene_pers_amt)
+					IF prorate_date <> "__ __ __" Then bene_amount_array (10, all_elig_results) = Replace(prorate_date, " ", "/")
+				Else 
+					IF cash_approved_check = checked THEN MsgBox "Your most recent DWP approval is not from today and benefit amounts will not be added to case note"
+					bene_amount_array(0, all_elig_results) = "NONE"
+				End If
+			End If 
 		End If
-	ElseIf bene_amount_array(0, all_elig_results) = "GA" THEN
+	ElseIf bene_amount_array(0, all_elig_results) = "GA" AND cash_approved_check = checked THEN
 		'GA portion
 		call navigate_to_MAXIS_screen("ELIG", "GA")
-		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
-		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
+		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 54 
+		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 57
 		EMWRiteScreen "GASM", 20, 70
 		transmit
 		EMReadScreen cash_approved_version, 8, 3, 3
@@ -595,30 +613,34 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				bene_amount_array (9, all_elig_results) = trim(GA_bene_cash_amt)
 				IF prorate_date <> "     " Then bene_amount_array(10, all_elig_results) = Replace(prorate_date, " ", "/") & "/" & bene_amount_array(2,all_elig_results)
 			Else 
-				MsgBox "The most recent approval is not from today and will not be added to the case note"
+				IF cash_approved_check = checked THEN MsgBox "The most recent approval is not from today and will not be added to the case note"
 				bene_amount_array(0, all_elig_results) = "NONE"
 			END IF
 		ELSE
 			EMReadScreen cash_approval_versions, 1, 2, 18
 			IF cash_approval_versions = "1" THEN 
-				MsgBox "You do not have an approved version of GA in the selected benefit month. This will not be added to the case note."
+				IF cash_approved_check = checked THEN MsgBox "You do not have an approved version of GA in the selected benefit month. This will not be added to the case note."
 				bene_amount_array(0, all_elig_results) = "NONE"
-			End If
-			cash_approval_versions = int(cash_approval_versions)
-			cash_approval_to_check = cash_approval_versions - 1
-			EMWriteScreen cash_approval_to_check, 20, 78
-			transmit
-			EMReadScreen cash_approval_date, 8, 3, 15
-			IF cdate(cash_approval_date) = date THEN
-				EMReadScreen GA_bene_cash_amt, 8, 14, 72
-				EMWriteScreen "GAB2", 20, 70 
-				transmit 
-				EMReadScreen prorate_date, 5, 10, 14 
-				bene_amount_array (9, all_elig_results) = trim(GA_bene_cash_amt)
-				IF prorate_date <> "     " Then bene_amount_array(10, all_elig_results) = Replace(prorate_date, " ", "/") & "/" & bene_amount_array(2,all_elig_results)
-			END IF
+			Else
+				cash_approval_versions = int(cash_approval_versions)
+				cash_approval_to_check = cash_approval_versions - 1
+				EMWriteScreen cash_approval_to_check, 20, 78
+				transmit
+				EMReadScreen cash_approval_date, 8, 3, 15
+				IF cdate(cash_approval_date) = date THEN
+					EMReadScreen GA_bene_cash_amt, 8, 14, 72
+					EMWriteScreen "GAB2", 20, 70 
+					transmit 
+					EMReadScreen prorate_date, 5, 10, 14 
+					bene_amount_array (9, all_elig_results) = trim(GA_bene_cash_amt)
+					IF prorate_date <> "     " Then bene_amount_array(10, all_elig_results) = Replace(prorate_date, " ", "/") & "/" & bene_amount_array(2,all_elig_results)
+				Else 
+					IF cash_approved_check = checked THEN MsgBox "The most recent approval is not from today and will not be added to the case note"
+					bene_amount_array(0, all_elig_results) = "NONE"
+				END IF
+			End If 
 		END IF
-	ELSEIF bene_amount_array(0, all_elig_results) = "MSA" THEN
+	ELSEIF bene_amount_array(0, all_elig_results) = "MSA" AND cash_approved_check = checked THEN
 		'MSA portion
 		call navigate_to_MAXIS_screen("ELIG", "MSA")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
@@ -633,25 +655,29 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 				'MSA does not have proration
 				bene_amount_array (9, all_elig_results) = trim(MSA_bene_cash_amt)
 			Else 
-				MsgBox "The most recent approval is not from today and will not be added to the case note"
+				IF cash_approved_check = checked THEN MsgBox "The most recent approval is not from today and will not be added to the case note"
 				bene_amount_array(0, all_elig_results) = "NONE"
 			END IF
 		ELSE
 			EMReadScreen cash_approval_versions, 1, 2, 18
 			IF cash_approval_versions = "1" THEN 
-				MsgBox "You do not have an approved version of MSA in the selected benefit month. This will not be added to the case note"
+				IF cash_approved_check = checked THEN MsgBox "You do not have an approved version of MSA in the selected benefit month. This will not be added to the case note"
 				bene_amount_array(0, all_elig_results) = "NONE"
-			End If 
-			cash_approval_versions = int(cash_approval_versions)
-			cash_approval_to_check = cash_approval_versions - 1
-			EMWriteScreen cash_approval_to_check, 20, 78
-			transmit
-			EMReadScreen cash_approval_date, 8, 3, 14
-			IF cdate(cash_approval_date) = date THEN
-				EMReadScreen MSA_bene_cash_amt, 8, 17, 73
-				'MSA does not have proration 
-				bene_amount_array (9, all_elig_results) = trim(MSA_bene_cash_amt)
-			END IF
+			Else
+				cash_approval_versions = int(cash_approval_versions)
+				cash_approval_to_check = cash_approval_versions - 1
+				EMWriteScreen cash_approval_to_check, 20, 78
+				transmit
+				EMReadScreen cash_approval_date, 8, 3, 14
+				IF cdate(cash_approval_date) = date THEN
+					EMReadScreen MSA_bene_cash_amt, 8, 17, 73
+					'MSA does not have proration 
+					bene_amount_array (9, all_elig_results) = trim(MSA_bene_cash_amt)
+				Else 
+					IF cash_approved_check = checked THEN MsgBox "You do not have an approved version of MSA in the selected benefit month. This will not be added to the case note"
+					bene_amount_array(0, all_elig_results) = "NONE"
+				END IF
+			End If
 		END IF
 	END IF 
 Next 
@@ -722,6 +748,7 @@ IF snap_approved_check = checked THEN
 		approved_programs = approved_programs & "SNAP/"
 	END IF
 END IF
+
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
 IF cash_approved_check = checked THEN approved_programs = approved_programs & "CASH/"
 IF emer_approved_check = checked THEN approved_programs = approved_programs & "EMER/"
@@ -730,7 +757,7 @@ IF postponed_verif_check = checked THEN write_variable_in_CASE_NOTE("**EXPEDITED
 IF benefit_breakdown <> "" THEN call write_bullet_and_variable_in_case_note("Benefit Breakdown", benefit_breakdown)
 IF autofill_check = checked THEN
 	FOR snap_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,snap_approvals) = "Food" THEN
+		IF bene_amount_array (0,snap_approvals) = "Food" AND snap_approved_check = checked THEN
 			snap_header = ("SNAP for " & bene_amount_array(1,snap_approvals) & "/" & bene_amount_array(2,snap_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE (snap_header, FormatCurrency(bene_amount_array(3,snap_approvals)) & " " & bene_amount_array(10,snap_approvals))
 			IF bene_amount_array (4, snap_approvals) <> "" THEN
@@ -739,7 +766,7 @@ IF autofill_check = checked THEN
 		End If
 	Next 
 	FOR mfip_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,mfip_approvals) = "MFIP" THEN
+		IF bene_amount_array (0,mfip_approvals) = "MFIP" AND cash_approved_check = checked THEN
 			Call write_variable_in_CASE_NOTE ("MFIP for " & bene_amount_array(1,mfip_approvals) & "/" & bene_amount_array(2,mfip_approvals) & " " & bene_amount_array(10,mfip_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Cash Portion", FormatCurrency(bene_amount_array(5, mfip_approvals)))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Food Portion", FormatCurrency(bene_amount_array(3, mfip_approvals)))
@@ -750,7 +777,7 @@ IF autofill_check = checked THEN
 		End If
 	Next 
 	FOR dwp_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,dwp_approvals) = "DWP" THEN
+		IF bene_amount_array (0,dwp_approvals) = "DWP" AND cash_approved_check = checked THEN
 			Call write_variable_in_CASE_NOTE ("DWP for " & bene_amount_array(1,dwp_approvals) & "/" & bene_amount_array(2,dwp_approvals))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Shelter Benefit", FormatCurrency(bene_amount_array(7, dwp_approvals)))
 			Call write_bullet_and_variable_in_CASE_NOTE ("Personal Needs", FormatCurrency(bene_amount_array(8, dwp_approvals)))
@@ -759,16 +786,16 @@ IF autofill_check = checked THEN
 			End If
 		End If
 	Next 			
-	FOR msa_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,msa_approvals) = "MSA" THEN
+	FOR msa_approvals = 0 to UBound(bene_amount_array, 2) 
+		IF bene_amount_array (0,msa_approvals) = "MSA" AND cash_approved_check = checked THEN
 			msa_header = ("MSA for " & bene_amount_array(1,msa_approvals) & "/" & bene_amount_array(2, msa_approvals))
-			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(3,msa_approvals)))
+			Call write_bullet_and_variable_in_CASE_NOTE (msa_header, FormatCurrency(bene_amount_array(9,msa_approvals)))
 		End If
 	Next 
-	FOR ga_approvals = 0 to UBound(bene_amount_array,2) 
-		IF bene_amount_array (0,ga_approvals) = "GA" THEN
+	FOR ga_approvals = 0 to UBound(bene_amount_array, 2) 
+		IF bene_amount_array (0,ga_approvals) = "GA" AND cash_approved_check = checked THEN
 			ga_header = ("GA for " & bene_amount_array(1,ga_approvals) & "/" & bene_amount_array(2,ga_approvals))
-			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(3,ga_approvals)))
+			Call write_bullet_and_variable_in_CASE_NOTE (ga_header, FormatCurrency(bene_amount_array(9,ga_approvals)))
 			IF bene_amount_array (4, ga_approvals) <> "" THEN
 				Call write_bullet_and_variable_in_CASE_NOTE ("    Prorated from: ", bene_amount_array(4,ga_approvals))
 			End If
