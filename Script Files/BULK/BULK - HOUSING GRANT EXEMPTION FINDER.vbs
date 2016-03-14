@@ -241,6 +241,7 @@ excel_row = 2           're-establishing the row to start checking the members f
 Do 						'Loops until there are no more cases in the Excel list
 	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
 	client_name = objExcel.cells(excel_row, 3).Value	're-establishing the client name
+	client_name = trim(client_name)
 	If case_number = "" then exit do	
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")
 	DO					'Do Loop is searching for MEMB #, this is needed for SHEL and DISA
@@ -250,15 +251,15 @@ Do 						'Loops until there are no more cases in the Excel list
 		last_name = Replace(last_name,"_","")
         first_name = Replace(first_name,"_","")
 		middle_name= Replace(middle_name,"_","")
-		name_of_client = trim(last_name & ", " & first_name & " " & middle_name)		'adds the variables together to make a new name variable
-        msgbox name_of_client & vbnewline & client_name
-		If name_of_client = client_name  
-            EMReadScreen memb_number, 2, 4, 33								'if name matches, grabs the memb_number
+		name_of_client = trim(last_name & ", " & first_name & " " & middle_name) 		'adds the variables together to make a new name variable
+		If ucase(client_name) = ucase(name_of_client) then 
+			EMReadScreen memb_number, 2, 4, 33
+			exit do
 		ELSE 
-        	transmit														'if not, transmit and loop until client_name is found
+			transmit
 		END IF
-		If name_of_client = client_name then exit do
-    LOOP until name_of_client = client_name
+		Msgbox client_name & vbnewline & name_of_client
+    LOOP until client_name = name_of_client		'if not, transmit and loop until client_name is found
     
     'checking member for subsidized housing 
     Call navigate_to_MAXIS_screen("STAT", "SHEL")
@@ -292,6 +293,8 @@ DO
 		elig_begin_date = elig_begin_date_two
 	END IF 
 	ObjExcel.Cells(excel_row, 6).Value = elig_begin_date
+	
+	'
 	
 	excel_row = excel_row + 1	'moving excel row to next row'
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
