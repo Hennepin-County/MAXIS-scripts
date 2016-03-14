@@ -126,13 +126,6 @@ script_array_NOTICES_main(script_num).script_name 			= "Appointment Letter"					
 script_array_NOTICES_main(script_num).file_name 			= "NOTICES - APPOINTMENT LETTER.vbs"															'Script URL
 script_array_NOTICES_main(script_num).description 			= "Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
 
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "  DWP/MFIP CS Disregard WCOM  "													'needs spaces to generate button width properly.
-script_array_NOTICES_main(script_num).file_name				= "NOTICES - CS DISREGARD WCOM.vbs"
-script_array_NOTICES_main(script_num).description			= "Adds required WCOM to a notice when applying the CS Disregard to DWP/MFIP."
-
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
