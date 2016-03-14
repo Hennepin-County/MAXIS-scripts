@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 420          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'VARIABLE REQUIRED TO RESIZE DIALOG BASED ON A GLOBAL VARIABLE IN FUNCTIONS FILE
 If case_noting_intake_dates = False then dialog_shrink_amt = 105
@@ -104,7 +108,6 @@ function autofill_previous_denied_progs_note_info
     verifs_needed = trim(verifs_needed)
   End if
 End function
-
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
 'This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
@@ -178,7 +181,6 @@ cash_check = 0
 HC_check = 0
 updated_MMIS_check = 0
 WCOM_check = 0
-
 
 'NOW THE DIALOG STARTS. FIRST IT ALLOWS NAVIGATION TO SPEC/WCOM, THEN IT MAKES SURE PROGRAMS ARE SELECTED FOR DENIAL, AND THAT THE REQUIRED DATE FIELDS FOR THOSE PROGRAMS CONTAIN VALID DATES. 
 '  THEN IT CHECKS FOR MAXIS STATUS, AND NAVIGATES TO CASE NOTE.
@@ -268,6 +270,9 @@ If emer_check = 1 then
   progs_denied = progs_denied & "emer/"
   emer_last_REIN_date = emer_intake_date & ", after which a new CAF is required."
 End if
+
+'deleting last / from progs_withdrawn
+progs_denied = left(progs_denied, len(progs_denied) - 1)
 
 'IT HAS TO FIGURE OUT WHICH DATE IS THE LATEST DATE, AS THAT WOULD BE THE DATE THE CLIENT HAS TO BE REASSIGNED TO INTAKE.
 If HC_intake_date > SNAP_intake_date then
@@ -360,7 +365,6 @@ IF edit_notice_check = 1 THEN
 	LOOP UNTIL row = 18 or last_month_check = "NOT"
 END IF
 
-
 'NOW IT CASE NOTES THE DATA.
 call start_a_blank_case_note
 Call write_variable_in_case_note("----Denied " & progs_denied & "----")
@@ -368,9 +372,9 @@ call write_bullet_and_variable_in_case_note("SNAP denial date", SNAP_denial_date
 call write_bullet_and_variable_in_case_note("HC denial date", HC_denial_date)
 call write_bullet_and_variable_in_case_note("cash denial date", cash_denial_date)
 call write_bullet_and_variable_in_case_note("Emer denial date", emer_denial_date)
-call write_bullet_and_variable_in_case_note("Application date: ", application_date)
-call write_bullet_and_variable_in_case_note("Reason for denial: ", reason_for_denial)
-call write_bullet_and_variable_in_case_note("Verifs needed: ", verifs_needed)
+call write_bullet_and_variable_in_case_note("Application date", application_date)
+call write_bullet_and_variable_in_case_note("Reason for denial", reason_for_denial)
+call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If disabled_client_check = 1 then call write_variable_in_case_note("* Client is disabled.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
@@ -382,50 +386,47 @@ If case_noting_intake_dates = True then
 	If cash_check = 1 then call write_bullet_and_variable_in_case_note("Last cash REIN date", cash_last_REIN_date)
 	If emer_check = 1 then call write_bullet_and_variable_in_case_note("Last emer REIN date", emer_last_REIN_date)
 	If open_prog_check = 1 or HH_membs_on_HC_check = 1 then 
-		If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs: ", open_progs)
-		If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC: ", HH_membs_on_HC)
+		If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
+		If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC", HH_membs_on_HC)
 	Else
 		call write_variable_in_case_note("* All programs denied. Case becomes intake again on " & intake_date & ".")
 	End if
 Else
-	If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs: ", open_progs)
-	If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC: ", HH_membs_on_HC)
+	If open_progs <> "" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
+	If HH_membs_on_HC <> "" then call write_bullet_and_variable_in_case_note("HH members remaining on HC", HH_membs_on_HC)
 End if
-call write_bullet_and_variable_in_case_note("Other notes: ", other_notes)
+call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-'NOW THE SCRIPT STOPS, IF NO TIKL WAS REQUESTED.
-If TIKL_check = 0 then 
-	IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but the script could not find any notices denied for no proofs. Please check your denial reasons and edit manually if needed."
-	script_end_procedure("")
+'TIKL PORTION -------------------------------------------------------------------------------------------------------------
+If TIKL_check = 1 THEN
+	'IF PROGRAMS ARE STILL OPEN, BUT THE "TIKL TO SEND TO CLS" PARAMETER WAS SET, THE SCRIPT NEEDS TO STOP, AS THE CASE CAN'T GO TO CLS.
+	If open_prog_check = 1 then 
+		MsgBox "Because you checked the open programs box, the script will not TIKL to send to CLS."
+		IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
+		script_end_procedure("")
+	End if
+	
+	'IT NAVIGATES TO DAIL/WRIT.
+	call navigate_to_MAXIS_screen("dail", "writ")
+	
+	'DETERMINES THE CORRECT FORMATTING FOR THE DATE CLIENT BECOMES AN INTAKE.
+	TIKL_day = datepart("d", intake_date)
+	If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
+	TIKL_month = datepart("m", intake_date)
+	If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
+	TIKL_year = right(intake_date, 2)
+	
+	'WRITES TIKL TO SEND TO CLS
+	EMWriteScreen TIKL_month, 5, 18
+	EMWriteScreen TIKL_day, 5, 21
+	EMWriteScreen TIKL_year, 5, 24
+	EMSetCursor 9, 3
+	EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
+	'SAVES THE TIKL
+	PF3
 END IF
-
-'IF PROGRAMS ARE STILL OPEN, BUT THE "TIKL TO SEND TO CLS" PARAMETER WAS SET, THE SCRIPT NEEDS TO STOP, AS THE CASE CAN'T GO TO CLS.
-If open_prog_check = 1 then 
-  MsgBox "Because you checked the open programs box, the script will not TIKL to send to CLS."
-  IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
-  script_end_procedure("")
-End if
-
-'IT NAVIGATES TO DAIL/WRIT.
-call navigate_to_MAXIS_screen("dail", "writ")
-
-'DETERMINES THE CORRECT FORMATTING FOR THE DATE CLIENT BECOMES AN INTAKE.
-TIKL_day = datepart("d", intake_date)
-If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
-TIKL_month = datepart("m", intake_date)
-If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
-TIKL_year = (datepart("yyyy", intake_date)) - 2000
-
-'WRITES TIKL TO SEND TO CLS
-EMWriteScreen TIKL_month, 5, 18
-EMWriteScreen TIKL_day, 5, 21
-EMWriteScreen TIKL_year, 5, 24
-EMSetCursor 9, 3
-EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
-'SAVES THE TIKL
-PF3
 
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."

@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -44,8 +42,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 229                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'VARIABLES TO DECLARE----------------------------------------------------------------------------
 SPEC_MEMO_check = checked		'Should default to checked, as we usually want to send a new worker memo
@@ -106,9 +109,9 @@ BeginDialog out_of_county_dlg, 0, 0, 236, 385, "Case Transfer"
 EndDialog
 
 
-BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
-  EditBox 65, 10, 50, 15, case_number
-  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC", unit_drop_down
+BeginDialog within_county_dlg, 0, 0, 211, 270, "Case Transfer"
+  EditBox 70, 10, 50, 15, case_number
+  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
   EditBox 130, 50, 65, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
   CheckBox 55, 90, 30, 10, "SNAP", SNAP_active_check
@@ -122,20 +125,22 @@ BeginDialog within_county_dlg, 0, 0, 216, 240, "Case Transfer"
   CheckBox 170, 125, 40, 10, "EMER", EMER_pend_check
   DropListBox 100, 140, 65, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
   EditBox 85, 160, 120, 15, Transfer_reason
-  EditBox 80, 180, 125, 15, Action_to_be_taken
-  EditBox 80, 200, 125, 15, worker_signature
+  EditBox 85, 180, 120, 15, Action_to_be_taken
+  CheckBox 10, 200, 195, 10, "Check to send out a SPEC/MEMO to client of new worker.", spec_memo_withincty_check 'add this as option for worker to use for w/in county xfer.
+  EditBox 80, 230, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 100, 220, 50, 15
-    CancelButton 155, 220, 50, 15
-  Text 15, 185, 65, 10, "Actions to be taken:"
+    OkButton 100, 250, 50, 15
+    CancelButton 155, 250, 50, 15
   Text 15, 35, 60, 10, "Unit to transfer to: "
   Text 15, 165, 70, 10, "Reason for Transfer:"
   Text 15, 145, 85, 10, "Pregnancy verif received:"
   Text 15, 15, 50, 10, "Case Number:"
   Text 15, 75, 80, 10, "Active On:"
   Text 15, 110, 60, 10, "Pending On:"
-  Text 15, 205, 60, 10, "Worker Signature:"
+  Text 15, 235, 60, 10, "Worker Signature:"
   Text 15, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
+  Text 15, 185, 70, 10, "Actions (to be) taken:"  'put ( ) around "to be" as it is option for if there are actions that new worker need to handle or actions already been done by xfer worker.
+  Text 20, 210, 140, 10, "(This is for only within the county transfer.)"
 EndDialog
 
 
@@ -152,7 +157,7 @@ call find_variable("Case Nbr: ", case_number, 8)
 case_number = trim(case_number)
 case_number = replace(case_number, "_", "")
 If IsNumeric(case_number) = False then case_number = ""
-	
+
 IF XFERRadioGroup = 0 THEN
 		'Displays the dialog and navigates to case note
 		  Do
@@ -187,18 +192,19 @@ IF XFERRadioGroup = 0 THEN
 
 		'Case notes
 		EMSendKey "***Transfer within county***" & "<newline>"
-		IF unit_drop_down <> "N/A" THEN call write_variable_in_case_note("* Transfer to: " & unit_drop_down) 
+		IF unit_drop_down <> "N/A" THEN call write_variable_in_case_note("* Transfer to: " & unit_drop_down)
 		IF active_programs <> "" THEN
 		  EMSendKey "* Active Programs: " & active_programs & "<backspace>"
 		  EMSendKey "<newline>"
 		END IF
-		IF pend_programs <> "" THEN 
+		IF pend_programs <> "" THEN
 		  EMSendKey "* Pending Programs: " & pend_programs & "<backspace>"
 		  EMSendKey "<newline>"
 		END IF
 		IF preg_y_n <> "N/A" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
-		call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason) 
-		call write_bullet_and_variable_in_case_note("Actions to be taken", Action_to_be_taken) 
+		call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason)
+		call write_bullet_and_variable_in_case_note("Actions to be taken", Action_to_be_taken)
+		IF spec_memo_withincty_check = checked THEN call write_variable_in_case_note ("SPEC/MEMO sent to client") 'adding this line in case note indicating a memo is sent to client
 		call write_variable_in_case_note("---")
 		call write_variable_in_case_note(worker_signature)
 
@@ -215,8 +221,36 @@ IF XFERRadioGroup = 0 THEN
 		EMWriteScreen worker_to_transfer_to, 18, 61
 		transmit
 
+		'goes back to SELF menu, then navigate to SPEC/MEMO and send a memo out to client regarding their new worker within the county
+		back_to_self
+
+		'goes to MEMO and create a new memo to be send out 
+		If spec_memo_withincty_check = checked THEN 
+			Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
+				PF5
+				EMWriteScreen "X", 5, 10
+				Transmit
+				'this reads the bottom of the screen if worker is not able to update or write memo due to wrong case # or inqury mode, otherwise it goes on writing spec/memo to client, save, and exit.
+					EMReadScreen memo_access, 33, 24, 2
+					IF memo_access = "YOU ARE NOT AUTHORIZED FOR UPDATE" THEN script_end_procedure ("You do not have access to modify this case. Please double check your case number and try again or alternatively, you may be in INQUIRY MODE.")
+
+				Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
+                        	Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
+                        	Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
+                		Call write_variable_in_SPEC_MEMO ("   ")
+                        	Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
+                        	Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request.")
+                        	Call write_variable_in_SPEC_MEMO ("   ")
+                        	Call write_variable_in_SPEC_MEMO ("Thank you,")
+
+				PF4
+				PF3
+		END If
+
+		back_to_self
+
 		script_end_procedure("")
-	
+
 	ELSEIF XFERRadioGroup = 1 THEN
 
 	DO
@@ -226,12 +260,12 @@ IF XFERRadioGroup = 0 THEN
 					DO
 						DIALOG out_of_county_dlg
 							cancel_confirmation
-							IF ButtonPressed = nav_to_xfer_button THEN 
+							IF ButtonPressed = nav_to_xfer_button THEN
 								CALL navigate_to_screen("SPEC", "XFER")
 								EMWriteScreen "X", 9, 16
 								transmit
 							END IF
-					LOOP UNTIL ButtonPressed = -1	
+					LOOP UNTIL ButtonPressed = -1
 						last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEC/XFER before transmitting to transfer.", vbYesNo)
 				LOOP UNTIL last_chance = vbYes
 
@@ -246,20 +280,20 @@ IF XFERRadioGroup = 0 THEN
 					IF isdate(cl_move_date) = FALSE THEN MsgBox "Please enter a valid date for client move."
 					IF ucase(left(transfer_to, 4)) = ucase(worker_county_code) THEN MsgBox "You must use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
 					IF (hc_status = "ACTV" AND excluded_time = "") THEN MsgBox "Please select whether the client is on excluded time."
-					IF len(transfer_to) <> 7 THEN MsgBox "Please select a valid worker or agency to receive the case (proper format = x######)."	
+					IF len(transfer_to) <> 7 THEN MsgBox "Please select a valid worker or agency to receive the case (proper format = x######)."
 					IF manual_cfr_hc_check = 1 AND (hc_cfr = "" OR len(hc_cfr) <> 2 OR hc_cfr_month = "" OR hc_cfr_year = "" OR len(hc_cfr_month) <> 2 OR len(hc_cfr_year) <> 2) THEN MsgBox ("You indicated you wish to manually determine the Health Care County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not correctly format the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
 					IF manual_cfr_cash_check = 1 AND cash_cfr_no_change_check = 1 THEN MsgBox ("Please select whether the CFR for CASH is changing or not. Review input.")
 					IF manual_cfr_cash_check = 1 AND (cash_cfr = "" OR len(cash_cfr) <> 2 OR cash_cfr_month = "" OR cash_cfr_year = "" OR len(cash_cfr_month) <> 2 OR len(cash_cfr_year) <> 2) THEN MsgBox ("You indicated you wish to manually determine the CASH County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not correctly format the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
 					IF manual_cfr_hc_check = 1 AND hc_cfr_no_change_check = 1 THEN MsgBOx ("Please select whether the CFR for HC is changing or not. Review input.")
-					
+
 			LOOP UNTIL (((HC_status <> "ACTV") OR (hc_status = "ACTV" AND excluded_time = "No") OR (HC_status = "ACTV" AND excluded_time = "Yes" AND isdate(excl_date) = TRUE))) AND _
 			(isdate(cl_move_date) = TRUE) AND _
 			(len(transfer_to) = 7) AND _
-			(ucase(left(transfer_to, 4)) <> ucase(worker_county_code)) AND _ 
+			(ucase(left(transfer_to, 4)) <> ucase(worker_county_code)) AND _
 			(manual_cfr_hc_check = 0 OR (manual_cfr_hc_check = 1 AND hc_cfr <> "" AND len(hc_cfr) = 2 AND hc_cfr_month <> "" AND hc_cfr_year <> "" AND len(hc_cfr_month) = 2 AND len(hc_cfr_year) = 2)) AND _
 			(manual_cfr_cash_check = 0 OR (manual_cfr_cash_check = 1 AND cash_cfr <> "" AND len(cash_cfr) = 2 AND cash_cfr_month <> "" AND cash_cfr_year <> "" AND len(cash_cfr_month) = 2 AND len(cash_cfr_year) = 2)) AND _
 			((manual_cfr_cash_check = 0 AND cash_cfr_no_change_check = 0) OR (manual_cfr_cash_check = 1 AND cash_cfr_no_change_check = 0) OR (manual_cfr_cash_check = 0 AND cash_cfr_no_change_check = 1))  AND _
-			((manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 1 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 1))			
+			((manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 1 AND hc_cfr_no_change_check = 0) OR (manual_cfr_hc_check = 0 AND hc_cfr_no_change_check = 1))
 
 			'----------Checks that the worker or agency is valid----------
 			call navigate_to_MAXIS_screen("REPT", "USER")
@@ -274,7 +308,7 @@ IF XFERRadioGroup = 0 THEN
 		IF closure_date_check = checked THEN
 			closure_date = dateadd("m", 1, date)
 			closure_date = datepart("M", closure_date) & "/01/" & datepart("YYYY", closure_date)
-			IF datediff("d", date, closure_date) < 10 THEN 
+			IF datediff("d", date, closure_date) < 10 THEN
 				closure_date = dateadd("m", 1, closure_date)
 			END IF
 			closure_date = dateadd("d", -1, closure_date)
@@ -318,7 +352,7 @@ IF XFERRadioGroup = 0 THEN
 		EMReadScreen mail_addr_line_four, 43, 12, 27
 			mail_addr_line_four = trim(mail_addr_line_four)
 		EMReadScreen worker_agency_phone, 14, 13, 27
-		
+
 		back_to_SELF
 
 		call navigate_to_MAXIS_screen("CASE", "NOTE")
@@ -334,7 +368,7 @@ IF XFERRadioGroup = 0 THEN
 		PF5
 		EMWriteScreen "X", 5, 10
 		transmit
-	
+
 		EMWriteScreen "Your case has been transferred. Your new worker/agency is:", 3, 15
 		memo_line = 5
 		IF worker_agency_name <> "" THEN
@@ -391,7 +425,7 @@ IF XFERRadioGroup = 0 THEN
 	IF pend_programs <> "" THEN call write_bullet_and_variable_in_case_note("Pending Programs", (left(pend_programs, (len(pend_programs) - 1))))
 	IF mnsure_pend_check = checked THEN call write_variable_in_case_note("* CL has pending HC application through MNSure")
 	call write_bullet_and_variable_in_case_note("CL Move Date", cl_move_date)
-	IF crf_sent_check = checked THEN 
+	IF crf_sent_check = checked THEN
 		crf_sent_date = date
 		call write_bullet_and_variable_in_case_note("Change Report Sent", crf_sent_date)
 	END IF
@@ -404,7 +438,7 @@ IF XFERRadioGroup = 0 THEN
 	ELSEIF excluded_time = "" THEN
 		call write_variable_in_case_note("* Excluded Time: N/A")
 	END IF
-	IF hc_status = "ACTV" THEN 
+	IF hc_status = "ACTV" THEN
 		CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
 		IF hc_cfr_no_change_check = 0 THEN
 			CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (hc_cfr_month & "/" & hc_cfr_year))
@@ -426,30 +460,30 @@ IF XFERRadioGroup = 0 THEN
 	IF Action_to_be_taken <> "" THEN call write_bullet_and_variable_in_case_note("Actions to be Taken", Action_to_be_taken)
 	call write_variable_in_case_note("---")
 	call write_variable_in_case_note(worker_signature)
-	PF3	
+	PF3
 
 	'----------The business end of the script (DON'T POINT THIS SCRIPT AT ANYTHING YOU DON'T WANT TRANSFERRED!!)----------
 	call navigate_to_screen("SPEC", "XFER")
 	EMWriteScreen "X", 9, 16
 	transmit
 	PF9
-	
+
 	'Writing client move date
 	call create_MAXIS_friendly_date(cl_move_date, 0, 4, 28)
-	
+
 	'Writing CRF date, if CRF check is checked
 	IF crf_sent_check = checked THEN call create_MAXIS_friendly_date(crf_sent_date, 0, 4, 61)
-	
+
 	'Writes the excluded time info. Only need the left character (it's a dropdown)
 	EMWriteScreen left(excluded_time, 1), 5, 28
-	
+
 	'If there's excluded time, need to write the info
-	
-	IF excluded_time = "Yes" THEN 
+
+	IF excluded_time = "Yes" THEN
 		call create_MAXIS_friendly_date(excl_date, 0, 6, 28)
 		EMWriteScreen hc_cfr, 15, 39
 	END IF
-	
+
 	IF excl_date = "" AND excluded_time = "No" THEN
 		EMWriteScreen "__", 6, 28
 		EMWriteScreen "__", 6, 31
@@ -478,6 +512,7 @@ IF XFERRadioGroup = 0 THEN
 	EMWriteScreen primary_worker, 18, 28
 	EMWriteScreen transfer_to, 18, 61
 
-	script_end_procedure("Success! The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER and transfer the case.")
-	
+
+	script_end_procedure("Success! The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER, send the case file to the next county, and transfer the case.")
+
 END IF

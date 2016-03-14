@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,13 +44,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 69                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
 BeginDialog check_snap_dlg, 0, 0, 166, 80, "Check SNAP for GA/RCA"
   EditBox 105, 10, 50, 15, worker_number
   CheckBox 15, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
   ButtonGroup ButtonPressed
     OkButton 35, 60, 50, 15
     CancelButton 85, 60, 50, 15
-  Text 15, 15, 85, 10, "Enter worker X number(s)"
+  Text 15, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
 EndDialog
 
 EMConnect ""
@@ -94,11 +98,10 @@ ELSE
 	worker_array = split(worker_number, ", ")
 END IF
 
-
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker, case number, and name
@@ -127,12 +130,13 @@ FOR EACH worker IN worker_array
 			EMReadScreen cash_status, 1, rept_actv_row, 54
 			EMReadScreen cash_prog, 2, rept_actv_row, 51
 			EMReadScreen client_name, 20, rept_actv_row, 21
-			IF snap_status = "A" AND cash_status = "A" AND (cash_prog = "RC" OR cash_prog = "GA") THEN 
+			IF snap_status = "A" AND cash_status = "A" AND (cash_prog = "RC" OR cash_prog = "GA") THEN
 				case_array = case_array & case_number & " "
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = case_number
 				objExcel.Cells(excel_row, 3).Value = client_name
 				excel_row = excel_row + 1
+				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			END IF
 			rept_actv_row = rept_actv_row + 1
 		LOOP UNTIL rept_actv_row = 19
@@ -159,7 +163,7 @@ FOR EACH case_number IN case_array
 	version = trim(version)
 	version = version - 1
 	IF len(version) <> 2 THEN version = "0" & version
-	IF approved <> "APPROVED" THEN 
+	IF approved <> "APPROVED" THEN
 		EMWriteScreen version, 19, 78
 		transmit
 	END IF
@@ -186,7 +190,7 @@ FOR EACH case_number IN case_array
 		version = trim(version)
 		version = version - 1
 		IF len(version) <> 2 THEN version = "0" & version
-		IF approved <> "APPROVED" THEN 
+		IF approved <> "APPROVED" THEN
 			EMWriteScreen version, 20, 78
 			transmit
 		END IF
@@ -217,16 +221,16 @@ FOR EACH case_number IN case_array
 		version = trim(version)
 		version = version - 1
 		IF len(version) <> 2 THEN version = "0" & version
-		IF approved <> "APPROVED" THEN 
+		IF approved <> "APPROVED" THEN
 			EMWriteScreen version, 19, 78
 			transmit
 		END IF
 			EMWriteScreen "RCSM", 19, 70
 		transmit
-	
+
 		CALL find_variable("Grant Amount..............$", rca_amount, 10)
 		rca_amount = trim(rca_amount)
-		IF pa_amount <> rca_amount THEN 
+		IF pa_amount <> rca_amount THEN
 			CALL navigate_to_screen("STAT", "REVW")
 			ERRR_screen_check
 			EMReadScreen cash_revw_date, 8, 9, 37
@@ -245,9 +249,10 @@ FOR EACH case_number IN case_array
 	ELSEIF cash_prog = "SET TO CLOSE" THEN
 		objExcel.Cells(excel_row, 4).Value = ("CASH set to close")
 	END IF
-	
+
 	excel_row = excel_row + 1
 
 NEXT
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Done")

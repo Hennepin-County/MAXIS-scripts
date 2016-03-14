@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 64                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
 'DIALOGS-------------------------------------------------------------------------------------------------------------------
 'The bulk-loading-case numbers dialog
@@ -127,21 +131,21 @@ EMConnect ""
 DO
 	Dialog many_case_numbers_dialog
 	Cancel_confirmation
-	If (isnumeric(case_number_01) = FALSE and case_number_01 <> "") or (isnumeric(case_number_02) = FALSE and case_number_02 <> "") or _ 
-	  (isnumeric(case_number_03) = FALSE and case_number_03 <> "") or (isnumeric(case_number_04) = FALSE and case_number_04 <> "") or _ 
-	  (isnumeric(case_number_05) = FALSE and case_number_05 <> "") or (isnumeric(case_number_06) = FALSE and case_number_06 <> "") or _ 
-	  (isnumeric(case_number_07) = FALSE and case_number_07 <> "") or (isnumeric(case_number_08) = FALSE and case_number_08 <> "") or _ 
-	  (isnumeric(case_number_09) = FALSE and case_number_09 <> "") or (isnumeric(case_number_10) = FALSE and case_number_10 <> "") or _ 
-	  (isnumeric(case_number_11) = FALSE and case_number_11 <> "") or (isnumeric(case_number_12) = FALSE and case_number_12 <> "") or _ 
-	  (isnumeric(case_number_13) = FALSE and case_number_13 <> "") or (isnumeric(case_number_14) = FALSE and case_number_14 <> "") or _ 
-	  (isnumeric(case_number_15) = FALSE and case_number_15 <> "") or (isnumeric(case_number_16) = FALSE and case_number_16 <> "") or _ 
-	  (isnumeric(case_number_17) = FALSE and case_number_17 <> "") or (isnumeric(case_number_18) = FALSE and case_number_18 <> "") or _ 
-	  (isnumeric(case_number_19) = FALSE and case_number_19 <> "") or (isnumeric(case_number_20) = FALSE and case_number_20 <> "") or _ 
-	  (isnumeric(case_number_21) = FALSE and case_number_21 <> "") or (isnumeric(case_number_22) = FALSE and case_number_22 <> "") or _ 
-	  (isnumeric(case_number_23) = FALSE and case_number_23 <> "") or (isnumeric(case_number_24) = FALSE and case_number_24 <> "") or _ 
-	  (isnumeric(case_number_25) = FALSE and case_number_25 <> "") or (isnumeric(case_number_26) = FALSE and case_number_26 <> "") or _ 
-	  (isnumeric(case_number_27) = FALSE and case_number_27 <> "") or (isnumeric(case_number_28) = FALSE and case_number_28 <> "") or _ 
-	  (isnumeric(case_number_29) = FALSE and case_number_29 <> "") or (isnumeric(case_number_30) = FALSE and case_number_30 <> "") then 
+	If (isnumeric(case_number_01) = FALSE and case_number_01 <> "") or (isnumeric(case_number_02) = FALSE and case_number_02 <> "") or _
+	  (isnumeric(case_number_03) = FALSE and case_number_03 <> "") or (isnumeric(case_number_04) = FALSE and case_number_04 <> "") or _
+	  (isnumeric(case_number_05) = FALSE and case_number_05 <> "") or (isnumeric(case_number_06) = FALSE and case_number_06 <> "") or _
+	  (isnumeric(case_number_07) = FALSE and case_number_07 <> "") or (isnumeric(case_number_08) = FALSE and case_number_08 <> "") or _
+	  (isnumeric(case_number_09) = FALSE and case_number_09 <> "") or (isnumeric(case_number_10) = FALSE and case_number_10 <> "") or _
+	  (isnumeric(case_number_11) = FALSE and case_number_11 <> "") or (isnumeric(case_number_12) = FALSE and case_number_12 <> "") or _
+	  (isnumeric(case_number_13) = FALSE and case_number_13 <> "") or (isnumeric(case_number_14) = FALSE and case_number_14 <> "") or _
+	  (isnumeric(case_number_15) = FALSE and case_number_15 <> "") or (isnumeric(case_number_16) = FALSE and case_number_16 <> "") or _
+	  (isnumeric(case_number_17) = FALSE and case_number_17 <> "") or (isnumeric(case_number_18) = FALSE and case_number_18 <> "") or _
+	  (isnumeric(case_number_19) = FALSE and case_number_19 <> "") or (isnumeric(case_number_20) = FALSE and case_number_20 <> "") or _
+	  (isnumeric(case_number_21) = FALSE and case_number_21 <> "") or (isnumeric(case_number_22) = FALSE and case_number_22 <> "") or _
+	  (isnumeric(case_number_23) = FALSE and case_number_23 <> "") or (isnumeric(case_number_24) = FALSE and case_number_24 <> "") or _
+	  (isnumeric(case_number_25) = FALSE and case_number_25 <> "") or (isnumeric(case_number_26) = FALSE and case_number_26 <> "") or _
+	  (isnumeric(case_number_27) = FALSE and case_number_27 <> "") or (isnumeric(case_number_28) = FALSE and case_number_28 <> "") or _
+	  (isnumeric(case_number_29) = FALSE and case_number_29 <> "") or (isnumeric(case_number_30) = FALSE and case_number_30 <> "") then
 		MsgBox "You must enter a numeric case number for each item, or leave it blank."
 	End if
 Loop until (isnumeric(case_number_01) = True or case_number_01 = "") and (isnumeric(case_number_02) = True or case_number_02 = "") and _
@@ -158,12 +162,11 @@ Loop until (isnumeric(case_number_01) = True or case_number_01 = "") and (isnume
   (isnumeric(case_number_23) = True or case_number_23 = "") and (isnumeric(case_number_24) = True or case_number_24 = "") and _
   (isnumeric(case_number_25) = True or case_number_25 = "") and (isnumeric(case_number_26) = True or case_number_26 = "") and _
   (isnumeric(case_number_27) = True or case_number_27 = "") and (isnumeric(case_number_28) = True or case_number_28 = "") and _
-  (isnumeric(case_number_29) = True or case_number_29 = "") and (isnumeric(case_number_30) = True or case_number_30 = "") 	
-		
+  (isnumeric(case_number_29) = True or case_number_29 = "") and (isnumeric(case_number_30) = True or case_number_30 = "")
+
 'Worker signature
 worker_signature = InputBox("Sign your case note:", vbOKCancel)
 If worker_signature = vbCancel then stopscript
-
 
 'Splits the case_number(s) into a case_number_array
 case_number_array = array(case_number_01, case_number_02, case_number_03, case_number_04, case_number_05, _
@@ -197,26 +200,26 @@ For each case_number in case_number_array
 		Call navigate_to_screen("case", "note")
 
 		'If there was an error after trying to go to CASE/NOTE
-		EMReadScreen SELF_error_check, 27, 2, 28 
+		EMReadScreen SELF_error_check, 27, 2, 28
 		If SELF_error_check = "Select Function Menu (SELF)" then
-			MsgBox "Script stopped on case " & case_number & "."				
+			MsgBox "Script stopped on case " & case_number & "."
 			error_message = error_message & case_number & ", " 'Building error message to contain every failed case number, this will allow script to continue if it fails except for out of county cases.
 		Else
 			'Opening a new case/note
 			start_a_blank_CASE_NOTE
 
 			'Writing the case note depending on MailType
-			If MailType_array(array_count) = "No Forwarding " then 			
-				EMSendKey "<home>" & "-->Returned mail received<--" & "<newline>"	
+			If MailType_array(array_count) = "No Forwarding " then
+				EMSendKey "<home>" & "-->Returned mail received<--" & "<newline>"
 				call write_variable_in_case_note("* No forwarding address was indicated.")
 				call write_variable_in_case_note("* Sending verification request to last known address. TIKLed for 10-day return.")
 				call write_variable_in_case_note("(NOTE generated via BULK script)")
 				call write_variable_in_case_note("---")
 				call write_variable_in_case_note(worker_signature)
-			Else 
+			Else
 				EMSendKey "<home>" & "-->Returned Mail Received<--" & "<newline>"
 				call write_variable_in_case_note("* Forwarding address indicated.")
-				call write_variable_in_case_note("* Updated ADDR to match forwarding address.  Forwarded returned mail to current address. Sent appropriate returned mail paperwork for current programs.") 
+				call write_variable_in_case_note("* Updated ADDR to match forwarding address.  Forwarded returned mail to current address. Sent appropriate returned mail paperwork for current programs.")
 				call write_variable_in_case_note("(NOTE generated via BULK script)")
 				call write_variable_in_case_note("---")
 				call write_variable_in_case_note(worker_signature)
@@ -224,10 +227,8 @@ For each case_number in case_number_array
 
 			'Exiting the case note
 			PF3
-
 			'Getting to DAIL/WRIT
 			call navigate_to_screen("dail", "writ")
-
 			'Inserting the date
 			call create_MAXIS_friendly_date(date, 10, 5, 18)
 
@@ -248,17 +249,13 @@ For each case_number in case_number_array
 
 
 	'Increasing the array count for each case number processed from case_number array.
-	array_count=array_count+1	
-
+	array_count=array_count+1
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
 
-'Error message box that lists case numbers that the script failed on so workers can process manually. 
+'Error message box that lists case numbers that the script failed on so workers can process manually.
 If error_message <> "" then msgbox "These cases were not able to be processed, they may be privileged or invalid case numbers. Please review and process manually if needed. " & vbNewline & vbNewline & error_message
 
 'Script ends
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Using " & EDMS_choice & ", send the appropriate returned mail paperwork. Send the completed forms to the most recent address(es). The script has case noted that returned mail was received and TIKLed out for 10-day return for each case indicated.")
-
-
-
-
-

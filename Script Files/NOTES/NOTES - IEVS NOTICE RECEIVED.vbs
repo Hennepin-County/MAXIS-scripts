@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 BeginDialog case_number_dlg, 0, 0, 206, 75, "Enter a Case Number"
   EditBox 70, 10, 70, 15, case_number
   EditBox 65, 30, 30, 15, benefit_month
@@ -59,7 +63,7 @@ BeginDialog case_number_dlg, 0, 0, 206, 75, "Enter a Case Number"
 EndDialog
 
 BeginDialog IEVS_Match, 0, 0, 177, 126, "IEVS Match Received"
-  DropListBox 56, 4, 100, 14, "Select"+chr(9)+"Resolved"+chr(9)+"Notice Sent to Client"+chr(9)+"Notice Sent to Employer", OPTIONS
+  DropListBox 56, 4, 100, 14, "Select one"+chr(9)+"Resolved"+chr(9)+"Notice Sent to Client"+chr(9)+"Notice Sent to Employer", OPTIONS
   EditBox 50, 24, 20, 14, MEMB
   DropListBox 112, 24, 48, 14, "Select one"+chr(9)+"1st"+chr(9)+"2nd"+chr(9)+"3rd"+chr(9)+"4th"+chr(9)+"year", Quarter
   EditBox 44, 46, 110, 14, Employer
@@ -73,7 +77,6 @@ BeginDialog IEVS_Match, 0, 0, 177, 126, "IEVS Match Received"
   Text 10, 52, 34, 14, "Employer:"
   Text 10, 78, 30, 14, "Address:"
 EndDialog
-
 
 BeginDialog Resolved_Non_Cooperation, 0, 0, 137, 76, "IEVS Resolved-Non Cooperation"
   DropListBox 62, 6, 50, 14, "Select one"+chr(9)+"NC"+chr(9)+"CB"+chr(9)+"CC"+chr(9)+"CF"+chr(9)+"CA"+chr(9)+"CI"+chr(9)+"CP"+chr(9)+"BC"+chr(9)+"BN"+chr(9)+"BI"+chr(9)+"BP"+chr(9)+"BU"+chr(9)+"BE"+chr(9)+"BO", code

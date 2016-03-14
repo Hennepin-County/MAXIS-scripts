@@ -1,17 +1,9 @@
 'OPTION EXPLICIT
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 start_time = timer
 
-'DIM name_of_script
-'DIM start_time
-'DIM FuncLib_URL
-'DIM run_locally
-'DIM default_directory
-'DIM beta_agency
-'DIM req
-'DIM fso
+'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
 
 ''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -56,6 +48,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 180          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'Dimming variables----------------------------------------------------------------------------------------------------
 'DIM MFIP_Sanction_DWP_Disq_Dialog
@@ -179,7 +177,7 @@ DO
 	IF IsDate(Date_Sanction) = FALSE THEN 
 			err_msg = err_msg & vbCr & "You need to enter a valid date of sanction (MM/DD/YYYY)."
 		'logic for figuring out if its the first of the month, if it's not, then it gives a more define date requirement
-		ELSEIf Date_Sanction <> datepart ("m", Date_Sanction) & "/01/" & datepart("yyyy", Date_Sanction) THEN  
+		ELSEIF datepart("d", Date_Sanction) <> 1 THEN  
 			err_msg = "You need to enter a valid date of sanction (MM/DD/YYYY), with DD = to first of the sanction month)"
 		END IF
 	IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
@@ -256,8 +254,8 @@ CALL write_variable_in_case_note(worker_signature)
 
 If notating_spec_wcom = checked THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-	EMReadscreen CASH_check, 2, read_row, 26  'checking to make sure that notice is for MFIP or DWP
-	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
+	EMReadscreen CASH_check, 2, 7, 26  'checking to make sure that notice is for MFIP or DWP
+	EMReadScreen Print_status_check, 7, 7, 71 'checking to see if notice is in 'waiting status'
 	'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
 	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
 		EMSetcursor read_row, 13
@@ -266,10 +264,11 @@ If notating_spec_wcom = checked THEN
 		PF9
 		EMSetCursor 03, 15
 		'WCOM required by workers to informed client what who they need to contact, the contact info, and by when they need to resolve the sanction.
-		Call write_variable_in_SPEC_WCOM("")
-		Call write_variable_in_SPEC_WCOM("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
-		Call write_variable_in_SPEC_WCOM("You need to be in compliance on/by " & Resolution_date & ".")
-		Call write_variable_in_SPEC_WCOM("")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("You need to be in compliance on/by " & Resolution_date & ".")
+		Call write_variable_in_SPEC_MEMO("")
 		PF4
 		PF3
 	ELSE 

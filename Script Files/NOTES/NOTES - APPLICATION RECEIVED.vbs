@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -46,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 145                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block==============================================================================================
+
 'DIALOGS-------------------------------------------------------------
 BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
   EditBox 95, 5, 60, 15, case_number
@@ -57,28 +61,36 @@ BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
   Text 5, 30, 85, 10, "Worker Signature"
 EndDialog
 
-BeginDialog app_detail_dialog, 0, 0, 221, 205, "Detail of application"
-  DropListBox 80, 5, 135, 45, "Select One"+chr(9)+"In Person"+chr(9)+"Droped Off"+chr(9)+"Mail"+chr(9)+"Online"+chr(9)+"Fax"+chr(9)+"Email", how_app_recvd
+BeginDialog app_detail_dialog, 0, 0, 221, 260, "Detail of application"
+  DropListBox 80, 5, 135, 45, "Select One"+chr(9)+"In Person"+chr(9)+"Dropped Off"+chr(9)+"Mail"+chr(9)+"Online"+chr(9)+"Fax"+chr(9)+"Email", how_app_recvd
   DropListBox 80, 25, 135, 20, "Select One"+chr(9)+"CAF"+chr(9)+"ApplyMN"+chr(9)+"HC - Certain Populations"+chr(9)+"HCAPP"+chr(9)+"Addendum", app_type
   EditBox 80, 45, 135, 15, confirmation_number
-  EditBox 60, 65, 75, 15, time_of_app
-  DropListBox 145, 65, 70, 15, "AM"+chr(9)+"PM", AM_PM
-  EditBox 50, 85, 165, 15, worker_name
-  EditBox 120, 105, 95, 15, worker_number
-  EditBox 150, 125, 65, 15, pended_date
-  EditBox 5, 145, 210, 15, entered_notes
-  CheckBox 5, 165, 205, 15, "Check here to have script transfer case to assigned worker", transfer_case
+  EditBox 80, 65, 135, 15, date_of_app
+  CheckBox 5, 105, 30, 10, "Cash", cash_pend
+  CheckBox 45, 105, 30, 10, "SNAP", fs_pend
+  CheckBox 90, 105, 50, 10, "Emergency", emer_pend
+  CheckBox 150, 105, 20, 10, "HC", hc_pend
+  CheckBox 185, 105, 30, 10, "GRH", grh_pend
+  EditBox 60, 120, 75, 15, time_of_app
+  DropListBox 145, 120, 70, 15, "AM"+chr(9)+"PM", AM_PM
+  EditBox 50, 140, 165, 15, worker_name
+  EditBox 120, 160, 95, 15, worker_number
+  EditBox 150, 180, 65, 15, pended_date
+  EditBox 5, 200, 210, 15, entered_notes
+  CheckBox 5, 220, 205, 15, "Check here to have script transfer case to assigned worker", transfer_case
   ButtonGroup ButtonPressed
-    OkButton 110, 185, 50, 15
-    CancelButton 165, 185, 50, 15
+    OkButton 110, 240, 50, 15
+    CancelButton 165, 240, 50, 15
   Text 5, 10, 70, 10, "Application received"
   Text 5, 30, 65, 10, "Type of application"
   Text 5, 50, 60, 10, "Confirmation #"
-  Text 5, 70, 50, 10, "Time received"
-  Text 5, 90, 40, 10, "Assigned to:"
-  Text 5, 110, 110, 10, "Worker Number (X###### format)"
-  Text 5, 130, 25, 10, "Notes:"
-  Text 105, 130, 40, 10, "Pended on:"
+  Text 5, 70, 65, 10, "Date of Application"
+  Text 5, 90, 70, 10, "Programs Applied for:"
+  Text 5, 125, 50, 10, "Time received"
+  Text 5, 145, 40, 10, "Assigned to:"
+  Text 5, 165, 110, 10, "Worker Number (X###### format)"
+  Text 5, 185, 25, 10, "Notes:"
+  Text 110, 185, 40, 10, "Pended on:"
 EndDialog
 
 'Grabs the case number
@@ -97,7 +109,7 @@ Loop until case_number <> "" AND worker_signature <> ""
 call check_for_MAXIS(true)
 
 'Gathers Date of application and creates MAXIS friendly dates to be sure to navigate to the correct time frame
-
+'This only functions if case is in PND2 status
 call navigate_to_MAXIS_screen("REPT","PND2")
 dateofapp_row = 1 
 dateofapp_col = 1 
@@ -106,6 +118,12 @@ EMReadScreen footer_month, 2, dateofapp_row, 38
 EMReadScreen app_day, 2, dateofapp_row, 41
 EMReadScreen footer_year, 2, dateofapp_row, 44
 date_of_app = footer_month & "/" & app_day & "/" & footer_year
+
+'If case is not in PND2 status this defaults the date information to current date to allow correct navigation
+If date_of_app = "  /  /  " then 
+	date_of_app = date 
+	Call convert_date_into_MAXIS_footer_month (date, footer_month, footer_year)
+End If
 
 'Determines which programs are currently pending in the month of application
 call navigate_to_MAXIS_screen("STAT","PROG")
@@ -117,6 +135,7 @@ EMReadScreen fs_pend, 4, 10, 74
 EMReadScreen ive_pend, 4, 11, 74
 EMReadScreen hc_pend, 4, 12, 74
 
+'Assigns a value so the programs pending will show up in check boxes
 IF cash1_pend = "PEND" THEN
 	cash1_pend = 1 
 	Else 
@@ -128,7 +147,9 @@ If cash2_pend = "PEND" THEN
 	Else 
 	cash2_pend = 0
 End if
-	
+
+If cash1_pend = 1 OR cash2_pend = 1 then cash_pend = 1 
+
 If emer_pend = "PEND" THEN 
 	emer_pend = 1
 	Else 
@@ -136,7 +157,7 @@ If emer_pend = "PEND" THEN
 End if
 
 If grh_pend = "PEND" THEN 
-	ghr__pend = 1
+	grh_pend = 1
 	Else 
 	grh_pend = 0
 End if
@@ -158,7 +179,7 @@ If hc_pend = "PEND" THEN
 	Else 
 	hc_pend = 0
 End if
-	
+
 'Defaults the date pended to today
 pended_date = date & ""
 
@@ -178,8 +199,7 @@ Do
 Loop until (app_type = "ApplyMN" and isnumeric(confirmation_number) = true) AND time_of_app <> "" OR app_type <> "ApplyMN"
 
 'Creates a variable that lists all the programs pending.
-If cash1_pend = 1 THEN programs_applied_for = programs_applied_for & "Cash, "
-If cash2_pend = 1 THEN programs_applied_for = programs_applied_for & "Cash, "
+If cash_pend = 1 THEN programs_applied_for = programs_applied_for & "Cash, "
 If emer_pend = 1 THEN programs_applied_for = programs_applied_for & "Emergency, "
 If grh_pend = 1 THEN programs_applied_for = programs_applied_for & "GRH, "
 If fs_pend = 1 THEN programs_applied_for = programs_applied_for & "SNAP, "

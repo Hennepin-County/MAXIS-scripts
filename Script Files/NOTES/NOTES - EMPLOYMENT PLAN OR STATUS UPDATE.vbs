@@ -1,13 +1,11 @@
+'OPTION EXPLICIT
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs"
 start_time = timer
 
-'Option Explicit
+'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
 
-DIM beta_agency
-DIM FuncLib_URL, req, fso
-
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
@@ -50,6 +48,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 196, 130, "Status Update / Employment Plan"
@@ -146,38 +150,32 @@ DO
 LOOP UNTIL isdate(document_date) = True
 
 '-------Employment plan dialog
-IF update_type = "Employment Plan" THEN 
+IF update_type = "Employment Plan" THEN
 	DO
-		DO	
-			DO
-				DO
-					DO 
-						Dialog employment_plan_dialog
-						IF ButtonPressed = 0 THEN stopscript
-					LOOP UNTIL ButtonPressed = OK
-					IF actions_taken = "" THEN MsgBox "Please complete the actions taken field."
-				LOOP UNTIL actions_taken <> ""
-				IF worker_signature = "" THEN MsgBox "Please sign your case note."
-			LOOP UNTIL worker_signature <> ""
-			IF primary_activity = "2. Employment" and job_info = "" THEN MsgBox "You have entered the primary activity as employment but did not enter any job info.  Please complete the job information field."
-		LOOP UNTIL job_info <> "" or primary_activity <> "2. Employment"
-		IF primary_activity = "3. High School / GED" OR primary_activity = "4. Higher Ed" AND school_info = "" THEN MsgBox "You have entered the primary activity as education but did not complete the school information field.  Please complete the school info field or enter a different primary activity."
-	LOOP UNTIL school_info <> "" OR primary_activity = "1. Employment Search" OR primary_activity = "2. Employment" OR primary_activity = "5. Health / Medical"
+	Dialog employment_plan_dialog
+		err_msg = ""
+		IF ButtonPressed = 0 THEN stopscript
+		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete the actions taken field."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
+		IF primary_activity = "2. Employment" and job_info = "" THEN err_msg = err_msg & vbCr & "You have entered the primary activity as employment but did not enter any job info.  Please complete the job information field."
+		IF primary_activity = "3. High School / GED" AND school_info = "" THEN err_msg = err_msg & vbCr & "You have entered the primary activity as education but did not complete the school information field."
+		IF primary_activity = "4. Higher Ed" AND school_info = "" THEN err_msg = err_msg & vbCr & "You have entered the primary activity as education but did not complete the school information field."
+		IF err_msg <> "" THEN msgbox "The following errors must be resolved before continuing: " & err_msg
+	LOOP UNTIL err_msg = ""
 END IF
 
 'Status update Dialog
 IF update_type = "Status Update" THEN
 	DO
-		DO
-			DO
-				Dialog status_update_dialog
-				IF ButtonPressed = 0 THEN stopscript
-			LOOP UNTIL ButtonPressed = OK
-			IF sanction_imposed_check = unchecked and actions_taken = "" THEN MsgBox "Please indicate what actions were taken."
-		LOOP until sanction_imposed_check = checked OR actions_taken <> "" OR received_sent = "Sent"
-		IF worker_signature = "" THEN MsgBox "Please sign your case note."
-	LOOP until worker_signature <> ""
+		err_msg = ""
+		Dialog status_update_dialog
+		IF ButtonPressed = 0 THEN stopscript
+		IF sanction_imposed_check = unchecked and actions_taken = "" THEN err_msg = err_msg & vbCr & "Please indicate what actions were taken."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
+		IF err_msg <> "" THEN msgbox "Please resolve the following errors to continue:" & err_msg
+	LOOP until err_msg = ""
 END IF
+
 
 '----Writing the note
 call check_for_MAXIS(False)

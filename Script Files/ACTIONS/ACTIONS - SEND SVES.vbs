@@ -5,10 +5,8 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else																		'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
@@ -19,7 +17,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -30,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -45,6 +43,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 60                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'DIALOGS-----------------------------------------------------------------
 BeginDialog send_SVES_dialog, 0, 0, 271, 85, "Send SVES Dialog"
@@ -74,7 +78,7 @@ call MAXIS_case_number_finder(case_number)
 
 'Shows dialog
 Dialog send_SVES_dialog
-If ButtonPressed = cancel then StopScript 
+If ButtonPressed = cancel then StopScript
 
 'Defaults member number to 01
 If member_number = "" then member_number = "01"
@@ -90,7 +94,7 @@ EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates
 transmit 'This transmits to STAT/MEMB for the client indicated.
 
 'If this member does not exist, this will stop the script from continuing.
-EMReadScreen no_MEMB, 13, 8, 22 
+EMReadScreen no_MEMB, 13, 8, 22
 If no_MEMB = "Arrival Date:" then script_end_procedure("Error! This HH member does not exist.")
 
 'Reads the SSN pieces and the PMI
@@ -117,14 +121,14 @@ ElseIf UNEA_radiobutton = 1 then
   EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
   transmit 'This transmits to STAT/UNEA for the client indicated.
 
-  EMReadScreen PMI, 8, 4, 71 
+  EMReadScreen PMI, 8, 4, 71
   PMI = trim(PMI)
-  
+
   'If there is no PMI, then there is no UNEA panel entered for the script to work off of.
   If PMI = "" then script_end_procedure("This HH member does not exist, or does not have a UNEA panel made.")
-  
+
   EMReadScreen amt_of_unea_panels, 1, 2, 78
-  If amt_of_unea_panels <> "1" then 
+  If amt_of_unea_panels <> "1" then
     dialog_size_variable = (15 * cint(amt_of_unea_panels)) + 20
     Do
       EMReadScreen UNEA_type, 2, 5, 37
@@ -162,7 +166,7 @@ ElseIf UNEA_radiobutton = 1 then
       If UNEA_type_04 <> "" then RadioButton 10, 65, 160, 10, "Type " & UNEA_type_04 & ", claim number " & UNEA_claim_number_04, UNEA_type_04_radiobutton
       If UNEA_type_05 <> "" then RadioButton 10, 80, 160, 10, "Type " & UNEA_type_05 & ", claim number " & UNEA_claim_number_05, UNEA_type_05_radiobutton
     EndDialog
-  
+
     Dialog UNEA_claim_dialog
     If ButtonPressed = 0 then stopscript
     If UNEA_type_01_radiobutton = 1 then
@@ -176,7 +180,7 @@ ElseIf UNEA_radiobutton = 1 then
     ElseIf UNEA_type_05_radiobutton = 1 then
       claim_number = UNEA_claim_number_05
     End if
-  Else  
+  Else
     EMReadScreen claim_number, 15, 6, 37
     claim_number = replace(claim_number, "_", "")
   End if
@@ -203,7 +207,7 @@ ElseIf BNDX_radiobutton = 1 then
 
   If BNDX_claim_number_01 = "             " then script_end_procedure("BNDX claim number is not found. Was there a BNDX message for this client? Try sending using SSN or UNEA claim number.")
 
-  If BNDX_claim_number_02 = "             " and BNDX_claim_number_03 = "             " then 
+  If BNDX_claim_number_02 = "             " and BNDX_claim_number_03 = "             " then
     claim_number = replace(BNDX_claim_number_01, " ", "")
   Else
 
@@ -217,7 +221,7 @@ ElseIf BNDX_radiobutton = 1 then
       If BNDX_claim_number_02 <> "" then RadioButton 10, 35, 160, 10, BNDX_claim_number_02, BNDX_claim_number_02_radiobutton
       If BNDX_claim_number_03 <> "" then RadioButton 10, 50, 160, 10, BNDX_claim_number_03, BNDX_claim_number_03_radiobutton
     EndDialog
-  
+
     Dialog BNDX_claim_dialog
     If ButtonPressed = 0 then stopscript
     If BNDX_claim_number_01_radiobutton = 1 then
