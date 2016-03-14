@@ -142,6 +142,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unea_income)
 
 date_calculated = date & ""    'setting the date_calculated defaulting to current date for the dialog (must add & "" to turn the variable into a string)
 
+'If a BUSI panel exists this will display information about the Self Employment policy to guide workers
 call navigate_to_MAXIS_screen ("STAT", "BUSI")
 IF self_employment_income <> "" Then 
 	MsgBox("Your case has self employment income on it." & vbNewLine & vbNewLine & "Please be aware of the following:" & vbNewLine & "* Self Employment income can be budgeted using 2 different methods:" & vbNewLine & "     (01) 50% of Gross Income" & vbNewLine & "     (02) Taxable Income - per taxes less than 12 months old" & _
@@ -150,6 +151,7 @@ IF self_employment_income <> "" Then
 	Self_employment_message_shown = TRUE
 End IF 
 
+'Runs the main dialog to detail all the information about income.
 DO
 	Do
 		Do
@@ -168,16 +170,15 @@ DO
 		  If (time_period_used = "Other (Specified Under 'Other Notes on income')" AND other_notes_on_income = "") then err_msg = err_msg & vbNewLine & "* You must explain the time period of income used in the ""other notes on income"" field."
 		  IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP until err_msg = ""
-		IF self_employment_income <> "" AND Self_employment_message_shown <> TRUE Then
+		IF self_employment_income <> "" AND Self_employment_message_shown <> TRUE Then  'If self employment information is added to the dialog but was not autofilled from the BUSI panel, the information about Self Employment Policy
 			Self_Emp_Info = MsgBox ("Your case has self employment income on it." & vbNewLine & vbNewLine & "Please be aware of the following:" & vbNewLine & "* Self Employment income can be budgeted using 2 different methods:" & vbNewLine & "     (01) 50% of Gross Income" & vbNewLine & "     (02) Taxable Income - per taxes less than 12 months old" & _
 			  vbNewLine & "     Refer to CM 17.15.33.03 for detail" & vbNewLine & vbNewLine &"** SNAP cases with rental income do NOT use these methods" & vbNewLine & "     Refer to CM 17.15.33.30 for correct budgeting for these cases" & vbNewLine & "** Cases with farming income may also use a different budgeting method" & _
 			  vbNewLine & "     Refer to CM 17.15.33.24 for more information" & vbNewLine & vbNewLine & "* There are specific rules in regards to clients switching budgeting methods." & vbNewLine & "     If you are documenting a switch, be sure to explain in detail." & _ 
 			  vbNewLine & "     Refer to CM 17.15.33.03 for details on changing method" & vbNewLine & vbNewLine & "Ready to case note?" & vbNewLine & "(Click 'No' to return to previous screen to enter more informaiton)", 4, "")
-			'Self_employment_message_shown = TRUE
-			IF Self_Emp_Info = vbYes Then Exit Do 
+			IF Self_Emp_Info = vbYes Then Exit Do 'If worker selects 'No' on MsgBox, the dialog will loop for worker to add more detail
 		End IF
-	Loop until Self_Emp_Info = vbYes OR Self_employment_message_shown = TRUE OR self_employment_income = ""
-	Call check_for_password(are_we_passworded_out)
+	Loop until Self_Emp_Info = vbYes OR Self_employment_message_shown = TRUE OR self_employment_income = "" 'Will only display the Self Employment policy information once
+	Call check_for_password(are_we_passworded_out) 'Handling for Maxis v6
 LOOP UNTIL are_we_passworded_out = false
 
 
