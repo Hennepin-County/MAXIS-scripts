@@ -132,30 +132,33 @@ FUNCTION create_paystubs_received_dialog(worker_signature, number_of_paystubs, p
 	EndDialog
 
 	DO
-		err_msg = ""
-		DIALOG paystubs_received_dialog
-			IF ButtonPressed = 0 THEN stopscript
-			If pay_frequency = "(select one)" then err_msg = err_msg & vbCr & "* You must select a pay frequency."
-			If JOBS_verif_code = "(select one)" then err_msg = err_msg & vbCr & "You must select a JOBS verif code."
-			If explanation_of_income = "" then err_msg = err_msg & vbCr & "* You must explain how you calculated this income (ie: ''all paystubs from last 30 days'')"
-			FOR i = 0 TO (number_of_paystubs - 1)
-				paystubs_array(i, 0) = Trim(paystubs_array(i, 0))
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				If isdate(paystubs_array(i, 0)) = False AND paystubs_array(i, 0) <> "" THEN err_msg = err_msg & vbCr & "* Your pay date must be ''MM/DD/YYYY'' format. Please try again."
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				If isdate(paystubs_array(i, 0)) = True AND datediff("d", date, paystubs_array(i, 0)) >= 0 THEN err_msg = err_msg & vbCr & "* You cannot enter a paydate in the future. Please remove and try again."
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				If isdate(paystubs_array(i, 0)) = True and (Isnumeric(paystubs_array(i, 1)) = False or Isnumeric(paystubs_array(i, 2)) = False) then err_msg = err_msg & vbCr & "* You must include a gross pay amount as well as an hours amount."
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				IF paystubs_array(i, 0) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay dates blank."
-				IF paystubs_array(i, 1) = "" OR paystubs_array(i, 2) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay information blank."
-			NEXT
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
+		DO
+			err_msg = ""
+			DIALOG paystubs_received_dialog
+				IF ButtonPressed = 0 THEN stopscript
+				If pay_frequency = "(select one)" then err_msg = err_msg & vbCr & "* You must select a pay frequency."
+				If JOBS_verif_code = "(select one)" then err_msg = err_msg & vbCr & "You must select a JOBS verif code."
+				If explanation_of_income = "" then err_msg = err_msg & vbCr & "* You must explain how you calculated this income (ie: ''all paystubs from last 30 days'')"
+				FOR i = 0 TO (number_of_paystubs - 1)
+					paystubs_array(i, 0) = Trim(paystubs_array(i, 0))
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					If isdate(paystubs_array(i, 0)) = False AND paystubs_array(i, 0) <> "" THEN err_msg = err_msg & vbCr & "* Your pay date must be ''MM/DD/YYYY'' format. Please try again."
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					If isdate(paystubs_array(i, 0)) = True AND datediff("d", date, paystubs_array(i, 0)) >= 0 THEN err_msg = err_msg & vbCr & "* You cannot enter a paydate in the future. Please remove and try again."
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					If isdate(paystubs_array(i, 0)) = True and (Isnumeric(paystubs_array(i, 1)) = False or Isnumeric(paystubs_array(i, 2)) = False) then err_msg = err_msg & vbCr & "* You must include a gross pay amount as well as an hours amount."
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					IF paystubs_array(i, 0) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay dates blank."
+					IF paystubs_array(i, 1) = "" OR paystubs_array(i, 2) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay information blank."
+				NEXT
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		LOOP UNTIL err_msg = ""
+		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	LOOP UNTIL are_we_passworded_out = false
 END FUNCTION
 
 BeginDialog number_of_paystubs_dlg, 0, 0, 211, 65, "Number of Pay Dates"
@@ -201,8 +204,11 @@ HH_member = "01"
 
 DO
 	'Shows the case number dialog
-	Dialog paystubs_received_case_number_dialog
-		If buttonpressed = 0 then stopscript
+	DO
+		Dialog paystubs_received_case_number_dialog
+			If buttonpressed = 0 then stopscript
+		call check_for_password(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
 
 	CALL check_for_MAXIS(False)							'checkng for an active MAXIS session
 	Call MAXIS_footer_month_confirmation				'confirming that user is in the correct footer month
@@ -398,7 +404,7 @@ Do
 			EMReadScreen PIC_line_11, 50, 18, 22
 			PF20										'shift PF8 to the next PIC screen'
 			EMReadScreen PIC_page_2_check, 8, 20, 6
-			IF PIC_page_2_check <> "COMPLETE" THEN 
+			IF PIC_page_2_check <> "COMPLETE" THEN
 				EMReadScreen PIC2_line_01, 28, 9, 13		'reading the 2nd page of the PIC'
 				EMReadScreen PIC2_line_02, 28, 10, 13
 				EMReadScreen PIC2_line_03, 28, 11, 13
@@ -409,8 +415,8 @@ Do
 				PIC2_line_02 = Replace(PIC2_line_02, "__ __ __    ________  ______", "")
 				PIC2_line_03 = Replace(PIC2_line_03, "__ __ __    ________  ______", "")
 				PIC2_line_04 = Replace(PIC2_line_04, "__ __ __    ________  ______", "")
-				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")				
-			END IF 	
+				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")
+			END IF
 			transmit
 		END IF
   End if
