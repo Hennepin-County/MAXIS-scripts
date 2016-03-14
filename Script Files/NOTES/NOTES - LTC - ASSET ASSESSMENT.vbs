@@ -102,7 +102,7 @@ Function write_new_line_in_person_note(x)
 End function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog asset_assessment_dialog, 0, 0, 266, 261, "Asset assessment dialog"
+BeginDialog asset_assessment_dialog, 0, 0, 266, 280, "Asset assessment dialog"
   DropListBox 5, 5, 60, 15, "REQUIRED"+chr(9)+"REQUESTED", asset_assessment_type
   EditBox 195, 5, 65, 15, effective_date
   EditBox 165, 35, 65, 15, MA_LTC_first_month_of_documented_need
@@ -117,15 +117,15 @@ BeginDialog asset_assessment_dialog, 0, 0, 266, 261, "Asset assessment dialog"
   EditBox 70, 160, 190, 15, asset_calculation
   EditBox 60, 180, 200, 15, actions_taken
   CheckBox 5, 205, 60, 10, "Sent 3340-A?", sent_3340A_check
-  CheckBox 65, 205, 60, 10, "Sent 3340-B?", sent_3340B_check
-  EditBox 195, 200, 65, 15, worker_signature
-  CheckBox 5, 225, 175, 10, "Write MAXIS case note? If so, write case number:", write_MAXIS_case_note_check
-  EditBox 185, 220, 75, 15, case_number
+  CheckBox 80, 205, 60, 10, "Sent 3340-B?", sent_3340B_check
+  CheckBox 145, 205, 110, 10, "Sent 5181 to Case Manager?", sent_5181_check
+  EditBox 195, 220, 65, 15, worker_signature
+  CheckBox 5, 245, 175, 10, "Write MAXIS case note? If so, write case number:", write_MAXIS_case_note_check
+  EditBox 185, 240, 75, 15, case_number
   ButtonGroup ButtonPressed
-    OkButton 150, 240, 50, 15
-    CancelButton 210, 240, 50, 15
+    OkButton 150, 260, 50, 15
+    CancelButton 210, 260, 50, 15
   Text 70, 10, 75, 10, "ASSET ASSESSMENT"
-  Text 160, 10, 30, 10, "Eff date:"
   GroupBox 20, 25, 220, 50, "If this is a required assessment, fill out:"
   Text 25, 40, 135, 10, "MA-LTC first month of documented need:"
   Text 25, 60, 100, 10, "Month MA-LTC rules applied:"
@@ -134,11 +134,13 @@ BeginDialog asset_assessment_dialog, 0, 0, 266, 261, "Asset assessment dialog"
   Text 5, 105, 55, 10, "Asset summary:"
   Text 5, 125, 75, 10, "Total Counted Assets:"
   Text 150, 125, 45, 10, "Half of Total:"
-  Text 55, 145, 25, 10, "CSAA:"
   Text 5, 165, 65, 10, "Asset calculation:"
   Text 5, 185, 50, 10, "Actions taken:"
-  Text 130, 205, 60, 10, "Worker signature:"
+  Text 130, 225, 60, 10, "Worker signature:"
+  Text 55, 145, 25, 10, "CSAA:"
+  Text 160, 10, 30, 10, "Eff date:"
 EndDialog
+
 
 BeginDialog case_and_PMI_number_dialog, 0, 0, 196, 101, "Case and PMI number dialog"
   EditBox 80, 5, 70, 15, LTC_spouse_PMI
@@ -278,7 +280,7 @@ ELSE
 			'4th page of the total marital asset list
 			EMReadScreen total_marital_asset_list_line_40, 53, 6, 25
 			EMReadScreen total_marital_asset_list_line_41, 53, 7, 25
-			EMReadScreen total_marital_asset_list_line_42, 53, 8, 25
+			EMReadScreacen total_marital_asset_list_line_42, 53, 8, 25
 			EMReadScreen total_marital_asset_list_line_43, 53, 9, 25
 			EMReadScreen total_marital_asset_list_line_44, 53, 10, 25
 			EMReadScreen total_marital_asset_list_line_45, 53, 11, 25
@@ -322,6 +324,7 @@ If half_of_total <> "" then call write_editbox_in_person_note("Half of total", h
 If CSAA_type <> "" then call write_new_line_in_person_note("* " & CSAA_type & " CSAA: " & CSAA)
 If asset_calculation <> "" then call write_editbox_in_person_note("Asset calculation", asset_calculation)
 If actions_taken <> "" then call write_editbox_in_person_note("Actions taken", actions_taken)
+If sent_5181_check = 1 then call write_new_line_in_person_note("* DHS-5181 sent to Case Manager.")
 call write_new_line_in_person_note("---")
 If worker_signature <> "" then call write_new_line_in_person_note(worker_signature)
 Do
@@ -422,6 +425,7 @@ call write_bullet_and_variable_in_CASE_NOTE("Half of total", half_of_total)
 call write_bullet_and_variable_in_CASE_NOTE(CSAA_type & " CSAA", CSAA)
 call write_bullet_and_variable_in_CASE_NOTE("Asset calculation", asset_calculation)
 call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+If sent_5181_check = 1 then call write_variable_in_CASE_NOTE("* DHS-5181 sent to Case Manager.")
 call write_variable_in_CASE_NOTE("---")
 If worker_signature <> "" then call write_new_line_in_case_note(worker_signature)
 Do
