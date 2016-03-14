@@ -56,14 +56,15 @@ BeginDialog client_contact_dialog, 0, 0, 386, 300, "Client contact"
   DropListBox 115, 5, 45, 10, "from"+chr(9)+"to", contact_direction
   ComboBox 165, 5, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Non-AREP"+chr(9)+"SWKR", who_contacted
   EditBox 280, 5, 100, 15, regarding
-  EditBox 80, 25, 65, 15, phone_number
+  EditBox 70, 25, 65, 15, phone_number
   EditBox 225, 25, 85, 15, when_contact_was_made
-  EditBox 55, 45, 55, 15, case_number
+  EditBox 70, 45, 65, 15, case_number
+  CheckBox 150, 45, 65, 10, "Used Interpreter", used_interpreter_checkbox
   EditBox 70, 65, 310, 15, contact_reason
-  EditBox 55, 85, 325, 15, actions_taken
+  EditBox 70, 85, 310, 15, actions_taken
   EditBox 65, 120, 310, 15, verifs_needed
-  EditBox 120, 140, 255, 15, cl_instructions
-  EditBox 60, 160, 315, 15, case_status
+  EditBox 65, 140, 310, 15, case_status
+  EditBox 80, 160, 295, 15, cl_instructions
   CheckBox 5, 185, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
   CheckBox 5, 200, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
   CheckBox 5, 215, 135, 10, "Check here if you sent forms to AREP.", Sent_arep_checkbox
@@ -76,18 +77,19 @@ BeginDialog client_contact_dialog, 0, 0, 386, 300, "Client contact"
     CancelButton 330, 280, 50, 15
   Text 5, 10, 45, 10, "Contact type:"
   Text 260, 10, 15, 10, "Re:"
-  Text 25, 30, 50, 10, "Phone number: "
+  Text 5, 30, 50, 10, "Phone number: "
   Text 150, 30, 70, 10, "Date/Time of Contact"
   Text 5, 50, 50, 10, "Case number: "
   Text 5, 70, 65, 10, "Reason for contact:"
   Text 5, 90, 50, 10, "Actions taken: "
   GroupBox 0, 105, 380, 75, "Helpful info for call centers (or front desks) to pass on to clients"
-  Text 10, 125, 50, 10, "Verifs needed: "
-  Text 10, 145, 105, 10, "Instructions/message:"
-  Text 10, 165, 45, 10, "Case status: "
+  Text 5, 125, 50, 10, "Verifs needed: "
+  Text 5, 145, 45, 10, "Case status: "
+  Text 5, 165, 75, 10, "Instructions/message:"
   GroupBox 5, 250, 130, 45, "Call Center:"
   Text 240, 260, 70, 10, "Sign your case note: "
 EndDialog
+
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
@@ -115,7 +117,11 @@ Call check_for_MAXIS(False)
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)
-CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
+If Used_interpreter_checkbox = checked THEN 
+	CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter")
+Else 
+	CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
+End if 
 CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number)
 CALL write_bullet_and_variable_in_CASE_NOTE("Reason for contact", contact_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
