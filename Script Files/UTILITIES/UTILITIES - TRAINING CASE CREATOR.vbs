@@ -66,6 +66,17 @@ STATS_denomination = "C"       'I is for each case
 'END OF stats block==============================================================================================
 
 '========================================================================TRANSFER CASES========================================================================
+Function File_Selection_System_Dialog(file_selected)
+	'Creates a Windows Script Host object
+	Set wShell=CreateObject("WScript.Shell")
+
+	'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
+	Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
+
+	'Creates the file_selected variable from the exit
+	file_selected = oExec.StdOut.ReadLine
+End function
+
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	'Creates an array of the workers selected in the dialog
 	workers_to_XFER_cases_to = split(replace(workers_to_XFER_cases_to, " ", ""), ",")
