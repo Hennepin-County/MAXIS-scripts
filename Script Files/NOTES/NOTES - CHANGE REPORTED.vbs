@@ -78,7 +78,7 @@ BeginDialog baby_born_dialog, 0, 0, 211, 310, "BABY BORN"
   EditBox 115, 190, 80, 15, OHI_source
   EditBox 60, 215, 105, 15, other_notes
   EditBox 60, 235, 105, 15, actions_taken
-  CheckBox 20, 255, 165, 10, "Newborns MHC plan updated to mothers carrier.", MHC_plan
+  CheckBox 20, 255, 165, 10, "Newborns MHC plan updated to mothers carrier.", MHC_plan_checkbox
   EditBox 155, 270, 40, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 5, 290, 50, 15
@@ -211,7 +211,7 @@ IF List1 = "Baby Born" THEN
 	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
 	CALL write_bullet_and_variable_in_Case_Note("Mother's employer", mothers_employer)
 	IF OHI_Checkbox = 1 THEN CALL write_bullet_and_variable_in_Case_Note("OHI", OHI_Source)
-	IF MHC_plan = 1 THEN CALL write_variable_in_CASE_NOTE("* Newborns MHC plan updated to match the mothers.")
+	IF MHC_plan_checkbox = 1 THEN CALL write_variable_in_CASE_NOTE("* Newborns MHC plan updated to match the mothers.")
 	CALL write_bullet_and_variable_in_Case_Note("Other Notes", other_notes)
 	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
 	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", additional_notes)
