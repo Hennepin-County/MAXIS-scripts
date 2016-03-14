@@ -188,6 +188,8 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+	EMWriteScreen CM_mo, 20, 43
+	EMWriteScreen CM_yr, 20, 46
 	Call navigate_to_MAXIS_screen("REPT", "MFCM")
 	EMWriteScreen worker, 21, 13
 	transmit
@@ -275,16 +277,18 @@ Do 						'Loops until there are no more cases in the Excel list
     excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
 
-'Now the script checks for MFIP start date, disa dates and  inputs payment history
+'Now the script checks for MFIP start date, disa dates and inputs payment history
+'STAT PROG PORTION
 excel_row = 2           're-establishing the row to start checking the members for 
 DO	
-	case_number = objExcel.cells(excel_row, case_number_col).value	're-establishing the case numbers
+	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
 	Call navigate_to_MAXIS_screen("STAT", "PROG")
 	'reading the MFIP start date
 	EMReadScreen prog_one, 2, 6, 67				'checking 1st line of CASH PROG for elig MFIP
 	EMReadScreen prog_status_one, 4, 6, 74
 	EMReadScreen elig_begin_date_one, 8, 6, 44
 	If prog_one = "MF" and prog_status_one = "ACTV" then 
+		elig_begin_date_one = Replace(elig_begin_date_one," ","/")
 		elig_begin_date = elig_begin_date_one
 	ELSE
 		EMReadScreen prog_two, 2, 7, 67				'checking 2nd line of CASH PROG for elig MFIP if 1st line isn't MFIP
@@ -293,8 +297,22 @@ DO
 		elig_begin_date = elig_begin_date_two
 	END IF 
 	ObjExcel.Cells(excel_row, 6).Value = elig_begin_date
+	msgbox elig_begin_date
 	
-	'
+	'STAT DISA PORTION
+	Call navigate_to_MAXIS_screen("STAT", "DISA")
+	EMWriteScreen memb_number, 20, 76
+	transmit
+	'Reading the disa dates
+	EMReadScreen disa_start_date, 10, 6, 47
+	EMReadScreen disa_end_date, 10, 6, 69
+	disa_start_date = Replace(disa_start_date," ","/")
+	disa_end_date = Replace(disa_end_date," ","/")
+	disa_dates = trim(disa_start_date) & " - " & trim(disa_end_date)
+	'adding disa date to Excel 
+	ObjExcel.Cells(excel_row, 5).Value = disa_dates
+	
+	stopscript
 	
 	excel_row = excel_row + 1	'moving excel row to next row'
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
