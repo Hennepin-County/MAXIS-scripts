@@ -148,12 +148,15 @@ call write_variable_in_SPEC_MEMO("**********************************************
 call write_variable_in_SPEC_MEMO("You are required to attend a Minnesota Family Investment Program financial orientation. The following members of your household need to attend this appointment: " & members_to_attend)
 call write_variable_in_SPEC_MEMO("Your orientation is scheduled on " & orientation_date & " at " & orientation_time & ".")
 call write_variable_in_SPEC_MEMO("Your orientation is scheduled at the " & interview_location & " office located at: ")
-call write_variable_in_SPEC_MEMO(county_address_line_01)
-call write_variable_in_SPEC_MEMO(county_address_line_02)
+call write_variable_in_SPEC_MEMO(mfip_address_line_01)
+call write_variable_in_SPEC_MEMO(mfip_address_line_02)
 call write_variable_in_SPEC_MEMO("If you cannot attend this orientation, please contact the agency office to reschedule.  Failure to attend an orientation will result in a sanction of your MFIP benefits.")
 call write_variable_in_SPEC_MEMO("************************************************************")
 'Exits the MEMO
 PF4
+
+'IF the user doesn't select an office location from the dropdown, this will write the address entered in case/note.
+IF interview_location = "" THEN interview_location = MFIP_address_line_01 & " " & MFIP_address_line_02
 
 'Writes the case note----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
