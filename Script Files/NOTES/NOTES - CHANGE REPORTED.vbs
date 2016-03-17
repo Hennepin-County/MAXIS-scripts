@@ -66,7 +66,7 @@ BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
   Text 25, 50, 130, 10, "Please select the nature of the change."
 EndDialog
 
-BeginDialog baby_born_dialog, 0, 0, 211, 300, "BABY BORN"
+BeginDialog baby_born_dialog, 0, 0, 211, 310, "BABY BORN"
   EditBox 55, 5, 95, 15, case_number
   EditBox 55, 25, 95, 15, babys_name
   EditBox 55, 45, 95, 15, date_of_birth
@@ -78,11 +78,11 @@ BeginDialog baby_born_dialog, 0, 0, 211, 300, "BABY BORN"
   EditBox 115, 190, 80, 15, OHI_source
   EditBox 60, 215, 105, 15, other_notes
   EditBox 60, 235, 105, 15, actions_taken
-  EditBox 155, 255, 40, 15, worker_signature
+  CheckBox 20, 255, 165, 10, "Newborns MHC plan updated to mothers carrier.", MHC_plan_checkbox
+  EditBox 155, 270, 40, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 5, 280, 50, 15
-  Text 5, 25, 50, 15, "Baby's Name:"
-  Text 5, 45, 45, 15, "Date of Birth:"
+    OkButton 5, 290, 50, 15
+    CancelButton 155, 290, 50, 15
   Text 5, 70, 75, 15, "Father In Household?"
   Text 5, 115, 65, 15, "Father's Employer:"
   Text 5, 140, 65, 10, "Mother's Employer: "
@@ -90,12 +90,14 @@ BeginDialog baby_born_dialog, 0, 0, 211, 300, "BABY BORN"
   Text 5, 195, 110, 15, "If yes to OHI, source of the OHI:"
   Text 10, 220, 45, 15, "Other Notes:"
   Text 5, 240, 50, 15, "Actions Taken:"
-  Text 90, 255, 65, 15, "Worker Signature:"
-  ButtonGroup ButtonPressed
-    CancelButton 155, 280, 50, 15
+  Text 90, 275, 65, 15, "Worker Signature:"
+  Text 5, 45, 45, 15, "Date of Birth:"
   Text 20, 90, 50, 10, "Fathers Name:"
   Text 5, 5, 50, 15, "Case Number: "
+  Text 5, 25, 50, 15, "Baby's Name:"
 EndDialog
+
+
 
 BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
   Text 5, 15, 50, 10, "Case Number"
@@ -209,6 +211,7 @@ IF List1 = "Baby Born" THEN
 	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
 	CALL write_bullet_and_variable_in_Case_Note("Mother's employer", mothers_employer)
 	IF OHI_Checkbox = 1 THEN CALL write_bullet_and_variable_in_Case_Note("OHI", OHI_Source)
+	IF MHC_plan_checkbox = 1 THEN CALL write_variable_in_CASE_NOTE("* Newborns MHC plan updated to match the mothers.")
 	CALL write_bullet_and_variable_in_Case_Note("Other Notes", other_notes)
 	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
 	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", additional_notes)
