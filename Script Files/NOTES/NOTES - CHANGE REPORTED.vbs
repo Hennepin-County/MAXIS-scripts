@@ -222,10 +222,10 @@ IF List1 = "HHLD Comp Change" THEN
 
 	CALL write_variable_in_case_note("HH Comp Change Reported")
 	CALL write_bullet_and_variable_in_Case_Note("Unit member HH Member", HH_Member)
-	CALL write_bullet_and_variable_in_Case_Note("Date Reported/Addendum", Date_Reported)
-	CALL write_bullet_and_variable_in_Case_Note("Date effective", Effective_Date)
-	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", Action_Taken)
-	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", Additional_Notes)
+	CALL write_bullet_and_variable_in_Case_Note("Date Reported/Addendum", date_reported)
+	CALL write_bullet_and_variable_in_Case_Note("Date Effective", effective_date)
+	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
+	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", additional_notes)
 
 	'case notes if the change is temporary
 	IF Temporary_Change_Checkbox = 1 THEN CALL write_variable_in_Case_Note("***Change is temporary***")
