@@ -72,6 +72,7 @@ EndDialog
 BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
   ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
+  CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
   EditBox 60, 25, 50, 15, interview_date
   ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed"+chr(9)+"emailed", how_app_was_received
   ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
@@ -120,7 +121,6 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
     PushButton 275, 240, 25, 10, "TYPE", TYPE_button
   Text 5, 10, 55, 10, "CAF datestamp:"
   Text 120, 10, 50, 10, "Interview type:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 30, 55, 10, "Interview date:"
   Text 120, 30, 110, 10, "How was application received?:"
   Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
@@ -129,7 +129,9 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   Text 5, 215, 50, 10, "Verifs needed:"
   GroupBox 5, 230, 130, 25, "ELIG panels:"
   GroupBox 145, 230, 160, 25, "other STAT panels:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
 EndDialog
+
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -478,7 +480,11 @@ If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & CAF_status & "***")
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF datestamp", CAF_datestamp)
-CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)											
+If Used_Interpreter_checkbox = checked then 
+	CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " w/ interpreter")	
+Else 
+	CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)	
+End if 											
 CALL write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("HC document received", HC_document_received)								
 CALL write_bullet_and_variable_in_CASE_NOTE("HC datestamp", HC_datestamp)

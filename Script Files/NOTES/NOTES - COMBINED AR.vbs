@@ -90,12 +90,12 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 50, 275, 385, 15, other_notes
   CheckBox 5, 300, 65, 10, "R/R explained?", R_R_explained
   CheckBox 80, 300, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 80, 315, 60, 10, "eDRS checked", eDRS_checked
   DropListBox 230, 295, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete"+chr(9)+"closed", review_status
   EditBox 370, 295, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 330, 315, 50, 15
     CancelButton 385, 315, 50, 15
-    PushButton 20, 15, 25, 10, "HCRE", HCRE_button
     PushButton 45, 15, 25, 10, "MEMB", MEMB_button
     PushButton 70, 15, 25, 10, "MEMI", MEMI_button
     PushButton 95, 15, 25, 10, "REVW", REVW_button
@@ -139,6 +139,8 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   GroupBox 15, 5, 110, 25, "STAT panels:"
   GroupBox 330, 5, 110, 35, "STAT-based navigation"
   Text 5, 60, 55, 10, "Interview Date:"
+  ButtonGroup ButtonPressed
+    PushButton 20, 15, 25, 10, "HCRE", HCRE_button
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -220,8 +222,10 @@ CALL write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 IF R_R_explained = checked THEN CALL write_variable_in_case_note("* R/R explained.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+IF eDRS_checked = checked THEN CALL write_variable_in_CASE_NOTE("* eDRS sent.")
 CALL write_bullet_and_variable_in_case_note("Notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
+
