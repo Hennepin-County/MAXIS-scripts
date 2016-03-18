@@ -267,35 +267,38 @@ call autofill_editbox_from_MAXIS(HH_member_array, "STWK", STWK)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'SECTION 07: CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Do
+DO
 	Do
 		Do
 			Do
-				err_msg = ""
-				Dialog HCAPP_dialog_01
-				cancel_confirmation
-				If HCAPP_datestamp = "" or len(HCAPP_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."  'creating err_msg if required items are missing
-				If err_msg <> "" THEN Msgbox err_msg
-			Loop until ButtonPressed <> no_cancel_button and err_msg = ""
-			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-		Loop until ButtonPressed = next_page_button
-		Do
+				Do
+					err_msg = ""
+					Dialog HCAPP_dialog_01
+					cancel_confirmation
+					If HCAPP_datestamp = "" or len(HCAPP_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."  'creating err_msg if required items are missing
+					If err_msg <> "" THEN Msgbox err_msg
+				Loop until ButtonPressed <> no_cancel_button and err_msg = ""
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+			Loop until ButtonPressed = next_page_button
 			Do
-				err_msg = ""
-				Dialog HCAPP_dialog_02
-				cancel_confirmation
-				If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
-				If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
-				If HCAPP_status = "Select one..." THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
-				If err_msg <> "" THEN Msgbox err_msg
-			Loop until ButtonPressed <> no_cancel_button and err_msg = ""
-			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-		Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
-		If ButtonPressed = previous_page_button then exit do
-	Loop until err_msg = "" 
-	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then exit do
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+				Do
+					err_msg = ""
+					Dialog HCAPP_dialog_02
+					cancel_confirmation
+					If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
+					If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+					If HCAPP_status = "Select one..." THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
+					If err_msg <> "" THEN Msgbox err_msg
+				Loop until ButtonPressed <> no_cancel_button and err_msg = ""
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+			Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
+			If ButtonPressed = previous_page_button then exit do
+		Loop until err_msg = ""
+		If ButtonPressed = -1 then dialog case_note_dialog
+		If buttonpressed = yes_case_note_button then exit do
+	Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'PND2 updater------------------------------------------------------------------------------------------------------------------------
 If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
