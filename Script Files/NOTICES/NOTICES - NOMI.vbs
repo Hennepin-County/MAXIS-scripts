@@ -95,7 +95,7 @@ BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
 EndDialog
 
 'Hennepin County specific dialogs
-BeginDialog Hennepin_application_NOMI, 0, 0, 306, 270, "Hennepin County Application SNAP NOMI"
+BeginDialog Hennepin_application_NOMI, 0, 0, 306, 275, "Hennepin County Application SNAP NOMI"
   DropListBox 90, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 240, 10, 55, 15, case_number
   EditBox 90, 35, 60, 15, date_of_missed_interview
@@ -118,9 +118,9 @@ BeginDialog Hennepin_application_NOMI, 0, 0, 306, 270, "Hennepin County Applicat
   Text 160, 70, 60, 10, "Which NOMI sent:"
   Text 5, 40, 75, 10, "Missed interview date:"
   Text 15, 120, 60, 10, "Other information:"
-  GroupBox 5, 195, 290, 65, "Automatic TIKLs "
+  GroupBox 5, 195, 290, 70, "Automatic TIKLs "
   Text 15, 210, 270, 20, "If the 'First NOMI' is being sent to the recipient, A TIKL will be made for 11 days from the date sent."
-  Text 15, 235, 275, 20, "If the 'Second NOMI' is being sent to the recipient, A TIKL will be made for 30 days from the application date."
+  Text 15, 235, 275, 30, "If the 'Second NOMI' is being sent to the recipient, A TIKL will be made for 30 (if 1st and 2nd NOMI were sent with enough time to allow 10 days prior to day 30), or 60 days from the application date."
   Text 20, 70, 55, 10, "Application date:"
   Text 5, 175, 60, 10, "Worker signature:"
 EndDialog
@@ -154,7 +154,9 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(case_number)
 
-'Asks if this is a recert. A recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add-a-programs.
+Call check_for_MAXIS(False)			'checking for an active MAXIS session
+
+'Asks if this is a recert (a recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add programs.)
 recert_check = MsgBox("Is this a missed SNAP recertification interview?", vbYesNoCancel, "Recertification for SNAP?")
 If recert_check = vbCancel then stopscript		'This is the cancel button on a MsgBox
 If recert_check = vbYes then 'This is the "yes" button on a MsgBox
@@ -277,7 +279,8 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
 'If this is not a recert, then APPLICATION verbiage and options are available
-Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
+Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
+	back_to_self
 	'Shows dialog, checks for password prompt
 	If worker_county_code = "x127" then		'Hennepin county specific dialog
 		DO
@@ -314,8 +317,7 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	'checks for an active MAXIS session
 	Call check_for_MAXIS(False)
 
-	IF worker_county_code = "x127" and NOMI_selection = "First NOMI" then  'sends SPEC/MEMO, 2nd NOMI sends the SPEC/LETR
-		Call check_for_MAXIS(False)		'checking for an active MAXIS session
+	IF worker_county_code = "x127" then  'sends SPEC/MEMO, 2nd NOMI sends the SPEC/LETR
 		Call navigate_to_MAXIS_screen("SPEC", "MEMO")	'Navigating to SPEC/MEMO
 		'Creates a new MEMO. If it's unable the script will stop.
 		PF5
@@ -379,7 +381,12 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 			Call write_variable_in_SPEC_MEMO("If you are applying for cash, a face-to-face interview is required. If you have been on cash assistance in the last 12 months, you may not need to be interviewed in the office. You may be able to have a phone interview.")
 		END IF
 		Call write_variable_in_SPEC_MEMO(" ")
-		Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")
+		check_date = dateadd("d", 21, application_date)
+		If date =< check_date then 
+			Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")
+		ELSEif date > check_date then
+			Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 61, application_date)) & ", we will deny your application.")
+		END IF 
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("Auth: Laws of Minnesota 7CFR 273.2(e)(3)")
 		Call write_variable_in_SPEC_MEMO(" ")
@@ -477,14 +484,21 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 		PF3
 	End if
 	
-	If NOMI_selection = "Second NOMI" then 
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(application_date, 31, 5, 18) 
-		Call write_variable_in_TIKL(NOMI_selection & " was sent 11 days ago. Check case notes to see if interview has been conducted. Deny the case if the client has not completed the interview to date.")
+	check_date = dateadd("d", 21, application_date)
+	If NOMI_selection = "Second NOMI" then  
+		call navigate_to_MAXIS_screen("DAIL", "WRIT")
+		IF date =< check_date then 
+			days_pending = "30"
+			call create_MAXIS_friendly_date(application_date, 31, 5, 18)
+		ELSEif date > check_date then  
+			days_pending = "60"
+			call create_MAXIS_friendly_date(application_date, 61, 5, 18)
+		END IF
+		Call write_variable_in_TIKL(NOMI_selection & " was sent & case has been pending for a full " & days_pending & " days. Check case notes to see if interview has been conducted. Deny the case if the client has not completed the interview to date.")
 		transmit	
 		PF3
-	End if
-	
+	END IF
+ 
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
@@ -507,7 +521,7 @@ Elseif recert_check = vbNo then		'This is the "no" button on a MsgBox
 	END IF
 	If NOMI_selection = "Second NOMI" then 
 		Call write_variable_in_CASE_NOTE("* Second NOMI has been sent")
-		call write_variable_in_CASE_NOTE("* A TIKL has been made for 30 days from now to follow- up on application progress.")
+		call write_variable_in_CASE_NOTE("* A TIKL has been made for " & days_pending & " days from application date to follow-up on application progress.")
 	END IF 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
