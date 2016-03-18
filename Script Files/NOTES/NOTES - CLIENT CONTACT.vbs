@@ -98,18 +98,20 @@ CALL MAXIS_case_number_finder(case_number)
 
 'updates the "when contact was made" variable to show the current date & time
 when_contact_was_made = date & ", " & time
-
-Do
+DO
 	Do
 		Do
-			Dialog client_contact_dialog
-			cancel_confirmation
-			IF contact_reason = "" or contact_type = "" Then MsgBox("You must enter a reason for contact, as well as a type (phone, etc.).")
-		Loop until contact_reason <> "" and contact_type <> ""
-		IF worker_signature = "" THEN MsgBox "Please sign your note"
-	LOOP UNTIL worker_signature <>""
-	If (isnumeric(case_number) = False and len(case_number) <> 8) then MsgBox "You must enter either a valid MAXIS or MCRE case number."
-Loop until (isnumeric(case_number) = True) or (isnumeric(case_number) = False and len(case_number) = 8)
+			Do
+				Dialog client_contact_dialog
+				cancel_confirmation
+				IF contact_reason = "" or contact_type = "" Then MsgBox("You must enter a reason for contact, as well as a type (phone, etc.).")
+			Loop until contact_reason <> "" and contact_type <> ""
+			IF worker_signature = "" THEN MsgBox "Please sign your note"
+		LOOP UNTIL worker_signature <>""
+		If (isnumeric(case_number) = False and len(case_number) <> 8) then MsgBox "You must enter either a valid MAXIS or MCRE case number."
+	Loop until (isnumeric(case_number) = True) or (isnumeric(case_number) = False and len(case_number) = 8)
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
