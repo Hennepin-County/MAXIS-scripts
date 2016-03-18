@@ -157,35 +157,41 @@ IF List1 = "Baby Born" THEN
 
 'Do loop for Baby Born Dialogbox
 DO
-	err_msg = ""
-	DIALOG Baby_Born_Dialog
-	cancel_confirmation
-	IF Case_Number = "" THEN err_msg = "You must enter case number!"
-	IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
-	IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
-	IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
-	IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
-	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
-	IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
-LOOP UNTIL err_msg = ""
-	
+	DO
+		err_msg = ""
+		DIALOG Baby_Born_Dialog
+		cancel_confirmation
+		IF Case_Number = "" THEN err_msg = "You must enter case number!"
+		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
+		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
+		IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
+		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
+		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
+		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+	LOOP UNTIL err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
+
 END IF
 
-IF List1 = "HHLD Comp Change" THEN 
+IF List1 = "HHLD Comp Change" THEN
 
 'Do loop for HHLD Comp Change Dialogbox
 DO
-	err_msg = ""
-	DIALOG HHLD_Comp_Change_Dialog
-	cancel_confirmation
-	IF case_number = "" THEN err_msg = "You must enter case number!"
-	IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
-	IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
-	IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
-	IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
-	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
-	IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
-LOOP UNTIL err_msg = ""
+	DO
+		err_msg = ""
+		DIALOG HHLD_Comp_Change_Dialog
+		cancel_confirmation
+		IF case_number = "" THEN err_msg = "You must enter case number!"
+		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
+		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
+		IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
+		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
+		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
+		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+	LOOP UNTIL err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 	
 END IF
