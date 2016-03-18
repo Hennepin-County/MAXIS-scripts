@@ -317,7 +317,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 	'checks for an active MAXIS session
 	Call check_for_MAXIS(False)
 
-	IF worker_county_code = "x127" then  'sends SPEC/MEMO, 2nd NOMI sends the SPEC/LETR
+	IF worker_county_code = "x127" then  'sends SPEC/MEMO
 		Call navigate_to_MAXIS_screen("SPEC", "MEMO")	'Navigating to SPEC/MEMO
 		'Creates a new MEMO. If it's unable the script will stop.
 		PF5
@@ -408,41 +408,6 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		call create_MAXIS_friendly_date(date_of_missed_interview, 0, 14, 38)
 		transmit
 		PF4 	'saves the MEMO/LETR
-		
-		IF CASH_check = 1 then 		'CASH check is an option being tested by Hennepin County to inform MFIP/DWP applicants of possible in-person interviewing requirements
-			EMWriteScreen "WCOM", 20, 71		'CASH_check creates worker comments on the SPEC/LETR informing the user that a face to face interview may be necessary for CASH programs elig
-			transmit
-			'This DO/LOOP resets to the first page of notices in SPEC/WCOM
-			DO 								
-				EMReadScreen more_pages, 8, 18, 72
-				IF more_pages = "MORE:  -" THEN PF7
-			LOOP until more_pages <> "MORE:  -"
-			
-			read_row = 7
-			DO
-				waiting_check = ""
-				EMReadscreen prog_type, 2, read_row, 26
-				EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
-				If waiting_check = "Waiting" and prog_type = "FS" THEN 'checking program type and if it's been printed
-					EMSetcursor read_row, 13
-					EMSendKey "x"
-					Transmit
-					pf9
-					EMSetCursor 03, 15
-					CALL write_variable_in_SPEC_MEMO("If you are applying for cash, a face-to-face interview is required. If you have been on cash assistance in the last 12 months, you may not need to be interviewed in the office. You may be able to have a phone interview.")
-					PF4
-					PF3
-					exit do
-				ELSE
-					read_row = read_row + 1
-				END IF
-				IF read_row = 18 THEN
-					PF8          'Navigates to the next page of notices.  DO/LOOP until read_row = 18
-					read_row = 7
-				End if
-			LOOP until prog_type = "  "
-		END IF
-	END IF
 	
 	'Navigates to REPT/PND2 and updates for client delay if applicable.
 	If client_delay_check = checked then
