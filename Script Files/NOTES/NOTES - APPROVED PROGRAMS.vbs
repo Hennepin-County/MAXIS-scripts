@@ -126,19 +126,22 @@ start_yr = bene_year
 
 'Displays the dialog and navigates to case note
 Do
-	'Adding err_msg handling
-	err_msg = ""
-	Dialog benefits_approved
-	cancel_confirmation
-		'Enforcing mandatory fields
-		If case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
-		IF autofill_check = checked THEN 
-			IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _ 
-			 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
-		End If 
-		IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-Loop until err_msg = ""
+	Do
+		'Adding err_msg handling
+		err_msg = ""
+		Dialog benefits_approved
+		cancel_confirmation
+			'Enforcing mandatory fields
+			If case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
+			IF autofill_check = checked THEN
+				IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _
+				 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
+			End If
+			IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	Loop until err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+Loop until are_we_passworded_out = false
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(FALSE)  
