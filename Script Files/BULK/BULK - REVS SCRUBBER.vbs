@@ -490,6 +490,7 @@ excel_row = 2		'Resets the variable to 2, as it needs to look through all of the
 
 
 DO 'Loops until there are no more cases in the Excel list
+	recert_status = "NO"
 
 	'Grabs the case number
 	case_number = objExcel.cells(excel_row, case_number_col).value
@@ -531,9 +532,17 @@ DO 'Loops until there are no more cases in the Excel list
 		'If it's not a recert, delete it from the excel list and move on with our lives
 		IF recert_status = "NO" THEN
 			Call navigate_to_MAXIS_screen("STAT", "PROG")
+			MFIP_prog_check = ""
+			MFIP_status_check = ""
 			EMReadScreen MFIP_prog_check, 2, 6, 67		'checking for an active MFIP case
 			EMReadScreen MFIP_status_check, 4, 6, 74
-			If MFIP_prog_check <> "MF" AND MFIP_status_check <> "ACTV" THEN 	'if MFIP is active, then case will not be deleted.
+			If MFIP_prog_check = "MF" THEN
+				IF MFIP_status_check <> "ACTV" THEN				'if MFIP is active, then case will not be deleted.
+					SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+					objRange.Delete				'all other cases that are not due for a recert will be deleted
+					excel_row = excel_row - 1
+				END IF
+			ELSE 
 				SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 				objRange.Delete				'all other cases that are not due for a recert will be deleted
 				excel_row = excel_row - 1
