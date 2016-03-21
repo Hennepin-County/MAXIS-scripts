@@ -87,11 +87,14 @@ EMConnect ""
 'grabbing case number
 Call MAXIS_case_number_finder(case_number)
 
-Do
-	Dialog overpayment_dialog
-	cancel_confirmation
-	If case_number = "" then MsgBox "You must have a case number to continue!"
-Loop until case_number <> ""
+DO
+	Do
+		Dialog overpayment_dialog
+		cancel_confirmation
+		If case_number = "" then MsgBox "You must have a case number to continue!"
+	Loop until case_number <> ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 
 'checking for an active MAXIS session

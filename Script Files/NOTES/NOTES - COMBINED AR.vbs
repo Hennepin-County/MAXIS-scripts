@@ -197,14 +197,17 @@ recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 recert_month = cstr(recert_month)
 
 'Showing the case note dialog
-Do
-	DO
-		Dialog combined_AR_dialog
-		cancel_confirmation
-		MAXIS_dialog_navigation
-	Loop until ButtonPressed = -1
-	If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
-Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""			
+DO
+	Do
+		DO
+			Dialog combined_AR_dialog
+			cancel_confirmation
+			MAXIS_dialog_navigation
+		Loop until ButtonPressed = -1
+		If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
+	Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false			
 
 'The case note----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE

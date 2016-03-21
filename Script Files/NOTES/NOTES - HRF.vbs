@@ -187,22 +187,25 @@ HRF_month = retro_month_name & "/" & pro_month_name
 
 'The case note dialog, complete with panel navigation, reading the ELIG/MFIP screen, and navigation to case note, as well as logic for certain sections to be required.
 DO
-	Do
-		err_msg = ""
-		Dialog HRF_dialog
-		cancel_confirmation 
-		call check_for_MAXIS(False)
-		MAXIS_dialog_navigation
-		IF HRF_status = " " AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter a status for your HRF."
-		IF HRF_datestamp = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please indicate the date the HRF was received."
-		IF earned_income = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter information about earned income."
-		IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please indicate which actions you took."
-		IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL ButtonPressed = -1 AND err_msg = ""
-	case_note_confirmation = MsgBox("Do you want to case note? Press YES to case note. Press NO to return to the previous dialog. Press CANCEL to stop the script.", vbYesNoCancel)
-	IF case_note_confirmation = vbCancel THEN script_end_procedure("You have aborted this script.")
-LOOP UNTIL case_note_confirmation = vbYes
+	DO
+		Do
+			err_msg = ""
+			Dialog HRF_dialog
+			cancel_confirmation
+			Call check_for_password(are_we_passworded_out)   'Adding functionality for MAXIS v.6 Passworded Out issue'
+			MAXIS_dialog_navigation
+			IF HRF_status = " " AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter a status for your HRF."
+			IF HRF_datestamp = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please indicate the date the HRF was received."
+			IF earned_income = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter information about earned income."
+			IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please indicate which actions you took."
+			IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		LOOP UNTIL ButtonPressed = -1 AND err_msg = "" AND are_we_passworded_out = False
+		case_note_confirmation = MsgBox("Do you want to case note? Press YES to case note. Press NO to return to the previous dialog. Press CANCEL to stop the script.", vbYesNoCancel)
+		IF case_note_confirmation = vbCancel THEN script_end_procedure("You have aborted this script.")
+	LOOP UNTIL case_note_confirmation = vbYes
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
 If grab_MFIP_info_check = 1 then
