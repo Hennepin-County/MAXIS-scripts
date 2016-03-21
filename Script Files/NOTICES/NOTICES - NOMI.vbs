@@ -408,7 +408,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		call create_MAXIS_friendly_date(date_of_missed_interview, 0, 14, 38)
 		transmit
 		PF4 	'saves the MEMO/LETR
-	
+	END IF
 	'Navigates to REPT/PND2 and updates for client delay if applicable.
 	If client_delay_check = checked then
 		call navigate_to_MAXIS_screen("rept", "pnd2")
