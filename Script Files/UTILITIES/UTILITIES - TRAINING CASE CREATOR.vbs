@@ -51,15 +51,24 @@ STATS_denomination = "C"       'I is for each case
 'END OF stats block==============================================================================================
 
 '========================================================================TRANSFER CASES========================================================================
-Function File_Selection_System_Dialog(file_selected)
+Function file_selection_system_dialog(file_selected, file_extension_restriction)
 	'Creates a Windows Script Host object
 	Set wShell=CreateObject("WScript.Shell")
 
-	'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
-	Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
+	'This loops until the right file extension is selected. If it isn't specified (= ""), it'll always exit here.
+	Do
+		'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
+		Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE ><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
 
-	'Creates the file_selected variable from the exit
-	file_selected = oExec.StdOut.ReadLine
+		'Creates the file_selected variable from the exit
+		file_selected = oExec.StdOut.ReadLine
+	
+		'If no file is selected the script will stop
+		If file_selected = "" then stopscript
+	
+		'If the rightmost characters of the file selected don't match what was in the file_extension_restriction argument, it'll tell the user. Otherwise the loop (and function) ends.
+		If right(file_selected, len(file_extension_restriction)) <> file_extension_restriction then MsgBox "You've entered an incorrect file type. The allowable file type is: " & file_extension_restriction & "."
+	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
 End function
 
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
@@ -201,7 +210,7 @@ FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, sce
 		CancelButton 390, 105, 50, 15
 		PushButton 385, 5, 55, 15, "Reload details", reload_excel_file_button
 	Text 5, 10, 75, 10, "File path of Excel file:"
-	Text 130, 25, 310, 10, "Note: if you're using the DHS-provided spreadsheet, you should not have to change this value."
+	Text 130, 25, 310, 10, "Note: only reload values if you've changed the values on the spreadsheet since opening."
 	Text 5, 45, 55, 10, "Scenario to run:"
 	Text 210, 45, 65, 10, "App/XFER cases?:"
 	Text 5, 65, 120, 10, "How many cases are you creating?:"
@@ -212,25 +221,41 @@ FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, sce
 	DIALOG training_case_creator_dialog
 END FUNCTION
 
+
+'DIALOGS------------------------------------------------------------------------------------------------------------------
+BeginDialog training_case_creator_01, 0, 0, 381, 240, "Training case creator"
+  Text 10, 10, 170, 10, "Hello! Thanks for clicking the training case creator!"
+  Text 10, 25, 365, 20, "This script is very new, and was put together with a lot of hard work from seven scriptwriters, using bits and pieces from various scripts written over the last few years."
+  Text 10, 50, 365, 20, "We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!"
+  Text 10, 75, 365, 20, "If you run into any issues, or have any questions, please join the discussion on our GitHub page. One of the scriptwriters involved will be more than happy to assist you."
+  Text 10, 100, 90, 10, "Good luck and have fun!"
+  Text 20, 115, 90, 10, "- Veronica Cary, DHS"
+  Text 20, 125, 120, 10, "- Robert Fewins-Kalb, Anoka County"
+  Text 20, 135, 120, 10, "- Charles Potter, Anoka County"
+  Text 20, 145, 120, 10, "- Ilse Ferris, Hennepin County"
+  Text 20, 155, 120, 10, "- Casey Love, Ramsey County"
+  Text 20, 165, 120, 10, "- David Courtright, St. Louis County"
+  Text 20, 175, 120, 10, "- Lucas Shanley, St. Louis County"
+  Text 10, 195, 140, 10, "Select an Excel file for training scenarios:"
+  EditBox 150, 190, 175, 15, training_case_creator_excel_file_path
+  ButtonGroup ButtonPressed
+    PushButton 330, 190, 45, 15, "Browse...", select_a_file_button
+    OkButton 270, 220, 50, 15
+    CancelButton 325, 220, 50, 15
+EndDialog
+
+
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
 '--------------------------------------- Project Krabappel ---------------------------------------
 
-'Hello MsgBox
-hello_MsgBox = MsgBox("Hello! Thanks for clicking the training case creator!" & Chr(10) & Chr(10) & _
-				"This script is very new, and was put together with a lot of hard work from five scriptwriters, using bits and pieces from various scripts written over the last few years." & Chr(10) & Chr(10) & _
-				"We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!" & Chr(10) & Chr(10) & _
-				"If you run into any issues, or have any questions, please join the discussion in SIR's BlueZone Scripts page. One of the scriptwriters involved will be more than happy to assist you." & Chr(10) & Chr(10) & _
-				"Have fun!" & Chr(10) & Chr(10) & _
-				"Veronica Cary, DHS" & Chr(10) & _
-				"Robert Fewins-Kalb, Anoka County" & Chr(10) & _
-				"Charles Potter, Anoka County" & Chr(10) & _
-				"Ilse Ferris, Hennepin County" & Chr(10) & _
-				"Casey Love, Ramsey County" & Chr(10) & _
-				"David Courtright, St. Louis County" & Chr(10) & _
-				"Lucas Shanley, St. Louis County", vbOKCancel)
-If hello_MsgBox = vbCancel then stopscript
+'Show initial dialog
+Do
+	Dialog training_case_creator_01
+	If ButtonPressed = cancel then stopscript
+	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
+Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(training_case_creator_excel_file_path, True, True, ObjExcel, objWorkbook)
