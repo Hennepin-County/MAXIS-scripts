@@ -185,20 +185,23 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'Showing case note dialog, with navigation and required answers logic
-Do
-	Do		
-		err_msg = ""	
-		Dialog HC_ER_dialog				'Displays the dialog
-		cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
-		MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
-		If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
-	Loop until ButtonPressed = -1 		'Loops until OK is selected	
-	If recert_datestamp = "" or IsDate(recert_datestamp) = False then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp."
-	If recert_status = "(select one...)" then err_msg = err_msg & vbNewLine & "* You need to select a recert status."
-	If actions_taken = "" then err_msg = err_msg & vbNewLine & "You need to complete the actions taken field."
-	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine	
-LOOP until err_msg = ""		
+DO
+	Do
+		Do
+			err_msg = ""
+			Dialog HC_ER_dialog				'Displays the dialog
+			cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
+			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
+			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
+		Loop until ButtonPressed = -1 		'Loops until OK is selected
+		If recert_datestamp = "" or IsDate(recert_datestamp) = False then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp."
+		If recert_status = "(select one...)" then err_msg = err_msg & vbNewLine & "* You need to select a recert status."
+		If actions_taken = "" then err_msg = err_msg & vbNewLine & "You need to complete the actions taken field."
+		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false	
 
 'The case note----------------------------------------------------------------------------------------------------
 call start_a_blank_case_note

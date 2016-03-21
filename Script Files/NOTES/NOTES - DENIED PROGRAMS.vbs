@@ -184,9 +184,10 @@ WCOM_check = 0
 
 'NOW THE DIALOG STARTS. FIRST IT ALLOWS NAVIGATION TO SPEC/WCOM, THEN IT MAKES SURE PROGRAMS ARE SELECTED FOR DENIAL, AND THAT THE REQUIRED DATE FIELDS FOR THOSE PROGRAMS CONTAIN VALID DATES. 
 '  THEN IT CHECKS FOR MAXIS STATUS, AND NAVIGATES TO CASE NOTE.
-Do
-    DO
-        Do
+DO
+	Do
+	    DO
+	        Do
 			Do
 				Dialog denied_dialog
 				cancel_confirmation
@@ -199,11 +200,13 @@ Do
 			If isdate(cash_denial_date) = False then cash_denial_date = ""
 			If isdate(emer_denial_date) = False then emer_denial_date = ""
 			If isdate(application_date) = False then application_date = ""
-        Loop until (isdate(SNAP_denial_date) = True or isdate(HC_denial_date) = True or isdate(cash_denial_date) = True or isdate(emer_denial_date) = True) and isdate(application_date) = True 
+	        Loop until (isdate(SNAP_denial_date) = True or isdate(HC_denial_date) = True or isdate(cash_denial_date) = True or isdate(emer_denial_date) = True) and isdate(application_date) = True
 		If ((SNAP_check = 1 and isdate(SNAP_denial_date) = False) or (SNAP_check = 0 and isdate(SNAP_denial_date) = True)) or ((HC_check = 1 and isdate(HC_denial_date) = False) or (HC_check = 0 and isdate(HC_denial_date) = True)) or ((cash_check = 1 and isdate(cash_denial_date) = False) or (cash_check = 0 and isdate(cash_denial_date) = True)) or ((emer_check = 1 and isdate(emer_denial_date) = False) or (emer_check = 0 and isdate(emer_denial_date) = True)) then MsgBox "It looks like you might have checked a program, but not filled in a date. Or vice versa. Look at the programs selected, and make sure there are dates there."
-	Loop until ((SNAP_check = 1 and isdate(SNAP_denial_date) = True) or (SNAP_check = 0 and isdate(SNAP_denial_date) = False)) and ((HC_check = 1 and isdate(HC_denial_date) = True) or (HC_check = 0 and isdate(HC_denial_date) = False)) and ((cash_check = 1 and isdate(cash_denial_date) = True) or (cash_check = 0 and isdate(cash_denial_date) = False)) and ((emer_check = 1 and isdate(emer_denial_date) = True) or (emer_check = 0 and isdate(emer_denial_date) = False))
-	If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
-Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
+		Loop until ((SNAP_check = 1 and isdate(SNAP_denial_date) = True) or (SNAP_check = 0 and isdate(SNAP_denial_date) = False)) and ((HC_check = 1 and isdate(HC_denial_date) = True) or (HC_check = 0 and isdate(HC_denial_date) = False)) and ((cash_check = 1 and isdate(cash_denial_date) = True) or (cash_check = 0 and isdate(cash_denial_date) = False)) and ((emer_check = 1 and isdate(emer_denial_date) = True) or (emer_check = 0 and isdate(emer_denial_date) = False))
+		If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
+	Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 
 'checking for an active MAXIS session

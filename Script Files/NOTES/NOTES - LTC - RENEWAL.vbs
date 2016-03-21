@@ -92,6 +92,7 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   EditBox 50, 185, 375, 15, deductions
   EditBox 50, 205, 375, 15, other_notes
   CheckBox 5, 225, 100, 10, "Sent forms to AREP?", sent_arep_checkbox
+  CheckBox 120, 225, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
   DropListBox 60, 240, 75, 15, "complete"+chr(9)+"incomplete", review_status
   EditBox 215, 240, 65, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -112,19 +113,17 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
     PushButton 90, 25, 25, 10, "REST", REST_button
     PushButton 115, 25, 25, 10, "SECU", SECU_button
     PushButton 140, 25, 25, 10, "TRAN", TRAN_button
-  GroupBox 200, 5, 100, 35, "Other important panels:"
-  ButtonGroup ButtonPressed
     PushButton 205, 15, 25, 10, "HCRE", HCRE_button
     PushButton 230, 15, 25, 10, "REVW", REVW_button
+    PushButton 260, 15, 35, 10, "ELIG/HC", ELIG_HC_button
     PushButton 205, 25, 25, 10, "MEMB", MEMB_button
     PushButton 230, 25, 25, 10, "MEMI", MEMI_button
-    PushButton 260, 15, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 310, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 360, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 310, 25, 45, 10, "next panel", next_panel_button
+    PushButton 360, 25, 45, 10, "next memb", next_memb_button
   GroupBox 305, 5, 105, 35, "STAT-based navigation"
   ButtonGroup ButtonPressed
-    PushButton 310, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 310, 25, 45, 10, "next panel", next_panel_button
-    PushButton 360, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 360, 25, 45, 10, "next memb", next_memb_button
     PushButton 170, 90, 25, 10, "AREP:", AREP_button
     PushButton 5, 110, 25, 10, "FACI:", FACI_button
   Text 5, 50, 70, 10, "Recert footer month:"
@@ -140,7 +139,9 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   Text 5, 210, 40, 10, "Other notes:"
   Text 5, 245, 55, 10, "Review status:"
   Text 145, 245, 65, 10, "Sign the case note:"
+  GroupBox 200, 5, 100, 35, "Other important panels:"
 EndDialog
+
 
 
 'VARIABLES WHICH NEED DECLARING----------------------------------------------------------------------------------------------------
@@ -373,6 +374,7 @@ call write_bullet_and_variable_in_case_note("Recipient amt", recipient_amt)
 call write_bullet_and_variable_in_case_note("Deducts", deductions)
 call write_bullet_and_variable_in_case_note("Notes", other_notes)
 IF Sent_arep_checkbox = 1 THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+IF sent_5181_check = 1 THEN CALL write_variable_in_case_note("* Sent DHS-5181 to Case Manager.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
