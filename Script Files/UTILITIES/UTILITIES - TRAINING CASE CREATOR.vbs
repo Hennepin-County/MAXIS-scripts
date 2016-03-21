@@ -2,21 +2,6 @@
 name_of_script = "UTILITIES - TRAINING CASE CREATOR"
 start_time = timer
 
-'Hello MsgBox
-hello_MsgBox = MsgBox("Hello! Thanks for clicking the training case creator!" & Chr(10) & Chr(10) & _
-				"This script is very new, and was put together with a lot of hard work from five scriptwriters, using bits and pieces from various scripts written over the last few years." & Chr(10) & Chr(10) & _
-				"We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!" & Chr(10) & Chr(10) & _
-				"If you run into any issues, or have any questions, please join the discussion in SIR's BlueZone Scripts page. One of the scriptwriters involved will be more than happy to assist you." & Chr(10) & Chr(10) & _
-				"Have fun!" & Chr(10) & Chr(10) & _
-				"Veronica Cary, DHS" & Chr(10) & _
-				"Robert Fewins-Kalb, Anoka County" & Chr(10) & _
-				"Charles Potter, Anoka County" & Chr(10) & _
-				"Ilse Ferris, Hennepin County" & Chr(10) & _
-				"Casey Love, Ramsey County" & Chr(10) & _
-				"David Courtright, St. Louis County" & Chr(10) & _
-				"Lucas Shanley, St. Louis County", vbOKCancel)
-If hello_MsgBox = vbCancel then stopscript
-
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -230,6 +215,23 @@ END FUNCTION
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
+'--------------------------------------- Project Krabappel ---------------------------------------
+
+'Hello MsgBox
+hello_MsgBox = MsgBox("Hello! Thanks for clicking the training case creator!" & Chr(10) & Chr(10) & _
+				"This script is very new, and was put together with a lot of hard work from five scriptwriters, using bits and pieces from various scripts written over the last few years." & Chr(10) & Chr(10) & _
+				"We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!" & Chr(10) & Chr(10) & _
+				"If you run into any issues, or have any questions, please join the discussion in SIR's BlueZone Scripts page. One of the scriptwriters involved will be more than happy to assist you." & Chr(10) & Chr(10) & _
+				"Have fun!" & Chr(10) & Chr(10) & _
+				"Veronica Cary, DHS" & Chr(10) & _
+				"Robert Fewins-Kalb, Anoka County" & Chr(10) & _
+				"Charles Potter, Anoka County" & Chr(10) & _
+				"Ilse Ferris, Hennepin County" & Chr(10) & _
+				"Casey Love, Ramsey County" & Chr(10) & _
+				"David Courtright, St. Louis County" & Chr(10) & _
+				"Lucas Shanley, St. Louis County", vbOKCancel)
+If hello_MsgBox = vbCancel then stopscript
+
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(training_case_creator_excel_file_path, True, True, ObjExcel, objWorkbook)
 
@@ -238,7 +240,6 @@ For Each objWorkSheet In objWorkbook.Worksheets
 	If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
 Next
 
-'--------- Project Krabappel --------------
 'Connects to BlueZone
 EMConnect ""
 
