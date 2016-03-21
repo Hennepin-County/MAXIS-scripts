@@ -73,7 +73,7 @@ BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
     CancelButton 135, 55, 50, 15
 EndDialog
 
-BeginDialog approval_dialog, 0, 0, 376, 140, "Approval dialog"
+BeginDialog approval_dialog, 0, 0, 376, 165, "Approval dialog"
   DropListBox 45, 5, 30, 15, "AX"+chr(9)+"EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
   DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
   EditBox 285, 5, 85, 15, recipient_amt
@@ -82,29 +82,31 @@ BeginDialog approval_dialog, 0, 0, 376, 140, "Approval dialog"
   CheckBox 5, 65, 70, 10, "Updated RSPD?", updated_RSPD_check
   CheckBox 75, 65, 110, 10, "Approved new MAXIS results?", approved_check
   CheckBox 190, 65, 70, 10, "Sent DHS-3050?", DHS_3050_check
-  EditBox 75, 80, 140, 15, designated_provider
-  EditBox 75, 100, 295, 15, other
-  DropListBox 60, 120, 60, 15, "None"+chr(9)+"Paperless IR"+chr(9)+"HRF", special_header_droplist
-  EditBox 190, 120, 70, 15, worker_signature
+  CheckBox 5, 80, 125, 15, "Sent DHS-5181 to Case Manager", sent_5181_check
+  EditBox 75, 100, 140, 15, designated_provider
+  EditBox 75, 120, 295, 15, other
+  DropListBox 60, 145, 60, 15, "None"+chr(9)+"Paperless IR"+chr(9)+"HRF", special_header_droplist
+  EditBox 190, 145, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 265, 120, 50, 15
-    CancelButton 320, 120, 50, 15
-    PushButton 265, 80, 25, 10, "BILS", BILS_button
-    PushButton 290, 80, 25, 10, "FACI", FACI_button
-    PushButton 315, 80, 25, 10, "HCMI", HCMI_button
-    PushButton 340, 80, 25, 10, "UNEA", UNEA_button
-    PushButton 220, 80, 35, 10, "ELIG/HC", ELIG_HC_button
-  Text 85, 10, 45, 10, "Budget type:"
+    OkButton 265, 145, 50, 15
+    CancelButton 320, 145, 50, 15
+    PushButton 220, 100, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 265, 100, 25, 10, "BILS", BILS_button
+    PushButton 290, 100, 25, 10, "FACI", FACI_button
+    PushButton 315, 100, 25, 10, "HCMI", HCMI_button
+    PushButton 340, 100, 25, 10, "UNEA", UNEA_button
   Text 5, 10, 35, 10, "Elig type:"
+  Text 85, 10, 45, 10, "Budget type:"
   Text 175, 10, 110, 10, "Waiver obilgation/recipient amt:"
   Text 5, 30, 80, 10, "Total countable income:"
   Text 5, 50, 45, 10, "Deductions:"
-  Text 5, 85, 70, 10, "Designated provider:"
-  GroupBox 260, 70, 110, 25, "STAT based navigation"
-  Text 5, 105, 65, 10, "Other (if applicable):"
-  Text 130, 125, 60, 10, "Worker signature:"
-  Text 5, 125, 53, 10, "Special header:"
+  GroupBox 260, 90, 110, 25, "STAT based navigation"
+  Text 5, 105, 70, 10, "Designated provider:"
+  Text 5, 125, 65, 10, "Other (if applicable):"
+  Text 5, 150, 55, 10, "Special header:"
+  Text 130, 150, 60, 10, "Worker signature:"
 EndDialog
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone
@@ -306,6 +308,7 @@ If updated_RSPD_check = 1 then call write_variable_in_case_note("* Updated RSPD 
 call write_bullet_and_variable_in_case_note ("Designated provider", designated_provider)
 If approved_check = 1 then call write_variable_in_case_note ("* Approved new MAXIS results.")
 If DHS_3050_check = 1 then call write_variable_in_case_note ("* Sent DHS-3050 LTC communication form to facility.")
+IF sent_5181_check = 1 then call write_variable_in_case_note ("* Sent DHS-5181 LTC communication to Case Manager")
 call write_bullet_and_variable_in_case_note ("Other", other)
 call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)

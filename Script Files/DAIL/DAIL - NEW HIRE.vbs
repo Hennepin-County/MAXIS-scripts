@@ -108,7 +108,7 @@ row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
 EMSearch "DATE HIRED:", row, col
 EMReadScreen date_hired, 10, row, col + 12
-If date_hired = "  -  -  EM" then date_hired = current_month & "-" & current_day & "-" & current_year
+If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = CDate(date_hired)
 month_hired = Datepart("m", date_hired)
 If len(month_hired) = 1 then month_hired = "0" & month_hired

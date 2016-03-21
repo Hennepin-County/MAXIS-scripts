@@ -160,15 +160,18 @@ EMConnect ""
 call MAXIS_case_number_finder(case_number)
 
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
-Do
+DO
 	Do
-		If LTC_case = vbYes then dialog verifs_needed_LTC_dialog									'Shows dialog if LTC
-		If LTC_case = vbNo then dialog verifs_needed_dialog											'Shows dialog if not LTC
-		cancel_confirmation													'quits if cancel is pressed
-		If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
-	Loop until buttonpressed = OK																	'Loops until you press OK
-	If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
-Loop until case_number <> ""														'Loops until that case number exists	
+		Do
+			If LTC_case = vbYes then dialog verifs_needed_LTC_dialog									'Shows dialog if LTC
+			If LTC_case = vbNo then dialog verifs_needed_dialog											'Shows dialog if not LTC
+			cancel_confirmation													'quits if cancel is pressed
+			If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
+		Loop until buttonpressed = OK																	'Loops until you press OK
+		If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
+	Loop until case_number <> ""														'Loops until that case number exists
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists	
 
 
 'checking for an active MAXIS session

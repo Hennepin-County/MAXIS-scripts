@@ -51,36 +51,38 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog Foster_Care_HCAPP, 0, 0, 326, 335, "Foster Care HCAPP "
-  EditBox 65, 5, 65, 15, Case_number
-  EditBox 105, 25, 65, 15, Date_Received_In_Agency
-  EditBox 75, 45, 65, 15, Completed_By
-  EditBox 115, 70, 80, 15, Date_of_Agency_Responsiblity
-  EditBox 40, 90, 145, 15, IV_E
-  EditBox 130, 115, 105, 15, Social_Worker_or_Probation_Officer
-  EditBox 40, 135, 160, 15, AREP
-  EditBox 55, 155, 70, 15, Income
-  EditBox 75, 180, 90, 15, Retro_Requested
-  EditBox 45, 200, 130, 15, OHC
-  EditBox 95, 235, 160, 15, Verifications_Requested
-  EditBox 65, 260, 160, 15, Results
-  EditBox 75, 290, 110, 15, Worker_Signature
+BeginDialog Foster_Care_HCAPP, 0, 0, 271, 245, "Foster Care HCAPP "
+  EditBox 60, 5, 65, 15, Case_Number
+  EditBox 190, 5, 75, 15, Completed_By
+  EditBox 100, 25, 60, 15, Date_Received_By_Agency
+  EditBox 105, 45, 55, 15, Date_of_Agency_Responsiblity
+  EditBox 30, 65, 130, 15, IV_E
+  EditBox 60, 85, 100, 15, SWKR_or_PO
+  EditBox 35, 105, 125, 15, AREP
+  EditBox 40, 125, 225, 15, Income
+  EditBox 70, 145, 195, 15, Retro_Requested
+  EditBox 30, 165, 235, 15, OHC
+  EditBox 90, 185, 175, 15, Verifications_Requested
+  EditBox 60, 205, 205, 15, Actions_Taken
+  EditBox 70, 225, 90, 15, Worker_Signature
   ButtonGroup ButtonPressed
-    OkButton 215, 320, 50, 15
-    CancelButton 275, 320, 50, 15
-  Text 5, 5, 55, 10, "Case number:"
-  Text 5, 25, 90, 10, "Date Received In Agency: "
-  Text 5, 45, 60, 10, "Completed By: "
-  Text 5, 70, 100, 10, "Date of Agency Responsiblity: "
-  Text 5, 90, 25, 10, "IV E:"
-  Text 5, 115, 120, 10, "Social Worker or Probation Officer:"
-  Text 5, 135, 35, 10, "AREP: "
-  Text 5, 155, 35, 15, "Income: "
-  Text 5, 180, 65, 15, "Retro Requested: "
-  Text 5, 200, 25, 15, "OHC:"
-  Text 5, 235, 85, 15, "Verifications Requested: "
-  Text 5, 260, 40, 10, "Results: "
-  Text 5, 290, 65, 10, "Worker Signature: "
+    OkButton 165, 225, 50, 15
+    CancelButton 215, 225, 50, 15
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 30, 90, 10, "Date Received By Agency: "
+  Text 135, 10, 50, 10, "Completed By: "
+  Text 5, 50, 100, 10, "Date of Agency Responsiblity: "
+  Text 5, 70, 20, 10, "IV E:"
+  Text 5, 90, 45, 10, "SWKR or PO:"
+  Text 5, 110, 25, 10, "AREP: "
+  Text 5, 130, 30, 10, "Income: "
+  Text 5, 150, 60, 10, "Retro Requested: "
+  Text 5, 170, 20, 10, "OHC:"
+  Text 5, 190, 80, 10, "Verifications Requested: "
+  Text 5, 210, 50, 10, "Actions Taken:"
+  Text 5, 230, 60, 10, "Worker Signature: "
+  GroupBox 165, 20, 100, 75, ""
+  Text 170, 30, 90, 60, "RESOURCES: For more helpful information use the combined manual (footer month of 07/96) in MAXIS. Search for 'Foster Care', 'AFDC Assistance Standards', and/or 'IV-E'."
 EndDialog
 
 
@@ -104,12 +106,12 @@ CALL check_for_MAXIS(FALSE)
 'The case note---------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***Foster Care HCAPP***")
-CALL write_bullet_and_variable_in_CASE_NOTE("Date Received In Agency", Date_Received_In_Agency)
+CALL write_bullet_and_variable_in_CASE_NOTE("Date Received By Agency", Date_Received_By_Agency)
 CALL write_bullet_and_variable_in_CASE_NOTE("Completed By", Completed_By)
 CALL write_bullet_and_variable_in_CASE_NOTE("Date of Agency Responsibility", Date_Of_Agency_Responsiblity)
 CALL write_bullet_and_variable_in_CASE_NOTE("IV E", IV_E)
-CALL write_bullet_and_variable_in_CASE_NOTE("Social Worker or Probation Officer", Social_Worker_OR_Probation_Officer)
-CALL write_bullet_and_variable_in_CASE_NOTE("AREP", Arep)
+CALL write_bullet_and_variable_in_CASE_NOTE("SWKR or PO", SWKR_or_PO)
+CALL write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
 CALL write_bullet_and_variable_in_CASE_NOTE("Income", Income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Retro Requested", Retro_Requested)
 CALL write_bullet_and_variable_in_CASE_NOTE("OHC", OHC)

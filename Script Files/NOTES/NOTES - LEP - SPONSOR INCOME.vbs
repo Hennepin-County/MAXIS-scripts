@@ -100,15 +100,16 @@ Do
 Loop until worker_signature <> ""
 
 'Determines the income limits
-If sponsor_HH_size = 1 then income_limit = 1265
-If sponsor_HH_size = 2 then income_limit = 1705
-If sponsor_HH_size = 3 then income_limit = 2144
-If sponsor_HH_size = 4 then income_limit = 2584
-If sponsor_HH_size = 5 then income_limit = 3024
-If sponsor_HH_size = 6 then income_limit = 3464
-If sponsor_HH_size = 7 then income_limit = 3904
-If sponsor_HH_size = 8 then income_limit = 4344
-If sponsor_HH_size > 8 then income_limit = 4344 + (440 * (sponsor_HH_size - 8))
+' >> Income limits from CM 19.06
+If sponsor_HH_size = 1 then income_limit = 1276
+If sponsor_HH_size = 2 then income_limit = 1726
+If sponsor_HH_size = 3 then income_limit = 2177
+If sponsor_HH_size = 4 then income_limit = 2628
+If sponsor_HH_size = 5 then income_limit = 3078
+If sponsor_HH_size = 6 then income_limit = 3529
+If sponsor_HH_size = 7 then income_limit = 3980
+If sponsor_HH_size = 8 then income_limit = 4430
+If sponsor_HH_size > 8 then income_limit = 4430 + (451 * (sponsor_HH_size - 8))
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
 If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0

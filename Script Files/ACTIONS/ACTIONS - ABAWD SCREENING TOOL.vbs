@@ -158,11 +158,14 @@ function how_many_abawd_months(abawd_counted_months)
   PF3
 END function
 
-'And one to case note and end the script. Script will write in each checkbox and the ABAWD status that is built below using previous function and input from worker. 
+'And one to case note and end the script. Script will write in each checkbox and the ABAWD status that is built below using previous function and input from worker.
 Function case_note_and_end
-	Dialog get_worker_comments
-	Cancel_confirmation
-	PF3	
+	Do
+		Dialog get_worker_comments
+		Cancel_confirmation
+		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue
+	LOOP UNTIL are_we_passworded_out = false
+	PF3
 	start_a_blank_case_note
 	call write_variable_in_CASE_NOTE("***Member " & member_number & " has been screened for ABAWD***")
 	call write_variable_in_CASE_NOTE(abawd_status)
@@ -175,7 +178,7 @@ Function case_note_and_end
 	IF under_sixteen = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are under 16.")
 	IF sixteen_seventeen = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are age 16 or 17 and living with a parent or caretaker")
 	IF care_child_six = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are responsible for the care of a child less than age 6.")
-	IF employed_thirty = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are employed 30 hours per week or equivalent to 30 hours a week at minimum wage.") 
+	IF employed_thirty = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are employed 30 hours per week or equivalent to 30 hours a week at minimum wage.")
 	IF unemployment = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are receiving or applied for unemployment insurance.")
 	IF enrolled_school = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are enrolled in school/training 1/2 time.")
 	IF CD_program = 1 THEN call write_variable_in_CASE_NOTE("* Client states they are enrolled in a sanctioned chemical dependency treatment program.")
@@ -200,7 +203,7 @@ END Function
 
 EMConnect ""
 
-'Checking for maxis, finding case number and getting to blank slate of self. 
+'Checking for maxis, finding case number and getting to blank slate of self.
 call check_for_MAXIS(false)
 call MAXIS_case_number_finder(case_number)
 back_to_SELF
@@ -231,7 +234,7 @@ IF cash_II_status = "ACTV" and (cash_II_prog = "GA" or cash_II_prog = "RC") THEN
 
 call navigate_to_screen("stat", "wreg")
 
-'Checking to see if the case is in the county of the worker running it. If it is not the same county then worker cannot case note. 
+'Checking to see if the case is in the county of the worker running it. If it is not the same county then worker cannot case note.
 EMReadScreen User_county_check, 4, 21, 71
 EMReadScreen PW_county_check, 4, 21, 21
 If User_county_check <> PW_county_check then
@@ -239,7 +242,7 @@ If User_county_check <> PW_county_check then
 	Inquiry_check = "A"
 end if
 
-'function to count how many abawd months a specific member has used. 
+'function to count how many abawd months a specific member has used.
 call how_many_abawd_months(abawd_counted_months)
 
 'Do loop to run dialogs and create ABAWD status variable.
@@ -254,11 +257,11 @@ DO
 		Else if wreg_exempt = true THEN
 			call case_note_and_end
 		  end if
-		end if 
+		end if
   DO
 	  Dialog abawd_exemptions  'dialog is run asking for input on if client meets any ABAWD exemptions. IF they do they are presumed not ABAWD, if none are checked it continues to next dialog
 		cancel_confirmation
-  	    IF waiver = 1 or age_exempt = 1 or cert_preg = 1 or working_20 = 1 or receiving_cash = 1 or dependent_child = 1 or work_exp = 1 or approved_ET = 1 THEN 
+  	    IF waiver = 1 or age_exempt = 1 or cert_preg = 1 or working_20 = 1 or receiving_cash = 1 or dependent_child = 1 or work_exp = 1 or approved_ET = 1 THEN
 		  cl_has_abawd_exemption = true
 		  abawd_status = "* Per discussion with client, member " & member_number & " is NOT an ABAWD."
 		End If
@@ -268,19 +271,20 @@ DO
 		Else if cl_has_abawd_exemption = true THEN
 			call case_note_and_end
 		  end if
-		end if 
+		end if
 		IF cl_has_abawd_exemption <> true THEN abawd_status = "* Per discussion with client, member " & member_number & " is ABAWD and has used " & abawd_counted_months & " months of SNAP eligibility."
     DO
-		Dialog earn_additional_months   'dialog is run asking if client has earned any additional months. If client has not script will case note items checked. 
+		Dialog earn_additional_months   'dialog is run asking if client has earned any additional months. If client has not script will case note items checked.
 		cancel_confirmation
 		IF ButtonPressed = previous_button then exit do
 		IF PW_county_check <> User_county_check THEN    'Creating message box for workers screening on out of county cases if member reports no exemptions.
 		  script_end_procedure(abawd_status & chr(13) & "If client has worked at least 80 hours in a month since closing they may be eligible for a 2nd 3 month SNAP period. UNLESS they have already used the 2nd 3 months of eligibility." & chr(13) & "Unable to case note due to case being in another county. Process accordingly.")
-		else		
+		else
 		  call case_note_and_end
 		end if
     LOOP until ButtonPressed = -1
   LOOP until ButtonPressed = -1
 LOOP until ButtonPressed = -1
+
 
 script_end_procedure("")

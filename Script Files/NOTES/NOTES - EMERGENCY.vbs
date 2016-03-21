@@ -201,15 +201,18 @@ call autofill_editbox_from_MAXIS(HH_member_array, "HEST", monthly_expense) 'Does
 
 
 'Showing the case note
-Do
-	Do	
-		Dialog emergency_dialog
-		MAXIS_dialog_navigation
-		cancel_confirmation
-	Loop until ButtonPressed = -1
-	If ButtonPressed = -1 then dialog case_note_dialog
-    If income = "" or actions_taken = "" or worker_signature = "" then MsgBox "You need to fill in the income and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
- Loop until income <> "" and actions_taken <> "" and worker_signature <> ""
+DO
+	Do
+		Do
+			Dialog emergency_dialog
+			MAXIS_dialog_navigation
+			cancel_confirmation
+		Loop until ButtonPressed = -1
+		If ButtonPressed = -1 then dialog case_note_dialog
+	    If income = "" or actions_taken = "" or worker_signature = "" then MsgBox "You need to fill in the income and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
+	 Loop until income <> "" and actions_taken <> "" and worker_signature <> ""
+	 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+ LOOP UNTIL are_we_passworded_out = false
 
 'Logic to enter what the "crisis" variable is from the checkboxes indicated
 If eviction_check = 1 then crisis = crisis & "eviction, "

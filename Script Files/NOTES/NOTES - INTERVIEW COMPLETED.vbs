@@ -180,18 +180,21 @@ if right(programs_applied_for, 1) = "," then programs_applied_for = left(program
 interview_date = date & ""		'Defaults the date of the interview to today's date.
 
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Do
-	Do	
-		err_msg = ""
-		Dialog interview_dialog			'Displays the Interview Dialog
-		cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
-		If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."	
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a Worker Signature"
-		IF (SNAP_checkbox = checked) AND (why_xfs = "") THEN err_msg = err_msg & vbCr & "SNAP is pending, you must explain your Expedited Determination"
-		If err_msg <> "" THEN Msgbox err_msg
-	Loop until err_msg = ""
-	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+DO
+	Do
+		Do
+			err_msg = ""
+			Dialog interview_dialog			'Displays the Interview Dialog
+			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+			If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."
+			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a Worker Signature"
+			IF (SNAP_checkbox = checked) AND (why_xfs = "") THEN err_msg = err_msg & vbCr & "SNAP is pending, you must explain your Expedited Determination"
+			If err_msg <> "" THEN Msgbox err_msg
+		Loop until err_msg = ""
+		CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+	Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
 check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
 
