@@ -161,13 +161,13 @@ scriptwriter_array(scriptwriter_counter).formerrole		= 	"Financial Worker"
 scriptwriter_array(scriptwriter_counter).email			= 	"Kaley.Kobbervig@CO.RAMSEY.MN.US"
 scriptwriter_counter = scriptwriter_counter + 1
 
-'Laura Larson, Goodhue
+'Laura Larson, Olmsted
 set scriptwriter_array(scriptwriter_counter) = new scriptwriter
 scriptwriter_array(scriptwriter_counter).name			=	"Laura Larson"
-scriptwriter_array(scriptwriter_counter).agency			= 	"Goodhue County"
+scriptwriter_array(scriptwriter_counter).agency			= 	"Olmsted County"
 scriptwriter_array(scriptwriter_counter).role			= 	"Financial Worker"
 scriptwriter_array(scriptwriter_counter).formerrole		= 	"-"
-scriptwriter_array(scriptwriter_counter).email			= 	"laura.larson@co.goodhue.mn.us"
+scriptwriter_array(scriptwriter_counter).email			= 	"larson.laura@co.olmsted.mn.us"
 scriptwriter_counter = scriptwriter_counter + 1
 
 'Yang Lor, Ramsey

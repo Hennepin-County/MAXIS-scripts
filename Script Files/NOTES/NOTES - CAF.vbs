@@ -420,34 +420,38 @@ If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 	End if
 End if
 
-'Going to TIKL, there's a custom function for this. Evaluate using it.
+'Going to TIKL. Now using the write TIKL function
 If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
-		EMSetCursor 9, 3
-		If cash_checkbox = checked then EMSendKey "cash/"
-		If SNAP_checkbox = checked then EMSendKey "SNAP/"
-		If EMER_checkbox = checked then EMSendKey "EMER/"
-		EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
-		transmit	
-		PF3
+		If DateDiff ("d", CAF_datestamp, date) > 30 Then 'Error handling to prevent script from attempting to write a TIKL in the past
+			MsgBox "Cannot set TIKL as CAF Date is over 30 days old and TIKL would be in the past. You must manually track."
+		Else 
+			call navigate_to_MAXIS_screen("dail", "writ")
+			call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
+			If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
+			If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
+			If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
+			TIKL_msg_one = Left(TIKL_msg_one, (len(TIKL_msg_one) - 1))
+			TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
+			Call write_variable_in_TIKL (TIKL_msg_one)
+			PF3
+		End If 
 	End if
 	If HC_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
-		EMSetCursor 9, 3
-		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-		transmit
-		PF3
+		If DateDiff ("d", CAF_datestamp, date) > 45 Then 'Error handling to prevent script from attempting to write a TIKL in the past
+			MsgBox "Cannot set TIKL as CAF Date is over 45 days old and TIKL would be in the past. You must manually track."
+		Else
+			call navigate_to_MAXIS_screen("dail", "writ")
+			call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
+			Call write_variable_in_TIKL ("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
+			PF3
+		End If 
 	End if
 End if
 If client_delay_TIKL_checkbox = checked then
 	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 10, 5, 18) 
-	EMSetCursor 9, 3
-	EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
-	transmit
+	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
 	PF3
 End if
 '----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.

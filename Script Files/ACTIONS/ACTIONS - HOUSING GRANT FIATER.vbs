@@ -71,14 +71,14 @@ End function
 
 'DIALOG===========================================================================================================================
 BeginDialog housing_grant_dialog, 0, 0, 271, 200, "MFIP Housing Grant FIATER"
-  EditBox 65, 10, 60, 15, case_number
-  EditBox 210, 10, 25, 15, initial_month
-  EditBox 240, 10, 25, 15, initial_year
+  EditBox 65, 5, 60, 15, case_number
+  EditBox 210, 5, 25, 15, initial_month
+  EditBox 240, 5, 25, 15, initial_year
+  CheckBox 160, 20, 110, 10, "Only run for the above month.", one_month_checkbox
   ButtonGroup ButtonPressed
     OkButton 160, 180, 50, 15
     CancelButton 215, 180, 50, 15
-  Text 10, 15, 50, 10, "Case Number:"
-  Text 145, 15, 60, 10, "Initial month/year:"
+  Text 145, 10, 60, 10, "Initial month/year:"
   Text 15, 75, 100, 10, "* Caregivers age 60 or older"
   GroupBox 5, 35, 260, 140, "MFIP Housing Grant $50 earned income exemption"
   Text 15, 50, 245, 20, "Only certain people are eligible for the housing grant $50 unearned income exemption. These recipients include:"
@@ -87,6 +87,7 @@ BeginDialog housing_grant_dialog, 0, 0, 271, 200, "MFIP Housing Grant FIATER"
   Text 15, 120, 245, 20, "* Caregivers who are disabled and do not anticipated being able to work for        20+ hours for more than 30 days"
   Text 15, 145, 100, 10, "* Caregivers who receive SSI"
   Text 15, 160, 180, 10, "* Caregivers who receive Mille Lacs Band Tribal TANF"
+  Text 10, 10, 50, 10, "Case Number:"
 EndDialog
 
 'The script============================================================================================================================
@@ -100,7 +101,7 @@ initial_year = CM_yr
 'Main dialog: user will input case number and initial month/year if not already auto-filled 
 DO
 	DO
-		err_msg = ""							'establishing value of varaible, this is necessary for the Do...LOOP
+		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog housing_grant_dialog				'main dialog'
 		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected'
 		IF len(case_number) > 8 or isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."					'mandatory field
@@ -142,11 +143,12 @@ For i = 0 to ubound(footer_month_array)				'array of footer months
 	EMwritescreen "x", 18, 4
 	transmit
 	'Selects the Subsidy/Tribal pop-up then the Housing Subsidy sub-pop-up
-	EMwritescreen "x", 17, 5
+	EMwritescreen "x", 18, 5
 	transmit
 	EMwritescreen "x", 8, 13
 	transmit
 	'Changes the prospective column to $0
+	
 	EMwritescreen "0       ", 8, 51
 	transmit
 	transmit
@@ -154,13 +156,14 @@ For i = 0 to ubound(footer_month_array)				'array of footer months
 	'Reading to ensure the housing grant is in budget
 	EMReadScreen MFIP_grant_confirmation, 6, 15, 75
 	If MFIP_grant_confirmation <> "110.00" then 
-		script_end_procedure("An issued occured during the FIAT process. Please process manually.") 
+		script_end_procedure("An issued occurred during the FIAT process. Please process manually.") 
 	ELSE
 		PF3
 		PF3
 		EMWritescreen "Y", 13, 41
 		transmit
 		STATS_counter = STATS_counter + 1  'adds one instance to the stats counter, counting each month as it's own run
+		IF one_month_checkbox = 1 then exit for
 	END IF
 	EMReadscreen final_month_check, 4, 10, 53 'This looks for a pop-up that only comes up in the final month, and clears it.
 	IF final_month_check = "ELIG" THEN

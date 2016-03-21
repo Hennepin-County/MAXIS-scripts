@@ -140,48 +140,51 @@ HH_memb = "01"
 HH_memb_row = 5 'This helps the navigation buttons work!
 
 'Shows the dialog.
-Do
+DO
 	Do
 		Do
 			Do
 				Do
 					Do
-						Dialog new_job_reported_dialog
-						cancel_confirmation
-						MAXIS_dialog_navigation
-						If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
-							If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
-								MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
-								pass_through_inc_date_loop = False
+						Do
+							Dialog new_job_reported_dialog
+							cancel_confirmation
+							MAXIS_dialog_navigation
+							If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
+								If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
+									MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
+									pass_through_inc_date_loop = False
+								Else
+									pass_through_inc_date_loop = True
+								End if
 							Else
-								pass_through_inc_date_loop = True
+								If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
 							End if
+						Loop until income_start_date = "" or pass_through_inc_date_loop = True
+						If employer = "" then MsgBox "You must type an employer!"
+					Loop until employer <> ""
+					If isdate(contract_through_date) = True or income_type_dropdown = "C Contract Income" then
+						If income_type_dropdown <> "C Contract Income" then
+							MsgBox "You should not put a ''contract through'' date in, unless the income type is ''C Contract Income''."
+							pass_through_contract_date_loop = False
+						Elseif income_type_dropdown = "C Contract Income" and isdate(contract_through_date) = False then
+							MsgBox "You should not put a ''C Contract Income'' code in, unless there is a ''contract through'' date."
+							pass_through_contract_date_loop = False
 						Else
-							If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
+							pass_through_contract_date_loop = True
 						End if
-					Loop until income_start_date = "" or pass_through_inc_date_loop = True
-					If employer = "" then MsgBox "You must type an employer!"
-				Loop until employer <> ""
-				If isdate(contract_through_date) = True or income_type_dropdown = "C Contract Income" then
-					If income_type_dropdown <> "C Contract Income" then
-						MsgBox "You should not put a ''contract through'' date in, unless the income type is ''C Contract Income''."
-						pass_through_contract_date_loop = False
-					Elseif income_type_dropdown = "C Contract Income" and isdate(contract_through_date) = False then
-						MsgBox "You should not put a ''C Contract Income'' code in, unless there is a ''contract through'' date."
-						pass_through_contract_date_loop = False
 					Else
-						pass_through_contract_date_loop = True
+						If contract_through_date <> "" then MsgBox "You must type a date in the Contract Through date field, or leave it blank."
 					End if
-				Else
-					If contract_through_date <> "" then MsgBox "You must type a date in the Contract Through date field, or leave it blank."
-				End if
-			Loop until (contract_through_date = "" and income_type_dropdown <> "C Contract Income") or pass_through_contract_date_loop = True
-			If who_reported_job = "" then MsgBox "You must type out who reported the job!"
-		Loop until who_reported_job <> ""
-		If job_report_type = "" then MsgBox "You must select how you heard about the job, or write something in that field yourself."
-	Loop until job_report_type <> ""
-	If worker_signature = "" then MsgBox "You must sign your case note!"
-Loop until worker_signature <> ""
+				Loop until (contract_through_date = "" and income_type_dropdown <> "C Contract Income") or pass_through_contract_date_loop = True
+				If who_reported_job = "" then MsgBox "You must type out who reported the job!"
+			Loop until who_reported_job <> ""
+			If job_report_type = "" then MsgBox "You must select how you heard about the job, or write something in that field yourself."
+		Loop until job_report_type <> ""
+		If worker_signature = "" then MsgBox "You must sign your case note!"
+	Loop until worker_signature <> ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Creates a new JOBS panel if that was selected.
 If create_JOBS_checkbox = checked then

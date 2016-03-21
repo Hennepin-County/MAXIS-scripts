@@ -201,8 +201,10 @@ For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	footer_month = "" 'clearing variable to prevent breaking when in Cm+2
 	footer_year = ""
-	EMWriteScreen left(date, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
-	EMWriteScreen right(date, 2), 20, 46
+	temp_footer_month = "0" & datepart("m", date)
+	temp_footer_year = datepart("yyyy", date)
+	EMWriteScreen right(temp_footer_month, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
+	EMWriteScreen right(temp_footer_year, 2), 20, 46
 	transmit
 
 	Call navigate_to_MAXIS_screen("rept", "revs")

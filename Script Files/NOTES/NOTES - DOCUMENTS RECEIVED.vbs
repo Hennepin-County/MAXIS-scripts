@@ -160,18 +160,21 @@ call MAXIS_case_number_finder(case_number)
 
 'Displays the dialog and navigates to case note
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
-Do
+DO
 	Do
 		Do
-			If LTC_case = vbYes then dialog documents_received_LTC_dialog					'Shows dialog if LTC
-			If LTC_case = vbNo then Dialog documents_rec_GEN_dialog							'Shows dialog if not LTC
-			cancel_confirmation																'quits if cancel is pressed																
-			If worker_signature = "" Then MsgBox "You must sign your case note."
-		LOOP until worker_signature <> ""
-		If actions_taken = "" Then MsgBox "You must case note your actions taken."
-	LOOP until actions_taken <> ""
-	If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
-Loop until case_number <> ""														'Loops until that case number exists	
+			Do
+				If LTC_case = vbYes then dialog documents_received_LTC_dialog					'Shows dialog if LTC
+				If LTC_case = vbNo then Dialog documents_rec_GEN_dialog							'Shows dialog if not LTC
+				cancel_confirmation																'quits if cancel is pressed
+				If worker_signature = "" Then MsgBox "You must sign your case note."
+			LOOP until worker_signature <> ""
+			If actions_taken = "" Then MsgBox "You must case note your actions taken."
+		LOOP until actions_taken <> ""
+		If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
+	Loop until case_number <> ""														'Loops until that case number exists
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists	
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(FALSE)
