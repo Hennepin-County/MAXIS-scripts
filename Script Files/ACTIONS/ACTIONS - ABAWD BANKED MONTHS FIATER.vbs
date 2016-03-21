@@ -1,4 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
+'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ACTIONS - ABAWD BANKED MONTHS FIATER.vbs"
 start_time = timer
 
@@ -48,8 +49,8 @@ END IF
 STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 225                	'manual run time in seconds
 STATS_denomination = "C"       			'C is for each Case
-'END OF stats block=========================================================================================================			
-		
+'END OF stats block=========================================================================================================
+
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	'defines an intial date from the initial_month and initial_year parameters
@@ -130,7 +131,7 @@ If worker_county_code = "x101" OR _
 		worker_county_code = "x129" OR _
 		worker_county_code = "x133" OR _
 		worker_county_code = "x136" OR _
-		worker_county_code = "x139" OR _ 
+		worker_county_code = "x139" OR _
 		worker_county_code = "x144" THEN
 		script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
 END IF
@@ -253,12 +254,12 @@ For i = 0 to ubound(footer_month_array)
 	footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
 
 	Set ABAWD_months_array(i) = new ABAWD_month_data
-	
-	Call navigate_to_MAXIS_screen("STAT", "RBIC")	'error handling for RBIC cases 
-	EMWriteScreen HH_member, 20, 76					
+
+	Call navigate_to_MAXIS_screen("STAT", "RBIC")	'error handling for RBIC cases
+	EMWriteScreen HH_member, 20, 76
 	transmit
 	EMReadScreen RBIC_total, 1, 2, 78				'reading to see if RBIC screens exist
-	If RBIC_total <> "0" then 
+	If RBIC_total <> "0" then
 		script_end_procedure("The script does not currently support cases with RBIC income. Please process this case manually.")
 	END IF
 
@@ -417,6 +418,10 @@ For i = 0 to ubound(footer_month_array)
 			EMReadScreen unea_type, 2, 5, 37 	'<<<<<< Reads each type of UNEA panel and adds the amounts together within a type
 			EMReadscreen unea_verif, 1, 5, 65
 			call verif_confirm_message(unea_verif, "Unearned income")
+			EMReadScreen unea_end_date, 8, 7, 68
+			IF unea_end_date <> "__ __ __" THEN 'THere is a job end, determine whether it is prior to current footer month, if yes, don't count it.
+				IF datediff("d", footer_month & "/01/" & footer_year, replace(unea_end_date, " ", "/")) < 0 THEN unea_verif = "?" 'This will prevent the script from reading the panel on income that ended in past'
+			END IF
 			IF unea_verif <> "?" THEN
 				If unea_type = "01" OR unea_type = "02" then '<<<<<< RSDI
 					EMWriteScreen "x", 10, 26
