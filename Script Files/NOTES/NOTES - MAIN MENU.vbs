@@ -527,6 +527,13 @@ script_array_R_to_Z(script_num).description				= "Template for noting program re
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
 Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_R_to_Z(script_num).script_name 			= "Returned Mail"
+script_array_R_to_Z(script_num).file_name				= "NOTES - RETURNED MAIL RECEIVED.vbs"
+script_array_R_to_Z(script_num).description				= "Template for noting Returned Mail Received information."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
+Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_R_to_Z(script_num).script_name 			= "Significant Change"
 script_array_R_to_Z(script_num).file_name				= "NOTES - SIGNIFICANT CHANGE.vbs"
 script_array_R_to_Z(script_num).description				= "Template for noting Significant Change information."
