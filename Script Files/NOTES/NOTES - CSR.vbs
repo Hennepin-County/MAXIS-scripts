@@ -266,37 +266,40 @@ CSR_month = footer_month & "/" & footer_year
 
 'Showing the case note dialog
 DO
-	Do
-		err_msg = ""
-		Do
-			Do
-				Dialog CSR_dialog01
-				cancel_confirmation
-				If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
-				'If next_button = pressed THEN msgbox next_button
-			Loop until ButtonPressed <> no_cancel_button
-			MAXIS_dialog_navigation
-		LOOP until ButtonPressed = next_button
-		IF CSR_datestamp = "" THEN 														err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
-		IF CSR_status = "select one..." THEN 											err_msg = err_msg & vbCr & "* Please select the status of the CSR."
-		IF HH_comp = "" THEN 															err_msg = err_msg & vbCr & "* Please enter household composition information."
-		IF earned_income = "" AND unearned_income = "" AND notes_on_income = "" THEN 	err_msg = err_msg & vbCr & "* You must provide some information about income."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue." 
-	Loop until err_msg = ""
 	DO
+		Do
+			err_msg = ""
+			Do
+				Do
+					Dialog CSR_dialog01
+					cancel_confirmation
+					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
+					'If next_button = pressed THEN msgbox next_button
+				Loop until ButtonPressed <> no_cancel_button
+				MAXIS_dialog_navigation
+			LOOP until ButtonPressed = next_button
+			IF CSR_datestamp = "" THEN 														err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
+			IF CSR_status = "select one..." THEN 											err_msg = err_msg & vbCr & "* Please select the status of the CSR."
+			IF HH_comp = "" THEN 															err_msg = err_msg & vbCr & "* Please enter household composition information."
+			IF earned_income = "" AND unearned_income = "" AND notes_on_income = "" THEN 	err_msg = err_msg & vbCr & "* You must provide some information about income."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		Loop until err_msg = ""
 		DO
 			DO
-				Dialog CSR_dialog02
-				cancel_confirmation
-				IF ButtonPressed = SIR_mail_button THEN run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
-			LOOP UNTIL ButtonPressed <> no_cancel_button
-			MAXIS_dialog_navigation
-		LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
-		err_msg = ""
-		IF actions_taken = "" THEN 		err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
-		IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = "" OR ButtonPressed = previous_button
-LOOP WHILE ButtonPressed = previous_button
+				DO
+					Dialog CSR_dialog02
+					cancel_confirmation
+					IF ButtonPressed = SIR_mail_button THEN run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
+				LOOP UNTIL ButtonPressed <> no_cancel_button
+				MAXIS_dialog_navigation
+			LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
+			err_msg = ""
+			IF actions_taken = "" THEN 		err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
+			IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		LOOP UNTIL err_msg = "" OR ButtonPressed = previous_button
+	LOOP WHILE ButtonPressed = previous_button
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 IF grab_FS_info_checkbox = 1 THEN 
 	'grabbing information about elig/fs

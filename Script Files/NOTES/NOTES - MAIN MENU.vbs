@@ -342,6 +342,13 @@ script_array_G_to_L(script_num).description				= "Template for requests of good 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_G_to_L(script_num).script_name 			= "Good Cause Results"
+script_array_G_to_L(script_num).file_name				= "NOTES - GOOD CAUSE RESULTS.vbs"
+script_array_G_to_L(script_num).description				= "Template for Good Cause results for determination or renewal.*"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "GRH - HRF"
 script_array_G_to_L(script_num).file_name				= "NOTES - GRH - HRF.vbs"
 script_array_G_to_L(script_num).description				= "Template for GRH HRFs. Case must be post-pay.*"
@@ -523,6 +530,13 @@ Set script_array_R_to_Z(script_num) = new script
 script_array_R_to_Z(script_num).script_name 			= "REIN Progs"
 script_array_R_to_Z(script_num).file_name				= "NOTES - REIN PROGS.vbs"
 script_array_R_to_Z(script_num).description				= "Template for noting program reinstatement information."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
+Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_R_to_Z(script_num).script_name 			= "Returned Mail"
+script_array_R_to_Z(script_num).file_name				= "NOTES - RETURNED MAIL RECEIVED.vbs"
+script_array_R_to_Z(script_num).description				= "Template for noting Returned Mail Received information."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
