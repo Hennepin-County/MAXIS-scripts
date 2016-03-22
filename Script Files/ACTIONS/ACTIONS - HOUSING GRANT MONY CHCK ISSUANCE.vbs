@@ -56,63 +56,67 @@ CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -1
 
 'DIALOG===========================================================================================================================
 BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 200, "MFIP Housing Grant MONY/CHCK issuance "
-  EditBox 65, 10, 60, 15, case_number
-  EditBox 195, 10, 25, 15, member_number
-  EditBox 70, 30, 25, 15, initial_month
-  EditBox 100, 30, 25, 15, initial_year
-  EditBox 75, 155, 200, 15, other_notes
-  EditBox 75, 180, 90, 15, worker_signature
+  EditBox 60, 10, 55, 15, case_number
+  EditBox 165, 10, 25, 15, member_number
+  EditBox 245, 10, 25, 15, initial_month
+  EditBox 275, 10, 25, 15, initial_year
+  EditBox 55, 105, 245, 15, other_notes
+  EditBox 75, 130, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 170, 180, 50, 15
-    CancelButton 225, 180, 50, 15
-  Text 25, 105, 240, 30, "Snappy warning text to come later"
-  Text 10, 35, 55, 10, "month/year:"
-  Text 10, 180, 60, 10, "Worker signature:"
-  GroupBox 15, 85, 260, 60, "MFIP Housing Grant MONY/CHCK Issuance:"
-  Text 145, 15, 40, 10, "Member #:"
+    OkButton 195, 130, 50, 15
+    CancelButton 250, 130, 50, 15
+  Text 25, 55, 215, 30, "Snappy warning text to come later"
+  Text 200, 15, 40, 10, "month/year:"
+  Text 10, 135, 60, 10, "Worker signature:"
+  GroupBox 10, 35, 290, 60, "MFIP Housing Grant MONY/CHCK Issuance:"
+  Text 125, 15, 35, 10, "Member #:"
   Text 10, 15, 50, 10, "Case Number:"
-  Text 10, 155, 60, 10, "Other notes:"
+  Text 10, 110, 45, 10, "Other notes:"
 EndDialog
 
 'The script============================================================================================================================
 'Connects to MAXIS, grabbing the case case_number
 EMConnect ""
 Call MAXIS_case_number_finder(case_number) 
+member_number = "01"	'defaults the member number to 01
+initial_month = CM_mo  'defaulting date to current month and year
+initial_year = CM_yr
 
 'Main dialog: user will input case number and initial month/year if not already auto-filled 
 DO
 	DO
-		err_msg = ""							'establishing value of varaible, this is necessary for the Do...LOOP
+		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog housing_grant_MONY_CHCK_issuance_dialog				'main dialog'
 		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected'
 		IF len(case_number) > 8 or isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."					'mandatory field
-		IF len(member_number) > 2 or isnumeric(member_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit member number."	
-		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit first month."	'mandatory field
-		IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit first year."		'mandatory field
+		IF len(member_number) > 2 or isnumeric(member_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit member number."	'mandatory field'
+		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit month."	'mandatory field
+		IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit year."		'mandatory field
 		IF worker_signature = ""  then err_msg = err_msg & vbCr & "You must sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'checking the MFIP ELIG 
+'Clears out case number and enters the selected footer month/year
 back_to_self
 EMWritescreen "________", 18, 43
 EMWritescreen case_number, 18, 43
 EMWritescreen initial_month, 20, 43
 EMWritescreen initial_year, 20, 46
 
-'searching for the housing grant issued on the INQD screen(s)
+'searching for the housing grant issued on the INQD screen(s) for the most current year
 Call navigate_to_MAXIS_screen("MONY", "INQX")
 EMWritescreen CM_minus_11_mo, 6, 38
 EMWritescreen CM_minus_11_yr, 6, 41
-EMWritescreen CM_plus_1_mo, 6, 53
+EMWritescreen CM_plus_1_mo, 6, 53		
 EMwritescreen CM_plus_1_yr, 6, 56
 EMWriteScreen "x", 10, 5		'selecting MFIP
 transmit
-	
+
+'checking to see if HG has been issued for the month selected	
 DO
-	row = 6
+	row = 6				'establishing the row to start searching for issuance'
 	DO
 		EMReadScreen housing_grant, 2, row, 19		'searching for housing grant issuance
 		If housing_grant = "  " then exit do
@@ -121,11 +125,8 @@ DO
 			EMReadScreen HG_amt_issued, 7, row, 40
 			EMReadScreen HG_month, 2, row, 73
 			EMReadScreen HG_year, 2, row, 79
-			msgbox HG_month & HG_year
 			INQD_issuance = HG_month & HG_year
-			msgbox INQD_issuance
 			month_of_issuance = initial_month & initial_year
-			msgbox month_of_issuance
 			If month_of_issuance = INQD_issuance then script_end_procedure("Issuance has already been made on the month selected. Please review your case, and update manually.")
 			Else
 				row = row + 1
@@ -139,48 +140,53 @@ LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 'goes into ELIG/MFIP and checks for sanctions and a FIATED version of the month selected'
 Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 DO 
-	MAXIS_row = 7
-		EMReadscreen memb_number, 2, MAXIS_row, 6
-	IF memb_number = member_number then 
+	MAXIS_row = 7			
+		EMReadscreen memb_number, 2, MAXIS_row, 6		'searching for member number
+	IF memb_number = member_number then 				'exits do if member number matches
 		exit do
 	ELSE 
-		MAXIS_row = MAXIS_row + 1
+		MAXIS_row = MAXIS_row + 1	'otherwise it searches again on the next row
 	END IF 
 	If member_number = "  " then script_end_procedure("The member number you entered does not appear to be valid. Please check your member number and try again.")
 LOOP until memb_number = member_number
 
-EMWritescreen "x", MAXIS_row, 64
+EMWritescreen "x", MAXIS_row, 64			'selects the member number'
 transmit
-EMReadscreen emps_status, 2, 9, 22
+EMReadscreen emps_status, 2, 9, 22			'grabs the EMPS status code'
 transmit
 
+'grabs the coding to input in MONY/CHCK
 Call navigate_to_MAXIS_screen("ELIG", "MFBF")
-EMReadscreen member_code, 1, MAXIS_row, 27
+EMReadscreen member_code, 1, MAXIS_row, 27		
 EMReadscreen cash_portion, 1, MAXIS_row, 37
-EMReadScreen state_portion, 1, MAXIS_row, 54
-'checking for sanctions
+EMReadScreen state_portion, 1, MAXIS_row, 
+
+'checking for sanctions, user will have to process manually if there's a sanction
 EMReadScreen MFIP_sanction, 1, MAXIS_row, 68
 If MFIP_sanction = "Y" then	script_end_procedure("A sanction exist for this member. Please check sanction for accuracy, and process manually.")
-	
+
+'checking for FIAT'd version that shows case is elig for the $110 housing grant
 Call navigate_to_MAXIS_screen("ELIG", "MFSM")
 EMReadScreen fiat_check, 4, 9, 31
 EMReadScreen housing_grant_issued, 6, 16, 75
 IF fiat_check <> "FIAT" and housing_grant_issued <> "110.00" then script_end_procedure("You must FIAT this case prior to issuing the MONY/CHCK. Please FIAT, then try again")
 
+'navigates to MONY/CHCK and inputs codes into 1st screen
 Call navigate_to_MAXIS_screen("MONY", "CHCK")
 EMWriteScreen "MF", 5, 17
 EMWriteScreen "MF", 5, 21
 EMWriteScreen "31", 5, 32		'restored payment code per the HG bulletin
 EMWriteScreen member_number, 7, 27
 transmit 	
+
 'now we're on the MFIP issuance detail pop-up screen
 EMWriteScreen "01", 10, 6
-EMWriteScreen member_code, 10, 14
+EMWriteScreen member_code, 10, 14		'adds coding from MFBF into issuance detail screen
 EMWriteScreen cash_portion, 10, 23 
 EMWriteScreen state_portion, 10, 33
 EMwritescreen "110.00", 10, 53
 transmit
-EMReadScreen ID_10_T_error_check, 7, 17, 4
+EMReadScreen ID_10_T_error_check, 7, 17, 4			'checking to make sure that 
 IF ID_10_T_error_check = "HOUSING" then script_end_procedure ("Housing grant may have already been issued. Please recheck your case, and try again.")
 EMWriteScreen "Y", 15, 52
 transmit
@@ -188,47 +194,31 @@ EMWriteScreen "Y", 15, 29
 transmit
 transmit 
 transmit	'transmit three times to get to the restoration of benefits screen '
+'writes in the manual check reason per the bulletin on the Housing Grant
 EMWriteScreen "You meet one of the exceptions", 13, 18
 EMWriteScreen "listed in CM 13.03.09 for families", 14, 18
 EMWriteScreen "with an adult MFIP unit member(s)", 15, 18
 EMWriteScreen "who get Section 8/HUD funded subsidy:", 16, 18
 If emps_status = "02" or emps_status = "07" or emps_status = "12" or emps_status = "23" or emps_status = "27" or emps_status = "15" or emps_status = "18" or _
    emps_status = "30" or emps_status = "33" then
-	EMWriteScreen "Caregivers who are elderly/disabled", 17, 18
+	EMWriteScreen "Caregivers who are elderly/disabled", 17, 18		'writes in disa/elderly if the codes above are the client's emps_status code
 Else 
 	EMWriteScreen "Caregivers caring for a disabled member", 17, 18
 END IF 
 
-'updating coding for case note'
-If  emps_status = "02"  then 
-	emps_status = "Age 60 or older"
-Elseif emps_status = "08" then 
-	emps_status = "Care for Ill/incapacitated family member"
-ELSEif emps_status = "07" then 
-	emps_status = "Ill/incapacitated > 30 days" 
-Elseif emps_status = "12" then 
-	emps_status = "Special medical criteria"
-ELSEif emps_status = "23" then 
-	emps_status = "Ill/incapacitated > 30 days"
-Elseif  emps_status = "24" THEN
-		emps_status = "Care for Ill/incapacitated family member"
-Elseif emps_status = "27"  then 
-		emps_status = "Special medical criteria" 
-Elseif emps_status = "15" then 
-	emps_status = "Mentall Ill"
-Elseif emps_status = "18"  then
-	emps_status = "SSI/RSDI pending"
-ELSEif	emps_status = "30" then 
-	emps_status = "Mentally Ill"
-ELseif  emps_status = "33" THEN
-	emps_status = "SSI/RSDI pending"
-END IF
+'updating emps_status coding for case note'
+If  emps_status = "02" then emps_status = "Age 60 or older"
+If emps_status = "08" or emps_status = "24" then emps_status = "Care for Ill/incapacitated family member"
+If emps_status = "07" or emps_status = "23" then emps_status = "Ill/incapacitated > 30 days" 
+If emps_status = "12" or emps_status = "27" then emps_status = "Special medical criteria"
+If emps_status = "15" or emps_status = "30" then emps_status = "Mentally Ill"
+If emps_status = "18" or emps_status = "33" then emps_status = "SSI/RSDI pending"
 
 'Case noting the MONY/CHCK info'
 Call start_a_blank_case_note
 Call write_variable_in_case_note("**MONY/CHCK ISSUED FOR HOUSING GRANT for " & initial_month & "/" & initial_year& "**")
 Call write_variable_in_case_note("* Housing grant issued due to family meeting an exemption per CM.13.03.09.")
-Call write_variable_in_case_note("* Member " & member_number & " exeption is: " & emps_status & ".")
+Call write_variable_in_case_note("* Member " & member_number & " exemption is: " & emps_status & ".")
 Call write_variable_in_case_note("* Results for " & initial_month & "/" & initial_year & " have been FIATed in ELIG/MFIP.")
 Call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 Call write_variable_in_case_note("--")
