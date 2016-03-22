@@ -159,7 +159,7 @@ transmit
 Call navigate_to_MAXIS_screen("ELIG", "MFBF")
 EMReadscreen member_code, 1, MAXIS_row, 27		
 EMReadscreen cash_portion, 1, MAXIS_row, 37
-EMReadScreen state_portion, 1, MAXIS_row, 
+EMReadScreen state_portion, 1, MAXIS_row, 54
 
 'checking for sanctions, user will have to process manually if there's a sanction
 EMReadScreen MFIP_sanction, 1, MAXIS_row, 68
