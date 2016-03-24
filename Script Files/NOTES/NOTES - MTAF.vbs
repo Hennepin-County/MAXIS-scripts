@@ -137,18 +137,21 @@ Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_numb
 Call check_for_MAXIS(True)
 
 'Time to make a case note!
-Do 
-	Do 
-		err_msg = ""		'Resetting the error message variable to be blank. 
-		Dialog MTAF_dialog	'Displays the MTAF dialog box.
-		cancel_confirmation		'Asks if you're sure you want to cancel, and cancels if you select that.
-		If MTAF_status_dropdown = "Select one..." then err_msg = "- Please indicate MTAF status." 'MTAF status must be selected, or error message is displayed.
-		If sub_housing_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "- Please indicate whether or not housing is subsidized, and status of verification if applicable" 'Subsidized housing status/verifications must be selected, or error message is displayed.
-		If relationship_proof = "" then err_msg = err_msg & vbNewLine & "- You must indicate what form of proof is being used as verification of relationship for all household members." 'Proof of relationship must be indicated, or error message is displayed.
-		If err_msg <> "" Then Msgbox err_msg
-	Loop until err_msg = ""
-	CALL proceed_confirmation(case_note_confirm)	'Checks to make sure that we are ready to case note.
-Loop until case_note_confirm = TRUE
+DO
+	Do
+		Do
+			err_msg = ""		'Resetting the error message variable to be blank.
+			Dialog MTAF_dialog	'Displays the MTAF dialog box.
+			cancel_confirmation		'Asks if you're sure you want to cancel, and cancels if you select that.
+			If MTAF_status_dropdown = "Select one..." then err_msg = "- Please indicate MTAF status." 'MTAF status must be selected, or error message is displayed.
+			If sub_housing_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "- Please indicate whether or not housing is subsidized, and status of verification if applicable" 'Subsidized housing status/verifications must be selected, or error message is displayed.
+			If relationship_proof = "" then err_msg = err_msg & vbNewLine & "- You must indicate what form of proof is being used as verification of relationship for all household members." 'Proof of relationship must be indicated, or error message is displayed.
+			If err_msg <> "" Then Msgbox err_msg
+		Loop until err_msg = ""
+		CALL proceed_confirmation(case_note_confirm)	'Checks to make sure that we are ready to case note.
+	Loop until case_note_confirm = TRUE
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Makes sure you are in MAXIS, to avoid password-out scenario.
 Call check_for_MAXIS(True)

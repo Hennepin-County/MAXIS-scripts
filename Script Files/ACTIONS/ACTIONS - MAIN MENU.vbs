@@ -46,25 +46,24 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 350, "Actions scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 395, 330, 50, 15
+    CancelButton 395, 315, 50, 15
     PushButton 5, 20, 110, 10, "ABAWD Banked Months FIATer", ABAWD_BANKED_MONTHS_button
     PushButton 5, 35, 110, 10, "ABAWD FSET Exemption Check", ABAWD_FSET_EXEMPTION_button
     PushButton 5, 50, 90, 10, "ABAWD Screening Tool", ABAWD_tool
     PushButton 5, 65, 50, 10, "BILS updater", BILS_UPDATER_button
     PushButton 5, 80, 50, 10, "Check EDRS", CHECK_EDRS_button
-    PushButton 5, 95, 110, 10, "Child Support Disregard FIATer", CS_FIAT_button
-    PushButton 5, 110, 80, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
-    PushButton 5, 125, 60, 10, " FSET sanction", FSET_sanction_button
-    PushButton 5, 140, 80, 10, "Housing Grant FIATer", HOUSING_GRANT_FIATER_button
-    PushButton 5, 155, 110, 10, "LTC-Spousal Allocation FIATer", LTC_SPOUSAL_ALLOCATION_FIATER_button
-    PushButton 5, 175, 110, 10, "MA-EPD earned income FIATer", MA_EPD_EI_FIAT_button
-    PushButton 5, 195, 60, 10, "New job reported", NEW_JOB_REPORTED_button
-    PushButton 5, 210, 60, 10, "PA verif request", PA_VERIF_REQUEST_button
-    PushButton 5, 225, 70, 10, "Pay stubs Received", PAYSTUBS_RECEIVED_button
-    PushButton 5, 250, 100, 10, "Shelter Expense Verif Recv'd", SHELTER_EXPENSE_button
-    PushButton 5, 275, 50, 10, "Send SVES", SEND_SVES_button
-    PushButton 5, 295, 60, 10, "Transfer case", TRANSFER_CASE_button
-    PushButton 5, 310, 65, 10, "TYMA TIKLer", TYMA_TIKLER_button
+    PushButton 5, 95, 80, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
+    PushButton 5, 110, 60, 10, " FSET sanction", FSET_sanction_button
+    PushButton 5, 125, 80, 10, "Housing Grant FIATer", HOUSING_GRANT_FIATER_button
+    PushButton 5, 140, 110, 10, "LTC-Spousal Allocation FIATer", LTC_SPOUSAL_ALLOCATION_FIATER_button
+    PushButton 5, 160, 110, 10, "MA-EPD earned income FIATer", MA_EPD_EI_FIAT_button
+    PushButton 5, 180, 60, 10, "New job reported", NEW_JOB_REPORTED_button
+    PushButton 5, 195, 60, 10, "PA verif request", PA_VERIF_REQUEST_button
+    PushButton 5, 210, 70, 10, "Pay stubs Received", PAYSTUBS_RECEIVED_button
+    PushButton 5, 235, 100, 10, "Shelter Expense Verif Recv'd", SHELTER_EXPENSE_button
+    PushButton 5, 260, 50, 10, "Send SVES", SEND_SVES_button
+    PushButton 5, 280, 60, 10, "Transfer case", TRANSFER_CASE_button
+    PushButton 5, 295, 65, 10, "TYMA TIKLer", TYMA_TIKLER_button
     PushButton 310, 5, 65, 10, "UTILITIES scripts", UTILITIES_SCRIPTS_button
     PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
   Text 5, 5, 250, 10, "Action scripts main menu: select the script to run from the choices below."
@@ -73,21 +72,19 @@ BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 350, "Actions scripts m
   Text 105, 50, 270, 10, "--- A tool to walk through a screening to determine if client is ABAWD."
   Text 65, 65, 220, 10, "--- Updates a BILS panel with reoccurring or actual BILS received."
   Text 65, 80, 190, 10, "--- sends an EDRS request for a HH member on a case."
-  Text 125, 95, 330, 10, "--- FIATS in the CS disregard for MFIP and DWP as described in CM 17.15.03"
-  Text 95, 110, 180, 10, "--- Copies MAXIS panels to Word en masse for a case."
-  Text 75, 125, 370, 10, "--- Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
-  Text 95, 140, 350, 15, "--- FIATs out the SHEL Housing Subsidy making the MFIP case eligible for the Housing Grant."
-  Text 125, 155, 180, 10, "--- FIATs a spousal allocation across a budget period."
-  Text 125, 175, 300, 10, "--- FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
-  Text 75, 195, 380, 10, "--- Creates a JOBS panel, CASE/NOTE and TIKL when a new job is reported. Use the DAIL scrubber for new hire DAILs."
-  Text 75, 210, 320, 10, "--- Creates a Word document with PA benefit totals for other agencies to determine client benefits."
-  Text 85, 225, 370, 20, "--- Enter in pay stubs on one dialog, and it puts that information on JOBS (both retrospective and prospective if applicable), as well as the PIC and HC pop-up, and it'll case note the income as well."
-  Text 110, 250, 340, 20, "-- NEW 01/2016!! Enter shelter expense and address information in a single dialog and the script updates SHEL, HEST, and ADDR and case notes."
-  Text 65, 275, 90, 10, "--- Sends a SVES/QURY."
-  Text 75, 295, 330, 10, "--- SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
-  Text 80, 310, 355, 10, "--- NEW 02/2016!!! TIKLS for TYMA report forms to be sent. "
+  Text 95, 95, 180, 10, "--- Copies MAXIS panels to Word en masse for a case."
+  Text 75, 110, 370, 10, "--- Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
+  Text 95, 125, 350, 15, "--- FIATs out the SHEL Housing Subsidy making the MFIP case eligible for the Housing Grant."
+  Text 125, 140, 180, 10, "--- FIATs a spousal allocation across a budget period."
+  Text 125, 160, 300, 10, "--- FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
+  Text 75, 180, 380, 10, "--- Creates a JOBS panel, CASE/NOTE and TIKL when a new job is reported. Use the DAIL scrubber for new hire DAILs."
+  Text 75, 195, 320, 10, "--- Creates a Word document with PA benefit totals for other agencies to determine client benefits."
+  Text 85, 210, 370, 20, "--- Enter in pay stubs on one dialog, and it puts that information on JOBS (both retrospective and prospective if applicable), as well as the PIC and HC pop-up, and it'll case note the income as well."
+  Text 110, 235, 340, 20, "-- NEW 01/2016!! Enter shelter expense and address information in a single dialog and the script updates SHEL, HEST, and ADDR and case notes."
+  Text 65, 260, 90, 10, "--- Sends a SVES/QURY."
+  Text 75, 280, 330, 10, "--- SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
+  Text 80, 295, 355, 10, "--- NEW 02/2016!!! TIKLS for TYMA report forms to be sent. "
 EndDialog
-
 
 'Variables to declare
 IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
@@ -108,7 +105,6 @@ IF buttonpressed = ABAWD_FSET_EXEMPTION_button then call run_from_GitHub(script_
 IF buttonpressed = ABAWD_tool then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - ABAWD SCREENING TOOL.vbs")
 If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - BILS UPDATER.vbs")
 If buttonpressed = CHECK_EDRS_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - CHECK EDRS.vbs")
-If buttonpressed = CS_FIAT_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - CS DISREGARD FIAT.vbs")
 If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - COPY PANELS TO WORD.vbs")
 IF ButtonPressed = FSET_sanction_button	THEN CALL run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - FSET SANCTION.vbs")
 IF ButtonPressed = HOUSING_GRANT_FIATER_button THEN call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - HOUSING GRANT FIATER.vbs")
