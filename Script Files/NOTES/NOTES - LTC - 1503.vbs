@@ -62,7 +62,7 @@ BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
   Text 10, 10, 50, 15, "Case number: "
 EndDialog
 
-BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
+BeginDialog DHS_1503_dialog, 0, 0, 366, 285, "1503 Dialog"
   EditBox 55, 5, 135, 15, FACI
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
   DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
@@ -77,29 +77,30 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   CheckBox 205, 115, 55, 10, "Need 3531?", need_3531_check
   CheckBox 265, 115, 95, 10, "Need asset assessment?", need_asset_assessment_check
   EditBox 130, 130, 225, 15, verifs_needed
-  CheckBox 15, 155, 85, 10, "Sent 3050 back to LTCF", sent_3050_check
+  CheckBox 15, 150, 85, 10, "Sent 3050 back to LTCF", sent_3050_check
   CheckBox 165, 155, 100, 10, "Sent verif req? If so, to who:", sent_verif_request_check
   ComboBox 270, 150, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Client & AREP", sent_request_to
-  EditBox 30, 180, 325, 15, notes
-  EditBox 170, 200, 75, 15, worker_signature
+  CheckBox 15, 165, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+  EditBox 30, 185, 325, 15, notes
+  CheckBox 30, 215, 260, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", TIKL_check
+  CheckBox 30, 230, 155, 10, "Check here to have the script update HCMI.", HCMI_update_check
+  CheckBox 30, 245, 150, 10, "Check here to have the script update FACI.", FACI_update_check
+  EditBox 160, 265, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 250, 200, 50, 15
-    CancelButton 305, 200, 50, 15
-  CheckBox 10, 230, 260, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", TIKL_check
-  CheckBox 10, 245, 155, 10, "Check here to have the script update HCMI.", HCMI_update_check
-  CheckBox 10, 260, 150, 10, "Check here to have the script update FACI.", FACI_update_check
-  Text 105, 205, 60, 10, "Worker signature:"
-  Text 5, 185, 25, 10, "Notes:"
-  Text 5, 50, 135, 10, "If hospital, list name/dates of admission:"
-  GroupBox 5, 100, 355, 75, "actions/proofs"
+    OkButton 255, 265, 50, 15
+    CancelButton 310, 265, 50, 15
+  Text 5, 10, 50, 10, "Facility name:"
+  Text 200, 10, 50, 10, "Length of stay:"
   Text 5, 30, 95, 10, "Recommended level of care:"
-  Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
   Text 160, 30, 50, 10, "Admitted from:"
-  Text 5, 10, 47, 10, "Facility name:"
+  Text 5, 50, 135, 10, "If hospital, list name/dates of admission:"
   Text 5, 70, 65, 10, "Date of admission:"
   Text 165, 70, 105, 10, "Date of discharge (if applicible):"
-  Text 200, 10, 50, 10, "Length of stay:"
-  GroupBox 5, 220, 260, 55, "Script actions"
+  GroupBox 0, 100, 360, 80, "Actions/Proofs"
+  Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
+  Text 5, 190, 25, 10, "Notes:"
+  GroupBox 0, 205, 335, 55, "Script actions"
+  Text 95, 270, 60, 10, "Worker signature:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -124,16 +125,16 @@ Do
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
 LOOP UNTIL worker_signature <> ""  
 
+'Checks for an active MAXIS session
+call check_for_MAXIS(False)
+'checking to make sure case is out of background
+MAXIS_background_check
+
 'navigating the script to the correct footer month
 back_to_self
 EMWriteScreen MAXIS_footer_month, 20, 43
 EMWriteScreen MAXIS_footer_year, 20, 46
 call navigate_to_MAXIS_screen("STAT", "FACI")
-
-'Checks for an active MAXIS session
-call check_for_MAXIS(False)
-'checking to make sure case is out of background
-MAXIS_background_check
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -183,6 +184,13 @@ End if
 'HCMI
 If HCMI_update_check = 1 THEN
 	call navigate_to_MAXIS_screen("stat", "hcmi") 
+	EMReadScreen HCMI_panel_check, 1, 2, 78
+	IF HCMI_panel_check <> 0 Then
+		PF9
+	ELSE
+		EMWriteScreen "nn", 20, 79
+		transmit
+	END IF 
 	EMWriteScreen "dp", 10, 57
 	transmit
 	transmit
@@ -224,6 +232,7 @@ If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed
 If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
 If need_asset_assessment_check = 1 then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
 If sent_3050_check = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
+If sent_5181_check = 1 then call write_variable_in_CASE_NOTE("* Sent DHS-5181 to Case Manager.")
 Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
 If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")

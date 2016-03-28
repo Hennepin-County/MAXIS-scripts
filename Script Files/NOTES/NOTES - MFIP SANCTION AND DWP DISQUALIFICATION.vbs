@@ -254,8 +254,8 @@ CALL write_variable_in_case_note(worker_signature)
 
 If notating_spec_wcom = checked THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-	EMReadscreen CASH_check, 2, read_row, 26  'checking to make sure that notice is for MFIP or DWP
-	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
+	EMReadscreen CASH_check, 2, 7, 26  'checking to make sure that notice is for MFIP or DWP
+	EMReadScreen Print_status_check, 7, 7, 71 'checking to see if notice is in 'waiting status'
 	'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
 	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
 		EMSetcursor read_row, 13
@@ -264,10 +264,11 @@ If notating_spec_wcom = checked THEN
 		PF9
 		EMSetCursor 03, 15
 		'WCOM required by workers to informed client what who they need to contact, the contact info, and by when they need to resolve the sanction.
-		Call write_variable_in_SPEC_WCOM("")
-		Call write_variable_in_SPEC_WCOM("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
-		Call write_variable_in_SPEC_WCOM("You need to be in compliance on/by " & Resolution_date & ".")
-		Call write_variable_in_SPEC_WCOM("")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("You need to be in compliance on/by " & Resolution_date & ".")
+		Call write_variable_in_SPEC_MEMO("")
 		PF4
 		PF3
 	ELSE 

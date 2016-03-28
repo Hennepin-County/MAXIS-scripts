@@ -108,7 +108,7 @@ row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
 EMSearch "DATE HIRED:", row, col
 EMReadScreen date_hired, 10, row, col + 12
-If date_hired = "  -  -  EM" then date_hired = current_month & "-" & current_day & "-" & current_year
+If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = CDate(date_hired)
 month_hired = Datepart("m", date_hired)
 If len(month_hired) = 1 then month_hired = "0" & month_hired
@@ -219,7 +219,10 @@ If create_JOBS_checkbox = checked then
 		transmit
 	End if
 	transmit						'Transmits to submit the panel
+	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
+		If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 End if
+
 
 'Navigates back to DAIL
 Do
