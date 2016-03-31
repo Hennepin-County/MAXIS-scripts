@@ -95,46 +95,58 @@ BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
 EndDialog
 
 'Hennepin County specific dialogs
-BeginDialog Hennepin_application_NOMI, 0, 0, 286, 140, "Hennepin County Application SNAP NOMI"
-  DropListBox 80, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
-  EditBox 225, 10, 55, 15, case_number
-  EditBox 80, 35, 55, 15, date_of_missed_interview
-  EditBox 225, 35, 55, 15, time_of_missed_interview
-  EditBox 65, 65, 55, 15, application_date
-  CheckBox 130, 70, 150, 10, "Check here to update PND2 for client delay.", client_delay_check
-  EditBox 90, 90, 190, 15, contact_attempts
-  EditBox 65, 115, 105, 15, worker_signature
+BeginDialog Hennepin_application_NOMI, 0, 0, 306, 275, "Hennepin County Application SNAP NOMI"
+  DropListBox 90, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
+  EditBox 240, 10, 55, 15, case_number
+  EditBox 90, 35, 60, 15, date_of_missed_interview
+  EditBox 240, 35, 55, 15, time_of_missed_interview
+  EditBox 90, 65, 60, 15, application_date
+  DropListBox 225, 65, 70, 15, "Select one..."+chr(9)+"First NOMI"+chr(9)+"Second NOMI", NOMI_selection
+  EditBox 90, 90, 205, 15, contact_attempts
+  EditBox 90, 115, 205, 15, other_info
+  CheckBox 10, 140, 150, 10, "Check here to update PND2 for client delay.", client_delay_check
+  CheckBox 10, 155, 285, 10, "Check here if HH has applied for MFIP/DWP, and requires a face-to-face interview.", CASH_check
+  EditBox 70, 170, 115, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 115, 50, 15
-    CancelButton 230, 115, 50, 15
-  Text 170, 15, 45, 10, "Case number:"
-  Text 5, 15, 70, 10, "Region of residence: "
-  Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
-  Text 5, 40, 75, 10, "Missed interview date:"
-  Text 5, 70, 55, 10, "Application date:"
-  Text 5, 120, 60, 10, "Worker signature:"
+    OkButton 190, 170, 50, 15
+    CancelButton 245, 170, 50, 15
+    PushButton 200, 135, 95, 15, "HSR manual NOMI page", HSR_NOMI_button
   Text 5, 95, 85, 10, "Attempts to contact client:"
+  Text 185, 15, 45, 10, "Case number:"
+  Text 5, 15, 70, 10, "Region of residence: "
+  Text 160, 35, 75, 20, "Missed interview time (if applicable):"
+  Text 160, 70, 60, 10, "Which NOMI sent:"
+  Text 5, 40, 75, 10, "Missed interview date:"
+  Text 15, 120, 60, 10, "Other information:"
+  GroupBox 5, 195, 290, 70, "Automatic TIKLs "
+  Text 15, 210, 270, 20, "If the 'First NOMI' is being sent to the recipient, A TIKL will be made for 11 days from the date sent."
+  Text 15, 235, 275, 30, "If the 'Second NOMI' is being sent to the recipient, A TIKL will be made for 30 (if 1st and 2nd NOMI were sent with enough time to allow 10 days prior to day 30), or 60 days from the application date."
+  Text 20, 70, 55, 10, "Application date:"
+  Text 5, 175, 60, 10, "Worker signature:"
 EndDialog
 
-BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 140, "Hennepin County ER SNAP NOMI"
+BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 170, "Hennepin County ER SNAP NOMI"
   EditBox 60, 10, 55, 15, case_number
   DropListBox 200, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 80, 35, 55, 15, date_of_missed_interview
   EditBox 225, 35, 55, 15, time_of_missed_interview
   EditBox 100, 65, 180, 15, contact_attempts
-  EditBox 100, 90, 55, 15, last_day_for_recert
-  EditBox 70, 115, 100, 15, worker_signature
+  EditBox 100, 85, 180, 15, other_info
+  EditBox 100, 110, 55, 15, last_day_for_recert
+  EditBox 70, 140, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 115, 50, 15
-    CancelButton 230, 115, 50, 15
-  Text 5, 70, 85, 10, "Attempts to contact client:"
-  Text 10, 15, 45, 10, "Case number:"
+    OkButton 175, 140, 50, 15
+    CancelButton 230, 140, 50, 15
+    PushButton 175, 110, 105, 15, "HSR manual NOMI page", HSR_NOMI_button
   Text 125, 15, 70, 10, "Region of residence: "
   Text 145, 35, 75, 25, "Missed interview time: (Don't complete if not applicable.)"
   Text 5, 40, 75, 10, "Missed interview date:"
-  Text 5, 95, 95, 10, "Recert must be complete by:"
-  Text 160, 95, 115, 10, "(Usually the last day of the month)"
-  Text 5, 120, 60, 10, "Worker signature:"
+  Text 5, 115, 95, 10, "Recert must be complete by:"
+  Text 5, 125, 115, 10, "(Usually the last day of the month)"
+  Text 5, 145, 60, 10, "Worker signature:"
+  Text 10, 15, 45, 10, "Case number:"
+  Text 5, 70, 85, 10, "Attempts to contact client:"
+  Text 30, 90, 60, 10, "Other information:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -142,26 +154,32 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(case_number)
 
-'Asks if this is a recert. A recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add-a-programs.
-recert_check = MsgBox("Is this a missed SNAP recertification interview?" & Chr(13) & Chr(13) & "If yes, the SNAP missed recert interview notice will be sent. " & Chr(13) & Chr(13) & "If no, the regular NOMI will be sent.", 3)
-If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox
-If recert_check = 6 then 'This is the "yes" button on a MsgBox
-	'Shows dialog, checks for password promp
-	If worker_county_code = "x127" then
+Call check_for_MAXIS(False)			'checking for an active MAXIS session
+
+'Asks if this is a recert (a recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add programs.)
+recert_check = MsgBox("Is this a missed SNAP recertification interview?", vbYesNoCancel, "Recertification for SNAP?")
+If recert_check = vbCancel then stopscript		'This is the cancel button on a MsgBox
+If recert_check = vbYes then 'This is the "yes" button on a MsgBox
+	If worker_county_code = "x127" then		'Hennepin specific ER NOMI
 		DO
+			DO
+				Err_msg = ""
+				Dialog Hennepin_ER_NOMI
+				cancel_confirmation
+				'Opening the the HSR manual to the NOMI page
+				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
+				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			LOOP until err_msg = ""
+		LOOP until ButtonPressed = -1	
+	ELSE		
+		DO								
 			Err_msg = ""
-			Dialog Hennepin_ER_NOMI
-			cancel_confirmation
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""
-	ELSE
-		DO
-			Err_msg = ""
-			Dialog SNAP_ER_NOMI_dialog
+			Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
 			cancel_confirmation
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
@@ -172,17 +190,40 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 		LOOP until err_msg = ""
 	END IF
 
-	'checking for an active MAXIS session
-	Call check_for_MAXIS(False)
-
-	'Navigates into SPEC/MEMO
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")
+	Call check_for_MAXIS(False)			'checking for an active MAXIS session
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
 	EMReadScreen memo_display_check, 12, 2, 33
 	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-	EMWriteScreen "x", 5, 10
-	transmit
+	
+	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+		arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+		PF5                                                     'PF5s again to initiate the new memo process
+	END IF
+	
+	'Checking for SWKR
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+		swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+		PF5                                           'PF5s again to initiate the new memo process
+	END IF
+	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	transmit  
 
 	If worker_county_code = "x127" then
 		'writes in the SPEC/MEMO for Hennepin County users
@@ -199,7 +240,7 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 		ELSEIF region_residence = "North" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	    ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "South MPLS" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then
@@ -222,7 +263,7 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 	END IF
 	PF4
 
-	'Writes the case note
+	'Writes the case note for the recert NOMI
 	call start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("**Client missed SNAP recertification interview**")
 	If time_of_missed_interview = "" Then
@@ -232,26 +273,34 @@ If recert_check = 6 then 'This is the "yes" button on a MsgBox
 	END IF
 	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
 	Call write_variable_in_CASE_NOTE("* A SPEC/MEMO has been sent to the client informing them of missed interview.")
+	Call write_bullet_and_variable_in_CASE_NOTE("Other information", other_info)
+	Call write_variable_in_CASE_NOTE("* Case will auto-close on " & last_day_for_recert & " if recertification is not completed.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	MsgBox "Success! A SPEC/MEMO has been sent with the correct language for a missed SNAP renewal, and a case note has been made."
 
-Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
+'If this is not a recert, then APPLICATION verbiage and options are available
+Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
+	back_to_self
 	'Shows dialog, checks for password prompt
 	If worker_county_code = "x127" then		'Hennepin county specific dialog
 		DO
-			Err_msg = ""
-			Dialog Hennepin_application_NOMI
-			cancel_confirmation
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""
+			DO
+				Err_msg = ""
+				Dialog Hennepin_application_NOMI
+				cancel_confirmation
+				'Opening the the HSR manual to the NOMI page
+				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
+				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
+				If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			LOOP until err_msg = ""
+		Loop until ButtonPressed = -1 		
 	ELSE
-		DO
+		DO					'dialog for all other users
 			Err_msg = ""
 			Dialog NOMI_dialog
 			cancel_confirmation
@@ -268,14 +317,41 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 	'checks for an active MAXIS session
 	Call check_for_MAXIS(False)
 
-	IF worker_county_code = "x127" then
-		call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigates into SPEC/MEMO
+	IF worker_county_code = "x127" then  'sends SPEC/MEMO
+		Call navigate_to_MAXIS_screen("SPEC", "MEMO")	'Navigating to SPEC/MEMO
 		'Creates a new MEMO. If it's unable the script will stop.
 		PF5
 		EMReadScreen memo_display_check, 12, 2, 33
 		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-		EMWriteScreen "x", 5, 10
-		transmit
+		
+		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+			arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+			call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+			EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+			PF5                                                     'PF5s again to initiate the new memo process
+		END IF
+		
+		'Checking for SWKR
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+			swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+			call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+			EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+			PF5                                           'PF5s again to initiate the new memo process
+		END IF
+		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		transmit 
+		
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("*************APPLICATION INTERVIEW REMINDER*************")
 		IF time_of_missed_interview <> "" then
@@ -285,15 +361,14 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		END IF
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("An interview is required to process your application. You may be eligible for SNAP benefits within 24 hours of your interview.")
-		Call write_variable_in_SPEC_MEMO(" ")
-		Call write_variable_in_SPEC_MEMO("You must contact your team to complete the interview as soon as possible. Please call 612-596-1300 if you would like a phone interview.")
+		Call write_variable_in_SPEC_MEMO("You must contact your team to complete the interview within the next 10 days. Please call 612-596-1300 if you would like a phone interview.")
 		Call write_variable_in_SPEC_MEMO(" ")
 		IF region_residence = "Central/NE" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the Human Services building office to complete an interview. The office is located at: 525 Portland Ave. in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "North" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	    ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 5:00 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "South MPLS" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then
@@ -301,13 +376,23 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		ElseIF region_residence = "West" Then
 			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		END IF
+		If CASH_check = 1 Then 
+			Call write_variable_in_SPEC_MEMO(" ")
+			Call write_variable_in_SPEC_MEMO("If you are applying for cash, a face-to-face interview is required. If you have been on cash assistance in the last 12 months, you may not need to be interviewed in the office. You may be able to have a phone interview.")
+		END IF
 		Call write_variable_in_SPEC_MEMO(" ")
-		Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")
+		check_date = dateadd("d", 21, application_date)
+		If date =< check_date then 
+			Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")
+		ELSEif date > check_date then
+			Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 61, application_date)) & ", we will deny your application.")
+		END IF 
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("Auth: Laws of Minnesota 7CFR 273.2(e)(3)")
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("If you cannot attend an interview because of a hardship, please call our office.")
 		Call write_variable_in_SPEC_MEMO("************************************************************")
+		PF4
 	ELSE
 		'Navigates into SPEC/LETR
 		call navigate_to_MAXIS_screen("SPEC", "LETR")
@@ -322,9 +407,8 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 		call create_MAXIS_friendly_date(application_date, 0, 12, 38)
 		call create_MAXIS_friendly_date(date_of_missed_interview, 0, 14, 38)
 		transmit
+		PF4 	'saves the MEMO/LETR
 	END IF
-	PF4 	'saves the MEMO/LETR
-
 	'Navigates to REPT/PND2 and updates for client delay if applicable.
 	If client_delay_check = checked then
 		call navigate_to_MAXIS_screen("rept", "pnd2")
@@ -356,25 +440,56 @@ Elseif recert_check = 7 then		'This is the "no" button on a MsgBox
 			client_delay_check = 0
 		End if
 	End if
-
+	
+	If NOMI_selection = "First NOMI" then 
+		call navigate_to_MAXIS_screen("dail", "writ")
+		call create_MAXIS_friendly_date(date, 11, 5, 18) 
+		Call write_variable_in_TIKL(NOMI_selection & " was sent 11 days ago. Check case notes to see if interview has been conducted. Send the Second NOMI if client has not completed the interview to date.")
+		transmit	
+		PF3
+	End if
+	
+	check_date = dateadd("d", 21, application_date)
+	If NOMI_selection = "Second NOMI" then  
+		call navigate_to_MAXIS_screen("DAIL", "WRIT")
+		IF date =< check_date then 
+			days_pending = "30"
+			call create_MAXIS_friendly_date(application_date, 31, 5, 18)
+		ELSEif date > check_date then  
+			days_pending = "60"
+			call create_MAXIS_friendly_date(application_date, 61, 5, 18)
+		END IF
+		Call write_variable_in_TIKL(NOMI_selection & " was sent & case has been pending for a full " & days_pending & " days. Check case notes to see if interview has been conducted. Deny the case if the client has not completed the interview to date.")
+		transmit	
+		PF3
+	END IF
+ 
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
-	If time_of_missed_interview = "Select one..." Then
+	If time_of_missed_interview = "" Then
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & ".")
 	ELSE
 		Call write_variable_in_CASE_NOTE("* Appointment was scheduled for " & date_of_missed_interview & " at " & time_of_missed_interview & ".")
 	END IF
 	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
-	IF worker_county_code = "x127" then
+	Call write_bullet_and_variable_in_CASE_NOTE("Other information", other_info)
+	IF worker_county_code = "x127" and NOMI_selection = "First NOMI" then
 		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/MEMO informing them of missed interview.")
 	ELSE
 		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
 	END IF
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
+	If NOMI_selection = "First NOMI" then 
+		Call write_variable_in_CASE_NOTE("* First NOMI has been sent")
+		Call write_variable_in_CASE_NOTE("* A TIKL has been made for 11 days from now to follow-up on application progress.")
+	END IF
+	If NOMI_selection = "Second NOMI" then 
+		Call write_variable_in_CASE_NOTE("* Second NOMI has been sent")
+		call write_variable_in_CASE_NOTE("* A TIKL has been made for " & days_pending & " days from application date to follow-up on application progress.")
+	END IF 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	MsgBox "Success! The NOMI has been sent, and a case note has been made."
 End if
 
-script_end_procedure("")
+script_end_procedure("Success! The NOMI has been sent, and a case note has been made.")

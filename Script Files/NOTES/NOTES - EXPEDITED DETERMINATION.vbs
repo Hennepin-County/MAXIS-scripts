@@ -321,14 +321,17 @@ BeginDialog Expedited_Detail_Dialog, 0, 0, 401, 325, "Expedited Determination"
 EndDialog
 
 'Running the Dialog asking for all the detail and explanations
-Do 
-	Dialog Expedited_Detail_Dialog
-	cancel_confirmation
-	err_msg = ""
-	IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
-	IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
-	IF err_msg <> "" Then MsgBox err_msg
-Loop until err_msg = ""
+DO
+	Do
+		Dialog Expedited_Detail_Dialog
+		cancel_confirmation
+		err_msg = ""
+		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
+		IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
+		IF err_msg <> "" Then MsgBox err_msg
+	Loop until err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Formating the information from the edit boxes
 If determined_income = "" Then determined_income = 0
