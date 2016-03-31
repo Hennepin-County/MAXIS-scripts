@@ -50,14 +50,16 @@ STATS_manualtime = 69                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 
-BeginDialog check_snap_dlg, 0, 0, 166, 80, "Check SNAP for GA/RCA"
-  EditBox 105, 10, 50, 15, worker_number
-  CheckBox 15, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
+BeginDialog check_snap_dlg, 0, 0, 166, 100, "Check SNAP for GA/RCA"
+  EditBox 100, 10, 55, 15, worker_number
+  CheckBox 10, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
+  CheckBox 10, 60, 145, 10, "Chere here to add supervisor name to list.", supervisor_check
   ButtonGroup ButtonPressed
-    OkButton 35, 60, 50, 15
-    CancelButton 85, 60, 50, 15
-  Text 15, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
+    OkButton 35, 80, 50, 15
+    CancelButton 85, 80, 50, 15
+  Text 10, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
 EndDialog
+
 
 EMConnect ""
 
@@ -251,14 +253,13 @@ FOR EACH case_number IN case_array
 	END IF
 
 	excel_row = excel_row + 1
+
 NEXT
 
-'Autofitting the columns
 FOR i = 1 to 4
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-'If the user has elected to add the supervisor name to the output...
 IF supervisor_check = 1 THEN 
 	'Adding additional manual time to the stats counter. I have timed this out to be about 25 seconds per case.
 	STATS_manualtime = STATS_manualtime + 25
