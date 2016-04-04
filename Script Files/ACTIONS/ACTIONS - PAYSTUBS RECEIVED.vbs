@@ -267,7 +267,12 @@ LOOP UNTIL ButtonPressed = -1 AND number_of_paystubs <> "" AND IsNumeric(number_
 
 DO
 	CALL create_paystubs_received_dialog(worker_signature, number_of_paystubs, paystubs_array, explanation_of_income, employer_name, document_datestamp, pay_frequency, JOBS_verif_code)
-
+	
+		'From Robert Fewins-Kalb on 03/31/2016 (because this script is massive and I want to document want what is added, when and why)
+		'Making sure that the script returns to the JOBS panel it is supposed to.
+		'Addition of check_for_password appears to force through a transmit which causes the script to jump ahead 1 JOBS panel
+	CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
+	
 	err_msg = ""
 	'Checking dates to make sure all are on the same day of the week, in instances of weekly or biweekly income. This avoids a possible issue
 	'resulting from a paydate being "moved" due to a holiday, and affecting the rest of the calculation for income. If the dates are not all on the
