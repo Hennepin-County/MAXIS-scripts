@@ -50,14 +50,16 @@ STATS_manualtime = 69                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 
-BeginDialog check_snap_dlg, 0, 0, 166, 80, "Check SNAP for GA/RCA"
-  EditBox 105, 10, 50, 15, worker_number
-  CheckBox 15, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
+BeginDialog check_snap_dlg, 0, 0, 166, 100, "Check SNAP for GA/RCA"
+  EditBox 100, 10, 55, 15, worker_number
+  CheckBox 10, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
+  CheckBox 10, 60, 145, 10, "Chere here to add supervisor name to list.", supervisor_check
   ButtonGroup ButtonPressed
-    OkButton 35, 60, 50, 15
-    CancelButton 85, 60, 50, 15
-  Text 15, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
+    OkButton 35, 80, 50, 15
+    CancelButton 85, 80, 50, 15
+  Text 10, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
 EndDialog
+
 
 EMConnect ""
 
@@ -253,6 +255,48 @@ FOR EACH case_number IN case_array
 	excel_row = excel_row + 1
 
 NEXT
+
+FOR i = 1 to 4
+	objExcel.Columns(i).AutoFit()
+NEXT
+
+IF supervisor_check = 1 THEN 
+	'Adding additional manual time to the stats counter. I have timed this out to be about 25 seconds per case.
+	STATS_manualtime = STATS_manualtime + 25
+	
+	'Adding a column to the left of the data
+	SET objSheet = objWorkbook.Sheets("Sheet1")
+	objSheet.Columns("A:A").Insert -4161
+	objExcel.Cells(1, 1).Value = "SUPERVISOR NAME"
+	
+	'Going to REPT/USER
+	CALL navigate_to_MAXIS_screen("REPT", "USER")
+	
+	'Starting back at the top of the page
+	excel_row = 2
+	DO
+		worker_id = objExcel.Cells(excel_row, 2).Value
+		prev_worker_id = objExcel.Cells(excel_row - 1, 2).Value
+		IF worker_id <> prev_worker_id THEN 
+			'Entering the worker number into REPT/USER
+			CALL write_value_and_transmit(worker_id, 21, 12)
+			CALL write_value_and_transmit("X", 7, 3)
+			'Grabbing the supervisor X1 number
+			EMReadScreen supervisor_id, 7, 14, 61
+			transmit
+			CALL write_value_and_transmit(supervisor_id, 21, 12)
+			EMReadScreen supervisor_name, 18, 7, 14
+			supervisor_name = trim(supervisor_name)
+			objExcel.Cells(excel_row, 1).Value = supervisor_name
+		ELSE
+			'Adding the supervisor name from the previous row if the X1 number on this row matches the X1 number on the previous row
+			objExcel.Cells(excel_row, 1).Value = objExcel.Cells(excel_row - 1, 1).Value
+		END IF
+		excel_row = excel_row + 1
+	LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
+	
+	objExcel.Columns(1).AutoFit()
+END IF
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Done")
