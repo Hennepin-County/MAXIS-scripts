@@ -54,7 +54,7 @@ STATS_denomination = "C"       'C is for each CASE
 BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
   EditBox 75, 5, 60, 15, case_number
   DropListBox 75, 25, 65, 15, "Select one..."+chr(9)+"Requested"+chr(9)+"Pending"+chr(9)+"Approved"+chr(9)+"Denied", Sig_change_status_dropdown
-  DropListBox 75, 45, 215, 15, "Select one..."+chr(9)+"Income didn't decline at least 50% in the benefit month."+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change."+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason_dropdown
+  DropListBox 75, 45, 215, 15, "Select one..."+chr(9)+"Income did not decrease enough to qualify."+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change."+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason_dropdown
   DropListBox 75, 75, 55, 15, "Select one..."+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", Month_requested_dropdown
   EditBox 160, 75, 25, 15, Month_Requested_Year
   EditBox 75, 95, 35, 15, Last_month_used
@@ -82,6 +82,7 @@ BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
   Text 140, 80, 20, 10, "Year"
   Text 190, 80, 70, 10, "*Enter 4 digit year"
 EndDialog
+
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------
 EMConnect "" 'Connects to Bluezone
