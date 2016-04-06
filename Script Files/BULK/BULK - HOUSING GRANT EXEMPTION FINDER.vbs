@@ -202,8 +202,8 @@ For each worker in worker_array
 		Do
 			MAXIS_row = 7	'Sets the row to start searching in MAXIS for
 			Do
-				EMReadScreen emps_status, 2, MAXIS_row, 52		'Reading Emps Status
-				If  emps_status = "02" OR emps_status = "07" OR _		'only searches for exempt emps status codes
+				EMReadScreen emps_status, 2, MAXIS_row, 52		'Reading Emps Status & only searches for exempt emps status codes
+				If  emps_status = "02" OR emps_status = "07" OR _		
 					emps_status = "08" OR emps_status = "12" OR _
 					emps_status = "23" OR emps_status = "24" OR _
 					emps_status = "27" OR emps_status = "15" OR _
