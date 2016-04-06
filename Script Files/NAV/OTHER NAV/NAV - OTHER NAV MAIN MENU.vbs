@@ -48,20 +48,24 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog OTHER_NAV_scripts_main_menu_dialog, 0, 0, 456, 140, "Other NAV scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 400, 120, 50, 15
-    PushButton 375, 5, 65, 10, "SIR instructions", SIR_instructions_button
-    PushButton 5, 20, 100, 10, "Look up MAXIS case in MMIS", 		LOOK_UP_MAXIS_CASE_IN_MMIS_button
-    PushButton 5, 35, 100, 10, "Look up MMIS PMI in MAXIS", 		LOOK_UP_MMIS_PMI_IN_MAXIS_button
-    PushButton 5, 50, 120, 10, "Move production screen to inquiry", 	MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button
-    PushButton 5, 70, 120, 10, "Phone number OR Name look up",          PHONE_NUMBER_OR_NAME_LOOK_UP_button
-    PushButton 5, 95, 40, 10, "View INFC", 					VIEW_INFC_button
-  Text 5, 5, 245, 10, "Other nav scripts main menu: select the script to run from the choices below."
+    CancelButton 400, 120, 50, 20
+    PushButton 370, 0, 70, 10, "SIR instructions", SIR_instructions_button
+    PushButton 0, 20, 100, 10, "Look up MAXIS case in MMIS", 		LOOK_UP_MAXIS_CASE_IN_MMIS_button
+    PushButton 0, 30, 100, 10, "Look up MMIS PMI in MAXIS", 		LOOK_UP_MMIS_PMI_IN_MAXIS_button
+    PushButton 0, 50, 120, 10, "Move production screen to inquiry", 	MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button
+    PushButton 0, 70, 120, 10, "Phone number OR Name look up", PHONE_NUMBER_OR_NAME_LOOK_UP_button
+    PushButton 0, 110, 40, 10, "View INFC", 					VIEW_INFC_button
+  Text 0, 0, 250, 10, "Other nav scripts main menu: select the script to run from the choices below."
   Text 110, 20, 250, 10, "--- Navigates to RELG in MMIS for a selected case. Navigates to person 01."
-  Text 110, 35, 140, 10, "--- Jumps from MMIS to MAXIS for a case."
-  Text 130, 50, 195, 10, "--- Moves a screen from MAXIS production to MAXIS inquiry."
-  Text 135, 65, 315, 25, "--- Checks every case on PND1, PND2, ACTV, REVW, or INAC, to find a case number when you have a phone number. *OR* Searches for a specific case on multiple REPT screens by last name."
-  Text 50, 95, 400, 10, "--- Views an INFC panel for a case."
+  Text 110, 30, 140, 10, "--- Jumps from MMIS to MAXIS for a case."
+  Text 130, 50, 200, 10, "--- Moves a screen from MAXIS production to MAXIS inquiry."
+  Text 130, 70, 320, 20, "--- Checks every case on PND1, PND2, ACTV, REVW, or INAC, to find a case number when you have a phone number. *OR* Searches for a specific case on multiple REPT screens by last name."
+  Text 50, 110, 400, 10, "--- Views an INFC panel for a case."
+  ButtonGroup ButtonPressed
+    PushButton 0, 90, 100, 10, "PRISM Screen Finder", PRISM_SCREENFINDER_button
+  Text 110, 90, 330, 20, "--- Tool for use in PRISM to navigate to popular screens.  The navigation window stays open until user closes it."
 EndDialog
+
 
 
 'Variables to declare
@@ -84,6 +88,8 @@ If buttonpressed = LOOK_UP_MMIS_PMI_IN_MAXIS_button						then call run_from_GitH
 If buttonpressed = MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button					then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - MOVE PRODUCTION SCREEN TO INQUIRY.vbs")
 IF ButtonPressed = PHONE_NUMBER_OR_NAME_LOOK_UP_button								then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - PHONE NUMBER OR NAME LOOK UP.vbs")
 If buttonpressed = VIEW_INFC_button									then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - VIEW INFC.vbs")
+IF buttonpressed = PRISM_SCREENFINDER_button                                              then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - PRISM SCREEN FINDER.vbs")         
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
+
