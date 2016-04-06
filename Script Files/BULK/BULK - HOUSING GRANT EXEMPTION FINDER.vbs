@@ -45,13 +45,13 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 120                     'manual run time in seconds
-STATS_denomination = "C"       			   'C is for each CASE
+STATS_counter = 1                       'sets the stats counter at one
+STATS_manualtime = "526"                     'manual run time in seconds
+STATS_denomination = "C"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
 'DIALOGS----------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 218, 120, "Housing Grant Exemption Finder"
+BeginDialog Housing_grant_exemption_finder_dialog, 0, 0, 218, 120, "Housing Grant Exemption Finder"
   EditBox 84, 20, 130, 15, worker_number
   CheckBox 4, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
@@ -67,19 +67,18 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
-'remove after testing
-worker_number = "x127EZ4"
-
 'Shows dialog
-DO
-	Dialog pull_rept_data_into_Excel_dialog
-	If buttonpressed = cancel then stopscript
-	If worker_number = "" then MsgBox "Please enter at least one worker number." 
-LOOP until worker_number <> ""
-
+Do
+	Do
+		Dialog Housing_grant_exemption_finder_dialog
+		If buttonpressed = cancel then stopscript
+		If (all_workers_check = 0 AND worker_number = "") then MsgBox "Please enter at least one worker number." 
+	LOOP until all_workers_check = 1 or worker_number <> ""
+	Call check_for_password(are_we_passworded_out)
+Loop until check_for_password(are_we_passworded_out) = False
+	
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-Call check_for_MAXIS(True)	'Checking for MAXIS
 
 'Fun with dates! --Creating variables for the rolling 12 calendar months
 'current month -1
@@ -136,34 +135,36 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
-'Setting the Excel rows with varibles 
+'Setting the Excel rows with variables 
 ObjExcel.Cells(1, 1).Value = "WORKER"
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
-ObjExcel.Cells(1, 4).Value = "EMPS"
-ObjExcel.Cells(1, 5).Value = "DISA DATES"
-ObjExcel.Cells(1, 6).Value = "MFIP BEGIN DATE"
-ObjExcel.Cells(1, 7).Value = current_month					'using date calculations above, list will generate a rolling 12 months of information
-ObjExcel.Cells(1, 8).Value = current_month_minus_one
-ObjExcel.Cells(1, 9).Value = current_month_minus_two
-ObjExcel.Cells(1, 10).Value = current_month_minus_three
-ObjExcel.Cells(1, 11).Value = current_month_minus_four
-ObjExcel.Cells(1, 12).Value = current_month_minus_five
-ObjExcel.Cells(1, 13).Value = current_month_minus_six
-ObjExcel.Cells(1, 14).Value = current_month_minus_seven
-ObjExcel.Cells(1, 15).Value = current_month_minus_eight
-ObjExcel.Cells(1, 16).Value = current_month_minus_nine
-ObjExcel.Cells(1, 17).Value = current_month_minus_ten
-ObjExcel.Cells(1, 18).Value = current_month_minus_eleven
+ObjExcel.Cells(1, 4).Value = "REF #"
+ObjExcel.Cells(1, 5).Value = "EMPS"
+ObjExcel.Cells(1, 6).Value = "DISA DATES"
+ObjExcel.Cells(1, 7).Value = "MFIP BEGIN DATE"
+ObjExcel.Cells(1, 8).Value = current_month					'using date calculations above, list will generate a rolling 12 months of information
+ObjExcel.Cells(1, 9).Value = current_month_minus_one
+ObjExcel.Cells(1, 10).Value = current_month_minus_two
+ObjExcel.Cells(1, 11).Value = current_month_minus_three
+ObjExcel.Cells(1, 12).Value = current_month_minus_four
+ObjExcel.Cells(1, 13).Value = current_month_minus_five
+ObjExcel.Cells(1, 14).Value = current_month_minus_six
+ObjExcel.Cells(1, 15).Value = current_month_minus_seven
+ObjExcel.Cells(1, 16).Value = current_month_minus_eight
+ObjExcel.Cells(1, 17).Value = current_month_minus_nine
+ObjExcel.Cells(1, 18).Value = current_month_minus_ten
+ObjExcel.Cells(1, 19).Value = current_month_minus_eleven
+objExcel.cells(1, 20).Value = "Privileged Cases"
 
-FOR i = 1 to 18		'formatting the cells'
+FOR i = 1 to 20		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-	objExcel.Columns(i).AutoFit()						'sizing the colums'
+	objExcel.Columns(i).AutoFit()						'sizing the columns'
 NEXT
 
-'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
+'Figuring out what to put in each Excel col. To add future variables to this, add the check box variables below and copy/paste the same code!
 'Below, use the "[blank]_col" variable to recall which col you set for which option.
-col_to_use = 19 'Starting with 19 because cols 1-18 are already used
+col_to_use = 21 'Starting with 19 because cols 1-18 are already used
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -202,19 +203,20 @@ For each worker in worker_array
 			MAXIS_row = 7	'Set variable for next do...loop
 			Do
 				EMReadScreen emps_status, 2, MAXIS_row, 52		'Reading Emps Status
-				If emps_status = "02" OR emps_status = "08" OR _	
-				   	emps_status = "10" OR emps_status = "12" OR _
-				   	emps_status = "23" OR emps_status = "24" OR _
-				   	emps_status = "27" OR emps_status = "15" OR _
-				   	emps_status = "18" OR emps_status = "18" OR _
-				   	emps_status = "30" OR emps_status = "33" THEN
-						EMReadScreen case_number, 8, MAXIS_row, 6		  'Reading case number
-						EMReadScreen client_name, 20, MAXIS_row, 16		'Reading client name
+				If  emps_status = "02" OR emps_status = "07" OR _	
+					emps_status = "08" OR emps_status = "12" OR _
+					emps_status = "23" OR emps_status = "24" OR _
+					emps_status = "27" OR emps_status = "15" OR _
+					emps_status = "18" OR emps_status = "30" OR _
+					emps_status = "33" THEN
+						EMReadScreen case_number, 8, MAXIS_row, 6  	'Reading case number
+						EMReadScreen emps_status, 2, MAXIS_row, 52	'Reading emps_status
 						'if more than one HH member is on the list then non-MEMB 01's don't have a case number listed, this fixes that
 						If trim(case_number) = "" AND trim(client_name) <> "" then 			'if there's a name and no case number 
 							EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6				'then it reads the row above
 							case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'
 						END IF
+						
 						'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 						If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
 						all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
@@ -223,10 +225,8 @@ For each worker in worker_array
 						'add case/case information to Excel
         			ObjExcel.Cells(excel_row, 1).Value = worker
         			ObjExcel.Cells(excel_row, 2).Value = case_number
-        			ObjExcel.Cells(excel_row, 3).Value = client_name
-        			ObjExcel.Cells(excel_row, 4).Value = emps_status
-    				excel_row = excel_row + 1	'moving excel row to next row'
-					STATS_counter = STATS_counter + 1		 'adds one instance to the stats counter
+    				ObjExcel.Cells(excel_row, 5).Value = emps_status
+					excel_row = excel_row + 1	'moving excel row to next row'					
 					case_number = ""
 				END IF
 							'Blanking out variable
@@ -242,27 +242,39 @@ next
 excel_row = 2           're-establishing the row to start checking the members for 
 Do 						'Loops until there are no more cases in the Excel list
 	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
-	client_name = objExcel.cells(excel_row, 3).Value	're-establishing the client name
+	Call navigate_to_MAXIS_screen("REPT", "MFCM")
+	EMWriteScreen "________", 20, 28
+	EMWriteScreen case_number, 20, 28
+	EMWriteScreen "x", 7, 36		'going into the SANC panel to get case info
+	transmit
+	EMReadScreen PRIV_check, 4, 24, 14
+	If PRIV_check = "PRIV" then 
+		priv_case_list = priv_case_list & "|" & case_number
+		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+		objRange.Delete
+		Do
+			back_to_self
+			EMReadScreen SELF_screen_check, 4, 2, 50
+			If SELF_screen_check <> "SELF" then PF3
+		LOOP until SELF_screen_check = "SELF"
+		EMWriteScreen "________", 18, 43
+		transmit
+	END IF 
+	'For all of the cases that aren't privileged...
+	EMReadScreen case_number, 8, 20, 37		  'Reading case number
+	case_number = replace(case_number, "_", "")
+	EMReadScreen client_name, 50, 4, 16		'Reading client name
 	client_name = trim(client_name)
-	If case_number = "" then exit do	
-	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-	DO					'Do Loop is searching for MEMB #, this is needed for SHEL and DISA
-        EMReadScreen last_name, 25, 6, 30
-        EMReadScreen first_name, 12, 6, 63
-        EmReadScreen middle_name, 1, 6, 79
-		last_name = Replace(last_name,"_","")
-        first_name = Replace(first_name,"_","")
-		middle_name= Replace(middle_name,"_","")
-		name_of_client = trim(last_name & ", " & first_name & " " & middle_name) 		'adds the variables together to make a new name variable
-		If ucase(client_name) = ucase(name_of_client) then 
-			EMReadScreen memb_number, 2, 4, 33
-			exit do
-		ELSE 
-			transmit
-		END IF
-		Msgbox client_name & vbnewline & name_of_client
-    LOOP until client_name = name_of_client		'if not, transmit and loop until client_name is found
-    
+	EMReadScreen memb_number, 2, 4, 12		'reading member number
+	PF3
+	
+	If len(memb_number) = 1 then memb_number = "0" & right(memb_number, 2)
+	client_name = trim(client_name)
+	If case_number = "" then exit do
+	
+	ObjExcel.Cells(excel_row, 3).Value = client_name
+    ObjExcel.Cells(excel_row, 4).Value = memb_number
+		
     'checking member for subsidized housing 
     Call navigate_to_MAXIS_screen("STAT", "SHEL")
     EMWriteScreen memb_number, 20, 76
@@ -277,11 +289,11 @@ Do 						'Loops until there are no more cases in the Excel list
     excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
 
-'Now the script checks for MFIP start date, disa dates and inputs payment history
-'STAT PROG PORTION
+'Now the script checks for MFIP start date, disa dates
 excel_row = 2           're-establishing the row to start checking the members for 
 DO	
 	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
+	If case_number = "" then exit do
 	Call navigate_to_MAXIS_screen("STAT", "PROG")
 	'reading the MFIP start date
 	EMReadScreen prog_one, 2, 6, 67				'checking 1st line of CASH PROG for elig MFIP
@@ -296,8 +308,18 @@ DO
 		EMReadScreen elig_begin_date_two, 8, 7, 44
 		elig_begin_date = elig_begin_date_two
 	END IF 
-	ObjExcel.Cells(excel_row, 6).Value = elig_begin_date
-	msgbox elig_begin_date
+	
+	ObjExcel.Cells(excel_row, 7).Value = elig_begin_date
+	
+	PF3		'exits PROG to prompt HCRE if HCRE isn't complete
+	'Because some cases don't have HCRE dates listed, so when you try to go past PROG the script gets caught up. Do...loop handles this instance.
+	Do
+		EMReadscreen HCRE_panel_check, 4, 2, 50
+		If HCRE_panel_check = "HCRE" then 
+			PF10	'exists edit mode in cases where HCRE isn't complete for a member
+			PF3
+		END IF
+	Loop until HCRE_panel_check <> "HCRE"
 	
 	'STAT DISA PORTION
 	Call navigate_to_MAXIS_screen("STAT", "DISA")
@@ -309,10 +331,18 @@ DO
 	disa_start_date = Replace(disa_start_date," ","/")
 	disa_end_date = Replace(disa_end_date," ","/")
 	disa_dates = trim(disa_start_date) & " - " & trim(disa_end_date)
+	If disa_dates = "__/__/____ - __/__/____" then disa_dates = "NO DISA INFO"
 	'adding disa date to Excel 
-	ObjExcel.Cells(excel_row, 5).Value = disa_dates
+	ObjExcel.Cells(excel_row, 6).Value = disa_dates
 	
-	'INQX/INQD PORTION
+	excel_row = excel_row + 1	'moving excel row to next row'
+LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
+	
+'Now the script inputs the payment information from INQD/INQX
+excel_row = 2           're-establishing the row to start checking the members for 
+DO	
+	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
+	If case_number = "" then exit do
 	back_to_self
 	EMWriteScreen "________", 18, 43
 	EMWriteScreen case_number, 18, 43
@@ -323,29 +353,70 @@ DO
 	EMWriteScreen CM_yr, 6, 56
 	EMWriteScreen "x", 10, 5		'selecting MFIP
 	transmit
-	'searching for the housing grant issued on the INQD screen(s)
-	DO
-		row = 6
+	
+	'creating an array of issuance months to fill in the Excel list from INQD
+	issuance_months_array = array(current_month, current_month_minus_one, current_month_minus_two, current_month_minus_three, _ 
+	current_month_minus_four, current_month_minus_five, current_month_minus_six, current_month_minus_seven, current_month_minus_eight, _
+	current_month_minus_nine, current_month_minus_ten, current_month_minus_eleven)
+	
+	'searching for the housing grant issued on the INQX/INQD screen(s)	
+	excel_col = 8		'establishing the col to start at
+	
+	For each issuance_month in issuance_months_array 
 		DO
-			EMReadScreen housing_grant, 2, row, 19		'searching for housing grant issuance
-			If housing_grant = "__" then exit do
-			IF housing_grant = "HG" then
-				'reading the housing grant information
-				EMReadScreen EMER_type, 2, row, 19
-				EMReadScreen EMER_amt_issued, 7, row, 39
-				EMReadScreen HG_month, 2, row, 73
-				EMReadScreen HG_year, 2, row, 77
-			END IF	
-			row = row + 1
-		Loop until row = 18				'repeats until the end of the page
+			If issuance_month = "05/15" or issuance_month = "06/15" then 
+				month_total = "n/a"
+				exit do
+			END IF 
+			row = 6				'establishing the row to start searching for issuance'
+			DO
+				EMReadScreen housing_grant, 2, row, 19		'searching for housing grant issuance
+				If housing_grant = "  " then exit do
+				IF housing_grant = "HG" then
+					'reading the housing grant information
+					EMReadScreen HG_amt_issued, 7, row, 40
+					EMReadScreen HG_month, 2, row, 73
+					EMReadScreen HG_year, 2, row, 79
+					INQD_issuance_month = HG_month & "/" & HG_year
+					If issuance_month = INQD_issuance_month then 
+						HG_amt_issued = trim(HG_amt_issued)
+					ELSE 
+						HG_amt_issued = "0"
+					END IF 
+					If month_total = "" then month_total = "0" 
+					month_total = month_total + abs(HG_amt_issued)
+				END IF
+				row = row + 1
+			Loop until row = 18				'repeats until the end of the page
 			PF8
 			EMReadScreen last_page_check, 21, 24, 2
 			If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
-	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+		LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 		
-	'excel_row = excel_row + 1	'moving excel row to next row'
-'LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
+		'adding issuance amounts to the appropriate column
+		ObjExcel.Cells(excel_row, excel_col).Value = month_total
+		excel_col = excel_col + 1
+		month_total = ""	'resets the month_total variable to ""
+		
+		Do				'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
+			PF7	
+			EMReadScreen first_page_check, 20, 24, 2
+		LOOP until first_page_check = "THIS IS THE 1ST PAGE"
+	NEXT
 	
+	excel_row = excel_row + 1	'moving excel row to next row
+	STATS_counter = STATS_counter + 1		 'adds one instance to the stats counter
+LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is complete
+
+'Creating the list of privileged cases and adding to the spreadsheet
+prived_case_array = split(priv_case_list, "|")
+excel_row = 2
+
+FOR EACH case_number in prived_case_array
+	objExcel.cells(excel_row, 20).value = case_number
+	excel_row = excel_row + 1
+NEXT
+
 '------------------------------Post MAXIS coding-----------------------------------------------------------------------------
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
 
@@ -357,12 +428,11 @@ ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
-'Autofitting columns
+'Auto-fitting columns
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-msgbox STATS_counter
 script_end_procedure("Success! Please review the list generated.")
