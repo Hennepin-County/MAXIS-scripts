@@ -60,18 +60,20 @@ BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 200, "MFIP Housi
   EditBox 165, 10, 25, 15, member_number
   EditBox 245, 10, 25, 15, initial_month
   EditBox 275, 10, 25, 15, initial_year
-  EditBox 55, 105, 245, 15, other_notes
-  EditBox 75, 130, 110, 15, worker_signature
+  EditBox 55, 150, 245, 15, other_notes
+  EditBox 75, 175, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 195, 130, 50, 15
-    CancelButton 250, 130, 50, 15
-  Text 25, 55, 215, 30, "Snappy warning text to come later"
+    OkButton 195, 175, 50, 15
+    CancelButton 250, 175, 50, 15
+  Text 15, 80, 280, 35, "Before you use the script, please review the case for eligibility for the MFIP housing grant, and ensure that the results in ELIG/MFIP reflect eligibility for the month the MONY/CHCK is being issued. You can do this by running the case through background for the applicable footer month/year."
   Text 200, 15, 40, 10, "month/year:"
-  Text 10, 135, 60, 10, "Worker signature:"
-  GroupBox 10, 35, 290, 60, "MFIP Housing Grant MONY/CHCK Issuance:"
+  Text 10, 180, 60, 10, "Worker signature:"
+  GroupBox 10, 35, 290, 110, "MFIP Housing Grant MONY/CHCK Issuance:"
   Text 125, 15, 35, 10, "Member #:"
   Text 10, 15, 50, 10, "Case Number:"
-  Text 10, 110, 45, 10, "Other notes:"
+  Text 10, 155, 45, 10, "Other notes:"
+  Text 15, 55, 280, 20, "This script should be used when the MFIP housing grant should have been issued on an eligible case for months prior to the current month or current month plus one. "
+  Text 15, 120, 280, 20, "A case note will also be made reflecting the issuance of the MONY/CHCK. Please add additional information for the case not in the 'other notes' field below."
 EndDialog
 
 'The script============================================================================================================================
@@ -123,10 +125,11 @@ DO
 		IF housing_grant = "HG" then
 			'reading the housing grant information
 			EMReadScreen HG_amt_issued, 7, row, 40
-			EMReadScreen HG_month, 2, row, 73
+			EMReadScreen HG_month, 2, row, 73	
 			EMReadScreen HG_year, 2, row, 79
-			INQD_issuance = HG_month & HG_year
-			month_of_issuance = initial_month & initial_year
+			INQD_issuance = HG_month & HG_year			'creates a new variable for housing grant month & year
+			month_of_issuance = initial_month & initial_year	'creates a new variable with footer month & footer year from dialog
+			'if an issuance is found that matches the month/year selected by the user, the script will stop
 			If month_of_issuance = INQD_issuance then script_end_procedure("Issuance has already been made on the month selected. Please review your case, and update manually.")
 			Else
 				row = row + 1
@@ -137,7 +140,7 @@ DO
 		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
-'goes into ELIG/MFIP and checks for sanctions and a FIATED version of the month selected'
+'goes into ELIG/MFIP and checks for sanctions and a FIATED version of the month selected
 Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 DO 
 	MAXIS_row = 7			
@@ -167,30 +170,35 @@ If MFIP_sanction = "Y" then	script_end_procedure("A sanction exist for this memb
 
 'checking for FIAT'd version that shows case is elig for the $110 housing grant
 Call navigate_to_MAXIS_screen("ELIG", "MFSM")
-EMReadScreen fiat_check, 4, 9, 31
 EMReadScreen housing_grant_issued, 6, 16, 75
-IF fiat_check <> "FIAT" and housing_grant_issued <> "110.00" then script_end_procedure("You must FIAT this case prior to issuing the MONY/CHCK. Please FIAT, then try again")
+IF housing_grant_issued <> "110.00" then script_end_procedure("You must run this case through background to populate housing grant results prior to issuing the MONY/CHCK. Please try again.")
 
 'navigates to MONY/CHCK and inputs codes into 1st screen
+back_to_SELF
+EMWritescreen initial_month, 20, 43			'enters footer month/year user selected since you have to be in the same footer month/year as the CHCK is being issued for
+EMWritescreen initial_year, 20, 46
+
 Call navigate_to_MAXIS_screen("MONY", "CHCK")
-EMWriteScreen "MF", 5, 17
+EMWriteScreen "MF", 5, 17		'enters mandatory codes per HG bulletin
 EMWriteScreen "MF", 5, 21
 EMWriteScreen "31", 5, 32		'restored payment code per the HG bulletin
 EMWriteScreen member_number, 7, 27
-transmit 	
+transmit 
+EMReadScreen future_month_check, 7, 24, 2
+IF future_month_check = "PERIOD" then script_end_procedure("You cannot issue a MONY/CHCK for a future month. Approve results in ELIG/MFIP.")	
 
 'now we're on the MFIP issuance detail pop-up screen
 EMWriteScreen "01", 10, 6
 EMWriteScreen member_code, 10, 14		'adds coding from MFBF into issuance detail screen
 EMWriteScreen cash_portion, 10, 23 
 EMWriteScreen state_portion, 10, 33
-EMwritescreen "110.00", 10, 53
+EMwritescreen "110.00", 10, 53			'enters the housing grant amount
 transmit
-EMReadScreen ID_10_T_error_check, 7, 17, 4			'checking to make sure that 
+EMReadScreen ID_10_T_error_check, 7, 17, 4			'double-checking that a duplicate issuance has not been made
 IF ID_10_T_error_check = "HOUSING" then script_end_procedure ("Housing grant may have already been issued. Please recheck your case, and try again.")
-EMWriteScreen "Y", 15, 52
+EMWriteScreen "Y", 15, 52	'Y to REI issuance since grants are to be issued ASAP
 transmit
-EMWriteScreen "Y", 15, 29	
+EMWriteScreen "Y", 15, 29	'Y to confirm approval
 transmit
 transmit 
 transmit	'transmit three times to get to the restoration of benefits screen '
@@ -205,6 +213,7 @@ If emps_status = "02" or emps_status = "07" or emps_status = "12" or emps_status
 Else 
 	EMWriteScreen "Caregivers caring for a disabled member", 17, 18
 END IF 
+PF4  'sends the restoration letter
 
 'updating emps_status coding for case note'
 If  emps_status = "02" then emps_status = "Age 60 or older"
@@ -214,14 +223,13 @@ If emps_status = "12" or emps_status = "27" then emps_status = "Special medical 
 If emps_status = "15" or emps_status = "30" then emps_status = "Mentally Ill"
 If emps_status = "18" or emps_status = "33" then emps_status = "SSI/RSDI pending"
 
-'Case noting the MONY/CHCK info'
+'Case noting the MONY/CHCK info
 Call start_a_blank_case_note
 Call write_variable_in_case_note("**MONY/CHCK ISSUED FOR HOUSING GRANT for " & initial_month & "/" & initial_year& "**")
 Call write_variable_in_case_note("* Housing grant issued due to family meeting an exemption per CM.13.03.09.")
 Call write_variable_in_case_note("* Member " & member_number & " exemption is: " & emps_status & ".")
-Call write_variable_in_case_note("* Results for " & initial_month & "/" & initial_year & " have been FIATed in ELIG/MFIP.")
 Call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 Call write_variable_in_case_note("--")
 Call write_variable_in_case_note(worker_signature)
 
-script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
+script_end_procedure("Success! A MONY/CHCK has been issued. Please review the case to ensure that all housing grant issuances have been made.")
