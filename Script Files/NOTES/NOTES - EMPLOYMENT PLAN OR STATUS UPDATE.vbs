@@ -22,7 +22,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
+			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
 					vbCr & _
 					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 					vbCr & _
@@ -33,7 +33,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 					vbTab & vbTab & "responsible for network issues." & vbCr &_
 					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
+					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
 					vbCr &_
 					"URL: " & FuncLib_URL
 					script_end_procedure("Script ended due to error connecting to GitHub.")
@@ -55,7 +55,42 @@ STATS_manualtime = 90           'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
+'For agencies using the access es database, we need to collect the ES providers before dialog
+IF collecting_ES_statistics = TRUE THEN
+'Collecting ES agencies from database
+		'Setting constants
+		Const adOpenStatic = 3
+		Const adLockOptimistic = 3
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+		'Opening DB
+	objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "U:/PHHS/BlueZoneScripts/Statistics/ES statistics.accdb"
+		'This looks for an existing case number and edits it if needed
+		set rs = objConnection.Execute("SELECT SiteName FROM ESSitesTbl")' Grabbing all ES agency site names
+		Dim ES_agencies
+		ES_agencies = rs.GetRows()
+	objConnection.Close
+	set rs = nothing
+
+	call convert_array_to_droplist_items (ES_agencies, ES_agency_list) 'this function turns the names into a droplist format'
+END IF
+
 'DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog agency_dropdown_case_number_dialog, 0, 0, 196, 160, "Status Update / Employment Plan"
+  ButtonGroup ButtonPressed
+    OkButton 65, 130, 50, 15
+    CancelButton 125, 130, 50, 15
+  EditBox 110, 10, 65, 15, case_number
+  DropListBox 15, 35, 85, 15, "Status Update"+chr(9)+"Employment Plan", update_type
+  DropListBox 115, 35, 60, 15, "Received"+chr(9)+"Sent", received_sent
+  DropListBox 75, 60, 100, 15, ES_agency_list, agency
+  EditBox 110, 10, 65, 15, case_number
+  EditBox 110, 85, 65, 15, document_date
+  Text 20, 85, 65, 15, "Document Date:"
+  Text 20, 60, 55, 15, "Agency:"
+EndDialog
+
 BeginDialog case_number_dialog, 0, 0, 196, 130, "Status Update / Employment Plan"
   ButtonGroup ButtonPressed
     OkButton 55, 95, 50, 15
@@ -76,7 +111,7 @@ BeginDialog employment_plan_dialog, 0, 0, 311, 265, "Employment Plan Received"
   DropListBox 65, 10, 45, 15, "DWP"+chr(9)+"MFIP", program_list
   EditBox 210, 10, 30, 15, hh_member
   EditBox 65, 35, 75, 15, ES_provider
-  EditBox 210, 35, 85, 15, ES_counselor
+	EditBox 210, 35, 85, 15, ES_counselor
   DropListBox 65, 60, 90, 15, "1. Employment Search"+chr(9)+"2. Employment"+chr(9)+"3. High School / GED"+chr(9)+"4. Higher Ed"+chr(9)+"5. Health / Medical", primary_activity
   EditBox 210, 60, 40, 15, activity_hours
   CheckBox 65, 80, 45, 15, "FSS", FSS_check
@@ -104,8 +139,6 @@ BeginDialog employment_plan_dialog, 0, 0, 311, 265, "Employment Plan Received"
   Text 5, 100, 30, 15, "Job:"
   Text 5, 120, 35, 15, "School:"
   Text 5, 140, 50, 15, "Disa end date:"
-  
-EndDialog
 
 EndDialog
 
@@ -128,7 +161,7 @@ BeginDialog status_update_dialog, 0, 0, 246, 195, "Status Update"
   Text 70, 70, 40, 20, "New ES Status:"
   Text 5, 105, 35, 15, "Notes:"
   Text 5, 125, 50, 15, "Actions Taken:"
-  Text 5, 145, 60, 15, "Worker Signature:"  
+  Text 5, 145, 60, 15, "Worker Signature:"
   Text 145, 70, 35, 20, "Effective Date:"
 EndDialog
 
@@ -141,7 +174,11 @@ call MAXIS_case_number_finder(case_number)
 DO
 	DO
 		DO
-			Dialog case_number_dialog
+			IF collecting_ES_statistics = TRUE THEN
+				Dialog agency_dropdown_case_number_dialog
+			ELSE
+				Dialog case_number_dialog
+			END IF
 			IF ButtonPressed = 0 THEN stopscript
 		LOOP UNTIL ButtonPressed = OK
 		IF isnumeric(case_number) = FALSE THEN MsgBox "You must enter a case number. Please try again."
@@ -149,7 +186,56 @@ DO
 	IF isdate(document_date) = FALSE THEN  MsgBox "Please enter a valid document date."
 LOOP UNTIL isdate(document_date) = True
 
-'-------Employment plan dialog
+IF collecting_ES_statistics = TRUE THEN
+	'Getting the counselor list based on chosen sitename
+	objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "U:/PHHS/BlueZoneScripts/Statistics/ES statistics.accdb"
+		'looking up the provider value from provider table due to field problems
+		set counselor_rs = objConnection.Execute("SELECT CounselorName FROM ESCounselorsTbl WHERE CounselorSiteText = '" & agency & "'")'Grabbing all counselors that match site name
+		Dim counselor_list
+		counselor_list = counselor_rs.GetRows() 'converts counselors to an array
+		objConnection.Close
+		set counselor_rs = nothing
+		call convert_array_to_droplist_items(counselor_list, ES_counselors)
+		'Creating the dialog here so it will populate with counselor names correctly
+		BeginDialog employment_plan_dialog, 0, 0, 311, 265, "Employment Plan Received"
+		   ButtonGroup ButtonPressed
+		    OkButton 185, 245, 50, 15
+		    CancelButton 245, 245, 50, 15
+		  DropListBox 65, 10, 45, 15, "DWP"+chr(9)+"MFIP", program_list
+		  EditBox 210, 10, 30, 15, hh_member
+		  Text 65, 35, 75, 15, agency
+		  DropListBox 210, 35, 85, 15, ES_counselors, ES_counselor
+		  DropListBox 65, 60, 90, 15, "1. Employment Search"+chr(9)+"2. Employment"+chr(9)+"3. High School / GED"+chr(9)+"4. Higher Ed"+chr(9)+"5. Health / Medical", primary_activity
+		  EditBox 210, 60, 40, 15, activity_hours
+		  CheckBox 65, 80, 45, 15, "FSS", FSS_check
+		  CheckBox 115, 80, 35, 15, "UP", UP_check
+		  CheckBox 160, 80, 40, 15, "Other", other_check
+		  EditBox 65, 100, 135, 15, job_info
+		  CheckBox 215, 100, 75, 15, "Verif on file.", job_verif_check
+		  EditBox 65, 120, 135, 15, school_info
+		  CheckBox 215, 120, 70, 15, "Verif on file.", school_verif_check
+		  EditBox 65, 140, 85, 15, disa_end_date
+		  CheckBox 215, 140, 70, 15, "MOF on file.", MOF_check
+		  EditBox 65, 160, 235, 15, actions_taken
+		  EditBox 65, 180, 235, 15, other_notes
+		  EditBox 205, 220, 95, 15, worker_signature
+		  Text 5, 15, 55, 10, "Program:"
+		  Text 5, 35, 50, 15, "ES Provider:"
+		  Text 155, 35, 45, 15, "Counselor:"
+		  Text 5, 60, 55, 15, "Primary Activity:"
+		  Text 160, 60, 45, 10, "Hours:"
+		  Text 5, 160, 55, 10, "Actions Taken:"
+		  Text 10, 180, 50, 10, "Other Notes:"
+		  Text 130, 220, 65, 15, "Worker Signature:"
+		  Text 130, 10, 70, 15, "HH Member number:"
+		  Text 5, 85, 40, 10, "Status:"
+		  Text 5, 100, 30, 15, "Job:"
+		  Text 5, 120, 35, 15, "School:"
+		  Text 5, 140, 50, 15, "Disa end date:"
+		EndDialog
+END IF
+
+''------Employment plan dialog
 IF update_type = "Employment Plan" THEN
 	DO
 	Dialog employment_plan_dialog
@@ -182,7 +268,7 @@ call check_for_MAXIS(False)
 
 call start_a_blank_CASE_NOTE
 'Writing the employment plan note
-IF update_type = "Employment Plan" THEN 
+IF update_type = "Employment Plan" THEN
 	call write_variable_in_CASE_NOTE("***Employment Plan Received for member " & hh_member & "***")
 	call write_bullet_and_variable_in_CASE_NOTE("Plan Date", document_date)
 	call write_variable_in_CASE_NOTE("ES Provider: " & ES_provider & " Counselor: " & ES_counselor)
@@ -200,11 +286,11 @@ END IF
 IF update_type = "Status Update" THEN
 	IF received_sent = "Sent" THEN call write_variable_in_CASE_NOTE("Status update sent to ES on " & document_date)
 	IF sanction_imposed_check = checked THEN call write_variable_in_CASE_NOTE("Status update to impose sanction received on: " & document_date)
-	IF sanction_cured_check = checked THEN 
+	IF sanction_cured_check = checked THEN
 		call write_variable_in_CASE_NOTE("Status update to cure sanction received on: " & document_date)
 		call write_variable_in_CASE_NOTE("Compliance date: " & compliance_date)
 	END IF
-	IF hh_member <> "" THEN 
+	IF hh_member <> "" THEN
 		call write_variable_in_CASE_NOTE("Status update received to change ES status of member: " & hh_member & " on " & document_date)
 		call write_variable_in_CASE_NOTE("New ES Status: " & ES_status & " Effective: " & effective_date)
 	END IF
@@ -214,5 +300,10 @@ IF actions_taken <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Actions
 IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
+
+IF collecting_ES_statistics = True THEN
+	'Updating the database
+	call write_MAXIS_info_to_ES_database(case_number, hh_member, ESMembName, EsSanctionPercentage, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, disa_end_date, primary_activity, ESDate, agency, ES_Counselor, ES_active, insert_string)
+END IF
 
 script_end_procedure("")
