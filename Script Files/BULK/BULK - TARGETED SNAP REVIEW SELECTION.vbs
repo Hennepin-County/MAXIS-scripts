@@ -269,7 +269,7 @@ Set objWorkbook = objExcel.ActiveWorkbook
 '--------Collecting CAPER CASES--------'
 'First, check caper cases
 IF CAPER_check = checked THEN
-'Add a worksheet for CAPER cases, label the columns'
+'Add a worksheet for CAPER - denials, label the columns'
 ObjExcel.Worksheets.Add().Name = "denials"
 ObjExcel.Cells(1, 1).Value = "WORKER"
 objExcel.Cells(1, 1).Font.Bold = TRUE
@@ -279,9 +279,26 @@ ObjExcel.Cells(1, 3).Value = "INACTIVE REASON"
 ObjExcel.Cells(1, 3).Font.Bold = TRUE
 ObjExcel.Cells(1, 4).Value = "CLOSURE TYPE"
 ObjExcel.Cells(1, 4).Font.Bold = TRUE
+'Add a worksheet for CAPER - closures, label the columns'
+ObjExcel.Worksheets.Add().Name = "closures"
+ObjExcel.Cells(1, 1).Value = "WORKER"
+objExcel.Cells(1, 1).Font.Bold = TRUE
+ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
+objExcel.Cells(1, 2).Font.Bold = TRUE
+ObjExcel.Cells(1, 3).Value = "INACTIVE REASON"
+ObjExcel.Cells(1, 3).Font.Bold = TRUE
+ObjExcel.Cells(1, 4).Value = "CLOSURE TYPE"
+ObjExcel.Cells(1, 4).Font.Bold = TRUE
+
+
+
+
+
 excel_row = 2
 denial_row = 2
+closure_row = 2
 caper_denial_total = 0
+caper_closure_total = 0
 
 For c = 0 to ubound(caper_array)
 	case_number = caper_array(c).case_number
@@ -344,6 +361,7 @@ For c = 0 to ubound(caper_array)
 					ObjExcel.Worksheets("closures").cells(closure_row, 4).value = caper_array(c).inactive_reason
 					closure_row = closure_row + 1
 					caper_closure_total = caper_closure_total + 1
+				END IF
 			END IF
 		END IF
 	END IF
@@ -460,10 +478,7 @@ END IF
 Dialog cases_to_select_dialog
 IF buttonpressed = cancel then stopscript
 
-
-audit_row = 2
-
-
+audit_row = 2 'reset the row for the audit sheet
 'Selecting random cases and pasting into the new worksheet
 IF active_check = checked THEN
 objWorkbook.Worksheets("audit cases").cells(audit_row, 1).Value = "ACTIVE / PAR CASES"
@@ -491,21 +506,55 @@ END IF
 
 'Selecting random caper cases and pasting into the new worksheet
 If caper_check = checked THEN
-objWorkbook.Worksheets("audit cases").cells(audit_row, 1).Value = "CAPER CASES"
-objWorkbook.Worksheets("audit cases").cells(audit_row, 1).Font.Bold = true
-audit_row = audit_row + 1
-'Make sure we don't try to sample less than all cases
-	IF cint(cases_to_select) > caper_criteria_total THEN
+'Determing totals of denials / closures, attempt to create a 50/50 ratio
+	IF isnumeric(caper_cases_to_select) = true and caper_cases_to_select > 0 THEN
+		denials_to_select = cint(caper_cases_to_select / 2) 'divide total by two, and round to integer
+		closures_to_select = caper_cases_to_select - denials_to_select 'subtract from total to account for the rounding
+		'THese conditionals reapportion the totals for all possible scenarios to prevent selecting more than total cases'
+		IF caper_denial_total < denials_to_select AND caper_closure_total >= (caper_cases_to_select - caper_denial_total) THEN
+		 	denials_to_select = caper_denial_total 'make sure we don't select more than we have
+			closures_to_select = caper_cases_to_select - caper_denial_total 'reset the other value to keep the total the same
+		END IF
+		IF caper_denial_total < denials_to_select AND caper_closure_total < (caper_cases_to_select - caper_denial_total) Then
+			denials_to_select = caper_denial_total AND closures_to_select = caper_closure_total
+		END IF
+		IF caper_closure_total < closures_to_select AND caper_denial_total >= (caper_cases_to_select - caper_closure_total) THEN
+			closures_to_select = caper_closure_total
+			denials_to_select = caper_cases_to_select - closures_to_select
+		END IF
+	END IF
+	'Here, handle the denial sheet
+
+	objWorkbook.Worksheets("audit cases").cells(audit_row, 1).Value = "CAPER CASES"
+	objWorkbook.Worksheets("audit cases").cells(audit_row, 1).Font.Bold = true
+	audit_row = audit_row + 1
+	'Make sure we don't try to sample less than all cases
+	IF denials_to_select >= caper_denial_total THEN
 	'Here we copy / paste the whole list
-		objWorkbook.worksheets("caper cases").Range("A2:B" & caper_criteria_total + 1).copy
+		objWorkbook.worksheets("denials").Range("A2:B" & caper_denial_total + 1).copy
 		objWorkbook.worksheets("audit cases").Range("A" & audit_row).PasteSpecial
-		audit_row = audit_row + caper_criteria_total
+		audit_row = audit_row + caper_denial_total
+	ELSE'We need a random selection of cases
+		For z = 1 To denials_to_select 'Start with 1 so we don't generate extra case
+			Randomize
+			select_this_case = Int(caper_denials_total*Rnd) + 1 'plus one, as we start counting at row 2
+			select_this_case = "A" & select_this_case & ":B" & select_this_case
+			objWorkbook.worksheets("denials").Range(select_this_case).copy
+			objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
+			audit_row = audit_row + 1
+		Next
+	END IF
+	IF closures_to_select >= caper_closure_total THEN
+	'Here we copy / paste the whole list
+		objWorkbook.worksheets("closures").Range("A2:B" & caper_closure_total + 1).copy
+		objWorkbook.worksheets("audit cases").Range("A" & audit_row).PasteSpecial
+		audit_row = audit_row + caper_closure_total
 	ELSE'We need a random selection of cases
 		For z = 1 To caper_cases_to_select 'Start with 1 so we don't generate extra case
 			Randomize
 			select_this_case = Int(caper_criteria_total*Rnd) + 1 'plus one, as we start counting at row 2
 			select_this_case = "A" & select_this_case & ":B" & select_this_case
-			objWorkbook.worksheets("caper cases").Range(select_this_case).copy
+			objWorkbook.worksheets("closures").Range(select_this_case).copy
 			objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
 			audit_row = audit_row + 1
 		Next
