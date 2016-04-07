@@ -210,6 +210,13 @@ script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_list(script_num).script_name 			= "  Banked Month WCOMS "
+script_array_NOTICES_list(script_num).file_name			= "NOTICES - BANKED MONTH WCOMS.vbs"
+script_array_NOTICES_list(script_num).description 			= "Adds various WCOMS to a notice for regarding banked month approvals/closure."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= "Duplicate assistance WCOM"
 script_array_NOTICES_list(script_num).file_name			= "NOTICES - DUPLICATE ASSISTANCE WCOM.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
