@@ -535,9 +535,13 @@ If caper_check = checked THEN
 		objWorkbook.worksheets("audit cases").Range("A" & audit_row).PasteSpecial
 		audit_row = audit_row + caper_denial_total
 	ELSE'We need a random selection of cases
-		For z = 1 To denials_to_select 'Start with 1 so we don't generate extra case
+		Set denial_selection_list = CreateObject("Scripting.dictionary") 'create a dictionary object to prevent duplicating cases'
+		DO
 			Randomize
-			select_this_case = Int(caper_denials_total*Rnd) + 1 'plus one, as we start counting at row 2
+			row_to_select = Int(caper_denial_total*Rnd) + 1 'plus one, as we start counting at row 2,
+			denial_selection_list(row_to_select) = 0 '0 is just placeholder, only using keys
+		LOOP UNTIL denial_selection_list.count = denials_to_select
+		For each select_this_case in denial_selection_list.keys
 			select_this_case = "A" & select_this_case & ":B" & select_this_case
 			objWorkbook.worksheets("denials").Range(select_this_case).copy
 			objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
@@ -550,9 +554,13 @@ If caper_check = checked THEN
 		objWorkbook.worksheets("audit cases").Range("A" & audit_row).PasteSpecial
 		audit_row = audit_row + caper_closure_total
 	ELSE'We need a random selection of cases
-		For z = 1 To caper_cases_to_select 'Start with 1 so we don't generate extra case
+		Set closure_selection_list = CreateObject("Scripting.dictionary") 'create a dictionary object to prevent duplicating cases'
+		DO
 			Randomize
-			select_this_case = Int(caper_criteria_total*Rnd) + 1 'plus one, as we start counting at row 2
+			row_to_select = Int(caper_closure_total*Rnd) + 1 'plus one, as we start counting at row 2,
+			closure_selection_list(row_to_select) = 0 '0 is just placeholder, only using keys
+		LOOP UNTIL closure_selection_list.count = closures_to_select
+		For each select_this_case in closure_selection_list.keys
 			select_this_case = "A" & select_this_case & ":B" & select_this_case
 			objWorkbook.worksheets("closures").Range(select_this_case).copy
 			objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
@@ -578,11 +586,11 @@ IF active_check = checked THEN
 	stats_row = 5
 END IF
 IF caper_check = checked then
-ObjExcel.Cells(stats_row, 6).Value = "Total CAPER cases sampled:"
-ObjExcel.Cells(stats_row, 7).Value = ca_count
-ObjExcel.Cells(stats_row + 1, 6).Value = "Percent of cases meeting criteria:"
-ObjExcel.Cells(stats_row + 1, 7).NumberFormat = "0.00%"
-ObjExcel.Cells(stats_row + 1, 7).Value = caper_criteria_total / ca_count
+	ObjExcel.Cells(stats_row, 6).Value = "Total CAPER cases sampled:"
+	ObjExcel.Cells(stats_row, 7).Value = ca_count
+	ObjExcel.Cells(stats_row + 1, 6).Value = "Percent of cases meeting criteria:"
+	ObjExcel.Cells(stats_row + 1, 7).NumberFormat = "0.00%"
+	ObjExcel.Cells(stats_row + 1, 7).Value = (caper_closure_total + caper_denial_total) / ca_count
 END IF
 
 'Autofitting columns
