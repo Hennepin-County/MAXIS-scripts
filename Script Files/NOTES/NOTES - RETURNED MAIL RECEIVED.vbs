@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 360          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 BeginDialog case_number_dlg, 0, 0, 150, 80, "CASE NUMBER DIALOG"
   EditBox 75, 10, 70, 15, case_number
   EditBox 75, 30, 40, 15, worker_signature
@@ -68,7 +74,7 @@ BeginDialog RETURNED_MAIL, 0, 0, 185, 335, "RETURNED MAIL DIALOG"
   DropListBox 110, 165, 35, 15, "No"+chr(9)+"Yes", updated_ADDR
   EditBox 110, 180, 65, 15, new_COUNTY
   CheckBox 50, 200, 70, 10, "Sent DHS-2919A", Check1
-  CheckBox 50, 210, 65, 10, "Sent DHX-2952", Check2
+  CheckBox 50, 210, 65, 10, "Sent DHS-2952", Check2
   CheckBox 50, 220, 65, 10, "Sent DHS-2402", Check3
   DropListBox 120, 230, 30, 15, "No"+chr(9)+"Yes", List6
   DropListBox 105, 245, 45, 15, "Select"+chr(9)+"Yes"+chr(9)+"No", MNsure_active
