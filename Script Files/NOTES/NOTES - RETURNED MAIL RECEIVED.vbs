@@ -74,7 +74,7 @@ BeginDialog RETURNED_MAIL, 0, 0, 185, 335, "RETURNED MAIL DIALOG"
   DropListBox 110, 165, 35, 15, "No"+chr(9)+"Yes", updated_ADDR
   EditBox 110, 180, 65, 15, new_COUNTY
   CheckBox 50, 200, 70, 10, "Sent DHS-2919A", Check1
-  CheckBox 50, 210, 65, 10, "Sent DHX-2952", Check2
+  CheckBox 50, 210, 65, 10, "Sent DHS-2952", Check2
   CheckBox 50, 220, 65, 10, "Sent DHS-2402", Check3
   DropListBox 120, 230, 30, 15, "No"+chr(9)+"Yes", List6
   DropListBox 105, 245, 45, 15, "Select"+chr(9)+"Yes"+chr(9)+"No", MNsure_active
