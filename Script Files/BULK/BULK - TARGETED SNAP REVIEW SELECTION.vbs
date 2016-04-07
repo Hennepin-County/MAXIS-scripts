@@ -465,6 +465,7 @@ IF active_check = checked THEN
 END IF
 
 IF caper_check = checked Then
+	caper_criteria_total = caper_denial_total + caper_closure_total
 	IF caper_criteria_total < 2 THEN caper_cases_to_select = caper_criteria_total
 	If caper_criteria_total >= 2 AND caper_criteria_total < 20 THEN caper_cases_to_select = 2
 	If caper_criteria_total >= 20 AND caper_criteria_total < 70 THEN caper_cases_to_select = 3
@@ -491,14 +492,21 @@ audit_row = audit_row + 1
 		objWorkbook.worksheets("audit cases").Range("A2").PasteSpecial
 		audit_row = audit_row + active_criteria_total
 	ELSE'We need a random selection of cases
-		For z = 1 To cases_to_select 'Start with 1 so we don't generate extra case
-			Randomize
-			select_this_case = Int(active_criteria_total*Rnd) + 1 'plus one, as we start counting at row 2
+	Set active_selection_list = CreateObject("Scripting.dictionary") 'create a dictionary object to prevent duplicating cases'
+	active_selection_list(1) = 0 'entering row 1, so it is consistently there for future use.  We never have a case on row 1, we will be able to ignore'
+	DO
+		Randomize
+		row_to_select = Int(active_criteria_total*Rnd)
+		active_selection_list(row_to_select) = 0 '0 is just placeholder, only using keys
+	LOOP UNTIL active_selection_list.count = cases_to_select + 1 'plus 1 to account for row 1 always there
+	For each select_this_case in active_selection_list.keys
+		IF select_this_case <> 1 THEN 'ignore row 1
 			select_this_case = "A" & select_this_case & ":B" & select_this_case
 			objWorkbook.worksheets("active cases").Range(select_this_case).copy
 			objWorkbook.worksheets("audit cases").Range("A" & audit_row).PasteSpecial
 			audit_row = audit_row + 1
-		Next
+		END IF
+	Next
 	END IF
 	audit_row = audit_row + 1 'adding an extra row to separate case types
 END IF
@@ -536,16 +544,19 @@ If caper_check = checked THEN
 		audit_row = audit_row + caper_denial_total
 	ELSE'We need a random selection of cases
 		Set denial_selection_list = CreateObject("Scripting.dictionary") 'create a dictionary object to prevent duplicating cases'
+		denial_selection_list(1) = 0 'entering row 1, so it is consistently there for future use.  We never have a case on row 1, we will be able to ignore'
 		DO
 			Randomize
-			row_to_select = Int(caper_denial_total*Rnd) + 1 'plus one, as we start counting at row 2,
+			row_to_select = Int(caper_denial_total*Rnd)
 			denial_selection_list(row_to_select) = 0 '0 is just placeholder, only using keys
-		LOOP UNTIL denial_selection_list.count = denials_to_select
+		LOOP UNTIL denial_selection_list.count = denials_to_select + 1 'plus 1 to account for row 1 always there
 		For each select_this_case in denial_selection_list.keys
-			select_this_case = "A" & select_this_case & ":B" & select_this_case
-			objWorkbook.worksheets("denials").Range(select_this_case).copy
-			objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
-			audit_row = audit_row + 1
+			IF select_this_case <> 1 THEN 'ignore row 1
+				select_this_case = "A" & select_this_case & ":B" & select_this_case
+				objWorkbook.worksheets("denials").Range(select_this_case).copy
+				objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
+				audit_row = audit_row + 1
+			END IF
 		Next
 	END IF
 	IF closures_to_select >= caper_closure_total THEN
@@ -555,16 +566,19 @@ If caper_check = checked THEN
 		audit_row = audit_row + caper_closure_total
 	ELSE'We need a random selection of cases
 		Set closure_selection_list = CreateObject("Scripting.dictionary") 'create a dictionary object to prevent duplicating cases'
+		closure_selection_list(1) = 0
 		DO
 			Randomize
 			row_to_select = Int(caper_closure_total*Rnd) + 1 'plus one, as we start counting at row 2,
 			closure_selection_list(row_to_select) = 0 '0 is just placeholder, only using keys
-		LOOP UNTIL closure_selection_list.count = closures_to_select
+		LOOP UNTIL closure_selection_list.count = closures_to_select + 1 'plus one because we skip row 1'
 		For each select_this_case in closure_selection_list.keys
-			select_this_case = "A" & select_this_case & ":B" & select_this_case
-			objWorkbook.worksheets("closures").Range(select_this_case).copy
-			objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
-			audit_row = audit_row + 1
+			IF select_this_case <> 1 THEN
+				select_this_case = "A" & select_this_case & ":B" & select_this_case
+				objWorkbook.worksheets("closures").Range(select_this_case).copy
+				objWorkbook.worksheets("audit cases").Range("A" & audit_row & ":B" & audit_row).PasteSpecial
+				audit_row = audit_row + 1
+			END IF
 		Next
 	END IF
 END IF
