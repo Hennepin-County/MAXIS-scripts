@@ -44,6 +44,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Required for statistical purposes==========================================================================================
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 360          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
+
 BeginDialog case_number_dlg, 0, 0, 150, 80, "CASE NUMBER DIALOG"
   EditBox 75, 10, 70, 15, case_number
   EditBox 75, 30, 40, 15, worker_signature
@@ -67,10 +73,10 @@ BeginDialog RETURNED_MAIL, 0, 0, 185, 335, "RETURNED MAIL DIALOG"
   EditBox 135, 145, 40, 15, new_ZIP
   DropListBox 110, 165, 35, 15, "No"+chr(9)+"Yes", updated_ADDR
   EditBox 110, 180, 65, 15, new_COUNTY
-  CheckBox 50, 200, 70, 10, "Sent DHS-2919A", Check1
-  CheckBox 50, 210, 65, 10, "Sent DHX-2952", Check2
-  CheckBox 50, 220, 65, 10, "Sent DHS-2402", Check3
-  DropListBox 120, 230, 30, 15, "No"+chr(9)+"Yes", List6
+  CheckBox 50, 200, 70, 10, "Sent DHS-2919A", verifA_sent_checkbox
+  CheckBox 50, 210, 65, 10, "Sent DHS-2952", SHEL_form_sent_checkbox
+  CheckBox 50, 220, 65, 10, "Sent DHS-2402", CRF_sent_checkbox
+  DropListBox 120, 230, 30, 15, "No"+chr(9)+"Yes", returned_mail_resent_list
   DropListBox 105, 245, 45, 15, "Select"+chr(9)+"Yes"+chr(9)+"No", MNsure_active
   EditBox 100, 260, 75, 15, MNsure_number
   DropListBox 100, 278, 40, 10, "N/A"+chr(9)+"Yes"+chr(9)+"No", MNsure_ADDR
@@ -202,12 +208,12 @@ call write_variable_in_CASE_NOTE("             " & from_CITY & ", " & from_STATE
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* Address updated to: " & new_ADDR)
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("                      " & new_CITY & ", " & new_STATE & " " & new_Zip)
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
-If Check1 = 1 then call write_variable_in_CASE_NOTE("* Verification Request Form A sent. **Auto TIKL set**")
-If Check2 = 1 then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
-If Check3 = 1 then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
+If verifA_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Verification Request Form A sent. **Auto TIKL set**")
+If SHEL_form_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
+If CRF_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
 call write_bullet_and_variable_in_CASE_NOTE("Returned Mail resent", mail_resent)
-If List6 = "Yes" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
-If List6 = "No" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
+If returned_mail_resent_list = "Yes" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
+If returned_mail_resent_list = "No" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
 call write_variable_in_CASE_NOTE("* " & MNsure & " " & MNsure_number)
 call write_bullet_and_variable_in_CASE_NOTE("Misc notes/Actions Taken", misc_notes)
 call write_variable_in_CASE_NOTE ("---")
@@ -217,10 +223,10 @@ call write_variable_in_CASE_NOTE(worker_signature)
 IF MNsure_active = "Yes" and MNsure_ADDR = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. HPU Case Manitenance - Action Needed Log)"
 
 'creates a message box reminding the worker to review their case note prior to Auto-TIKLing. 
-IF Check1 = 1 THEN MsgBox "Please review your case note for accuracy. When you click OK or press enter the script will enter an Auto-TIKL for you."
+IF verifA_sent_checkbox = 1 THEN MsgBox "Please review your case note for accuracy. When you click OK or press enter the script will enter an Auto-TIKL for you."
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF Check1 = 1 THEN 
+IF verifA_sent_checkbox = 1 THEN 
 	call navigate_to_MAXIS_screen("dail", "writ")
 
 	'The following will generate a TIKL formatted date for 10 days from now.

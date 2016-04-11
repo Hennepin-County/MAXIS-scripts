@@ -171,6 +171,13 @@ script_array_BULK_main(script_num).description				= "Case notes all cases on REP
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
 Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "Targeted SNAP Review Selection"
+script_array_BULK_main(script_num).file_name				= "BULK - TARGETED SNAP REVIEW SELECTION.vbs"
+script_array_BULK_main(script_num).description				= "Creates a list of SNAP cases meeting review criteria and selects a random sample for review."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_main(script_num).script_name				= "TIKL from List"
 script_array_BULK_main(script_num).file_name				= "BULK - TIKL FROM LIST.vbs"
 script_array_BULK_main(script_num).description				= "Creates the same TIKL on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
@@ -232,6 +239,13 @@ Set script_array_BULK_list(script_num) = new script		'Set this array element to 
 script_array_BULK_list(script_num).script_name 			= "Find Updated Panels"
 script_array_BULK_list(script_num).file_name			= "BULK - FIND PANEL UPDATE DATE.vbs"
 script_array_BULK_list(script_num).description 			= "Creates a list of cases from a caseload(s) showing when selected panels have been updated."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "Housing Grant Exemption Finder"
+script_array_BULK_list(script_num).file_name			= "BULK - HOUSING GRANT EXEMPTION FINDER.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list the rolling 12 months of housing grant issuances for MFIP recipients who've met an exemption."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
