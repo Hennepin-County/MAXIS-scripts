@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTICES - SNAP E AND T LETTER.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 280                     'manual run time in seconds
+STATS_denomination = "C"       			   'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -43,12 +47,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 280                     'manual run time in seconds
-STATS_denomination = "C"       			   'C is for each CASE
-'END OF stats block==============================================================================================
 
 'Creating a blank array to start our process. This will allow for validating whether-or-not the office was assigned later on, because it'll always be an array and not a variable.
 county_FSET_offices = array("")
@@ -177,7 +175,7 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 250, "SNAP E&T Appointmen
   Text 10, 10, 50, 10, "Case Number:"
   Text 5, 100, 80, 10, "Manual referral needed:"
   Text 15, 185, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 215, 280, 15, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
+  Text 15, 215, 280, 15, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
 EndDialog
 
 
@@ -215,7 +213,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 290, "SNAP E&T Appointment 
   Text 15, 220, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
   Text 130, 30, 60, 15, "Appointment Time:"
   Text 10, 135, 80, 10, "Manual referral needed:"
-  Text 15, 255, 275, 15, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
+  Text 15, 255, 275, 15, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
 EndDialog
 
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
@@ -238,7 +236,7 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 195, "SNAP E&T Appointment Letter
   Text 5, 60, 80, 10, "Manual referral needed:"
   GroupBox 280, 15, 145, 90, "For non-English speaking ABAWD's:"
   Text 15, 150, 390, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 175, 360, 10, "A verifiction request for proof of contact with E and T within 30 days will also need to be sent to the recipeint."
+  Text 15, 175, 360, 10, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -1026,7 +1024,7 @@ EMReadScreen memb_error_check, 7, 8, 22
 If memb_error_check = "Arrival" then	'checking for valid HH member
 	PF3
 	PF10
-	script_end_procedure("The HH member is invalid. Please review your case, and the HH memeber number before trying the script again.")
+	script_end_procedure("The HH member is invalid. Please review your case, and the HH member number before trying the script again.")
 END IF 	
 EMReadScreen last_name, 24, 6, 30
 EMReadScreen first_name, 11, 6, 63
@@ -1050,7 +1048,7 @@ CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date
 CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
 CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
 Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date.")
-Call write_variable_in_case_note("* Manual referral made for: " & manual_referral & " recipient.")
+If manual_referral <> "Select one..." then Call write_variable_in_case_note("* Manual referral made for: " & manual_referral & " recipient.")
 If manual_referral <> "Select one..." then Call write_variable_in_case_note("* TIKL set for 30 days for proof of compliance with E & T.")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
@@ -1083,7 +1081,7 @@ PF3
 If manual_referral <> "Select one..." then
 	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 30, 5, 18) 
-	Call write_variable_in_TIKL("Manual referral was made for " & manual_referral & " recipeint 30 days ago. Please review case to see if verification of E and T compliance was sent to recipient, and that they are complying.")
+	Call write_variable_in_TIKL("Manual referral was made for " & manual_referral & " recipient 30 days ago. Please review case to see if verification of E and T compliance was sent to recipient, and that they are complying.")
 	transmit	
 	PF3
 End if
