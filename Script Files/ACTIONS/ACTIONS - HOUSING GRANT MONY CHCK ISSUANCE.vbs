@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ACTIONS - HOUSING GRANT MONY CHCK ISSUANCE.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 269                	'manual run time in seconds
+STATS_denomination = "C"       			' is for case
+'END OF stats block=========================================================================================================			
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -42,14 +46,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'END FUNCTIONS LIBRARY BLOCK================================================================================================	
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 269                	'manual run time in seconds
-STATS_denomination = "C"       			' is for case
-'END OF stats block=========================================================================================================			
-	
 'Date variables 
 'current month -1
 CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
