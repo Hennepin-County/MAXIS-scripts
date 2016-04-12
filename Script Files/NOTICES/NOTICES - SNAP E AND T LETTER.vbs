@@ -1,6 +1,3 @@
-worker_county_code = "x127"
-
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTICES - SNAP E AND T LETTER.vbs"
 start_time = timer
@@ -180,7 +177,6 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 250, "SNAP E&T Appointmen
   Text 15, 185, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
   Text 15, 215, 280, 15, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
 EndDialog
-
 
 'This dialog is for counties that have not provided FSET office address(s)
 BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 290, "SNAP E&T Appointment Letter"
