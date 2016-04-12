@@ -50,7 +50,11 @@ STATS_manualtime = 269                	'manual run time in seconds
 STATS_denomination = "C"       			' is for case
 'END OF stats block=========================================================================================================			
 	
-'Date variables for current month -11'
+'Date variables 
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month - 11
 CM_minus_11_mo =  left("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
 CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
 
@@ -81,15 +85,15 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(case_number) 
 member_number = "01"	'defaults the member number to 01
-initial_month = CM_mo  'defaulting date to current month and year
-initial_year = CM_yr
+initial_month = CM_minus_1_mo  'defaulting date to current month - one
+initial_year = CM_minus_1_yr
 
 'Main dialog: user will input case number and initial month/year if not already auto-filled 
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog housing_grant_MONY_CHCK_issuance_dialog				'main dialog'
-		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected'
+		dialog housing_grant_MONY_CHCK_issuance_dialog				'main dialog
+		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
 		IF len(case_number) > 8 or isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."					'mandatory field
 		IF len(member_number) > 2 or isnumeric(member_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit member number."	'mandatory field'
 		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit month."	'mandatory field
@@ -130,29 +134,31 @@ DO
 			INQD_issuance = HG_month & HG_year			'creates a new variable for housing grant month & year
 			month_of_issuance = initial_month & initial_year	'creates a new variable with footer month & footer year from dialog
 			'if an issuance is found that matches the month/year selected by the user, the script will stop
-			If month_of_issuance = INQD_issuance then script_end_procedure("Issuance has already been made on the month selected. Please review your case, and update manually.")
-			Else
-				row = row + 1
-			END IF		
+			If month_of_issuance = INQD_issuance then script_end_procedure("Issuance has already been made on the month selected. Please review your case, and update manually.")	
+		END IF 
+		row = row + 1
 	Loop until row = 18				'repeats until the end of the page
 		PF8
 		EMReadScreen last_page_check, 21, 24, 2
 		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
-'goes into ELIG/MFIP and checks for sanctions and a FIATED version of the month selected
-Call navigate_to_MAXIS_screen("ELIG", "MFIP")
-DO 
-	MAXIS_row = 7			
-		EMReadscreen memb_number, 2, MAXIS_row, 6		'searching for member number
-	IF memb_number = member_number then 				'exits do if member number matches
-		exit do
-	ELSE 
-		MAXIS_row = MAXIS_row + 1	'otherwise it searches again on the next row
-	END IF 
-	If member_number = "  " then script_end_procedure("The member number you entered does not appear to be valid. Please check your member number and try again.")
-LOOP until memb_number = member_number
+'navigates to ELIG/MFIP once the footer month and date are the selected dates
+back_to_SELF
+EMWritescreen initial_month, 20, 43			'enters footer month/year user selected since you have to be in the same footer month/year as the CHCK is being issued for
+EMWritescreen initial_year, 20, 46
+Call navigate_to_MAXIS_screen("ELIG", "MFIP")	
 
+'goes into ELIG/MFIP and checks for sanctions and a FIATED version of the month selected
+MAXIS_row = 7	'establishing the row to start searching
+DO 
+	EMReadscreen memb_number, 2, MAXIS_row, 6		'searching for member number
+	If memb_number = "  " then script_end_procedure("The member number you entered does not appear to be valid. Please check your member number and try again.")
+	IF member_number = memb_number then exit do				'exits do if member number matches
+	MAXIS_row = MAXIS_row + 1	'otherwise it searches again on the next row 	
+LOOP until MAXIS_row = 18
+
+'If the member number is found, script reads the EMPS coding to case note and fill out the MONY/CHCK verbiage
 EMWritescreen "x", MAXIS_row, 64			'selects the member number'
 transmit
 EMReadscreen emps_status, 2, 9, 22			'grabs the EMPS status code'
@@ -171,7 +177,7 @@ If MFIP_sanction = "Y" then	script_end_procedure("A sanction exist for this memb
 'checking for FIAT'd version that shows case is elig for the $110 housing grant
 Call navigate_to_MAXIS_screen("ELIG", "MFSM")
 EMReadScreen housing_grant_issued, 6, 16, 75
-IF housing_grant_issued <> "110.00" then script_end_procedure("You must run this case through background to populate housing grant results prior to issuing the MONY/CHCK. Please try again.")
+IF housing_grant_issued <> "110.00" then script_end_procedure("This case does not have the housing grant issued in the eligibility results. Please review the case for eligibility. You may need to run this case through background. You will need to populate housing grant results prior to issuing the MONY/CHCK.")
 
 'navigates to MONY/CHCK and inputs codes into 1st screen
 back_to_SELF
@@ -200,8 +206,19 @@ EMWriteScreen "Y", 15, 52	'Y to REI issuance since grants are to be issued ASAP
 transmit
 EMWriteScreen "Y", 15, 29	'Y to confirm approval
 transmit
-transmit 
-transmit	'transmit three times to get to the restoration of benefits screen '
+transmit 'transmit three times to get to the restoration of benefits screen '
+
+'some cases need to have the TIME panel completed, 
+EMReadScreen update_TIME_panel_check, 4, 14, 32
+If update_TIME_panel_check = "TIME" then 
+	transmit
+	time_panel_confirmation = MsgBox("You must update the time panel for " & initial_month & "/" & initial_year & ". Please update the TIME panel, or PF10 if it does not need to be updated, and press OK when complete.", vbOk, "Update the TIME panel")
+	DO
+		EMReadScreen time_panel_complete_check, 7, 24, 2 
+	LOOP until time_panel_check <> "NO DATA"
+	If time_panel_confirmation = vbOK then PF3
+END IF 
+
 'writes in the manual check reason per the bulletin on the Housing Grant
 EMWriteScreen "You meet one of the exceptions", 13, 18
 EMWriteScreen "listed in CM 13.03.09 for families", 14, 18
@@ -215,13 +232,22 @@ Else
 END IF 
 PF4  'sends the restoration letter
 
-'updating emps_status coding for case note'
-If  emps_status = "02" then emps_status = "Age 60 or older"
-If emps_status = "08" or emps_status = "24" then emps_status = "Care for Ill/incapacitated family member"
-If emps_status = "07" or emps_status = "23" then emps_status = "Ill/incapacitated > 30 days" 
-If emps_status = "12" or emps_status = "27" then emps_status = "Special medical criteria"
-If emps_status = "15" or emps_status = "30" then emps_status = "Mentally Ill"
-If emps_status = "18" or emps_status = "33" then emps_status = "SSI/RSDI pending"
+'updating emps_status coding for case note
+If emps_status = "02" then 
+	emps_status = "Age 60 or older"
+Elseif emps_status = "08" or emps_status = "24" then 
+	emps_status = "Care for Ill/incapacitated family member"
+Elseif emps_status = "07" or emps_status = "23" then 
+	emps_status = "Ill/incapacitated > 30 days" 
+ElseIf emps_status = "12" or emps_status = "27" then 
+	emps_status = "Special medical criteria"
+ElseIf emps_status = "15" or emps_status = "30" then 
+	emps_status = "Mentally Ill"
+ElseIf emps_status = "18" or emps_status = "33" then 
+	emps_status = "SSI/RSDI pending"
+Else 
+	emps_status = "Other reason"
+END IF
 
 'Case noting the MONY/CHCK info
 Call start_a_blank_case_note
