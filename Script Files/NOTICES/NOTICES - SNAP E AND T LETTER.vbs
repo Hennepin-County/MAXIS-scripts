@@ -1,3 +1,6 @@
+worker_county_code = "x127"
+
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTICES - SNAP E AND T LETTER.vbs"
 start_time = timer
@@ -220,7 +223,7 @@ EndDialog
 BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 195, "SNAP E&T Appointment Letter"
   EditBox 90, 10, 60, 15, case_number
   EditBox 245, 10, 25, 15, member_number
-  DropListBox 90, 35, 180, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 1:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Sabathani, next Tuesday @ 1:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
+  DropListBox 90, 35, 180, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
   DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 70, 80, 90, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -269,13 +272,13 @@ DO
 		END IF
 		'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
 		'Central NE
-		IF interview_location = "Central NE (HSB, next Wednesday @ 1:00 p.m.)" THEN
+		IF interview_location = "Central NE (HSB, next Wednesday @ 2:00 p.m.)" THEN
 			SNAPET_name = "Health Services Building"
 			SNAPET_address_01 = "525 Portland Ave, 5th floor"
 			SNAPET_city = "Minneapolis"
 			SNAPET_ST = "MN"
 			SNAPET_zip = "55415"
-			appointment_time_prefix_editbox = "01"
+			appointment_time_prefix_editbox = "02"
 			appointment_time_post_editbox = "00"
 			AM_PM = "PM"
 			appointment_date = Date + 8 - Weekday(Date, vbWednesday)
@@ -291,16 +294,16 @@ DO
 			AM_PM = "AM"
 			appointment_date = Date + 8 - Weekday(Date, vbWednesday)
 		'Northwest
-		ElseIf interview_location = "Northwest(Sabathani, next Tuesday @ 1:00 p.m.)" THEN
-			SNAPET_name = "Sabathani Community Center"
-			SNAPET_address_01 = "310 East 38th Street #120"
-			SNAPET_city = "Minneapolis"
+		ElseIf interview_location = "Northwest(Brookdale, next Monday @ 2:00 p.m.)" THEN
+			SNAPET_name = "Brookdale Human Services Center"
+			SNAPET_address_01 = "6125 Shingle Creek Parkway, Suite 400"
+			SNAPET_city = "Brooklyn Center"
 			SNAPET_ST = "MN"
-			SNAPET_zip = "55409"
-			appointment_time_prefix_editbox = "01"
+			SNAPET_zip = "55430"
+			appointment_time_prefix_editbox = "02"
 			appointment_time_post_editbox = "00"
 			AM_PM = "PM"
-			appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+			appointment_date = Date + 8 - Weekday(Date, vbMonday)
 		'South Minneapolis
 		ElseIf interview_location = "South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)" THEN
 			SNAPET_name = "Sabathani Community Center"
