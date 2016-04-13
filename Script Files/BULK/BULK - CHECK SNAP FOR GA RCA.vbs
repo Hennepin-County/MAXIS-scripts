@@ -112,7 +112,7 @@ ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
 ObjExcel.Cells(1, 4).Value = "RCA Discrepancy?"
 ObjExcel.Cells(1, 5).Value = "GA Discrepancy?"
-objExcel.Cells(1, 6).Value = "GAIn SNAP Budget"
+objExcel.Cells(1, 6).Value = "GA in SNAP Budget"
 objExcel.Cells(1, 7).Value = "GA Monthly Grant"
 objExcel.Cells(1, 8).Value = "GA Issuance Amt"
 
