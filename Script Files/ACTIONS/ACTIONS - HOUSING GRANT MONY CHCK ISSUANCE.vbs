@@ -250,8 +250,12 @@ END IF
 'Case noting the MONY/CHCK info
 Call start_a_blank_case_note
 Call write_variable_in_case_note("**MONY/CHCK ISSUED FOR HOUSING GRANT for " & initial_month & "/" & initial_year& "**")
-Call write_variable_in_case_note("* Housing grant issued due to family meeting an exemption per CM.13.03.09.")
-Call write_variable_in_case_note("* Member " & member_number & " exemption is: " & emps_status & ".")
+If emps_status = "Other reason" then 
+	Call write_variable_in_case_note("* Member " & member_number & " meets criteria to receive the housing grant.")
+Else
+	Call write_variable_in_case_note("* Housing grant issued due to family meeting an exemption per CM.13.03.09.")
+	Call write_variable_in_case_note("* Member " & member_number & " exemption is: " & emps_status & ".")
+END IF 
 Call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 Call write_variable_in_case_note("--")
 Call write_variable_in_case_note(worker_signature)
