@@ -110,7 +110,15 @@ objExcel.DisplayAlerts = True
 ObjExcel.Cells(1, 1).Value = "X Number"
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
-ObjExcel.Cells(1, 4).Value = "Error on SNAP?"
+ObjExcel.Cells(1, 4).Value = "RCA Discrepancy?"
+ObjExcel.Cells(1, 5).Value = "GA Discrepancy?"
+objExcel.Cells(1, 6).Value = "GA in SNAP Budget"
+objExcel.Cells(1, 7).Value = "GA Monthly Grant"
+objExcel.Cells(1, 8).Value = "GA Issuance Amt"
+
+FOR i = 1 TO 8
+	objExcel.Cells(1, i).Font.Bold = TRUE
+NEXT
 
 excel_row = 2
 FOR EACH worker IN worker_array
@@ -199,8 +207,10 @@ FOR EACH case_number IN case_array
 		EMWriteScreen "GASM", 20, 70
 		transmit
 			CALL find_variable("Monthly Grant............$", ga_amount, 9)
+			CALL find_variable("Amount To Be Paid........$", ga_to_be_paid, 9)
 		ga_amount = trim(ga_amount)
-		IF pa_amount <> ga_amount THEN
+		ga_to_be_paid = trim(ga_to_be_paid)
+		IF pa_amount <> ga_amount AND pa_amount <> ga_to_be_paid THEN
 			CALL navigate_to_screen("STAT", "REVW")
 			ERRR_screen_check
 			EMReadScreen cash_revw_date, 8, 9, 37
@@ -209,12 +219,18 @@ FOR EACH case_number IN case_array
 			cash_revw_date = replace(cash_revw_date, " 01 ", "/")
 			snap_revw_date = replace(snap_revw_date, " 01 ", "/")
 			IF bene_date = cash_revw_date OR bene_date = snap_revw_date THEN
-				objExcel.Cells(excel_row, 4).Value = "REVW MONTH"
+				objExcel.Cells(excel_row, 5).Value = "REVW MONTH"
 			ELSEIF bene_date <> cash_revw_date AND bene_date <> snap_revw_date THEN
-				objExcel.Cells(excel_row, 4).Value = ("Yes, GA. SNAP Budg = " & pa_amount & "; GA Amount = " & ga_amount)
+				objExcel.Cells(excel_row, 5).Value = ("Yes")
+				objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
+				objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
+				objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
 			END IF
-		ELSEIF pa_amount = ga_amount THEN
-			objExcel.Cells(excel_row, 4).Value = ("Budgetted for SNAP: " & pa_amount & "; GA Amount: " & ga_amount)
+		ELSEIF pa_amount = ga_amount AND pa_amount = ga_to_be_paid THEN
+			objExcel.Cells(excel_row, 5).Value = ("No")
+			objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
+			objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
+			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
 		END IF
 	ELSEIF cash_prog = "RCA" THEN
 		CALL navigate_to_screen("ELIG", "RCA")
@@ -256,7 +272,7 @@ FOR EACH case_number IN case_array
 
 NEXT
 
-FOR i = 1 to 4
+FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
 NEXT
 
