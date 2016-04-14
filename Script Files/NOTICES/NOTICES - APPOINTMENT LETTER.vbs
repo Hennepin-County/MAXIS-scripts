@@ -97,7 +97,7 @@ elseif worker_county_code = "x108" then
 elseif worker_county_code = "x109" then
     agency_office_array = array("Cloquet", "Moose Lake")
 elseif worker_county_code = "x110" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
+    agency_office_array = array("Carver") 
 elseif worker_county_code = "x111" then
     agency_office_array = array("Cass")
 elseif worker_county_code = "x112" then
@@ -117,8 +117,8 @@ elseif worker_county_code = "x118" then
 elseif worker_county_code = "x119" then
     agency_office_array = array("Dakota")
 elseif worker_county_code = "x120" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
-elseif worker_county_code = "x121" then
+    agency_office_array = array("Dodge") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties	
+    elseif worker_county_code = "x121" then
     agency_office_array = array("Douglas")
 elseif worker_county_code = "x122" then
     agency_office_array = array("Faribault")
@@ -157,7 +157,7 @@ elseif worker_county_code = "x138" then
 elseif worker_county_code = "x139" then
     agency_office_array = array("Lake of the Woods")
 elseif worker_county_code = "x140" then
-    agency_office_array = array("LeSueur")
+    agency_office_array = array("Le Sueur")
 elseif worker_county_code = "x141" then
     agency_office_array = array("Lincoln")
 elseif worker_county_code = "x142" then
@@ -225,7 +225,7 @@ elseif worker_county_code = "x172" then
 elseif worker_county_code = "x173" then
     agency_office_array = array("St. Cloud", "Melrose")
 elseif worker_county_code = "x174" then
-    agency_office_array = array("Dodge", "Steele", "Waseca")
+    agency_office_array = array("Owatonna", "Waseca", "Mantorville") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties
 elseif worker_county_code = "x175" then
     agency_office_array = array("Stevens")
 elseif worker_county_code = "x176" then
@@ -239,8 +239,8 @@ elseif worker_county_code = "x179" then
 elseif worker_county_code = "x180" then
     agency_office_array = array("Wadena")
 elseif worker_county_code = "x181" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
-elseif worker_county_code = "x182" then
+    agency_office_array = array("Waseca") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties
+   elseif worker_county_code = "x182" then
     agency_office_array = array("Cottage Grove", "Forest Lake", "Stillwater", "Woodbury")
 elseif worker_county_code = "x183" then
     agency_office_array = array("Watonwan")
@@ -414,6 +414,10 @@ ELSEIF worker_county_code = "x109" THEN
         agency_address.city = "Moose Lake"
         agency_address.zip = "55767"
     END IF
+ELSEIF worker_county_code = "x110" THEN 'added Carver County interview address
+    agency_address.street = "602 E 4th St"
+    agency_address.city = "Chaska"
+    agency_address.zip = "55318"
 ELSEIF worker_county_code = "x111" THEN
     agency_address.street = "400 Michigan Ave"
     agency_address.city = "Walker"
@@ -456,6 +460,10 @@ ELSEIF worker_county_code = "x119" THEN
     agency_address.street = "1 Mendota Rd W Ste 100"
     agency_address.city = "West St Paul"
     agency_address.zip = "55118"
+ELSEIF worker_county_code = "x120" THEN
+    agency_address.street = "22 6TH ST E Dept 401"
+    agency_address.city = "Mantorville"
+    agency_address.zip = "55955"
 ELSEIF worker_county_code = "x121" THEN
     agency_address.street = "809  Elm Street, Ste 1186"
     agency_address.city = "Alexandria"
@@ -737,19 +745,19 @@ ELSEIF worker_county_code = "x173" THEN
         agency_address.zip = "56352"
     END IF
 ELSEIF worker_county_code = "x174" THEN
-    IF interview_location = "Dodge" THEN
-        agency_address.street = "22 6TH ST East Dept 401"
+        IF interview_location = "Mantorville" THEN
+        agency_address.street = "22 6th St E Dept 401"
         agency_address.city = "Mantorville"
         agency_address.zip = "55955"
-    ELSEIF interview_location = "Steele" THEN
-        agency_address.street = "630 FLORENCE AVE"
+	ELSEIF interview_location= "Owatonna" THEN
+	 agency_address.street = "630 Florence Ave"
         agency_address.city = "Owatonna"
         agency_address.zip = "55060"
-    ELSEIF interview_location = "Waseca" THEN
-        agency_address.street = "299 JOHNSON SW STE 160"
+    	ELSEIF interview_location = "Waseca" THEN
+        agency_address.street = "299 Johnson Ave SW Ste 160"
         agency_address.city = "Waseca"
         agency_address.zip = "56093"
-    END IF
+	END IF
 ELSEIF worker_county_code = "x175" THEN
     agency_address.street = "400 Colorado Ave., Suite 104"
     agency_address.city = "Morris"
@@ -780,6 +788,10 @@ ELSEIF worker_county_code = "x180" THEN
     agency_address.street = "124 First Street SE"
     agency_address.city = "Wadena"
     agency_address.zip = "56482"
+ELSEIF worker_county_code = "x181" THEN   
+    agency_address.street = "299 JOHNSON SW STE 160"
+    agency_address.city = "Waseca"
+    agency_address.zip = "56093"
 ELSEIF worker_county_code = "x182" THEN
     IF interview_location = "Cottage Grove" THEN
         agency_address.street = "13000 Ravine Parkway S"
@@ -991,3 +1003,4 @@ call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
+
