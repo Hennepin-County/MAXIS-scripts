@@ -100,7 +100,7 @@ BeginDialog PA_verif_dialog, 0, 0, 196, 285, "PA Verif Dialog"
   Text 100, 15, 25, 15, "MFIP:"
   Text 100, 35, 30, 20, "MFIP Housing:"
   Text 5, 95, 45, 20, "Other income and type:"
-  Text 5, 140, 45, 20, "$50 subsidy deduction?"
+  Text 5, 145, 45, 20, "$50 subsidy deduction?"
   Text 5, 165, 45, 25, "Number of members on cash grant:"
   Text 95, 175, 55, 15, "Total members in household:"
   Text 130, 5, 25, 10, "Food:"
@@ -109,9 +109,8 @@ BeginDialog PA_verif_dialog, 0, 0, 196, 285, "PA Verif Dialog"
   Text 110, 220, 25, 20, "Worker Phone:"
   Text 5, 215, 35, 20, "Completed by:"
   Text 10, 240, 90, 15, "Worker Signature (For case note):"
-  Text 5, 115, 175, 20, "Warning: Do not share FTI on this form, including information from SSA such as SSI/RSDI amounts."
+  Text 5, 115, 175, 25, "Warning: Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
 EndDialog
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
