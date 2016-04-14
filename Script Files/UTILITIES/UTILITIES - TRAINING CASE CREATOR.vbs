@@ -1,6 +1,10 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "UTILITIES - TRAINING CASE CREATOR"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 120                              'manual run time in seconds  this run time only includes appl'ing the case. it gets time added it to as panels are added and approvals are made.
+STATS_denomination = "C"       'I is for each case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,33 +48,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 120                              'manual run time in seconds  this run time only includes appl'ing the case. it gets time added it to as panels are added and approvals are made.
-STATS_denomination = "C"       'I is for each case
-'END OF stats block==============================================================================================
 
 '========================================================================TRANSFER CASES========================================================================
-Function file_selection_system_dialog(file_selected, file_extension_restriction)
-	'Creates a Windows Script Host object
-	Set wShell=CreateObject("WScript.Shell")
-
-	'This loops until the right file extension is selected. If it isn't specified (= ""), it'll always exit here.
-	Do
-		'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
-		Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE ><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
-
-		'Creates the file_selected variable from the exit
-		file_selected = oExec.StdOut.ReadLine
-	
-		'If no file is selected the script will stop
-		If file_selected = "" then stopscript
-	
-		'If the rightmost characters of the file selected don't match what was in the file_extension_restriction argument, it'll tell the user. Otherwise the loop (and function) ends.
-		If right(file_selected, len(file_extension_restriction)) <> file_extension_restriction then MsgBox "You've entered an incorrect file type. The allowable file type is: " & file_extension_restriction & "."
-	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
-End function
-
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	'Creates an array of the workers selected in the dialog
 	workers_to_XFER_cases_to = split(replace(workers_to_XFER_cases_to, " ", ""), ",")

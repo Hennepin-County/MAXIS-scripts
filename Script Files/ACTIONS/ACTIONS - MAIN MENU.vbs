@@ -166,6 +166,14 @@ script_array_ACTIONS_main(script_num).description			= "Updates the WREG panel, a
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
 Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "   HG MONY/CHCK ISSUANCE   "													'needs spaces to generate button width properly.
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - HOUSING GRANT MONY CHCK ISSUANCE.vbs"
+script_array_ACTIONS_main(script_num).description			= "-- New 04/2016!!! Issues a housing grant in MONY/CHCK for cases that should have been issued in prior months."
+
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_ACTIONS_main(script_num).script_name			= "LTC Spousal Allocation FIATer"													'needs spaces to generate button width properly.
 script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs"
 script_array_ACTIONS_main(script_num).description			= "FIATs a spousal allocation across a budget period."
