@@ -630,4 +630,4 @@ If sent_5181_to_caseworker_check = 1 then Call write_variable_in_case_note("* Se
 Call write_variable_in_case_note ("---")						 
 call write_variable_in_case_note (worker_signature)
 
-script_end_procedure("Make sure your DISA and FACI panel(s) are updated if needed. Please also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")	
+script_end_procedure("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")	
