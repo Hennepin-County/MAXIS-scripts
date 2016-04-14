@@ -1,9 +1,10 @@
-'OPTION EXPLICIT
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - 5181.vbs"
 start_time = timer
-
-'DIM beta_agency, FuncLib_URL, req, fso, run_locally, default_directory
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 360          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -46,12 +47,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 360          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
 
 'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM start_time, name_of_script, url, row, script_end_procedure, case_number_and_footer_month_dialog, case_number
@@ -631,8 +626,8 @@ IF new_address_check = 1 THEN Call write_variable_in_case_note ("* New Address, 
 'case summary
 Call write_bullet_and_variable_in_case_note ("Case actions", case_action_editbox)
 Call write_bullet_and_variable_in_case_note ("Other notes", other_notes_editbox)
+If sent_5181_to_caseworker_check = 1 then Call write_variable_in_case_note("* Sent 5181 back to case manager.") 
 Call write_variable_in_case_note ("---")						 
 call write_variable_in_case_note (worker_signature)
-MsgBox "Make sure your DISA and FACI panel(s) are updated if needed. Please also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed."
 
-script_end_procedure("")	
+script_end_procedure("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")	
