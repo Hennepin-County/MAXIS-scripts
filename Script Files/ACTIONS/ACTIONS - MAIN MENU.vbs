@@ -47,7 +47,7 @@ END IF
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_ACTIONS_menu_dialog(script_array)
-	BeginDialog ACTIONS_dialog, 0, 0, 516, 340, "NOTICES Scripts"
+	BeginDialog ACTIONS_dialog, 0, 0, 516, 340, "ACTIONS Scripts"
 	 	Text 5, 5, 435, 10, "Notices scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 40, 15, "ACTIONS", 				ACTIONS_main_button
