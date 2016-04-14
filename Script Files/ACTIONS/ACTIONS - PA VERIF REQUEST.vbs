@@ -71,11 +71,10 @@ BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
 EndDialog
 
 
-BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
+BeginDialog PA_verif_dialog, 0, 0, 196, 285, "PA Verif Dialog"
   ButtonGroup ButtonPressed
-    OkButton 85, 230, 50, 15
-    CancelButton 140, 230, 50, 15
-
+    OkButton 85, 265, 50, 15
+    CancelButton 140, 265, 50, 15
   EditBox 50, 15, 25, 15, snap_grant
   EditBox 125, 15, 25, 15, MFIP_food
   EditBox 155, 15, 25, 15, MFIP_cash
@@ -84,16 +83,15 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   EditBox 155, 35, 25, 15, MFIP_housing
   EditBox 155, 55, 25, 15, DWP_grant
   EditBox 50, 75, 130, 15, other_notes
-  EditBox 50, 100, 130, 15, other_income
-  CheckBox 50, 120, 35, 10, "Yes", subsidy_check
-  EditBox 50, 140, 20, 15, cash_members
-  EditBox 150, 140, 20, 15, household_members
-  CheckBox 10, 170, 92, 15, "Include screenshot of last", inqd_check
-  EditBox 104, 170, 15, 15, number_of_months
-  EditBox 40, 190, 55, 15, completed_by
-  EditBox 140, 190, 45, 15, worker_phone
-  EditBox 120, 210, 65, 15, worker_signature
-
+  EditBox 50, 95, 130, 15, other_income
+  CheckBox 55, 150, 35, 10, "Yes", subsidy_check
+  EditBox 50, 175, 20, 15, cash_members
+  EditBox 160, 175, 20, 15, household_members
+  CheckBox 5, 195, 95, 15, "Include screenshot of last", inqd_check
+  EditBox 100, 195, 15, 15, number_of_months
+  EditBox 50, 220, 55, 15, completed_by
+  EditBox 140, 220, 45, 15, worker_phone
+  EditBox 120, 240, 65, 15, worker_signature
   Text 5, 15, 40, 15, "SNAP:"
   Text 100, 55, 20, 15, "DWP:"
   Text 5, 75, 40, 15, "Other notes:"
@@ -101,19 +99,18 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   Text 5, 35, 35, 15, "MSA:"
   Text 100, 15, 25, 15, "MFIP:"
   Text 100, 35, 30, 20, "MFIP Housing:"
-  Text 5, 100, 45, 20, "Other income and type:"
-  Text 5, 120, 45, 20, "$50 subsidy deduction?"
-  Text 5, 140, 45, 30, "Number of members on cash grant:"
-  Text 90, 140, 55, 25, "Total members in household:"
+  Text 5, 95, 45, 20, "Other income and type:"
+  Text 5, 145, 45, 20, "$50 subsidy deduction?"
+  Text 5, 165, 45, 25, "Number of members on cash grant:"
+  Text 95, 175, 55, 15, "Total members in household:"
   Text 130, 5, 25, 10, "Food:"
   Text 160, 5, 25, 10, "Cash:"
-  Text 123, 173, 60, 10, "months' benefits"
-  Text 110, 190, 25, 20, "Worker Phone:"
-  Text 5, 190, 35, 20, "Completed by:"
-  Text 20, 210, 90, 15, "Worker Signature (For case note):"
-
+  Text 120, 200, 60, 10, "months' benefits"
+  Text 110, 220, 25, 20, "Worker Phone:"
+  Text 5, 215, 35, 20, "Completed by:"
+  Text 10, 240, 90, 15, "Worker Signature (For case note):"
+  Text 5, 115, 175, 25, "Warning: Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
 EndDialog
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
