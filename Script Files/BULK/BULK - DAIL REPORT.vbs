@@ -50,15 +50,28 @@ STATS_manualtime = 25                               'manual run time, per line, 
 STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
-BeginDialog bulk_dail_report_dialog, 0, 0, 361, 80, "Bulk DAIL report dialog"
+BeginDialog bulk_dail_report_dialog, 0, 0, 361, 120, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
+  CheckBox 10, 70, 25, 10, "ALL", all_check
   ButtonGroup ButtonPressed
-    OkButton 250, 55, 50, 15
-    CancelButton 305, 55, 50, 15
+    OkButton 250, 100, 50, 15
+    CancelButton 305, 100, 50, 15
+  CheckBox 50, 70, 30, 10, "COLA", cola_check
+  CheckBox 95, 70, 30, 10, "CLMS", clms_check
+  CheckBox 140, 70, 30, 10, "CSES", cses_check
+  CheckBox 185, 70, 30, 10, "ELIG", elig_check
+  CheckBox 230, 70, 30, 10, "IEVS", ievs_check
+  CheckBox 270, 70, 30, 10, "INFO", info_check
+  CheckBox 10, 85, 25, 10, "IV-E", iv3_check
+  CheckBox 50, 85, 25, 10, "MA", ma_check
+  CheckBox 95, 85, 30, 10, "MEC2", mec2_check
+  CheckBox 140, 85, 35, 10, "PARI", pari_chck
+  CheckBox 185, 85, 30, 10, "PEPR", pepr_check
+  CheckBox 230, 85, 30, 10, "TIKL", tikl_check
+  CheckBox 270, 85, 30, 10, "WF1", wf1_check
   Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
   Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
-  Text 10, 55, 185, 10, "Note: please enter the entire 7-digit number x1 number."
-  Text 20, 65, 160, 10, "(Example: ''x100abc, x100abc'')"
+  Text 10, 55, 290, 10, "Note: please enter the entire 7-digit number x1 number. (Example: ''x100abc, x100abc'')"
 EndDialog
 
 'Connects to MAXIS
@@ -69,6 +82,9 @@ CALL check_for_MAXIS(false)
 
 'Looks up an existing user for autofilling the next dialog
 CALL find_variable("User: ", x_number_editbox, 7)
+
+'defaulting the script to check all DAILS on a DAIL list
+all_check = 1
 
 'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
 dialog bulk_dail_report_dialog
@@ -113,7 +129,26 @@ For each x_number in x_number_array
 	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 	EMWriteScreen x_number, 21, 6
 	transmit
-
+	
+	'selecting the type of DAIl message
+	EMWriteScreen "x", 4, 12		'transmits to the PICK screenshot
+	transmit
+	EMWriteScreen "_", 7, 39		'clears the all selection
+	If all_check = 1 then EMWriteScreen "x", 7, 39
+	If cola_check = 1 then EMWriteScreen "x", 8, 39
+	If clms_check = 1 then EMWriteScreen "x", 9, 39
+	If cses_check = 1 then EMWriteScreen "x", 10, 39
+	If elig_check = 1 then EMWriteScreen "x", 11, 39
+	If ievs_check = 1 then EMWriteScreen "x", 12, 39
+	If info_check = 1 then EMWriteScreen "x", 13, 39
+	If iv3_check = 1 then EMWriteScreen "x", 14, 39
+	If ma_check = 1 then EMWriteScreen "x", 15, 39
+ 	If mec2_check = 1 then EMWriteScreen "x", 16, 39
+	If pari_chck = 1 then EMWriteScreen "x", 17, 39
+	If pepr_check = 1 then EMWriteScreen "x", 18, 39
+	If tikl_check = 1 then EMWriteScreen "x", 19, 39
+	If wf1_check = 1 then EMWriteScreen "x", 20, 39
+	transmit
 	DO
 		'Reading and trimming the MAXIS case number and dumping it in Excel
 		EMReadScreen maxis_case_number, 8, 5, 73
