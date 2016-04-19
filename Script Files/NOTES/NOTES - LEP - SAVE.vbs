@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - LEP - SAVE.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,133 +48,103 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 90           'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
+'DIALOG PORTION----------------------------------------------------------------------------------------------------------------------------------------------
 
-'>>>>NOTE: these were added as a batch process. Check below for any 'StopScript' functions and convert manually to the script_end_procedure("") function
-EMConnect ""
-
-BeginDialog SAVE_dialog, 0, 0, 196, 301, "SAVE Dialog"
+BeginDialog SAVE_dialog, 0, 0, 206, 355, "SAVE Dialog"
+  EditBox 65, 5, 85, 15, case_number
   OptionGroup RadioGroup1
-    RadioButton 5, 5, 45, 10, "SAVE 1", SAVE_1
-    RadioButton 5, 20, 45, 10, "SAVE 2", SAVE_2
-  GroupBox 5, 35, 185, 105, "SAVE 1"
-  Text 10, 50, 50, 10, "Current status:"
-  EditBox 65, 45, 120, 15, current_status
-  Text 10, 70, 65, 10, "LPR adjusted from:"
-  EditBox 80, 65, 105, 15, LPR_adjusted_from
-  Text 10, 90, 50, 10, "Date of entry:"
-  EditBox 60, 85, 125, 15, date_of_entry
-  Text 10, 110, 60, 10, "Country of origin:"
-  EditBox 70, 105, 115, 15, country_of_origin
-  CheckBox 10, 125, 75, 10, "SAVE 2 requested?", SAVE_2_requested_check
-  GroupBox 5, 145, 185, 55, "SAVE 2"
-  Text 10, 155, 135, 10, "Sponsored on I-864 Affidavit of Support?"
+    RadioButton 10, 30, 45, 10, "SAVE 1", SAVE_1
+    RadioButton 60, 30, 45, 10, "SAVE 2", SAVE_2
+  EditBox 65, 55, 130, 15, current_status
+  EditBox 80, 75, 115, 15, LPR_adjusted_from
+  EditBox 60, 95, 135, 15, date_of_entry
+  EditBox 70, 115, 125, 15, country_of_origin
+  CheckBox 10, 135, 75, 10, "SAVE 2 requested?", SAVE_2_requested_check
   OptionGroup RadioGroup2
-    RadioButton 15, 170, 35, 10, "No", not_sponsored
-    RadioButton 15, 185, 75, 10, "Yes, sponsored by:", sponsored
-  EditBox 95, 180, 90, 15, sponsor
-  Text 10, 210, 85, 10, "Imigration doc received:"
-  EditBox 95, 205, 95, 15, imig_doc_received
-  Text 10, 230, 35, 10, "Exp date:"
-  EditBox 45, 225, 40, 15, exp_date
-  CheckBox 10, 245, 170, 10, "TIKL out to re-request 90 days before expiration.", TIKL_check
-  Text 10, 265, 25, 10, "Notes:"
-  EditBox 40, 260, 150, 15, notes
-  Text 10, 285, 70, 10, "Sign your case note:"
-  EditBox 80, 280, 110, 15, worker_sig
+    RadioButton 15, 180, 35, 10, "No", not_sponsored
+    RadioButton 15, 195, 75, 10, "Yes, sponsored by:", sponsored
+  EditBox 95, 190, 100, 15, sponsor_name
+  EditBox 95, 215, 100, 15, imig_doc_received
+  EditBox 45, 235, 40, 15, exp_date
+  CheckBox 10, 255, 170, 10, "TIKL out to re-request 90 days before expiration.", TIKL_check
+  EditBox 60, 270, 135, 15, other_notes
+  EditBox 65, 290, 130, 15, actions_taken
+  EditBox 80, 310, 115, 15, worker_sig
   ButtonGroup ButtonPressed
-    OkButton 75, 10, 50, 15
-    CancelButton 135, 10, 50, 15
+    OkButton 80, 335, 50, 15
+    CancelButton 135, 335, 50, 15
+  Text 10, 100, 50, 10, "Date of entry:"
+  Text 10, 275, 45, 10, "Other Notes:"
+  GroupBox 5, 155, 185, 55, "SAVE 2"
+  Text 10, 165, 135, 10, "Sponsored on I-864 Affidavit of Support?"
+  Text 10, 220, 85, 10, "Imigration doc received:"
+  Text 10, 240, 35, 10, "Exp date:"
+  Text 10, 315, 70, 10, "Sign your case note:"
+  Text 10, 80, 65, 10, "LPR adjusted from:"
+  Text 10, 120, 60, 10, "Country of origin:"
+  Text 10, 60, 50, 10, "Current status:"
+  GroupBox 5, 45, 185, 105, "SAVE 1"
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 10, 295, 50, 10, "Actions Taken:"
 EndDialog
 
-Sub find_case_note
-  EMReadScreen case_note_ready, 17, 2, 33
-  EMReadScreen case_note_mode, 7, 20, 3
-  If case_note_ready <> "Case Notes (NOTE)" then msgbox "You aren't in a case note on edit mode. You need to be in a case note on edit mode."
-  If case_note_mode <> "Mode: A" and case_note_mode <> "Mode: E" then msgbox "You aren't in a case note on edit mode. You need to be in a case note on edit mode."
-  If case_note_mode <> "Mode: A" and case_note_mode <> "Mode: E" then Dialog SAVE_dialog
-  If buttonpressed = 0 then stopscript
-End Sub
 
+
+'THE SCRIPT PORTION----------------------------------------------------------------------------------------------------------------------------------------------
+EMConnect ""
+
+Call MAXIS_case_number_finder(case_number)      'finding case number
+
+Call check_for_MAXIS(true)						'making sure that person is in MAXIS and logged in
+ 
 Do
-  Dialog SAVE_dialog
-  If TIKL_check = 1 and IsDate(exp_date) = False then MsgBox "You must enter a proper date (MM/DD/YYYY) if you want the script to TIKL out. Try again."
-  If buttonpressed = 0 then stopscript
-Loop until ButtonPressed = -1 and (TIKL_check = 0 or (TIKL_check = 1 and IsDate(exp_date) = True))
+	err_msg = ""						'error message handling to keep dialog looping until completed correctly.
+	Dialog SAVE_dialog
+	cancel_confirmation	
+	If case_number = "" THEN err_msg = err_msg & "You must enter a Case number." & vbNewLine
+	If TIKL_check = 1 and IsDate(exp_date) = False then err_msg = err_msg & "You must enter a proper date (MM/DD/YYYY) if you want the script to TIKL out." & vbNewLine
+	If imig_doc_received = "" THEN err_msg = err_msg & "Please enter a immigration doc received." & vbNewLine
+	If worker_sig = "" THEN err_msg = err_msg & "You must sign your case note." & vbNewLine
+	If err_msg <> "" THEN msgbox err_msg
+Loop until err_msg = ""
+
+Call check_for_MAXIS(false)						'making sure that person is in MAXIS and logged in
 
 
-Do
-  find_case_note
-Loop until case_note_ready = "Case Notes (NOTE)" and case_note_mode = "Mode: A" or case_note_mode = "Mode: E"
+'CASE NOTE PORTION----------------------------------------------------------------------------------------------------------------------------------------------
+start_a_blank_case_note
 
-EMSendKey "<enter>"
-Do
-  EMReadScreen password_prompt, 38, 2, 23
-  IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then MsgBox "You are locked out of your case note. Type your password then try again."
-  IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then Dialog SAVE_dialog
-  IF buttonpressed = 0 then stopscript
-Loop until password_prompt <> "ACF2/CICS PASSWORD VERIFICATION PROMPT"
+IF SAVE_1 = 1 then 											'case notes the save 1 portion if that option is selected
+	Call write_variable_in_CASE_NOTE("**SAVE 1**")
+	Call write_bullet_and_variable_in_CASE_NOTE("Current status", current_status)
+	Call write_bullet_and_variable_in_CASE_NOTE("LPR adjusted from", LPR_adjusted_from)
+	Call write_bullet_and_variable_in_CASE_NOTE("Date of entry", date_of_entry)
+	Call write_bullet_and_variable_in_CASE_NOTE("Country of origin", country_of_origin)
+End If
 
-IF SAVE_1 = 1 then 
-  EMSendKey "**SAVE 1**" & "<newline>"
-  EMSendKey "* Current status: " & current_status & "<newline>"
-  EMSendKey "* LPR adjusted from: " & LPR_adjusted_from & "<newline>"
-  EMSendKey "* Date of entry: " & date_of_entry & "<newline>"
-  EMSendKey "* Country of origin: " & country_of_origin & "<newline>"
-End if
-IF SAVE_2 = 1 then 
-  EMSendKey "**SAVE 2**" & "<newline>"
-  If not_sponsored = 1 then EMSendKey "* No sponsor indicated on SAVE." & "<newline>"
-  If sponsored = 1 then EMSendKey "* Client is sponsored. Sponsor is indicated as " & sponsor & "." & "<newline>"
-End if
+IF SAVE_2 = 1 then 											'case notes the save 2 portion if that option is selected
+	Call write_variable_in_CASE_NOTE("**SAVE 2**")
+	If not_sponsored = 1 then Call write_variable_in_CASE_NOTE("* No sponsor indicated on SAVE.")
+	If sponsored = 1 then Call write_variable_in_CASE_NOTE("* Client is sponsored. Sponsor is indicated as " & sponsor_name & ".")
+End If
 
-EMSendKey "* Immigration document received: " & imig_doc_received & "<newline>"
-EMSendKey "* Exp date: " + exp_date 
-If TIKL_check = 1 then EMSendKey ", TIKLed to re-request " & dateadd("d", -90, exp_date) & "."
-EMSendKey "<newline>"
-If SAVE_2_requested_check = 1 then EMSendKey "* SAVE 2 requested." & "<newline>"
-If notes <> "" then EMSendKey "* Notes: " + notes + "<newline>"
-EMSendKey "---" + "<newline>"
-EMSendKey worker_sig
+															'Case notes portion shared by SAVE 1 and SAVE 2
+Call write_bullet_and_variable_in_CASE_NOTE("Immigration document received", imig_doc_received)
+Call write_bullet_and_variable_in_CASE_NOTE("Expiration date", exp_date)
+If TIKL_check = 1 then Call write_variable_in_CASE_NOTE("* TIKLed to re-request " & dateadd("d", -90, exp_date) & ".")  'subtracting 90 days from expiration date to write a TIKL to request updated information. 
+If SAVE_2_requested_check = checked then Call write_variable_in_CASE_NOTE("* SAVE 2 requested.")
+Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+Call write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
+Call write_variable_in_CASE_NOTE("---")
+Call write_variable_in_CASE_NOTE(worker_sig)
 
-If TIKL_check <> 1 then stopscript
+'TIKL PORTION----------------------------------------------------------------------------------------------------------------------------------------------
 
-EMReadScreen case_number, 8, 20, 38
-
-Do
-  EMSendKey "<PF3>"
-  EMWaitReady 1, 1
-  EMReadScreen SELF_check, 4, 2, 50
-Loop until SELF_check = "SELF"
-
-EMWriteScreen "dail", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen "writ", 21, 70
-EMSendKey "<enter>"
-EMWaitReady 1, 1
-
-TIKL_date = dateadd("d", -90, exp_date)
-TIKL_month = datepart("m", TIKL_date)
-If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
-TIKL_day = datepart("d", TIKL_date)
-If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
-TIKL_year = datepart("yyyy", TIKL_date) - 2000
-
-EMWriteScreen TIKL_month, 5, 18
-EMWriteScreen TIKL_day, 5, 21
-EMWriteScreen TIKL_year, 5, 24
-
-EMSetCursor 9, 3
-EMSendKey "Check on immigration documentation. If it hasn't been updated, request updated info, as what we have expires " & exp_date & ". TIKL generated via script."
-EMSendKey "<enter>"
-EMWaitReady 1, 1
-EMSendKey "<PF3>"
-EMWaitReady 1, 1
-MsgBox "TIKL sent for " & TIKL_date & ", 90 days prior to document expiration."
+If TIKL_check = checked then
+	Call navigate_to_MAXIS_screen("DAIL","WRIT")
+	Call create_MAXIS_friendly_date(exp_date, -90, 5, 18)  'subtracting 90 days from expiration date to write a TIKL to request updated information. 
+	Call write_variable_in_TIKL("Check on immigration documentation. If it hasn't been updated, request updated info, as what we have expires " & exp_date & ". TIKL generated via script.")
+	script_end_procedure("Success! TIKL sent for " & dateadd("d", -90, exp_date) & ", 90 days prior to document expiration.")   'subtracting 90 days from expiration date to write a TIKL to request updated information. 
+END IF
 
 script_end_procedure("")
