@@ -1,6 +1,10 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - DAIL REPORT.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 25                               'manual run time, per line, in seconds
+STATS_denomination = "I"       'I is for each ITEM
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,34 +48,29 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 25                               'manual run time, per line, in seconds
-STATS_denomination = "I"       'I is for each ITEM
-'END OF stats block==============================================================================================
-
-BeginDialog bulk_dail_report_dialog, 0, 0, 361, 120, "Bulk DAIL report dialog"
+BeginDialog bulk_dail_report_dialog, 0, 0, 361, 150, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
-  CheckBox 10, 70, 25, 10, "ALL", all_check
+  CheckBox 20, 85, 25, 10, "ALL", All_check
   ButtonGroup ButtonPressed
-    OkButton 250, 100, 50, 15
-    CancelButton 305, 100, 50, 15
-  CheckBox 50, 70, 30, 10, "COLA", cola_check
-  CheckBox 95, 70, 30, 10, "CLMS", clms_check
-  CheckBox 140, 70, 30, 10, "CSES", cses_check
-  CheckBox 185, 70, 30, 10, "ELIG", elig_check
-  CheckBox 230, 70, 30, 10, "IEVS", ievs_check
-  CheckBox 270, 70, 30, 10, "INFO", info_check
-  CheckBox 10, 85, 25, 10, "IV-E", iv3_check
-  CheckBox 50, 85, 25, 10, "MA", ma_check
-  CheckBox 95, 85, 30, 10, "MEC2", mec2_check
-  CheckBox 140, 85, 35, 10, "PARI", pari_chck
-  CheckBox 185, 85, 30, 10, "PEPR", pepr_check
-  CheckBox 230, 85, 30, 10, "TIKL", tikl_check
-  CheckBox 270, 85, 30, 10, "WF1", wf1_check
+    OkButton 250, 125, 50, 15
+    CancelButton 305, 125, 50, 15
+  CheckBox 60, 85, 30, 10, "COLA", cola_check
+  CheckBox 105, 85, 30, 10, "CLMS", clms_check
+  CheckBox 150, 85, 30, 10, "CSES", cses_check
+  CheckBox 195, 85, 30, 10, "ELIG", elig_check
+  CheckBox 240, 85, 30, 10, "IEVS", ievs_check
+  CheckBox 280, 85, 30, 10, "INFO", info_check
+  CheckBox 20, 100, 25, 10, "IV-E", iv3_check
+  CheckBox 60, 100, 25, 10, "MA", ma_check
+  CheckBox 105, 100, 30, 10, "MEC2", mec2_check
+  CheckBox 150, 100, 35, 10, "PARI", pari_chck
+  CheckBox 195, 100, 30, 10, "PEPR", pepr_check
+  CheckBox 240, 100, 30, 10, "TIKL", tikl_check
+  CheckBox 280, 100, 30, 10, "WF1", wf1_check
   Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
   Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
   Text 10, 55, 290, 10, "Note: please enter the entire 7-digit number x1 number. (Example: ''x100abc, x100abc'')"
+  GroupBox 5, 70, 305, 50, "Select the type(s) of DAIL message to add to the report:"
 EndDialog
 
 'Connects to MAXIS
@@ -251,7 +250,5 @@ objExcel.Cells(6, 9).Value = ((STATS_counter * STATS_manualtime) - (timer - star
 FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
-
-
 
 script_end_procedure("Success! The workers' DAILs are now entered.")
