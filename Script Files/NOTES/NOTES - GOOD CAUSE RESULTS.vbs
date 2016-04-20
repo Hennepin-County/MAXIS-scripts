@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - Good Cause Results.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 320                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,19 +48,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 320                     'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
-
-
-
 'UPDATE DIM & REST OF SCRIPT TO MATCH DIALOG
-DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, claim_type_droplist, Claim_Committee_date, TIKL_date, determination_droplist, approved_to_date, Good_Cause_Claimed_Results_Dialog, Case_Number, Date_DHS_docs_sent, dhs3629_sent_date, TKL_date, TIKL_checkbox, Denial_reason, CCAP_checkbox, DWP_Checkbox, HC_checkbox, MFIP_checkbox,Other_comments, Worker_signature, programs_included
+'DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, claim_type_droplist, Claim_Committee_date, TIKL_date, determination_droplist, approved_to_date, Good_Cause_Claimed_Results_Dialog, Case_Number, Date_DHS_docs_sent, dhs3629_sent_date, TKL_date, TIKL_checkbox, Denial_reason, CCAP_checkbox, DWP_Checkbox, HC_checkbox, MFIP_checkbox,Other_comments, Worker_signature, programs_included
 
 BeginDialog Good_Cause_Claimed_Results_Dialog, 0, 0, 276, 300, "Good Cause Claim Determination"
-  EditBox 205, 20, 65, 15, Case_Number
+  EditBox 205, 20, 65, 15, MAXIS_case_number
   EditBox 135, 40, 60, 15, Claim_Committee_Date
   DropListBox 120, 60, 105, 15, "Select One:"+chr(9)+"APPROVED"+chr(9)+"DENIED", determination_droplist
   EditBox 100, 100, 60, 15, Approved_to_Date
@@ -93,22 +89,22 @@ EndDialog
 EMConnect ""
 
 'Inserts Maxis Case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
-
 DO
-	err_msg = ""
-	Dialog Good_Cause_Claimed_Results_Dialog
-	cancel_confirmation
-	IF IsNumeric(case_number)=FALSE THEN err_Msg = err_msg & vbCr & "You must type a valid numeric case number."
-	IF Determination_droplist = "Select One:" THEN err_Msg = err_msg & vbCr & "You must select Approved or Denied."
-	IF (Determination_droplist = "APPROVED" AND isdate(Approved_to_date) = FALSE) THEN err_Msg = err_msg & vbCr & "DAIL/TIKL date is not a valid date, please use MM/DD/YYYY format."
-	IF worker_signature = "" THEN err_Msg = err_msg & vbCr & "You must sign your case note!"
-	IF err_msg <> "" THEN Msgbox err_msg
-LOOP UNTIL err_msg = ""
-	
-
+	DO
+		err_msg = ""
+		Dialog Good_Cause_Claimed_Results_Dialog
+		cancel_confirmation
+		IF IsNumeric(MAXIS_case_number)=FALSE THEN err_Msg = err_msg & vbCr & "You must type a valid numeric case number."
+		IF Determination_droplist = "Select One:" THEN err_Msg = err_msg & vbCr & "You must select Approved or Denied."
+		IF (Determination_droplist = "APPROVED" AND isdate(Approved_to_date) = FALSE) THEN err_Msg = err_msg & vbCr & "DAIL/TIKL date is not a valid date, please use MM/DD/YYYY format."
+		IF worker_signature = "" THEN err_Msg = err_msg & vbCr & "You must sign your case note!"
+		IF err_msg <> "" THEN Msgbox err_msg
+	LOOP UNTIL err_msg = ""						'loops until all errors are resolved							'
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'seting variables for the programs included
 IF CCAP_checkbox = 1 THEN programs_included = programs_included & "CCAP "
@@ -116,13 +112,8 @@ IF DWP_checkbox = 1 THEN programs_included = programs_included & "DWP "
 IF MFIP_checkbox = 1 THEN programs_included = programs_included & "MFIP "
 IF HC_checkbox = 1 THEN programs_included = programs_included & "Healthcare "
 
-'Checks Maxis for password prompt
-CALL check_for_MAXIS(True)
-
 'Navigates to case note
 CALL start_a_blank_CASE_NOTE
-
-'Writes the case note
 CALL write_variable_in_case_note (">>Child Support Good Cause Exemption Claimed - Determination: " & determination_droplist & "<<")
 CALL write_bullet_and_variable_in_case_note("The Good Cause Committee review was on", claim_committee_date)
 IF Determination_droplist = "APPROVED" THEN CALL write_bullet_and_variable_in_case_note("Date approved through", approved_to_date & " - DAIL/TIKL was created for this date")
@@ -131,21 +122,16 @@ CALL write_bullet_and_variable_in_case_note("Applicable Programs", programs_incl
 CALL write_bullet_and_variable_in_case_note("Date DHS-3629 was sent", dhs3629_sent_DATE)
 CALL write_bullet_and_variable_in_case_note("Date DHS-3628 & DHS-0033 were sent", Date_DHS_docs_sent) 
 CALL write_bullet_and_variable_in_case_note("Additional information", Other_Comments)
-
-
-
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 'TIKL PROCESS for APPROVED claims only
 If approved_to_date<> "" then
-		back_to_self
-		call navigate_to_MAXIS_screen("DAIL", "WRIT")
-		call create_MAXIS_friendly_date(approved_to_date, 0, 5, 18)
-		call write_variable_in_TIKL("Good Cause claim needs to be reviewed.")
-		PF3
-	End if
-
-
+	back_to_self
+	call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	call create_MAXIS_friendly_date(approved_to_date, 0, 5, 18)
+	call write_variable_in_TIKL("Good Cause claim needs to be reviewed.")
+	PF3
+End if
 
 script_end_procedure("Success! A case note has been made.  If the Good Cause claim was approved, a TIKL was also made.")
