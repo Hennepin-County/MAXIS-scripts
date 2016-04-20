@@ -52,7 +52,7 @@ END IF
 'DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, claim_type_droplist, Claim_Committee_date, TIKL_date, determination_droplist, approved_to_date, Good_Cause_Claimed_Results_Dialog, Case_Number, Date_DHS_docs_sent, dhs3629_sent_date, TKL_date, TIKL_checkbox, Denial_reason, CCAP_checkbox, DWP_Checkbox, HC_checkbox, MFIP_checkbox,Other_comments, Worker_signature, programs_included
 
 BeginDialog Good_Cause_Claimed_Results_Dialog, 0, 0, 276, 300, "Good Cause Claim Determination"
-  EditBox 205, 20, 65, 15, case_number
+  EditBox 205, 20, 65, 15, MAXIS_case_number
   EditBox 135, 40, 60, 15, Claim_Committee_Date
   DropListBox 120, 60, 105, 15, "Select One:"+chr(9)+"APPROVED"+chr(9)+"DENIED", determination_droplist
   EditBox 100, 100, 60, 15, Approved_to_Date
@@ -89,7 +89,7 @@ EndDialog
 EMConnect ""
 
 'Inserts Maxis Case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
@@ -97,7 +97,7 @@ DO
 		err_msg = ""
 		Dialog Good_Cause_Claimed_Results_Dialog
 		cancel_confirmation
-		IF IsNumeric(case_number)=FALSE THEN err_Msg = err_msg & vbCr & "You must type a valid numeric case number."
+		IF IsNumeric(MAXIS_case_number)=FALSE THEN err_Msg = err_msg & vbCr & "You must type a valid numeric case number."
 		IF Determination_droplist = "Select One:" THEN err_Msg = err_msg & vbCr & "You must select Approved or Denied."
 		IF (Determination_droplist = "APPROVED" AND isdate(Approved_to_date) = FALSE) THEN err_Msg = err_msg & vbCr & "DAIL/TIKL date is not a valid date, please use MM/DD/YYYY format."
 		IF worker_signature = "" THEN err_Msg = err_msg & vbCr & "You must sign your case note!"
@@ -113,9 +113,7 @@ IF MFIP_checkbox = 1 THEN programs_included = programs_included & "MFIP "
 IF HC_checkbox = 1 THEN programs_included = programs_included & "Healthcare "
 
 'Navigates to case note
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9
-'CALL start_a_blank_CASE_NOTE
+CALL start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note (">>Child Support Good Cause Exemption Claimed - Determination: " & determination_droplist & "<<")
 CALL write_bullet_and_variable_in_case_note("The Good Cause Committee review was on", claim_committee_date)
 IF Determination_droplist = "APPROVED" THEN CALL write_bullet_and_variable_in_case_note("Date approved through", approved_to_date & " - DAIL/TIKL was created for this date")
