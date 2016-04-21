@@ -630,6 +630,121 @@ Next
 		''			EMReadScreen banked
 'Next				'Goes to the next Array item to compare'
 
+'------------NEWLY ADDED WREG PIECE-------------------------------------------------------------------------------
+'creating date variables to measure against person note counted dates
+report_date = footer_month & "/" & footer_year
+
+Call navigate_to_MAXIS_screen("stat","wreg")		'navigates to stat/wreg
+EMWriteScreen HH_member, 20, 76
+transmit
+EMReadScreen wreg_total, 1, 2, 78
+IF wreg_total <> "0" THEN
+	EmWriteScreen "x", 13, 57
+	transmit
+	bene_mo_col = (15 + (4*cint(footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+	bene_yr_row = 10
+		abawd_counted_months = 0					'delclares the variables values at 0
+		second_abawd_period = 0
+	month_count = 0
+		DO
+			'establishing variables for specific ABAWD counted month dates
+			If bene_mo_col = "19" then counted_date_month = "01"
+			If bene_mo_col = "23" then counted_date_month = "02"
+			If bene_mo_col = "27" then counted_date_month = "03"
+			If bene_mo_col = "31" then counted_date_month = "04"
+			If bene_mo_col = "35" then counted_date_month = "05"
+			If bene_mo_col = "39" then counted_date_month = "06"
+			If bene_mo_col = "43" then counted_date_month = "07"
+			If bene_mo_col = "47" then counted_date_month = "08"
+			If bene_mo_col = "51" then counted_date_month = "09"
+			If bene_mo_col = "55" then counted_date_month = "10"
+			If bene_mo_col = "59" then counted_date_month = "11"
+			If bene_mo_col = "63" then counted_date_month = "12"
+			'reading to see if a month is counted month or not
+			EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
+			'counting and checking for counted ABAWD months
+			IF is_counted_month = "X" or is_counted_month = "M" THEN 
+				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+				abawd_counted_months = abawd_counted_months + 1				'adding counted months 
+				abawd_counted_months_string = counted_date_month & "/" & counted_date_year
+				If abawd_counted_months_string <> report_date then 
+					If counted_date_year < footer_year then 			'does not add dates that are report month or later to the array
+						abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
+					Elseif abawd_counted_months_string < report_date then 
+						abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
+					END IF
+				END IF
+			END IF
+			
+			'declaring & splitting the abawd months array
+			If left(abawd_info_list, 1) = "," then abawd_info_list = right(abawd_info_list, len(abawd_info_list) - 1)
+			abawd_months_array = Split(abawd_info_list, ",")
+			
+			'counting and checking for second set of ABAWD months
+			IF is_counted_month = "Y" or is_counted_month = "N" THEN 
+				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+				second_abawd_period = second_abawd_period + 1				'adding counted months
+				second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
+				second_set_info_list = second_set_info_list & "," & second_counted_months_string	'adding variable to list to add to array
+			END IF
+			
+			'declaring & splitting the second set of abawd months array
+			If left(second_set_info_list, 1) = "," then second_set_info_list = right(second_set_info_list, len(second_set_info_list) - 1)
+			second_months_array = Split(second_set_info_list,",")
+			
+			bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
+    		    IF bene_mo_col = 15 THEN
+					bene_yr_row = bene_yr_row - 1
+					bene_mo_col = 63
+				END IF
+			month_count = month_count + 1
+		LOOP until month_count = 36
+	PF3
+END If
+'END OF ABAWD MONTHS AND SECOND ABAWD MONTHS----------------------------------------------------------------------------------------------------
+
+'Reading the person notes regarding which months are counted as banked months
+PF5			'navigates to Person note from WREG PANEL
+
+DO
+	PNOTE_row = 5		'establishes the row to start searching the Person notes from 
+	Do 
+		EMReadScreen counted_banked_month, 12, PNOTE_row, 31
+		If counted_banked_month = "            " then exit do 'if blank then stops checking
+		If counted_banked_month = "Banked Month" then
+			EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
+			If abawd_counted_months_string < report_date then banked_months_list = banked_months_list & abawd_counted_months_string & ", "  'does not add dates that are report month or later to the array
+		END IF 
+		PNOTE_row = PNOTE_row + 1 
+	LOOP until PNOTE_row = 18
+	PF8
+	EMReadScreen last_page_check, 21, 24, 2	'Checking for the last page of cases.
+Loop until last_page_check = "THIS IS THE LAST PAGE"
+
+'declaring & splitting for the person note cases 
+banked_months_list = trim(banked_months_list)
+if right(banked_months_list, 1) = "," then banked_months_list = left(banked_months_list, len(banked_months_list) - 1)
+'created new array of the banked months list cases
+PNOTE_array = Split(banked_months_list, ",")
+
+msgbox "PNOTE array: " & Join(PNOTE_array, ",") & _
+vbnewLine & "ABAWD array: " & Join(abawd_months_array, ",")
+
+Dim PNOTE_array
+Dim Filter_array
+
+For each PNOTE in PNOTE_array
+	msgbox "PNOTE: " & PNOTE
+	Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
+	abawd_counted_months = abawd_counted_months - 1				'subtracts counted months 	
+	abawd_months_array = Filter_array						'establishing the values of both arrays are the same so that the PNOTE month that was removed stays removed from array
+	msgbox "Filter array: " & Join(Filter_array, ",") & _
+	vbNewline & "abawd counted months" & abawd_counted_months
+NEXT
+
+PF3 	'exits PERSON NOTE 
+'-----------------------------------END OF WREG PIECE---------------------------------------------------------------
+
 'TESTING'
 'For i = 0 to Ubound(Banked_Month_Client_Array,2)
 ''	MsgBox "Case # " & Banked_Month_Client_Array (case_num, i) & vbNewLine & "PMI: " & Banked_Month_Client_Array(clt_pmi,i) & vbNewLine & "Memb " & Banked_Month_Client_Array(memb_num, i) & vbNewLine & "Name: " & Banked_Month_Client_Array(clt_name, i) & vbNewLine & "Name again: " & Banked_Month_Client_Array (clt_first_name, i) & " " & Banked_Month_Client_Array(clt_last_name, i) & vbNewLine & "Comments: " & Banked_Month_Client_Array(comments, i)
