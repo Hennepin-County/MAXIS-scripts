@@ -51,6 +51,7 @@ END IF
 
 'FUNCTIONS that are currently not in the FuncLib that are used in this script----------------------------------------------------------------------------------------------------
 'Veronicas function that allows the user to search for a local file instead of having the file location hard coded into the script'
+'This can be removed as the function is in FuncLib'
 Function File_Selection_System_Dialog(file_selected)
     'Creates a Windows Script Host object
     Set wShell=CreateObject("WScript.Shell")
@@ -62,84 +63,9 @@ Function File_Selection_System_Dialog(file_selected)
     file_selected = oExec.StdOut.ReadLine
 End function
 
-'We will be writing a person note as we gather Banked Months Data so we need these functions'
-Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-  variable_array = split(y, " ")
-  EMSendKey "* " & x & ": "
-  For each x in variable_array
-    EMGetCursor row, col
-    If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
-      EMSendKey "<PF8>"
-      EMWaitReady 0, 0
-    End if
-    EMReadScreen max_check, 51, 24, 2
-    If max_check = "A MAXIMUM OF 4 PAGES ARE ALLOWED FOR EACH CASE NOTE" then exit for
-    EMGetCursor row, col
-    If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(5)
-    If (row = 5 and col = 3) then EMSendKey space(5)
-    EMSendKey x & " "
-    If right(x, 1) = ";" then
-      EMSendKey "<backspace>" & "<backspace>"
-      EMGetCursor row, col
-      If row = 18 then
-        EMSendKey "<PF8>"
-        EMWaitReady 0, 0
-        EMSendKey space(5)
-      Else
-        EMSendKey "<newline>" & space(5)
-      End if
-    End if
-  Next
-  EMSendKey "<newline>"
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-End function
-
-Function write_new_line_in_person_note(x)
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80 + 1 ) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-  EMReadScreen max_check, 51, 24, 2
-  EMSendKey x & "<newline>"
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-End function
-
-'FUNCTION create_dialog(month_list, report_month_dropdown)
-	'DIALOGS-----------------------------------------------------------------------------------------------------------
-	'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
-'	BeginDialog SNAP_Banked_Month_Report_Dialog, 0, 0, 211, 70, "SNAP Banked Month Reporting Dialog"
-'	  DropListBox 65, 25, 140, 15, "select one..." & month_list, report_month_dropdown
-'	  ButtonGroup ButtonPressed
-'		OkButton 100, 45, 50, 15
-'		CancelButton 155, 45, 50, 15
-'	  Text 5, 10, 190, 10, "Select the month that you are creating the report for."
-'	  Text 5, 30, 55, 10, "Month to Report:"
-'	EndDialog
-'
-'	DIALOG SNAP_Banked_Month_Report_Dialog
-'END FUNCTION
-
-'DIALOGS----------------------------------------------------------------------------------------------------
-'BeginDialog SNAP_Banked_Month_Report_Dialog, 0, 0, 211, 70, "SNAP Banked Month Reporting Dialog"
-'  DropListBox 65, 25, 140, 15, "select one..." & month_list, report_month_dropdown
-'  ButtonGroup ButtonPressed
-'    OkButton 100, 45, 50, 15
-'    CancelButton 155, 45, 50, 15
-'  Text 5, 10, 190, 10, "Select the month that you are creating the report for."
-'  Text 5, 30, 55, 10, "Month to Report:"
-'EndDialog
-
 EMConnect ""		'connecting to MAXIS
 
+'Dialog needed here before pushing to master'
 MsgBox "You need to open the Excel File that has the list of clients reported as using a banked month for the month being reported." & _
   VBNewLine & VBNewLine & "Be sure your spreadsheet is in the correct format." 'Notice to the user that a finder window will open for them to search for their list of client that have used banked months'
 Call File_Selection_System_Dialog(list_reported_banked_month_clients)  'References the function above to have the user seach for their file'
@@ -211,7 +137,7 @@ End Select
 
 'Sets up the array to store all the information for each client'
 Dim Banked_Month_Client_Array ()
-ReDim Banked_Month_Client_Array (11, 0)
+ReDim Banked_Month_Client_Array (14, 0)
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
 Const case_num          = 1
@@ -223,12 +149,14 @@ Const clt_last_name     = 6
 Const comments          = 7
 Const abawd_used        = 8
 Const second_abawd_used = 9
-Const send_to_DHS       = 10
-Const reason_excluded   = 11
-
+Const abawd_count       = 10
+Const second_count      = 11
+Const send_to_DHS       = 12
+Const reason_excluded   = 13
+Const clt_filter        = 14
 
 'Now the script adds all the clients on the excel list into an array
-excel_row = 5 're-establishing the row to start checking the members for
+excel_row = 3 're-establishing the row to start checking the members for
 entry_record = 0
 Do                                                                                          'Loops until there are no more cases in the Excel list
 	case_number = objExcel.cells(excel_row, 4).Value          're-establishing the case numbers
@@ -239,7 +167,7 @@ Do                                                                              
 	client_first_name = UCase(trim(client_first_name))
 	client_last_name  = UCase(trim(client_last_name))
 'Adding client information to the array'
-	ReDim Preserve Banked_Month_Client_Array(11, entry_record)
+	ReDim Preserve Banked_Month_Client_Array(14, entry_record)
 	Banked_Month_Client_Array (case_num,       entry_record) = case_number
 	Banked_Month_Client_Array (clt_last_name,  entry_record) = client_last_name
 	Banked_Month_Client_Array (clt_first_name, entry_record) = client_first_name
@@ -266,7 +194,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		DO
 			EMReadScreen client_referred, 26, work_maxis_row, 7
 			memb_check = MsgBox ("Client listed on your report: " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
-			  vbNewLine & "Client as listed in MAXIS: " & trim(client_referred) & vbNewLine & vbNewLine & "Is this the client you are reporting as using banked months?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
+			  vbNewLine &        "Client name listed in MAXIS: " & trim(client_referred) & vbNewLine & vbNewLine & "Is this the client you are reporting as using banked months?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
 			If memb_check = vbYes Then
 				EMReadScreen Banked_Month_Client_Array(clt_pmi,  item), 8, work_maxis_row, 34
 				EMReadScreen Banked_Month_Client_Array(memb_num, item), 2, work_maxis_row, 3
@@ -276,16 +204,15 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 					MsgBox "There are no additional clients on this case that have had a workforce referral. Since banked months require E&T participation, there must be a referral This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
 				    " - will not be added to the DHS report."
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Person not matched with name in MAXIS."
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Person not matched with name in MAXIS. | "
 				End If
 			End If
 			work_maxis_row = work_maxis_row + 1
 		Loop until next_clt = " " OR memb_check = vbYes
 	Else
 		Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-		Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No Workforce1 referral was done. Banked Months requires client to participate in E&T, so a Workforce 1 Referral needs to be completed."
+		Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No Workforce1 referral was done. Banked Months requires client to participate in E&T, so a Workforce 1 Referral needs to be completed. | "
 	End If
-
 	If Banked_Month_Client_Array(send_to_DHS, item) = TRUE Then
 		call navigate_to_MAXIS_screen ("ELIG", "FS")
 		EMReadScreen fs_version, 8, 3, 3
@@ -294,14 +221,14 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 			If vers_number = "1" Then
 				'MsgBox "No approved version of SNAP exists for this case in the given month. This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - will not be added to the DHS Report"
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP not approved in " & footer_month & "/" & footer_year & " : "
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP not approved in " & footer_month & "/" & footer_year & " | "
 			End If
 			EMWriteScreen "0" & (abs(vers_number) - 1), 19, 78
 			transmit
 		ElseIf fs_version = "        " Then
 			'MsgBox "No version of SNAP exists for this case in the given month. This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - will not be added to the DHS Report"
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No ELIG/FS version exists in " & footer_month & "/" & footer_year & " : "
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No ELIG/FS version exists in " & footer_month & "/" & footer_year & " | "
 		End If
 		elig_maxis_row = 7
 		Do
@@ -311,12 +238,12 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 				IF pers_elig <> "ELIGIBLE" Then
 					'MsgBox "This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - is not listing as eligible for SNAP and will not be added to the DHS Report"
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client listed as Ineligible for SNAP on ELIG/FS for " & footer_month & "/" & footer_year & " : "
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client listed as Ineligible for SNAP on ELIG/FS for " & footer_month & "/" & footer_year & " | "
 				End If
 			ElseIf clt_on_snap = "  " Then
 				'MsgBox "This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - could not be found on the SNAP Eligibility and will not be added to the DHS Report"
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client not listed on ELIG/FS for " &  footer_month & "/" & footer_year & " : "
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client not listed on ELIG/FS for " &  footer_month & "/" & footer_year & " | "
 			Else
 				elig_maxis_row = elig_maxis_row + 1
 				If elig_maxis_row = 19 Then
@@ -331,7 +258,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		IF fs_prorated = "Prorated" Then
 			'MsgBox "SNAP is prorated in this month for case # " & Banked_Month_Client_Array(case_num,item) & ". This case will not be reported to DHS as using a Banked Month."
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & footer_month & "/" & footer_year & " and so this month cannot be a banked month. : "
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & footer_month & "/" & footer_year & " | "
 		End If
 		'///////SCRIPT WILL NOW CHECK FOR POSSIBLE EXPEMTIONS FOR CLIENT'
 		'Age exemption'
@@ -341,7 +268,8 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		cl_age = abs(cl_age)																																	'Makes sure the age is seen in the script as a number for the math that come next'
 		IF cl_age < 18 OR cl_age >= 50 THEN 																									'Compares to the age exclusions'
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE 																'Codes the array to not include this client and the reason'
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have exemption. Age = " & cl_age & ". : "
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have exemption. Age = " & cl_age & ". | "
+		End If
 		'Exemptions for Disability'
 		disa_status = false																																		'Resets the variable for the looping'
 		call navigate_to_MAXIS_screen("STAT", "DISA")																							'Information about disability is on STAT/DISA'
@@ -356,26 +284,26 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 				IF DateDiff("D", date, disa_end_dt) > 0 THEN
 					disa_status = True
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have disability exemption. DISA end date = " & disa_end_dt & "."
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have disability exemption. DISA end date = " & disa_end_dt & ". | "
 				END IF
 			ELSE
 				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
 					disa_status = True
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have disability exemption. DISA has no end date."
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have disability exemption. DISA has no end date. | "
 				END IF
 			END IF
 			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
 				IF DateDiff("D", date, cert_end_dt) > 0 THEN
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have disability exemption. DISA Certification end date = " & cert_end_dt & "."
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have disability exemption. DISA Certification end date = " & cert_end_dt & ". | "
 				End If
 			ELSE
 				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
 					EMReadScreen cert_begin_dt, 8, 7, 47
 					IF cert_begin_dt <> "__ __ __" THEN
 						Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have disability exemption. DISA certification has no end date."
+						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have disability exemption. DISA certification has no end date. | "
 					End If
 				END IF
 			END IF
@@ -398,19 +326,20 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 					prosp_monthly = trim(prosp_monthly)
 					IF prosp_monthly = "" THEN prosp_monthly = 0
 					prosp_inc = prosp_inc + prosp_monthly
-					EMReadScreen prosp_hrs, 8, 16, 50
-					IF prosp_hrs = "        " THEN prosp_hrs = 0
-					pp_hrs = pp_hrs * 1
+					EMReadScreen pp_hrs, 8, 16, 50
+					IF pp_hrs = "        " THEN pp_hrs = 0
+					pp_hrs = abs(pp_hrs)
 					EMReadScreen pay_freq, 1, 5, 64
-					IF pay_freq = "1" THEN
+					Select Case pay_freq
+					Case "1"
 						prosp_hrs = prosp_hrs + pp_hrs
-					ELSEIF pay_freq = "2" THEN
-						prosp_hrs = prosp_hrs + (2 * pp_hrs)
-					ELSEIF pay_freq = "3" THEN
-						prosp_hrs = prosp_hrs + (2.15 * pp_hrs)
-					ELSEIF pay_freq = "4" THEN
-						prosp_hrs = prosh_hrs + (4.3 * pp_hrs)
-					END IF
+					Case "2"
+						prosp_hrs = prosp_hrs + pp_hrs * 2
+					Case "3"
+						prosp_hrs = prosp_hrs + pp_hrs * 2.15
+					Case "4"
+						prosp_hrs = prosp_hrs + pp_hrs * 4.3
+					End Select
 				ELSE
 					jobs_end_dt = replace(jobs_end_dt, " ", "/")
 					IF DateDiff("D", date, jobs_end_dt) > 0 THEN
@@ -420,19 +349,19 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 						prosp_monthly = trim(prosp_monthly)
 						IF prosp_monthly = "" THEN prosp_monthly = 0
 						prosp_inc = prosp_inc + prosp_monthly
-						EMReadScreen prosp_hrs, 8, 16, 50
-						IF prosp_hrs = "        " THEN prosp_hrs = 0
-						pp_hrs = pp_hrs * 1
+						EMReadScreen pp_hrs, 8, 16, 50
+						IF pp_hrs = "        " THEN pp_hrs = 0
 						EMReadScreen pay_freq, 1, 5, 64
-						IF pay_freq = "1" THEN
+						Select Case pay_freq
+						Case "1"
 							prosp_hrs = prosp_hrs + pp_hrs
-						ELSEIF pay_freq = "2" THEN
-							prosp_hrs = prosp_hrs + (2 * pp_hrs)
-						ELSEIF pay_freq = "3" THEN
-							prosp_hrs = prosp_hrs + (2.15 * pp_hrs)
-						ELSEIF pay_freq = "4" THEN
-							prosp_hrs = prosp_hrs + (4.3 * pp_hrs)
-						END IF
+						Case "2"
+							prosp_hrs = prosp_hrs + pp_hrs * 2
+						Case "3"
+							prosp_hrs = prosp_hrs + pp_hrs * 2.15
+						Case "4"
+							prosp_hrs = prosp_hrs + pp_hrs * 4.3
+						End Select
 					END IF
 				END IF
 				transmit
@@ -475,10 +404,10 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		END IF
 		IF prosp_inc >= 935.25 OR prosp_hrs >= 129 THEN
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to be earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions. : "
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to be earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions. | "
 		ELSEIF prosp_hrs >= 80 AND prosp_hrs < 129 THEN
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption. : "
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption. | "
 		END IF
 		'UNEA'
 		call navigate_to_MAXIS_screen ("STAT", "UNEA")
@@ -493,14 +422,14 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 					IF DateDiff("D", date, unea_end_dt) > 0 THEN
 						IF unea_type = "14" THEN
 							Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
+							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions. | "
 						End If
 					END IF
 				ELSE
 					IF unea_end_dt = "__/__/__" THEN
 						IF unea_type = "14" THEN
 						 	Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
+							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions. | "
 						End If
 					END IF
 				END IF
@@ -520,7 +449,16 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 					EMReadScreen pben_disp, 1, pben_row, 77
 					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
 						Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have pending, appealing, or eligible SSI benefits. Please review for ABAWD and SNAP E&T exemption."
+						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have pending, appealing, or eligible SSI benefits. Please review for ABAWD and SNAP E&T exemption. | "
+						EXIT DO
+					ELSE
+						pben_row = pben_row + 1
+					END IF
+				ELSEIF pben_type = "12" THEN
+					EMReadScreen pben_disp, 1, pben_row, 77
+					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
+						Banked_Month_Client_Array(send_to_DHS, item) = FALSE
+						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have pending, appealing, or eligible Unemployment benefits. Please review for ABAWD and SNAP E&T exemption. | "
 						EXIT DO
 					ELSE
 						pben_row = pben_row + 1
@@ -537,7 +475,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		EMReadScreen preg_end_dt, 8, 12, 53
 		IF num_of_PREG <> "0" AND preg_end_dt <> "__ __ __" THEN
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have active pregnancy. Please review for ABAWD exemption."
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to have active pregnancy. Please review for ABAWD exemption. | "
 		END IF
 		'SCHL/STIN/STEC
 		CALL navigate_to_MAXIS_screen("STAT", "SCHL")
@@ -547,208 +485,164 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 			EMReadScreen school_status, 1, 6, 40
 			IF school_status <> "N" THEN
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to be enrolled in school. Please review for ABAWD and SNAP E&T exemptions."
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to be enrolled in school. Please review for ABAWD and SNAP E&T exemptions. | "
 			End If
-		ELSE
-			EMWriteScreen "STIN", 20, 71
-			CALL write_value_and_transmit(Banked_Month_Client_Array(memb_num, item), 20, 76)
-			EMReadScreen num_of_STIN, 1, 2, 78
-			IF num_of_STIN = "1" THEN
-				STIN_row = 8
-				DO
-					EMReadScreen cov_thru, 5, STIN_row, 67
-					IF cov_thru <> "__ __" THEN
-						cov_thru = replace(cov_thru, " ", "/01/")
-						cov_thru = DateAdd("M", 1, cov_thru)
-						cov_thru = DateAdd("D", -1, cov_thru)
-						IF DateDiff("D", date, cov_thru) > 0 THEN
-							Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have active student income. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
-							EXIT DO
-						ELSE
-							STIN_row = STIN_row + 1
-							IF STIN_row = 18 THEN
-								PF20
-								STIN_row = 8
-								EMReadScreen last_page, 21, 24, 2
-								IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
-							END IF
-						END IF
-					ELSE
-						EXIT DO
-					END IF
-				LOOP
-			ELSE
-				EMWriteScreen "STEC", 20, 71
-				CALL write_value_and_transmit(Banked_Month_Client_Array(memb_num, item), 20, 76)
-				EMReadScreen num_of_STEC, 1, 2, 78
-				IF num_of_STEC = "1" THEN
-					STEC_row = 8
-					DO
-						EMReadScreen stec_thru, 5, STEC_row, 48
-						IF stec_thru <> "__ __" THEN
-							stec_thru = replace(stec_thru, " ", "/01/")
-							stec_thru = DateAdd("M", 1, stec_thru)
-							stec_thru = DateAdd("D", -1, stec_thru)
-							IF DateDiff("D", date, stec_thru) > 0 THEN
-								Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-								Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client " & Banked_Month_Client_Array(clt_last_name,item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
-								EXIT DO
-							ELSE
-								STEC_row = STEC_row + 1
-								IF STEC_row = 17 THEN
-									PF20
-									STEC_row = 8
-									EMReadScreen last_page, 21, 24, 2
-									IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
-								END IF
-							END IF
-						ELSE
-							EXIT DO
-						END IF
-					LOOP
-				END IF
-			END IF
 		END IF
+
+		'------------NEWLY ADDED WREG PIECE-------------------------------------------------------------------------------
+		'creating date variables to measure against person note counted dates
+		report_date = footer_month & "/" & footer_year
+
+		Call navigate_to_MAXIS_screen("stat","wreg")		'navigates to stat/wreg
+		EMWriteScreen Banked_Month_Client_Array(memb_num, item), 20, 76
+		transmit
+		EMReadScreen wreg_code,  2, 8,  50
+		EMReadScreen abawd_code, 2, 13, 50
+		IF wreg_code <> "30" AND abawd_code <> "10" Then
+			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "WREG is not coded 30-10. Review. | "
 		End If
-	End If
-Next
-
-
-
-		'navigate_to_MAXIS_screen ("STAT", "WREG")	'Ilse refiguring this'
-		'PF5
-		'EMReadScreen first_pers_note, 1, 5, 3
-		'IF first_pers_note = " " Then
-		''	Banked_months_used = FALSE
-		''	EMWriteScreen "Banked Month Used " & footer_month & "/" & footer_year, 5, 3
-		''	EMWriteScreen "Case has been counted and reported to DHS"
-		'ElseIf first_pers_note = "_" Then
-		''	For pers_note_row = 5 to 19
-		''		EMReadScreen reading_notes, 17, pers_note_row, 31
-		''		If reading_notes = "Banked Month Used" Then
-		''			EMReadScreen banked
-'Next				'Goes to the next Array item to compare'
-
-'------------NEWLY ADDED WREG PIECE-------------------------------------------------------------------------------
-'creating date variables to measure against person note counted dates
-report_date = footer_month & "/" & footer_year
-
-Call navigate_to_MAXIS_screen("stat","wreg")		'navigates to stat/wreg
-EMWriteScreen HH_member, 20, 76
-transmit
-EMReadScreen wreg_total, 1, 2, 78
-IF wreg_total <> "0" THEN
-	EmWriteScreen "x", 13, 57
-	transmit
-	bene_mo_col = (15 + (4*cint(footer_month)))		'col to search starts at 15, increased by 4 for each footer month
-	bene_yr_row = 10
-		abawd_counted_months = 0					'delclares the variables values at 0
-		second_abawd_period = 0
-	month_count = 0
-		DO
-			'establishing variables for specific ABAWD counted month dates
-			If bene_mo_col = "19" then counted_date_month = "01"
-			If bene_mo_col = "23" then counted_date_month = "02"
-			If bene_mo_col = "27" then counted_date_month = "03"
-			If bene_mo_col = "31" then counted_date_month = "04"
-			If bene_mo_col = "35" then counted_date_month = "05"
-			If bene_mo_col = "39" then counted_date_month = "06"
-			If bene_mo_col = "43" then counted_date_month = "07"
-			If bene_mo_col = "47" then counted_date_month = "08"
-			If bene_mo_col = "51" then counted_date_month = "09"
-			If bene_mo_col = "55" then counted_date_month = "10"
-			If bene_mo_col = "59" then counted_date_month = "11"
-			If bene_mo_col = "63" then counted_date_month = "12"
-			'reading to see if a month is counted month or not
-			EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
-			'counting and checking for counted ABAWD months
-			IF is_counted_month = "X" or is_counted_month = "M" THEN 
-				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
-				abawd_counted_months = abawd_counted_months + 1				'adding counted months 
-				abawd_counted_months_string = counted_date_month & "/" & counted_date_year
-				If abawd_counted_months_string <> report_date then 
-					If counted_date_year < footer_year then 			'does not add dates that are report month or later to the array
-						abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
-					Elseif abawd_counted_months_string < report_date then 
-						abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
+		EMReadScreen wreg_total, 1, 2, 78
+		IF wreg_total <> "0" THEN
+			EmWriteScreen "x", 13, 57
+			transmit
+			bene_mo_col = (15 + (4*cint(footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+			bene_yr_row = 10
+				abawd_counted_months = 0					'delclares the variables values at 0
+				second_abawd_period = 0
+			month_count = 0
+				DO
+					'establishing variables for specific ABAWD counted month dates
+					If bene_mo_col = "19" then counted_date_month = "01"
+					If bene_mo_col = "23" then counted_date_month = "02"
+					If bene_mo_col = "27" then counted_date_month = "03"
+					If bene_mo_col = "31" then counted_date_month = "04"
+					If bene_mo_col = "35" then counted_date_month = "05"
+					If bene_mo_col = "39" then counted_date_month = "06"
+					If bene_mo_col = "43" then counted_date_month = "07"
+					If bene_mo_col = "47" then counted_date_month = "08"
+					If bene_mo_col = "51" then counted_date_month = "09"
+					If bene_mo_col = "55" then counted_date_month = "10"
+					If bene_mo_col = "59" then counted_date_month = "11"
+					If bene_mo_col = "63" then counted_date_month = "12"
+					'reading to see if a month is counted month or not
+					EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
+					'counting and checking for counted ABAWD months
+					IF is_counted_month = "X" or is_counted_month = "M" THEN
+						EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+						abawd_counted_months_string = counted_date_month & "/" & counted_date_year
+						If abawd_counted_months_string <> report_date then
+							If counted_date_year < footer_year then 			'does not add dates that are report month or later to the array
+								abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
+								abawd_counted_months = abawd_counted_months + 1				'adding counted months
+							Elseif abawd_counted_months_string < report_date then
+								abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
+								abawd_counted_months = abawd_counted_months + 1				'adding counted months
+							END IF
+						END IF
 					END IF
+
+					'declaring & splitting the abawd months array
+					If left(abawd_info_list, 1) = "," then abawd_info_list = right(abawd_info_list, len(abawd_info_list) - 1)
+					abawd_months_array = Split(abawd_info_list, ",")
+
+					'counting and checking for second set of ABAWD months
+					IF is_counted_month = "Y" or is_counted_month = "N" THEN
+						EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+						second_abawd_period = second_abawd_period + 1				'adding counted months
+						second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
+						second_set_info_list = second_set_info_list & "," & second_counted_months_string	'adding variable to list to add to array
+					END IF
+
+					'declaring & splitting the second set of abawd months array
+					If left(second_set_info_list, 1) = "," then second_set_info_list = right(second_set_info_list, len(second_set_info_list) - 1)
+					second_months_array = Split(second_set_info_list,",")
+
+					bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
+		    		    IF bene_mo_col = 15 THEN
+							bene_yr_row = bene_yr_row - 1
+							bene_mo_col = 63
+						END IF
+					month_count = month_count + 1
+				LOOP until month_count = 36
+			PF3
+		END If
+		'END OF ABAWD MONTHS AND SECOND ABAWD MONTHS----------------------------------------------------------------------------------------------------
+
+		'Reading the person notes regarding which months are counted as banked months
+		PF5			'navigates to Person note from WREG PANEL
+
+		DO
+			PNOTE_row = 5		'establishes the row to start searching the Person notes from
+			Do
+				EMReadScreen counted_banked_month, 12, PNOTE_row, 31
+				If counted_banked_month = "            " then exit do 'if blank then stops checking
+				If counted_banked_month = "Banked Month" then
+					EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
+					If abawd_counted_months_string < report_date then banked_months_list = banked_months_list & abawd_counted_months_string & ", "  'does not add dates that are report month or later to the array
 				END IF
-			END IF
-			
-			'declaring & splitting the abawd months array
-			If left(abawd_info_list, 1) = "," then abawd_info_list = right(abawd_info_list, len(abawd_info_list) - 1)
-			abawd_months_array = Split(abawd_info_list, ",")
-			
-			'counting and checking for second set of ABAWD months
-			IF is_counted_month = "Y" or is_counted_month = "N" THEN 
-				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
-				second_abawd_period = second_abawd_period + 1				'adding counted months
-				second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
-				second_set_info_list = second_set_info_list & "," & second_counted_months_string	'adding variable to list to add to array
-			END IF
-			
-			'declaring & splitting the second set of abawd months array
-			If left(second_set_info_list, 1) = "," then second_set_info_list = right(second_set_info_list, len(second_set_info_list) - 1)
-			second_months_array = Split(second_set_info_list,",")
-			
-			bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
-    		    IF bene_mo_col = 15 THEN
-					bene_yr_row = bene_yr_row - 1
-					bene_mo_col = 63
-				END IF
-			month_count = month_count + 1
-		LOOP until month_count = 36
-	PF3
-END If
-'END OF ABAWD MONTHS AND SECOND ABAWD MONTHS----------------------------------------------------------------------------------------------------
+				PNOTE_row = PNOTE_row + 1
+			LOOP until PNOTE_row = 18
+			PF8
+			EMReadScreen notes_exist, 1, 5, 3
+			EMReadScreen last_page_check, 21, 24, 2	'Checking for the last page of cases.
+		Loop until last_page_check = "THIS IS THE LAST PAGE" OR notes_exist <> "_"
 
-'Reading the person notes regarding which months are counted as banked months
-PF5			'navigates to Person note from WREG PANEL
+		'declaring & splitting for the person note cases
+		banked_months_list = trim(banked_months_list)
+		if right(banked_months_list, 1) = "," then banked_months_list = left(banked_months_list, len(banked_months_list) - 1)
+		'created new array of the banked months list cases
+		PNOTE_array = Split(banked_months_list, ",")
 
-DO
-	PNOTE_row = 5		'establishes the row to start searching the Person notes from 
-	Do 
-		EMReadScreen counted_banked_month, 12, PNOTE_row, 31
-		If counted_banked_month = "            " then exit do 'if blank then stops checking
-		If counted_banked_month = "Banked Month" then
-			EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
-			If abawd_counted_months_string < report_date then banked_months_list = banked_months_list & abawd_counted_months_string & ", "  'does not add dates that are report month or later to the array
-		END IF 
-		PNOTE_row = PNOTE_row + 1 
-	LOOP until PNOTE_row = 18
-	PF8
-	EMReadScreen last_page_check, 21, 24, 2	'Checking for the last page of cases.
-Loop until last_page_check = "THIS IS THE LAST PAGE"
+		'msgbox "PNOTE array: " & Join(PNOTE_array, ",") & _
+		'vbnewLine & "ABAWD array: " & Join(abawd_months_array, ",")
 
-'declaring & splitting for the person note cases 
-banked_months_list = trim(banked_months_list)
-if right(banked_months_list, 1) = "," then banked_months_list = left(banked_months_list, len(banked_months_list) - 1)
-'created new array of the banked months list cases
-PNOTE_array = Split(banked_months_list, ",")
+		Dim PNOTE_array
+		Dim Filter_array
 
-msgbox "PNOTE array: " & Join(PNOTE_array, ",") & _
-vbnewLine & "ABAWD array: " & Join(abawd_months_array, ",")
+		For each PNOTE in PNOTE_array
+			'msgbox "PNOTE: " & PNOTE
+			Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
+			abawd_counted_months = abawd_counted_months - 1				'subtracts counted months
+			abawd_months_array = Filter_array						'establishing the values of both arrays are the same so that the PNOTE month that was removed stays removed from array
+			'msgbox "Filter array: " & Join(Filter_array, ",") & _
+			'vbNewline & "abawd counted months" & abawd_counted_months
+		NEXT
 
-Dim PNOTE_array
-Dim Filter_array
+		Banked_Month_Client_Array(abawd_count,       item) = abawd_counted_months 'UBound(abawd_months_array) + 1
+		Banked_Month_Client_Array(second_count,      item) = second_abawd_period  'UBound(second_months_array) + 1
+		'If Filter_array <> "" Then Banked_Month_Client_Array(clt_filter,        item) = Join(Filter_array, ",")
+		Banked_Month_Client_Array(abawd_used,        item) = Join(abawd_months_array, ", ")
+		Banked_Month_Client_Array(second_abawd_used, item) = Join(second_months_array, ", ")
+		If Banked_Month_Client_Array(second_abawd_used, item) = "" Then Banked_Month_Client_Array(second_abawd_used, item) = "None"
 
-For each PNOTE in PNOTE_array
-	msgbox "PNOTE: " & PNOTE
-	Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
-	abawd_counted_months = abawd_counted_months - 1				'subtracts counted months 	
-	abawd_months_array = Filter_array						'establishing the values of both arrays are the same so that the PNOTE month that was removed stays removed from array
-	msgbox "Filter array: " & Join(Filter_array, ",") & _
-	vbNewline & "abawd counted months" & abawd_counted_months
-NEXT
+		IF Banked_Month_Client_Array(abawd_count, item) < 3 Then
+			Banked_Month_Client_Array(send_to_DHS, item) = False
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client has a WREG panel coded with fewer than 3 counted regular ABAWD months. | "
+		End If
 
-PF3 	'exits PERSON NOTE 
+		'Write a new person note'
+		'Update WREG'
+
+		PF3 	'exits Person Note
+
+		abawd_counted_months_string = ""
+		abawd_info_list = ""
+		second_counted_months_string = ""
+		second_set_info_list = ""
+
+	End If
 '-----------------------------------END OF WREG PIECE---------------------------------------------------------------
-
+Next
 'TESTING'
 'For i = 0 to Ubound(Banked_Month_Client_Array,2)
-''	MsgBox "Case # " & Banked_Month_Client_Array (case_num, i) & vbNewLine & "PMI: " & Banked_Month_Client_Array(clt_pmi,i) & vbNewLine & "Memb " & Banked_Month_Client_Array(memb_num, i) & vbNewLine & "Name: " & Banked_Month_Client_Array(clt_name, i) & vbNewLine & "Name again: " & Banked_Month_Client_Array (clt_first_name, i) & " " & Banked_Month_Client_Array(clt_last_name, i) & vbNewLine & "Comments: " & Banked_Month_Client_Array(comments, i)
+''	MsgBox "Case # " & Banked_Month_Client_Array (case_num, i) & vbNewLine & "PMI: " & Banked_Month_Client_Array(clt_pmi,i) & _
+''	  vbNewLine & "Memb " & Banked_Month_Client_Array(memb_num, i) & vbNewLine & "Name: " & Banked_Month_Client_Array(clt_name, i) & _
+''	  vbNewLine & "Name again: " & Banked_Month_Client_Array (clt_first_name, i) & " " & Banked_Month_Client_Array(clt_last_name, i) & _
+''	  vbNewLine & "Comments: " & Banked_Month_Client_Array(comments, i) & vbNewLine & "Counted ABAWD: " & Banked_Month_Client_Array(abawd_used, i) & _
+''	  vbNewLine & "Second 3 Months: " & Banked_Month_Client_Array(second_abawd_used, i) & vbNewLine & "Filter: " & Banked_Month_Client_Array(clt_filter, i)
 'Next
+
 
 MsgBox "You need to open the Excel File that contains the DHS Banked Months Report" & _
   VBNewLine & VBNewLine & "Be sure your spreadsheet is in the correct format." 'Notice to the user that a finder window will open for them to search for their list of client that have used banked months'
@@ -760,6 +654,7 @@ For Each objWorkSheet In objWorkbook.Worksheets
 	DHS_report_month_list = DHS_report_month_list & chr(9) & objWorkSheet.Name
 Next
 
+'Remove this option and have the script select it.'
 'This is the dialog for the user to select which month (or worksheet) of data they are going to generate a report for'
 BeginDialog DHS_Report_Dialog, 0, 0, 211, 70, "DHS Report Dialog"
   DropListBox 65, 25, 140, 15, "select one..." & DHS_report_month_list, DHS_report_dropdown
@@ -793,15 +688,15 @@ Const     total_second_Set_column = 8'
 Const             comments_column = 9'
 
 For clients_to_report = 0 to UBound(Banked_Month_Client_Array,2)
-	IF Banked_Month_Client_Array(send_to_DHS,clients_to_report) = TRUE Then
-		objExcel.Cells(excel_row,              county_column).Value = worker_county_code
+	IF Banked_Month_Client_Array(send_to_DHS, clients_to_report) = TRUE Then
+		objExcel.Cells(excel_row,              county_column).Value = "Ramsey"
 		objExcel.Cells(excel_row,         case_number_column).Value = Banked_Month_Client_Array (case_num,          clients_to_report)
-		objExcel.Cells(excel_row,          PMI_number_column).Value = Banked_Month_Client_Array (clt_pmi,        clients_to_report)
+		objExcel.Cells(excel_row,          PMI_number_column).Value = Banked_Month_Client_Array (clt_pmi,           clients_to_report)
 		objExcel.Cells(excel_row,counted_ABAWD_months_column).Value = Banked_Month_Client_Array (abawd_used,        clients_to_report)
 		objExcel.Cells(excel_row, second_three_months_column).Value = Banked_Month_Client_Array (second_abawd_used, clients_to_report)
 		objExcel.Cells(excel_row,        WREG_updated_column).Value = "Yes"
-		objExcel.Cells(excel_row,  total_ABAWD_Months_column).Value = 3
-		objExcel.Cells(excel_row,    total_second_Set_column).Value = 0
+		objExcel.Cells(excel_row,  total_ABAWD_Months_column).Value = Banked_Month_Client_Array (abawd_count,       clients_to_report)
+		objExcel.Cells(excel_row,    total_second_Set_column).Value = Banked_Month_Client_Array (second_count,      clients_to_report)
 		objExcel.Cells(excel_row,            comments_column).Value = Banked_Month_Client_Array (comments,          clients_to_report)
 		excel_row = excel_row + 1
 	ElseIf Banked_Month_Client_Array(send_to_DHS,clients_to_report) = FALSE Then
@@ -809,22 +704,52 @@ For clients_to_report = 0 to UBound(Banked_Month_Client_Array,2)
 	End If
 Next
 
+excel_row = 2
 If need_word_doc  = TRUE Then
-	Set objWord = CreateObject("Word.Application")
-	Set objDoc = objWord.Documents.Add()
-	Set objSelection = objWord.Selection
-	objSelection.Font.Name = "Ariel"
-	objSelection.Font.Size = "12"
+	Set objNewExcel = CreateObject("Excel.Application")
+	Set objWorkbook = objNewExcel.Workbooks.Add()
+	objNewExcel.Cells(1, 1).Value = "CASE NUMBER"
+	objNewExcel.Cells(1, 1).Font.Bold = True
+	objNewExcel.Cells(1, 2).Value = "FIRST NAME"
+	objNewExcel.Cells(1, 2).Font.Bold = True
+	objNewExcel.Cells(1, 3).Value = "LAST NAME"
+	objNewExcel.Cells(1, 3).Font.Bold = True
+	objNewExcel.Cells(1, 4).Value = "Reason not reported to DHS"
+	objNewExcel.Cells(1, 4).Font.Bold = True
 	For	not_reported_clients = 0 to UBound(Banked_Month_Client_Array,2)
 		IF Banked_Month_Client_Array(send_to_DHS,not_reported_clients) = False Then
-			objSelection.TypeText "Case # " & Banked_Month_Client_Array(case_num,not_reported_clients) & " for client: " & Banked_Month_Client_Array(clt_first_name, not_reported_clients) & " " & Banked_Month_Client_Array(clt_last_name, not_reported_clients) & " was not added to the DHS Report for Banked Months for the following reason(s):"
-			objSelection.TypeParagraph()
-			objSelection.TypeText "        " & Banked_Month_Client_Array(reason_excluded, not_reported_clients)
-			objSelection.TypeParagraph()
+			objNewExcel.Cells(excel_row, 1).Value = Banked_Month_Client_Array (case_num,        not_reported_clients)
+			objNewExcel.Cells(excel_row, 2).Value = Banked_Month_Client_Array (clt_first_name,  not_reported_clients)
+			objNewExcel.Cells(excel_row, 3).Value = Banked_Month_Client_Array (clt_last_name,   not_reported_clients)
+			objNewExcel.Cells(excel_row, 4).Value = Banked_Month_Client_Array (reason_excluded, not_reported_clients)
+			excel_row = excel_row + 1
 		End If
 	Next
 End If
-objWord.Visible = True
+objNewExcel.columns(4).WrapText = True
+For col_to_autofit = 1 to 4
+	ObjNewExcel.columns(col_to_autofit).AutoFit()
+Next
+'objNewExcel.columns(4).columnwidth = 850
+objNewExcel.Visible = True
+
+'If need_word_doc  = TRUE Then
+''	Set objBlank
+''	Set objWord = CreateObject("Word.Application")
+''	Set objDoc = objWord.Documents.Add()
+''	Set objSelection = objWord.Selection
+''	objSelection.Font.Name = "Ariel"
+''	objSelection.Font.Size = "12"
+''	For	not_reported_clients = 0 to UBound(Banked_Month_Client_Array,2)
+''		IF Banked_Month_Client_Array(send_to_DHS,not_reported_clients) = False Then
+''			objSelection.TypeText "Case # " & Banked_Month_Client_Array(case_num,not_reported_clients) & " for client: " & Banked_Month_Client_Array(clt_first_name, not_reported_clients) & " " & Banked_Month_Client_Array(clt_last_name, not_reported_clients) & " was not added to the DHS Report for Banked Months for the following reason(s):"
+''			objSelection.TypeParagraph()
+''			objSelection.TypeText "        " & Banked_Month_Client_Array(reason_excluded, not_reported_clients)
+''			objSelection.TypeParagraph()
+''		End If
+''	Next
+'End If
+'objWord.Visible = True
 
 'Writing to the DHS tracking sheet
 'MsgBox "Selct the file of the Excel Spreadsheet you submit to DHS" & _
