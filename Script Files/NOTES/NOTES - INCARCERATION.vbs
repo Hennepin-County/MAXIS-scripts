@@ -50,8 +50,13 @@ STATS_manualtime = 90           'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
-'THE DIALOGS----------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 166, 85, "Incarceration"
+'Connects to BLUEZONE
+EMConnect ""
+
+'Grabs the MAXIS case number
+CALL MAXIS_case_number_finder(case_number)
+
+BeginDialog Dialog1, 0, 0, 166, 85, "Incarceration"
   EditBox 80, 5, 75, 15, case_number
   EditBox 80, 25, 75, 15, hh_member
   EditBox 80, 45, 25, 15, month_benefit
@@ -64,7 +69,23 @@ BeginDialog case_number_dialog, 0, 0, 166, 85, "Incarceration"
   Text 5, 30, 70, 10, "HH Member Number:"
 EndDialog
 
-BeginDialog incarceration_dialog, 0, 0, 451, 200, "Incarceration"
+'Shows the FIRST dialog box
+DO
+	Dialog Dialog1
+	cancel_confirmation
+	IF isnumeric(case_number)= FALSE THEN MsgBox "You must enter a valid case number!"
+LOOP UNTIL Isnumeric(case_number) = TRUE
+
+CALL navigate_to_MAXIS_screen("stat", "faci")
+	EMReadScreen panel_max_check, 1, 2, 78
+	IF panel_max_check = "5" THEN
+		script_end_procedure ("This case has reached the maximum amount of FACI panels.  Please review your case, delete an appropriate FACI panel, and run the script again.")
+	'ELSE
+		'EMWriteScreen "nn", 20, 79
+		'transmit
+	END IF
+
+BeginDialog Dialog1, 0, 0, 451, 200, "Incarceration"
   EditBox 85, 10, 85, 15, case_number
   EditBox 280, 10, 75, 15, hh_member
   EditBox 85, 40, 85, 15, start_date
@@ -97,35 +118,10 @@ BeginDialog incarceration_dialog, 0, 0, 451, 200, "Incarceration"
   Text 5, 75, 85, 20, "Anticipated Release Date: (Leave Blank if Unknown)"
 EndDialog
 
-
-'THE SCRIPT CODE-----------------------------------------------------------------------------------------------------
-
-'Connects to BLUEZONE
-EMConnect ""
-
-'Grabs the MAXIS case number            
-CALL MAXIS_case_number_finder(case_number)
-
-'Shows the FIRST dialog box
-DO 
-	Dialog case_number_dialog
-	cancel_confirmation
-	IF isnumeric(case_number)= FALSE THEN MsgBox "You must enter a valid case number!"
-LOOP UNTIL Isnumeric(case_number) = TRUE
-
-CALL navigate_to_MAXIS_screen("stat", "faci")
-	EMReadScreen panel_max_check, 1, 2, 78
-	IF panel_max_check = "5" THEN 
-		script_end_procedure ("This case has reached the maximum amount of FACI panels.  Please review your case, delete an appropriate FACI panel, and run the script again.")
-	'ELSE
-		'EMWriteScreen "nn", 20, 79
-		'transmit
-	END IF
-
 'Shows the MAIN dialog
 DO
-	err_msg = ""		
-	Dialog incarceration_dialog
+	err_msg = ""
+	Dialog Dialog1
 		IF ButtonPressed = 0 THEN StopScript
 		IF info_recd = "Click here to enter info" THEN err_msg = err_msg & vbCr & "You must select how the incarceration info was received!"
 		IF faci_type = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a facility type!"
@@ -141,16 +137,16 @@ CALL check_for_MAXIS(False)
 
 
 'IF the update STAT/FACI checkbox was checked, then the script will navigate to that panel and updated it
-IF update_faci_checkbox = checked THEN 
+IF update_faci_checkbox = checked THEN
 	CALL navigate_to_MAXIS_screen("stat", "faci")
 	EMReadScreen panel_max_check, 1, 2, 78
-	IF panel_max_check = "5" THEN 
+	IF panel_max_check = "5" THEN
 		script_end_procedure ("This case has reached the maximum amount of FACI panels.  Please review your case, delete an appropriate FACI panel, and run the script again.")
 	ELSE
 		EMWriteScreen "nn", 20, 79
 		transmit
 	END IF
-	
+
 	'Writes the facility name in the Facility Name field
 	EMWriteScreen incarceration_location, 6, 43
 
@@ -158,7 +154,7 @@ IF update_faci_checkbox = checked THEN
 	IF faci_type = "County Correctional Facility" THEN EMWriteScreen "68", 7, 43
 	IF faci_type = "Non-County Adult Correctional" THEN EMWriteScreen "69", 7, 43
 
-	'Writes the N in the FS Eligible Y/N field 
+	'Writes the N in the FS Eligible Y/N field
 	EMWriteScreen "N", 8, 43
 
 	'Writes the Incarceration Start Date in the Date In field
@@ -191,7 +187,7 @@ CALL write_variable_in_case_note(worker_signature)
 IF tikl_checkbox = checked THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	EMSetCursor 9, 3 
+	EMSetCursor 9, 3
 	EMSendKey "Check status of HH member " & hh_member & "'s incarceration at " & incarceration_location & ". Incarceration Start Date was " & start_date & "."
 END IF
 

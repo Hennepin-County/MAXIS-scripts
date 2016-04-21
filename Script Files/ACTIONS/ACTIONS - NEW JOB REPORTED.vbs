@@ -50,8 +50,22 @@ STATS_manualtime = 345                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+footer_month = datepart("m", dateadd("m", 1, date))
+If len(footer_month) = 1 then footer_month = "0" & footer_month
+footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
+footer_month = CStr(footer_month)
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS
+EMConnect ""
+
+'Finds a case number
+call MAXIS_case_number_finder(case_number)
+
+'Dialog is defined here so that the dialog does not cause problems when being chain loaded with a Workflow script'
+'Must be named Dialog1 for Workflow
+BeginDialog Dialog1, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, case_number
   Text 15, 30, 50, 10, "Footer month:"
@@ -62,9 +76,34 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
 EndDialog
+'Shows the case number dialog
+Dialog Dialog1
+cancel_confirmation
 
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
-BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
+'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
+EMReadScreen footer_month_year_check, 5, 20, 55
+If left(footer_month_year_check, 2) <> footer_month or right(footer_month_year_check, 2) <> footer_year then
+	back_to_self
+	EMWriteScreen "________", 18, 43
+	EMWriteScreen footer_month, 20, 43
+	EMWriteScreen footer_year, 20, 46
+	transmit
+End if
+
+'NAV to stat/jobs
+call navigate_to_MAXIS_screen("stat", "jobs")
+
+'Declaring some variables to create defaults for the new_job_reported_dialog.
+create_JOBS_checkbox = 1
+HH_memb = "01"
+HH_memb_row = 5 'This helps the navigation buttons work!
+
+'Dialog is defined here so that the dialog does not cause problems when being chain loaded with a Workflow script'
+'Must be named Dialog1 for Workflow
+BeginDialog Dialog1, 0, 0, 286, 280, "New job reported dialog"
   EditBox 80, 5, 25, 15, HH_memb
   DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIA (JTPA)"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income", income_type_dropdown
   DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
@@ -99,46 +138,6 @@ BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
   Text 5, 170, 25, 10, "Notes:"
   Text 5, 265, 60, 10, "Worker signature:"
 EndDialog
-
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", dateadd("m", 1, date))
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
-footer_month = CStr(footer_month)
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS
-EMConnect ""
-
-'Finds a case number
-call MAXIS_case_number_finder(case_number)
-
-'Shows the case number dialog
-Dialog case_number_and_footer_month_dialog
-cancel_confirmation
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
-
-'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
-EMReadScreen footer_month_year_check, 5, 20, 55
-If left(footer_month_year_check, 2) <> footer_month or right(footer_month_year_check, 2) <> footer_year then
-	back_to_self
-	EMWriteScreen "________", 18, 43
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
-	transmit
-End if
-
-'NAV to stat/jobs
-call navigate_to_MAXIS_screen("stat", "jobs")
-
-'Declaring some variables to create defaults for the new_job_reported_dialog.
-create_JOBS_checkbox = 1
-HH_memb = "01"
-HH_memb_row = 5 'This helps the navigation buttons work!
-
 'Shows the dialog.
 DO
 	Do
@@ -147,7 +146,7 @@ DO
 				Do
 					Do
 						Do
-							Dialog new_job_reported_dialog
+							Dialog Dialog1
 							cancel_confirmation
 							MAXIS_dialog_navigation
 							If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional

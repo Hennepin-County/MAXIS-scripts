@@ -54,7 +54,7 @@ STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block==============================================================================================
 
 'THE DIALOG--------------------------------------------------------------------------------------------------------------
-BeginDialog crf_received_dialog, 0, 0, 411, 320, "Change Report Form Received"
+BeginDialog Dialog1, 0, 0, 411, 320, "Change Report Form Received"
   EditBox 55, 5, 55, 15, case_number
   EditBox 270, 5, 60, 15, date_received
   EditBox 50, 35, 340, 15, address_notes
@@ -103,7 +103,7 @@ DO
 	DO
 		DO
 			DO
-				Dialog crf_received_dialog
+				Dialog Dialog1
 				cancel_confirmation
 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 			LOOP UNTIL worker_signature <> ""
