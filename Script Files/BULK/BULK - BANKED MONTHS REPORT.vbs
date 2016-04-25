@@ -49,49 +49,58 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'FUNCTIONS that are currently not in the FuncLib that are used in this script----------------------------------------------------------------------------------------------------
-'Veronicas function that allows the user to search for a local file instead of having the file location hard coded into the script'
-'This can be removed as the function is in FuncLib'
-Function File_Selection_System_Dialog(file_selected)
-    'Creates a Windows Script Host object
-    Set wShell=CreateObject("WScript.Shell")
-
-    'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
-    Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
-
-    'Creates the file_selected variable from the exit
-    file_selected = oExec.StdOut.ReadLine
-End function
-
 EMConnect ""		'connecting to MAXIS
 
-'Dialog needed here before pushing to master'
-MsgBox "You need to open the Excel File that has the list of clients reported as using a banked month for the month being reported." & _
-  VBNewLine & VBNewLine & "Be sure your spreadsheet is in the correct format." 'Notice to the user that a finder window will open for them to search for their list of client that have used banked months'
-Call File_Selection_System_Dialog(list_reported_banked_month_clients)  'References the function above to have the user seach for their file'
-call excel_open(list_reported_banked_month_clients, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-
-'This reads every worksheet name in the selected excel file and creates a list for the drop down in the dialog'
-For Each objWorkSheet In objWorkbook.Worksheets
-	month_list = month_list & chr(9) & objWorkSheet.Name
-Next
-
-'This is the dialog for the user to select which month (or worksheet) of data they are going to generate a report for'
-BeginDialog SNAP_Banked_Month_Report_Dialog, 0, 0, 211, 70, "SNAP Banked Month Reporting Dialog"
-  DropListBox 65, 25, 140, 15, "select one..." & month_list, report_month_dropdown
-  ButtonGroup ButtonPressed
-	OkButton 100, 45, 50, 15
-	CancelButton 155, 45, 50, 15
-  Text 5, 10, 190, 10, "Select the month that you are creating the report for."
-  Text 5, 30, 55, 10, "Month to Report:"
-EndDialog
+developer_mode_checkbox = checked 
 
 'Runs the dialog'
 Do
 	Do
-		Dialog SNAP_Banked_Month_Report_Dialog
-		cancel_confirmation
-	Loop until report_month_dropdown <> "select one..."
+		Do
+			BeginDialog SNAP_Banked_Month_Report_Dialog, 0, 0, 406, 155, "Banked Month Report"
+				EditBox 165, 50, 160, 15, banked_months_clients_excel_file_path
+				ButtonGroup ButtonPressed
+				  PushButton 330, 50, 45, 15, "Browse...", select_a_file_button
+				CheckBox 155, 70, 200, 10, "Check here to run without Person Noting", developer_mode_checkbox
+				DropListBox 215, 120, 140, 15, "select one..." & month_list, report_month_dropdown
+				ButtonGroup ButtonPressed
+				  OkButton 295, 135, 50, 15
+				  CancelButton 350, 135, 50, 15
+				Text 10, 10, 365, 10, "Select the Excel File that contains your list of clients that used banked months and need to be reported to DHS."
+				Text 15, 25, 355, 15, "The file must be in the correct format for the script to operate. The template with the correct format can be found on Git Hub for download. Review the instructions on SIR for help with this."
+				Text 10, 55, 150, 10, "Select an Excel file of banked months clients:"
+				Text 10, 70, 140, 65, "Once the correct file is selected, the months will be listed to the right. You must select the month in which the banked months you are going to report were used. This will also select the footer month the script will look in for information. This month selected will also be used in creating the Excel File of the DHS report."
+				Text 155, 110, 190, 10, "Select the month that you are creating the report for."
+				Text 155, 125, 55, 10, "Month to Report:"
+				Text 155, 85, 245, 20, "** Person Noting should only happen ONCE per report month in each County - leave checked unless you are sure Person Noting should happen."
+			EndDialog
+			err_msg = ""
+			Dialog SNAP_Banked_Month_Report_Dialog
+			cancel_confirmation
+			If ButtonPressed = select_a_file_button then 
+				If banked_months_clients_excel_file_path <> "" then 
+					objExcel.Quit
+					objExcel = "" 
+					month_list = ""
+				End If 
+				call file_selection_system_dialog(banked_months_clients_excel_file_path, ".xlsx")
+			End If 
+			If banked_months_clients_excel_file_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
+			If err_msg <> "" Then MsgBox err_msg
+			'Call File_Selection_System_Dialog(list_reported_banked_month_clients)  'References the function above to have the user seach for their file'
+		Loop until err_msg = ""
+		If objExcel = "" Then call excel_open(banked_months_clients_excel_file_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+		month_list = ""
+		For Each objWorkSheet In objWorkbook.Worksheets
+			month_list = month_list & chr(9) & objWorkSheet.Name
+		Next
+		If report_month_dropdown = "select one..." then err_msg = err_msg & vbNewLine & "You must select a month that you are running this script for."
+		If err_msg <> "" Then MsgBox err_msg
+	Loop until err_msg = ""
+	If developer_mode_checkbox = checked then err_msg = err_msg & vbNewLine & vbNewLine & "** You have selected this script to NOT add a Person Note **" & vbNewLine & "Note that this is the only way we have to track months a client has used a Banked Month" & vbNewLine & _
+	  "Check the instructions for further details on this option."
+	If developer_mode_checkbox = unchecked then err_msg = err_msg & vbNewLine & vbNewLine & "** You have selected this script TO ADD a Person Note **" & vbNewLine & "** A Person Note will be added for EVERY Client added to the DHS Report **"
+	MsgBox err_msg
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
@@ -99,8 +108,8 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 
-'Activates the selected worksheet'
-objExcel.worksheets(report_month_dropdown).Activate
+objExcel.worksheets(report_month_dropdown).Activate			'Activates the selected worksheet'
+report_month_dropdown = trim(report_month_dropdown)			'prevents matching errors so that there is not a miss in the footer month selection'
 
 'This assigns a footer month and year based on the worksheet names selected in the dropdown from the dialog'
 Select Case report_month_dropdown
@@ -193,7 +202,7 @@ objExcel.Quit
 
 'Now we will get PMI and Member Number for each client on the array.'
 For item = 0 to UBound(Banked_Month_Client_Array, 2)
-	case_number = Banked_Month_Client_Array(case_num,item)	'Case number is set for each loop as it is used in the FuncLib functions'
+	case_number = Banked_Month_Client_Array(case_num,item)				'Case number is set for each loop as it is used in the FuncLib functions'
 	Call navigate_to_MAXIS_screen("INFC", "WORK")						'Finding client information on STAT MEMB'
 	EMReadScreen WORK_check, 4, 2, 51
 	IF WORK_check = "WORK" Then
@@ -209,7 +218,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 				If memb_check = vbYes Then
 					EMReadScreen Banked_Month_Client_Array(clt_pmi,  item), 8, work_maxis_row, 34
 					EMReadScreen Banked_Month_Client_Array(memb_num, item), 2, work_maxis_row, 3
-					ElseIf memb_check = vbNo Then
+				ElseIf memb_check = vbNo Then
 					EMReadScreen next_clt, 1, (work_maxis_row + 1), 7
 					If next_clt = " " Then
 						MsgBox "There are no additional clients on this case that have had a workforce referral. Since banked months require E&T participation, there must be a referral This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
@@ -225,21 +234,28 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		Banked_Month_Client_Array(send_to_DHS, item) = FALSE
 		Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No Workforce1 referral was done. Banked Months requires client to participate in E&T, so a Workforce 1 Referral needs to be completed. | "
 	End If
+Next 
 
+list_done_msgbox = MsgBox ("The script has finished compiling the list of clients to add to the Report." & vbNewLine & vbNewLine & _
+  "It will now continue and do the following:" & vbNewLine & "* Check in STAT for some possible exemptions" & vbNewLine & _
+  "* Get the list of Counted ABAWD Months (including 2nd set)" & vbNewLine & "* Add a person note that a banked month was counted" & vbNewLine & _
+  "(Unless you checked for the script to NOT person note)" & vbNewLine & "* Add all clients that still appear to have used a Banked Month to the report" & vbNewLine & _
+  "* Create a report of the clients that were NOT added to the report" & vbNewLine & vbNewLine & "The script will take a few minutes to check ELIG and STAT before asking you for the Excel File of the DHS Report", vbOkOnly + vbInformation, "Client List Created")
+
+For item = 0 to UBound(Banked_Month_Client_Array, 2)
+	case_number = Banked_Month_Client_Array(case_num,item)	'Case number is set for each loop as it is used in the FuncLib functions'
 	If Banked_Month_Client_Array(send_to_DHS, item) = TRUE Then
 		call navigate_to_MAXIS_screen ("ELIG", "FS")
 		EMReadScreen fs_version, 8, 3, 3
 		If fs_version = "UNAPPROV" Then
 			EMReadScreen vers_number, 1, 2, 19
 			If vers_number = "1" Then
-				'MsgBox "No approved version of SNAP exists for this case in the given month. This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - will not be added to the DHS Report"
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
 				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP not approved in " & footer_month & "/" & footer_year & " | "
 			End If
 			EMWriteScreen "0" & (abs(vers_number) - 1), 19, 78
 			transmit
 		ElseIf fs_version = "        " Then
-			'MsgBox "No version of SNAP exists for this case in the given month. This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - will not be added to the DHS Report"
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
 			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No ELIG/FS version exists in " & footer_month & "/" & footer_year & " | "
 		End If
@@ -249,12 +265,10 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 			IF clt_on_snap = Banked_Month_Client_Array(memb_num,item) Then
 				EMReadScreen pers_elig, 8, elig_maxis_row, 57
 				IF pers_elig <> "ELIGIBLE" Then
-					'MsgBox "This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - is not listing as eligible for SNAP and will not be added to the DHS Report"
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
 					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client listed as Ineligible for SNAP on ELIG/FS for " & footer_month & "/" & footer_year & " | "
 				End If
 			ElseIf clt_on_snap = "  " Then
-				'MsgBox "This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name,item) & " - could not be found on the SNAP Eligibility and will not be added to the DHS Report"
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
 				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client not listed on ELIG/FS for " &  footer_month & "/" & footer_year & " | "
 			Else
@@ -624,7 +638,6 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 
 		Banked_Month_Client_Array(abawd_count,       item) = abawd_counted_months 'UBound(abawd_months_array) + 1
 		Banked_Month_Client_Array(second_count,      item) = second_abawd_period  'UBound(second_months_array) + 1
-		'If Filter_array <> "" Then Banked_Month_Client_Array(clt_filter,        item) = Join(Filter_array, ",")
 		Banked_Month_Client_Array(abawd_used,        item) = Join(abawd_months_array, ", ")
 		Banked_Month_Client_Array(second_abawd_used, item) = Join(second_months_array, ", ")
 		If Banked_Month_Client_Array(second_abawd_used, item) = "" Then Banked_Month_Client_Array(second_abawd_used, item) = "None"
@@ -647,45 +660,61 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 	End If
 '-----------------------------------END OF WREG PIECE---------------------------------------------------------------
 Next
-'TESTING'
-'For i = 0 to Ubound(Banked_Month_Client_Array,2)
-''	MsgBox "Case # " & Banked_Month_Client_Array (case_num, i) & vbNewLine & "PMI: " & Banked_Month_Client_Array(clt_pmi,i) & _
-''	  vbNewLine & "Memb " & Banked_Month_Client_Array(memb_num, i) & vbNewLine & "Name: " & Banked_Month_Client_Array(clt_name, i) & _
-''	  vbNewLine & "Name again: " & Banked_Month_Client_Array (clt_first_name, i) & " " & Banked_Month_Client_Array(clt_last_name, i) & _
-''	  vbNewLine & "Comments: " & Banked_Month_Client_Array(comments, i) & vbNewLine & "Counted ABAWD: " & Banked_Month_Client_Array(abawd_used, i) & _
-''	  vbNewLine & "Second 3 Months: " & Banked_Month_Client_Array(second_abawd_used, i) & vbNewLine & "Filter: " & Banked_Month_Client_Array(clt_filter, i)
-'Next
 
-
-MsgBox "You need to open the Excel File that contains the DHS Banked Months Report" & _
-  VBNewLine & VBNewLine & "Be sure your spreadsheet is in the correct format." 'Notice to the user that a finder window will open for them to search for their list of client that have used banked months'
-Call File_Selection_System_Dialog(DHS_Banked_Month_Report)  'References the function above to have the user seach for their file'
-call excel_open(DHS_Banked_Month_Report, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-
-'This reads every worksheet name in the selected excel file and creates a list for the drop down in the dialog'
-For Each objWorkSheet In objWorkbook.Worksheets
-	DHS_report_month_list = DHS_report_month_list & chr(9) & objWorkSheet.Name
-Next
-
-'Remove this option and have the script select it.'
-'This is the dialog for the user to select which month (or worksheet) of data they are going to generate a report for'
-BeginDialog DHS_Report_Dialog, 0, 0, 211, 70, "DHS Report Dialog"
-  DropListBox 65, 25, 140, 15, "select one..." & DHS_report_month_list, DHS_report_dropdown
+BeginDialog DHS_Report_Dialog, 0, 0, 226, 65, "DHS Banked Months"
+  EditBox 10, 20, 160, 15, DHS_Banked_Month_Report_excel_file_path
   ButtonGroup ButtonPressed
-	OkButton 100, 45, 50, 15
-	CancelButton 155, 45, 50, 15
-  Text 5, 10, 190, 10, "Select which month you are reporting to DHS."
-  Text 5, 30, 55, 10, "Month to Report:"
+    PushButton 175, 20, 45, 15, "Browse...", select_a_file_button
+    OkButton 115, 45, 50, 15
+    CancelButton 170, 45, 50, 15
+  Text 5, 5, 215, 10, "Select the Excel File that you use to report Banked Months to DHS"
 EndDialog
+
 
 'Runs the dialog'
 Do
 	Dialog DHS_Report_Dialog
 	cancel_confirmation
-Loop until DHS_report_dropdown <> "select one..."
+	Call File_Selection_System_Dialog(DHS_Banked_Month_Report_excel_file_path, ".xlsx")  'References the function above to have the user seach for their file'
+	call excel_open(DHS_Banked_Month_Report_excel_file_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+Loop until DHS_Banked_Month_Report_excel_file_path <> ""
+
+'This reads every worksheet name in the selected excel file and creates a list for the drop down in the dialog'
+For Each objWorkSheet In objWorkbook.Worksheets
+	DHS_report_month_list = DHS_report_month_list & "~" & objWorkSheet.Name
+	If left(DHS_report_month_list, 1) = "~" then DHS_report_month_list = right(DHS_report_month_list, len(DHS_report_month_list) - 1)
+	DHS_report_month_array = Split(DHS_report_month_list,"~")
+Next
+
+Select Case footer_month
+Case "01"
+	DHS_report_month = DHS_report_month_array(0)
+Case "02"
+	DHS_report_month = DHS_report_month_array(1)
+Case "03"
+	DHS_report_month = DHS_report_month_array(2)
+Case "04"
+	DHS_report_month = DHS_report_month_array(3)
+Case "05"
+	DHS_report_month = DHS_report_month_array(4)
+Case "06"
+	DHS_report_month = DHS_report_month_array(5)
+Case "07"
+	DHS_report_month = DHS_report_month_array(6)
+Case "08"
+	DHS_report_month = DHS_report_month_array(7)
+Case "09"
+	DHS_report_month = DHS_report_month_array(8)
+Case "10"
+	DHS_report_month = DHS_report_month_array(9)
+Case "11"
+	DHS_report_month = DHS_report_month_array(10)
+Case "12"
+	DHS_report_month = DHS_report_month_array(11)
+End Select
 
 'Activates the selected worksheet'
-objExcel.worksheets(DHS_report_dropdown).Activate
+objExcel.worksheets(DHS_report_month).Activate
 
 excel_row = 2
 
@@ -702,7 +731,7 @@ Const             comments_column = 9'
 
 For clients_to_report = 0 to UBound(Banked_Month_Client_Array,2)
 	IF Banked_Month_Client_Array(send_to_DHS, clients_to_report) = TRUE Then
-		objExcel.Cells(excel_row,              county_column).Value = "Hennepin"
+		objExcel.Cells(excel_row,              county_column).Value = county_name
 		objExcel.Cells(excel_row,         case_number_column).Value = Banked_Month_Client_Array (case_num,          clients_to_report)
 		objExcel.Cells(excel_row,          PMI_number_column).Value = Banked_Month_Client_Array (clt_pmi,           clients_to_report)
 		objExcel.Cells(excel_row,counted_ABAWD_months_column).Value = Banked_Month_Client_Array (abawd_used,        clients_to_report)
@@ -745,56 +774,5 @@ For col_to_autofit = 1 to 4
 Next
 'objNewExcel.columns(4).columnwidth = 850
 objNewExcel.Visible = True
-
-'ObjExcel.Cells(2, 10).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-'ObjExcel.Cells(2, 11).Value = timer - query_start_time
-
-'If need_word_doc  = TRUE Then
-''	Set objBlank
-''	Set objWord = CreateObject("Word.Application")
-''	Set objDoc = objWord.Documents.Add()
-''	Set objSelection = objWord.Selection
-''	objSelection.Font.Name = "Ariel"
-''	objSelection.Font.Size = "12"
-''	For	not_reported_clients = 0 to UBound(Banked_Month_Client_Array,2)
-''		IF Banked_Month_Client_Array(send_to_DHS,not_reported_clients) = False Then
-''			objSelection.TypeText "Case # " & Banked_Month_Client_Array(case_num,not_reported_clients) & " for client: " & Banked_Month_Client_Array(clt_first_name, not_reported_clients) & " " & Banked_Month_Client_Array(clt_last_name, not_reported_clients) & " was not added to the DHS Report for Banked Months for the following reason(s):"
-''			objSelection.TypeParagraph()
-''			objSelection.TypeText "        " & Banked_Month_Client_Array(reason_excluded, not_reported_clients)
-''			objSelection.TypeParagraph()
-''		End If
-''	Next
-'End If
-'objWord.Visible = True
-
-'Writing to the DHS tracking sheet
-'MsgBox "Selct the file of the Excel Spreadsheet you submit to DHS" & _
-'	VBNewLine & VBNewLine & "Be sure your spreadsheet is in the correct format."
-'Call File_Selection_System_Dialog(list_reported_banked_month_clients)
-'call excel_open(list_reported_banked_month_clients, True, True, ObjExcel, objWorkbook)
-
-'For Each objWorkSheet In objWorkbook.Worksheets
-'	month_list = month_list & chr(9) & objWorkSheet.Name
-'Next
-
-
-'BeginDialog SNAP_Banked_Month_Report_Dialog, 0, 0, 211, 70, "SNAP Banked Month Reporting Dialog"
-'  DropListBox 65, 25, 140, 15, "select one..." & month_list, report_month_dropdown
-'  ButtonGroup ButtonPressed
-'	OkButton 100, 45, 50, 15
-'	CancelButton 155, 45, 50, 15
-'  Text 5, 10, 190, 10, "Select the month that you are creating the report for."
-'  Text 5, 30, 55, 10, "Month to Report:"
-'EndDialog
-
-
-'Do
-''	Do
-'		Dialog SNAP_Banked_Month_Report_Dialog
-'		cancel_confirmation
-'	Loop until report_month_dropdown <> "select one..."
-'	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-'Loop until are_we_passworded_out = false					'loops until user passwords back in					
-
 
 script_end_procedure("Success!")
