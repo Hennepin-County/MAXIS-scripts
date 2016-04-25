@@ -206,34 +206,42 @@ Do
 	case_number = objExcel.Cells(excel_row, 2).value
 	call navigate_to_MAXIS_screen("CASE", "CURR")
 	'checking for each prog on the listed
-	IF objExcel.cells(excel_row, fs_col).value <> "" THEN 'Checking SNAP status
-		call find_variable("FS: ", fs_status, 6)
-		IF fs_status <> "" THEN ObjExcel.Cells(excel_row, fs_col+1).Value = fs_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MF" THEN 'checking MFIP status'
-		call find_variable("MFIP: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MS" THEN 'checking MSA status'
-		call find_variable("MSA: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "GA" THEN 'checking GA status'
-		call find_variable("GA: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "DW" THEN 'checking DWP status'
-		call find_variable("DWP: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, HC_col).value, 2) <> "" THEN 'checking HC status'
-		call find_variable("HC: ", HC_status, 6)
-		IF HC_status <> "" THEN ObjExcel.Cells(excel_row, HC_col+1).Value = HC_status
-	END If
-	IF left(objExcel.cells(excel_row, GRH_col).value, 2) <> "" THEN 'checking GRH status'
-		call find_variable("GRH: ", GRH_status, 6)
-		IF GRH_status <> "" THEN ObjExcel.Cells(excel_row, GRH_col+1).Value = GRH_status
-	END If
+	IF fs_col <> "" THEN
+		IF objExcel.cells(excel_row, fs_col).value <> "" THEN 'Checking SNAP status
+			call find_variable("FS: ", fs_status, 6)
+			IF fs_status <> "" THEN ObjExcel.Cells(excel_row, fs_col+1).Value = fs_status
+		END If
+	END IF
+	IF cash_col <> "" THEN
+		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MF" THEN 'checking MFIP status'
+			call find_variable("MFIP: ", cash_status, 6)
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
+		END If
+		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MS" THEN 'checking MSA status'
+			call find_variable("MSA: ", cash_status, 6)
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
+		END If
+		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "GA" THEN 'checking GA status'
+			call find_variable("GA: ", cash_status, 6)
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
+		END If
+		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "DW" THEN 'checking DWP status'
+			call find_variable("DWP: ", cash_status, 6)
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
+		END If
+	END IF
+	IF HC_col <> "" THEN
+		IF left(objExcel.cells(excel_row, HC_col).value, 2) <> "" THEN 'checking HC status'
+			call find_variable("HC: ", HC_status, 6)
+			IF HC_status <> "" THEN ObjExcel.Cells(excel_row, HC_col+1).Value = HC_status
+		END If
+	END IF
+	IF GRH_col <> "" THEN
+		IF left(objExcel.cells(excel_row, GRH_col).value, 2) <> "" THEN 'checking GRH status'
+			call find_variable("GRH: ", GRH_status, 6)
+			IF GRH_status <> "" THEN ObjExcel.Cells(excel_row, GRH_col+1).Value = GRH_status
+		END If
+	END IF
 	excel_row = excel_row + 1
 Loop until case_number = ""
 

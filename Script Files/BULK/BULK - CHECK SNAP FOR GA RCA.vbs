@@ -50,14 +50,16 @@ STATS_manualtime = 69                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 
-BeginDialog check_snap_dlg, 0, 0, 166, 80, "Check SNAP for GA/RCA"
-  EditBox 105, 10, 50, 15, worker_number
-  CheckBox 15, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
+BeginDialog check_snap_dlg, 0, 0, 166, 100, "Check SNAP for GA/RCA"
+  EditBox 100, 10, 55, 15, worker_number
+  CheckBox 10, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
+  CheckBox 10, 60, 145, 10, "Chere here to add supervisor name to list.", supervisor_check
   ButtonGroup ButtonPressed
-    OkButton 35, 60, 50, 15
-    CancelButton 85, 60, 50, 15
-  Text 15, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
+    OkButton 35, 80, 50, 15
+    CancelButton 85, 80, 50, 15
+  Text 10, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
 EndDialog
+
 
 EMConnect ""
 
@@ -108,7 +110,15 @@ objExcel.DisplayAlerts = True
 ObjExcel.Cells(1, 1).Value = "X Number"
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
-ObjExcel.Cells(1, 4).Value = "Error on SNAP?"
+ObjExcel.Cells(1, 4).Value = "RCA Discrepancy?"
+ObjExcel.Cells(1, 5).Value = "GA Discrepancy?"
+objExcel.Cells(1, 6).Value = "GA in SNAP Budget"
+objExcel.Cells(1, 7).Value = "GA Monthly Grant"
+objExcel.Cells(1, 8).Value = "GA Issuance Amt"
+
+FOR i = 1 TO 8
+	objExcel.Cells(1, i).Font.Bold = TRUE
+NEXT
 
 excel_row = 2
 FOR EACH worker IN worker_array
@@ -197,8 +207,10 @@ FOR EACH case_number IN case_array
 		EMWriteScreen "GASM", 20, 70
 		transmit
 			CALL find_variable("Monthly Grant............$", ga_amount, 9)
+			CALL find_variable("Amount To Be Paid........$", ga_to_be_paid, 9)
 		ga_amount = trim(ga_amount)
-		IF pa_amount <> ga_amount THEN
+		ga_to_be_paid = trim(ga_to_be_paid)
+		IF pa_amount <> ga_amount AND pa_amount <> ga_to_be_paid THEN
 			CALL navigate_to_screen("STAT", "REVW")
 			ERRR_screen_check
 			EMReadScreen cash_revw_date, 8, 9, 37
@@ -207,12 +219,18 @@ FOR EACH case_number IN case_array
 			cash_revw_date = replace(cash_revw_date, " 01 ", "/")
 			snap_revw_date = replace(snap_revw_date, " 01 ", "/")
 			IF bene_date = cash_revw_date OR bene_date = snap_revw_date THEN
-				objExcel.Cells(excel_row, 4).Value = "REVW MONTH"
+				objExcel.Cells(excel_row, 5).Value = "REVW MONTH"
 			ELSEIF bene_date <> cash_revw_date AND bene_date <> snap_revw_date THEN
-				objExcel.Cells(excel_row, 4).Value = ("Yes, GA. SNAP Budg = " & pa_amount & "; GA Amount = " & ga_amount)
+				objExcel.Cells(excel_row, 5).Value = ("Yes")
+				objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
+				objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
+				objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
 			END IF
-		ELSEIF pa_amount = ga_amount THEN
-			objExcel.Cells(excel_row, 4).Value = ("Budgetted for SNAP: " & pa_amount & "; GA Amount: " & ga_amount)
+		ELSEIF pa_amount = ga_amount AND pa_amount = ga_to_be_paid THEN
+			objExcel.Cells(excel_row, 5).Value = ("No")
+			objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
+			objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
+			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
 		END IF
 	ELSEIF cash_prog = "RCA" THEN
 		CALL navigate_to_screen("ELIG", "RCA")
@@ -253,6 +271,48 @@ FOR EACH case_number IN case_array
 	excel_row = excel_row + 1
 
 NEXT
+
+FOR i = 1 to 8
+	objExcel.Columns(i).AutoFit()
+NEXT
+
+IF supervisor_check = 1 THEN 
+	'Adding additional manual time to the stats counter. I have timed this out to be about 25 seconds per case.
+	STATS_manualtime = STATS_manualtime + 25
+	
+	'Adding a column to the left of the data
+	SET objSheet = objWorkbook.Sheets("Sheet1")
+	objSheet.Columns("A:A").Insert -4161
+	objExcel.Cells(1, 1).Value = "SUPERVISOR NAME"
+	
+	'Going to REPT/USER
+	CALL navigate_to_MAXIS_screen("REPT", "USER")
+	
+	'Starting back at the top of the page
+	excel_row = 2
+	DO
+		worker_id = objExcel.Cells(excel_row, 2).Value
+		prev_worker_id = objExcel.Cells(excel_row - 1, 2).Value
+		IF worker_id <> prev_worker_id THEN 
+			'Entering the worker number into REPT/USER
+			CALL write_value_and_transmit(worker_id, 21, 12)
+			CALL write_value_and_transmit("X", 7, 3)
+			'Grabbing the supervisor X1 number
+			EMReadScreen supervisor_id, 7, 14, 61
+			transmit
+			CALL write_value_and_transmit(supervisor_id, 21, 12)
+			EMReadScreen supervisor_name, 18, 7, 14
+			supervisor_name = trim(supervisor_name)
+			objExcel.Cells(excel_row, 1).Value = supervisor_name
+		ELSE
+			'Adding the supervisor name from the previous row if the X1 number on this row matches the X1 number on the previous row
+			objExcel.Cells(excel_row, 1).Value = objExcel.Cells(excel_row - 1, 1).Value
+		END IF
+		excel_row = excel_row + 1
+	LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
+	
+	objExcel.Columns(1).AutoFit()
+END IF
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Done")

@@ -253,6 +253,8 @@ IF SNAP_banked_mo_check = checked THEN
 				clients_with_banked_mo = clients_with_banked_mo + 1
 				IF All_SNAP_Clients_Array (6, clt_err_check)  = "" AND All_SNAP_Clients_Array(7, clt_err_check) = "" THEN _
 				err_msg = err_msg & vbCr & "You must indicate an initial banked month and year for " & All_SNAP_Clients_Array (1, clt_err_check) 
+				IF  All_SNAP_Clients_Array (8, clt_err_check)  = "" THEN _
+				err_msg = err_msg & vbCr & "You must indicate the number of banked months approved for " & All_SNAP_Clients_Array (1, clt_err_check)
 			End If
 		Next 
 		IF clients_with_banked_mo = 0 THEN err_msg = err_msg & vbCr & "You have not indicated any clients using banked months." & _ 

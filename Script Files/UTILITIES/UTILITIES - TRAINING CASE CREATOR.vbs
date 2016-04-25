@@ -1,6 +1,10 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "UTILITIES - TRAINING CASE CREATOR"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 120                              'manual run time in seconds  this run time only includes appl'ing the case. it gets time added it to as panels are added and approvals are made.
+STATS_denomination = "C"       'I is for each case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,33 +48,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 120                              'manual run time in seconds  this run time only includes appl'ing the case. it gets time added it to as panels are added and approvals are made.
-STATS_denomination = "C"       'I is for each case
-'END OF stats block==============================================================================================
 
 '========================================================================TRANSFER CASES========================================================================
-Function file_selection_system_dialog(file_selected, file_extension_restriction)
-	'Creates a Windows Script Host object
-	Set wShell=CreateObject("WScript.Shell")
-
-	'This loops until the right file extension is selected. If it isn't specified (= ""), it'll always exit here.
-	Do
-		'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
-		Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE ><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
-
-		'Creates the file_selected variable from the exit
-		file_selected = oExec.StdOut.ReadLine
-	
-		'If no file is selected the script will stop
-		If file_selected = "" then stopscript
-	
-		'If the rightmost characters of the file selected don't match what was in the file_extension_restriction argument, it'll tell the user. Otherwise the loop (and function) ends.
-		If right(file_selected, len(file_extension_restriction)) <> file_extension_restriction then MsgBox "You've entered an incorrect file type. The allowable file type is: " & file_extension_restriction & "."
-	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
-End function
-
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	'Creates an array of the workers selected in the dialog
 	workers_to_XFER_cases_to = split(replace(workers_to_XFER_cases_to, " ", ""), ",")
@@ -223,26 +202,28 @@ END FUNCTION
 
 
 'DIALOGS------------------------------------------------------------------------------------------------------------------
-BeginDialog training_case_creator_01, 0, 0, 381, 240, "Training case creator"
+BeginDialog training_case_creator_01, 0, 0, 381, 265, "Training case creator"
   Text 10, 10, 170, 10, "Hello! Thanks for clicking the training case creator!"
   Text 10, 25, 365, 20, "This script is very new, and was put together with a lot of hard work from seven scriptwriters, using bits and pieces from various scripts written over the last few years."
   Text 10, 50, 365, 20, "We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!"
   Text 10, 75, 365, 20, "If you run into any issues, or have any questions, please join the discussion on our GitHub page. One of the scriptwriters involved will be more than happy to assist you."
-  Text 10, 100, 90, 10, "Good luck and have fun!"
-  Text 20, 115, 90, 10, "- Veronica Cary, DHS"
-  Text 20, 125, 120, 10, "- Robert Fewins-Kalb, Anoka County"
-  Text 20, 135, 120, 10, "- Charles Potter, Anoka County"
-  Text 20, 145, 120, 10, "- Ilse Ferris, Hennepin County"
-  Text 20, 155, 120, 10, "- Casey Love, Ramsey County"
-  Text 20, 165, 120, 10, "- David Courtright, St. Louis County"
-  Text 20, 175, 120, 10, "- Lucas Shanley, St. Louis County"
-  Text 10, 195, 140, 10, "Select an Excel file for training scenarios:"
-  EditBox 150, 190, 175, 15, training_case_creator_excel_file_path
+  Text 10, 100, 350, 20, "NOTE: Due to system limitations MSA/SNAP cases may not have MSA budgeted into the SNAP budget for the initial month."
+  Text 10, 125, 90, 10, "Good luck and have fun!"
+  Text 20, 140, 90, 10, "- Veronica Cary, DHS"
+  Text 20, 150, 120, 10, "- Robert Fewins-Kalb, Anoka County"
+  Text 20, 160, 120, 10, "- Charles Potter, Anoka County"
+  Text 20, 170, 120, 10, "- Ilse Ferris, Hennepin County"
+  Text 20, 180, 120, 10, "- Casey Love, Ramsey County"
+  Text 20, 190, 120, 10, "- David Courtright, St. Louis County"
+  Text 20, 200, 120, 10, "- Lucas Shanley, St. Louis County"
+  Text 10, 220, 140, 10, "Select an Excel file for training scenarios:"
+  EditBox 150, 215, 175, 15, training_case_creator_excel_file_path
   ButtonGroup ButtonPressed
-    PushButton 330, 190, 45, 15, "Browse...", select_a_file_button
-    OkButton 270, 220, 50, 15
-    CancelButton 325, 220, 50, 15
+    PushButton 330, 215, 45, 15, "Browse...", select_a_file_button
+    OkButton 270, 245, 50, 15
+    CancelButton 325, 245, 50, 15
 EndDialog
+
 
 
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
