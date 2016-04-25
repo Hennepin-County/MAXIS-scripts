@@ -88,9 +88,16 @@ EndDialog
 
 'Runs the dialog'
 Do
-	Dialog SNAP_Banked_Month_Report_Dialog
-	cancel_confirmation
-Loop until report_month_dropdown <> "select one..."
+	Do
+		Dialog SNAP_Banked_Month_Report_Dialog
+		cancel_confirmation
+	Loop until report_month_dropdown <> "select one..."
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
+
+
+'Starting the query start time (for the query runtime at the end)
+query_start_time = timer
 
 'Activates the selected worksheet'
 objExcel.worksheets(report_month_dropdown).Activate
@@ -193,26 +200,32 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		work_maxis_row = 7
 		DO
 			EMReadScreen client_referred, 26, work_maxis_row, 7
-			memb_check = MsgBox ("Client listed on your report: " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
-			  vbNewLine &        "Client name listed in MAXIS: " & trim(client_referred) & vbNewLine & vbNewLine & "Is this the client you are reporting as using banked months?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
-			If memb_check = vbYes Then
-				EMReadScreen Banked_Month_Client_Array(clt_pmi,  item), 8, work_maxis_row, 34
-				EMReadScreen Banked_Month_Client_Array(memb_num, item), 2, work_maxis_row, 3
-			ElseIf memb_check = vbNo Then
-				EMReadScreen next_clt, 1, (work_maxis_row + 1), 7
-				If next_clt = " " Then
-					MsgBox "There are no additional clients on this case that have had a workforce referral. Since banked months require E&T participation, there must be a referral This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
-				    " - will not be added to the DHS report."
-					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Person not matched with name in MAXIS. | "
-				End If
-			End If
+			client_referred = trim(client_referred)
+			IF Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) = client_referred then 
+				memb_check = vbYes
+			ElseIf Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) <> client_referred then 
+				memb_check = MsgBox ("Client listed on your report: " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
+			  	vbNewLine &        "Client name listed in MAXIS: " & trim(client_referred) & vbNewLine & vbNewLine & "Is this the client you are reporting as using banked months?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
+				If memb_check = vbYes Then
+					EMReadScreen Banked_Month_Client_Array(clt_pmi,  item), 8, work_maxis_row, 34
+					EMReadScreen Banked_Month_Client_Array(memb_num, item), 2, work_maxis_row, 3
+					ElseIf memb_check = vbNo Then
+					EMReadScreen next_clt, 1, (work_maxis_row + 1), 7
+					If next_clt = " " Then
+						MsgBox "There are no additional clients on this case that have had a workforce referral. Since banked months require E&T participation, there must be a referral This client - " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
+				    	" - will not be added to the DHS report."
+						Banked_Month_Client_Array(send_to_DHS, item) = FALSE
+						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Person not matched with name in MAXIS. | "
+						End If
+					End If
+				END IF
 			work_maxis_row = work_maxis_row + 1
 		Loop until next_clt = " " OR memb_check = vbYes
 	Else
 		Banked_Month_Client_Array(send_to_DHS, item) = FALSE
 		Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No Workforce1 referral was done. Banked Months requires client to participate in E&T, so a Workforce 1 Referral needs to be completed. | "
 	End If
+
 	If Banked_Month_Client_Array(send_to_DHS, item) = TRUE Then
 		call navigate_to_MAXIS_screen ("ELIG", "FS")
 		EMReadScreen fs_version, 8, 3, 3
@@ -262,7 +275,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		End If
 		'///////SCRIPT WILL NOW CHECK FOR POSSIBLE EXPEMTIONS FOR CLIENT'
 		'Age exemption'
-		call navigate_to_MAXIS_screen ("STAT", "MEMB")																							'Cient age is listed on STAT MEMB'
+		call navigate_to_MAXIS_screen ("STAT", "MEMB")																					'Cient age is listed on STAT MEMB'
 		Call write_value_and_transmit(Banked_Month_Client_Array(memb_num, item), 20, 76)			'Writes the clt reference number on the command line to get to the correct MEMB Panel'
 		EMReadScreen cl_age, 2, 8, 76																													'Reads the client age'
 		cl_age = abs(cl_age)																																	'Makes sure the age is seen in the script as a number for the math that come next'
@@ -689,7 +702,7 @@ Const             comments_column = 9'
 
 For clients_to_report = 0 to UBound(Banked_Month_Client_Array,2)
 	IF Banked_Month_Client_Array(send_to_DHS, clients_to_report) = TRUE Then
-		objExcel.Cells(excel_row,              county_column).Value = "Ramsey"
+		objExcel.Cells(excel_row,              county_column).Value = "Hennepin"
 		objExcel.Cells(excel_row,         case_number_column).Value = Banked_Month_Client_Array (case_num,          clients_to_report)
 		objExcel.Cells(excel_row,          PMI_number_column).Value = Banked_Month_Client_Array (clt_pmi,           clients_to_report)
 		objExcel.Cells(excel_row,counted_ABAWD_months_column).Value = Banked_Month_Client_Array (abawd_used,        clients_to_report)
@@ -733,6 +746,9 @@ Next
 'objNewExcel.columns(4).columnwidth = 850
 objNewExcel.Visible = True
 
+'ObjExcel.Cells(2, 10).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+'ObjExcel.Cells(2, 11).Value = timer - query_start_time
+
 'If need_word_doc  = TRUE Then
 ''	Set objBlank
 ''	Set objWord = CreateObject("Word.Application")
@@ -771,9 +787,14 @@ objNewExcel.Visible = True
 '  Text 5, 30, 55, 10, "Month to Report:"
 'EndDialog
 
+
 'Do
-'	Dialog SNAP_Banked_Month_Report_Dialog
-'	cancel_confirmation
-'Loop until report_month_dropdown <> "select one..."
+''	Do
+'		Dialog SNAP_Banked_Month_Report_Dialog
+'		cancel_confirmation
+'	Loop until report_month_dropdown <> "select one..."
+'	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+'Loop until are_we_passworded_out = false					'loops until user passwords back in					
+
 
 script_end_procedure("Success!")
