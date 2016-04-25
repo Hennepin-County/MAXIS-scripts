@@ -54,43 +54,50 @@ STATS_denomination = "C"        'C is for each case
 If case_noting_intake_dates = False then dialog_shrink_amt = 65
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog closed_dialog, 0, 0, 421, 290, "Closed progs dialog"
-  EditBox 65, 5, 55, 15, case_number
-  EditBox 195, 5, 55, 15, closure_date
-  CheckBox 315, 10, 35, 10, "SNAP", SNAP_check
-  CheckBox 355, 10, 35, 10, "cash", cash_check
-  CheckBox 395, 10, 25, 10, "HC", HC_check
-  EditBox 80, 25, 340, 15, reason_for_closure
-  EditBox 140, 45, 280, 15, verifs_needed
-  EditBox 170, 65, 250, 15, open_progs
-  CheckBox 15, 105, 360, 10, "Case is at renewal (monthy, six-month, annual. Client gets entire next month after closure for REIN.)", CSR_check
-  CheckBox 15, 120, 360, 10, "Case is at HC annual renewal (can turn in HC ER instead of new HCAPP, but still counts as new application)", HC_ER_check
-  CheckBox 15, 135, 215, 10, "Case is entering Sanction.     Enter number of Sanction months:", Sanction_checkbox
-  EditBox 235, 135, 25, 15, sanction_months
-  CheckBox 5, 165, 65, 10, "Updated MMIS?", updated_MMIS_check
-  CheckBox 85, 165, 95, 10, "WCOM added to notice?", WCOM_check
+BeginDialog closed_dialog, 0, 0, 471, 265, "Closed Programs Dialog"
+  EditBox 70, 5, 55, 15, case_number
+  CheckBox 185, 10, 35, 10, "SNAP", SNAP_check
+  CheckBox 220, 10, 35, 10, "Cash", cash_check
+  CheckBox 255, 10, 25, 10, "HC", HC_check
+  EditBox 70, 25, 55, 15, closure_date
+  EditBox 85, 45, 180, 15, reason_for_closure
+  EditBox 115, 65, 150, 15, verifs_needed
+  EditBox 180, 85, 85, 15, open_progs
+  CheckBox 10, 120, 210, 10, "Case is at cash/SNAP renewal (monthy, six-month, annual)", CSR_check
+  CheckBox 10, 135, 115, 10, "Case is at HC annual renewal.", HC_ER_check
+  CheckBox 10, 150, 215, 10, "Case is entering Sanction.     Enter number of Sanction months:", Sanction_checkbox
+  EditBox 230, 145, 30, 15, sanction_months
+  CheckBox 10, 175, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+  CheckBox 10, 195, 190, 10, "Check here if closure is due to client death (enter date):", death_check
+  EditBox 205, 195, 60, 15, hc_close_for_death_date
+  CheckBox 10, 210, 90, 10, "WCOM Added To Notice:", WCOM_check
   ButtonGroup ButtonPressed
-    PushButton 180, 165, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
-  CheckBox 5, 180, 220, 10, "Check here if closure is due to client death and enter death date.", death_check
-  EditBox 230, 180, 55, 15, hc_close_for_death_date
-  CheckBox 15, 205, 125, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
-  EditBox 225, 205, 75, 15, worker_signature
+    PushButton 105, 210, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
+  CheckBox 10, 225, 65, 10, "Updated MMIS?", updated_MMIS_check
+  EditBox 75, 240, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 310, 205, 50, 15
-    CancelButton 365, 205, 50, 15
-  Text 5, 10, 50, 10, "Case number:"
-  Text 135, 10, 55, 10, "Date of closure:"
-  Text 265, 10, 50, 10, "Progs closed:"
-  Text 5, 30, 70, 10, "Reason for closure:"
-  Text 5, 50, 130, 10, "Verifs/docs/apps needed (if applicable):"
-  Text 5, 70, 165, 10, "Are any programs still open? If so, list them here:"
-  GroupBox 5, 90, 410, 65, "Elements that affect the REIN date/docs needed"
-  GroupBox 0, 195, 140, 25, "For LTC Cases"
-  GroupBox 10, 225, 400, 60, "Please note for SNAP:"
-  Text 20, 235, 380, 25, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
-  Text 20, 265, 380, 20, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
-  Text 155, 205, 60, 10, "Worker signature: "
+    OkButton 365, 245, 50, 15
+    CancelButton 415, 245, 50, 15
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 130, 10, 50, 10, "Progs Closed:"
+  Text 10, 30, 55, 10, "Date Of Closure:"
+  Text 10, 50, 70, 10, "Reason For Closure:"
+  Text 10, 70, 105, 10, "Verifications/Info Still Needed:"
+  Text 10, 90, 165, 10, "Are any programs still open? If so, list them here:"
+  GroupBox 5, 105, 260, 60, "Elements That May Affect REIN Date:"
+  GroupBox 5, 165, 130, 25, "For LTC Cases"
+  GroupBox 270, 40, 195, 105, "IMPORTANT - Note for SNAP:"
+  Text 275, 100, 180, 45, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
+  Text 275, 50, 180, 50, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
+  GroupBox 270, 145, 195, 90, "IMPORTANT - Note for HC: "
+  ButtonGroup ButtonPressed
+    PushButton 275, 220, 50, 10, "IAPM", IA_PM_Button
+    PushButton 325, 220, 50, 10, "HCPM", HC_PM_Button
+  Text 275, 155, 180, 50, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. MAGI clients have up to three months (follows retro application policy) after case closure to turn in their renewals and have eligibility determined. They can also reapply online using METS.  "
+  Text 10, 245, 60, 10, "Worker Signature: "
+  Text 275, 210, 180, 10, "For more information refer to:"
 EndDialog
+
 
 
 'The script----------------------------------------------------------------------------------------------------
@@ -115,6 +122,8 @@ DO
 					Dialog closed_dialog
 					cancel_confirmation
 					If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
+					If ButtonPressed = IA_PM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/iapmstd/")
+					If ButtonPressed = HC_PM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/")
 				Loop until ButtonPressed = -1
 				If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."
 				IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
@@ -144,16 +153,16 @@ IF worker_county_code = "x127" THEN
 		transmit
 		DO 	'This DO/LOOP resets to the first page of notices in SPEC/WCOM
 			EMReadScreen more_pages, 8, 18, 72
-			IF more_pages = "MORE:</>" THEN 
+			IF more_pages = "MORE:</>" THEN
 				PF8
 				EMReadScreen future_month_error, 14, 24, 2
 			END IF
 		LOOP until future_month_error = "NOTICE BENEFIT"
-	
+
 		read_row = 7 ' sets the variable for the row since this doesn't change in the search for notices
 		DO
 			waiting_check = ""
-			EMReadscreen prog_type, 2, read_row, 26 
+			EMReadscreen prog_type, 2, read_row, 26
 			EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
 		If waiting_check = "Waiting" and prog_type = "HC" THEN 'checking program type and if it's been printed
 			EMSetcursor read_row, 13
@@ -161,10 +170,10 @@ IF worker_county_code = "x127" THEN
 			Transmit
 			pf9
 			EMSetCursor 03, 15
-			'Writing the verifs needed into the notice 
+			'Writing the verifs needed into the notice
 			Call write_variable_in_spec_memo("************************************************************")
 			call write_variable_in_spec_memo("Medical Assistance eligibility ends on: " & hc_close_for_death_date & ".")
-			call write_variable_in_spec_memo("Hennepin County may have claims against any assets left after funeral expenses.") 
+			call write_variable_in_spec_memo("Hennepin County may have claims against any assets left after funeral expenses.")
 			call write_variable_in_spec_memo("Please contact the Probate Unit at 612-348-3244 for more information. Thank you.")
 			Call write_variable_in_spec_memo("************************************************************")
 			notice_edited = true 'Setting this true lets us know that we successfully edited the notice
@@ -180,7 +189,7 @@ IF worker_county_code = "x127" THEN
 			PF8    'Navigates to the next page of notices.  DO/LOOP until read_row = 18
 			read_row = 7
 		End if
-		LOOP until prog_type = "  "	
+		LOOP until prog_type = "  "
 	END IF
 END IF
 '******END OF HENNEPIN COUNTY SPECIFIC INFORMATION*********
@@ -249,22 +258,21 @@ If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs 
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
 IF (worker_county_code = "x127" AND HC_check = 1 AND death_check = 1) THEN call write_variable_in_case_note("* Added Hennepin County probate information to the client's notice.")
-If CSR_check = 1 then call write_bullet_and_variable_in_case_note("Case is at renewal", "client has an additional month to turn in the document and any required proofs.")
+If CSR_check = 1 then call write_bullet_and_variable_in_case_note("Case is at renewal", "Client has an additional month to turn in the document and any required proofs.")
 If HC_ER_check = 1 then call write_variable_in_case_note("* Case is at HC ER.")
-If case_noting_intake_dates = True then
+If case_noting_intake_dates = True or case_noting_intake_dates = "" then  																								'Updated bug. With new/updated, scripts this functionality was not being accessed.'
 	call write_variable_in_case_note("---")
-	IF death_check <> 1 and HC_check = 1 then call write_bullet_and_variable_in_case_note("Last HC REIN date", HC_last_REIN_date & HC_followup_text)
 	If death_check <> 1 and Sanction_checkbox <> 1 and SNAP_check = 1 then
 		call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
 	ELSEIF Sanction_checkbox = 1 THEN
-			call write_variable_in_case_note("SNAP is entering sanction for " & sanction_months & " month(s) " & sanction_period & ". If client does not comply by closure date " & closure_date & " client will enter sanction for SNAP. Refer to worker for details on compliance.")
+			call write_variable_in_case_note("* SNAP is entering sanction for " & sanction_months & " month(s) " & sanction_period & ". If client does not comply by closure date " & closure_date & " client will enter sanction for SNAP. Refer to worker for details on compliance.")
 	END IF
 	If death_check <> 1 and cash_check = 1 then call write_bullet_and_variable_in_case_note("Last cash REIN date", cash_last_REIN_date & cash_followup_text)
 	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then
 		call write_bullet_and_variable_in_case_note("Open programs", open_progs)
 	Else
 		IF death_check = 1 THEN call write_variable_in_case_note("* All programs closed.")
-		IF death_check <> 1 THEN call write_variable_in_case_note("* All programs closed. Case becomes intake again on " & intake_date & ".")
+		IF death_check <> 1 THEN call write_variable_in_case_note("* All programs closed. Cash and/or SNAP (whichever applicable) case becomes intake again on " & intake_date & ".")
 	End if
 Else
 	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
@@ -274,7 +282,9 @@ IF sent_5181_check = 1 then call write_variable_in_case_note ("* Sent DHS-5181 L
 
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
+
 'Runs denied progs if selected
 If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
 
-script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
+'Script end procedure
+script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly." & vbnewline & vbnewline & "This script does not case note information related to HC REIN dates due to the ever changing nature of these programs at this time. For more information please refer to the IAPM or HCPM, both are buttons available on the powerpad.")
