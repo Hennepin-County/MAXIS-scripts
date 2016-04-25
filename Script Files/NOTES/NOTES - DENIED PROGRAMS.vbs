@@ -248,6 +248,7 @@ DO
 	If (open_prog_check = checked and open_progs = "") and (open_prog_check = unchecked and open_progs <> "") THEN err_msg = err_msg & vbCr & "You checked that there are open/pending progs but didn't list them, or vice versa."
 	If (HH_membs_on_HC_check = checked and HH_membs_on_HC = "") and (HH_membs_on_HC_check = unchecked and HH_membs_on_HC <> "") THEN err_msg = err_msg & vbCr & "You checked that there are members open on HC but didn't list them, or vice versa."
 	If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+	coded_denial = "" 			'Reseting this value to make sure we are not duplicating the case note.
 	call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
 	If SNAP_pnd2_code = "R" and withdraw_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as R. Please select withdraw checkbox."
 	If SNAP_pnd2_code = "I" and denied_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as I. Please select deny from PND2 checkbox."
