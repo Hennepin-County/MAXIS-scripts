@@ -43,82 +43,280 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog ACTIONS_scripts_main_menu_dialog, 0, 0, 461, 350, "Actions scripts main menu dialog"
-  ButtonGroup ButtonPressed
-    CancelButton 395, 315, 50, 15
-    PushButton 5, 20, 110, 10, "ABAWD Banked Months FIATer", ABAWD_BANKED_MONTHS_button
-    PushButton 5, 35, 110, 10, "ABAWD FSET Exemption Check", ABAWD_FSET_EXEMPTION_button
-    PushButton 5, 50, 90, 10, "ABAWD Screening Tool", ABAWD_tool
-    PushButton 5, 65, 50, 10, "BILS updater", BILS_UPDATER_button
-    PushButton 5, 80, 50, 10, "Check EDRS", CHECK_EDRS_button
-    PushButton 5, 95, 80, 10, "Copy panels to Word", COPY_PANELS_TO_WORD_button
-    PushButton 5, 110, 60, 10, " FSET sanction", FSET_sanction_button
-    PushButton 5, 125, 80, 10, "Housing Grant FIATer", HOUSING_GRANT_FIATER_button
-    PushButton 5, 140, 110, 10, "LTC-Spousal Allocation FIATer", LTC_SPOUSAL_ALLOCATION_FIATER_button
-    PushButton 5, 160, 110, 10, "MA-EPD earned income FIATer", MA_EPD_EI_FIAT_button
-    PushButton 5, 180, 60, 10, "New job reported", NEW_JOB_REPORTED_button
-    PushButton 5, 195, 60, 10, "PA verif request", PA_VERIF_REQUEST_button
-    PushButton 5, 210, 70, 10, "Pay stubs Received", PAYSTUBS_RECEIVED_button
-    PushButton 5, 235, 100, 10, "Shelter Expense Verif Recv'd", SHELTER_EXPENSE_button
-    PushButton 5, 260, 50, 10, "Send SVES", SEND_SVES_button
-    PushButton 5, 280, 60, 10, "Transfer case", TRANSFER_CASE_button
-    PushButton 5, 295, 65, 10, "TYMA TIKLer", TYMA_TIKLER_button
-    PushButton 310, 5, 65, 10, "UTILITIES scripts", UTILITIES_SCRIPTS_button
-    PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
-  Text 5, 5, 250, 10, "Action scripts main menu: select the script to run from the choices below."
-  Text 120, 20, 335, 10, "-- NEW 01/2016!! FIATS SNAP eligibility, income and deductions for HH members using banked months."
-  Text 125, 35, 320, 10, "--- Double checks a case to see if any possible ABAWD/FSET exemptions exist."
-  Text 105, 50, 270, 10, "--- A tool to walk through a screening to determine if client is ABAWD."
-  Text 65, 65, 220, 10, "--- Updates a BILS panel with reoccurring or actual BILS received."
-  Text 65, 80, 190, 10, "--- sends an EDRS request for a HH member on a case."
-  Text 95, 95, 180, 10, "--- Copies MAXIS panels to Word en masse for a case."
-  Text 75, 110, 370, 10, "--- Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
-  Text 95, 125, 350, 15, "--- FIATs out the SHEL Housing Subsidy making the MFIP case eligible for the Housing Grant."
-  Text 125, 140, 180, 10, "--- FIATs a spousal allocation across a budget period."
-  Text 125, 160, 300, 10, "--- FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
-  Text 75, 180, 380, 10, "--- Creates a JOBS panel, CASE/NOTE and TIKL when a new job is reported. Use the DAIL scrubber for new hire DAILs."
-  Text 75, 195, 320, 10, "--- Creates a Word document with PA benefit totals for other agencies to determine client benefits."
-  Text 85, 210, 370, 20, "--- Enter in pay stubs on one dialog, and it puts that information on JOBS (both retrospective and prospective if applicable), as well as the PIC and HC pop-up, and it'll case note the income as well."
-  Text 110, 235, 340, 20, "-- NEW 01/2016!! Enter shelter expense and address information in a single dialog and the script updates SHEL, HEST, and ADDR and case notes."
-  Text 65, 260, 90, 10, "--- Sends a SVES/QURY."
-  Text 75, 280, 330, 10, "--- SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
-  Text 80, 295, 355, 10, "--- NEW 02/2016!!! TIKLS for TYMA report forms to be sent. "
-EndDialog
 
-'Variables to declare
-IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Shows dialog, which asks user which script to run.
+'CUSTOM FUNCTIONS===========================================================================================================
+Function declare_ACTIONS_menu_dialog(script_array)
+	BeginDialog ACTIONS_dialog, 0, 0, 516, 340, "ACTIONS Scripts"
+	 	Text 5, 5, 435, 10, "Notices scripts main menu: select the script to run from the choices below."
+	  	ButtonGroup ButtonPressed
+		 	PushButton 015, 35, 40, 15, "ACTIONS", 				ACTIONS_main_button
+		 	'PushButton 055, 35, 60, 15, "Additional Actions", 				Addtional_actions_button    'to be used in the future when a split is needed
+		 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
+			PushButton 395, 10, 45, 10, "UTILITIES",            UTILITIES_SCRIPTS_button
+		'This starts here, but it shouldn't end here :)
+		vert_button_position = 70
+
+		For current_script = 0 to ubound(script_array)
+			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+			'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+			PushButton 		5, 													vert_button_position, 	script_array(current_script).button_size, 	10, 			script_array(current_script).script_name, 			button_placeholder
+			Text 			script_array(current_script).button_size + 10, 		vert_button_position, 	500, 										10, 			"--- " & script_array(current_script).description
+			'----------
+			vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+			'----------
+			script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+			button_placeholder = button_placeholder + 1
+		next
+
+		CancelButton 460, 320, 50, 15
+		GroupBox 5, 20, 205, 35, "NOTICES Sub-Menus"
+	EndDialog
+End function
+'END CUSTOM FUNCTIONS=======================================================================================================
+
+'VARIABLES TO DECLARE=======================================================================================================
+
+'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
+DIM ButtonPressed
+DIM UTILITIES_SCRIPTS_button
+DIM SIR_instructions_button
+dim ACTIONS_dialog
+
+script_array_ACTIONS_main = array()
+script_array_ACTIONS_list = array()
+
+
+'END VARIABLES TO DECLARE===================================================================================================
+
+'CLASSES TO DEFINE==========================================================================================================
+
+'A class for each script item
+class script
+
+	public script_name
+	public file_name
+	public description
+	public button
+
+	public property get button_size	'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
+		button_size = round ( len( script_name ) * 3.5 ) + 10
+	end property
+
+end class
+
+'END CLASSES TO DEFINE==========================================================================================================
+
+'LIST OF SCRIPTS================================================================================================================
+
+'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
+
+'-------------------------------------------------------------------------------------------------------------------------ACTIONS MAIN MENU
+
+'Resetting the variable
+script_num = 0
+ReDim Preserve script_array_ACTIONS_main(script_num)
+Set script_array_ACTIONS_main(script_num) = new script
+script_array_ACTIONS_main(script_num).script_name 			= "   ABAWD BANKED MONTHS FIATer   "																		'Script name
+script_array_ACTIONS_main(script_num).file_name 			= "ACTIONS - ABAWD BANKED MONTHS FIATER.vbs"															'Script URL
+script_array_ACTIONS_main(script_num).description 			= "FIATS SNAP eligibility, income and deductions for HH members using banked months."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name 			= " ABAWD FSET Exemption Check "																		'Script name
+script_array_ACTIONS_main(script_num).file_name 			= "ACTIONS - ABAWD FSET EXEMPTION CHECK.vbs"															'Script URL
+script_array_ACTIONS_main(script_num).description 			= "Double checks a case to see if any possible ABAWD/FSET exemptions exist."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= " ABAWD Screening Tool"													'needs spaces to generate button width properly.
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - ABAWD SCREENING TOOL.vbs"
+script_array_ACTIONS_main(script_num).description			= "A tool to walk through a screening to determine if client is ABAWD."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "BILS Updater"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - BILS UPDATER.vbs"
+script_array_ACTIONS_main(script_num).description			= "Updates a BILS panel with reoccurring or actual BILS received."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= " Check EDRS"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - CHECK EDRS.vbs"
+script_array_ACTIONS_main(script_num).description			= "Checks EDRS for HH members with disqualifications on a case."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "Copy Panels to Word"													'needs spaces to generate button width properly.
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - COPY PANELS TO WORD.vbs"
+script_array_ACTIONS_main(script_num).description			= "Copies MAXIS panels to Word en masse for a case for easier review."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= " FSET SANCTION "
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - FSET SANCTION.vbs"
+script_array_ACTIONS_main(script_num).description			= "Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "   HG MONY/CHCK ISSUANCE   "													'needs spaces to generate button width properly.
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - HOUSING GRANT MONY CHCK ISSUANCE.vbs"
+script_array_ACTIONS_main(script_num).description			= "-- New 04/2016!!! Issues a housing grant in MONY/CHCK for cases that should have been issued in prior months."
+
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "LTC Spousal Allocation FIATer"													'needs spaces to generate button width properly.
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs"
+script_array_ACTIONS_main(script_num).description			= "FIATs a spousal allocation across a budget period."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= " MA-EPD Earned Income FIATer "
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - MA-EPD EI FIAT.vbs"
+script_array_ACTIONS_main(script_num).description			= "FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "New Job Reported"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - NEW JOB REPORTED.vbs"
+script_array_ACTIONS_main(script_num).description			= "Creates a JOBS panel, CASE/NOTE and TIKL when a new job is reported. Use the DAIL scrubber for new hire DAILs."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "PA Verif Request"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - PA VERIF REQUEST.vbs"
+script_array_ACTIONS_main(script_num).description			= "Creates a Word document with PA benefit totals for other agencies to determine client benefits."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "Paystubs Recieved"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - PAYSTUBS RECEIVED.vbs"
+script_array_ACTIONS_main(script_num).description			= "Enter in pay stubs, and puts it on JOBS (both retro & pro if applicable), as well as the PIC and HC pop-up, and case note."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "Shelter Expense Verif Recv'd"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - SHELTER EXPENSE VERIF RECEIVED.vbs"
+script_array_ACTIONS_main(script_num).description			= "Enter shelter expense/address information in a dialog and the script updates SHEL, HEST, and ADDR and case notes."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "Send SVES"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - SEND SVES.vbs"
+script_array_ACTIONS_main(script_num).description			= "Sends a SVES/QURY."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "Transfer Case"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - TRANSFER CASE.vbs"
+script_array_ACTIONS_main(script_num).description			= "SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_ACTIONS_main(script_num)		'Resets the array to add one more element to it
+Set script_array_ACTIONS_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_ACTIONS_main(script_num).script_name			= "TYMA TIKLer"
+script_array_ACTIONS_main(script_num).file_name				= "ACTIONS - TYMA TIKLER.vbs"
+script_array_ACTIONS_main(script_num).description			= "TIKLS for TYMA report forms to be sent."
+
+
+
+'-------------------------------------------------------------------------------------------------------------------------Additional ACTIONS scripts   'to be used in the future when a non-alpha split is needed MUST UNCOMMENT ALL RELATED REFERENCES
+'Resetting the variable
+'script_num = 0
+'ReDim Preserve script_array_ACTIONS_list(script_num)
+'Set script_array_ACTIONS_list(script_num) = new script
+'script_array_ACTIONS_list(script_num).script_name 			= " ABAWD with Child in HH WCOM "'needs spaces to generate button width properly.				'Script name
+'script_array_ACTIONS_list(script_num).file_name			= "NOTICES - ABAWD WITH CHILD IN HH WCOM.vbs"
+'script_array_ACTIONS_list(script_num).description 			= "Adds a WCOM to a notice for an ABAWD adult receiving child under 18 exemption."
+'
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_ACTIONS_list(script_num)		'Resets the array to add one more element to it
+'Set script_array_ACTIONS_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_ACTIONS_list(script_num).script_name 			= "  Banked Month WCOMS "
+'script_array_ACTIONS_list(script_num).file_name			= "NOTICES - BANKED MONTH WCOMS.vbs"
+'script_array_ACTIONS_list(script_num).description 			= "Adds various WCOMS to a notice for regarding banked month approvals/closure."
+'
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_ACTIONS_list(script_num)		'Resets the array to add one more element to it
+'Set script_array_ACTIONS_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_ACTIONS_list(script_num).script_name 			= "Duplicate assistance WCOM"
+'script_array_ACTIONS_list(script_num).file_name			= "NOTICES - DUPLICATE ASSISTANCE WCOM.vbs"
+'script_array_ACTIONS_list(script_num).description 			= "Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
+'
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_ACTIONS_list(script_num)		'Resets the array to add one more element to it
+'Set script_array_ACTIONS_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_ACTIONS_list(script_num).script_name 			= "Postponed WREG Verif"
+'script_array_ACTIONS_list(script_num).file_name			= "NOTICES - POSTPONED WREG VERIFS.vbs"
+'script_array_ACTIONS_list(script_num).description 			= "Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
+
+
+
+
+'Starting these with a very high number, higher than the normal possible amount of buttons.
+'	We're doing this because we want to assign a value to each button pressed, and we want
+'	that value to change with each button. The button_placeholder will be placed in the .button
+'	property for each script item. This allows it to both escape the Function and resize
+'	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
+'	to force the value of ButtonPressed to hold in near infinite iterations.
+button_placeholder 	= 24601
+ACTIONS_main_button		= 1000
+'Addtional_actions_button		= 2000
+
+
+
+'Displays the dialog
 Do
-	dialog ACTIONS_scripts_main_menu_dialog
-	If buttonpressed = cancel then stopscript
-	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Actions%20scripts.aspx")
-Loop until buttonpressed <> SIR_instructions_button
+	If ButtonPressed = "" or ButtonPressed = ACTIONS_main_button then
+		declare_ACTIONS_menu_dialog(script_array_ACTIONS_main)
+	'ElseIf ButtonPressed = Addtional_actions_button then
+	'	declare_ACTIONS_menu_dialog(script_array_ACTIONS_list)
+	End if
 
-'Connecting to BlueZone
-EMConnect ""
+	dialog ACTIONS_dialog
 
-If buttonpressed = ABAWD_BANKED_MONTHS_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - ABAWD BANKED MONTHS FIATER.vbs")
-IF buttonpressed = ABAWD_FSET_EXEMPTION_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - ABAWD FSET EXEMPTION CHECK.vbs")
-IF buttonpressed = ABAWD_tool then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - ABAWD SCREENING TOOL.vbs")
-If buttonpressed = BILS_UPDATER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - BILS UPDATER.vbs")
-If buttonpressed = CHECK_EDRS_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - CHECK EDRS.vbs")
-If buttonpressed = COPY_PANELS_TO_WORD_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - COPY PANELS TO WORD.vbs")
-IF ButtonPressed = FSET_sanction_button	THEN CALL run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - FSET SANCTION.vbs")
-IF ButtonPressed = HOUSING_GRANT_FIATER_button THEN call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - HOUSING GRANT FIATER.vbs")
-If buttonpressed = LTC_SPOUSAL_ALLOCATION_FIATER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs")
-If buttonpressed = MA_EPD_EI_FIAT_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - MA-EPD EI FIAT.vbs")
-If buttonpressed = NEW_JOB_REPORTED_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - NEW JOB REPORTED.vbs")
-If buttonpressed = PA_VERIF_REQUEST_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - PA VERIF REQUEST.vbs")
-If buttonpressed = PAYSTUBS_RECEIVED_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - PAYSTUBS RECEIVED.vbs")
-If buttonpressed = SEND_SVES_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - SEND SVES.vbs")
-IF ButtonPressed = SHELTER_EXPENSE_button THEN CALL run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - SHELTER EXPENSE VERIF RECEIVED.vbs")
-If buttonpressed = TRANSFER_CASE_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - TRANSFER CASE.vbs")
-If buttonpressed = TYMA_TIKLER_button then call run_from_GitHub(script_repository & "/ACTIONS/ACTIONS - TYMA TIKLER.vbs")
+	If ButtonPressed = 0 then stopscript
+    'Opening the SIR Instructions
+	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Actions%20scripts.aspx")
+	'Opening utilities
+	If ButtonPressed = UTILITIES_SCRIPTS_button then 
+		call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - MAIN MENU.vbs")
+		stopscript
+	END IF
+Loop until 	ButtonPressed <> SIR_instructions_button and _
+			ButtonPressed <> ACTIONS_main_button 'and _
+			'ButtonPressed <> Addtional_actions_button
 
-If ButtonPressed = UTILITIES_SCRIPTS_button then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - MAIN MENU.vbs")
+'MsgBox buttonpressed = script_array_ACTIONS_main(0).button
 
-'Logging usage stats
-script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
+'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
+For i = 0 to ubound(script_array_ACTIONS_main)
+	If ButtonPressed = script_array_ACTIONS_main(i).button then call run_from_GitHub(script_repository & "/ACTIONS/" & script_array_ACTIONS_main(i).file_name)
+Next
+
+For i = 0 to ubound(script_array_ACTIONS_list)
+	If ButtonPressed = script_array_ACTIONS_list(i).button then call run_from_GitHub(script_repository & "/ACTIONS/" & script_array_ACTIONS_list(i).file_name)
+Next
+
+stopscript
+
+
+
+
+

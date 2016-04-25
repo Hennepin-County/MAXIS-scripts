@@ -1,9 +1,6 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - CASE-CURR.vbs"
+'GATHERING STATS----------------------------------------------------------------------------------------------------
+name_of_script = "NAV - PRISM SCREEN FINDER.vbs"
 start_time = timer
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 10                      'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -47,30 +44,44 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-EMConnect ""
-
-call MAXIS_case_number_finder(case_number)
-
-BeginDialog case_number_dialog, 0, 0, 161, 42, "Case number"
-  EditBox 95, 0, 60, 15, case_number
+'DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog PRISM_screen_finder_dialog, 0, 0, 261, 135, "PRISM screen finder"
   ButtonGroup ButtonPressed
-    OkButton 25, 20, 50, 15
-    CancelButton 85, 20, 50, 15
-  Text 5, 5, 85, 10, "Enter your case number:"
+    CancelButton 210, 120, 50, 15
+    PushButton 140, 70, 45, 10, "DDPL", DDPL_button
+    PushButton 140, 40, 45, 10, "CAAD", CAAD_button
+    PushButton 140, 55, 45, 10, "CAFS", CAFS_button
+    PushButton 140, 85, 45, 10, "GCSC", GCSC_button
+    PushButton 140, 115, 45, 10, "PESE", PESE_button
+ 
+  Text 35, 70, 90, 10, "Direct deposit listing:"
+  Text 35, 40, 65, 10, "Case notes:"
+  Text 35, 55, 100, 10, "Case financial summary:"
+  Text 35, 85, 100, 10, "Good cause/safety concerns:"
+  Text 35, 115, 65, 10, "Person search:"
+  Text 10, 0, 250, 25, "Press a button below to navigate to PRISM screens.  Then press F1 in the case number or MCI number field to select the participant or case information you are looking for."
 EndDialog
 
-If case_number = "" then 
-	Dialog case_number_dialog
-	If ButtonPressed = 0 then stopscript
-END IF
 
-'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-transmit
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'Checks for an active MAXIS session
-Call check_for_MAXIS(True)
+'Connect to BlueZone
+EMConnect ""
 
-'Navigates to CASE/CURR
-call navigate_to_MAXIS_screen("CASE", "CURR")
+CALL check_for_PRISM(FALSE)
+
+DO
+
+	Dialog PRISM_screen_finder_dialog
+
+	'Now it'll navigate to any of the screens chosen
+	If buttonpressed = DDPL_button then call navigate_to_PRISM_screen("DDPL")
+	If buttonpressed = CAAD_button then call navigate_to_PRISM_screen("CAAD")
+	If buttonpressed = CAFS_button then call navigate_to_PRISM_screen("CAFS")
+	If buttonpressed = GCSC_button then call navigate_to_PRISM_screen("GCSC")
+	If buttonpressed = PESE_button then call navigate_to_PRISM_screen("PESE")
+LOOP until buttonpressed = 0
 
 script_end_procedure("")
+
+

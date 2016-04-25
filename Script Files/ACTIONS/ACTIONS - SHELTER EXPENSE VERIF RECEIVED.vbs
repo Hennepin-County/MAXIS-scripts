@@ -418,7 +418,7 @@ END IF
 start_a_blank_CASE_NOTE
 Call write_variable_in_case_note ("~~~ Shelter Expense Verif Received on " & agency_received_date & " ~~~")
 CALL write_bullet_and_variable_in_case_note ("Unit Rent", FormatCurrency(unit_rent))
-IF client_share <> unit_rent THEN CALL write_bullet_and_variable_in_case_note("Client's Share", FormatCurrency(client_share))
+IF client_share <> unit_rent AND client_share <> "" THEN CALL write_bullet_and_variable_in_case_note("Client's Share", FormatCurrency(client_share))
 IF subsidy_check = 1 THEN CALL write_bullet_and_variable_in_case_note("Unit is subsidized. Subsidy Amount", FormatCurrency(subsidy_amount))
 CALL write_bullet_and_variable_in_case_note("Utilities Paid by Client", utilities_paid_listbox)
 'Case noting information about client move
@@ -448,6 +448,7 @@ ELSEIF valid_addr = True AND room_and_board_check = 1 THEN
 	CALL write_variable_in_case_note("* HEST and ADDR updated with script.")
 END IF
 
+Call write_bullet_and_variable_in_case_note ("Room and Board Notes", room_board_notes)
 Call write_bullet_and_variable_in_case_note ("Other Notes", other_notes)
 CALL write_bullet_and_variable_in_case_note("Actions Taken", actions_taken)
 IF signed_by_landlord_check = 1 THEN Call write_variable_in_case_note ("* Form signed by landlord.")

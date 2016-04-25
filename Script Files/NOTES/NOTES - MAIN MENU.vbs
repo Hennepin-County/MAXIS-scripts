@@ -225,6 +225,13 @@ script_array_0_to_C(script_num).description				= "Template for the Combined Six-
 script_num = 0
 ReDim Preserve script_array_D_to_F(script_num)
 Set script_array_D_to_F(script_num) = new script
+script_array_D_to_F(script_num).script_name 			= "Deceased Client Summary"																		'Script name
+script_array_D_to_F(script_num).file_name				= "NOTES - DECEASED CLIENT SUMMARY.vbs"
+script_array_D_to_F(script_num).description 			= "NEW 04/2016!!! -- Adds details about a deceased client to a CASE/NOTE."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
+Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Denied programs"																		'Script name
 script_array_D_to_F(script_num).file_name				= "NOTES - DENIED PROGRAMS.vbs"
 script_array_D_to_F(script_num).description 			= "Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."

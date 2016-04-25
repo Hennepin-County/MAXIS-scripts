@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - DENIED PROGRAMS.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 420          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,14 +48,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 420          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'VARIABLE REQUIRED TO RESIZE DIALOG BASED ON A GLOBAL VARIABLE IN FUNCTIONS FILE
-If case_noting_intake_dates = False then dialog_shrink_amt = 105
+If case_noting_intake_dates = False then dialog_shrink_amt = 100
 
 'LOADING SPECIALTY FUNCTIONS----------------------------------------------------------------------------------------------------
 function autofill_previous_denied_progs_note_info
@@ -109,70 +107,110 @@ function autofill_previous_denied_progs_note_info
   End if
 End function
 
+Function check_elig_for_verifs
+End function
+
+Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
+	Call navigate_to_MAXIS_screen("REPT", "PND2")
+	row = 7
+	col = 5
+	EMSearch case_number, row, col      'finding correct case to check PND2 codes
+	'IF HC_check = checked Then
+	'	EMReadScreen HC_pnd2_code, 1, 7, 65
+	'	'IF HC_pnd2_code = 
+	'END IF
+	IF SNAP_check = checked Then
+		EMReadScreen SNAP_pnd2_code, 1, row, 62
+		IF SNAP_pnd2_code = "R" THEN coded_denial = coded_denial & " SNAP withdrawn on PND2."
+		IF SNAP_pnd2_code = "I" THEN coded_denial = coded_denial & " SNAP application incomplete, denied on PND2."
+	END IF
+	IF cash_check = checked Then
+		EMReadScreen cash_pnd2_code, 1, row, 54
+		IF cash_pnd2_code = "R" THEN coded_denial = coded_denial & " CASH withdrawn on PND2."
+		IF cash_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH application incomplete, denied on PND2."
+	END IF
+	IF emer_check = checked Then
+		EMReadScreen emer_pnd2_code, 1, row, 68
+		IF emer_pnd2_code = "R" THEN coded_denial = coded_denial & " EMER withdrawn on PND2."
+		IF emer_pnd2_code = "I" THEN coded_denial = coded_denial & " EMER application incomplete, denied on PND2."
+	END IF
+	
+End function
+
 'THE DIALOG----------------------------------------------------------------------------------------------------
 'This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
-BeginDialog denied_dialog, 0, 0, 401, 360 - dialog_shrink_amt, "Denied progs dialog"
+BeginDialog denied_dialog, 0, 0, 401, 385 - dialog_shrink_amt, "Denied progs dialog"
   EditBox 65, 5, 55, 15, case_number
-  CheckBox 185, 10, 35, 10, "SNAP", SNAP_check
-  CheckBox 230, 10, 25, 10, "HC", HC_check
-  CheckBox 265, 10, 35, 10, "cash", cash_check
-  CheckBox 310, 10, 40, 10, "Emer", emer_check
-  EditBox 45, 35, 55, 15, SNAP_denial_date
-  EditBox 130, 35, 55, 15, HC_denial_date
-  EditBox 225, 35, 55, 15, cash_denial_date
-  EditBox 320, 35, 55, 15, emer_denial_date
-  EditBox 65, 60, 55, 15, application_date
-  EditBox 75, 80, 320, 15, reason_for_denial
-  EditBox 140, 100, 255, 15, verifs_needed
-  CheckBox 15, 115, 10, 25, "", edit_notice_check
-  Text 30, 120, 350, 25, "Check here to have the script add the verifs needed to denial notices. This will list the contents of the above box on the client denial notice. List each of the specific mandatory verifications that were used for the denial."
-  EditBox 50, 145, 345, 15, other_notes
+  EditBox 185, 5, 55, 15, application_date
+  CheckBox 60, 25, 35, 10, "SNAP", SNAP_check
+  CheckBox 145, 25, 25, 10, "HC", HC_check
+  CheckBox 230, 25, 35, 10, "Cash", cash_check
+  CheckBox 315, 25, 40, 10, "Emer", emer_check
+  EditBox 60, 40, 55, 15, SNAP_denial_date
+  EditBox 145, 40, 55, 15, HC_denial_date
+  EditBox 230, 40, 55, 15, cash_denial_date
+  EditBox 315, 40, 55, 15, emer_denial_date
+  CheckBox 60, 60, 60, 10, "Missing Verifs", missing_verifs_SNAP_checkbox
+  CheckBox 145, 60, 60, 10, "Missings Verifs", missing_verifs_HC_checkbox
+  CheckBox 230, 60, 60, 10, "Missing Verifs", missing_verifs_CASH_checkbox
+  CheckBox 315, 60, 60, 10, "Missing Verifs", missing_verifs_EMER_checkbox
+  CheckBox 60, 75, 65, 10, "Denied on Pnd2", denied_pnd2_SNAP_checkbox
+  CheckBox 230, 75, 65, 10, "Denied on Pnd2", denied_pnd2_CASH_checkbox
+  CheckBox 315, 75, 65, 10, "Denied on Pnd2", denied_pnd2_EMER_checkbox
+  CheckBox 60, 90, 75, 10, "Withdrawn on Pnd2", withdraw_pnd2_SNAP_checkbox
+  CheckBox 145, 90, 75, 10, "Withdrawn on Pact", withdraw_pact_HC_checkbox
+  CheckBox 230, 90, 75, 10, "Withdrawn on Pnd2", withdraw_pnd2_CASH_checkbox
+  CheckBox 315, 90, 75, 10, "Withdrawn on Pnd2", withdraw_pnd2_EMER_checkbox
+  EditBox 65, 105, 330, 15, reason_for_denial
+  EditBox 140, 125, 255, 15, verifs_needed
+  Text 30, 145, 350, 25, "Check here to have the script add the verifs needed to denial notices. This will list the contents of the above box on the client denial notice. List each of the specific mandatory verifications that were used for the denial."
+  CheckBox 15, 140, 10, 25, "", edit_notice_check
+  EditBox 50, 170, 345, 15, other_notes
   If case_noting_intake_dates = True then
-    CheckBox 15, 175, 355, 10, "Check here if proofs were not provided and this case pended the full 30 day period (or 45/60 days for HC).", requested_proofs_not_provided_check
-    CheckBox 15, 200, 365, 10, "Denied SNAP for self-declaration of income over 165% FPG (hold for 30 days, with an add'l 30 for proration)", self_declaration_of_income_over_165_FPG
-    CheckBox 15, 220, 130, 10, "Client is disabled (60 day HC period)", disabled_client_check
-    CheckBox 15, 235, 305, 10, "Check here if there are any programs still open/pending (doesn't become intake again yet)", open_prog_check
-    EditBox 105, 250, 235, 15, open_progs
-    CheckBox 15, 265, 330, 10, "Check here if there are any HH members still open on HC (won't require a HCAPP to add a member)", HH_membs_on_HC_check
-    EditBox 105, 280, 235, 15, HH_membs_on_HC
-    GroupBox 0, 160, 390, 140, "Important items that affect the intake date/documentation:"
-    Text 40, 185, 125, 10, "Applies a 30 day reinstate period."
-    Text 35, 250, 70, 10, "If so, list them here:"
-    Text 35, 285, 70, 10, "If so, list them here:"
+    CheckBox 15, 200, 360, 10, "Check here if requested proofs were not provided, interview was completed (if applicable) and this case pended", requested_proofs_not_provided_check
+    CheckBox 15, 225, 365, 10, "Denied SNAP for self-declaration of income over 165% FPG (hold for 30 days, with an add'l 30 for proration)", self_declaration_of_income_over_165_FPG
+    CheckBox 15, 245, 130, 10, "Client is disabled (60 day HC period)", disabled_client_check
+    CheckBox 15, 260, 305, 10, "Check here if there are any programs still open/pending (doesn't become intake again yet)", open_prog_check
+    EditBox 105, 275, 235, 15, open_progs
+    CheckBox 15, 290, 330, 10, "Check here if there are any HH members still open on HC (won't require a HCAPP to add a member)", HH_membs_on_HC_check
+    EditBox 105, 305, 235, 15, HH_membs_on_HC
+    GroupBox 5, 190, 390, 140, "Important items that affect the intake date/documentation:"
+    Text 40, 210, 300, 10, " the full 30 day period (or 45/60 days for HC). Applies a 30 day reinstate period."
+    Text 35, 275, 70, 10, "If so, list them here:"
+    Text 35, 310, 70, 10, "If so, list them here:"
   Else
-    EditBox 155, 160, 200, 15, open_progs
-    EditBox 180, 180, 200, 15, HH_membs_on_HC
-    Text 5, 160, 150, 10, "If there are any open programs, list them here: "
-    Text 5, 180, 175, 10, "If there are any HH membs open on HC, list them here: "
+    EditBox 165, 190, 200, 15, open_progs
+    EditBox 190, 210, 200, 15, HH_membs_on_HC
+    Text 5, 195, 150, 10, "If there are any open programs, list them here: "
+    Text 5, 215, 175, 10, "If there are any HH membs open on HC, list them here: "
   End if
-  CheckBox 5, 310 - dialog_shrink_amt, 65, 10, "Updated MMIS?", updated_MMIS_check
-  CheckBox 80, 310 - dialog_shrink_amt, 155, 10, "Check here if you sent a NOMI to this client.", NOMI_check
-  CheckBox 245, 310 - dialog_shrink_amt, 95, 10, "WCOM added to notice?", WCOM_check
-  CheckBox 30, 325 - dialog_shrink_amt, 125, 10, "Check here to TIKL to send to CLS.", TIKL_check
-  EditBox 75, 340 - dialog_shrink_amt, 70, 15, worker_signature
+  CheckBox 5, 335 - dialog_shrink_amt, 65, 10, "Updated MMIS?", updated_MMIS_check
+  CheckBox 80, 335 - dialog_shrink_amt, 155, 10, "Check here if you sent a NOMI to this client.", NOMI_check
+  CheckBox 245, 335 - dialog_shrink_amt, 95, 10, "WCOM added to notice?", WCOM_check
+  CheckBox 30, 350 - dialog_shrink_amt, 125, 10, "Check here to TIKL to send to CLS.", TIKL_check
+  EditBox 75, 365 - dialog_shrink_amt, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 265, 340 - dialog_shrink_amt, 50, 15
-    CancelButton 320, 340 - dialog_shrink_amt, 50, 15
-    PushButton 125, 60 - dialog_shrink_amt, 175, 15, "Autofill previous denied progs script dates/reasons", autofill_previous_info_button
-    PushButton 345, 310 - dialog_shrink_amt, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
+    OkButton 265, 365 - dialog_shrink_amt, 50, 15
+    CancelButton 320, 365 - dialog_shrink_amt, 50, 15
+    PushButton 250, 5, 145, 15, "Autofill previous denied progs script info", autofill_previous_info_button
+    PushButton 345, 335 - dialog_shrink_amt, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
+  Text 5, 25, 50, 10, "Denied Progs: "
   Text 5, 10, 50, 10, "Case number:"
-  GroupBox 170, 0, 185, 25, "Progs denied:"
-  GroupBox 15, 25, 365, 30, "Denial dates:"
-  Text 20, 40, 25, 10, "SNAP:"
-  Text 115, 40, 15, 10, "HC:"
-  Text 200, 40, 20, 10, "cash:"
-  Text 295, 40, 20, 10, "Emer:"
-  Text 5, 65, 55, 10, "Application date:"
-  Text 5, 85, 70, 10, "Reason for denial:"
-  Text 5, 105, 130, 10, "Verifs/docs/apps needed (if applicable):"
-  Text 5, 145, 45, 10, "Other notes:"
-  Text 5, 345 - dialog_shrink_amt, 65, 10, "Worker signature: "
+  Text 125, 10, 55, 10, "Application date:"
+  Text 5, 110, 55, 10, "Other Reasons: "
+  Text 5, 130, 130, 10, "Verifs/docs/apps needed (if applicable):"
+  Text 5, 175, 45, 10, "Other notes:"
+  Text 5, 45, 45, 10, "Denial Date: "
+  Text 5, 60, 40, 10, "Reasons:"
+  Text 5, 370 - dialog_shrink_amt, 65, 10, "Worker signature: "
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'SCRIPT CONNECTS, THEN FINDS THE CASE NUMBER
 EMConnect ""
 Call MAXIS_case_number_finder(case_number)
+
+Call check_for_MAXIS(True)
 
 'Resets the check boxes in case this script was run in succession with the closed progs script. In that script, the variables are named the same and when run one 
 'right after another from the Docs Received headquarters it is autofilling these check boxes.------------------------------------------------------------
@@ -182,31 +220,49 @@ HC_check = 0
 updated_MMIS_check = 0
 WCOM_check = 0
 
-'NOW THE DIALOG STARTS. FIRST IT ALLOWS NAVIGATION TO SPEC/WCOM, THEN IT MAKES SURE PROGRAMS ARE SELECTED FOR DENIAL, AND THAT THE REQUIRED DATE FIELDS FOR THOSE PROGRAMS CONTAIN VALID DATES. 
-'  THEN IT CHECKS FOR MAXIS STATUS, AND NAVIGATES TO CASE NOTE.
+
 DO
-	Do
-	    DO
-	        Do
-			Do
-				Dialog denied_dialog
-				cancel_confirmation
-				If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
-				If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
-			Loop until buttonpressed = -1
-			If (isdate(SNAP_denial_date) = False and isdate(HC_denial_date) = False and isdate(cash_denial_date) = False and isdate(emer_denial_date) = False) or isdate(application_date) = False then MsgBox "You need to enter a valid date of denial and application date (MM/DD/YYYY)."
-			If isdate(SNAP_denial_date) = False then SNAP_denial_date = ""
-			If isdate(HC_denial_date) = False then HC_denial_date = ""
-			If isdate(cash_denial_date) = False then cash_denial_date = ""
-			If isdate(emer_denial_date) = False then emer_denial_date = ""
-			If isdate(application_date) = False then application_date = ""
-	        Loop until (isdate(SNAP_denial_date) = True or isdate(HC_denial_date) = True or isdate(cash_denial_date) = True or isdate(emer_denial_date) = True) and isdate(application_date) = True
-		If ((SNAP_check = 1 and isdate(SNAP_denial_date) = False) or (SNAP_check = 0 and isdate(SNAP_denial_date) = True)) or ((HC_check = 1 and isdate(HC_denial_date) = False) or (HC_check = 0 and isdate(HC_denial_date) = True)) or ((cash_check = 1 and isdate(cash_denial_date) = False) or (cash_check = 0 and isdate(cash_denial_date) = True)) or ((emer_check = 1 and isdate(emer_denial_date) = False) or (emer_check = 0 and isdate(emer_denial_date) = True)) then MsgBox "It looks like you might have checked a program, but not filled in a date. Or vice versa. Look at the programs selected, and make sure there are dates there."
-		Loop until ((SNAP_check = 1 and isdate(SNAP_denial_date) = True) or (SNAP_check = 0 and isdate(SNAP_denial_date) = False)) and ((HC_check = 1 and isdate(HC_denial_date) = True) or (HC_check = 0 and isdate(HC_denial_date) = False)) and ((cash_check = 1 and isdate(cash_denial_date) = True) or (cash_check = 0 and isdate(cash_denial_date) = False)) and ((emer_check = 1 and isdate(emer_denial_date) = True) or (emer_check = 0 and isdate(emer_denial_date) = False))
-		If SNAP_check = 0 and HC_check = 0 and cash_check = 0 and emer_check = 0 then MsgBox "You need to select a program to deny."
-	Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1 or emer_check = 1
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+	err_msg = ""
+	Dialog denied_dialog
+	cancel_confirmation
+	If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
+	If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
+	If case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
+	If application_date = "" THEN err_msg = err_msg & vbCr & "Please enter an application date."
+	If (SNAP_check = checked and SNAP_denial_date = "") or (SNAP_check = unchecked and SNAP_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked SNAP but not added a denial date, or vice versa." 
+	If (HC_check = checked and HC_denial_date = "") or (HC_check = unchecked and HC_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked HC but not added a denial date, or vice versa." 
+	If (cash_check = checked and cash_denial_date = "") or (cash_check = unchecked and cash_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked cash but not added a denial date, or vice versa." 
+	If (emer_check = checked and emer_denial_date = "") or (emer_check = unchecked and emer_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked emer but not added a denial date, or vice versa." 
+	If isdate(SNAP_denial_date) = FALSE and SNAP_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for SNAP denial is not a valid date."
+	If isdate(HC_denial_date) = FALSE and HC_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for HC denial is not a valid date."
+	If isdate(cash_denial_date) = FALSE and cash_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for CASH denial is not a valid date."
+	If isdate(emer_denial_date) = FALSE and emer_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for emer denial is not a valid date."
+	If SNAP_check = checked and missing_verifs_SNAP_checkbox = unchecked and denied_pnd2_SNAP_checkbox = unchecked and withdraw_pnd2_SNAP_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the SNAP checkbox but did not check a reason or write a reason in other reasons." 
+	If HC_check = checked and missing_verifs_HC_checkbox = unchecked and withdraw_pact_HC_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the HC checkbox but did not check a reason or write a reason in other reasons." 
+	If cash_check = checked and missing_verifs_cash_checkbox = unchecked and denied_pnd2_cash_checkbox = unchecked and withdraw_pnd2_cash_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the CASH checkbox but did not check a reason or write a reason in other reasons." 
+	If emer_check = checked and missing_verifs_emer_checkbox = unchecked and denied_pnd2_emer_checkbox = unchecked and withdraw_pnd2_emer_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the EMER checkbox but did not check a reason or write a reason in other reasons." 	
+	If missing_verifs_SNAP_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked SNAP missings verifs as a reason but didn't enter verifs needed."
+	If missing_verifs_HC_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked HC missings verifs as a reason but didn't enter verifs needed, or vice versa."
+	If missing_verifs_CASH_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked CASH missings verifs as a reason but didn't enter verifs needed, or vice versa."
+	If missing_verifs_EMER_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked EMER missings verifs as a reason but didn't enter verifs needed, or vice versa."
+	If (open_prog_check = checked and open_progs = "") and (open_prog_check = unchecked and open_progs <> "") THEN err_msg = err_msg & vbCr & "You checked that there are open/pending progs but didn't list them, or vice versa."
+	If (HH_membs_on_HC_check = checked and HH_membs_on_HC = "") and (HH_membs_on_HC_check = unchecked and HH_membs_on_HC <> "") THEN err_msg = err_msg & vbCr & "You checked that there are members open on HC but didn't list them, or vice versa."
+	If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+	call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
+	If SNAP_pnd2_code = "R" and withdraw_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as R. Please select withdraw checkbox."
+	If SNAP_pnd2_code = "I" and denied_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as I. Please select deny from PND2 checkbox."
+	If SNAP_pnd2_code <> "R" and withdraw_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was withdraw but your PND2 is not coded as such Please correct your PND2."
+	If SNAP_pnd2_code <> "I" and denied_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
+	If cash_pnd2_code = "R" and withdraw_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as R. Please select withdraw checkbox."
+	If cash_pnd2_code = "I" and denied_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as I. Please select deny from PND2 checkbox."
+	If cash_pnd2_code <> "R" and withdraw_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was withdraw but your PND2 is not coded as such Please correct your PND2."
+	If cash_pnd2_code <> "I" and denied_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
+	If emer_pnd2_code = "R" and withdraw_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as R. Please select withdraw checkbox."
+	If emer_pnd2_code = "I" and denied_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as I. Please select deny from PND2 checkbox."
+	If emer_pnd2_code <> "R" and withdraw_pnd2_emer_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating EMER was withdraw but your PND2 is not coded as such Please correct your PND2."
+	If emer_pnd2_code <> "I" and denied_pnd2_emer_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating EMER was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
+	IF err_msg <> "" THEN msgbox err_msg
+LOOP until err_msg = ""
 
 
 'checking for an active MAXIS session
@@ -228,7 +284,7 @@ End if
 
 'NOW THE SCRIPT CALCULATES WHAT THE INTAKE DATES WOULD BE FOR EACH PROGRAM.
 If HC_check = 1 then
-  If requested_proofs_not_provided_check = 0 then 
+  If requested_proofs_not_provided_check = 0 or withdraw_pact_HC_checkbox = checked then 
     HC_intake_date = dateadd("d", HC_denial_date, 10)
   Else
     If dateadd("d", HC_denial_date, 10) > dateadd("d", application_date, HC_intake_date_diff) then
@@ -245,7 +301,9 @@ If HC_check = 1 then
   End if
 End if
 If SNAP_check = 1 then
-  If requested_proofs_not_provided_check = 0 and self_declaration_of_income_over_165_FPG = 0 then 
+  If withdraw_pnd2_SNAP_checkbox = checked Then
+	SNAP_intake_date = dateadd("d", SNAP_denial_date, 10)
+  ElseIf requested_proofs_not_provided_check = 0 and self_declaration_of_income_over_165_FPG = 0 then 
     SNAP_intake_date = SNAP_denial_date
   ElseIf dateadd("d", SNAP_denial_date, 10) > dateadd("d", application_date, 60) then
     SNAP_intake_date = dateadd("d", SNAP_denial_date, 10)
@@ -256,7 +314,9 @@ If SNAP_check = 1 then
   SNAP_last_REIN_date = SNAP_intake_date & ", after which a new CAF is required."
 End if
 If cash_check = 1 then
-  If cash_denial_date > dateadd("d", application_date, 30) then
+  If withdraw_pnd2_CASH_checkbox = checked Then
+	cash_intake_date = dateadd("d", cash_denial_date, 10)
+  ElseIf cash_denial_date > dateadd("d", application_date, 30) then
     cash_intake_date = cash_denial_date
   Else
     cash_intake_date = dateadd("d", application_date, 30)
@@ -265,7 +325,9 @@ If cash_check = 1 then
   cash_last_REIN_date = cash_intake_date & ", after which a new CAF is required."
 End if
 If emer_check = 1 then
-  If emer_denial_date > dateadd("d", application_date, 30) then
+  If withdraw_pnd2_EMER_checkbox = checked Then
+	emer_intake_date = dateadd("d", emer_denial_date, 10)
+  ElseIf emer_denial_date > dateadd("d", application_date, 30) then
     emer_intake_date = emer_denial_date
   Else
     emer_intake_date = dateadd("d", application_date, 30)
@@ -274,7 +336,7 @@ If emer_check = 1 then
   emer_last_REIN_date = emer_intake_date & ", after which a new CAF is required."
 End if
 
-'deleting last / from progs_withdrawn
+'deleting last / from progs_denied
 progs_denied = left(progs_denied, len(progs_denied) - 1)
 
 'IT HAS TO FIGURE OUT WHICH DATE IS THE LATEST DATE, AS THAT WOULD BE THE DATE THE CLIENT HAS TO BE REASSIGNED TO INTAKE.
@@ -377,6 +439,7 @@ call write_bullet_and_variable_in_case_note("cash denial date", cash_denial_date
 call write_bullet_and_variable_in_case_note("Emer denial date", emer_denial_date)
 call write_bullet_and_variable_in_case_note("Application date", application_date)
 call write_bullet_and_variable_in_case_note("Reason for denial", reason_for_denial)
+call write_bullet_and_variable_in_case_note("Coding for denial", coded_denial)
 call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If disabled_client_check = 1 then call write_variable_in_case_note("* Client is disabled.")

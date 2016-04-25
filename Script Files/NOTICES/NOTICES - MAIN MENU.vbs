@@ -157,7 +157,7 @@ script_array_NOTICES_main(script_num).description			= "Makes detailed WCOM regar
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "MFIP Orientation"													
+script_array_NOTICES_main(script_num).script_name			= "MFIP Orientation"
 script_array_NOTICES_main(script_num).file_name				= "NOTICES - MFIP ORIENTATION.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a client regarding MFIP orientation."
 
@@ -189,6 +189,13 @@ script_array_NOTICES_main(script_num).script_name			= "SNAP E and T Letter"
 script_array_NOTICES_main(script_num).file_name				= "NOTICES - SNAP E AND T LETTER.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_main(script_num).script_name			= "Verifications Still Needed"
+script_array_NOTICES_main(script_num).file_name				= "NOTICES - VERIFICATIONS STILL NEEDED.vbs"
+script_array_NOTICES_main(script_num).description			= "NEW 04/2016!!! -- Creates a Word document informing client of a list of verifications that are still required."
+
 
 
 '-------------------------------------------------------------------------------------------------------------------------SNAP WCOMS LISTS
@@ -199,6 +206,13 @@ Set script_array_NOTICES_list(script_num) = new script
 script_array_NOTICES_list(script_num).script_name 			= " ABAWD with Child in HH WCOM "'needs spaces to generate button width properly.																'Script name
 script_array_NOTICES_list(script_num).file_name			= "NOTICES - ABAWD WITH CHILD IN HH WCOM.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for an ABAWD adult receiving child under 18 exemption."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_list(script_num).script_name 			= "  Banked Month WCOMS "
+script_array_NOTICES_list(script_num).file_name			= "NOTICES - BANKED MONTH WCOMS.vbs"
+script_array_NOTICES_list(script_num).description 			= "Adds various WCOMS to a notice for regarding banked month approvals/closure."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
@@ -243,7 +257,7 @@ Do
 	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 Loop until 	ButtonPressed <> SIR_instructions_button and _
 			ButtonPressed <> NOTICES_main_button and _
-			ButtonPressed <> SNAP_WCOMS_button 
+			ButtonPressed <> SNAP_WCOMS_button
 
 'MsgBox buttonpressed = script_array_NOTICES_main(0).button
 
