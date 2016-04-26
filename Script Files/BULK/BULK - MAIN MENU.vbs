@@ -115,6 +115,12 @@ end class
 script_num = 0
 ReDim Preserve script_array_BULK_main(script_num)
 Set script_array_BULK_main(script_num) = new script
+script_array_BULK_main(script_num).script_name 			= "Banked Months Report"																		'Script name
+script_array_BULK_main(script_num).file_name 				= "BULK - BANKED MONTHS REPORT.vbs"															'Script URL
+script_array_BULK_main(script_num).description 			= "Creates a month specific report of banked months used, also checks these cases to confirm banked month use and creates a rejected report."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
 script_array_BULK_main(script_num).script_name 			= "CASE/NOTE from List"																		'Script name
 script_array_BULK_main(script_num).file_name 				= "BULK - CASE NOTE FROM LIST.vbs"															'Script URL
 script_array_BULK_main(script_num).description 			= "Creates the same case note on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
