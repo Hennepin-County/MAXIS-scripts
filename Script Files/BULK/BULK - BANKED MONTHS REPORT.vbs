@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - MONTHLY BANKED MONTHS DATA GATHER.vbs"
+name_of_script = "BULK - BANKED MONTHS REPORT.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 219         'manual run time in seconds
