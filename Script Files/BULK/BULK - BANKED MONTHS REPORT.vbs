@@ -1,9 +1,16 @@
+'LOADING GLOBAL VARIABLES
+Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+Set fso_command = run_another_script_fso.OpenTextFile("T:\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
+text_from_the_other_script = fso_command.ReadAll
+fso_command.Close
+Execute text_from_the_other_script
+run_locally = TRUE
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "UTILITIES - MONTHLY BANKED MONTHS DATA GATHER.vbs"
 start_time = timer
-
-STATS_counter = 1                          'sets the stats counter at one
-'STATS_manualtime = ***                               'manual run time in seconds
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 219         'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -49,8 +56,208 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+Function get_county_code		'Determines county_name from worker_county_code, and asks for it if it's blank
+	If left(code_from_installer, 2) = "PT" then 'special handling for Pine Tech
+		worker_county_code = "PWVTS"
+	Else
+		If worker_county_code = "MULTICOUNTY" or worker_county_code = "" then 		'If the user works for many counties (i.e. SWHHS) or isn't assigned (i.e. a scriptwriter) it asks.
+			Do
+				two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
+				If two_digit_county_code_variable = "" then stopscript
+				If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
+			Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True
+			worker_county_code = "x1" & two_digit_county_code_variable
+			If two_digit_county_code_variable = "91" then worker_county_code = "PW"	'For DHS folks without proxy
+		End If
+	End if
+    
+    'Determining county name
+    if worker_county_code = "x101" then
+        county_name = "Aitkin County"
+    elseif worker_county_code = "x102" then
+        county_name = "Anoka County"
+    elseif worker_county_code = "x103" then
+        county_name = "Becker County"
+    elseif worker_county_code = "x104" then
+        county_name = "Beltrami County"
+    elseif worker_county_code = "x105" then
+        county_name = "Benton County"
+    elseif worker_county_code = "x106" then
+        county_name = "Big Stone County"
+    elseif worker_county_code = "x107" then
+        county_name = "Blue Earth County"
+    elseif worker_county_code = "x108" then
+        county_name = "Brown County"
+    elseif worker_county_code = "x109" then
+        county_name = "Carlton County"
+    elseif worker_county_code = "x110" then
+        county_name = "Carver County"
+    elseif worker_county_code = "x111" then
+        county_name = "Cass County"
+    elseif worker_county_code = "x112" then
+        county_name = "Chippewa County"
+    elseif worker_county_code = "x113" then
+        county_name = "Chisago County"
+    elseif worker_county_code = "x114" then
+        county_name = "Clay County"
+    elseif worker_county_code = "x115" then
+        county_name = "Clearwater County"
+    elseif worker_county_code = "x116" then
+        county_name = "Cook County"
+    elseif worker_county_code = "x117" then
+        county_name = "Cottonwood County"
+    elseif worker_county_code = "x118" then
+        county_name = "Crow Wing County"
+    elseif worker_county_code = "x119" then
+        county_name = "Dakota County"
+    elseif worker_county_code = "x120" then
+        county_name = "Dodge County"
+    elseif worker_county_code = "x121" then
+        county_name = "Douglas County"
+    elseif worker_county_code = "x122" then
+        county_name = "Faribault County"
+    elseif worker_county_code = "x123" then
+        county_name = "Fillmore County"
+    elseif worker_county_code = "x124" then
+        county_name = "Freeborn County"
+    elseif worker_county_code = "x125" then
+        county_name = "Goodhue County"
+    elseif worker_county_code = "x126" then
+        county_name = "Grant County"
+    elseif worker_county_code = "x127" then
+        county_name = "Hennepin County"
+    elseif worker_county_code = "x128" then
+        county_name = "Houston County"
+    elseif worker_county_code = "x129" then
+        county_name = "Hubbard County"
+    elseif worker_county_code = "x130" then
+        county_name = "Isanti County"
+    elseif worker_county_code = "x131" then
+        county_name = "Itasca County"
+    elseif worker_county_code = "x132" then
+        county_name = "Jackson County"
+    elseif worker_county_code = "x133" then
+        county_name = "Kanabec County"
+    elseif worker_county_code = "x134" then
+        county_name = "Kandiyohi County"
+    elseif worker_county_code = "x135" then
+        county_name = "Kittson County"
+    elseif worker_county_code = "x136" then
+        county_name = "Koochiching County"
+    elseif worker_county_code = "x137" then
+        county_name = "Lac Qui Parle County"
+    elseif worker_county_code = "x138" then
+        county_name = "Lake County"
+    elseif worker_county_code = "x139" then
+        county_name = "Lake of the Woods County"
+    elseif worker_county_code = "x140" then
+        county_name = "LeSueur County"
+    elseif worker_county_code = "x141" then
+        county_name = "Lincoln County"
+    elseif worker_county_code = "x142" then
+        county_name = "Lyon County"
+    elseif worker_county_code = "x143" then
+        county_name = "Mcleod County"
+    elseif worker_county_code = "x144" then
+        county_name = "Mahnomen County"
+    elseif worker_county_code = "x145" then
+        county_name = "Marshall County"
+    elseif worker_county_code = "x146" then
+        county_name = "Martin County"
+    elseif worker_county_code = "x147" then
+        county_name = "Meeker County"
+    elseif worker_county_code = "x148" then
+        county_name = "Mille Lacs County"
+    elseif worker_county_code = "x149" then
+        county_name = "Morrison County"
+    elseif worker_county_code = "x150" then
+        county_name = "Mower County"
+    elseif worker_county_code = "x151" then
+        county_name = "Murray County"
+    elseif worker_county_code = "x152" then
+        county_name = "Nicollet County"
+    elseif worker_county_code = "x153" then
+        county_name = "Nobles County"
+    elseif worker_county_code = "x154" then
+        county_name = "Norman County"
+    elseif worker_county_code = "x155" then
+        county_name = "Olmsted County"
+    elseif worker_county_code = "x156" then
+        county_name = "Otter Tail County"
+    elseif worker_county_code = "x157" then
+        county_name = "Pennington County"
+    elseif worker_county_code = "x158" then
+        county_name = "Pine County"
+    elseif worker_county_code = "x159" then
+        county_name = "Pipestone County"
+    elseif worker_county_code = "x160" then
+        county_name = "Polk County"
+    elseif worker_county_code = "x161" then
+        county_name = "Pope County"
+    elseif worker_county_code = "x162" then
+        county_name = "Ramsey County"
+    elseif worker_county_code = "x163" then
+        county_name = "Red Lake County"
+    elseif worker_county_code = "x164" then
+        county_name = "Redwood County"
+    elseif worker_county_code = "x165" then
+        county_name = "Renville County"
+    elseif worker_county_code = "x166" then
+        county_name = "Rice County"
+    elseif worker_county_code = "x167" then
+        county_name = "Rock County"
+    elseif worker_county_code = "x168" then
+        county_name = "Roseau County"
+    elseif worker_county_code = "x169" then
+        county_name = "St. Louis County"
+    elseif worker_county_code = "x170" then
+        county_name = "Scott County"
+    elseif worker_county_code = "x171" then
+        county_name = "Sherburne County"
+    elseif worker_county_code = "x172" then
+        county_name = "Sibley County"
+    elseif worker_county_code = "x173" then
+        county_name = "Stearns County"
+    elseif worker_county_code = "x174" then
+        county_name = "Steele County"
+    elseif worker_county_code = "x175" then
+        county_name = "Stevens County"
+    elseif worker_county_code = "x176" then
+        county_name = "Swift County"
+    elseif worker_county_code = "x177" then
+        county_name = "Todd County"
+    elseif worker_county_code = "x178" then
+        county_name = "Traverse County"
+    elseif worker_county_code = "x179" then
+        county_name = "Wabasha County"
+    elseif worker_county_code = "x180" then
+        county_name = "Wadena County"
+    elseif worker_county_code = "x181" then
+        county_name = "Waseca County"
+    elseif worker_county_code = "x182" then
+        county_name = "Washington County"
+    elseif worker_county_code = "x183" then
+        county_name = "Watonwan County"
+    elseif worker_county_code = "x184" then
+        county_name = "Wilkin County"
+    elseif worker_county_code = "x185" then
+        county_name = "Winona County"
+    elseif worker_county_code = "x186" then
+        county_name = "Wright County"
+    elseif worker_county_code = "x187" then
+        county_name = "Yellow Medicine County"
+    elseif worker_county_code = "x188" then
+        county_name = "Mille Lacs Band"
+    elseif worker_county_code = "x192" then
+        county_name = "White Earth Nation"
+    elseif worker_county_code = "PWVTS" then 
+    	county_name = "Pine Tech"
+    end if
+End function
+
 EMConnect ""		'connecting to MAXIS
 
+Call get_county_code	'gets county name to input into the 1st col of the spreadsheet'
 developer_mode_checkbox = checked 
 
 'Runs the dialog'
@@ -87,7 +294,7 @@ Do
 			End If 
 			If banked_months_clients_excel_file_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
 			If err_msg <> "" Then MsgBox err_msg
-			'Call File_Selection_System_Dialog(list_reported_banked_month_clients)  'References the function above to have the user seach for their file'
+		* add total of counted months and abawd counted months on spreadsheet 	'Call File_Selection_System_Dialog(list_reported_banked_month_clients)  'References the function above to have the user seach for their file'
 		Loop until err_msg = ""
 		If objExcel = "" Then call excel_open(banked_months_clients_excel_file_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 		month_list = ""
@@ -97,13 +304,18 @@ Do
 		If report_month_dropdown = "select one..." then err_msg = err_msg & vbNewLine & "You must select a month that you are running this script for."
 		If err_msg <> "" Then MsgBox err_msg
 	Loop until err_msg = ""
-	If developer_mode_checkbox = checked then err_msg = err_msg & vbNewLine & vbNewLine & "** You have selected this script to NOT add a Person Note **" & vbNewLine & "Note that this is the only way we have to track months a client has used a Banked Month" & vbNewLine & _
-	  "Check the instructions for further details on this option."
-	If developer_mode_checkbox = unchecked then err_msg = err_msg & vbNewLine & vbNewLine & "** You have selected this script TO ADD a Person Note **" & vbNewLine & "** A Person Note will be added for EVERY Client added to the DHS Report **"
-	MsgBox err_msg
+	'MsgBox err_msg
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
+If developer_mode_checkbox = checked then 
+	person_noting = Msgbox("You have selected this script to NOT add a Person Note." & vbNewLine & "Note that this is the only way we have to track months a client has used a Banked Month." & vbNewLine & _
+    "Check the instructions for further details on this option.", vbOkCancel + vbExclamation, "Person notes will NOT be added")
+  	If person_noting = vbCancel then script_end_procedure("You have selected the cancel button, so the script has ended.")
+Elseif developer_mode_checkbox = unchecked then 
+	person_noting = Msgbox("You have selected this script TO ADD a Person Note." & vbNewLine & "A Person Note WILL be added for EVERY Client added to the DHS Report.", vbOkCancel + vbExclamation, "Person notes WILL be added")
+ 	If person_noting = vbCancel then script_end_procedure("You have selected the cancel button, so the script has ended.")
+END IF 
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -212,7 +424,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 			client_referred = trim(client_referred)
 			IF Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) = client_referred then 
 				memb_check = vbYes
-			ElseIf Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) <> client_referred then 
+			ElseIf Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) <> client_referred then 	'if name doesn't match the referral name the confirmation is required by the user
 				memb_check = MsgBox ("Client listed on your report: " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
 			  	vbNewLine &        "Client name listed in MAXIS: " & trim(client_referred) & vbNewLine & vbNewLine & "Is this the client you are reporting as using banked months?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
 				If memb_check = vbYes Then
@@ -229,6 +441,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 					End If
 				END IF
 			work_maxis_row = work_maxis_row + 1
+			STATS_counter = STATS_counter + 1
 		Loop until next_clt = " " OR memb_check = vbYes
 	Else
 		Banked_Month_Client_Array(send_to_DHS, item) = FALSE
@@ -236,6 +449,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 	End If
 Next 
 
+'informational box for the users with next steps so they know what to expect
 list_done_msgbox = MsgBox ("The script has finished compiling the list of clients to add to the Report." & vbNewLine & vbNewLine & _
   "It will now continue and do the following:" & vbNewLine & "* Check in STAT for some possible exemptions" & vbNewLine & _
   "* Get the list of Counted ABAWD Months (including 2nd set)" & vbNewLine & "* Add a person note that a banked month was counted" & vbNewLine & _
@@ -647,11 +861,32 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client has a WREG panel coded with fewer than 3 counted regular ABAWD months. | "
 		End If
 
-		'Write a new person note'
-		'Update WREG'
-
-		PF3 	'exits Person Note
-
+		'Write a new person note only for cases that are being sent to DHS on the 'true' list 
+		If (developer_mode_checkbox = unchecked AND Banked_Month_Client_Array(send_to_DHS, item) = True) then 
+			PF5
+			EMreadscreen edit_mode_required_check, 6, 5, 3		'if not person not exists, person note goes directly into edit mode
+			If edit_mode_required_check = "      " then 
+				EMWriteScreen "Banked Month Used " & report_date, 5, 3
+				EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
+			ElseIF edit_mode_required_check <> "      " then 	
+				'creating a Do loop to ensure that duplicate person notes are not being made
+				PNOTE_row = 5		'establishes the row to start searching the Person notes from
+				Do
+					EMReadScreen counted_banked_month, 12, PNOTE_row, 31
+					If counted_banked_month = "Banked Month" then EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
+					If abawd_counted_months_string = report_date then exit do	'if person note has already been made for the report date, then does not person note
+					PNOTE_row = PNOTE_row + 1	'adds incremental to row to search
+				LOOP until PNOTE_row = 18
+				If PNOTE_row = 18 then 
+					PF9
+					EMWriteScreen "Banked Month Used " & report_date, 5, 3
+					EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
+				END IF
+			END IF 
+		END IF
+		PF3 'exits person note'
+		
+		'clears values of the following variables 
 		abawd_counted_months_string = ""
 		abawd_info_list = ""
 		second_counted_months_string = ""
@@ -775,4 +1010,5 @@ Next
 'objNewExcel.columns(4).columnwidth = 850
 objNewExcel.Visible = True
 
+STATS_counter = STATS_counter - 1 					'removing 1 count from stats counter as we start with 1, for accurate count
 script_end_procedure("Success!")
