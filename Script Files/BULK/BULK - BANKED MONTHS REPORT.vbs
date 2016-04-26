@@ -1,13 +1,5 @@
-'LOADING GLOBAL VARIABLES
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("T:\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-run_locally = TRUE
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "UTILITIES - MONTHLY BANKED MONTHS DATA GATHER.vbs"
+name_of_script = "BULK - MONTHLY BANKED MONTHS DATA GATHER.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 219         'manual run time in seconds
@@ -56,209 +48,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-Function get_county_code		'Determines county_name from worker_county_code, and asks for it if it's blank
-	If left(code_from_installer, 2) = "PT" then 'special handling for Pine Tech
-		worker_county_code = "PWVTS"
-	Else
-		If worker_county_code = "MULTICOUNTY" or worker_county_code = "" then 		'If the user works for many counties (i.e. SWHHS) or isn't assigned (i.e. a scriptwriter) it asks.
-			Do
-				two_digit_county_code_variable = inputbox("Select the county to proxy as. Ex: ''01''")
-				If two_digit_county_code_variable = "" then stopscript
-				If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
-			Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True
-			worker_county_code = "x1" & two_digit_county_code_variable
-			If two_digit_county_code_variable = "91" then worker_county_code = "PW"	'For DHS folks without proxy
-		End If
-	End if
-    
-    'Determining county name
-    if worker_county_code = "x101" then
-        county_name = "Aitkin County"
-    elseif worker_county_code = "x102" then
-        county_name = "Anoka County"
-    elseif worker_county_code = "x103" then
-        county_name = "Becker County"
-    elseif worker_county_code = "x104" then
-        county_name = "Beltrami County"
-    elseif worker_county_code = "x105" then
-        county_name = "Benton County"
-    elseif worker_county_code = "x106" then
-        county_name = "Big Stone County"
-    elseif worker_county_code = "x107" then
-        county_name = "Blue Earth County"
-    elseif worker_county_code = "x108" then
-        county_name = "Brown County"
-    elseif worker_county_code = "x109" then
-        county_name = "Carlton County"
-    elseif worker_county_code = "x110" then
-        county_name = "Carver County"
-    elseif worker_county_code = "x111" then
-        county_name = "Cass County"
-    elseif worker_county_code = "x112" then
-        county_name = "Chippewa County"
-    elseif worker_county_code = "x113" then
-        county_name = "Chisago County"
-    elseif worker_county_code = "x114" then
-        county_name = "Clay County"
-    elseif worker_county_code = "x115" then
-        county_name = "Clearwater County"
-    elseif worker_county_code = "x116" then
-        county_name = "Cook County"
-    elseif worker_county_code = "x117" then
-        county_name = "Cottonwood County"
-    elseif worker_county_code = "x118" then
-        county_name = "Crow Wing County"
-    elseif worker_county_code = "x119" then
-        county_name = "Dakota County"
-    elseif worker_county_code = "x120" then
-        county_name = "Dodge County"
-    elseif worker_county_code = "x121" then
-        county_name = "Douglas County"
-    elseif worker_county_code = "x122" then
-        county_name = "Faribault County"
-    elseif worker_county_code = "x123" then
-        county_name = "Fillmore County"
-    elseif worker_county_code = "x124" then
-        county_name = "Freeborn County"
-    elseif worker_county_code = "x125" then
-        county_name = "Goodhue County"
-    elseif worker_county_code = "x126" then
-        county_name = "Grant County"
-    elseif worker_county_code = "x127" then
-        county_name = "Hennepin County"
-    elseif worker_county_code = "x128" then
-        county_name = "Houston County"
-    elseif worker_county_code = "x129" then
-        county_name = "Hubbard County"
-    elseif worker_county_code = "x130" then
-        county_name = "Isanti County"
-    elseif worker_county_code = "x131" then
-        county_name = "Itasca County"
-    elseif worker_county_code = "x132" then
-        county_name = "Jackson County"
-    elseif worker_county_code = "x133" then
-        county_name = "Kanabec County"
-    elseif worker_county_code = "x134" then
-        county_name = "Kandiyohi County"
-    elseif worker_county_code = "x135" then
-        county_name = "Kittson County"
-    elseif worker_county_code = "x136" then
-        county_name = "Koochiching County"
-    elseif worker_county_code = "x137" then
-        county_name = "Lac Qui Parle County"
-    elseif worker_county_code = "x138" then
-        county_name = "Lake County"
-    elseif worker_county_code = "x139" then
-        county_name = "Lake of the Woods County"
-    elseif worker_county_code = "x140" then
-        county_name = "LeSueur County"
-    elseif worker_county_code = "x141" then
-        county_name = "Lincoln County"
-    elseif worker_county_code = "x142" then
-        county_name = "Lyon County"
-    elseif worker_county_code = "x143" then
-        county_name = "Mcleod County"
-    elseif worker_county_code = "x144" then
-        county_name = "Mahnomen County"
-    elseif worker_county_code = "x145" then
-        county_name = "Marshall County"
-    elseif worker_county_code = "x146" then
-        county_name = "Martin County"
-    elseif worker_county_code = "x147" then
-        county_name = "Meeker County"
-    elseif worker_county_code = "x148" then
-        county_name = "Mille Lacs County"
-    elseif worker_county_code = "x149" then
-        county_name = "Morrison County"
-    elseif worker_county_code = "x150" then
-        county_name = "Mower County"
-    elseif worker_county_code = "x151" then
-        county_name = "Murray County"
-    elseif worker_county_code = "x152" then
-        county_name = "Nicollet County"
-    elseif worker_county_code = "x153" then
-        county_name = "Nobles County"
-    elseif worker_county_code = "x154" then
-        county_name = "Norman County"
-    elseif worker_county_code = "x155" then
-        county_name = "Olmsted County"
-    elseif worker_county_code = "x156" then
-        county_name = "Otter Tail County"
-    elseif worker_county_code = "x157" then
-        county_name = "Pennington County"
-    elseif worker_county_code = "x158" then
-        county_name = "Pine County"
-    elseif worker_county_code = "x159" then
-        county_name = "Pipestone County"
-    elseif worker_county_code = "x160" then
-        county_name = "Polk County"
-    elseif worker_county_code = "x161" then
-        county_name = "Pope County"
-    elseif worker_county_code = "x162" then
-        county_name = "Ramsey County"
-    elseif worker_county_code = "x163" then
-        county_name = "Red Lake County"
-    elseif worker_county_code = "x164" then
-        county_name = "Redwood County"
-    elseif worker_county_code = "x165" then
-        county_name = "Renville County"
-    elseif worker_county_code = "x166" then
-        county_name = "Rice County"
-    elseif worker_county_code = "x167" then
-        county_name = "Rock County"
-    elseif worker_county_code = "x168" then
-        county_name = "Roseau County"
-    elseif worker_county_code = "x169" then
-        county_name = "St. Louis County"
-    elseif worker_county_code = "x170" then
-        county_name = "Scott County"
-    elseif worker_county_code = "x171" then
-        county_name = "Sherburne County"
-    elseif worker_county_code = "x172" then
-        county_name = "Sibley County"
-    elseif worker_county_code = "x173" then
-        county_name = "Stearns County"
-    elseif worker_county_code = "x174" then
-        county_name = "Steele County"
-    elseif worker_county_code = "x175" then
-        county_name = "Stevens County"
-    elseif worker_county_code = "x176" then
-        county_name = "Swift County"
-    elseif worker_county_code = "x177" then
-        county_name = "Todd County"
-    elseif worker_county_code = "x178" then
-        county_name = "Traverse County"
-    elseif worker_county_code = "x179" then
-        county_name = "Wabasha County"
-    elseif worker_county_code = "x180" then
-        county_name = "Wadena County"
-    elseif worker_county_code = "x181" then
-        county_name = "Waseca County"
-    elseif worker_county_code = "x182" then
-        county_name = "Washington County"
-    elseif worker_county_code = "x183" then
-        county_name = "Watonwan County"
-    elseif worker_county_code = "x184" then
-        county_name = "Wilkin County"
-    elseif worker_county_code = "x185" then
-        county_name = "Winona County"
-    elseif worker_county_code = "x186" then
-        county_name = "Wright County"
-    elseif worker_county_code = "x187" then
-        county_name = "Yellow Medicine County"
-    elseif worker_county_code = "x188" then
-        county_name = "Mille Lacs Band"
-    elseif worker_county_code = "x192" then
-        county_name = "White Earth Nation"
-    elseif worker_county_code = "PWVTS" then 
-    	county_name = "Pine Tech"
-    end if
-End function
-
 EMConnect ""		'connecting to MAXIS
-
-Call get_county_code	'gets county name to input into the 1st col of the spreadsheet'
-developer_mode_checkbox = checked 
+Call get_county_code	'gets county name to input into the 1st col of the spreadsheet
+developer_mode_checkbox = checked 	'defauting the person note option to NOT person note
 
 'Runs the dialog'
 Do
@@ -294,7 +86,7 @@ Do
 			End If 
 			If banked_months_clients_excel_file_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
 			If err_msg <> "" Then MsgBox err_msg
-		* add total of counted months and abawd counted months on spreadsheet 	'Call File_Selection_System_Dialog(list_reported_banked_month_clients)  'References the function above to have the user seach for their file'
+		 	'Call File_Selection_System_Dialog(list_reported_banked_month_clients)  'References the function above to have the user seach for their file'
 		Loop until err_msg = ""
 		If objExcel = "" Then call excel_open(banked_months_clients_excel_file_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 		month_list = ""
@@ -304,10 +96,10 @@ Do
 		If report_month_dropdown = "select one..." then err_msg = err_msg & vbNewLine & "You must select a month that you are running this script for."
 		If err_msg <> "" Then MsgBox err_msg
 	Loop until err_msg = ""
-	'MsgBox err_msg
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
+'This vbOKCanel gives the user time to stop the script if they chose the incorrect person noting option. Ok to proceed, cancel to stop the script.
 If developer_mode_checkbox = checked then 
 	person_noting = Msgbox("You have selected this script to NOT add a Person Note." & vbNewLine & "Note that this is the only way we have to track months a client has used a Banked Month." & vbNewLine & _
     "Check the instructions for further details on this option.", vbOkCancel + vbExclamation, "Person notes will NOT be added")
@@ -402,14 +194,11 @@ Do                                                                              
 	Banked_Month_Client_Array (clt_name,       entry_record) = client_first_name & " " & client_last_name
 	Banked_Month_Client_Array (comments,       entry_record) = objExcel.cells(excel_row, 6).Value
 	Banked_Month_Client_Array (send_to_DHS,    entry_record) = TRUE
-
-	'MsgBox client_first_name & " " & client_last_name & VBNewLine & Banked_Month_Client_Array (clt_name,entry_record)
 	entry_record = entry_record + 1
 	excel_row = excel_row + 1
 Loop
 
-'Once all of the clients have been added to the array, the excel document is closed because we are going to open another document
-'and don't want the script to be confused
+'Once all of the clients have been added to the array, the excel document is closed because we are going to open another document and don't want the script to be confused
 objExcel.Quit
 
 'Now we will get PMI and Member Number for each client on the array.'
@@ -424,6 +213,8 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 			client_referred = trim(client_referred)
 			IF Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) = client_referred then 
 				memb_check = vbYes
+				EMReadScreen Banked_Month_Client_Array(clt_pmi,  item), 8, work_maxis_row, 34
+				EMReadScreen Banked_Month_Client_Array(memb_num, item), 2, work_maxis_row, 3
 			ElseIf Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) <> client_referred then 	'if name doesn't match the referral name the confirmation is required by the user
 				memb_check = MsgBox ("Client listed on your report: " & Banked_Month_Client_Array(clt_last_name, item) & ", " & Banked_Month_Client_Array(clt_first_name, item) & _
 			  	vbNewLine &        "Client name listed in MAXIS: " & trim(client_referred) & vbNewLine & vbNewLine & "Is this the client you are reporting as using banked months?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
@@ -460,47 +251,63 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 	case_number = Banked_Month_Client_Array(case_num,item)	'Case number is set for each loop as it is used in the FuncLib functions'
 	If Banked_Month_Client_Array(send_to_DHS, item) = TRUE Then
 		call navigate_to_MAXIS_screen ("ELIG", "FS")
-		EMReadScreen fs_version, 8, 3, 3
-		If fs_version = "UNAPPROV" Then
-			EMReadScreen vers_number, 1, 2, 19
-			If vers_number = "1" Then
-				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP not approved in " & footer_month & "/" & footer_year & " | "
-			End If
-			EMWriteScreen "0" & (abs(vers_number) - 1), 19, 78
-			transmit
-		ElseIf fs_version = "        " Then
+		EMReadScreen no_SNAP, 10, 24, 2
+		If no_SNAP = "NO VERSION" then
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No ELIG/FS version exists in " & footer_month & "/" & footer_year & " | "
-		End If
-		elig_maxis_row = 7
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No version of SNAP exists for " & footer_month & "/" & footer_year & " | "
+		END IF 
+		EMWriteScreen "99", 19, 78 
+		transmit	
+		'This brings up the FS versions of eligibilty results to search for approved versions
+		status_row = 7
 		Do
-			EMReadScreen clt_on_snap, 2, elig_maxis_row, 10
-			IF clt_on_snap = Banked_Month_Client_Array(memb_num,item) Then
-				EMReadScreen pers_elig, 8, elig_maxis_row, 57
-				IF pers_elig <> "ELIGIBLE" Then
-					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client listed as Ineligible for SNAP on ELIG/FS for " & footer_month & "/" & footer_year & " | "
-				End If
-			ElseIf clt_on_snap = "  " Then
+			EMReadScreen app_status, 8, status_row, 50
+			If app_status = "        " then 
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client not listed on ELIG/FS for " &  footer_month & "/" & footer_year & " | "
-			Else
-				elig_maxis_row = elig_maxis_row + 1
-				If elig_maxis_row = 19 Then
-					PF8
-					elig_maxis_row = 7
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No approved eligibility results exists in " & footer_month & "/" & footer_year & " | "
+				PF3
+				exit do 	'if end of the list is reached then exits the do loop
+			End if 
+			If app_status = "UNAPPROV" Then status_row = status_row + 1
+		Loop until  app_status = "APPROVED" or app_status = "        "
+			If app_status <> "APPROVED" then 
+				Banked_Month_Client_Array(send_to_DHS, item) = FALSE
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No approved eligibility results exists in " & footer_month & "/" & footer_year & " | "
+			Elseif app_status = "APPROVED" then 
+				EMReadScreen vers_number, 1, status_row, 23
+				EMWriteScreen vers_number, 18, 54
+				transmit
+				'now checking for banked months recipient elig on FSPR screen	
+				elig_maxis_row = 7
+				Do
+					EMReadScreen clt_on_snap, 2, elig_maxis_row, 10
+					IF clt_on_snap = Banked_Month_Client_Array(memb_num,item) Then
+						EMReadScreen pers_elig, 8, elig_maxis_row, 57
+						If pers_elig = "ELIGIBLE" then exit do 
+						IF pers_elig = "INELIGIB" Then
+							Banked_Month_Client_Array(send_to_DHS, item) = FALSE
+							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client listed as Ineligible for SNAP on ELIG/FS for " & footer_month & "/" & footer_year & " | "
+							exit do
+						End If
+					ElseIf clt_on_snap = "  " Then
+						Banked_Month_Client_Array(send_to_DHS, item) = FALSE
+						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client not listed on ELIG/FS for " &  footer_month & "/" & footer_year & " | "
+					Else
+						elig_maxis_row = elig_maxis_row + 1
+						If elig_maxis_row = 19 Then
+							PF8
+							elig_maxis_row = 7
+						End If
+					End If
+				Loop until clt_on_snap = Banked_Month_Client_Array(memb_num, item) OR Banked_Month_Client_Array(send_to_DHS,item) = FALSE
+				EMWriteScreen "FSB2", 19, 70
+				transmit
+				EMReadScreen fs_prorated, 8, 11,40
+				IF fs_prorated = "Prorated" Then
+					Banked_Month_Client_Array(send_to_DHS, item) = FALSE
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & footer_month & "/" & footer_year & " | "
 				End If
-			End If
-		Loop until clt_on_snap = Banked_Month_Client_Array(memb_num, item) OR Banked_Month_Client_Array(send_to_DHS,item) = FALSE
-		EMWriteScreen "FSB2", 19, 70
-		transmit
-		EMReadScreen fs_prorated, 8, 11,40
-		IF fs_prorated = "Prorated" Then
-			'MsgBox "SNAP is prorated in this month for case # " & Banked_Month_Client_Array(case_num,item) & ". This case will not be reported to DHS as using a Banked Month."
-			Banked_Month_Client_Array(send_to_DHS, item) = FALSE
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & footer_month & "/" & footer_year & " | "
-		End If
+			END If
 		'///////SCRIPT WILL NOW CHECK FOR POSSIBLE EXPEMTIONS FOR CLIENT'
 		'Age exemption'
 		call navigate_to_MAXIS_screen ("STAT", "MEMB")																					'Cient age is listed on STAT MEMB'
@@ -730,9 +537,8 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 			End If
 		END IF
 
-		'------------NEWLY ADDED WREG PIECE-------------------------------------------------------------------------------
-		'creating date variables to measure against person note counted dates
-		report_date = footer_month & "/" & footer_year
+		'//////////WREG PORTION//////////////////////////////////////////////
+		report_date = footer_month & "/" & footer_year			'creating date variables to measure against person note counted dates
 
 		Call navigate_to_MAXIS_screen("stat","wreg")		'navigates to stat/wreg
 		EMWriteScreen Banked_Month_Client_Array(memb_num, item), 20, 76
@@ -835,19 +641,13 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		'created new array of the banked months list cases
 		PNOTE_array = Split(banked_months_list, ",")
 
-		'msgbox "PNOTE array: " & Join(PNOTE_array, ",") & _
-		'vbnewLine & "ABAWD array: " & Join(abawd_months_array, ",")
-
 		Dim PNOTE_array
 		Dim Filter_array
 
 		For each PNOTE in PNOTE_array
-			'msgbox "PNOTE: " & PNOTE
 			Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
 			abawd_counted_months = abawd_counted_months - 1				'subtracts counted months
 			abawd_months_array = Filter_array						'establishing the values of both arrays are the same so that the PNOTE month that was removed stays removed from array
-			'msgbox "Filter array: " & Join(Filter_array, ",") & _
-			'vbNewline & "abawd counted months" & abawd_counted_months
 		NEXT
 
 		Banked_Month_Client_Array(abawd_count,       item) = abawd_counted_months 'UBound(abawd_months_array) + 1
@@ -891,11 +691,10 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)
 		abawd_info_list = ""
 		second_counted_months_string = ""
 		second_set_info_list = ""
-
 	End If
+Next	
 '-----------------------------------END OF WREG PIECE---------------------------------------------------------------
-Next
-
+'Dialog to select the file that users will send to DHS 
 BeginDialog DHS_Report_Dialog, 0, 0, 226, 65, "DHS Banked Months"
   EditBox 10, 20, 160, 15, DHS_Banked_Month_Report_excel_file_path
   ButtonGroup ButtonPressed
@@ -905,8 +704,7 @@ BeginDialog DHS_Report_Dialog, 0, 0, 226, 65, "DHS Banked Months"
   Text 5, 5, 215, 10, "Select the Excel File that you use to report Banked Months to DHS"
 EndDialog
 
-
-'Runs the dialog'
+'Runs the dialog
 Do
 	Dialog DHS_Report_Dialog
 	cancel_confirmation
@@ -952,6 +750,8 @@ End Select
 objExcel.worksheets(DHS_report_month).Activate
 
 excel_row = 2
+abawd_count_range = 1
+second_count_range = 1
 
 'Excel Column Constants'
 Const               county_column = 1'
@@ -976,6 +776,8 @@ For clients_to_report = 0 to UBound(Banked_Month_Client_Array,2)
 		objExcel.Cells(excel_row,    total_second_Set_column).Value = Banked_Month_Client_Array (second_count,      clients_to_report)
 		objExcel.Cells(excel_row,            comments_column).Value = Banked_Month_Client_Array (comments,          clients_to_report)
 		excel_row = excel_row + 1
+		abawd_total_range = abawd_count_range + 1
+		second_count_range = second_count_range + 1
 	ElseIf Banked_Month_Client_Array(send_to_DHS,clients_to_report) = FALSE Then
 		need_word_doc = TRUE
 	End If
