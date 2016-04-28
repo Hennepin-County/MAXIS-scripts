@@ -51,18 +51,7 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-
-
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS & grabs the case number and footer month/year
-EMConnect ""
-call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'The initial dialog----------------------------------------------------------------------------------------------------
-BeginDialog Dialog1, 0, 0, 141, 80, "Case number dialog"
+BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
   EditBox 65, 10, 65, 15, case_number
   EditBox 65, 30, 30, 15, MAXIS_footer_month
   EditBox 100, 30, 30, 15, MAXIS_footer_year
@@ -72,16 +61,8 @@ BeginDialog Dialog1, 0, 0, 141, 80, "Case number dialog"
   Text 10, 30, 50, 15, "Footer month:"
   Text 10, 10, 50, 15, "Case number: "
 EndDialog
-DO
-	Dialog Dialog1
-	cancel_confirmation
-	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number."
-	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
-	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
-LOOP UNTIL IsNumeric(case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
 
-'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog Dialog1, 0, 0, 366, 285, "1503 Dialog"
+BeginDialog DHS_1503_dialog, 0, 0, 366, 285, "1503 Dialog"
   EditBox 55, 5, 135, 15, FACI
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
   DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
@@ -121,11 +102,28 @@ BeginDialog Dialog1, 0, 0, 366, 285, "1503 Dialog"
   GroupBox 0, 205, 335, 55, "Script actions"
   Text 95, 270, 60, 10, "Worker signature:"
 EndDialog
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS & grabs the case number and footer month/year
+EMConnect ""
+call MAXIS_case_number_finder(case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+'The initial dialog----------------------------------------------------------------------------------------------------
+DO
+	Dialog case_number_dialog
+	cancel_confirmation
+	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number."
+	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
+	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
+LOOP UNTIL IsNumeric(case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
+
+'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do
-	Dialog Dialog1
+	Dialog DHS_1503_dialog
 	cancel_confirmation
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
-LOOP UNTIL worker_signature <> ""
+LOOP UNTIL worker_signature <> ""  
 
 'Checks for an active MAXIS session
 call check_for_MAXIS(False)
@@ -157,12 +155,12 @@ End if
 If FACI_update_check = 1 then
 	call navigate_to_MAXIS_screen("stat", "faci")
 	EMReadScreen panel_max_check, 1, 2, 78
-	IF panel_max_check = "5" THEN
+	IF panel_max_check = "5" THEN 
 		script_end_procedure ("This case has reached the maximum amount of FACI panels.  Please review your case, delete an appropriate FACI panel, and run the script again.  Thank you.")
 	ELSE
 		EMWriteScreen "nn", 20, 79
 		transmit
-	END IF
+	END IF 
 	EMWriteScreen FACI, 6, 43
 	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
 	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
@@ -185,14 +183,14 @@ End if
 
 'HCMI
 If HCMI_update_check = 1 THEN
-	call navigate_to_MAXIS_screen("stat", "hcmi")
+	call navigate_to_MAXIS_screen("stat", "hcmi") 
 	EMReadScreen HCMI_panel_check, 1, 2, 78
 	IF HCMI_panel_check <> 0 Then
 		PF9
 	ELSE
 		EMWriteScreen "nn", 20, 79
 		transmit
-	END IF
+	END IF 
 	EMWriteScreen "dp", 10, 57
 	transmit
 	transmit
@@ -212,7 +210,7 @@ End if
 
 'The CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
-If processed_1503_check = 1 then
+If processed_1503_check = 1 then 
   call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI & "***")
 Else
   call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***")
@@ -224,7 +222,7 @@ Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_a
 Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
 Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
 Call write_variable_in_CASE_NOTE("---")
-If updated_RLVA_check = 1 and updated_FACI_check = 1 then
+If updated_RLVA_check = 1 and updated_FACI_check = 1 then 
 Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
 Else
   If updated_RLVA_check = 1 then Call write_variable_in_case_note("* Updated RLVA.")
