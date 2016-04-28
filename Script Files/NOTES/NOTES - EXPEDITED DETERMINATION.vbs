@@ -257,9 +257,9 @@ navigate_to_MAXIS_screen "STAT", "PNLR"
 For pnlr_row = 3 to 19 
 	EMReadScreen asset_panel_type, 4, pnlr_row, 5
 	IF asset_panel_type = "CASH" THEN 
-		EMReadScreen asset_listed, 6, 3, 26
+		EMReadScreen asset_listed, 6, pnlr_row, 26
 	ELSEIF asset_panel_type = "ACCT" THEN 
-		EMReadScreen asset_listed, 6, 4, 31 
+		EMReadScreen asset_listed, 6, pnlr_row, 31 
 	Else 
 		asset_listed = 0
 	End If	
