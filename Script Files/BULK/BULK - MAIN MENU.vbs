@@ -121,6 +121,7 @@ script_array_BULK_main(script_num).description 			= "Creates a month specific re
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script
 script_array_BULK_main(script_num).script_name 			= "CASE/NOTE from List"																		'Script name
 script_array_BULK_main(script_num).file_name 				= "BULK - CASE NOTE FROM LIST.vbs"															'Script URL
 script_array_BULK_main(script_num).description 			= "Creates the same case note on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
