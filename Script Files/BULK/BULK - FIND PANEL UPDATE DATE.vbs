@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - FIND PANEL UPDATE DATE.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 28                      'manual run time in seconds
+STATS_denomination = "I"       						 'I is for each ITEM
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,12 +48,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 28                      'manual run time in seconds
-STATS_denomination = "I"       						 'I is for each ITEM
-'END OF stats block==============================================================================================
-
 '=====FUNCTIONS=====
 FUNCTION build_hh_array(hh_array)
 	hh_array = ""
@@ -65,7 +63,7 @@ FUNCTION build_hh_array(hh_array)
 	hh_array = split(hh_array, ",")
 END FUNCTION
 
-'=====DIALOGS=====
+'=====DIALOG=====
 BeginDialog panel_update_check_dlg, 0, 0, 231, 210, "Panels to Check"
   EditBox 70, 15, 105, 15, workers_list
   CheckBox 20, 80, 30, 10, "JOBS", JOBS_checkbox
@@ -94,26 +92,25 @@ EndDialog
 '>>>>> THE SCRIPT <<<<<
 EMConnect ""
 
-CALL check_for_MAXIS(True)
-
 '>>>>> LOADING THE DIALOG <<<<<
 DO
-	err_msg = ""
-	DIALOG panel_update_check_dlg
+	DO
+		err_msg = ""
+		DIALOG panel_update_check_dlg
 		cancel_confirmation
 		IF time_period = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select a date range for the script to analyze."
-
-	'Breaking down the workers_list to determine if the user entered multiple workers or if the script is going to be run for just one worker.
-	IF InStr(workers_list, ",") <> 0 THEN
+	
+		'Breaking down the workers_list to determine if the user entered multiple workers or if the script is going to be run for just one worker.
+		IF InStr(workers_list, ",") <> 0 THEN
 		workers_list = replace(workers_list, " ", "")
 		workers_list = split(workers_list, ",")
-	ELSEIF InStr(workers_list, ",") = 0 THEN
+		ELSEIF InStr(workers_list, ",") = 0 THEN
 		'multiple_workers = split(workers_list)
 		workers_list = split(workers_list)
-	END IF
-
-	'>>>>> ADDING TO err_msg IF THE USER SELECTS NO STAT PANELS. <<<<<
-	IF JOBS_checkbox = 0 AND _
+		END IF
+		
+		'>>>>> ADDING TO err_msg IF THE USER SELECTS NO STAT PANELS. <<<<<
+		IF JOBS_checkbox = 0 AND _
 		UNEA_checkbox = 0 AND _
 		BUSI_checkbox = 0 AND _
 		RBIC_checkbox = 0 AND _
@@ -123,11 +120,14 @@ DO
 		HEST_checkbox = 0 AND _
 		SHEL_checkbox = 0 AND _
 		WKEX_checkbox = 0 THEN err_msg = err_msg & vbCr & "* You must select at least one STAT panel to check."
+		
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until re_we_passworded_out = false					'loops until user passwords back in					
 
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
 
-'>>>>> EXECUTING THE PANEL UPDATE SEARCH FOR EACH WORKER <<<<<
+'>>>>> EXECTING THE PANEL UPDATE SEARCH FOR EACH WORKER <<<<<
 FOR EACH maxis_worker IN workers_list
 	IF maxis_worker <> "" THEN
 		'>>>>> CREATING A UNIQUE EXCEL FILE <<<<<
