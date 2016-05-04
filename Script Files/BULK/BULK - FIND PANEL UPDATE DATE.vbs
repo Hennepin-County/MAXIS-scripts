@@ -201,6 +201,31 @@ FOR EACH maxis_worker IN workers_list
 			WKEX_col = col_to_use
 			col_to_use = col_to_use + 1
 		END IF
+		IF PACT_checkbox = 1 THEN
+			objExcel.Cells(1, col_to_use).Value = "PACT"
+			WKEX_col = col_to_use
+			col_to_use = col_to_use + 1
+		END IF
+		IF PARE_checkbox = 1 THEN
+			objExcel.Cells(1, col_to_use).Value = "PARE"
+			WKEX_col = col_to_use
+			col_to_use = col_to_use + 1
+		END IF
+		IF PBEN_checkbox = 1 THEN
+			objExcel.Cells(1, col_to_use).Value = "PBEN"
+			WKEX_col = col_to_use
+			col_to_use = col_to_use + 1
+		END IF
+		IF STWK_checkbox = 1 THEN
+			objExcel.Cells(1, col_to_use).Value = "STWK"
+			WKEX_col = col_to_use
+			col_to_use = col_to_use + 1
+		END IF
+		IF WREG_checkbox = 1 THEN
+			objExcel.Cells(1, col_to_use).Value = "WREG"
+			WKEX_col = col_to_use
+			col_to_use = col_to_use + 1
+		END IF
 
 		FOR i = 1 TO col_to_use
 			objExcel.Cells(1, i).Font.Bold = True
@@ -543,6 +568,156 @@ FOR EACH maxis_worker IN workers_list
 									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, WKEX_col).Value = objExcel.Cells(excel_row, WKEX_col).Value & person & ", " & updated_date & "; "
 								ELSEIF time_period = "Not updated more than 24 mos" THEN
 									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, WKEX_col).Value = objExcel.Cells(excel_row, WKEX_col).Value & person & ", " & updated_date & "; "
+								END IF
+							END IF
+						END IF
+					NEXT
+				END IF
+				'PACT'
+				IF PACT_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+					EMReadScreen in_stat, 4, 20, 21
+					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
+						CALL write_value_and_transmit("PACT", 20, 71)
+					ELSE
+						CALL navigate_to_MAXIS_screen("STAT", "PACT")
+					END IF
+					CALL build_hh_array(BUSI_array)
+					FOR EACH person IN BUSI_array
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							CALL write_value_and_transmit(person, 20, 76)
+							EMReadScreen updated_date, 8, 21, 55
+							updated_date = replace(updated_date, " ", "/")
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
+									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Updated in prev. 6 mos" THEN
+									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
+									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								END IF
+							END IF
+						END IF
+					NEXT
+				END IF
+				'PARE
+				IF PARE_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+					EMReadScreen in_stat, 4, 20, 21
+					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
+						CALL write_value_and_transmit("passworded", 20, 71)
+					ELSE
+						CALL navigate_to_MAXIS_screen("STAT", "PARE")
+					END IF
+					CALL build_hh_array(BUSI_array)
+					FOR EACH person IN BUSI_array
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							CALL write_value_and_transmit(person, 20, 76)
+							EMReadScreen updated_date, 8, 21, 55
+							updated_date = replace(updated_date, " ", "/")
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
+									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Updated in prev. 6 mos" THEN
+									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
+									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								END IF
+							END IF
+						END IF
+					NEXT
+				END IF
+				'PBEN
+				IF PBEN_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+					EMReadScreen in_stat, 4, 20, 21
+					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
+						CALL write_value_and_transmit("PBEN", 20, 71)
+					ELSE
+						CALL navigate_to_MAXIS_screen("STAT", "PBEN")
+					END IF
+					CALL build_hh_array(BUSI_array)
+					FOR EACH person IN BUSI_array
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							CALL write_value_and_transmit(person, 20, 76)
+							EMReadScreen updated_date, 8, 21, 55
+							updated_date = replace(updated_date, " ", "/")
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
+									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Updated in prev. 6 mos" THEN
+									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
+									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								END IF
+							END IF
+						END IF
+					NEXT
+				END IF
+				'STWK'
+				IF STWK_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+					EMReadScreen in_stat, 4, 20, 21
+					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
+						CALL write_value_and_transmit("STWK", 20, 71)
+					ELSE
+						CALL navigate_to_MAXIS_screen("STAT", "STWK")
+					END IF
+					CALL build_hh_array(BUSI_array)
+					FOR EACH person IN BUSI_array
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							CALL write_value_and_transmit(person, 20, 76)
+							EMReadScreen updated_date, 8, 21, 55
+							updated_date = replace(updated_date, " ", "/")
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
+									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Updated in prev. 6 mos" THEN
+									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
+									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								END IF
+							END IF
+						END IF
+					NEXT
+				END IF
+				'WREG'
+				IF WREG_checkbox = 1 THEN
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+					EMReadScreen in_stat, 4, 20, 21
+					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
+						CALL write_value_and_transmit("WREG", 20, 71)
+					ELSE
+						CALL navigate_to_MAXIS_screen("STAT", "WREG")
+					END IF
+					CALL build_hh_array(BUSI_array)
+					FOR EACH person IN BUSI_array
+						IF person <> "" THEN
+							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							CALL write_value_and_transmit(person, 20, 76)
+							EMReadScreen updated_date, 8, 21, 55
+							updated_date = replace(updated_date, " ", "/")
+							IF updated_date <> "////////" THEN
+								IF time_period = "Updated in prev. 30 days" THEN
+									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Updated in prev. 6 mos" THEN
+									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 12 mos" THEN
+									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
+								ELSEIF time_period = "Not updated more than 24 mos" THEN
+									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, BUSI_col).Value = objExcel.Cells(excel_row, BUSI_col).Value & person & ", " & updated_date & "; "
 								END IF
 							END IF
 						END IF
