@@ -606,7 +606,7 @@ FOR EACH maxis_worker IN workers_list
 					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
 					IF in_stat = "STAT" THEN     'prevents error where navigate_to_MAXIS_screen jumps back out for each read
-						CALL write_value_and_transmit("passworded", 20, 71)
+						CALL write_value_and_transmit("PARE", 20, 71)
 					ELSE
 						CALL navigate_to_MAXIS_screen("STAT", "PARE")
 					END IF
@@ -769,5 +769,4 @@ NEXT
 back_to_SELF
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-msgbox STATS_counter
 script_end_procedure("Success!")
