@@ -131,7 +131,7 @@ ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add o
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name 			= "Eligibility Notifier"																		'Script name
 script_array_NOTICES_main(script_num).file_name 			= "NOTICES - ELIGIBILITY NOTIFIER.vbs"															'Script URL
-script_array_NOTICES_main(script_num).description 			= "Sends a MEMO informating client of possible program eligibility for SNAP, MA, MSP, MNsure or CASH."
+script_array_NOTICES_main(script_num).description 			= "Sends a MEMO informing client of possible program eligibility for SNAP, MA, MSP, MNsure or CASH."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
