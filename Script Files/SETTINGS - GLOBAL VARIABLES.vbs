@@ -18,9 +18,6 @@ run_locally = true
 'This is used by almost every script which calls a specific agency worker number (like the REPT/ACTV nav and list gen scripts).
 worker_county_code = "MULTICOUNTY"
 
-'This is used for MEMO scripts, such as appointment letter
-county_name = "Anoka County"
-
 'This merely exists to help the installer determine which dropdown box to default. It is not used by any scripts.
 code_from_installer = "SCRIPTWRITER"
 
