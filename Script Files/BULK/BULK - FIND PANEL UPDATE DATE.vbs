@@ -64,29 +64,35 @@ FUNCTION build_hh_array(hh_array)
 END FUNCTION
 
 '=====DIALOG=====
-BeginDialog panel_update_check_dlg, 0, 0, 231, 210, "Panels to Check"
-  EditBox 70, 15, 105, 15, workers_list
-  CheckBox 20, 80, 30, 10, "JOBS", JOBS_checkbox
-  CheckBox 60, 80, 35, 10, "UNEA", UNEA_checkbox
-  CheckBox 100, 80, 30, 10, "BUSI", BUSI_checkbox
-  CheckBox 140, 80, 35, 10, "SPON", SPON_checkbox
-  CheckBox 180, 80, 30, 10, "RBIC", RBIC_checkbox
-  CheckBox 20, 120, 35, 10, "COEX", COEX_checkbox
-  CheckBox 60, 120, 30, 10, "DCEX", DCEX_checkbox
-  CheckBox 100, 120, 30, 10, "HEST", HEST_checkbox
-  CheckBox 140, 120, 30, 10, "SHEL", SHEL_checkbox
-  CheckBox 180, 120, 35, 10, "WKEX", WKEX_checkbox
-  DropListBox 110, 145, 115, 15, "Select one..."+chr(9)+"Updated in prev. 30 days"+chr(9)+"Updated in prev. 6 mos"+chr(9)+"Not updated more than 12 mos"+chr(9)+"Not updated more than 24 mos", time_period
-  CheckBox 10, 170, 215, 10, "Check here to add the supervisor's name to the output.", supervisor_check
+BeginDialog panel_update_check_dlg, 0, 0, 226, 255, "Panels to Check"
+  EditBox 75, 10, 145, 15, workers_list
+  CheckBox 20, 75, 30, 10, "JOBS", JOBS_checkbox
+  CheckBox 60, 75, 35, 10, "UNEA", UNEA_checkbox
+  CheckBox 100, 75, 30, 10, "BUSI", BUSI_checkbox
+  CheckBox 140, 75, 35, 10, "SPON", SPON_checkbox
+  CheckBox 180, 75, 30, 10, "RBIC", RBIC_checkbox
+  CheckBox 20, 115, 35, 10, "COEX", COEX_checkbox
+  CheckBox 60, 115, 30, 10, "DCEX", DCEX_checkbox
+  CheckBox 100, 115, 30, 10, "HEST", HEST_checkbox
+  CheckBox 140, 115, 30, 10, "SHEL", SHEL_checkbox
+  CheckBox 180, 115, 35, 10, "WKEX", WKEX_checkbox
+  CheckBox 20, 155, 35, 10, "PACT", PACT_checkbox
+  CheckBox 60, 155, 30, 10, "PARE", PARE_checkbox
+  CheckBox 100, 155, 30, 10, "PBEN", PBEN_checkbox
+  CheckBox 140, 155, 35, 10, "STWK", STWK_checkbox
+  CheckBox 180, 155, 35, 10, "WREG", WREG_checkbox
+  DropListBox 105, 180, 115, 15, "Select one..."+chr(9)+"Updated in prev. 30 days"+chr(9)+"Updated in prev. 6 mos"+chr(9)+"Not updated more than 12 mos"+chr(9)+"Not updated more than 24 mos", time_period
+  CheckBox 10, 205, 210, 10, "Check here to add the supervisor's name to the spreadsheet.", supervisor_check
   ButtonGroup ButtonPressed
-    OkButton 10, 190, 50, 15
-    CancelButton 60, 190, 50, 15
-  Text 10, 20, 55, 10, "Worker Number"
-  Text 15, 35, 150, 10, "* Please enter only 7-digit worker numbers."
-  Text 15, 45, 205, 10, "* For multiple workers, separate worker numbers by a comma."
-  GroupBox 10, 65, 210, 30, "Income Panels to Check"
-  GroupBox 10, 105, 210, 30, "Expense Panels to Check"
-  Text 10, 150, 95, 10, "Select time period to check:"
+    OkButton 115, 225, 50, 15
+    CancelButton 170, 225, 50, 15
+  Text 10, 185, 90, 10, "Select time period to check:"
+  Text 15, 30, 150, 10, "* Please enter only 7-digit worker numbers."
+  GroupBox 10, 100, 210, 30, "Expense Panels to Check"
+  Text 15, 40, 205, 10, "* For multiple workers, separate worker numbers by a comma."
+  GroupBox 10, 60, 210, 30, "Income Panels to Check"
+  Text 10, 15, 65, 10, "Worker Number(s):"
+  GroupBox 10, 140, 210, 30, "Other panels to check"
 EndDialog
 
 '>>>>> THE SCRIPT <<<<<
@@ -119,13 +125,17 @@ DO
 		DCEX_checkbox = 0 AND _
 		HEST_checkbox = 0 AND _
 		SHEL_checkbox = 0 AND _
-		WKEX_checkbox = 0 THEN err_msg = err_msg & vbCr & "* You must select at least one STAT panel to check."
+		WKEX_checkbox = 0 AND _
+		PACT_checkbox = 0 AND _
+	  	PARE_checkbox = 0 AND _
+	  	PBEN_checkbox = 0 AND _
+	  	STWK_checkbox = 0 AND _
+	  	WREG_checkbox = 0 THEN err_msg = err_msg & vbCr & "* You must select at least one STAT panel to check."
 		
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until re_we_passworded_out = false					'loops until user passwords back in					
-
 
 '>>>>> EXECTING THE PANEL UPDATE SEARCH FOR EACH WORKER <<<<<
 FOR EACH maxis_worker IN workers_list
