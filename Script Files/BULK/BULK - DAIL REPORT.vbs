@@ -76,9 +76,6 @@ EndDialog
 'Connects to MAXIS
 EMConnect ""
 
-'Checks to make sure we're in MAXIS
-CALL check_for_MAXIS(false)
-
 'Looks up an existing user for autofilling the next dialog
 CALL find_variable("User: ", x_number_editbox, 7)
 
@@ -86,11 +83,11 @@ CALL find_variable("User: ", x_number_editbox, 7)
 all_check = 1
 
 'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
-dialog bulk_dail_report_dialog
-if ButtonPressed = 0 THEN stopscript
-
-'Checks to make sure we're (still) in MAXIS
-CALL check_for_MAXIS(false)
+DO
+	dialog bulk_dail_report_dialog
+	cancel_confirmation
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'splits the results of the editbox into an array
 x_number_array = split(x_number_editbox, ",")
@@ -130,7 +127,7 @@ For each x_number in x_number_array
 	transmit
 	
 	'selecting the type of DAIl message
-	EMWriteScreen "x", 4, 12		'transmits to the PICK screenshot
+	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
 	If all_check = 1 then EMWriteScreen "x", 7, 39
@@ -231,8 +228,6 @@ For each x_number in x_number_array
 	if x_number <> x_number_array(ubound(x_number_array)) then all_done = false
 Next
 
-STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-
 'Enters info about runtime for the benefit of folks using the script
 objExcel.Cells(2, 8).Value = "Lines added to Excel sheet:"
 objExcel.Cells(3, 8).Value = "Average time to find/select/copy/paste one line (in seconds):"
@@ -251,4 +246,5 @@ FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The workers' DAILs are now entered.")
