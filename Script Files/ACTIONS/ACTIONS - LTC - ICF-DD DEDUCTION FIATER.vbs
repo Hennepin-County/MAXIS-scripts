@@ -47,122 +47,169 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK============================================================================================================
 
-'Dialog____________________________________________________________________________________________________________
-BeginDialog LTC_ICFDD_Fiater_dialog, 0, 0, 146, 255, "LTC-ICF-DD Fiater"
-  EditBox 90, 15, 40, 15, special_pers_allow
-  EditBox 90, 30, 40, 15, Federal_tax
-  EditBox 90, 50, 40, 15, state_tax
-  EditBox 90, 65, 40, 15, FICA_witheld
-  EditBox 90, 85, 40, 15, transportation_expense
-  EditBox 90, 105, 40, 15, meal_expenses
-  EditBox 90, 125, 40, 15, uniform_expense
-  EditBox 90, 145, 40, 15, tool_expense
-  EditBox 90, 165, 40, 15, due_expense
-  EditBox 90, 185, 40, 15, other_expenses
+'Dialogs____________________________________________________________________________________________________________
+BeginDialog case_number_dialog, 0, 0, 141, 70, "Case number"
+  EditBox 80, 5, 55, 15, case_number
+  EditBox 80, 25, 25, 15, MAXIS_footer_month
+  EditBox 110, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    PushButton 10, 220, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 45, 220, 25, 10, "WKEX", WKEX_button
-    PushButton 90, 220, 25, 10, "JOBS", JOBS_button
-    PushButton 70, 220, 25, 10, "FACI", FACI_button
-    PushButton 115, 220, 25, 10, "UNEA", UNEA_button
-    OkButton 35, 235, 50, 15
-    CancelButton 90, 235, 50, 15
-  GroupBox 0, 210, 145, 25, "STAT based navigation"
-  GroupBox 0, 0, 135, 205, "Deductions"
-  Text 10, 70, 70, 10, "FICA:"
-  Text 10, 90, 70, 10, "Transportation:"
-  Text 10, 130, 50, 10, "Uniforms:"
-  Text 10, 55, 50, 10, "State Tax:"
-  Text 10, 150, 50, 10, "Tools:"
-  Text 10, 35, 55, 10, "Federal Tax:"
-  Text 10, 170, 50, 10, "Dues:"
-  Text 10, 20, 80, 10, "Special Pers Allowance:"
-  Text 10, 190, 50, 10, "Other:"
-  Text 10, 110, 70, 10, "Meals:"
-EndDialog
-
-
-
-BeginDialog case_number_dialog, 0, 0, 161, 70, "Case number"
-  EditBox 75, 5, 75, 15, case_number
-  EditBox 75, 25, 25, 15, MAXIS_footer_month
-  EditBox 125, 25, 25, 15, MAXIS_footer_year
-  ButtonGroup ButtonPressed
-    OkButton 45, 50, 50, 15
-    CancelButton 100, 50, 50, 15
+    OkButton 30, 50, 50, 15
+    CancelButton 85, 50, 50, 15
   Text 25, 10, 45, 10, "Case number:"
-  Text 5, 30, 70, 10, "MAXIS footer month:"
-  Text 105, 30, 20, 10, "Year:"
+  Text 10, 30, 65, 10, "Footer month/year:"
 EndDialog
 
-
+BeginDialog LTC_ICFDD_Fiater_dialog, 0, 0, 286, 220, "LTC-ICF-DD Fiater"
+  ButtonGroup ButtonPressed
+    OkButton 175, 200, 50, 15
+    CancelButton 230, 200, 50, 15
+  EditBox 90, 15, 40, 15, special_pers_allow
+  EditBox 90, 35, 40, 15, Federal_tax
+  EditBox 90, 55, 40, 15, state_tax
+  EditBox 90, 75, 40, 15, FICA_witheld
+  EditBox 90, 95, 40, 15, transportation_expense
+  EditBox 90, 115, 40, 15, meal_expenses
+  EditBox 90, 135, 40, 15, uniform_expense
+  EditBox 90, 155, 40, 15, tool_expense
+  EditBox 90, 175, 40, 15, due_expense
+  EditBox 90, 195, 40, 15, other_expenses
+  EditBox 230, 70, 40, 15, other_earned_income_PDED
+  EditBox 230, 90, 40, 15, rep_payee_fee
+  EditBox 230, 110, 40, 15, guardianship_fee
+  ButtonGroup ButtonPressed
+    PushButton 150, 15, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 185, 15, 25, 10, "FACI", FACI_button
+    PushButton 225, 15, 25, 10, "JOBS", JOBS_button
+    PushButton 250, 15, 25, 10, "UNEA", UNEA_button
+    PushButton 150, 30, 25, 10, "BILS", BILS_button
+    PushButton 175, 30, 25, 10, "INSA", INSA_button
+    PushButton 200, 30, 25, 10, "MEDI", MEDI_button
+    PushButton 225, 30, 25, 10, "PDED", PDED_ button
+    PushButton 250, 30, 25, 10, "WKEX", WKEX_button
+  Text 10, 40, 55, 10, "Federal Tax:"
+  Text 10, 180, 50, 10, "Dues:"
+  Text 10, 20, 80, 10, "Special Pers Allowance:"
+  Text 10, 200, 50, 10, "Other:"
+  Text 10, 120, 70, 10, "Meals:"
+  Text 10, 60, 50, 10, "State Tax:"
+  Text 10, 80, 70, 10, "FICA:"
+  Text 10, 140, 50, 10, "Uniforms:"
+  Text 10, 100, 70, 10, "Transportation:"
+  GroupBox 145, 5, 135, 40, "STAT based navigation"
+  Text 10, 160, 50, 10, "Tools:"
+  GroupBox 0, 5, 140, 210, "WKEX deductions"
+  Text 150, 115, 70, 10, "Guardianship Fee:"
+  Text 150, 95, 50, 10, "Rep payee fee:"
+  Text 150, 75, 75, 10, "Other earned income:"
+  GroupBox 145, 55, 135, 85, "PDED deductions:"
+  GroupBox 145, 150, 135, 40, "Unsure of what to deduct?"
+  Text 150, 165, 125, 20, "HCPM 23.15.10 covers allowable LTC income deductions."
+EndDialog
 
 'THE SCRIPT========================================================================================
-
 'This connects to Bluezone
 EMConnect ""
 call MAXIS_case_number_finder(case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-
 'Shows case number dialog
-dialog case_number_dialog
-cancel_confirmation
+DO
+	dialog case_number_dialog
+	cancel_confirmation
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
+
+'confirms that case is in the footer month/year selected by the user
+Call MAXIS_footer_month_confirmation 
 
 'Enters into STAT for the client
 Call navigate_to_MAXIS_screen("STAT", "WKEX")
-
-EMReadScreen WKEX_check, 1,2,73
-IF WKEX_check = "1" then 
-
-'Checks for work expenses for MEMB01
-	EMReadScreen program_check,          2, 5,33
-	EMReadScreen federal_tax,            8, 7,57
-	EMReadScreen state_tax,              8, 8,57
-	EMReadScreen FICA_witheld,           8, 9,57
-	EMReadScreen transportation_expense, 8, 10,57
-	EMReadScreen meals_expense,          8, 11,57
-	EMReadScreen uniform_expense,        8, 12,57		
-	EMReadScreen tools_expense,          8, 13,57
-	EMReadScreen dues_expenses,          8, 14,57
-	EMReadScreen other_expenses,         8, 15,57
+EMReadScreen WKEX_check, 1, 2, 73
+If WKEX_check = "0" then 
+	script_end_procedure("You do not have a WKEX panel. Please create a WKEX panel for your HC case, and re-run the script.")
+Elseif WKEX_check <> "0" then 
+	'Reads work expenses for MEMB 01 and verification codes
+	EMReadScreen program_check,          2, 5, 33
+	EMReadScreen federal_tax,            8, 7, 57
+	EMReadScreen federal_tax_verif_code, 1, 7, 69
+	EMReadScreen state_tax,              8, 8, 57
+	EMReadScreen state_tax_verif_code, 1, 8, 69
+	EMReadScreen FICA_witheld,           8, 9, 57
+	EMReadScreen FICA_witheld_verif_code, 1, 9, 69
+	EMReadScreen transportation_expense, 8, 10, 57
+	EMReadScreen transportation_expense_verif_code, 1, 10, 69
+	EMReadScreen meals_expense,          8, 11,	57
+	EMReadScreen meals_expense_verif_code, 1, 11, 69
+	EMReadScreen uniform_expense,        8, 12,	57	
+	EMReadScreen uniform_expense_verif_code, 1, 12, 69	
+	EMReadScreen tools_expense,          8, 13,	57
+	EMReadScreen tools_expense_verif_code, 1, 13, 69
+	EMReadScreen dues_expenses,          8, 14,	57
+	EMReadScreen dues_expenses_verif_code, 1, 14, 69
+	EMReadScreen other_expenses,         8, 15,	57
+	EMReadScreen other_expenses_verif_code, 1, 15, 69
 End IF
 
-'Adds work expenses into dialog
-If federal_tax = "________" then federal_tax = "0"
-If state_tax = "________" then state_tax = "0"
-If meals_expense = "________" then meals_expense = "0"
-If uniform_expense = "________" then uniform_expense = "0"
-If tools_expense = "________" then tools_expense = "0"
-If dues_expenses = "________" then dues_expenses = "0"
-If other_expenses = "________" then other_expenses = "0"
+'cleaning up the WKEX variables'
+federal_tax = replace(federal_tax, "_", "")
+state_tax = replace(state_tax, "_", "")
+meals_expense = replace(meals_expense, "_", "")
+uniform_expense = replace(uniform_expense, "_", "")
+tools_expense = replace(tools_expense, "_", "")
+dues_expense = replace(dues_expense, "_", "")
+other_expense = replace(other_expense, "_", "")
 
+'Gives unverified expenses and blank expenses the value of $0
+If trim(federal_tax) = "" OR federal_tax_verif_code = "N" then federal_tax = "0"
+If trim(state_tax) = "" OR state_tax_verif_code = "N" then state_tax = "0"
+If trim(meals_expense) = "" OR meals_expense_verif_code = "N" then meals_expense = "0"
+If trim(uniform_expense) = "" OR uniform_expense_verif_code = "N" then uniform_expense = "0"
+If trim(tools_expense) = "" OR tools_expense_verif_code = "N" then tools_expense = "0"
+If trim(dues_expenses) = "" OR dues_expenses_verif_code = "N" then dues_expenses = "0"
+If trim(other_expenses) = "" OR other_expenses_verif_code = "N" then other_expenses = "0"
 
+'Checks PDED expenses for MEMB 01
+Call navigate_to_MAXIS_screen("STAT", "PDED")
+EMReadScreen other_earned_income_PDED, 8, 11, 62
+EMReadScreen rep_payee_fee, 8, 15, 44
+EMReadScreen guardianship_fee, 8, 15, 70
+'cleaning up variabes
+other_earned_income_PDED = replace(other_earned_income_PDED, "_", "")
+rep_payee_fee = replace(rep_payee_fee, "_", "")
+guardianship_fee = replace(guardianship_fee, "_", "")
+
+'Gives blank expenses the value of $0
+If trim(other_earned_income_PDED) = "" then other_earned_income_PDED = "0"
+If trim(rep_payee_fee) = "" then rep_payee_fee = "0"
+If trim(guardianship_fee) = "" then guardianship_fee = "0"
+
+'creating new variables for input of deductions that don't have their own expense field in the HC budget
 Total_taxes = abs(federal_tax) & abs(state_tax)
-MsgBox "Make sure to load WKEX panel!"
-
 Total_employment_expense = abs(meals_expenses) & abs(uniform_expense) & abs(tools_expense) & abs(dues_expenses) 
-MsgBox "Check Total expenses!"
+total_other_expenses = abs(other_expenses) & abs(other_earned_income_PDED)
+Total_fees = abs(rep_payee_fee) & abs (guardianship_fee)
 
-Call navigate_to_MAXIS_screen ("STAT", "JOBS"
+'Determining if earned income is less than $80
+Call navigate_to_MAXIS_screen ("STAT", "JOBS")
 EMReadScreen JOBS_panel_income, 7, 17, 68
 JOBS_panel_income = trim(JOBS_panel_income)
-JOBS_panel_income = round(JOBS_panel_income)
 
-If abs(JOBS_panel_income) < "80" then 
-	special_pers_allow = JOBS_panel_income
+If abs(JOBS_panel_income) < "80.00" then 
+	special_pers_allow = JOBS_panel_income	'if less then $80 deduction is earned income amount
 ELSE
-	special_pers_allow = "80"
+	special_pers_allow = "80.00"		'otherwise deduction is $80
 END IF 
 
 'Shows the LTC_ICFDD_Fiater_dialog
-dialog LTC_ICFDD_Fiater_dialog
-cancel_confirmation
+DO
+	dialog LTC_ICFDD_Fiater_dialog
+	cancel_confirmation
+	MAXIS_Dialog_navigation
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'Navigates to ELIG/HC.
 Call navigate_to_MAXIS_screen("ELIG", "HC")
-
-
 'Checks to see if MEMB 01 has HC, and puts an "x" there.  
 EMReadScreen person_check, 4, 8, 26
 EMWriteScreen "x", 8, 26
@@ -214,24 +261,24 @@ For amt_of_months_to_do = 1 to budget_months
   End if
 
 'Transmit to the next screen after putting an "x" on the Countable Earned Income (LBUD) screen 
- 
-	EMWriteScreen "x", 9,3
+	EMWriteScreen "x", 9, 3
 	Transmit
-	EMWriteScreen "__________", 			7,42
-	EMWriteScreen special_pers_allow,         7,42
-	EMWriteScreen "__________",			8,42
-	EMWriteScreen FICA_witheld,               8,42
-	EMWriteScreen "__________",			9,42
-	EMWriteScreen transportation_expense,     9,42
-	EMWriteScreen "__________",			10,42
-	EMWriteScreen Total_employment_expense,   10,42
-	EMWriteScreen "__________",			11,42
-	EMWriteScreen Total_taxes,                11,42
-	EMWriteScreen "__________",			12,42
-	EMWriteScreen other_expenses,             12,42
+	EMWriteScreen "__________", 7, 42
+	EMWriteScreen special_pers_allow, 7, 42
+	EMWriteScreen "__________", 8, 42
+	EMWriteScreen FICA_witheld, 8, 42
+	EMWriteScreen "__________", 9, 42
+	EMWriteScreen transportation_expense, 9, 42
+	EMWriteScreen "__________", 10, 42
+	EMWriteScreen Total_employment_expense, 10, 42
+	EMWriteScreen "__________", 11, 42
+	EMWriteScreen Total_taxes, 11, 42
+	EMWriteScreen "__________", 12, 42
+	EMWriteScreen total_other_expenses, 12, 42
 	TRANSMIT
 	PF3
+	'EMWriteScreen "__________"
+	'EMWriteScreen Total_fees 
 NEXT
 
-
-call script_end_procedure("Sucess! The script is complete.")
+script_end_procedure("Sucess, the budget has been updated to reflect earned income disregards. Please review the case prior to approval. Use NOTES - LTC - MA APPROVAL to case note the approval.")
