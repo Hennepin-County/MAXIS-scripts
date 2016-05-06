@@ -517,4 +517,8 @@ ELSE
 	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "The script has checked for ABAWD and SNAP E&T exemptions coded in MAXIS for member(s) " & household_persons & "." & vbCr & closing_message & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
 END IF
 
+'Displaying the results...now with added MsgBox bling.
+'vbSystemModal will keep the results in the foreground.
+MsgBox closing_message, vbInformation + vbSystemModal, "ABAWD/FSET Exemption Check -- Results"
+
 script_end_procedure("")
