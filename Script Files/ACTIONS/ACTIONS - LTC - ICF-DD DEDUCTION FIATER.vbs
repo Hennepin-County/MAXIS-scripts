@@ -191,7 +191,7 @@ If other_expense = "" OR other_expense_verif_code = "N" OR _
 Call navigate_to_MAXIS_screen("STAT", "PDED")
 EMReadScreen other_earned_income_PDED, 8, 11, 62
 
-'cleaning up PDED variabes
+'cleaning up PDED variables
 other_earned_income_PDED = replace(other_earned_income_PDED, "_", "")
 other_earned_income_PDED = trim(other_earned_income_PDED)
 
@@ -303,4 +303,4 @@ For amt_of_months_to_do = 1 to budget_months
  	LBUD_check = ""
 NEXT
 
-script_end_procedure("Sucess, the budget has been updated to reflect earned income disregards. Please review the case prior to approval. Use NOTES - LTC - MA APPROVAL to case note the approval.")
+script_end_procedure("Success, the budget has been updated to reflect earned income disregards. Please review the case prior to approval. Use NOTES - LTC - MA APPROVAL to case note the approval.")
