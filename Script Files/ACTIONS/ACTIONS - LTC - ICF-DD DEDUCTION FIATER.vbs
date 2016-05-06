@@ -87,7 +87,6 @@ BeginDialog LTC_ICFDD_Fiater_dialog, 0, 0, 286, 190, "LTC-ICF-DD Fiater"
   Text 150, 130, 20, 10, "Dues:"
   Text 10, 70, 80, 10, "Special Pers Allowance:"
   Text 150, 150, 30, 10, "Other:"
-  Text 10, 5, 0, 0, "@"
   Text 10, 110, 40, 10, "State Tax:"
   Text 10, 130, 25, 10, "FICA:"
   Text 150, 90, 35, 10, "Uniforms:"
@@ -115,6 +114,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'confirms that case is in the footer month/year selected by the user
 Call MAXIS_footer_month_confirmation 
+MAXIS_background_check
 
 'Enters into STAT for the client
 Call navigate_to_MAXIS_screen("STAT", "WKEX")
@@ -219,14 +219,15 @@ DO
 		dialog LTC_ICFDD_Fiater_dialog
 		cancel_confirmation
 		MAXIS_Dialog_navigation
-	Loop until ButtonPressed = 1 							' - 1 is OK button
+	Loop until ButtonPressed = -1 							' - 1 is OK button
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'Navigates to ELIG/HC.
 Call navigate_to_MAXIS_screen("ELIG", "HC")
-'Checks to see if MEMB 01 has HC, and puts an "x" there.  
-EMReadScreen person_check, 4, 8, 26
+EMReadScreen person_check, 1, 8, 26
+If person_check <> "_" then script_end_procedure("Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results.")
+'navigates to the HC summary screen
 EMWriteScreen "x", 8, 26
 Transmit
 
@@ -262,16 +263,14 @@ Loop until col > 75
 'Jumps into the budget screen LBUD
 transmit
 
-For amt_of_months_to_do = 1 in budget_month
-  'For an unknown (as of 06/24/2013) reason, some cases seem to stay in the first budget month and not move on. This gathers the current month to see if we've moved past it later.
-  EMReadScreen starting_bdgt_month, 5, 6, 14
+For amt_of_months_to_do = 1 to budget_months
+	'Checks to see if this is an LBUD case. It'll stop if it's neither.
+	EMReadScreen LBUD_check, 4, 3, 45
+	If LBUD_check <> "LBUD" then script_end_procedure("This is not a method L. This script is only for use in Method L cases.")
 
-  'Checks to see if this is an LBUD case. It'll stop if it's neither.
-  EMReadScreen LBUD_check, 4, 3, 45
-  If LBUD_check <> "LBUD" then script_end_procedure("This is not a method L. This script is only for use in Method L cases.")
-
-'Transmit to the next screen after putting an "x" on the Countable Earned Income (LBUD) screen 
-	msgbox "which budget month?"
+ 	'For an unknown (as of 06/24/2013) reason, some cases seem to stay in the first budget month and not move on. This gathers the current month to see if we've moved past it later.
+  	EMReadScreen starting_bdgt_month, 5, 6, 14
+	'Transmit to the next screen after putting an "x" on the Countable Earned Income (LBUD) screen 
 	EMWriteScreen "x", 9, 3		
 	Transmit
 	EMWriteScreen "x", 6, 7
@@ -280,6 +279,7 @@ For amt_of_months_to_do = 1 in budget_month
 	EMWriteScreen JOBS_panel_income, 8, 43	
 	EMWriteScreen "N", 8, 59					'excluded income "N"
 	transmit
+	transmit 									'must transmit twice to go back to deductions
 	EMWriteScreen "__________", 7, 42
 	EMWriteScreen special_pers_allow, 7, 42
 	EMWriteScreen "__________", 8, 42
@@ -292,6 +292,7 @@ For amt_of_months_to_do = 1 in budget_month
 	EMWriteScreen Total_taxes, 11, 42
 	EMWriteScreen "__________", 12, 42
 	EMWriteScreen total_other_expenses, 12, 42
+	transmit
 	transmit
 	
 	'For an unknown (as of 06/24/2013) reason, some cases seem to stay in the first budget month and not move on. This is a fix for that.
