@@ -1,6 +1,11 @@
-'STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - TYMA TIKLER.vbs"
 start_time = timer
+STATS_counter = 1              'sets the stats counter at one
+IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN STATS_manualtime = 136        'manual run time in seconds for TIKLING all at once
+IF TYMA_TIKL_ALL_AT_ONCE = FALSE THEN STATS_manualtime = 30        'manual run time in seconds for TIKLING as you go (1st TIKL)
+STATS_denomination = "C"		'C is for case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -43,13 +48,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1              'sets the stats counter at one
-IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN STATS_manualtime = 136        'manual run time in seconds for TIKLING all at once
-IF TYMA_TIKL_ALL_AT_ONCE = FALSE THEN STATS_manualtime = 30        'manual run time in seconds for TIKLING as you go (1st TIKL)
-STATS_denomination = "C"		'C is for case
-'END OF stats block==============================================================================================
 
 	'DIALOGS--------------------------------------------------------------------------------------------------------------------
 	BeginDialog TYMA_tikler, 0, 0, 261, 200, "TYMA/TMA TIKLer"
