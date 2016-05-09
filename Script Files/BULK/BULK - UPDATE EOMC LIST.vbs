@@ -43,16 +43,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'This function pulls up a file browser'
-Function BrowseForFile()
-	Dim shell : Set shell = CreateObject("Shell.Application")
-	Dim file : Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "Computer")
-	IF file is Nothing THEN
-		script_end_procedure("The script will end.")
-	ELSE
-		BrowseForFile = file.self.Path
-	END IF
-End Function
+
 'this function converts excel column letters to numeric values'
 FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	IF isnumeric(excel_col) = FALSE THEN
@@ -89,8 +80,11 @@ EndDialog
 dialog dialog1
 DO 'THIS loop makes sure this is a valid file created by EOMC'
 	DO 'This loop opens the file browser and asks user to confirm'
+	
+		call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
+	
 		Set objExcel = CreateObject("Excel.Application")
-		Set objWorkbook = objExcel.Workbooks.Open(BrowseForFile)
+		Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
 		objExcel.Visible = True
 		objExcel.DisplayAlerts = True
 
