@@ -427,36 +427,42 @@ For i = 0 to ubound(footer_month_array)
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen rsdi_amount, 8, 18, 56
+					IF rsdi_amount = "        " THEN rsdi_amount = 0
 					gross_RSDI = abs(gross_RSDI) + abs(rsdi_amount)
 					transmit
 					ElseIf unea_type = "03" then 				'<<<<<< SSI
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen ssi_amount, 8, 18, 56
+					IF ssi_amount = "        " THEN ssi_amount = 0
 					gross_SSI = abs(gross_SSI) + abs(ssi_amount)
 					transmit
 					ElseIf unea_type = "11" OR unea_type = "12" OR unea_type = "13" OR unea_type = "38" then 	'<<<<<< VA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen va_amount, 8, 18, 56
+					IF va_amount = "        " THEN va_amount = 0
 					gross_VA = abs(gross_VA) + abs(va_amount)
 					transmit
 					ElseIf unea_type = "14" then 				'<<<<<< UC
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen uc_amount, 8, 18, 56
+					IF uc_amount = "        " THEN uc_amount = 0
 					gross_UC = abs(gross_UC) + abs(uc_amount)
 					transmit
 					ElseIf unea_type = "08" OR unea_type = "36" OR unea_type = "39" then 	'<<<<<< CS
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen cs_amount, 8, 18, 56
+					IF cs_amount = "        " THEN cs_amount = 0
 					gross_CS = abs(gross_CS) + abs(cs_amount)
 					transmit
 					ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" then 	'<<<<<< Other UNEA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen other_unea_amount, 8, 18, 56
+					IF other_unea_amount = "        " THEN other_unea_amount = 0
 					gross_other = abs(gross_other) + abs(other_unea_amount)
 					transmit
 					End If
