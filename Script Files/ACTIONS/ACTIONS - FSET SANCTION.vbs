@@ -1,6 +1,11 @@
 'OPTION EXPLICIT
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - FSET SANCTION.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 193                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'DIM name_of_script
 'DIM start_time
@@ -54,12 +59,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 193                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
-'END OF stats block=========================================================================================================
 
 ''SNAP_sanction_type_droplist dialog and other variables----------------------------------------------------------------------------------------------------
 'DIM ButtonPressed

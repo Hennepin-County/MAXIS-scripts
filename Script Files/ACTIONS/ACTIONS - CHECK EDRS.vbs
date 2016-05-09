@@ -1,6 +1,10 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - CHECK EDRS.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 49                	'manual run time in seconds
+STATS_denomination = "M"       		'M is for each MEMBER
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -43,12 +47,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 49                	'manual run time in seconds
-STATS_denomination = "M"       		'M is for each MEMBER
-'END OF stats block=========================================================================================================
 
 BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
   EditBox 60, 10, 80, 15, case_number
