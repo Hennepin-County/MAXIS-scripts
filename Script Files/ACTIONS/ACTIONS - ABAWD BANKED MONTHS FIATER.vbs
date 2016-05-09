@@ -1,7 +1,10 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - ABAWD BANKED MONTHS FIATER.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 225                	'manual run time in seconds
+STATS_denomination = "C"       			'C is for each Case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -45,11 +48,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 225                	'manual run time in seconds
-STATS_denomination = "C"       			'C is for each Case
-'END OF stats block=========================================================================================================
 
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
