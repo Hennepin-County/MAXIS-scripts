@@ -1,6 +1,10 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - BILS UPDATER.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 30                	'manual run time in seconds
+STATS_denomination = "I"       		'I is for each ITEM
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,11 +48,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 30                	'manual run time in seconds
-STATS_denomination = "I"       		'I is for each ITEM
-'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog BILS_case_number_dialog, 0, 0, 161, 57, "BILS case number dialog"
