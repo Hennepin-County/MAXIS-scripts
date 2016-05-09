@@ -104,6 +104,10 @@ EMReadScreen new_hire_first_line, 61, row, col 'Reads each line for the case not
 EMReadScreen new_hire_second_line, 61, row + 1, col
 EMReadScreen new_hire_third_line, 61, row + 2, col
 EMReadScreen new_hire_fourth_line, 61, row + 3, col
+IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
+	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
+	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
+END IF
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
 EMSearch "DATE HIRED:", row, col
