@@ -164,17 +164,6 @@ FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	END IF
 END FUNCTION
 
-'-------THIS FUNCTION ALLOWS THE USER TO PICK AN EXCEL FILE---------
-Function BrowseForFile()
-    Dim shell : Set shell = CreateObject("Shell.Application")
-    Dim file : Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "Computer")
-	IF file is Nothing THEN 
-		script_end_procedure("The script will end.")
-	ELSE
-		BrowseForFile = file.self.Path
-	END IF
-End Function
-
 'The script===========================
 EMConnect ""
 
@@ -245,10 +234,10 @@ DIALOG main_menu
 		'Opening the Excel file
 		
 		DO
-			'file_location = InputBox("Please enter the file location.")
+			call file_selection_system_dialog(excel_file_path, ".xlsx")
 			
 			Set objExcel = CreateObject("Excel.Application")
-			Set objWorkbook = objExcel.Workbooks.Open(BrowseForFile)
+			Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
 			objExcel.Visible = True
 			objExcel.DisplayAlerts = True
 			
