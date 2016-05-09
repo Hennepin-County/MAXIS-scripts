@@ -116,7 +116,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Income", Income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Retro Requested", Retro_Requested)
 CALL write_bullet_and_variable_in_CASE_NOTE("OHC", OHC)
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Requested", Verifications_Requested)
-CALL write_bullet_and_variable_in_CASE_NOTE("Results", Results)
+CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
