@@ -134,16 +134,16 @@ FOR EACH worker IN worker_array
 	DO
 		DO
 			EMReadScreen last_page, 21, 24, 2
-			EMReadScreen case_number, 8, rept_actv_row, 12
-			case_number = trim(case_number)
+			EMReadScreen MAXIS_case_number, 8, rept_actv_row, 12
+			MAXIS_case_number = trim(MAXIS_case_number)
 			EMReadScreen snap_status, 1, rept_actv_row, 61
 			EMReadScreen cash_status, 1, rept_actv_row, 54
 			EMReadScreen cash_prog, 2, rept_actv_row, 51
 			EMReadScreen client_name, 20, rept_actv_row, 21
 			IF snap_status = "A" AND cash_status = "A" AND (cash_prog = "RC" OR cash_prog = "GA") THEN
-				case_array = case_array & case_number & " "
+				case_array = case_array & MAXIS_case_number & " "
 				objExcel.Cells(excel_row, 1).Value = worker
-				objExcel.Cells(excel_row, 2).Value = case_number
+				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 				objExcel.Cells(excel_row, 3).Value = client_name
 				excel_row = excel_row + 1
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
@@ -152,7 +152,7 @@ FOR EACH worker IN worker_array
 		LOOP UNTIL rept_actv_row = 19
 			PF8
 			rept_actv_row = 7
-	LOOP UNTIL case_number = "" OR last_page = "THIS IS THE LAST PAGE"
+	LOOP UNTIL MAXIS_case_number = "" OR last_page = "THIS IS THE LAST PAGE"
 NEXT
 
 case_array = trim(case_array)
@@ -160,7 +160,7 @@ case_array = split(case_array)
 
 excel_row = 2
 'navigates to ELIG to determine if RCA or GA has been correctly fiated into SNAP budget.
-FOR EACH case_number IN case_array
+FOR EACH MAXIS_case_number IN case_array
 	ga_status = ""
 	ga_amount = ""
 	rca_status = ""
