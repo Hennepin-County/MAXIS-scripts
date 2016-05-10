@@ -55,7 +55,7 @@ last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to m
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
-  EditBox 85, 5, 55, 15, case_number
+  EditBox 85, 5, 55, 15, MAXIS_case_number
   EditBox 85, 25, 55, 15, date_of_missed_interview
   EditBox 225, 25, 55, 15, time_of_missed_interview
   EditBox 100, 45, 55, 15, last_day_for_recert
@@ -74,7 +74,7 @@ BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
 EndDialog
 
 BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
-  EditBox 55, 5, 55, 15, case_number
+  EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 200, 5, 55, 15, application_date
   EditBox 95, 25, 55, 15, date_of_missed_interview
   EditBox 95, 45, 55, 15, time_of_missed_interview
@@ -95,7 +95,7 @@ EndDialog
 'Hennepin County specific dialogs
 BeginDialog Hennepin_application_NOMI, 0, 0, 306, 275, "Hennepin County Application SNAP NOMI"
   DropListBox 90, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
-  EditBox 240, 10, 55, 15, case_number
+  EditBox 240, 10, 55, 15, MAXIS_case_number
   EditBox 90, 35, 60, 15, date_of_missed_interview
   EditBox 240, 35, 55, 15, time_of_missed_interview
   EditBox 90, 65, 60, 15, application_date
@@ -124,7 +124,7 @@ BeginDialog Hennepin_application_NOMI, 0, 0, 306, 275, "Hennepin County Applicat
 EndDialog
 
 BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 170, "Hennepin County ER SNAP NOMI"
-  EditBox 60, 10, 55, 15, case_number
+  EditBox 60, 10, 55, 15, MAXIS_case_number
   DropListBox 200, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 80, 35, 55, 15, date_of_missed_interview
   EditBox 225, 35, 55, 15, time_of_missed_interview
@@ -150,7 +150,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone & grabs case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Call check_for_MAXIS(False)			'checking for an active MAXIS session
 
@@ -167,7 +167,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 				'Opening the the HSR manual to the NOMI page
 				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
 				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
-				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
@@ -180,7 +180,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 			Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
 			cancel_confirmation
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
@@ -289,7 +289,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 				'Opening the the HSR manual to the NOMI page
 				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
 				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
-				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 				If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
@@ -303,7 +303,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 			Dialog NOMI_dialog
 			cancel_confirmation
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
