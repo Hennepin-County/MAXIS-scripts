@@ -300,9 +300,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 		End if
 	Next
 	
-	'Navigating to the DAIL (Goes back to self as there are issues in CCOL/CLIC with the direct navigate_to_screen)
+	'Navigating to the DAIL (Goes back to self as there are issues in CCOL/CLIC with the direct navigate_to_MAXIS_screen)
 	back_to_SELF
-	call navigate_to_screen("DAIL", "DAIL")
+	call navigate_to_MAXIS_screen("DAIL", "DAIL")
 	
 	
 	
@@ -336,7 +336,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 		client_name = INAC_scrubber_primary_array(x, 1)	
 		
 		'Gets to MEMB
-		call navigate_to_screen("STAT", "MEMB")
+		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		
 		'Checks to make sure we're past SELF. If we aren't, it'll save that the case is privileged (most likely cause) in the array.
 		EMReadScreen SELF_check, 4, 2, 50
@@ -363,7 +363,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			Loop until no_more_MEMBs_check = "ENTER A VALID COMMAND OR PF-KEY"
 			
 			'Goes to ABPS to check good cause. Good cause will not hang the case from being sent to CLS, as such, it does not get entered in the array (just the Word doc).
-			call navigate_to_screen("STAT", "ABPS")
+			call navigate_to_MAXIS_screen("STAT", "ABPS")
 			EMReadScreen good_cause_check, 1, 5, 47
 			If good_cause_check = "P" then
 				objselection.typetext case_number & ", " & client_name
@@ -536,7 +536,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 		'Checking to determine that the client is a MAGI that closed for no or incomplete review. If that is the case, then the script does not transfer the client to CLS
 		IF INAC_scrubber_primary_array(x, 8) = True THEN
-			CALL navigate_to_screen("CASE", "CURR")
+			CALL navigate_to_MAXIS_screen("CASE", "CURR")
 			EMWriteScreen "X", 4, 9
 			transmit
 	
@@ -561,7 +561,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 		back_to_self
 		'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False  AND INAC_scrubber_primary_array(x, 8) = False then
-			call navigate_to_screen("CASE", "NOTE")
+			call navigate_to_MAXIS_screen("CASE", "NOTE")
 			PF9
 			If developer_mode = False then
 				call write_new_line_in_case_note("--------------------Case is closed--------------------")
@@ -575,7 +575,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			End if
 		End if
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False AND INAC_scrubber_primary_array(x, 8) = True then
-			call navigate_to_screen("CASE", "NOTE")
+			call navigate_to_MAXIS_screen("CASE", "NOTE")
 			PF9
 			tikl_date = dateadd("M", 4, (footer_month & "/01/" & footer_year))
 			last_rein_date = dateadd("D", -1, tikl_date)
@@ -586,7 +586,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 				CALL write_new_line_in_case_note("---")
 				CALL write_new_line_in_case_note(worker_signature)
 	
-				CALL navigate_to_screen("DAIL", "WRIT")
+				CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 				CALL create_maxis_friendly_date(tikl_date, 0, 5, 18)
 				EMWriteScreen ("IF CASE IS INACTIVE TRANSFER TO CLOSED - " & CLS_x1_number), 9, 3
 				transmit
