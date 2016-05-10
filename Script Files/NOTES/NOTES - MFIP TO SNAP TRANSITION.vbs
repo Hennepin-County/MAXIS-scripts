@@ -58,7 +58,7 @@ BeginDialog case_number_dialog, 0, 0, 151, 75, "MFIP To SNAP Transition Note"
   ButtonGroup ButtonPressed
     OkButton 40, 50, 50, 15
     CancelButton 95, 50, 50, 15
-  EditBox 70, 5, 75, 15, case_number
+  EditBox 70, 5, 75, 15, MAXIS_case_number
   EditBox 70, 25, 75, 15, closure_date
   Text 5, 10, 60, 10, "Case Number:"
   Text 5, 30, 55, 20, "Date MFIP closes:"
@@ -113,7 +113,7 @@ EndDialog
 '================END DIALOG SECTION
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 WCOM_check = checked 'setting checkbox default
 
@@ -121,7 +121,7 @@ WCOM_check = checked 'setting checkbox default
 DO
 	err_msg = ""
 	Dialog case_number_dialog
-	IF case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number"
+	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number"
 	IF isdate(closure_date) = false THEN err_msg = err_msg & vbCr & "You must enter a valid MFIP closure date."
 	IF isdate(closure_date) = true THEN
 		IF datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbCr & "The MFIP closure date should equal the last day of the month."
