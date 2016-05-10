@@ -192,10 +192,10 @@ DIALOG main_menu
 		CALL check_for_MAXIS(false)
 		
 		'Checking that case number is blank so as to get a full REPT/ACTV
-		CALL find_variable("Case Nbr: ", case_number, 8)
-		case_number = replace(case_number, "_", " ")
-		case_number = trim(case_number)
-		IF case_number <> "" THEN 
+		CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
+		MAXIS_case_number = replace(MAXIS_case_number, "_", " ")
+		MAXIS_case_number = trim(MAXIS_case_number)
+		IF MAXIS_case_number <> "" THEN 
 			back_to_SELF
 			EMWriteScreen "________", 18, 43
 		END IF	
@@ -214,10 +214,10 @@ DIALOG main_menu
 		
 		rept_row = 7
 		DO
-			EMReadScreen case_number, 8, rept_row, 12
-			case_number = trim(case_number)
-			IF case_number <> "" THEN 
-				case_number_array = case_number_array & case_number & "~~~"
+			EMReadScreen MAXIS_case_number, 8, rept_row, 12
+			MAXIS_case_number = trim(MAXIS_case_number)
+			IF MAXIS_case_number <> "" THEN 
+				case_number_array = case_number_array & MAXIS_case_number & "~~~"
 				rept_row = rept_row + 1
 				IF rept_row = 19 THEN 
 					rept_row = 7 
@@ -292,13 +292,13 @@ message_array = split(message_array, "~%~")
 
 privileged_array = ""
 
-FOR EACH case_number IN case_number_array
-	IF case_number <> "" THEN 
+FOR EACH MAXIS_case_number IN case_number_array
+	IF MAXIS_case_number <> "" THEN 
 		CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 		'Checking for privileged
 		EMReadScreen privileged_case, 40, 24, 2
 		IF InStr(privileged_case, "PRIVILEGED") <> 0 THEN 
-			privileged_array = privileged_array & case_number & "~~~"
+			privileged_array = privileged_array & MAXIS_case_number & "~~~"
 		ELSE
 			PF9
 			'-----Added because the script was only case noting the header, footer and worker_signature on the first case.
