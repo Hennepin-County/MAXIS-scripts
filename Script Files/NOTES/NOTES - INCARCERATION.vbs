@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'THE DIALOGS----------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 166, 85, "Incarceration"
-  EditBox 80, 5, 75, 15, case_number
+  EditBox 80, 5, 75, 15, MAXIS_case_number
   EditBox 80, 25, 75, 15, hh_member
   EditBox 80, 45, 25, 15, month_benefit
   EditBox 115, 45, 25, 15, year_benefit
@@ -65,7 +65,7 @@ BeginDialog case_number_dialog, 0, 0, 166, 85, "Incarceration"
 EndDialog
 
 BeginDialog incarceration_dialog, 0, 0, 451, 200, "Incarceration"
-  EditBox 85, 10, 85, 15, case_number
+  EditBox 85, 10, 85, 15, MAXIS_case_number
   EditBox 280, 10, 75, 15, hh_member
   EditBox 85, 40, 85, 15, start_date
   EditBox 280, 40, 110, 15, incarceration_location
@@ -104,14 +104,14 @@ EndDialog
 EMConnect ""
 
 'Grabs the MAXIS case number            
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows the FIRST dialog box
 DO 
 	Dialog case_number_dialog
 	cancel_confirmation
-	IF isnumeric(case_number)= FALSE THEN MsgBox "You must enter a valid case number!"
-LOOP UNTIL Isnumeric(case_number) = TRUE
+	IF isnumeric(MAXIS_case_number)= FALSE THEN MsgBox "You must enter a valid case number!"
+LOOP UNTIL Isnumeric(MAXIS_case_number) = TRUE
 
 CALL navigate_to_MAXIS_screen("stat", "faci")
 	EMReadScreen panel_max_check, 1, 2, 78
@@ -129,7 +129,7 @@ DO
 		IF ButtonPressed = 0 THEN StopScript
 		IF info_recd = "Click here to enter info" THEN err_msg = err_msg & vbCr & "You must select how the incarceration info was received!"
 		IF faci_type = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a facility type!"
-		IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid numeric case number."
+		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid numeric case number."
 		IF start_date = "" OR (start_date <> "" AND IsDate(start_date) = False) THEN err_msg = err_msg & vbCr & "You must enter a date in a MM/DD/YYYY format!"
 		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "You must enter actions taken!"
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!"
