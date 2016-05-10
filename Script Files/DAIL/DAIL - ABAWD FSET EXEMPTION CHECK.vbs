@@ -58,9 +58,9 @@ CALL write_value_and_transmit("S", 6, 3)
 
 'Grabbing the case number.
 'We need this to make the function navigate_to_MAXIS_screen work.
-CALL find_variable("Case Nbr: ", case_number, 8)
-case_number = replace(case_number, "_", "")
-case_number = trim(case_number)
+CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
+MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+MAXIS_case_number = trim(MAXIS_case_number)
 
 'Getting into the case.
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
