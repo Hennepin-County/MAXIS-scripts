@@ -249,14 +249,14 @@ FOR EACH maxis_worker IN workers_list
 			rept_row = 7
 			EMReadScreen last_page, 21, 24, 2
 			DO
-				EMReadScreen case_number, 8, rept_row, 12
-				case_number = trim(case_number)
+				EMReadScreen MAXIS_case_number, 8, rept_row, 12
+				MAXIS_case_number = trim(MAXIS_case_number)
 				EMReadScreen client_name, 20, rept_row, 21
 				client_name = trim(client_name)
-				IF case_number <> "" THEN
+				IF MAXIS_case_number <> "" THEN
 					'>>>>> ADDING WORKER NUMBER, CASE NUMBER, AND CLIENT NAME TO EXCEL <<<<<
 					objExcel.Cells(excel_row, 1).Value = maxis_worker
-					objExcel.Cells(excel_row, 2).Value = case_number
+					objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 					objExcel.Cells(excel_row, 3).Value = client_name
 					excel_row = excel_row + 1
 				END IF
@@ -269,10 +269,10 @@ FOR EACH maxis_worker IN workers_list
 		excel_row = 2
 		DO
 			back_to_SELF
-			case_number = objExcel.Cells(excel_row, 2).Value
+			MAXIS_case_number = objExcel.Cells(excel_row, 2).Value
 			EMWriteScreen "STAT", 16, 43
 			EMWriteScreen "________", 18, 43
-			EMWriteScreen case_number, 18, 43
+			EMWriteScreen MAXIS_case_number, 18, 43
 			transmit
 
 			'>>>>> PRIVILEGED CHECK <<<<<
@@ -283,7 +283,7 @@ FOR EACH maxis_worker IN workers_list
 			DO
 				EMWriteScreen "STAT", 16, 43
 				EMWriteScreen "________", 18, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				transmit
 				EMReadScreen self_check, 4, 2, 50
 				IF row = 24 THEN EXIT DO
