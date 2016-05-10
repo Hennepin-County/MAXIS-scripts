@@ -690,7 +690,8 @@ For each case_number in case_number_array
 	'Navigates to STAT/SUMM for each case
 	call navigate_to_screen("STAT", "SUMM")
 	MAXIS_background_check
-	ERRR_screen_check
+	EMReadScreen ERRR_check, 4, 2, 52	'Extra err handling in case the case was in background
+	If ERRR_check = "ERRR" then transmit
 
 	'Uses a for...next to enter each HH member's info (person based panels only
 	For current_memb = 1 to total_membs
