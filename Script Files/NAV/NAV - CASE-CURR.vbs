@@ -49,17 +49,17 @@ END IF
 
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 BeginDialog case_number_dialog, 0, 0, 161, 42, "Case number"
-  EditBox 95, 0, 60, 15, case_number
+  EditBox 95, 0, 60, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 25, 20, 50, 15
     CancelButton 85, 20, 50, 15
   Text 5, 5, 85, 10, "Enter your case number:"
 EndDialog
 
-If case_number = "" then 
+If MAXIS_case_number = "" then 
 	Dialog case_number_dialog
 	If ButtonPressed = 0 then stopscript
 END IF
