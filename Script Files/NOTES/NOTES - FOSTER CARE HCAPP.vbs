@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
 BeginDialog Foster_Care_HCAPP, 0, 0, 271, 245, "Foster Care HCAPP "
-  EditBox 60, 5, 65, 15, Case_Number
+  EditBox 60, 5, 65, 15, MAXIS_case_number
   EditBox 190, 5, 75, 15, Completed_By
   EditBox 100, 25, 60, 15, Date_Received_By_Agency
   EditBox 105, 45, 55, 15, Date_of_Agency_Responsiblity
@@ -90,15 +90,15 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
 'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
 	Dialog Foster_Care_HCAPP
 	IF buttonpressed = 0 THEN stopscript
-	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF MAXIS_case_number = "" THEN MsgBox "You must have a case number to continue!"
 	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
-LOOP until case_number <> "" and worker_signature <> ""
+LOOP until MAXIS_case_number <> "" and worker_signature <> ""
 
 'checking for an active MAXIS session
 CALL check_for_MAXIS(FALSE)
