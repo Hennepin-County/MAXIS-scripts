@@ -54,7 +54,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog MFIP_sanction_cured_dialog, 0, 0, 396, 190, "MFIP Sanction Cured"
-  EditBox 90, 5, 85, 15, case_number
+  EditBox 90, 5, 85, 15, MAXIS_case_number
   EditBox 90, 25, 85, 15, sanction_lifted_month
   EditBox 315, 25, 70, 15, compliance_date
   DropListBox 90, 50, 215, 15, "Select One..."+chr(9)+"Client complied with Employment Services"+chr(9)+"Client complied with Child Support"+chr(9)+"Client complied with Employment Services AND Child Support ", cured_reason
@@ -81,7 +81,7 @@ EndDialog
 EMConnect ""
 
 'Grabs Maxis Case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
@@ -91,11 +91,11 @@ DO
 			IF ButtonPressed = 0 THEN StopScript
 			IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 			LOOP UNTIL worker_signature <> ""
-		IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+		IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
 	IF cured_reason = "Select One..." THEN MsgBox "You must select 'Reason for Sanction being Cured!'"
 	IF notified_via = "Select One..." THEN MsgBox "You must select 'Notified Client Via!'"
 	LOOP UNTIL cured_reason <> "Select One..."
-LOOP UNTIL IsNumeric(case_number) = TRUE
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 	
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(True)
