@@ -71,7 +71,7 @@ EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
 'Gathering county code for multi-county...
-CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
+get_county_code
 
 'Connects to BlueZone
 EMConnect ""
