@@ -57,7 +57,7 @@ footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
+  EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
@@ -120,10 +120,10 @@ application_signed_checkbox = checked 'The script should default to having the a
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call find_variable("Case Nbr: ", MAXIS_case_number, 8)
+MAXIS_case_number = trim(MAXIS_case_number)
+MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
 
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
@@ -132,16 +132,16 @@ If row <> 0 then
   If row <> 0 then footer_year = MAXIS_footer_year
 End if
 
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+MAXIS_case_number = trim(MAXIS_case_number)
+MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
 
 Do
   Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
   cancel_confirmation
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
   If CAF_type = "Select One..." then MsgBox "You must select the type of CAF you interviewed"
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8 and CAF_type <> "Select One..."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8 and CAF_type <> "Select One..."
 transmit
 call check_for_MAXIS(True)
 
