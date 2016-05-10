@@ -134,9 +134,9 @@ col = 1
 'Finding case number
 EMSearch "CASE NBR:", row, col
 If row <> 0 then 
-  EMReadScreen case_number, 8, row, col + 10
-  case_number = replace(case_number, "_", "")
-  case_number = trim(case_number)
+  EMReadScreen MAXIS_case_number, 8, row, col + 10
+  MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+  MAXIS_case_number = trim(MAXIS_case_number)
 End if
 
 'Error out in case it can't find the case number
