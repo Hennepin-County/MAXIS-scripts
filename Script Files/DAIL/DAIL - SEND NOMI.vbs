@@ -89,8 +89,8 @@ row  = 1
 col = 1
 EMSearch "Case Number: ", row, col
 If row =- 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-EMReadScreen case_number, 8, row, col + 12
-case_number = trim(case_number)
+EMReadScreen MAXIS_case_number, 8, row, col + 12
+MAXIS_case_number = trim(MAXIS_case_number)
 PF3 			'removes the TIKL window
 'navigates to CASE/NOTE to user can see if interview has been completed or not
 EMSendKey "n"
