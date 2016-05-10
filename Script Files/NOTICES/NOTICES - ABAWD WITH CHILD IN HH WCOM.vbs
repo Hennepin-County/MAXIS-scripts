@@ -52,7 +52,7 @@ STATS_denomination = "C"       'C is for each CASE
 
 '--- DIALOGS-----------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dlg, 0, 0, 196, 100, "Adding ABAWD Adult WCOM"
-  EditBox 70, 15, 60, 15, case_number
+  EditBox 70, 15, 60, 15, MAXIS_case_number
   EditBox 70, 35, 30, 15, approval_month
   EditBox 160, 35, 30, 15, approval_year
   EditBox 95, 55, 60, 15, worker_signature
@@ -71,14 +71,14 @@ EndDialog
 
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 '1st Dialog ---------------------------------------------------------------------------------------------------------------------
 DO
 	err_msg = ""
 	dialog case_number_dlg
 	cancel_confirmation
-	IF case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
+	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
 	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
 	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
 	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & vbNewLine
