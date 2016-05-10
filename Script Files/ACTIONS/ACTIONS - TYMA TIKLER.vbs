@@ -51,7 +51,7 @@ END IF
 
 	'DIALOGS--------------------------------------------------------------------------------------------------------------------
 	BeginDialog TYMA_tikler, 0, 0, 261, 200, "TYMA/TMA TIKLer"
-	EditBox 65, 5, 65, 15, case_number
+	EditBox 65, 5, 65, 15, MAXIS_case_number
 	EditBox 190, 65, 20, 15, start_month
 	EditBox 225, 65, 25, 15, start_year
 	ButtonGroup ButtonPressed
@@ -80,7 +80,7 @@ END IF
 	EndDialog
 	
 	BeginDialog TYMA_tikler_full, 0, 0, 141, 130, "TYMA/TMA TIKLer"
-	EditBox 60, 5, 65, 15, case_number
+	EditBox 60, 5, 65, 15, MAXIS_case_number
 	EditBox 5, 55, 20, 15, start_month
 	EditBox 40, 55, 25, 15, start_year
 	EditBox 75, 90, 60, 15, worker_signature
@@ -104,7 +104,7 @@ EMConnect""
 
 'FIRST HALF------------------------------------------------------------------------------------------------------------------------------------
 IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLing all at once. 	
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
 	
 	Do
@@ -128,7 +128,7 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 				End If
 			End If
 		Loop until buttonpressed = OK
-		If case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."     'error message handling builds an error message based on items left off of the dialog.
+		If MAXIS_case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."     'error message handling builds an error message based on items left off of the dialog.
 		If isdate(first_quart_send) = False THEN err_msg = err_msg & vbcr & "1st quarter send date is invalid"
 		If isdate(second_quart_send) = False THEN err_msg = err_msg & vbcr & "2nd quarter send date is invalid"
 		If isdate(second_quart_due) = False THEN err_msg = err_msg & vbcr & "2nd quarter due date is invalid"
@@ -204,13 +204,13 @@ END If
 
 'SECOND HALF------------------------------------------------------------------------------------------------------------------------------------
 IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This portion will just add the first TIKL then the worker can use the DAIL scrubber on future TIKLS. 
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
 	Do
 		err_msg = ""
 		dialog TYMA_tikler_full
 		cancel_confirmation
-		If case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."
+		If MAXIS_case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."
 		If worker_signature = "" THEN err_msg = err_msg & Vbcr & "You must enter a worker signature."
 		IF err_msg <> "" THEN msgbox err_msg
 	Loop until err_msg = ""
