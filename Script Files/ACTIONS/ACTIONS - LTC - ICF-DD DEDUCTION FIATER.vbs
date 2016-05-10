@@ -49,7 +49,7 @@ END IF
 
 'Dialogs____________________________________________________________________________________________________________
 BeginDialog case_number_dialog, 0, 0, 141, 70, "Case number"
-  EditBox 80, 5, 55, 15, case_number
+  EditBox 80, 5, 55, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 110, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -102,7 +102,7 @@ EndDialog
 'THE SCRIPT========================================================================================
 'This connects to Bluezone
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Shows case number dialog
