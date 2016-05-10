@@ -223,11 +223,11 @@ For each case_info in info_array
 
 		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 
-		'Splits the case_info variable into an array containing (0) case_number, (1) CEI_amount, (2) mo_yr, and (3) date_sent
+		'Splits the case_info variable into an array containing (0) MAXIS_case_number, (1) CEI_amount, (2) mo_yr, and (3) date_sent
 		case_specific_info_array = split(case_info, "~")	'That's the character we used above to designate objects for the array
 
 		'Assigns value to each variable needed for the next part
-		case_number = case_specific_info_array(0)
+		MAXIS_case_number = case_specific_info_array(0)
 		CEI_amount = case_specific_info_array(1)
 		mo_yr = case_specific_info_array(2)
 		date_sent = case_specific_info_array(3)
