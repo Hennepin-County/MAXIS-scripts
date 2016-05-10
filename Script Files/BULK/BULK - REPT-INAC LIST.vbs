@@ -74,7 +74,7 @@ inac_month = datepart("m", dateadd("m", -1, date))
 inac_year = right(dateadd("m", -1, date), 2)
 If len(inac_month) = 1 then inac_month = "0" & inac_month
 
-CALL worker_county_code_determination(worker_county_code, two_digit_county_code_variable)
+get_county_code
 
 'Connects to BlueZone
 EMConnect ""
