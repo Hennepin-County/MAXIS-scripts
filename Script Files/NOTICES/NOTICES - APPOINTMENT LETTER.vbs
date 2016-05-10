@@ -75,7 +75,7 @@ end class
 'Declaring variables needed by the script
 'First, determining the county code. If it isn't declared, it will ask (proxy)
 
-call worker_county_code_determination(worker_county_code, two_digit_county_code_variable)
+get_county_code
 
 
 if worker_county_code = "x101" then

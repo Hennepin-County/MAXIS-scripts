@@ -76,7 +76,7 @@ IF select_a_worker = TRUE THEN
 END IF
 
 'Determines the county code (a custom function involving multicounty agencies being given a proxy access as a specific county).
-call worker_county_code_determination(worker_county_code, two_digit_county_code)
+get_county_code
 
 'FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
