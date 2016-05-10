@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog EMA_dialog, 0, 0, 311, 305, "EMA "
-  EditBox 85, 5, 75, 15, case_number
+  EditBox 85, 5, 75, 15, MAXIS_case_number
   EditBox 110, 30, 95, 15, date_received
   EditBox 55, 50, 45, 15, HH_COMP
   EditBox 55, 70, 115, 15, CIT_ID
@@ -85,7 +85,7 @@ EndDialog
 EMConnect ""
 
 'Grabs Maxis Case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
@@ -95,8 +95,8 @@ DO
 		IF ButtonPressed = 0 THEN StopScript
 		IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 		LOOP UNTIL worker_signature <> ""
-	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-LOOP UNTIL IsNumeric(case_number) = TRUE
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 	
 
 'Checks Maxis for password prompt
