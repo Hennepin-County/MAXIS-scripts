@@ -51,7 +51,7 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 BeginDialog case_number_dlg, 0, 0, 150, 80, "CASE NUMBER DIALOG"
-  EditBox 75, 10, 70, 15, case_number
+  EditBox 75, 10, 70, 15, MAXIS_case_number
   EditBox 75, 30, 40, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 10, 55, 50, 15
@@ -112,7 +112,7 @@ EMFocus
 Call check_for_MAXIS(false)
 
 'Finds the case number
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
@@ -130,7 +130,7 @@ DO
 	err_msg = ""	
 	DIALOG case_number_dlg
 		IF ButtonPressed = 0 THEN stopscript
-		IF case_number = "" OR (case_number <> "" AND len(case_number) > 8) OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		'checks that the case note was signed
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!" 
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
