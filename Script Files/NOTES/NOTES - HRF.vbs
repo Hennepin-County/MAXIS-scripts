@@ -59,7 +59,7 @@ footer_year = "" & footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
+  EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
   CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
@@ -154,14 +154,14 @@ Dim col
 EMConnect ""
 
 'Grabbing case number & footer month/year
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Showing case number dialog
 Do
   Dialog case_number_dialog
   cancel_confirmation
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Checking for an active MAXIS seesion
 Call check_for_MAXIS(False)
