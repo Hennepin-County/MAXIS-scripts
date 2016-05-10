@@ -234,9 +234,9 @@ For each case_number in case_number_array
 
 			'Writes TIKL depending on MailType
 			If MailType_array(array_count) = "No Forwarding " then
-				write_TIKL_function("Request for address sent 10 days ago. If not responded to, take appropriate action. (TIKL generated via BULK script)")
+				write_variable_in_TIKL("Request for address sent 10 days ago. If not responded to, take appropriate action. (TIKL generated via BULK script)")
 			Else
-				write_TIKL_function("Returned mail processed 10 days ago.  If verifs were requested and have not been received back, take appropriate action. (TIKL generated via BULK script)")
+				write_variable_in_TIKL("Returned mail processed 10 days ago.  If verifs were requested and have not been received back, take appropriate action. (TIKL generated via BULK script)")
 			End If
 
 			'Exits case note
