@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog Rein_dialog, 0, 0, 256, 260, "Rein"
-  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 60, 15, rein_date
   CheckBox 30, 65, 50, 10, "SNAP", SNAP_checkbox
   CheckBox 90, 65, 50, 10, "CASH", CASH_checkbox
@@ -84,7 +84,7 @@ EndDialog
 EMConnect ""
 
 'Grabs Maxis Case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
@@ -94,8 +94,8 @@ DO
 		IF ButtonPressed = 0 THEN StopScript
 		IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 		LOOP UNTIL worker_signature <> ""
-	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-LOOP UNTIL IsNumeric(case_number) = TRUE
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 	
 
 'Checks Maxis for password prompt
