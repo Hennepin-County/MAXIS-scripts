@@ -51,7 +51,7 @@ END IF
 'DIALOG PORTION----------------------------------------------------------------------------------------------------------------------------------------------
 
 BeginDialog SAVE_dialog, 0, 0, 206, 355, "SAVE Dialog"
-  EditBox 65, 5, 85, 15, case_number
+  EditBox 65, 5, 85, 15, MAXIS_case_number
   OptionGroup RadioGroup1
     RadioButton 10, 30, 45, 10, "SAVE 1", SAVE_1
     RadioButton 60, 30, 45, 10, "SAVE 2", SAVE_2
@@ -93,7 +93,7 @@ EndDialog
 'THE SCRIPT PORTION----------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 
-Call MAXIS_case_number_finder(case_number)      'finding case number
+Call MAXIS_case_number_finder(MAXIS_case_number)      'finding case number
 
 Call check_for_MAXIS(true)						'making sure that person is in MAXIS and logged in
  
@@ -101,7 +101,7 @@ Do
 	err_msg = ""						'error message handling to keep dialog looping until completed correctly.
 	Dialog SAVE_dialog
 	cancel_confirmation	
-	If case_number = "" THEN err_msg = err_msg & "You must enter a Case number." & vbNewLine
+	If MAXIS_case_number = "" THEN err_msg = err_msg & "You must enter a Case number." & vbNewLine
 	If TIKL_check = 1 and IsDate(exp_date) = False then err_msg = err_msg & "You must enter a proper date (MM/DD/YYYY) if you want the script to TIKL out." & vbNewLine
 	If imig_doc_received = "" THEN err_msg = err_msg & "Please enter a immigration doc received." & vbNewLine
 	If worker_sig = "" THEN err_msg = err_msg & "You must sign your case note." & vbNewLine
