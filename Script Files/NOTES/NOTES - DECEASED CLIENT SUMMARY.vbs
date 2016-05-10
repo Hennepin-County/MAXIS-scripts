@@ -53,7 +53,7 @@ END IF
 'dialog block with case details
 BeginDialog deceased_client_summary, 0, 0, 206, 190, "Deceased Client Summary"
   Text 5, 10, 50, 10, "Case Number"
-  EditBox 65, 5, 50, 15, case_number
+  EditBox 65, 5, 50, 15, MAXIS_case_number
   Text 5, 30, 50, 10, "Date of Death"
   EditBox 65, 25, 50, 15, date_of_death
   Text 5, 50, 50, 10, "Place of Death"
@@ -82,7 +82,7 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 'Calls a MAXIS case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 
 'Do loop for Deceased Client Summary Shows dialog and creates and displays an error message if worker completes things incorrectly.
@@ -92,7 +92,7 @@ call MAXIS_case_number_finder(case_number)
 	cancel_confirmation
 
 	'case number required for case note	
-	IF isnumeric  (case_number) = false THEN err_msg = err_msg & "Please enter a case number." & VBnewline 
+	IF isnumeric  (MAXIS_case_number) = false THEN err_msg = err_msg & "Please enter a case number." & VBnewline 
 	'valid date required
 	IF isDate (date_of_death)=false then err_msg=err_msg & "Please enter a valid date." & VBNewline
 	'worker signature required
