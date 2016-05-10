@@ -52,7 +52,7 @@ STATS_denomination = "C"  'C is for case
 
 'DIALOGS--------------------------------------------------------------------------------------------------
 BeginDialog AREP_dlg, 0, 0, 226, 135, "AREP Case Note"
-  EditBox 60, 5, 100, 15, case_number
+  EditBox 60, 5, 100, 15, MAXIS_case_number
   CheckBox 65, 30, 35, 10, "SNAP", SNAP_AREP_check
   CheckBox 105, 30, 50, 10, "Health Care", HC_AREP_check
   CheckBox 160, 30, 30, 10, "Cash", CASH_AREP_check
@@ -76,7 +76,7 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 'Calls a MAXIS case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog and creates and displays an error message if worker completes things incorrectly. 
 Do
@@ -85,7 +85,7 @@ Do
 	cancel_confirmation
 	IF SNAP_AREP_check <> checked AND HC_AREP_check <> checked AND CASH_AREP_check <> checked THEN err_msg = err_msg & "Please select a program" & vbNewLine
 	IF isdate(arep_signature_date) = false THEN err_msg = err_msg & "Please enter a valid date for the date the form was signed/valid from." & vbNewLine
-	IF case_number = "" THEN err_msg = err_msg & "Please enter a case number." & vbNewLine
+	IF MAXIS_case_number = "" THEN err_msg = err_msg & "Please enter a case number." & vbNewLine
 	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & vbNewLine
 	IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & "You have requested the script to TIKL based on the signature date but you did not enter the signature date." & vbNewLine
 	IF err_msg <> "" THEN msgbox err_msg
