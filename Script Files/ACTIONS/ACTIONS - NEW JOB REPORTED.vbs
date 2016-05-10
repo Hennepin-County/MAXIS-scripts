@@ -52,7 +52,7 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, case_number
+  EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
   EditBox 65, 25, 25, 15, footer_month
   Text 95, 30, 20, 10, "Year:"
@@ -111,7 +111,7 @@ footer_month = CStr(footer_month)
 EMConnect ""
 
 'Finds a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows the case number dialog
 Dialog case_number_and_footer_month_dialog
