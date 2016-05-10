@@ -53,7 +53,7 @@ STATS_denomination = "C"       'C is for each CASE
 'DIALOG
 BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 95, 0, 60, 15, case_number
+  EditBox 95, 0, 60, 15, MAXIS_case_number
   Text 5, 25, 70, 10, "Sign your case note:"
   EditBox 80, 20, 75, 15, worker_sig
   ButtonGroup ButtonPressed
@@ -64,7 +64,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'grabbing case number & connecting to MAXIS
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 dialog case_number_dialog
 cancel_confirmation
