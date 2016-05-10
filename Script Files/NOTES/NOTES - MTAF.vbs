@@ -53,7 +53,7 @@ STATS_denomination = "C"        'C is for each case
 'DIALOGS----------------------------------------------------------------------------------------------------
 'CASE NUMBER DIALOG
 BeginDialog case_number_dialog, 0, 0, 126, 45, "Case number dialog"
-  EditBox 55, 5, 65, 15, case_number
+  EditBox 55, 5, 65, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 10, 25, 50, 15
     CancelButton 65, 25, 50, 15
@@ -124,14 +124,14 @@ EMConnect ""
 Call check_for_MAXIS(True)
 
 'Grabs case number from the screen.
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'This is the running of the case number dialog.
 Do 
 	Dialog case_number_dialog 'Runs the "case number" dialog
 	If buttonpressed = 0 then stopscript 'If someone hits "cancel" the script stops.
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number." 'If the case number is blank, is not numeric, or is longer than 8 characters, then message box.
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8 'Loop until case number is not blank, is numeric, and is smaller than or equal to 8 characters in length.
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number." 'If the case number is blank, is not numeric, or is longer than 8 characters, then message box.
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8 'Loop until case number is not blank, is numeric, and is smaller than or equal to 8 characters in length.
 
 'Makes sure you are in MAXIS, to avoid password-out scenario.
 Call check_for_MAXIS(True)
