@@ -153,7 +153,7 @@ IF expedited_status = "client appears expedited" THEN
 END IF 
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-	call navigate_to_screen("case", "note")
+	call navigate_to_MAXIS_screen("case", "note")
 	PF9
 	
 	EMReadScreen case_note_check, 17, 2, 33
