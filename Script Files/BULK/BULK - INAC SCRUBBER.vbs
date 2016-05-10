@@ -133,11 +133,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 								"Please press OK to continue, or cancel to exit the script.", vbOKCancel)
 	If warning_message = vbCancel then stopscript
 	
-	'Connects to MAXIS
+	'Connects to (and checks for) MAXIS
 	EMConnect ""
-	
-	'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-	MAXIS_check_function
+	check_for_MAXIS(True)
 	
 	'Gets back to SELF
 	back_to_self

@@ -146,7 +146,7 @@ EndDialog
 '----------THE SCRIPT----------
 EMConnect ""
 
-maxis_check_function
+check_for_MAXIS(True)
 
 DIALOG xfer_menu_dialog
 cancel_confirmation
