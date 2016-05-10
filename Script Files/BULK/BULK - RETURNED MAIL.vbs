@@ -168,7 +168,7 @@ Loop until (isnumeric(case_number_01) = True or case_number_01 = "") and (isnume
 worker_signature = InputBox("Sign your case note:", vbOKCancel)
 If worker_signature = vbCancel then stopscript
 
-'Splits the case_number(s) into a case_number_array
+'Splits the MAXIS_case_number(s) into a case_number_array
 case_number_array = array(case_number_01, case_number_02, case_number_03, case_number_04, case_number_05, _
   case_number_06, case_number_07, case_number_08, case_number_09, case_number_10, _
   case_number_11, case_number_12, case_number_13, case_number_14, case_number_15, _
@@ -192,9 +192,9 @@ call check_for_MAXIS(false)
 'Setting variables so we can compare between two arrays
 array_count=0
 
-For each case_number in case_number_array
+For each MAXIS_case_number in case_number_array
 
-	If case_number <> "" then	'skip blanks
+	If MAXIS_case_number <> "" then	'skip blanks
 
 		'Getting to case note
 		Call navigate_to_MAXIS_screen("case", "note")
@@ -202,8 +202,8 @@ For each case_number in case_number_array
 		'If there was an error after trying to go to CASE/NOTE
 		EMReadScreen SELF_error_check, 27, 2, 28
 		If SELF_error_check = "Select Function Menu (SELF)" then
-			MsgBox "Script stopped on case " & case_number & "."
-			error_message = error_message & case_number & ", " 'Building error message to contain every failed case number, this will allow script to continue if it fails except for out of county cases.
+			MsgBox "Script stopped on case " & MAXIS_case_number & "."
+			error_message = error_message & MAXIS_case_number & ", " 'Building error message to contain every failed case number, this will allow script to continue if it fails except for out of county cases.
 		Else
 			'Opening a new case/note
 			start_a_blank_CASE_NOTE
@@ -248,7 +248,7 @@ For each case_number in case_number_array
 	End if
 
 
-	'Increasing the array count for each case number processed from case_number array.
+	'Increasing the array count for each case number processed from MAXIS_case_number array.
 	array_count=array_count+1
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
