@@ -79,10 +79,10 @@ objExcel.DisplayAlerts = False 'Set this to false to make alerts go away. This i
 
 EMSendKey "t"
 transmit
-EMReadScreen case_number, 8, 5, 73
+EMReadScreen MAXIS_case_number, 8, 5, 73
 EMWriteScreen "CSES", 20, 70 'This is set as a TIKL for testing purposes. It should be set as "CSES" for live purposes.
 transmit
-EMWriteScreen case_number, 20, 38
+EMWriteScreen MAXIS_case_number, 20, 38
 transmit
 
 'THE FOLLOWING READS THE MESSSAGES AND DUMPS THE INFO INTO AN EXCEL SPREADSHEET!!
