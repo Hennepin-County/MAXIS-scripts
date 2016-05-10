@@ -54,7 +54,7 @@ STATS_denomination = "C"        'C is for each case
 'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM name_of_script
 'DIM start_time
-'DIM case_number
+'DIM MAXIS_case_number
 'DIM MAXIS_footer_month
 'DIM MAXIS_footer_year
 'DIM ButtonPressed
@@ -87,7 +87,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number					
+  EditBox 80, 5, 60, 15, MAXIS_case_number					
   EditBox 80, 25, 25, 15, MAXIS_footer_month					
   EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -140,7 +140,7 @@ EndDialog
 'SCRIPT BODY----------------------------------------------------------------------------------------------------
 EMConnect ""														'Connecting to Bluezone
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'function autofills the footer month and footer year
-call MAXIS_case_number_finder(case_number)							'function autofills case number that worker already has on MAXIS screen
+call MAXIS_case_number_finder(MAXIS_case_number)							'function autofills case number that worker already has on MAXIS screen
 'checking for an active MAXIS session
 Call check_for_MAXIS(True) 
 
@@ -149,8 +149,8 @@ Call check_for_MAXIS(True)
 DO
 	Dialog case_number_dialog									
 	IF buttonPressed = 0 then StopScript									
-	IF case_number = "" or IsNumeric(case_number) = FALSE THEN MsgBox "You must enter a valid case number."
-LOOP UNTIL case_number <> "" OR IsNumeric(case_number) = True	
+	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must enter a valid case number."
+LOOP UNTIL MAXIS_case_number <> "" OR IsNumeric(MAXIS_case_number) = True	
 
 
 'information gathering to auto-populate LTC_transfer_penalty_dialog
