@@ -53,7 +53,7 @@ STATS_denomination = "C"                   'C is for each CASE
 'SECTION 02: DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
-  EditBox 95, 0, 60, 15, case_number
+  EditBox 95, 0, 60, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 25, 20, 50, 15
     CancelButton 85, 20, 50, 15
@@ -64,9 +64,9 @@ EndDialog
 
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
-If case_number = "" then
+If MAXIS_case_number = "" then
 	Dialog case_number_dialog
 	cancel_confirmation
 End if
