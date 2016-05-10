@@ -52,7 +52,7 @@ STATS_denomination = "C"       'C is for each CASE
 
 'DIALOG---------------------------------------------------------------------------------------------------------------------
 BeginDialog NOTICES_overdue_baby_dialog, 0, 0, 141, 85, "NOTICES - OVERDUE BABY"
-  EditBox 60, 5, 60, 15, case_number
+  EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 70, 25, 60, 15, worker_signature
   CheckBox 5, 45, 100, 15, "TIKL for ten day follow up?", tikl_for_ten_day_follow_up_checkbox
   ButtonGroup ButtonPressed
@@ -69,14 +69,14 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 Do
 	Dialog NOTICES_overdue_baby_dialog
 	If ButtonPressed = 0 then stopscript
-	If case_number = ""  or isnumeric(case_number) = false then MsgBox "You did not enter a valid case number. Please try again."
+	If MAXIS_case_number = ""  or isnumeric(MAXIS_case_number) = false then MsgBox "You did not enter a valid case number. Please try again."
 	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> ""
+Loop until MAXIS_case_number <> "" and isnumeric(MAXIS_case_number) = true and worker_signature <> ""
 transmit
 call check_for_MAXIS(True)
 
