@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS FOR THE SCRIPT======================================================================================================
 
-    '------Paste any dialogs needed in from the dialog editor here. Dialogs typically include case_number and worker_signature fields
+    '------Paste any dialogs needed in from the dialog editor here. Dialogs typically include MAXIS_case_number and worker_signature fields
 
 'END DIALOGS=================================================================================================================
 
@@ -62,7 +62,7 @@ STATS_denomination = "C"        'C is for each case
 EMConnect ""
 
 'Grabs the MAXIS case number automatically
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
 DO
@@ -72,7 +72,7 @@ DO
     
     'Handling for error messaging (in the case of mandatory fields or fields requiring a specific format)-----------------------------------
     'If a condition is met...          ...then the error message is itself, plus a new line, plus an error message...           ...Then add a comment explaining your reason it's mandatory.
-	IF IsNumeric(case_number) = FALSE  THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
+	IF IsNumeric(MAXIS_case_number) = FALSE  THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'MAXIS_case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
 	IF worker_signature = ""           THEN err_msg = err_msg & vbNewLine & "* You must sign your case note!"                  'worker_signature is usually also a mandatory field
     '<<Follow the above template to add more mandatory fields!!>>
     
