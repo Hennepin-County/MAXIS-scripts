@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'This is the dialog box information/code
 BeginDialog DWP_budget_dialog, 0, 0, 426, 165, "DWP Budget Dialog"
-  EditBox 60, 5, 45, 15, case_number
+  EditBox 60, 5, 45, 15, MAXIS_case_number
   EditBox 195, 5, 45, 15, ES_appointment_date
   EditBox 370, 5, 45, 15, ES_deadline_date
   EditBox 55, 25, 365, 15, income_info
@@ -81,14 +81,14 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------
 'Connects to BlueZone & grabbing the case number
 EMConnect ""
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Displays the dialog
 DO
 	err_msg = ""
 	Dialog DWP_budget_dialog
 	cancel_confirmation
-	IF case_number = "" OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
+	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
 	If personal_needs = "" THEN err_msg = err_msg & vbNewLine & "*You must enter the number of DWP household members"
 	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note"
 	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
