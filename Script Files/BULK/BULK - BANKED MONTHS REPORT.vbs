@@ -179,16 +179,16 @@ Const clt_filter        = 14
 excel_row = 3 're-establishing the row to start checking the members for
 entry_record = 0
 Do                                                            'Loops until there are no more cases in the Excel list
-	case_number = objExcel.cells(excel_row, 4).Value          're-establishing the case numbers for functions to use
-	If case_number = "" then exit do
-	case_number = trim(case_number)
+	MAXIS_case_number = objExcel.cells(excel_row, 4).Value          're-establishing the case numbers for functions to use
+	If MAXIS_case_number = "" then exit do
+	MAXIS_case_number = trim(MAXIS_case_number)
 	client_first_name = objExcel.cells(excel_row, 3).Value		'Pulls the client's first and last names and trims for future matching
 	client_last_name  = objExcel.cells(excel_row, 2).Value             're-establishing the client name
 	client_first_name = UCase(trim(client_first_name))
 	client_last_name  = UCase(trim(client_last_name))
 	'Adding client information to the array'
 	ReDim Preserve Banked_Month_Client_Array(14, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-	Banked_Month_Client_Array (case_num,       entry_record) = case_number		'The client information is added to the array'
+	Banked_Month_Client_Array (case_num,       entry_record) = MAXIS_case_number		'The client information is added to the array'
 	Banked_Month_Client_Array (clt_last_name,  entry_record) = client_last_name
 	Banked_Month_Client_Array (clt_first_name, entry_record) = client_first_name
 	Banked_Month_Client_Array (clt_name,       entry_record) = client_first_name & " " & client_last_name
@@ -203,7 +203,7 @@ objExcel.Quit
 
 'Now we will get PMI and Member Number for each client on the array.'
 For item = 0 to UBound(Banked_Month_Client_Array, 2)
-	case_number = Banked_Month_Client_Array(case_num,item)				'Case number is set for each loop as it is used in the FuncLib functions'
+	MAXIS_case_number = Banked_Month_Client_Array(case_num,item)				'Case number is set for each loop as it is used in the FuncLib functions'
 	Call navigate_to_MAXIS_screen("INFC", "WORK")						'Finding client information on STAT MEMB'
 	EMReadScreen WORK_check, 4, 2, 51									'Making sure the script made it to INFC/WORK '
 	IF WORK_check = "WORK" Then
@@ -248,7 +248,7 @@ list_done_msgbox = MsgBox ("The script has finished compiling the list of client
   "* Create a report of the clients that were NOT added to the report" & vbNewLine & vbNewLine & "The script will take a few minutes to check ELIG and STAT before asking you for the Excel File of the DHS Report", vbOkOnly + vbInformation, "Client List Created")
 
 For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the array will be checked in ELIG and STAT'
-	case_number = Banked_Month_Client_Array(case_num,item)	'Case number is set for each loop as it is used in the FuncLib functions'
+	MAXIS_case_number = Banked_Month_Client_Array(case_num,item)	'Case number is set for each loop as it is used in the FuncLib functions'
 	If Banked_Month_Client_Array(send_to_DHS, item) = TRUE Then	'If a case has already been removed from the DHS report, no additional check is needed'
 		call navigate_to_MAXIS_screen ("ELIG", "FS")		'Checking ELIG - this is footer month specific (set above)'
 		EMReadScreen no_SNAP, 10, 24, 2
