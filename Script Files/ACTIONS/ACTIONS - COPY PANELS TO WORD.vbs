@@ -149,7 +149,7 @@ EndDialog
 
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, case_number
+  EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
   EditBox 65, 25, 25, 15, footer_month
   Text 95, 30, 20, 10, "Year:"
@@ -169,7 +169,7 @@ EMConnect ""
 Call check_for_MAXIS(False)
 
 'Finds MAXIS case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 'Finds MAXIS footer month
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -177,8 +177,8 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Do
 	Dialog case_number_and_footer_month_dialog
 	If buttonpressed = 0 then stopscript
-	If isnumeric(case_number) = False then MsgBox "You must type a valid case number."
-Loop until isnumeric(case_number) = True
+	If isnumeric(MAXIS_case_number) = False then MsgBox "You must type a valid case number."
+Loop until isnumeric(MAXIS_case_number) = True
 
 'Shows the MAXIS panel selection dialog
 back_to_SELF
