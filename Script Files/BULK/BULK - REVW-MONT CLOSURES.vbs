@@ -121,7 +121,7 @@ If revw_check = checked then
 	End if
 	row = 7
 	Do
-		EMReadScreen case_number, 8, row, 6																'Gets case number
+		EMReadScreen MAXIS_case_number, 8, row, 6																'Gets case number
 		EMReadScreen cash_status, 1, row, 35															'Checks for cash status
 		If cash_status = "N" or cash_status = "I" then are_programs_closing = True						'If "N" or "I", adds to the array
 		EMReadScreen FS_status, 1, row, 45																'Checks for FS status
@@ -133,7 +133,7 @@ If revw_check = checked then
 		End if
 
 		'If the above found the case is closing, it adds to the array.
-		If are_programs_closing = True then case_number_array = trim(case_number_array & " " & trim(case_number))
+		If are_programs_closing = True then case_number_array = trim(case_number_array & " " & trim(MAXIS_case_number))
 		are_programs_closing = ""		'Clears out variable
 
 		row = row + 1
@@ -142,12 +142,12 @@ If revw_check = checked then
 			EMReadScreen last_check, 4, 24, 14
 			row = 7
 		End if
-	Loop until trim(case_number) = "" or last_check = "LAST"
+	Loop until trim(MAXIS_case_number) = "" or last_check = "LAST"
 
 	case_number_array = split(case_number_array)
 
 	  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
-	For each case_number in case_number_array
+	For each MAXIS_case_number in case_number_array
 		CALL navigate_to_MAXIS_screen("rept", "revw")  'Reads MAGI code for each case.
 		EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
 		IF priv_check <> "PRIV" THEN 'Not privileged, we can go ahead and do everything
@@ -294,7 +294,7 @@ If revw_check = checked then
 				If debugging_MsgBox = vbCancel then stopscript
 			End if
 		ELSE 'This is a privileged case, we need to skip to the next one, so we won't do anything with it
-			priv_case_list = priv_case_list & " " & case_number 'saving a list of priv cases for later.
+			priv_case_list = priv_case_list & " " & MAXIS_case_number 'saving a list of priv cases for later.
 		END IF
 			'----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
 		first_of_working_month = ""
@@ -352,23 +352,23 @@ If mont_check = 1 then
 
   'This reads the case number and program status. If an "N" or "I" is detected it will add to the case_number_array variable.
   Do
-    EMReadScreen case_number, 8, row, 6
+    EMReadScreen MAXIS_case_number, 8, row, 6
     EMReadScreen program_status, 9, row, 45
     are_programs_closing = instr(program_status, "N") <> 0 or instr(program_status, "I") <> 0
-    If are_programs_closing = True then case_number_array = trim(case_number_array & " " & trim(case_number))
+    If are_programs_closing = True then case_number_array = trim(case_number_array & " " & trim(MAXIS_case_number))
     row = row + 1
     If row = 19 then
       PF8
       EMReadScreen last_check, 4, 24, 14
       row = 7
     End if
-  Loop until trim(case_number) = "" or last_check = "LAST"
+  Loop until trim(MAXIS_case_number) = "" or last_check = "LAST"
 
   'Creating an array out of the case number array
   case_number_array = split(case_number_array)
 
   'Navigating to each case, and case noting the ones that are closing.
-  For each case_number in case_number_array
+  For each MAXIS_case_number in case_number_array
     'Going to the case, checking for error prone
     call navigate_to_MAXIS_screen("stat", "mont")
 	EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
@@ -392,7 +392,7 @@ If mont_check = 1 then
 		call write_variable_in_CASE_NOTE("---")
 		call write_variable_in_CASE_NOTE(worker_signature & ", via automated script.")
 	ELSE 'Prived case, add the case number to the list
-		priv_case_list = priv_case_list & " " & case_number
+		priv_case_list = priv_case_list & " " & MAXIS_case_number
 	END IF
 
   '----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
