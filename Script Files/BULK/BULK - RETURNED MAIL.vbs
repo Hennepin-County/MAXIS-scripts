@@ -197,7 +197,7 @@ For each case_number in case_number_array
 	If case_number <> "" then	'skip blanks
 
 		'Getting to case note
-		Call navigate_to_screen("case", "note")
+		Call navigate_to_MAXIS_screen("case", "note")
 
 		'If there was an error after trying to go to CASE/NOTE
 		EMReadScreen SELF_error_check, 27, 2, 28
@@ -228,7 +228,7 @@ For each case_number in case_number_array
 			'Exiting the case note
 			PF3
 			'Getting to DAIL/WRIT
-			call navigate_to_screen("dail", "writ")
+			call navigate_to_MAXIS_screen("dail", "writ")
 			'Inserting the date
 			call create_MAXIS_friendly_date(date, 10, 5, 18)
 
