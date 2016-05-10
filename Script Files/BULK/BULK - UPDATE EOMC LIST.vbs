@@ -197,7 +197,7 @@ END IF
 'Going to the first case to begin reading information
 excel_row = 2
 Do
-	case_number = objExcel.Cells(excel_row, 2).value
+	MAXIS_case_number = objExcel.Cells(excel_row, 2).value
 	call navigate_to_MAXIS_screen("CASE", "CURR")
 	'checking for each prog on the listed
 	IF fs_col <> "" THEN
@@ -237,7 +237,7 @@ Do
 		END If
 	END IF
 	excel_row = excel_row + 1
-Loop until case_number = ""
+Loop until MAXIS_case_number = ""
 
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use + col_offset
