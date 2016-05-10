@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
-  EditBox 60, 5, 90, 15, case_number
+  EditBox 60, 5, 90, 15, MAXIS_case_number
   EditBox 60, 25, 30, 15, MAXIS_footer_month
   EditBox 120, 25, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -133,15 +133,15 @@ HH_memb_row = 05
 EMConnect ""
 
 'Searching for case number.
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 Do
   Dialog case_number_dialog
   cancel_confirmation
-  If case_number = "" then MsgBox "You must type a case number!"
-Loop until case_number <> ""
+  If MAXIS_case_number = "" then MsgBox "You must type a case number!"
+Loop until MAXIS_case_number <> ""
 
 'Now it checks to make sure MAXIS is running on this screen.
 Call check_for_MAXIS(False)

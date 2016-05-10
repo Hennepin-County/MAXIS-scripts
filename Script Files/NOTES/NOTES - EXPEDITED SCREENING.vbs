@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog exp_screening_dialog, 0, 0, 181, 210, "Expedited Screening Dialog"
-  EditBox 55, 5, 95, 15, case_number
+  EditBox 55, 5, 95, 15, MAXIS_case_number
   EditBox 100, 25, 50, 15, income
   EditBox 100, 45, 50, 15, assets
   EditBox 100, 65, 50, 15, rent
@@ -90,7 +90,7 @@ End if
 'Connecting to BlueZone
 EMConnect ""
 'It will search for a case number.
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows the dialog
 Do
@@ -98,8 +98,8 @@ Do
 		Do
 			Dialog exp_screening_dialog
 			cancel_confirmation
-			If isnumeric(case_number) = False then MsgBox "You must enter a valid case number."
-		Loop until isnumeric(case_number) = True
+			If isnumeric(MAXIS_case_number) = False then MsgBox "You must enter a valid case number."
+		Loop until isnumeric(MAXIS_case_number) = True
 		If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) then MsgBox "The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
 	Loop until (income = "" or isnumeric(income) = True) and (assets = "" or isnumeric(assets) = True) and(rent = "" or isnumeric(rent) = True)
 	If worker_signature = "" then MsgBox "You must sign your case note."

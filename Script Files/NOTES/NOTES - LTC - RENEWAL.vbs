@@ -59,7 +59,7 @@ MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number					
+  EditBox 80, 5, 60, 15, MAXIS_case_number					
   EditBox 80, 25, 25, 15, MAXIS_footer_month					
   EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -155,7 +155,7 @@ HH_member_array = array("01") 'Because this script will only be used on member 0
 
 'Connecting to BlueZone & grabbing case number & footer month
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
@@ -163,8 +163,8 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Do
   Dialog case_number_dialog
   If ButtonPressed = 0 then stopscript
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'checking for an active MAXIS session
 Call check_for_MAXIS (FALSE)

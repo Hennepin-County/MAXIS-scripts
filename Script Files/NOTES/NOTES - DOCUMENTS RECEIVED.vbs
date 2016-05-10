@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS--------------------------------------------------------------------------------------------------
 BeginDialog documents_rec_GEN_dialog, 0, 0, 351, 405, "Documents received"
-  EditBox 55, 5, 70, 15, case_number
+  EditBox 55, 5, 70, 15, MAXIS_case_number
   EditBox 225, 5, 60, 15, doc_date_stamp
   EditBox 80, 25, 265, 15, docs_rec
   EditBox 30, 70, 315, 15, ADDR
@@ -98,7 +98,7 @@ EndDialog
 
 
 BeginDialog documents_received_LTC_dialog, 0, 0, 356, 425, "Documents received LTC"
-  EditBox 55, 5, 70, 15, case_number
+  EditBox 55, 5, 70, 15, MAXIS_case_number
   EditBox 225, 5, 60, 15, doc_date_stamp
   EditBox 80, 25, 265, 15, docs_rec
   EditBox 30, 60, 315, 15, FACI
@@ -156,7 +156,7 @@ If LTC_case = vbCancel then stopscript
 'Connects to BlueZone
 EMConnect ""
 'Calls a MAXIS case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Displays the dialog and navigates to case note
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
@@ -171,8 +171,8 @@ DO
 			LOOP until worker_signature <> ""
 			If actions_taken = "" Then MsgBox "You must case note your actions taken."
 		LOOP until actions_taken <> ""
-		If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
-	Loop until case_number <> ""														'Loops until that case number exists
+		If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
+	Loop until MAXIS_case_number <> ""														'Loops until that case number exists
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists	
 

@@ -51,7 +51,7 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 BeginDialog case_number_dlg, 0, 0, 206, 75, "Enter a Case Number"
-  EditBox 70, 10, 70, 15, case_number
+  EditBox 70, 10, 70, 15, MAXIS_case_number
   EditBox 65, 30, 30, 15, benefit_month
   EditBox 155, 30, 30, 15, benefit_year
   ButtonGroup ButtonPressed
@@ -96,7 +96,7 @@ EMFocus
 Call check_for_MAXIS(false)
 
 'grabs the case number and benefit month/year that is being worked on
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 EMReadScreen at_self, 4, 2, 50
 IF at_self = "SELF" THEN 
 	EMReadScreen benefit_month, 2, 20, 43
@@ -112,7 +112,7 @@ DO
 	err_msg = ""
 	DIALOG case_number_dlg
 		IF ButtonPressed = 0 THEN stopscript
-		IF case_number = "" OR (case_number <> "" AND len(case_number) > 8) OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP UNTIL err_msg = ""
 

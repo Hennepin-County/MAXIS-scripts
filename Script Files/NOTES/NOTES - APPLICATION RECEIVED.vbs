@@ -52,7 +52,7 @@ STATS_denomination = "C"                   'C is for each CASE
 
 'DIALOGS-------------------------------------------------------------
 BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
-  EditBox 95, 5, 60, 15, case_number
+  EditBox 95, 5, 60, 15, MAXIS_case_number
   EditBox 95, 25, 60, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 45, 45, 50, 15
@@ -96,15 +96,15 @@ EndDialog
 'Grabs the case number
 EMConnect ""
 
-CALL MAXIS_case_number_finder (case_number)
+CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 'Runs the first dialog - which confirms the case number and gathers worker signature
 Do 
 	Dialog case_appld_dialog
 	If buttonpressed = cancel then stopscript
-	If case_number = "" then MsgBox "You must have a case number to continue!"
+	If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"
 	If worker_signature = "" then Msgbox "Please sign your case note"
-Loop until case_number <> "" AND worker_signature <> ""
+Loop until MAXIS_case_number <> "" AND worker_signature <> ""
 
 call check_for_MAXIS(true)
 
@@ -113,7 +113,7 @@ call check_for_MAXIS(true)
 call navigate_to_MAXIS_screen("REPT","PND2")
 dateofapp_row = 1 
 dateofapp_col = 1 
-EMSearch case_number, dateofapp_row, dateofapp_col
+EMSearch MAXIS_case_number, dateofapp_row, dateofapp_col
 EMReadScreen footer_month, 2, dateofapp_row, 38
 EMReadScreen app_day, 2, dateofapp_row, 41
 EMReadScreen footer_year, 2, dateofapp_row, 44

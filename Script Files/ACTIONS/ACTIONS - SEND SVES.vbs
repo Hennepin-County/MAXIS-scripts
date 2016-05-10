@@ -50,7 +50,7 @@ END IF
 
 'DIALOGS-----------------------------------------------------------------
 BeginDialog send_SVES_dialog, 0, 0, 271, 85, "Send SVES Dialog"
-  EditBox 90, 5, 60, 15, case_number
+  EditBox 90, 5, 60, 15, MAXIS_case_number
   EditBox 125, 25, 25, 15, member_number
   CheckBox 5, 50, 165, 10, "Check here to case note that a QURY was sent.", case_note_checkbox
   EditBox 80, 65, 70, 15, worker_signature
@@ -72,7 +72,7 @@ EndDialog
 EMConnect ""
 
 'Grabs case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 Dialog send_SVES_dialog
@@ -245,7 +245,7 @@ ElseIf BNDX_radiobutton = 1 then
   EMWriteScreen PMI, 9, 38
 End if
 
-EMWriteScreen case_number, 11, 38
+EMWriteScreen MAXIS_case_number, 11, 38
 EMWriteScreen "y", 14, 38
 
 'Shuts down here if the user does not want to case note

@@ -81,7 +81,7 @@ END FUNCTION
 
 'Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 251, 230, "ABAWD BANKED MONTHS FIATER"
-  EditBox 105, 10, 60, 15, case_number
+  EditBox 105, 10, 60, 15, MAXIS_case_number
   EditBox 105, 30, 25, 15, initial_month
   EditBox 140, 30, 25, 15, initial_year
   ButtonGroup ButtonPressed
@@ -122,7 +122,7 @@ end class
 'The script----------------------------------------------------------------------------------------------------
 EMConnect ""
 call check_for_maxis(false)
-call maxis_case_number_finder(case_number)
+call maxis_case_number_finder(MAXIS_case_number)
 
 If worker_county_code = "x101" OR _
 		worker_county_code = "x115" OR _
@@ -138,15 +138,15 @@ DO
 	err_msg = ""
 	dialog case_number_dialog
 	If buttonpressed = 0 THEN stopscript
-	IF left(case_number, 10) <> "UUDDLRLRBA" AND isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
+	IF left(MAXIS_case_number, 10) <> "UUDDLRLRBA" AND isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
 	IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial month."
 	IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial year."
 	IF err_msg <> "" THEN msgbox err_msg & vbCr & "Please resolve to continue."
 LOOP UNTIL err_msg = ""
 
 'THIS ACTIVATES DEVELOPER MODE if Konami code is entered left of the case number
-IF left(case_number, 10) = "UUDDLRLRBA" THEN developer_mode = true
-case_number = replace(case_number, "UUDDLRLRBA", "") 'removing it so the case number works in the rest of the script
+IF left(MAXIS_case_number, 10) = "UUDDLRLRBA" THEN developer_mode = true
+MAXIS_case_number = replace(MAXIS_case_number, "UUDDLRLRBA", "") 'removing it so the case number works in the rest of the script
 
 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
 	'We will need to remove the string "/1/" from each element in the array
@@ -646,7 +646,7 @@ For i = 0 to ubound(footer_month_array)
 	'-----------------GO TO FIAT!---------------------------------
 	back_to_self
 	EMwritescreen "FIAT", 16, 43
-	EMWritescreen case_number, 18, 43
+	EMWritescreen MAXIS_case_number, 18, 43
 	EMwritescreen footer_month, 20, 43
 	EMWritescreen footer_year, 20, 46
 	transmit

@@ -67,11 +67,11 @@ EMSearch "Case Nbr: ", row, col
 If row = 0 then script_end_procedure("A valid case number could not be found. This script works best from a STAT, CASE, or ELIG screen.")
 
 'Reading the case number, then removing spaces and underscores, and adding the leading zeroes for MMIS.
-EMReadScreen case_number, 8, row, col + 10
-case_number = replace(replace(case_number, " ", ""), "_", "0") 'Removing any underscores.
+EMReadScreen MAXIS_case_number, 8, row, col + 10
+MAXIS_case_number = replace(replace(MAXIS_case_number, " ", ""), "_", "0") 'Removing any underscores.
 Do
-	If len(case_number) < 8 then case_number = "0" & case_number
-Loop until len(case_number) = 8
+	If len(MAXIS_case_number) < 8 then MAXIS_case_number = "0" & MAXIS_case_number
+Loop until len(MAXIS_case_number) = 8
 
 'Checking to see if we are on the HC/APP screen, which is not supported at this time (case number is in different place)
 EMReadScreen HC_app_check, 16, 3, 33 
@@ -126,7 +126,7 @@ transmit
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 EMWriteScreen "i", 2, 19
-EMWriteScreen case_number, 9, 19
+EMWriteScreen MAXIS_case_number, 9, 19
 transmit
 EMReadscreen RKEY_check, 4, 1, 52
 If RKEY_check = "RKEY" then script_end_procedure("A correct case number was not taken from MAXIS. Check your case number and try again.")

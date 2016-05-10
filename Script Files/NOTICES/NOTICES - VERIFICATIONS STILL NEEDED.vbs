@@ -51,7 +51,7 @@ END IF
 'DIALOGS FOR THE SCRIPT======================================================================================================
 ''Still Needed Dialog
 BeginDialog Verifications_Still_Needed_Dialog, 0, 0, 341, 320, "Verifications Still Needed Dialog"
-  EditBox 60, 5, 120, 15, case_number
+  EditBox 60, 5, 120, 15, MAXIS_case_number
   EditBox 30, 40, 150, 15, address_verification
   EditBox 70, 60, 110, 15, schl_stin_stec_verification
   EditBox 30, 80, 150, 15, disa_verification
@@ -98,7 +98,7 @@ EndDialog
 EMConnect ""
 
 'Grabs the MAXIS case number automatically
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
 DO
@@ -108,7 +108,7 @@ DO
 
 'Handling for error messaging (in the case of mandatory fields or fields requiring a specific format)-----------------------------------
 'If a condition is met...          ...then the error message is itself, plus a new line, plus an error message...           ...Then add a comment explaining your reason it's mandatory.
-	IF IsNumeric(case_number) = FALSE or len(case_number) > 8 	THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
+	IF IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 	THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'MAXIS_case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
 	IF worker_signature = ""           													THEN err_msg = err_msg & vbNewLine & "* You must sign your case note!"                  'worker_signature is usually also a mandatory field
 	IF twenty_nine_nineteen_requested = unchecked 							THEN err_msg = err_msg & vbNewLine & "* If DHS-2919 (or other DHS approved form) was not used for initial verification request, take appropriate action. Do not proceed with this script. Verifications NEED to be requested using DHS-2919 or other DHS approved form."
     '<<Follow the above template to add more mandatory fields!!>>

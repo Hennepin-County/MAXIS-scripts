@@ -53,7 +53,7 @@ STATS_denomination = "C"        'C is for each case
 'THE DIALOG----------------------------------------------------------------------------------------------------------
 
 BeginDialog HC_ICAMA_dialog, 0, 0, 286, 380, "HC ICAMA"
-  EditBox 80, 10, 65, 15, case_number
+  EditBox 80, 10, 65, 15, MAXIS_case_number
   EditBox 140, 30, 75, 15, icama_recd
   EditBox 60, 55, 160, 15, state
   DropListBox 120, 80, 100, 15, "Select One..."+chr(9)+"Adoption"+chr(9)+"Foster Care", type_dropdown
@@ -91,14 +91,14 @@ EndDialog
 EMConnect ""
 
 'Grabs the MAXIS case number            
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
 	err_msg = ""		
 	Dialog HC_ICAMA_dialog
 	IF ButtonPressed = 0 THEN StopScript
-	IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
 	IF type_dropdown = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select Adoption or Foster Care!"
 	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."

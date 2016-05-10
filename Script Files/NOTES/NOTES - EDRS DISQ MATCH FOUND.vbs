@@ -54,12 +54,12 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'DECLARING VARIABLES
-'DIM case_number_dialog, case_number, edrs_disq_dialog, member_name, edrs_status, worker_signature, edrs_disq_dialog, contact_info, DISQ_state
+'DIM case_number_dialog, MAXIS_case_number, edrs_disq_dialog, member_name, edrs_status, worker_signature, edrs_disq_dialog, contact_info, DISQ_state
 'DIM contact_date, contact_time, DISQ_reason, DISQ_begin, DISQ_end, DISQ_confirmation, IPV_requested, STAT_DISQ, IPV_TIKL, STATS_counter, STATS_manualtime, STATS_denomination
 
 'DIALOG-------------------------------------------------------------------
 BeginDialog edrs_disq_dialog, 0, 0, 296, 415, "eDRS DISQ dialog"
-  EditBox 55, 25, 50, 15, case_number
+  EditBox 55, 25, 50, 15, MAXIS_case_number
   EditBox 110, 45, 170, 15, HH_memb
   EditBox 110, 65, 170, 15, contact_info
   EditBox 50, 85, 25, 15, DISQ_state
@@ -99,7 +99,7 @@ EndDialog
 'THE SCRIPT------------------------------------------------------------------------------------------
 'Connecting to BlueZone & finding case number
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 Call check_for_MAXIS(False)	'checking for an active MAXIS session'
 
 'updates the contact_date & contact_time variables to show the current date & time
@@ -118,7 +118,7 @@ Do			'edrs status dialog
 	If DISQ_reason = "" 																			then err_msg = err_msg & vbNewLine & "* You must enter the disqualification reason."
 	If DISQ_begin = "" or IsDate(DISQ_begin) = FALSE 					then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ begin date."
 	If DISQ_end <> "" And IsDate(DISQ_end) = FALSE 						then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ end date."
-	If IsNumeric(case_number) = False or Len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
 	If worker_signature = "" 																	then err_msg = err_msg & vbNewLine & "* You must sign the case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 Loop until err_msg = ""

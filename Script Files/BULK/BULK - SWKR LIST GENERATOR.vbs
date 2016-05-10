@@ -154,18 +154,18 @@ For each worker in worker_number_array
 		row = 7 'defining the row to look at
 		Do
 			If REPT_panel = "REPT/ACTV" then
-				EMReadScreen case_number, 8, row, 12 'grabbing case number
+				EMReadScreen MAXIS_case_number, 8, row, 12 'grabbing case number
 				EMReadScreen client_name, 18, row, 21 'grabbing client name
 			Else
-				EMReadScreen case_number, 8, row, 6 'grabbing case number
+				EMReadScreen MAXIS_case_number, 8, row, 6 'grabbing case number
 				EMReadScreen client_name, 15, row, 16 'grabbing client name
 			End if
 			ObjExcel.Cells(excel_row, 1).Value = worker_ID
-			ObjExcel.Cells(excel_row, 2).Value = trim(case_number)
+			ObjExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
 			ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
 			excel_row = excel_row + 1
 			row = row + 1
-		Loop until row = 19 or trim(case_number) = ""
+		Loop until row = 19 or trim(MAXIS_case_number) = ""
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
@@ -176,8 +176,8 @@ excel_row = 2 'Resetting the case row to investigate.
 
 do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no more case numbers
 	SWKR_name = "" 'Resetting this variable in case a SWKR cannot be found.
-	case_number = ObjExcel.Cells(excel_row, 2).Value
-	If case_number = "" then exit do
+	MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
+	If MAXIS_case_number = "" then exit do
 
 	'This Do...loop gets back to SELF
 	back_to_self

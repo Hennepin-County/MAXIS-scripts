@@ -78,7 +78,7 @@ EndDialog
 'This dialog gets the client's case number.---------------------------------------------------------------------
 BeginDialog get_case_number, 0, 0, 181, 100, "ABAWD Screening Tool"
   Text 10, 15, 50, 10, "Case Number: "
-  EditBox 90, 10, 50, 15, case_number
+  EditBox 90, 10, 50, 15, MAXIS_case_number
   Text 10, 35, 70, 10, "Member Number:"
   EditBox 90, 30, 30, 15, member_number
   Text 10, 55, 75, 10, "Sign your Case Note:"
@@ -205,7 +205,7 @@ EMConnect ""
 
 'Checking for maxis, finding case number and getting to blank slate of self.
 call check_for_MAXIS(false)
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 back_to_SELF
 
 'Basic info dialog, will reject incorrect case numbers and member numbers
@@ -213,13 +213,13 @@ DO
 	err_msg = ""
 	dialog get_case_number
 	cancel_confirmation
-    IF case_number = FALSE THEN err_msg = err_msg & vbCr & "Your case number contains characters other than numbers."
-    IF len(case_number) > 8 THEN  err_msg = err_msg & vbCr & "Your case number is longer than 8 characters"
+    IF MAXIS_case_number = FALSE THEN err_msg = err_msg & vbCr & "Your case number contains characters other than numbers."
+    IF len(MAXIS_case_number) > 8 THEN  err_msg = err_msg & vbCr & "Your case number is longer than 8 characters"
     IF len(member_number) = 1 THEN member_number = "0" & member_number  'correcting for 1 digit member numbers
     IF len(member_number) > 2 THEN err_msg = err_msg & vbCr & "Your members number is longer than 2 characters Please use ## format."
     IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
 	IF err_msg <> "" THEN MSGBOX err_msg
-LOOP until case_number <> "" and worker_signature <> "" and len(member_number) = 2
+LOOP until MAXIS_case_number <> "" and worker_signature <> "" and len(member_number) = 2
 
 call check_for_MAXIS(True)
 

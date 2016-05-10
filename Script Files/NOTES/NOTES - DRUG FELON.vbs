@@ -53,11 +53,11 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'DIMMING VARIABLES
-'DIM case_number, conviction_date, probation_officer, authorization_on_file_check, complied_with_UA_check, UA_date, date_of_1st_offense, date_of_2nd_offense, worker_signature, ButtonPressed,drug_felon_dialog, UA_results, Maxis_drug_function, po_officer, Authorization_on_file, Complying_with_PO, actions_taken
+'DIM MAXIS_case_number, conviction_date, probation_officer, authorization_on_file_check, complied_with_UA_check, UA_date, date_of_1st_offense, date_of_2nd_offense, worker_signature, ButtonPressed,drug_felon_dialog, UA_results, Maxis_drug_function, po_officer, Authorization_on_file, Complying_with_PO, actions_taken
 
 'DIALOGS-------------------------------------------------------------------------------------------------------------------------------
 BeginDialog drug_felon_dialog, 0, 0, 246, 235, "Drug Felon"
-  EditBox 60, 5, 75, 15, case_number
+  EditBox 60, 5, 75, 15, MAXIS_case_number
   EditBox 65, 25, 60, 15, conviction_date
   EditBox 65, 45, 135, 15, probation_officer
   CheckBox 10, 65, 145, 10, "Check here if the authorization is on file:", authorization_on_file_check
@@ -85,7 +85,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone & grabbing case number
 EMConnect "" 
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Show dialog
 DO
@@ -95,8 +95,8 @@ DO
 			IF Buttonpressed = 0 THEN StopScript
 			IF worker_signature = "" THEN MsgBox "You must sign your case note"
 		LOOP UNTIL worker_signature <> ""
-		IF IsNumeric(case_number)= FALSE THEN MsgBox "You must type a valid numeric case number."
-	LOOP UNTIL IsNumeric(case_number) = TRUE
+		IF IsNumeric(MAXIS_case_number)= FALSE THEN MsgBox "You must type a valid numeric case number."
+	LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 	If UA_results = "select one..." THEN MsgBox "You must select 'UA results field'"
 LOOP UNTIL UA_results <> "select one..."
 

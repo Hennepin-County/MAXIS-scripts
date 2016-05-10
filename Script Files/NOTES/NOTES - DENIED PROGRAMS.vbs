@@ -114,7 +114,7 @@ Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, eme
 	Call navigate_to_MAXIS_screen("REPT", "PND2")
 	row = 7
 	col = 5
-	EMSearch case_number, row, col      'finding correct case to check PND2 codes
+	EMSearch MAXIS_case_number, row, col      'finding correct case to check PND2 codes
 	'IF HC_check = checked Then
 	'	EMReadScreen HC_pnd2_code, 1, 7, 65
 	'	'IF HC_pnd2_code = 
@@ -140,7 +140,7 @@ End function
 'THE DIALOG----------------------------------------------------------------------------------------------------
 'This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
 BeginDialog denied_dialog, 0, 0, 401, 385 - dialog_shrink_amt, "Denied progs dialog"
-  EditBox 65, 5, 55, 15, case_number
+  EditBox 65, 5, 55, 15, MAXIS_case_number
   EditBox 185, 5, 55, 15, application_date
   CheckBox 60, 25, 35, 10, "SNAP", SNAP_check
   CheckBox 145, 25, 25, 10, "HC", HC_check
@@ -208,7 +208,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'SCRIPT CONNECTS, THEN FINDS THE CASE NUMBER
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Call check_for_MAXIS(True)
 
@@ -227,7 +227,7 @@ DO
 	cancel_confirmation
 	If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
 	If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
-	If case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
+	If MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
 	If application_date = "" THEN err_msg = err_msg & vbCr & "Please enter an application date."
 	If (SNAP_check = checked and SNAP_denial_date = "") or (SNAP_check = unchecked and SNAP_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked SNAP but not added a denial date, or vice versa." 
 	If (HC_check = checked and HC_denial_date = "") or (HC_check = unchecked and HC_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked HC but not added a denial date, or vice versa." 

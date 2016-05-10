@@ -51,7 +51,7 @@ END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog BILS_case_number_dialog, 0, 0, 161, 57, "BILS case number dialog"
-  EditBox 95, 0, 60, 15, case_number
+  EditBox 95, 0, 60, 15, MAXIS_case_number
   CheckBox 15, 20, 130, 10, "Check here to update existing BILS.", updating_existing_BILS_check
   ButtonGroup ButtonPressed
     OkButton 25, 35, 50, 15
@@ -156,15 +156,15 @@ EndDialog
 EMConnect ""
 
 'Finding case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Ask for case number, validate that it's numeric.
 Do
 	Dialog BILS_case_number_dialog	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
 	cancel_confirmation
 	Call check_for_MAXIS(True)
-	If isnumeric(case_number) = False then MsgBox "Enter a valid MAXIS case number."
-Loop until isnumeric(case_number) = True
+	If isnumeric(MAXIS_case_number) = False then MsgBox "Enter a valid MAXIS case number."
+Loop until isnumeric(MAXIS_case_number) = True
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)

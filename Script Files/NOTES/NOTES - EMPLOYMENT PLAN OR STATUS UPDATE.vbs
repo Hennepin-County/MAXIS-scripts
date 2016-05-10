@@ -81,11 +81,11 @@ BeginDialog agency_dropdown_case_number_dialog, 0, 0, 196, 160, "Status Update /
   ButtonGroup ButtonPressed
     OkButton 65, 130, 50, 15
     CancelButton 125, 130, 50, 15
-  EditBox 110, 10, 65, 15, case_number
+  EditBox 110, 10, 65, 15, MAXIS_case_number
   DropListBox 15, 35, 85, 15, "Status Update"+chr(9)+"Employment Plan", update_type
   DropListBox 115, 35, 60, 15, "Received"+chr(9)+"Sent", received_sent
   DropListBox 75, 60, 100, 15, ES_agency_list, agency
-  EditBox 110, 10, 65, 15, case_number
+  EditBox 110, 10, 65, 15, MAXIS_case_number
   EditBox 110, 85, 65, 15, document_date
   Text 20, 85, 65, 15, "Document Date:"
   Text 20, 60, 55, 15, "Agency:"
@@ -97,7 +97,7 @@ BeginDialog case_number_dialog, 0, 0, 196, 130, "Status Update / Employment Plan
     CancelButton 120, 95, 50, 15
   DropListBox 15, 40, 85, 15, "Status Update"+chr(9)+"Employment Plan", update_type
   DropListBox 110, 40, 60, 15, "Received"+chr(9)+"Sent", received_sent
-  EditBox 110, 10, 65, 15, case_number
+  EditBox 110, 10, 65, 15, MAXIS_case_number
   EditBox 110, 60, 65, 15, document_date
   Text 20, 15, 55, 15, "Case Number:"
   Text 20, 65, 65, 15, "Document Date:"
@@ -168,7 +168,7 @@ EndDialog
 '-grabbing case number
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 '---------------Calling the case number dialog
 DO
@@ -181,8 +181,8 @@ DO
 			END IF
 			IF ButtonPressed = 0 THEN stopscript
 		LOOP UNTIL ButtonPressed = OK
-		IF isnumeric(case_number) = FALSE THEN MsgBox "You must enter a case number. Please try again."
-	LOOP UNTIL isnumeric(case_number) = True
+		IF isnumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must enter a case number. Please try again."
+	LOOP UNTIL isnumeric(MAXIS_case_number) = True
 	IF isdate(document_date) = FALSE THEN  MsgBox "Please enter a valid document date."
 LOOP UNTIL isdate(document_date) = True
 
@@ -303,7 +303,7 @@ call write_variable_in_CASE_NOTE(worker_signature)
 
 IF collecting_ES_statistics = True THEN
 	'Updating the database
-	call write_MAXIS_info_to_ES_database(case_number, hh_member, ESMembName, EsSanctionPercentage, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, disa_end_date, primary_activity, ESDate, agency, ES_Counselor, ES_active, insert_string)
+	call write_MAXIS_info_to_ES_database(MAXIS_case_number, hh_member, ESMembName, EsSanctionPercentage, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, disa_end_date, primary_activity, ESDate, agency, ES_Counselor, ES_active, insert_string)
 END IF
 
 script_end_procedure("")

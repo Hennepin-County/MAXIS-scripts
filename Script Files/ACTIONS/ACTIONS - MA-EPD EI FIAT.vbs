@@ -70,7 +70,7 @@ next_month_and_year = footer_month & "/" & footer_year
 'DIALOGS--------------------------------
 BeginDialog case_number_dialog, 0, 0, 156, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 90, 0, 60, 15, case_number
+  EditBox 90, 0, 60, 15, MAXIS_case_number
   Text 25, 25, 65, 10, "HH memb number:"
   EditBox 90, 20, 30, 15, memb_number
   ButtonGroup ButtonPressed
@@ -82,7 +82,7 @@ EndDialog
 
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 memb_number = "01" 'Setting a default
 

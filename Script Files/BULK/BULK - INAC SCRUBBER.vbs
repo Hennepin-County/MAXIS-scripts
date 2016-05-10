@@ -222,21 +222,21 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	'This loop grabs the case number, client name, and inac date for each case.
 	Do
 		Do
-			EMReadScreen case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
+			EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
 			EMReadScreen client_name, 25, MAXIS_row, 14
 			EMReadScreen inac_date, 8, MAXIS_row, 49
 			EMReadScreen appl_date, 8, MAXIS_row, 39
-			case_number = Trim(case_number)                    'Then it trims the spaces from the edges of each. 
+			MAXIS_case_number = Trim(MAXIS_case_number)                    'Then it trims the spaces from the edges of each. 
 			client_name = Trim(client_name)
 			inac_date = Trim(inac_date)
 			appl_date = Trim(appl_date)
 			If appl_date <> inac_date then                     'Because if the two dates equal each other, then this is a denial and not a case closure.
 				
-				'Adds case info to an array. Uses tildes to differentiate the case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
+				'Adds case info to an array. Uses tildes to differentiate the MAXIS_case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
 				If INAC_info_array = "" then
-					INAC_info_array = case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = MAXIS_case_number & "~" & client_name & "~" & inac_date
 				Else
-					INAC_info_array = INAC_info_array & "|" & case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = INAC_info_array & "|" & MAXIS_case_number & "~" & client_name & "~" & inac_date
 				End if
 			End if
 			MAXIS_row = MAXIS_row + 1
@@ -258,8 +258,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'Assigns info to the array. If developer_mode is on, it'll also add to an Excel spreadsheet
 	For x = 0 to total_cases
-		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (case_number, client_name, INAC_date)
-		INAC_scrubber_primary_array(x, 0) = interim_array(0)	'The case_number
+		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (MAXIS_case_number, client_name, INAC_date)
+		INAC_scrubber_primary_array(x, 0) = interim_array(0)	'The MAXIS_case_number
 		INAC_scrubber_primary_array(x, 1) = interim_array(1)	'The client_name
 		INAC_scrubber_primary_array(x, 2) = interim_array(2)	'The inac_date
 		If developer_mode = True then 
@@ -277,9 +277,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'Grabs any claims due for each case. Adds to Excel if developer_mode = True
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array(x, 0)
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		EMWriteScreen "________", 4, 8
-		EMWriteScreen case_number, 4, 8
+		EMWriteScreen MAXIS_case_number, 4, 8
 		transmit
 		EMReadScreen claims_due, 10, 19, 58
 		INAC_scrubber_primary_array(x, 3) = claims_due
@@ -288,14 +288,14 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'Entering claims into the Word doc
 	For x = 0 to total_cases
-		'Grabbing the case_number, client_name, and claims_due from the array
-		case_number = INAC_scrubber_primary_array(x, 0)
+		'Grabbing the MAXIS_case_number, client_name, and claims_due from the array
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		client_name = INAC_scrubber_primary_array(x, 1)
 		claims_due = INAC_scrubber_primary_array(x, 3)
 		
 		'If there's a claim due, it'll add to the Word doc
 		If claims_due <> 0 then 
-			objselection.typetext case_number & ": " & client_name & "; amount due: $" & claims_due
+			objselection.typetext MAXIS_case_number & ": " & client_name & "; amount due: $" & claims_due
 			objselection.TypeParagraph()
 		End if
 	Next
@@ -308,9 +308,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'This checks the DAIL for messages, sends a variable to the array. We don't transfer cases with DAIL messages. (True for "has DAIL", False for "doesn't have DAIL")
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array(x, 0)		'Grabbing case number
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)		'Grabbing case number
 		EMWriteScreen "________", 20, 38
-		EMWriteScreen case_number, 20, 38
+		EMWriteScreen MAXIS_case_number, 20, 38
 		transmit
 		EMReadScreen DAIL_check, 1, 5, 5
 		If DAIL_check <> " " then 
@@ -332,7 +332,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	For x = 0 to total_cases
 		
 		'Grabbing case number and name for this loop
-		case_number = INAC_scrubber_primary_array(x, 0)	
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)	
 		client_name = INAC_scrubber_primary_array(x, 1)	
 		
 		'Gets to MEMB
@@ -366,7 +366,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			call navigate_to_MAXIS_screen("STAT", "ABPS")
 			EMReadScreen good_cause_check, 1, 5, 47
 			If good_cause_check = "P" then
-				objselection.typetext case_number & ", " & client_name
+				objselection.typetext MAXIS_case_number & ", " & client_name
 				objselection.TypeParagraph()
 			End if
 		End if
@@ -522,15 +522,15 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'This do...loop updates case notes for all of the cases that don't have DAIL messages or cases still open in MMIS
 	For x = 0 to total_cases
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		DAILS_out = INAC_scrubber_primary_array(x, 4)
 		MMIS_status = INAC_scrubber_primary_array(x, 5)
 		privileged_status = INAC_scrubber_primary_array(x, 7)
 	
 		'Adds the case number to word doc if MMIS is active
 		If MMIS_status = true Then
-			objselection.typetext case_number
+			objselection.typetext MAXIS_case_number
 			objselection.TypeParagraph()
 		End If
 	
@@ -549,7 +549,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			inac_month = replace(inac_month, " ", "/")
 			IF closure_reason = "NO REVIEW" AND inac_month = closure_date THEN 
 				INAC_scrubber_primary_array(x, 8) = True
-				objSelection.typetext case_number & ": case has MAGI HC client(s) that closed for incomplete or no review."
+				objSelection.typetext MAXIS_case_number & ": case has MAGI HC client(s) that closed for incomplete or no review."
 				objSelection.TypeParagraph()
 			ELSE
 				INAC_scrubber_primary_array(x, 8) = False
@@ -612,8 +612,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'This do...loop transfers the cases to the CLS_x1_number.
 	For x = 0 to total_cases
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		DAILS_out = INAC_scrubber_primary_array(x, 4)
 		MMIS_status = INAC_scrubber_primary_array(x, 5)
 		privileged_status = INAC_scrubber_primary_array(x, 7)
@@ -625,7 +625,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False AND INAC_scrubber_primary_array(x, 8) = False then
 			EMWriteScreen "SPEC", 16, 43
 			EMWriteScreen "________", 18, 43
-			EMWriteScreen case_number, 18, 43
+			EMWriteScreen MAXIS_case_number, 18, 43
 			EMWriteScreen "XFER", 21, 70
 			transmit
 			If developer_mode = False then
@@ -812,21 +812,21 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	'This loop grabs the case number, client name, and inac date for each case.
 	Do
 		Do
-			EMReadScreen case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
+			EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
 			EMReadScreen client_name, 25, MAXIS_row, 14
 			EMReadScreen inac_date, 8, MAXIS_row, 49
 			EMReadScreen appl_date, 8, MAXIS_row, 39
-			case_number = Trim(case_number)                    'Then it trims the spaces from the edges of each.
+			MAXIS_case_number = Trim(MAXIS_case_number)                    'Then it trims the spaces from the edges of each.
 			client_name = Trim(client_name)
 			inac_date = Trim(inac_date)
 			appl_date = Trim(appl_date)
 			If appl_date <> inac_date then                     'Because if the two dates equal each other, then this is a denial and not a case closure.
 	
-				'Adds case info to an array. Uses tildes to differentiate the case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
+				'Adds case info to an array. Uses tildes to differentiate the MAXIS_case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
 				If INAC_info_array = "" then
-					INAC_info_array = case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = MAXIS_case_number & "~" & client_name & "~" & inac_date
 				Else
-					INAC_info_array = INAC_info_array & "|" & case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = INAC_info_array & "|" & MAXIS_case_number & "~" & client_name & "~" & inac_date
 				End if
 			End if
 			MAXIS_row = MAXIS_row + 1
@@ -849,8 +849,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'Assigns info to the array. If developer_mode is on, it'll also add to an Excel spreadsheet
 	For x = 0 to total_cases
-		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (case_number, client_name, INAC_date)
-		INAC_scrubber_primary_array_2(x, 0) = interim_array(0)	'The case_number
+		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (MAXIS_case_number, client_name, INAC_date)
+		INAC_scrubber_primary_array_2(x, 0) = interim_array(0)	'The MAXIS_case_number
 		INAC_scrubber_primary_array_2(x, 1) = interim_array(1)	'The client_name
 		INAC_scrubber_primary_array_2(x, 2) = interim_array(2)	'The inac_date
 		If developer_mode = True then
@@ -867,9 +867,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'Grabs any claims due for each case. Adds to Excel if developer_mode = True
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		EMWriteScreen "________", 4, 8
-		EMWriteScreen case_number, 4, 8
+		EMWriteScreen MAXIS_case_number, 4, 8
 		transmit
 		EMReadScreen claims_due, 10, 19, 58
 		INAC_scrubber_primary_array_2(x, 3) = claims_due
@@ -878,14 +878,14 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'Entering claims into the Word doc
 	For x = 0 to total_cases
-		'Grabbing the case_number, client_name, and claims_due from the array
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		'Grabbing the MAXIS_case_number, client_name, and claims_due from the array
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		client_name = INAC_scrubber_primary_array_2(x, 1)
 		claims_due = INAC_scrubber_primary_array_2(x, 3)
 	
 		'If there's a claim due, it'll add to the Word doc
 		If claims_due <> 0 then
-			objselection.typetext case_number & ": " & client_name & "; amount due: $" & claims_due
+			objselection.typetext MAXIS_case_number & ": " & client_name & "; amount due: $" & claims_due
 			objselection.TypeParagraph()
 		End if
 	Next
@@ -896,9 +896,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'This checks the DAIL for messages, sends a variable to the array. We don't transfer cases with DAIL messages. (True for "has DAIL", False for "doesn't have DAIL")
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array_2(x, 0)		'Grabbing case number
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)		'Grabbing case number
 		EMWriteScreen "________", 20, 38
-		EMWriteScreen case_number, 20, 38
+		EMWriteScreen MAXIS_case_number, 20, 38
 		transmit
 		EMReadScreen DAIL_check, 1, 5, 5
 		If DAIL_check <> " " then
@@ -921,7 +921,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	For x = 0 to total_cases
 	
 		'Grabbing case number and name for this loop
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		client_name = INAC_scrubber_primary_array_2(x, 1)
 	
 		'Gets to MEMB
@@ -955,7 +955,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 			call navigate_to_MAXIS_screen("STAT", "ABPS")
 			EMReadScreen good_cause_check, 1, 5, 47
 			If good_cause_check = "P" then
-				objselection.typetext case_number & ", " & client_name
+				objselection.typetext MAXIS_case_number & ", " & client_name
 				objselection.TypeParagraph()
 			End if
 		End if
@@ -1103,14 +1103,14 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	'This do...loop updates case notes for all of the cases that don't have DAIL messages or cases still open in MMIS
 	For x = 0 to total_cases
 	
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		DAILS_out = INAC_scrubber_primary_array_2(x, 4)
 		MMIS_status = INAC_scrubber_primary_array_2(x, 5)
 		privileged_status = INAC_scrubber_primary_array_2(x, 7)
 			'Adds the case number to word doc if MMIS is active
 		If MMIS_status = true Then
-			objselection.typetext case_number
+			objselection.typetext MAXIS_case_number
 			objselection.TypeParagraph()
 		End If
 	
@@ -1146,8 +1146,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'This do...loop transfers the cases to the CLS_x1_number.
 	For x = 0 to total_cases
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		DAILS_out = INAC_scrubber_primary_array_2(x, 4)
 		MMIS_status = INAC_scrubber_primary_array_2(x, 5)
 		privileged_status = INAC_scrubber_primary_array_2(x, 7)
@@ -1159,7 +1159,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False then
 			EMWriteScreen "SPEC", 16, 43
 			EMWriteScreen "________", 18, 43
-			EMWriteScreen case_number, 18, 43
+			EMWriteScreen MAXIS_case_number, 18, 43
 			EMWriteScreen "XFER", 21, 70
 			transmit
 			If developer_mode = False then

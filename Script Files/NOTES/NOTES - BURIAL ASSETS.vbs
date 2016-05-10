@@ -52,7 +52,7 @@ STATS_denomination = "C"                   'C is for each CASE
 
 'SECTION 01 -- Dialogs
 BeginDialog opening_dialog_01, 0, 0, 311, 420, "LTC Burial Assets"
-  EditBox 95, 25, 60, 15, case_number
+  EditBox 95, 25, 60, 15, MAXIS_case_number
   EditBox 225, 25, 30, 15, hh_member
   DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
   EditBox 135, 65, 120, 15, worker_signature
@@ -296,7 +296,7 @@ END function
 
 'SECTION 03: The script----------------------------------------------------------------------------------------------------
 EMConnect "" 		'connecting to MAXIS
-Call MAXIS_case_number_finder(case_number)	'grabbing the case number
+Call MAXIS_case_number_finder(MAXIS_case_number)	'grabbing the case number
 
 insurance_policy_number = "none"			'establishing value of the variable
 
@@ -311,7 +311,7 @@ DO
 	"Insurance Counted Value is not a number. Do not include letters or special characters."
 	If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
 	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""

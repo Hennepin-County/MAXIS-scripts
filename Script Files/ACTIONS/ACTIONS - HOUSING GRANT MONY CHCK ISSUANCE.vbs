@@ -58,7 +58,7 @@ CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -1
 
 'DIALOG===========================================================================================================================
 BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 200, "MFIP Housing Grant MONY/CHCK issuance "
-  EditBox 60, 10, 55, 15, case_number
+  EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 165, 10, 25, 15, member_number
   EditBox 245, 10, 25, 15, initial_month
   EditBox 275, 10, 25, 15, initial_year
@@ -79,9 +79,9 @@ BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 200, "MFIP Housi
 EndDialog
 
 'The script============================================================================================================================
-'Connects to MAXIS, grabbing the case case_number
+'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number) 
+Call MAXIS_case_number_finder(MAXIS_case_number) 
 member_number = "01"	'defaults the member number to 01
 initial_month = CM_minus_1_mo  'defaulting date to current month - one
 initial_year = CM_minus_1_yr
@@ -92,7 +92,7 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog housing_grant_MONY_CHCK_issuance_dialog				'main dialog
 		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
-		IF len(case_number) > 8 or isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."					'mandatory field
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."					'mandatory field
 		IF len(member_number) > 2 or isnumeric(member_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit member number."	'mandatory field'
 		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit month."	'mandatory field
 		IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit year."		'mandatory field
@@ -105,7 +105,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'Clears out case number and enters the selected footer month/year
 back_to_self
 EMWritescreen "________", 18, 43
-EMWritescreen case_number, 18, 43
+EMWritescreen MAXIS_case_number, 18, 43
 EMWritescreen initial_month, 20, 43
 EMWritescreen initial_year, 20, 46
 

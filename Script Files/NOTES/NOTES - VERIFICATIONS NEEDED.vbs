@@ -52,7 +52,7 @@ STATS_denomination = "C"  'C is for case
 
 'DIALOGS--------------------------------------------------------------------------------------------------
 BeginDialog verifs_needed_dialog, 0, 0, 351, 360, "Verifs needed"
-  EditBox 55, 5, 70, 15, case_number
+  EditBox 55, 5, 70, 15, MAXIS_case_number
   EditBox 250, 5, 60, 15, verif_due_date
   EditBox 30, 35, 315, 15, ADDR
   EditBox 70, 55, 275, 15, SCHL
@@ -95,7 +95,7 @@ BeginDialog verifs_needed_dialog, 0, 0, 351, 360, "Verifs needed"
 
  
 BeginDialog verifs_needed_LTC_dialog, 0, 0, 351, 435, "Verifs needed (LTC) dialog"
-  EditBox 55, 5, 70, 15, case_number
+  EditBox 55, 5, 70, 15, MAXIS_case_number
   EditBox 250, 5, 60, 15, verif_due_date
   ButtonGroup ButtonPressed
     PushButton 315, 10, 30, 10, "CD+10", CD_plus_10_button
@@ -157,7 +157,7 @@ If LTC_case = vbCancel then stopscript
 'Connects to BlueZone
 EMConnect ""
 'Calls a MAXIS case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
 DO
@@ -168,8 +168,8 @@ DO
 			cancel_confirmation													'quits if cancel is pressed
 			If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
 		Loop until buttonpressed = OK																	'Loops until you press OK
-		If case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
-	Loop until case_number <> ""														'Loops until that case number exists
+		If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
+	Loop until MAXIS_case_number <> ""														'Loops until that case number exists
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists	
 

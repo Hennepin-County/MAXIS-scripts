@@ -49,7 +49,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
-  EditBox 60, 10, 80, 15, case_number
+  EditBox 60, 10, 80, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 15, 55, 50, 15
     CancelButton 80, 55, 50, 15
@@ -61,15 +61,15 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
 'Hunts for Maxis case number to autofill it
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 
 DO
 	dialog EDRS_dialog
 	IF buttonpressed = 0 THEN stopscript
-	IF case_number = "" THEN MSGBOX "Please enter a case number"
+	IF MAXIS_case_number = "" THEN MSGBOX "Please enter a case number"
 
-LOOP UNTIL case_number <> ""
+LOOP UNTIL MAXIS_case_number <> ""
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)

@@ -268,7 +268,7 @@ call convert_array_to_droplist_items(agency_office_array, county_office_list)
 'NOTE: this dialog contains a special modification to allow dynamic creation of the county office list. You cannot edit it in
 '   Dialog Editor without modifying the commented line.
 BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
-  EditBox 75, 5, 50, 15, case_number
+  EditBox 75, 5, 50, 15, MAXIS_case_number
   DropListBox 50, 25, 95, 15, "new application"+chr(9)+"recertification", app_type
   CheckBox 10, 43, 150, 10, "Check here if this is a reschedule.", reschedule_check
   EditBox 50, 55, 95, 15, CAF_date
@@ -305,7 +305,7 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 'restricting the usage for Hennepin County users
 If worker_county_code = "x127" then script_end_procedure ("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user, or your supervisor if you have questions. Thank you.")
 
@@ -322,8 +322,8 @@ DO
 	                            Do
 	                                Dialog appointment_letter_dialog
 	                                If ButtonPressed = cancel then stopscript
-	                                If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-	                            Loop until isnumeric(case_number) = True and len(case_number) <= 8
+	                                If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+	                            Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 	                            CAF_date = replace(CAF_date, ".", "/")
 	                            If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
 	                            If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."

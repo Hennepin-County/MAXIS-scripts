@@ -67,7 +67,7 @@ IF banked_months_db_tracking <> true THEN script_end_procedure("Your county must
  		Set objRecordSet = objConnection.OpenSchema(adSchemaColumns, Array(Null, Null, "banked_month_log"))
 
 		Do until objRecordSet.EOF 'loop through all columns in recordset
-			IF objRecordSet("Column_Name") <> "ID" AND objRecordSet("Column_Name") <> "case_number" AND objRecordSet("Column_Name") <> "member_number" then
+			IF objRecordSet("Column_Name") <> "ID" AND objRecordSet("Column_Name") <> "MAXIS_case_number" AND objRecordSet("Column_Name") <> "member_number" then
 				months_array = months_array & "," & cint(objRecordSet("Column_Name"))
 			END If
 			objRecordSet.MoveNext
@@ -119,7 +119,7 @@ call check_for_maxis(false)
 			DO 'THis loop will look at ELIG to determine if this person was closed or remains open.
 				IF rs("1") = true THEN
 				STATS_counter = STATS_counter + 1 'add 1 to the stats count for each case checked
-				case_number = rs("case_number") 'grab case number from current record
+				MAXIS_case_number = rs("MAXIS_case_number") 'grab case number from current record
 				member_number = rs("member_number") 'grab member_number'
 				call navigate_to_MAXIS_screen("ELIG", "FS")
 				' Make sure there is a version to read
@@ -157,8 +157,8 @@ call check_for_maxis(false)
 
 				'If not active, update the DB accordingly
 				IF abawd_active = false THEN
-				objConnection.Execute("UPDATE banked_month_log Set " & replace(footer_month, "0", "") & " = 0 WHERE case_number = " & case_number & " AND member_number = " & member_number &"")
-				updated_case_list = updated_case_list & " " & case_number
+				objConnection.Execute("UPDATE banked_month_log Set " & replace(footer_month, "0", "") & " = 0 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & member_number &"")
+				updated_case_list = updated_case_list & " " & MAXIS_case_number
 				END IF
 				END IF
 			rs.MoveNext 'Switch to next record

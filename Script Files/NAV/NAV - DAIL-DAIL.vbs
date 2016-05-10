@@ -85,7 +85,7 @@ EMConnect ""
 call check_for_MAXIS(True)
 
 'Finds a MAXIS case number (if applicable).
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Navigates to DAIL/DAIL
 call navigate_to_MAXIS_screen("DAIL", "DAIL")

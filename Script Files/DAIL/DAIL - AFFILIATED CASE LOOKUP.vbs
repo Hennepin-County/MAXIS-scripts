@@ -62,9 +62,9 @@ EMSearch "#", 6, col
 EMSearch ")", 6, cola
 
 case_number_digits = cola - col - 1
-EMReadScreen case_number, case_number_digits, 6, col + 1
-If IsNumeric(case_number) = False then MsgBox "An affiliated case could not be detected on this dail message. Try another dail message."
-If IsNumeric(case_number) = False then stopscript
+EMReadScreen MAXIS_case_number, case_number_digits, 6, col + 1
+If IsNumeric(MAXIS_case_number) = False then MsgBox "An affiliated case could not be detected on this dail message. Try another dail message."
+If IsNumeric(MAXIS_case_number) = False then stopscript
 
 'This Do...loop gets back to SELF.
 Do
@@ -77,7 +77,7 @@ Loop until SELF_check = "Select Function Menu (SELF)"
 EMSetCursor 16, 43
 EMSendKey "case"
 EMSetCursor 18, 43
-EMSendKey "<eraseEOF>" + case_number
+EMSendKey "<eraseEOF>" + MAXIS_case_number
 EMSetCursor 21, 70
 EMSendKey "note" + "<enter>"
 

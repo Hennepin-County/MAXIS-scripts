@@ -62,7 +62,7 @@ STATS_denomination = "C"       'C is for case
 EMConnect ""
 
 'Reads case number
-EMReadScreen case_number, 8, 5, 73
+EMReadScreen MAXIS_case_number, 8, 5, 73
 
 'Navigates to INFC
 EMSendKey "i"

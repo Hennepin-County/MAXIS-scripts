@@ -63,7 +63,7 @@ END IF
 ''SNAP_sanction_type_droplist dialog and other variables----------------------------------------------------------------------------------------------------
 'DIM ButtonPressed
 'DIM SNAP_sanction_type_dialog
-'DIM case_number
+'DIM MAXIS_case_number
 'DIM footer_month
 'DIM MAXIS_footer_month
 'DIM footer_year
@@ -115,7 +115,7 @@ END FUNCTION
 
 'The DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_sanction_type_dialog, 0, 0, 171, 110, "SNAP Sanction type dialog					"
-  EditBox 65, 10, 65, 15, case_number
+  EditBox 65, 10, 65, 15, MAXIS_case_number
   EditBox 65, 30, 30, 15, MAXIS_footer_month
   EditBox 100, 30, 30, 15, MAXIS_footer_year
   DropListBox 20, 65, 120, 15, "Select one..."+chr(9)+"Imposing sanction"+chr(9)+"Resolving sanction", sanction_type_droplist
@@ -188,7 +188,7 @@ EndDialog
 'Connecting to MAXIS
 EMConnect ""
 'Grabbing the case number
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 'Grabbing the footer month and footer year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -199,8 +199,8 @@ Do
 		Do
 			dialog SNAP_sanction_type_dialog
 			cancel_confirmation
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-		Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+		Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 		IF MAXIS_footer_month = "" OR MAXIS_footer_year = "" THEN MsgBox "You must enter both the footer month & footer year."
 	LOOP until (MAXIS_footer_month <> "" AND MAXIS_footer_year <> "")
 	IF sanction_type_droplist = "Select one..." THEN MsgBox "You must select either ""imposing sanction"" or ""resolving sanction""."

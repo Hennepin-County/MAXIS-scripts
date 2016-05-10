@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
 BeginDialog County_Burial_Application_Received, 0, 0, 266, 175, "County Burial Application Received"
-  EditBox 55, 5, 60, 15, case_number
+  EditBox 55, 5, 60, 15, MAXIS_case_number
   EditBox 200, 5, 60, 15, date_received
   EditBox 55, 25, 60, 15, date_of_death
   EditBox 200, 25, 30, 15, CFR_resp
@@ -78,15 +78,15 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
 'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
 	Dialog County_Burial_Application_Received
 	IF buttonpressed = 0 THEN stopscript
-	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF MAXIS_case_number = "" THEN MsgBox "You must have a case number to continue!"
 	IF worker_signature = "" THEN MsgBox "You must enter a worker signature."
-LOOP until case_number <> "" and worker_signature <> ""
+LOOP until MAXIS_case_number <> "" and worker_signature <> ""
 
 'checking for an active MAXIS session
 CALL check_for_MAXIS(FALSE)

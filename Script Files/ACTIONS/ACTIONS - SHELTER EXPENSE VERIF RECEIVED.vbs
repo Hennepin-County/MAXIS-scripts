@@ -50,7 +50,7 @@ END IF
 
 'THE DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -128,7 +128,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to Bluezone & grabbing case number and footer year/month
 EMConnect ""
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 hh_member = "01"
 
@@ -136,8 +136,8 @@ DO
 	DO
 		Dialog case_number_dialog																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop' 
 		IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
-		IF case_number = "" THEN MsgBox "You must enter a case number"
-	LOOP UNTIL case_number <> ""
+		IF MAXIS_case_number = "" THEN MsgBox "You must enter a case number"
+	LOOP UNTIL MAXIS_case_number <> ""
 	
 	'Getting to the correct benefit month
 	CALL find_variable("Month: ", benefit_month, 5)
@@ -146,7 +146,7 @@ DO
 		back_to_SELF
 		EMWriteScreen "STAT", 16, 43
 		EMWriteScreen "________", 18, 43
-		EMWriteScreen case_number, 18, 43
+		EMWriteScreen MAXIS_case_number, 18, 43
 		EMWriteScreen MAXIS_footer_month, 20, 43
 		EMWriteScreen MAXIS_footer_year, 20, 46
 		transmit

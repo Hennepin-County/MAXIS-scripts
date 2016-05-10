@@ -56,11 +56,11 @@ EMConnect ""
 row = 1
 col = 1
 EMSearch "Case Nbr: ", row, col
-If row <> 0 then EMReadScreen case_number, 8, row, col + 10
+If row <> 0 then EMReadScreen MAXIS_case_number, 8, row, col + 10
 
 'DIALOG FOR VIEWING AN INFC PANEL. DIALOG WILL ALLOW YOU TO SELECT BNDX, SDXS OR SVES/TPQY
 BeginDialog view_INFC_dialog, 0, 0, 156, 102, "View INFC"
-  EditBox 90, 5, 60, 15, case_number
+  EditBox 90, 5, 60, 15, MAXIS_case_number
   EditBox 125, 25, 25, 15, member_number
   DropListBox 65, 45, 75, 15, "BNDX"+chr(9)+"SDXS"+chr(9)+"SVES/TPQY", view_panel
   DropListBox 65, 65, 80, 10, "production"+chr(9)+"inquiry", results_screen
@@ -130,7 +130,7 @@ back_to_self
 'GOES TO STAT/MEMB FOR THE SPECIFIC MEMBER NUMBER
 EMWriteScreen "stat", 16, 43
 EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
+EMWriteScreen MAXIS_case_number, 18, 43
 EMWriteScreen "memb", 21, 70
 EMWriteScreen member_number, 21, 75
 transmit

@@ -57,7 +57,7 @@ BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
   ButtonGroup ButtonPressed
     OkButton 5, 85, 50, 15
     CancelButton 115, 85, 50, 15
-  EditBox 85, 5, 60, 15, case_number
+  EditBox 85, 5, 60, 15, MAXIS_case_number
   EditBox 85, 25, 30, 15, footer_month
   EditBox 125, 25, 30, 15, footer_year
   DropListBox 25, 65, 125, 15, "Select One"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp Change", List1
@@ -67,7 +67,7 @@ BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
 EndDialog
 
 BeginDialog baby_born_dialog, 0, 0, 211, 310, "BABY BORN"
-  EditBox 55, 5, 95, 15, case_number
+  EditBox 55, 5, 95, 15, MAXIS_case_number
   EditBox 55, 25, 95, 15, babys_name
   EditBox 55, 45, 95, 15, date_of_birth
   DropListBox 85, 70, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", father_in_household
@@ -101,7 +101,7 @@ EndDialog
 
 BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
   Text 5, 15, 50, 10, "Case Number"
-  EditBox 60, 10, 100, 15, case_number
+  EditBox 60, 10, 100, 15, MAXIS_case_number
   Text 5, 35, 80, 10, "Unit Member HH Change"
   EditBox 90, 30, 45, 15, HH_member
   Text 5, 55, 85, 10, "Date Reported/Addendum"
@@ -124,7 +124,7 @@ EndDialog
 EMConnect ""
 
 'Finds the case number
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
@@ -147,7 +147,7 @@ DO
 	err_msg = ""
 	DIALOG change_reported_dialog
 		IF ButtonPressed = 0 THEN stopscript
-		IF case_number = "" OR (case_number <> "" AND len(case_number) > 8) OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		IF List1 = "Select One" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP UNTIL err_msg = ""
@@ -161,7 +161,7 @@ DO
 		err_msg = ""
 		DIALOG Baby_Born_Dialog
 		cancel_confirmation
-		IF Case_Number = "" THEN err_msg = "You must enter case number!"
+		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
 		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
 		IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
@@ -182,7 +182,7 @@ DO
 		err_msg = ""
 		DIALOG HHLD_Comp_Change_Dialog
 		cancel_confirmation
-		IF case_number = "" THEN err_msg = "You must enter case number!"
+		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
 		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
 		IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"

@@ -49,7 +49,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Declaring variables----------------------------------------------------------------------------------------------------
-'DIM start_time, name_of_script, url, row, script_end_procedure, case_number_and_footer_month_dialog, case_number
+'DIM start_time, name_of_script, url, row, script_end_procedure, case_number_and_footer_month_dialog, MAXIS_case_number
 'DIM MAXIS_footer_month, MAXIS_footer_year, next_month, ButtonPressed, case_note_dialog, yes_case_note_button, no_case_note_button
 'DIM cancel_dialog, no_cancel_button, yes_cancel_button, DHS_5181_dialog_1, date_5181_editbox, date_received_editbox, lead_agency_editbox
 'DIM lead_agency_assessor_editbox, casemgr_ADDR_line_01, casemgr_ADDR_line_02, casemgr_city, casemgr_state, casemgr_zip_code
@@ -76,7 +76,7 @@ END IF
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, case_number
+  EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
   EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
@@ -259,15 +259,15 @@ EndDialog
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number and footer month/year
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number
 Do
 	Dialog case_number_and_footer_month_dialog
 	cancel_confirmation
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Dialog completed by worker. Each dialog follows this process:
 '  1. Show the dialog and validate that next/OK or prev is pressed

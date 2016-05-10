@@ -63,7 +63,7 @@ BeginDialog xfer_menu_dialog, 0, 0, 156, 80, "Case XFER"
 EndDialog
 
 BeginDialog out_of_county_dlg, 0, 0, 236, 385, "Case Transfer"
-  EditBox 60, 5, 50, 15, case_number
+  EditBox 60, 5, 50, 15, MAXIS_case_number
   EditBox 115, 30, 65, 15, transfer_to
   CheckBox 5, 55, 190, 10, "Check here if the client is active on HC through MNSure.", mnsure_active_check
   CheckBox 5, 70, 190, 10, "Check here if the client is active on Minnesota Care.", mcre_active_check
@@ -108,7 +108,7 @@ EndDialog
 
 
 BeginDialog within_county_dlg, 0, 0, 211, 270, "Case Transfer"
-  EditBox 70, 10, 50, 15, case_number
+  EditBox 70, 10, 50, 15, MAXIS_case_number
   ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
   EditBox 130, 50, 65, 15, worker_to_transfer_to
   CheckBox 20, 90, 30, 10, "Cash", cash_active_check
@@ -151,10 +151,10 @@ check_for_MAXIS(True)
 DIALOG xfer_menu_dialog
 cancel_confirmation
 
-call find_variable("Case Nbr: ", case_number, 8)
-case_number = trim(case_number)
-case_number = replace(case_number, "_", "")
-If IsNumeric(case_number) = False then case_number = ""
+call find_variable("Case Nbr: ", MAXIS_case_number, 8)
+MAXIS_case_number = trim(MAXIS_case_number)
+MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
 
 IF XFERRadioGroup = 0 THEN
 		'Displays the dialog and navigates to case note
@@ -163,7 +163,7 @@ IF XFERRadioGroup = 0 THEN
 			  err_msg = ""
 			  Dialog within_county_dlg
 			  cancel_confirmation
-			  If case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
+			  If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
 			  IF len(worker_to_transfer_to) <> 7 then err_msg = err_msg & vbCr & "Please include X1## in the worker number"
 			  IF preg_y_n = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
 			  IF unit_drop_down = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
@@ -210,7 +210,7 @@ IF XFERRadioGroup = 0 THEN
 		back_to_self
 		EMWriteScreen "spec", 16, 43
 		EMWriteScreen "________", 18, 43
-		EMWriteScreen case_number, 18, 43
+		EMWriteScreen MAXIS_case_number, 18, 43
 		EMWriteScreen "xfer", 21, 70
 		transmit
 		EMWriteScreen "x", 7, 16

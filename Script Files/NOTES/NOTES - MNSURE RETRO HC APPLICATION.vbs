@@ -53,7 +53,7 @@ STATS_denomination = "C"        'C is for each case
 
 'THE Dialog--------------------------------------------------------------------------------------------------------------------
 BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 265, "MNSure Retro HC Application"
-  EditBox 85, 25, 55, 15, case_number
+  EditBox 85, 25, 55, 15, MAXIS_case_number
   EditBox 240, 25, 75, 15, curam_case_number
   EditBox 120, 50, 60, 15, HC_Appl_date_Recvd
   EditBox 235, 50, 75, 15, time_gap_between
@@ -94,7 +94,7 @@ EMConnect ""
 EMFocus
 
 'Grabs the MAXIS Case Number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows Dialog
 
@@ -105,7 +105,7 @@ DO
 				Dialog MNSure_HC_Appl_dialog
 				cancel_confirmation
 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-				IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!" 
+				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!" 
 				IF retro_coverage_months = "Select One..." THEN MsgBox "Please select how many retro months are requested!"
 				IF len(curam_case_number)<> 8 THEN MsgBox "Please enter an 8 digit Curam case number!"
 			Loop until len(curam_case_number) = 8

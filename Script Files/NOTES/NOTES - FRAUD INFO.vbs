@@ -51,7 +51,7 @@ STATS_manualtime = 120          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
-'DIM case_number
+'DIM MAXIS_case_number
 'DIM referral_date
 'DIM referral_reason
 'DIM fraud_findings
@@ -62,7 +62,7 @@ STATS_denomination = "C"        'C is for each case
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
 BeginDialog Fraud_Dialog, 0, 0, 211, 275, "Fraud Info"
-  EditBox 65, 10, 90, 15, case_number
+  EditBox 65, 10, 90, 15, MAXIS_case_number
   EditBox 75, 30, 115, 15, referral_date
   EditBox 10, 65, 195, 15, referral_reason
   EditBox 10, 100, 195, 15, fraud_findings
@@ -86,14 +86,14 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
 'connecting to MAXIS session and finding case number
 EMConnect ""
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
 	err_msg = ""
 	Dialog fraud_dialog
 	cancel_confirmation
-	IF case_number = "" THEN err_msg = "You must have a case number to continue!"
+	IF MAXIS_case_number = "" THEN err_msg = "You must have a case number to continue!"
 	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
 	IF overpayment_yn = "Select One..." THEN err_msg = err_msg & vbNewLine & "You must select an option for overpayment."
 	IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg

@@ -54,11 +54,11 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	'Creates an array of the workers selected in the dialog
 	workers_to_XFER_cases_to = split(replace(workers_to_XFER_cases_to, " ", ""), ",")
 
-	'Creates a new two-dimensional array for assigning a worker to each case_number, and collecting the county code for each worker
+	'Creates a new two-dimensional array for assigning a worker to each MAXIS_case_number, and collecting the county code for each worker
 	Dim transfer_array()
 	ReDim transfer_array(ubound(case_number_array), 2)
 
-	'Assigns a case_number to each row in the first column of the array
+	'Assigns a MAXIS_case_number to each row in the first column of the array
 	For x = 0 to ubound(case_number_array)
 		transfer_array(x, 0) = case_number_array(x)
 	Next
@@ -77,7 +77,7 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 		If y > ubound(workers_to_XFER_cases_to) then y = 0	'Resets to allow the first worker in the array to get anonther one
 	Loop until x > ubound(case_number_array)
 
-	'--------Now, the array is two columns (case_number, worker_assigned)!
+	'--------Now, the array is two columns (MAXIS_case_number, worker_assigned)!
 
 '	'Script must figure out who the current worker is, and what agency they are with. This is vital because transferring within an agency uses different screens than inter-agency.
 '		'To do this, the script will start by analysing the current worker in REPT/ACTV.
@@ -107,8 +107,8 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 
 	'Now we actually transfer the cases. This for...next does the work (details in comments below)
 	For x = 0 to ubound(case_number_array)		'case_number_array is the same as the first col of the transfer_array
-		'Assigns the number from the array to the case_number variable
-		case_number = transfer_array(x, 0)
+		'Assigns the number from the array to the MAXIS_case_number variable
+		MAXIS_case_number = transfer_array(x, 0)
 
 		'Checks to make sure case isn't in background
 		MAXIS_background_check
@@ -124,7 +124,7 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 		back_to_SELF
 		EMWriteScreen "SPEC", 16, 43
 		EMWriteScreen "________", 18, 43
-		EMWriteScreen case_number, 18, 43
+		EMWriteScreen MAXIS_case_number, 18, 43
 		EMWriteScreen "XFER", 21, 70
 		transmit
 
@@ -546,7 +546,7 @@ End if
 '========================================================================PND1 PANELS========================================================================
 
 
-For each case_number in case_number_array
+For each MAXIS_case_number in case_number_array
 	'Navigates into STAT. For PND1 cases, this will trigger workflow for adding the right panels.
 	call navigate_to_MAXIS_screen ("STAT", "____")
 
@@ -685,7 +685,7 @@ If approve_case_dropdown = "no, but do TYPE/PROG/REVW" then
 End if
 '========================================================================PND2 PANELS========================================================================
 
-For each case_number in case_number_array
+For each MAXIS_case_number in case_number_array
 
 	'Navigates to STAT/SUMM for each case
 	call navigate_to_MAXIS_screen("STAT", "SUMM")
@@ -1996,7 +1996,7 @@ If approve_case_dropdown = "no, but enter all STAT panels needed to approve" the
 End if
 
 '========================================================================APPROVAL========================================================================
-FOR EACH case_number IN case_number_array
+FOR EACH MAXIS_case_number IN case_number_array
 	back_to_SELF
 	EMWriteScreen footer_month, 20, 43
 	EMWriteScreen footer_year, 20, 46
@@ -2024,7 +2024,7 @@ FOR EACH case_number IN case_number_array
 			DO
 				back_to_SELF
 				EMWriteScreen "ELIG", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				EMWriteScreen "MFIP", 21, 70
@@ -2108,7 +2108,7 @@ FOR EACH case_number IN case_number_array
 				DO
 					back_to_SELF
 					EMWriteScreen "ELIG", 16, 43
-					EMWriteScreen case_number, 18, 43
+					EMWriteScreen MAXIS_case_number, 18, 43
 					EMWriteScreen appl_date_month, 20, 43
 					EMWriteScreen appl_date_year, 20, 46
 					EMWriteScreen "DWP", 21, 70
@@ -2204,7 +2204,7 @@ FOR EACH case_number IN case_number_array
 			DO
 				back_to_SELF
 				EMWriteScreen "ELIG", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				EMWriteScreen "MSA", 21, 70
@@ -2266,7 +2266,7 @@ FOR EACH case_number IN case_number_array
 			DO
 				back_to_SELF
 				EMWriteScreen "FIAT", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				transmit
@@ -2376,7 +2376,7 @@ FOR EACH case_number IN case_number_array
 			IF SNAP_application = True THEN
 				back_to_SELF
 				EMWriteScreen "FIAT", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				transmit
@@ -2468,7 +2468,7 @@ FOR EACH case_number IN case_number_array
 		DO
 			back_to_SELF
 			EMWriteScreen "ELIG", 16, 43
-			EMWriteScreen case_number, 18, 43
+			EMWriteScreen MAXIS_case_number, 18, 43
 			EMWriteScreen appl_date_month, 20, 43
 			EMWriteScreen appl_date_year, 20, 46
 			EMWriteScreen "FS", 21, 70

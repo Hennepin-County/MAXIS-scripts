@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
-  EditBox 65, 10, 65, 15, case_number
+  EditBox 65, 10, 65, 15, MAXIS_case_number
   EditBox 65, 30, 30, 15, MAXIS_footer_month
   EditBox 100, 30, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -106,17 +106,17 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS & grabs the case number and footer month/year
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'The initial dialog----------------------------------------------------------------------------------------------------
 DO
 	Dialog case_number_dialog
 	cancel_confirmation
-	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number."
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid case number."
 	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
 	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
-LOOP UNTIL IsNumeric(case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
 
 'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do

@@ -162,25 +162,25 @@ For each worker in worker_number_array
 		row = 7 'defining the row to look at
 		Do
 			If REPT_panel = "REPT/ACTV" then
-				EMReadScreen case_number, 8, row, 12 'grabbing case number
+				EMReadScreen MAXIS_case_number, 8, row, 12 'grabbing case number
 				EMReadScreen client_name, 18, row, 21 'grabbing client name
 				EMReadScreen next_REVW_date, 8, row, 42	'grabbing the revw date'
 			Else
-				EMReadScreen case_number, 8, row, 6 'grabbing case number
+				EMReadScreen MAXIS_case_number, 8, row, 6 'grabbing case number
 				EMReadScreen client_name, 15, row, 16 'grabbing client name
 				EMReadScreen next_REVW_date, 8, 2, 42
 			End if
-			IF trim(case_number) <> "" THEN
+			IF trim(MAXIS_case_number) <> "" THEN
 				STATS_counter = STATS_counter + 1
 				ObjExcel.Cells(excel_row, 1).Value = worker_ID
-				ObjExcel.Cells(excel_row, 2).Value = trim(case_number)
+				ObjExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
 				ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
 				ObjExcel.Cells(excel_row, 4).Value = replace(next_REVW_date, " ", "/")
 			END IF
 			excel_row = excel_row + 1
 			row = row + 1
-		Loop until row = 19 or trim(case_number) = ""
-		If trim(case_number) = "" then exit do		'exisis the do loop if case number is blank otherwise it will read/write last page again
+		Loop until row = 19 or trim(MAXIS_case_number) = ""
+		If trim(MAXIS_case_number) = "" then exit do		'exisis the do loop if case number is blank otherwise it will read/write last page again
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
 	
@@ -190,8 +190,8 @@ For each worker in worker_number_array
 excel_row = 2 'Resetting the case row to investigate.
 
 do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no more case numbers
-	case_number = ObjExcel.Cells(excel_row, 2).Value
-	If case_number = "" then exit do
+	MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
+	If MAXIS_case_number = "" then exit do
 
 	'This Do...loop gets back to SELF
 	back_to_self

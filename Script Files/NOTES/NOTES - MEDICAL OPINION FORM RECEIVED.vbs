@@ -54,7 +54,7 @@ STATS_denomination = "C"        'C is for each case
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
 BeginDialog MOF_recd, 0, 0, 186, 265, "Medical Opinion Form Received"
-  EditBox 55, 5, 100, 15, case_number
+  EditBox 55, 5, 100, 15, MAXIS_case_number
   EditBox 55, 25, 95, 15, date_recd
   EditBox 80, 45, 90, 15, HH_Member
   CheckBox 20, 65, 85, 10, "Client signed release?", client_release
@@ -87,7 +87,7 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
 'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ DO
 	Err_msg = ""
 	Dialog MOF_recd
 	IF buttonpressed = 0 THEN stopscript
-	IF case_number = "" THEN err_msg = err_msg & vbNewLine & "*You must enter a case number"
+	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbNewLine & "*You must enter a case number"
 	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
 	If HH_Member = "" Then err_msg = err_msg & vbNewLine & "*You must enter the household member"
 	If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"

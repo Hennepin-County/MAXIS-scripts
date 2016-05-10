@@ -3,7 +3,7 @@ name_of_script = "NOTES - CHANGE REPORT FORM RECEIVED.vbs"
 start_timer = timer
 
 'DIMMING VARIABLES
-'DIM url, req, fso, crf_received_dialog, case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
+'DIM url, req, fso, crf_received_dialog, MAXIS_case_number, date_received, address_notes, household_notes, savings_notes, property_notes, vehicles_notes, income_notes, shelter_notes, other, actions_taken, other_notes, verifs_requested, tikl_nav_check, changes_continue, worker_signature, ButtonPressed, beta_agency
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -55,7 +55,7 @@ STATS_denomination = "C"                   'C is for each CASE
 
 'THE DIALOG--------------------------------------------------------------------------------------------------------------
 BeginDialog crf_received_dialog, 0, 0, 411, 320, "Change Report Form Received"
-  EditBox 55, 5, 55, 15, case_number
+  EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 270, 5, 60, 15, date_received
   EditBox 50, 35, 340, 15, address_notes
   EditBox 75, 55, 315, 15, household_notes
@@ -96,7 +96,7 @@ EndDialog
 'Connect to Bluezone
 EMConnect ""
 'Grabs Maxis Case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
@@ -107,8 +107,8 @@ DO
 				cancel_confirmation
 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 			LOOP UNTIL worker_signature <> ""
-			IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-		LOOP UNTIL IsNumeric(case_number) = TRUE
+			IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+		LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 		IF changes_continue = "Select One..." THEN MsgBox "You Must Select 'The changes client reports field'"
 	LOOP UNTIL changes_continue <> "Select One..."
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'

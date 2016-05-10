@@ -59,7 +59,7 @@ STATS_denomination = "C"        'C is for each case
 'DIM submitting_case_HENNEPIN_dialog
 'DIM submitting_case_dialog
 'DIM ButtonPressed
-'DIM case_number
+'DIM MAXIS_case_number
 'DIM expedited_SNAP_check
 'DIM optional_info
 'DIM worker_signature
@@ -69,7 +69,7 @@ STATS_denomination = "C"        'C is for each case
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog submitting_case_HENNEPIN_dialog, 0, 0, 271, 155, "Submitting Case for SNAP case review dialog"
-  EditBox 70, 5, 60, 15, case_number					
+  EditBox 70, 5, 60, 15, MAXIS_case_number					
   CheckBox 150, 10, 75, 10, "SNAP is expedited.", expedited_SNAP_check
   EditBox 70, 25, 195, 15, optional_info
   EditBox 70, 45, 85, 15, worker_signature
@@ -86,7 +86,7 @@ BeginDialog submitting_case_HENNEPIN_dialog, 0, 0, 271, 155, "Submitting Case fo
 EndDialog
 
 BeginDialog submitting_case_dialog, 0, 0, 271, 70, "Submitting Case for SNAP case review dialog"
-  EditBox 70, 5, 60, 15, case_number					
+  EditBox 70, 5, 60, 15, MAXIS_case_number					
   CheckBox 150, 10, 75, 10, "SNAP is expedited.", expedited_SNAP_check
   EditBox 70, 25, 195, 15, optional_info
   EditBox 70, 45, 85, 15, worker_signature
@@ -102,7 +102,7 @@ EndDialog
 'The script----------------------------------------------------------------------------------------------------
 'connecting to MAXIS & grabbing the case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Do 
 	err_msg = ""
@@ -112,7 +112,7 @@ Do
 		Dialog submitting_case_dialog
 	END IF
 	If ButtonPressed = 0 then StopScript
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until err_msg = ""

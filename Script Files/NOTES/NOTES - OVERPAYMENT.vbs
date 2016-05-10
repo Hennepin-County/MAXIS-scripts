@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'SECTION 02: DIALOGS
 BeginDialog overpayment_dialog, 0, 0, 266, 260, "Overpayment dialog"
-  EditBox 60, 5, 70, 15, case_number
+  EditBox 60, 5, 70, 15, MAXIS_case_number
   EditBox 120, 25, 140, 15, programs_cited
   EditBox 100, 45, 160, 15, Claim_number
   EditBox 120, 65, 140, 15, months_of_overpayment
@@ -85,14 +85,14 @@ EndDialog
 'connecting to MAXIS
 EMConnect ""
 'grabbing case number
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 DO
 	Do
 		Dialog overpayment_dialog
 		cancel_confirmation
-		If case_number = "" then MsgBox "You must have a case number to continue!"
-	Loop until case_number <> ""
+		If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"
+	Loop until MAXIS_case_number <> ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 

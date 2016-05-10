@@ -52,7 +52,7 @@ STATS_denomination = "C"       					'C is for each MEMBER
 
 'DIALOGS---------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -110,7 +110,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------
 'Connect to BlueZone & grabbing the case number & the footer month/year
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Do
@@ -122,7 +122,7 @@ Do
 	Loop until are_we_passworded_out = false  	'will loop until user is password-ed back in
 	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-	If IsNumeric(case_number) = False or Len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
   IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until err_msg = ""
 
@@ -161,7 +161,7 @@ DO
 				  cancel_confirmation
 				  MAXIS_dialog_navigation
 			  Loop until ButtonPressed = -1     'Looping until OK button is pressed
-		  If IsNumeric(case_number) = FALSE or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		  If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		  If IsDate(date_calculated) = FALSE then err_msg = err_msg & vbNewLine & "* Enter the date income was calculated."
 		  If explanation_of_income = "" then err_msg = err_msg & vbNewLine & "* Explain the income that is being budgeted."
 		  If type_of_verification_used = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select the type verification used."

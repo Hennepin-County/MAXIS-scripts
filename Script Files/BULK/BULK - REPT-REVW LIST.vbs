@@ -180,7 +180,7 @@ For each worker in worker_array
 			'Set variable for next do...loop
 			MAXIS_row = 7
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 6			'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
 				EMReadScreen cash_status, 1, MAXIS_row, 35		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 45		'Reading SNAP status
@@ -191,10 +191,10 @@ For each worker in worker_array
 				EMReadScreen interview_date, 8, MAXIS_row, 72		'Reading interview date
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 
 				'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
 				If cash_status = "-" then cash_status = ""
@@ -216,7 +216,7 @@ For each worker in worker_array
 				'Adding the case to Excel
 				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
-					ObjExcel.Cells(excel_row, 2).Value = case_number
+					ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
 					ObjExcel.Cells(excel_row, revw_recd_date_col).Value = replace(revw_recd_date, " ", "/")
 					ObjExcel.Cells(excel_row, interview_date_col).Value = replace(interview_date, " ", "/")
@@ -231,7 +231,7 @@ For each worker in worker_array
 				End if
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
-				case_number = ""			'Blanking out variable
+				MAXIS_case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end

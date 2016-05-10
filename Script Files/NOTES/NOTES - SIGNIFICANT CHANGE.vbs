@@ -52,7 +52,7 @@ STATS_denomination = "C"       'C is for each CASE
 
 'DIALOGS---------------------------------
 BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
-  EditBox 75, 5, 60, 15, case_number
+  EditBox 75, 5, 60, 15, MAXIS_case_number
   DropListBox 75, 25, 65, 15, "Select one..."+chr(9)+"Requested"+chr(9)+"Pending"+chr(9)+"Approved"+chr(9)+"Denied", Sig_change_status_dropdown
   DropListBox 75, 45, 215, 15, "Select one..."+chr(9)+"Income did not decrease enough to qualify."+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change."+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason_dropdown
   DropListBox 75, 75, 55, 15, "Select one..."+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", Month_requested_dropdown
@@ -90,7 +90,7 @@ EMFocus 'Brings Bluezone to foreground
 
 call check_for_MAXIS(True) 'Password Check- Script will shut down if passworded out
 
-call MAXIS_case_number_finder(case_number) 'Searches for case number
+call MAXIS_case_number_finder(MAXIS_case_number) 'Searches for case number
 
 'This is the new Do Loop process that makes mandatory fields in the dialog box
 Do
@@ -98,7 +98,7 @@ Do
 	Dialog SigChange_Dialog
 	cancel_confirmation 'Are you sure you want to quit? message
 	call check_for_MAXIS (False) 'Password check- If passworded out, dialog box wont close
-	IF case_number = "" OR (case_number <> "" AND IsNumeric(case_number) = FALSE) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number" 'Makes sure there is a numeric case number
+	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = FALSE) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number" 'Makes sure there is a numeric case number
 	IF Sig_change_status_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must select a Significant Change status type" 'Selecting the status of the sig change request is a mandatory field
 	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You have selected Denied, you must select a denial reason" 'If your status is Denied then you have to select a denial reason (this will pull into the spec/Memo denial letter)
 	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown <> "Select one..." AND Month_requested_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must enter a month requested" 'I made the month requested a mandatory field only if it is denied because it pulls into the Spec/Memo, also clients do not always state the month they are requesting

@@ -51,7 +51,7 @@ STATS_denomination = "M"       'M is for each MEMBER
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog MNsure_info_dialog, 0, 0, 196, 120, "MNsure Info Dialog"
-  EditBox 60, 5, 70, 15, case_number
+  EditBox 60, 5, 70, 15, MAXIS_case_number
   DropListBox 110, 25, 75, 15, "denied"+chr(9)+"closed", how_case_ended
   EditBox 110, 45, 70, 15, denial_effective_date
   OptionGroup RadioGroup1
@@ -74,7 +74,7 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog, checks for MAXIS or WCOM status.
 Do

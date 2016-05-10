@@ -230,11 +230,11 @@ excel_row = 2
 DO
 	EMReadScreen last_page, 21, 24, 2
 	DO
-		EMReadScreen case_number, 8, rept_row, 12
-		case_number = trim(case_number)
+		EMReadScreen MAXIS_case_number, 8, rept_row, 12
+		MAXIS_case_number = trim(MAXIS_case_number)
 		EMReadScreen hc_case, 1, rept_row, 64
-		IF case_number <> "" AND hc_case <> " " THEN
-			objExcel.Cells(excel_row, 1).Value = case_number
+		IF MAXIS_case_number <> "" AND hc_case <> " " THEN
+			objExcel.Cells(excel_row, 1).Value = MAXIS_case_number
 			EMReadScreen client_name, 21, rept_row, 21
 			client_name = trim(client_name)
 			EMReadScreen next_revw_dt, 8, rept_row, 42
@@ -253,7 +253,7 @@ LOOP UNTIL last_page = "THIS IS THE LAST PAGE"
 excel_row = 2
 DO
 	back_to_SELF
-	case_number = objExcel.Cells(excel_row, 1).Value
+	MAXIS_case_number = objExcel.Cells(excel_row, 1).Value
 	CALL find_variable("Environment: ", production_or_inquiry, 10)
 	CALL navigate_to_MAXIS_screen("ELIG", "HC")
 	hhmm_row = 8

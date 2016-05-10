@@ -54,7 +54,7 @@ END IF
 'THE SCRIPT---------------------------------------------------------------------------------------------------------------------------------------------
 'Dialog Box for Case Number.
 BeginDialog Case_Number_Dialog, 0, 0, 130, 55, "Case Number"
-  EditBox 60, 5, 60, 15, case_number
+  EditBox 60, 5, 60, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 15, 30, 50, 15
     CancelButton 70, 30, 50, 15
@@ -66,12 +66,12 @@ EMConnect ""
 EMFocus
 call Check_for_MAXIS(True)
 
-Call MAXIS_case_number_finder (case_number)
+Call MAXIS_case_number_finder (MAXIS_case_number)
 Do
 	err_msg = ""
 	Dialog Case_Number_Dialog											'Running the case number dialog
 	If buttonpressed = cancel Then stopscript							'Cancels the script if cancel button is pressed
-	If case_number = "" Then err_msg = "Please enter a case number."	'Case number must be entered or script will error out
+	If MAXIS_case_number = "" Then err_msg = "Please enter a case number."	'Case number must be entered or script will error out
 	If err_msg <> "" Then MsgBox err_msg								'Tells worker to enter a case number
 Loop until err_msg = ""
 

@@ -53,7 +53,7 @@ STATS_denomination = "M"        'M is for each member
 'DIALOG-------------------------------------------------------------------
 BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
   Text 5, 10, 50, 10, "Case number:"
-  EditBox 60, 5, 75, 15, case_number
+  EditBox 60, 5, 75, 15, MAXIS_case_number
   Text 20, 25, 45, 10, "HH member"
   Text 85, 25, 55, 10, "Exempt reason"
   Text 200, 25, 35, 10, "Cit proof"
@@ -100,7 +100,7 @@ EndDialog
 'THE SCRIPT------------------------------------------------------------------------------------------
 'Connecting to BlueZone & finding case number
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Show the dialog, determine if it's filled out correctly (at least one line must be filled out)
 Do

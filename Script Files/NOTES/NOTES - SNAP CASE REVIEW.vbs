@@ -56,14 +56,14 @@ STATS_denomination = "C"        'C is for each case
 'DECLARING VARIABLES--------------------------------------------------------------------------------------------------------
 'DIM case_number_dialog
 'DIM ButtonPressed
-'DIM case_number
+'DIM MAXIS_case_number
 'DIM MAXIS_footer_month
 'DIM MAXIS_footer_year
 'DIM program_droplist
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_case_review_dialog, 0, 0, 276, 80, "SNAP case review dialog"
-  EditBox 70, 5, 70, 15, case_number					
+  EditBox 70, 5, 70, 15, MAXIS_case_number					
   DropListBox 190, 5, 80, 15, "Select one..."+chr(9)+"MFIP"+chr(9)+"SNAP", program_droplist
   EditBox 70, 30, 25, 15, MAXIS_footer_month					
   EditBox 100, 30, 25, 15, MAXIS_footer_year
@@ -84,7 +84,7 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 'Grabs case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 'Grabbing the footer month/year
 Call MAXIS_footer_finder (MAXIS_footer_month, MAXIS_footer_year)
 
@@ -93,7 +93,7 @@ DO
 	err_msg = ""
 	Dialog SNAP_case_review_dialog
 	If ButtonPressed = 0 then StopScript
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	If program_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* You must a program type."
 	If MAXIS_footer_month AND MAXIS_footer_year = "" then err_msg = err_msg & vbNewLine & "* You must enter the footer month and footer year."

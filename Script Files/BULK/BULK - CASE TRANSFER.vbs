@@ -421,7 +421,7 @@ For each worker in worker_array
 				cash_one_type = ""
 				cash_two_type = "" 
 				
-				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
 				EMReadScreen cash_one_status, 1, MAXIS_row, 54		'Reading cash status
@@ -434,9 +434,9 @@ For each worker in worker_array
 				EMReadScreen GRH_status, 1, MAXIS_row, 70			'Reading GRH status
 				EMReadScreen CCAP_status, 1, MAXIS_row, 80 			'Reading CCAP Status
 				
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 				
-				Full_case_list_array(0,m) = case_number
+				Full_case_list_array(0,m) = MAXIS_case_number
 				Full_case_list_array(1,m) = client_name
 				Full_case_list_array(2,m) = replace(next_revw_date, " ", "/")
 				Full_case_list_array(3,m) = cash_one_type
@@ -453,11 +453,11 @@ For each worker in worker_array
 				Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
 				
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 				
 				MAXIS_row = MAXIS_row + 1
-				case_number = ""			'Blanking out variable 
+				MAXIS_case_number = ""			'Blanking out variable 
 				m = m + 1
 			Loop until MAXIS_row = 19 
 			PF8
@@ -468,7 +468,7 @@ next
 k = 0	'Setting the inital value for the next array
 
 For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from REPT/ACTV for any of the criteria selected in initial dialog 
-	case_number = Full_case_list_array(0,n)	'Setting the case number for the FuncLib fucntions to work
+	MAXIS_case_number = Full_case_list_array(0,n)	'Setting the case number for the FuncLib fucntions to work
 	IF SNAP_ABAWD_check = checked OR SNAP_UH_check = checked OR MFIP_tanf_check = checked OR child_only_mfip_check = checked OR mont_rept_check = checked OR HC_msp_check = checked OR adult_hc_check = checked OR family_hc_check = checked OR ltc_HC_check = checked OR waiver_HC_check = checked OR exclude_ievs_check = checked OR exclude_paris_check = checked then
 		'////// Checking number of TANF months if requested
 		IF MFIP_tanf_check = checked then 
@@ -982,7 +982,7 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 		k = k + 1 'Goes to the next entry for the All_case_information_array
 	End if
 	'Blanking out variables for next go round
-	case_number = "" 
+	MAXIS_case_number = "" 
 	Save_case_for_transfer = ""	
 	reg_mo = ""
 	ext_mo = ""
@@ -1092,7 +1092,7 @@ P = 0 	'Counter for the cases transferred
 If transfer_check = checked then 
 	Do 
 		back_to_self 
-		case_number = All_case_information_array(0,p) 'setting case number variable for the FuncLib functions to work
+		MAXIS_case_number = All_case_information_array(0,p) 'setting case number variable for the FuncLib functions to work
 		navigate_to_MAXIS_screen "SPEC", "XFER"
 		STATS_counter = STATS_counter + 1
 		EMWriteScreen "x", 7, 16 
@@ -1104,7 +1104,7 @@ If transfer_check = checked then
 		IF confirm_xfer <> "CASE" then 
 			'If a transfer is not successful it will be noted on the spreadsheet and a msgbox will alert the user but the script will not stop. 
 			'Option to disable the message box if this holds up the runtime
-			MsgBox "This case " & case_number & " cannot be transferred and has been noted on the spreadsheet"
+			MsgBox "This case " & MAXIS_case_number & " cannot be transferred and has been noted on the spreadsheet"
 			PF10 
 			ObjExcel.Cells (All_case_information_array(19,p), xfered_col).Value = "N" 
 		ElseIf confirm_xfer = "CASE" then 
@@ -1144,7 +1144,7 @@ If transfer_check = checked then
 			End If 
 			'If cases_to_xfer_numb = total_cases_transfered Then Exit Do 
 		End If 
-		case_number = "" 'Blanking out variable
+		MAXIS_case_number = "" 'Blanking out variable
 		p = p + 1 
 		If p = UBound(All_case_information_array,2) Then Exit Do 
 	Loop until total_cases_transfered = cases_to_xfer_numb 'continues to attempt to transfer until the requested number is reached 

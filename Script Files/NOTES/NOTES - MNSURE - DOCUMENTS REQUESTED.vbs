@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog MNsure_docs_reqd_dialog, 0, 0, 301, 105, "MNsure Docs Req'd Dialog"
-  EditBox 75, 5, 70, 15, case_number
+  EditBox 75, 5, 70, 15, MAXIS_case_number
   EditBox 225, 5, 70, 15, MNsure_app_date
   EditBox 45, 25, 70, 15, MNsure_ID
   EditBox 225, 25, 70, 15, application_case_number
@@ -76,14 +76,14 @@ EndDialog
 'connecting to MAXIS
 EMConnect ""
 'Finds the case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Displays the dialog and navigates to case note
 Do
 	Dialog MNsure_docs_reqd_dialog
 	cancel_confirmation
-	If case_number = "" then MsgBox "You must have a case number to continue!"
-Loop until case_number <> ""
+	If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"
+Loop until MAXIS_case_number <> ""
 
 
 'checking for an active MAXIS session

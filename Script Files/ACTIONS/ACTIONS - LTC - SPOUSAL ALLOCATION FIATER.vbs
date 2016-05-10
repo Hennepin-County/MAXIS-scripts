@@ -95,7 +95,7 @@ EndDialog
 
 
 BeginDialog case_number_dialog, 0, 0, 211, 140, "Case number"
-  EditBox 100, 5, 75, 15, case_number
+  EditBox 100, 5, 75, 15, MAXIS_case_number
   EditBox 100, 25, 25, 15, MAXIS_footer_month
   EditBox 150, 25, 25, 15, MAXIS_footer_year
   EditBox 100, 45, 25, 15, spousal_allocation_footer_month
@@ -116,7 +116,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to MAXIS, grabs case number and footer month/year
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 

@@ -58,7 +58,7 @@ BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
   CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
   CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
   CheckBox 210, 5, 50, 10, "Emergency", emer_approved_check
-  EditBox 60, 20, 55, 15, case_number
+  EditBox 60, 20, 55, 15, MAXIS_case_number
   ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
   EditBox 115, 45, 150, 15, benefit_breakdown
   CheckBox 5, 65, 255, 10, "Check here to have the script autofill the approval amounts.", autofill_check
@@ -91,7 +91,7 @@ EndDialog
 'connecting to MAXIS
 EMConnect ""
 'Finds the case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
@@ -132,7 +132,7 @@ Do
 		Dialog benefits_approved
 		cancel_confirmation
 			'Enforcing mandatory fields
-			If case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
+			If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
 			IF autofill_check = checked THEN
 				IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _
 				 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
@@ -317,23 +317,23 @@ IF SNAP_banked_mo_check = checked THEN
 					banked_month_3 = left(Used_ABAWD_Months_Array(2), slash_loc - 1)
 					END IF
 
-					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
+					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
 					'These lines format the SQL string based on the number of months to update'
 					IF ubound(Used_ABAWD_Months_Array) = 2 THEN
-					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-					 insert_string = banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1', '-1')"
+					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+					 insert_string = banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1', '-1')"
 					ELSEIF ubound(Used_ABAWD_Months_Array) = 1 THEN
-					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1 WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-					 insert_string = banked_month & ", " & banked_month_2 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1')"
+					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+					 insert_string = banked_month & ", " & banked_month_2 & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1')"
 					ELSEIF ubound(Used_ABAWD_Months_Array) = 0 THEN
-						update_string = banked_month & " = -1 WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-						insert_string = banked_month & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1')"
+						update_string = banked_month & " = -1 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+						insert_string = banked_month & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1')"
 					END IF
 
 					IF NOT(abawdrs.EOF) THEN 'There is an existing case, we need to update
 						objConnection.Execute "UPDATE banked_month_log SET " & update_string 'Here we are actually writing to the database
 					ELSE 'There is no existing case, add a new one using the info pulled from the script
-						objConnection.Execute "INSERT INTO banked_month_log (case_number, member_number, " & insert_string
+						objConnection.Execute "INSERT INTO banked_month_log (MAXIS_case_number, member_number, " & insert_string
 					END IF
 					set abawdrs = nothing
 				NEXT
@@ -350,7 +350,7 @@ IF SNAP_banked_mo_check = checked THEN
 				'Setting the first 4 col as worker, case number, name, and APPL date
 				ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
 				objExcel.Cells(1, 1).Font.Bold = TRUE
-				ObjExcel.Cells(excel_row, 1).Value = case_number
+				ObjExcel.Cells(excel_row, 1).Value = MAXIS_case_number
 				ObjExcel.Cells(1, 2).Value = "CLT REF #"
 				objExcel.Cells(1, 2).Font.Bold = TRUE
 				ObjExcel.Cells(excel_row, 2).Value = BM_Clients_Array(0, clt_banked_mo_apprvd)

@@ -53,7 +53,7 @@ STATS_denomination = "C"       			'C is for each Case
 'DIALOGS--------------------------------------------------------------------------------------------------------------------
 
 BeginDialog Case_Number_Dialog, 0, 0, 171, 85, "Case Information"
-  EditBox 70, 5, 80, 15, case_number
+  EditBox 70, 5, 80, 15, MAXIS_case_number
   EditBox 55, 25, 15, 15, elig_month
   EditBox 120, 25, 15, 15, elig_year
   EditBox 80, 45, 85, 15, worker_signature
@@ -85,7 +85,7 @@ EndDialog
 'connecting to MAXIS
 EMConnect ""
 'Finds the case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'dialog to gather the Case Number and such
 Do
@@ -93,7 +93,7 @@ Do
 	cancel_confirmation
 	err_msg = ""
 	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your worker signature"
-	IF case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
+	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
 	IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
 Loop until err_msg = ""
 

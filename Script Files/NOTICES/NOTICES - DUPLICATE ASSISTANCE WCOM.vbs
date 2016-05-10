@@ -51,7 +51,7 @@ STATS_denomination = "C"       'C is for each CASE
 
 'Dialog--------------------------------------------
 BeginDialog dup_dlg, 0, 0, 156, 95, "Duplicate Assistance WCOM"
-  EditBox 65, 5, 75, 15, case_number
+  EditBox 65, 5, 75, 15, MAXIS_case_number
   EditBox 75, 25, 65, 15, worker_signature
   EditBox 60, 45, 20, 15, footer_month
   EditBox 130, 45, 20, 15, footer_year
@@ -80,10 +80,10 @@ Do
 			dialog dup_dlg
 			cancel_confirmation
 			If footer_month = "" or footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
-			If case_number = "" THEN MsgBox "Please enter a case number."
+			If MAXIS_case_number = "" THEN MsgBox "Please enter a case number."
 			If worker_signature = "" THEN MsgBox "Please sign your note."
 		Loop until footer_month <> "" & footer_year <> ""
-	Loop until case_number <> ""
+	Loop until MAXIS_case_number <> ""
 Loop until worker_signature <> ""
 
 'Converting dates into useable forms
@@ -93,7 +93,7 @@ If len(footer_year) > 2 THEN footer_year = right(footer_year, 2)
 'Navigating to the spec wcom screen
 CALL Check_for_MAXIS(false)
 
-Emwritescreen case_number, 18, 43
+Emwritescreen MAXIS_case_number, 18, 43
 Emwritescreen footer_month, 20, 43
 Emwritescreen footer_year, 20, 46
 

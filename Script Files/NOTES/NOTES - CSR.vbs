@@ -60,7 +60,7 @@ footer_year = "" & footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 166, 265, "Case number dialog"
-  EditBox 75, 5, 70, 15, case_number
+  EditBox 75, 5, 70, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, footer_month
   EditBox 115, 25, 30, 15, footer_year
   CheckBox 10, 60, 35, 10, "SNAP", SNAP_checkbox
@@ -188,8 +188,8 @@ Dim col
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS
 EMConnect ""
-'Searching for the case_number variable
-call MAXIS_case_number_finder(case_number)
+'Searching for the MAXIS_case_number variable
+call MAXIS_case_number_finder(MAXIS_case_number)
 'Searching for the footer month and footer year
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -198,7 +198,7 @@ DO
 	err_msg = ""
 	Dialog case_number_dialog
 		cancel_confirmation
-		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""

@@ -62,7 +62,7 @@ BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
   ButtonGroup ButtonPressed
     OkButton 40, 50, 50, 15
     CancelButton 95, 50, 50, 15
-  EditBox 75, 5, 70, 15, case_number
+  EditBox 75, 5, 70, 15, MAXIS_case_number
   EditBox 75, 25, 30, 15, MAXIS_footer_month
   EditBox 115, 25, 30, 15, MAXIS_footer_year
   Text 10, 10, 50, 10, "Case Number"
@@ -119,7 +119,7 @@ Dim col
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to BlueZone & grabs the case number and footer month/year
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
@@ -127,8 +127,8 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Do
   Dialog case_number_dialog
   cancel_confirmation
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Checking for MAXIS
 call check_for_MAXIS(False)
