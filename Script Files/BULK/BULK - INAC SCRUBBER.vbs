@@ -564,11 +564,11 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			call navigate_to_MAXIS_screen("CASE", "NOTE")
 			PF9
 			If developer_mode = False then
-				call write_new_line_in_case_note("--------------------Case is closed--------------------")
-				call write_new_line_in_case_note("* Reviewed closed case for claims via automated script.")
-				If CLS_x1_number <> "" then call write_new_line_in_case_note("* XFERed to " & CLS_x1_number & ".")
-				call write_new_line_in_case_note("---")
-				call write_new_line_in_case_note(worker_signature & ", via automated script.")
+				call write_variable_in_case_note("--------------------Case is closed--------------------")
+				call write_variable_in_case_note("* Reviewed closed case for claims via automated script.")
+				If CLS_x1_number <> "" then call write_variable_in_case_note("* XFERed to " & CLS_x1_number & ".")
+				call write_variable_in_case_note("---")
+				call write_variable_in_case_note(worker_signature & ", via automated script.")
 			Else
 				'case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
 				If case_note_box = vbCancel then stopscript
@@ -580,11 +580,11 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			tikl_date = dateadd("M", 4, (footer_month & "/01/" & footer_year))
 			last_rein_date = dateadd("D", -1, tikl_date)
 			IF developer_mode = False THEN
-				CALL write_new_line_in_case_note("-----ALL PROGRAMS INACTIVE-----")
-				CALL write_new_line_in_case_note("* Not transfering to Closed Cases because of current MAGI rules")
-				CALL write_new_line_in_case_note("* Last HC REIN Date for MAGI client: " & last_rein_date)
-				CALL write_new_line_in_case_note("---")
-				CALL write_new_line_in_case_note(worker_signature)
+				CALL write_variable_in_case_note("-----ALL PROGRAMS INACTIVE-----")
+				CALL write_variable_in_case_note("* Not transfering to Closed Cases because of current MAGI rules")
+				CALL write_variable_in_case_note("* Last HC REIN Date for MAGI client: " & last_rein_date)
+				CALL write_variable_in_case_note("---")
+				CALL write_variable_in_case_note(worker_signature)
 	
 				CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 				CALL create_maxis_friendly_date(tikl_date, 0, 5, 18)
