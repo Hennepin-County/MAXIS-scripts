@@ -59,7 +59,7 @@ footer_year = "" & footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
+  EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 65, 25, 30, 15, MAXIS_footer_month
   EditBox 140, 25, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -184,15 +184,15 @@ application_signed_check = 1 'The script should default to having the applicatio
 EMConnect ""
 
 'Grabbing the case number & the footer month/year
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 Do
   Dialog case_number_dialog
   cancel_confirmation
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Checking for MAXIS, NAV to HCRE
 Call check_for_MAXIS(FALSE)
