@@ -55,7 +55,7 @@ STATS_denomination = "C"        'C is for each case
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 95, 0, 60, 15, case_number
+  EditBox 95, 0, 60, 15, MAXIS_case_number
   Text 15, 25, 50, 10, "Footer month:"
   EditBox 65, 20, 25, 15, MAXIS_footer_month
   Text 95, 25, 20, 10, "Year:"
@@ -113,7 +113,7 @@ EndDialog
 EMConnect ""
 
 'Grabbing case number & footer month/year
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
  
 'Shows case number dialog
@@ -127,7 +127,7 @@ Call check_for_MAXIS(FALSE)
 back_to_self
 EMWriteScreen "elig", 16, 43
 EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
+EMWriteScreen MAXIS_case_number, 18, 43
 EMWriteScreen MAXIS_footer_month, 20, 43
 EMWriteScreen MAXIS_footer_year, 20, 46
 EMWriteScreen "hc", 21, 70
