@@ -263,22 +263,22 @@ If revw_check = checked then
 				call start_a_blank_CASE_NOTE
 
 				If HC_review_code = "I" or FS_review_code = "I" or cash_review_code = "I" then
-					call write_new_line_in_case_note("---Programs closing for incomplete review---")
+					call write_variable_in_case_note("---Programs closing for incomplete review---")
 				Else
-					call write_new_line_in_case_note("---Programs closing for no review---")
+					call write_variable_in_case_note("---Programs closing for no review---")
 				End if
 				If cash_review_status <> "" then call write_bullet_and_variable_in_case_note("Cash", cash_review_status)
 				If FS_review_status <> "" then call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
 				If HC_review_status <> "" then call write_bullet_and_variable_in_case_note("HC", HC_review_status)
-				If last_day_to_turn_in_cash_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
-				If last_day_to_turn_in_SNAP_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
-				If last_day_to_turn_in_HC_docs <> "" then call write_new_line_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
-				If cash_review_status <> "" and cash_intake_date <> "" then call write_new_line_in_case_note("* Client needs to turn in new application for cash on " & cash_intake_date & ".")
-				If FS_review_status <> "" and SNAP_intake_date <> "" then call write_new_line_in_case_note("* Client needs to turn in new application for SNAP on " & SNAP_intake_date & ".")
-				If HC_intake_date <> "" then call write_new_line_in_case_note("* Client needs to turn in new application for HC after " & HC_intake_date & ".")
+				If last_day_to_turn_in_cash_docs <> "" then call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
+				If last_day_to_turn_in_SNAP_docs <> "" then call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
+				If last_day_to_turn_in_HC_docs <> "" then call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
+				If cash_review_status <> "" and cash_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for cash on " & cash_intake_date & ".")
+				If FS_review_status <> "" and SNAP_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for SNAP on " & SNAP_intake_date & ".")
+				If HC_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for HC after " & HC_intake_date & ".")
 
-				call write_new_line_in_case_note("---")
-				call write_new_line_in_case_note(worker_signature & ", via automated script.")
+				call write_variable_in_case_note("---")
+				call write_variable_in_case_note(worker_signature & ", via automated script.")
 
 			Else	'special handling for inquiry_testing (developers testing scenarios)
 				string_for_msgbox = 	"Cash: " & cash_review_status & chr(10) & _

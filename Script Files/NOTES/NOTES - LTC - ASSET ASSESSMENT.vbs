@@ -427,7 +427,7 @@ call write_bullet_and_variable_in_CASE_NOTE("Asset calculation", asset_calculati
 call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 If sent_5181_check = 1 then call write_variable_in_CASE_NOTE("* DHS-5181 sent to Case Manager.")
 call write_variable_in_CASE_NOTE("---")
-If worker_signature <> "" then call write_new_line_in_case_note(worker_signature)
+If worker_signature <> "" then call write_variable_in_case_note(worker_signature)
 Do
   EMGetCursor row, col
   If row < 17 then 
