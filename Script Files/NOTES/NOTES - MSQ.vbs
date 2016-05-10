@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
  
 'THE DIALOG----------------------------------------------------------------------------------------------------------
 BeginDialog msq_dialog, 0, 0, 321, 125, "MSQ"
-  EditBox 80, 5, 70, 15, case_number
+  EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 75, 30, 70, 15, member_injured
   EditBox 205, 30, 70, 15, injury_date
   EditBox 75, 65, 175, 15, other_notes
@@ -76,14 +76,14 @@ EndDialog
 EMConnect ""
 
 'Grabs the MAXIS case number            
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
 	err_msg = ""		
 	Dialog msq_dialog
 		IF ButtonPressed = 0 THEN StopScript
-		IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
