@@ -146,7 +146,7 @@ IF worker_county_code = "x127" THEN
 		approval_month = datepart("m", closure_date)
 		approval_year = datepart("YYYY", closure_date)
 		approval_year = right(approval_year, 2)
-		call navigate_to_screen("SPEC", "WCOM")
+		call navigate_to_MAXIS_screen("SPEC", "WCOM")
 		EMWriteScreen "Y", 3, 74 'sorts notices by HC only
 		EMWriteScreen approval_month, 3, 46
 		EMWriteScreen approval_year, 3, 51

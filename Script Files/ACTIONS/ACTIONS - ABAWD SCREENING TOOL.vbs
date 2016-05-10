@@ -134,7 +134,7 @@ EndDialog
 'Two functions were created
 'One to count ABAWD months, it counts M and X months basing its search on a period of 3 years (36 months) since the WREG panel shifts as years go by.
 function how_many_abawd_months(abawd_counted_months)
-  call navigate_to_screen("stat", "wreg")
+  call navigate_to_MAXIS_screen("stat", "wreg")
     EMWriteScreen member_number, 20, 76
     transmit
     EMSetCursor 13, 57
@@ -224,7 +224,7 @@ LOOP until case_number <> "" and worker_signature <> "" and len(member_number) =
 call check_for_MAXIS(True)
 
 'Logic to check if client is open on GA or RCA as that in itself is an exemption
-call navigate_to_screen("stat", "prog")
+call navigate_to_MAXIS_screen("stat", "prog")
 EMReadScreen cash_I_prog, 2, 6, 67
 EMReadScreen cash_I_status, 4, 6, 74
 EMReadScreen cash_II_prog, 2, 7, 67
@@ -232,7 +232,7 @@ EMReadScreen cash_II_status, 4, 7, 74
 IF cash_I_status = "ACTV" and (cash_I_prog = "GA" or cash_I_prog = "RC") THEN script_end_procedure("Client is open on GA or RCA, client is exempt from WREG/ABAWD")
 IF cash_II_status = "ACTV" and (cash_II_prog = "GA" or cash_II_prog = "RC") THEN script_end_procedure("Client is open on GA or RCA, client is exempt from WREG/ABAWD")
 
-call navigate_to_screen("stat", "wreg")
+call navigate_to_MAXIS_screen("stat", "wreg")
 
 'Checking to see if the case is in the county of the worker running it. If it is not the same county then worker cannot case note.
 EMReadScreen User_county_check, 4, 21, 71

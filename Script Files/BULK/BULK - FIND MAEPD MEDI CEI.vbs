@@ -255,7 +255,7 @@ DO
 	back_to_SELF
 	case_number = objExcel.Cells(excel_row, 1).Value
 	CALL find_variable("Environment: ", production_or_inquiry, 10)
-	CALL navigate_to_screen("ELIG", "HC")
+	CALL navigate_to_MAXIS_screen("ELIG", "HC")
 	hhmm_row = 8
 	DO
 		EMReadScreen hc_type, 2, hhmm_row, 28
@@ -273,7 +273,7 @@ DO
 					PF3
 					PF3
 					EMReadScreen hh_memb_num, 2, hhmm_row, 3
-					CALL navigate_to_screen("STAT", "MEMB")
+					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 					EMWriteScreen hh_memb_num, 20, 76
 					transmit
 					EMReadScreen cl_pmi, 8, 4, 46
@@ -340,7 +340,7 @@ DO
 					END IF
 					CALL navigate_to_MAXIS(production_or_inquiry)
 					hhmm_row = hhmm_row + 1
-					CALL navigate_to_screen("ELIG", "HC")
+					CALL navigate_to_MAXIS_screen("ELIG", "HC")
 				ELSE
 					DO
 						EMReadScreen at_hhmm, 4, 3, 51

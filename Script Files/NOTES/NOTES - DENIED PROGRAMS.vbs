@@ -369,7 +369,7 @@ If emer_intake_date > intake_date and emer_check = 1 then intake_date = emer_int
 
 IF edit_notice_check = 1 THEN
 	notice_edited = false 'Resetting this variable
-	call navigate_to_screen("SPEC", "WCOM")
+	call navigate_to_MAXIS_screen("SPEC", "WCOM")
 	notice_month = DatePart("m", application_date) 'Entering the benefit month to find notices
 	IF len(notice_month) = 1 THEN notice_month = "0" & notice_month
 	EMWritescreen notice_month, 3, 46

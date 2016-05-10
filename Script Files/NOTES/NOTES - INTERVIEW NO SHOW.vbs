@@ -305,7 +305,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 		Loop until are_we_passworded_out = false
    
 		'Navigates into SPEC/MEMO
-		call navigate_to_screen("SPEC", "MEMO")
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 		'Checks to make sure we're past the SELF menu
 		EMReadScreen still_self, 27, 2, 28 
@@ -345,7 +345,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 		Loop until are_we_passworded_out = false
 	
 		'Navigates into SPEC/LETR
-		call navigate_to_screen("SPEC", "LETR")
+		call navigate_to_MAXIS_screen("SPEC", "LETR")
 	
 		'Checks to make sure we're past the SELF menu
 		EMReadScreen still_self, 27, 2, 28 
@@ -366,7 +366,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 
 		'Navigates to REPT/PND2 and updates for client delay if applicable.
 		If client_delay_check = checked then
-			call navigate_to_screen("rept", "pnd2")
+			call navigate_to_MAXIS_screen("rept", "pnd2")
 			EMGetCursor PND2_row, PND2_col
 			for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
 				EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62

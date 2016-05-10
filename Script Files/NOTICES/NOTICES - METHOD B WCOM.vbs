@@ -136,7 +136,7 @@ medi_part_a = (Medicare_A)
 medi_part_b = (Medicare_B)
 
 'GETTING INCOME STANDARD AND SPENDOWN AMOUNTS
-call navigate_to_screen("ELIG", "HC")
+call navigate_to_MAXIS_screen("ELIG", "HC")
 EMSendKey "x"
 transmit
 EMReadScreen method_type, 1, 13, 21

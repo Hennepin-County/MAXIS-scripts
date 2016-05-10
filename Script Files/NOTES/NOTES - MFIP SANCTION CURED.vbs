@@ -101,7 +101,7 @@ LOOP UNTIL IsNumeric(case_number) = TRUE
 CALL check_for_MAXIS(True)
 
 'Navigates to case note
-CALL navigate_to_screen("CASE", "NOTE")
+CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 
 'Sends a PF9
 PF9

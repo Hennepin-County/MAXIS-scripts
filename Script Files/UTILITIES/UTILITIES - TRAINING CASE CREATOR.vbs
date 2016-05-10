@@ -87,7 +87,7 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	EMReadScreen current_user, 7, 22, 8
 
 	'Now, it will go to REPT/USER, and look up the county code for this individual.
-	call navigate_to_screen("REPT", "USER")
+	call navigate_to_MAXIS_screen("REPT", "USER")
 	EMWriteScreen current_user, 21, 12
 	transmit
 
@@ -349,7 +349,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 	transmit
 
 	'Goes to APPL function
-	call navigate_to_screen("APPL", "____")
+	call navigate_to_MAXIS_screen("APPL", "____")
 
 	'Enters info in APPL and transmits
 	call create_MAXIS_friendly_date(APPL_date, 0, 4, 63)
@@ -548,7 +548,7 @@ End if
 
 For each case_number in case_number_array
 	'Navigates into STAT. For PND1 cases, this will trigger workflow for adding the right panels.
-	call navigate_to_screen ("STAT", "____")
+	call navigate_to_MAXIS_screen ("STAT", "____")
 
 	'Transmits, to get to TYPE panel
 	transmit
@@ -688,7 +688,7 @@ End if
 For each case_number in case_number_array
 
 	'Navigates to STAT/SUMM for each case
-	call navigate_to_screen("STAT", "SUMM")
+	call navigate_to_MAXIS_screen("STAT", "SUMM")
 	MAXIS_background_check
 	EMReadScreen ERRR_check, 4, 2, 52	'Extra err handling in case the case was in background
 	If ERRR_check = "ERRR" then transmit
@@ -1438,7 +1438,7 @@ For each case_number in case_number_array
 		'-------------------------------ACTUALLY FILLING OUT MAXIS
 
 		'Goes to STAT/MEMB to associate a SSN to each member, this will be useful for UNEA/MEDI panels
-		call navigate_to_screen("STAT", "MEMB")
+		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		EMWriteScreen reference_number, 20, 76
 		transmit
 		EMReadScreen SSN_first, 3, 7, 42
@@ -2008,7 +2008,7 @@ FOR EACH case_number IN case_number_array
 	If cash_application = True then
 		'=====DETERMINING CASH PROGRAM =========
 		'This scans CASE CURR to find what type of cash program to approve.
-		call navigate_to_screen("case", "curr")
+		call navigate_to_MAXIS_screen("case", "curr")
 		DO
 			EMReadScreen cash_type, 4, 10, 3
 			cash_type = trim(cash_type)
@@ -2082,7 +2082,7 @@ FOR EACH case_number IN case_number_array
 		IF cash_type = "DWP" then
 			DO 'We need to put this all in a loop because MAXIS likes to have an error at the end that causes us to start over.
 				'===== Needs to send a WF1 referral before approval can be done =======
-				Call navigate_to_screen("INFC", "WORK")
+				Call navigate_to_MAXIS_screen("INFC", "WORK")
 				work_row = 7
 				EMReadScreen referral_sent, 2, 7, 72
 				IF referral_sent = "  " Then 'Makes sure the referral wasn't already sent, if it was it skips this
@@ -2551,7 +2551,7 @@ FOR EACH case_number IN case_number_array
 		'Approve HC, please.
 		'=====THE SCRIPT NEEDS TO GET AROUND ELIG/HC RESULTS BEING STUCK IN BACKGROUND
 		DO
-			call navigate_to_screen("ELIG", "HC")
+			call navigate_to_MAXIS_screen("ELIG", "HC")
 			hhmm_row = 8
 			DO
 				EMReadScreen no_version, 10, hhmm_row, 28
@@ -2774,7 +2774,7 @@ FOR EACH case_number IN case_number_array
 		'CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 		'
 		'
-		'CALL navigate_to_screen("CASE", "NOTE")
+		'CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 		'PF9
 		'IF cash_application = True THEN all_programs = all_programs & "CASH/"
 		'IF SNAP_application = True THEN all_programs = all_programs & "SNAP/"

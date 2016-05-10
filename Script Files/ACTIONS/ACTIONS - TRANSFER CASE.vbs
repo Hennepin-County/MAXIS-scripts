@@ -259,7 +259,7 @@ IF XFERRadioGroup = 0 THEN
 						DIALOG out_of_county_dlg
 							cancel_confirmation
 							IF ButtonPressed = nav_to_xfer_button THEN
-								CALL navigate_to_screen("SPEC", "XFER")
+								CALL navigate_to_MAXIS_screen("SPEC", "XFER")
 								EMWriteScreen "X", 9, 16
 								transmit
 							END IF
@@ -461,7 +461,7 @@ IF XFERRadioGroup = 0 THEN
 	PF3
 
 	'----------The business end of the script (DON'T POINT THIS SCRIPT AT ANYTHING YOU DON'T WANT TRANSFERRED!!)----------
-	call navigate_to_screen("SPEC", "XFER")
+	call navigate_to_MAXIS_screen("SPEC", "XFER")
 	EMWriteScreen "X", 9, 16
 	transmit
 	PF9
