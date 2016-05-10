@@ -53,10 +53,10 @@ STATS_manualtime = 90           'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
-'DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, Claim_date, Expiration_date, Date_DHS_Claim_Docs, Date_DHS_Exp_Docs, Docs_provided_check, Good_Cause_Claimed_Dialog, Case_Number, Date_DHS_docs_sent, List_programs, Supporting_doc_date, GC_Review_Date, Other_comments, Worker_signature, Claim_Type_droplist
+'DIM ButtonGroup_ButtonPressed, ButtonPressed, MAXIS_check, Claim_date, Expiration_date, Date_DHS_Claim_Docs, Date_DHS_Exp_Docs, Docs_provided_check, Good_Cause_Claimed_Dialog, MAXIS_case_number, Date_DHS_docs_sent, List_programs, Supporting_doc_date, GC_Review_Date, Other_comments, Worker_signature, Claim_Type_droplist
 
 BeginDialog Good_Cause_Claimed_Dialog, 0, 0, 251, 310, "Child Support Good Cause Claimed"
-  EditBox 180, 5, 65, 15, Case_Number
+  EditBox 180, 5, 65, 15, MAXIS_case_number
   DropListBox 135, 30, 105, 15, "Select One:"+chr(9)+"New Claim"+chr(9)+"Annual Redetermination", Claim_Type_droplist
   EditBox 60, 60, 65, 15, Claim_Date
   EditBox 175, 60, 65, 15, Expiration_Date
@@ -90,7 +90,7 @@ EndDialog
 EMConnect ""
 
 'Inserts Maxis Case number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
@@ -98,8 +98,8 @@ DO
 		DO
 			Dialog Good_Cause_Claimed_Dialog
 			IF ButtonPressed = 0 THEN StopScript
-			IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-		LOOP UNTIL IsNumeric(case_number) = TRUE
+			IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+		LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 		IF Claim_Type_droplist = "Select One:" THEN MsgBox "You must select New Claim or Redetermination."
 	LOOP UNTIL Claim_Type_droplist <> "Select One:"
 	IF worker_signature = "" THEN MsgBox "You must sign your case note!"
