@@ -149,7 +149,7 @@ IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (count
 ' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
 BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 275, "SNAP E&T Appointment Letter"
-  EditBox 70, 5, 55, 15, case_number
+  EditBox 70, 5, 55, 15, MAXIS_case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
   EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
@@ -184,7 +184,7 @@ EndDialog
 
 'This dialog is for counties that have not provided FSET office address(s)
 BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 305, "SNAP E&T Appointment Letter"
-  EditBox 65, 5, 55, 15, case_number
+  EditBox 65, 5, 55, 15, MAXIS_case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 65, 25, 55, 15, appointment_date
   EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
@@ -224,7 +224,7 @@ EndDialog
 
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
 BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 235, "SNAP E&T Appointment Letter"
-  EditBox 90, 10, 60, 15, case_number
+  EditBox 90, 10, 60, 15, MAXIS_case_number
   EditBox 245, 10, 25, 15, member_number
   DropListBox 90, 35, 180, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
   DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
@@ -251,7 +251,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone default screen & 'Searches for a case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'defaults the member_number to 01
 member_number = "01"
@@ -381,7 +381,7 @@ DO
 		END IF
 		'asks if they really want to cancel script
 		cancel_confirmation
-		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If isdate(appointment_date) = FALSE then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		'The DateValue condition does not apply to Hennepin County users which is why it is excluded in the line below
 		IF worker_county_code <> "x127" AND DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
