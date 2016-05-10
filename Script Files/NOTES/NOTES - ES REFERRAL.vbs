@@ -79,14 +79,14 @@ IF collecting_ES_statistics = true THEN
 END IF
 	
 
-'Dim case_number, program, referral_date, plan_deadline, ES_provider, other_notes, TIKL_check, dwp_referral_check, es_referral_check, worker_signature, county_collecting_ES_stats
+'Dim MAXIS_case_number, program, referral_date, plan_deadline, ES_provider, other_notes, TIKL_check, dwp_referral_check, es_referral_check, worker_signature, county_collecting_ES_stats
 'DIALOGS----------------------------------------------------------------------------------------------------
 
 BeginDialog ES_referral_dialog, 0, 0, 276, 235, "Employment services referral"
   ButtonGroup ButtonPressed
     OkButton 145, 210, 50, 15
     CancelButton 205, 210, 50, 15
-  EditBox 60, 10, 50, 15, case_number
+  EditBox 60, 10, 50, 15, MAXIS_case_number
   DropListBox 215, 10, 50, 10, "DWP"+chr(9)+"MFIP", program
   EditBox 60, 30, 50, 15, referral_date
   EditBox 215, 30, 50, 15, plan_deadline
@@ -114,7 +114,7 @@ EndDialog
 '-grabbing case number
 EMConnect ""
 
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------Calling the dialog / requiring completion of most fields.
 DO	
@@ -123,7 +123,7 @@ DO
 	IF ButtonPressed = 0 THEN stopscript
 	IF referral_date = "" THEN err_msg = err_msg & vbCr & "Please enter a referral date."
 	IF worker_signature = "" THEN err_msg = err_msg & vbCr &  "Please sign your case note."
-	IF isnumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr &  "Please enter a valid case number."
+	IF isnumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr &  "Please enter a valid case number."
 	IF ES_provider = "" THEN err_msg = err_msg & vbCr &  "Please enter an employment services provider."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP UNTIL err_msg = ""
@@ -166,8 +166,8 @@ IF collecting_ES_statistics = true THEN
 		ES_Counselor = "Unassigned"
 		ESPrimary_Activity = "No Employment Plan"
 		hh_member = member
-		'msgbox case_number & hh_member & ESMemb_Name & EsSanction_Percentage & ESEmps_Status & ESTANF_MosUsed & ESExtension_Reason & ESDisa_End & ESPrimary_Activity & ESDate & ESprovider & ES_Counselor & ES_active & insert_string
-		call write_MAXIS_info_to_ES_database(case_number, hh_member, ESMemb_Name, EsSanction_Percentage, ESEmps_Status, ESTANF_MosUsed, ESExtension_Reason, ESDisa_End, ESPrimary_Activity, ESDate, ESprovider, ES_Counselor, ES_active, insert_string)
+		'msgbox MAXIS_case_number & hh_member & ESMemb_Name & EsSanction_Percentage & ESEmps_Status & ESTANF_MosUsed & ESExtension_Reason & ESDisa_End & ESPrimary_Activity & ESDate & ESprovider & ES_Counselor & ES_active & insert_string
+		call write_MAXIS_info_to_ES_database(MAXIS_case_number, hh_member, ESMemb_Name, EsSanction_Percentage, ESEmps_Status, ESTANF_MosUsed, ESExtension_Reason, ESDisa_End, ESPrimary_Activity, ESDate, ESprovider, ES_Counselor, ES_active, insert_string)
 		ESProvider = ES_provider 'resetting variables for other members
 		ESDate = referral_date
 	next
