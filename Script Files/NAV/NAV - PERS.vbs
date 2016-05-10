@@ -52,7 +52,7 @@ STATS_denomination = "C"                   'C is for each CASE
 
 'CONNECTING TO MAXIS, STOPPING THE CASE NUMBER FROM CARRYING THROUGH
 EMConnect ""
-case_number = "________"
+MAXIS_case_number = "________"
 
 'NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'checking for active MAXIS session
