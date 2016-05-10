@@ -163,8 +163,8 @@ call write_bullet_and_variable_in_CASE_NOTE ("What Income has decreased?", Incom
 call write_bullet_and_variable_in_CASE_NOTE ("Income Change Verified?", Income_verified)
 call write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", Verifs_needed)
 call write_bullet_and_variable_in_CASE_NOTE ("Action Taken", Action_taken)
-IF Tikl_future_month_checkbox = "1" THEN write_new_line_in_case_note ("* Tikl set to review Significant Change for future month")
-IF Sig_change_status_dropdown = "Denied" THEN write_new_line_in_case_note ("* Denial letter sent via Spec/Memo")
+IF Tikl_future_month_checkbox = "1" THEN write_variable_in_case_note ("* Tikl set to review Significant Change for future month")
+IF Sig_change_status_dropdown = "Denied" THEN write_variable_in_case_note ("* Denial letter sent via Spec/Memo")
 call write_variable_in_CASE_NOTE (Worker_signature)
 
 script_end_procedure("Success!")
