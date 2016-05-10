@@ -117,10 +117,10 @@ IF search_where = "REPT/ACTV" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 12
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8	'No need for STATS counter on this because there's direct navigation for last name
@@ -146,7 +146,7 @@ IF search_where = "REPT/INAC" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 14
-					EMReadScreen case_number, 8, MAXIS_row, 3
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
 					MsgBox("REPT/INAC Search Complete. The person matching your search may be. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -164,10 +164,10 @@ IF search_where = "REPT/INAC" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 3
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -194,7 +194,7 @@ IF search_where = "REPT/PND1" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 14
-					EMReadScreen case_number, 8, MAXIS_row, 3
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
 					MsgBox("REPT/PND1 Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -216,10 +216,10 @@ IF search_where = "REPT/PND1" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 3
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -247,7 +247,7 @@ IF search_where = "REPT/PND2" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 16
-					EMReadScreen case_number, 8, MAXIS_row, 5
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5
 					MsgBox("REPT/PND2 Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -268,10 +268,10 @@ IF search_where = "REPT/PND2" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 5
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -298,7 +298,7 @@ IF search_where = "REPT/REVW" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 16
-					EMReadScreen case_number, 8, MAXIS_row, 6
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6
 					MsgBox("REPT/REVW Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -320,10 +320,10 @@ IF search_where = "REPT/REVW" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 6
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -346,15 +346,15 @@ STATS_denomination = "I"                   'I is for each ITEM
 case_number_array = TRIM(case_number_array)
 case_number_array = SPLIT(case_number_array)
 
-FOR EACH case_number in case_number_array
+FOR EACH MAXIS_case_number in case_number_array
 	back_to_self
 	EMwritescreen "          ", 18, 43
-	EMwritescreen case_number, 18, 43
+	EMwritescreen MAXIS_case_number, 18, 43
 	CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 	row = 1
 	col = 1
 	EMSearch "PRIVILEGED", row, col
-	IF row <> 0 THEN msgbox case_number
+	IF row <> 0 THEN msgbox MAXIS_case_number
 	IF row = 0 THEN
 		EMReadscreen area_code_1, 3, 17, 45
 		EMReadscreen addr_phone_number_1, 8, 17, 51
@@ -365,7 +365,7 @@ FOR EACH case_number in case_number_array
 		complete_phone_1 = area_code_1 & replace(addr_phone_number_1, " ", "")
 		complete_phone_2 = area_code_2 & replace(addr_phone_number_2, " ", "")
 		complete_phone_3 = area_code_3 & replace(addr_phone_number_3, " ", "")
-		IF complete_phone_1 = phone_look_up OR complete_phone_2 = phone_look_up OR complete_phone_3 = phone_look_up then script_end_procedure(case_number & " contains requested phone number " & phone_look_up & ".")
+		IF complete_phone_1 = phone_look_up OR complete_phone_2 = phone_look_up OR complete_phone_3 = phone_look_up then script_end_procedure(MAXIS_case_number & " contains requested phone number " & phone_look_up & ".")
 		CALL navigate_to_MAXIS_screen("STAT", "AREP")
 		EMReadscreen arep_area_code_1, 3, 8, 34
 		EMReadscreen arep_phone_number_1, 8, 8, 40
@@ -373,7 +373,7 @@ FOR EACH case_number in case_number_array
 		EMReadscreen arep_phone_number_2, 8, 9, 40
 		arep_complete_phone_1 = arep_area_code_1 & replace(arep_phone_number_1, " ", "")
 		arep_complete_phone_2 = arep_area_code_2 & replace(arep_phone_number_2, " ", "")
-		IF arep_complete_phone_1 = phone_look_up OR arep_complete_phone_2 = phone_look_up then script_end_procedure("AREP on case " & case_number & " contains requested phone number " & phone_look_up & ".")
+		IF arep_complete_phone_1 = phone_look_up OR arep_complete_phone_2 = phone_look_up then script_end_procedure("AREP on case " & MAXIS_case_number & " contains requested phone number " & phone_look_up & ".")
 	END IF
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 NEXT
