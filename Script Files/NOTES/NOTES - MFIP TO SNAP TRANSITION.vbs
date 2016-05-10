@@ -204,7 +204,7 @@ LOOP UNTIL are_we_passworded_out = false
 'Editing the notice if requested
 IF WCOM_check = checked THEN
 	'navigating to WCOM and finding the pending SNAP notice
-	call navigate_to_screen("SPEC", "WCOM")
+	call navigate_to_MAXIS_screen("SPEC", "WCOM")
 	notice_month = DatePart("m", date) 'Entering the benefit month to find notices
 	IF len(notice_month) = 1 THEN notice_month = "0" & notice_month
 	EMWritescreen notice_month, 3, 46
