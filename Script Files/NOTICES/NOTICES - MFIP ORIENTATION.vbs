@@ -52,7 +52,7 @@ STATS_denomination = "C"       'C is for each MEMBER
 'DIALOGS----------------------------------------------------------------------------------------------------
 'Must modify county_office_list manually each time to force recognition of variable from functions file. In other words, remove it from quotes.
 BeginDialog MFIP_orientation_dialog, 0, 0, 366, 155, "MFIP orientation letter"
-  EditBox 60, 5, 55, 15, case_number
+  EditBox 60, 5, 55, 15, MAXIS_case_number
   EditBox 185, 5, 55, 15, orientation_date
   EditBox 310, 5, 55, 15, orientation_time
   EditBox 205, 25, 55, 15, member_list
@@ -80,7 +80,7 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 Do
@@ -100,8 +100,8 @@ Do
 								End if
 							End if
 						Loop until ButtonPressed = OK
-						If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-					Loop until isnumeric(case_number) = True and len(case_number) <= 8
+						If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+					Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 					If isdate(orientation_date) = False then MsgBox "You did not enter a valid  date (MM/DD/YYYY format). Please try again."
 				Loop until isdate(orientation_date) = True
 				If orientation_time = "" then MsgBox "You must type an interview time. Please try again."
