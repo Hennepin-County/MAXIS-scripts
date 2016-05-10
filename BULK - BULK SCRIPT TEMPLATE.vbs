@@ -58,7 +58,7 @@ END IF
 'Defining classes-----------------------------
 'This class holds case-specific data, replace example with any needed info for your bulk list
 Class case_attributes
-	public case_number
+	public MAXIS_case_number
 	public worker_number
 	public example
 END Class
@@ -148,29 +148,29 @@ For each worker in worker_array
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 				EMReadScreen example, 8, MAXIS_row, 42		'Reading example criteria, update variable and coordinates with the data of your choice
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 
-				'Using if...thens to decide if a case should be added to the array.  Replace case_number example with your desired case criteria,
+				'Using if...thens to decide if a case should be added to the array.  Replace MAXIS_case_number example with your desired case criteria,
 				'such as SNAP_status = "A", etc.
-				If case_number <> "        " then
+				If MAXIS_case_number <> "        " then
 					redim preserve case_array(case_count) 'Resize the array for total cases'
 					set case_array(case_count) = new case_attributes 'This sets the value of the array at this location to be the case_attributes object, which holds your custom properties'
-					case_array(case_count).case_number = case_number
+					case_array(case_count).MAXIS_case_number = MAXIS_case_number
 					case_array(case_count).worker_number = worker
 					case_array(case_count).example = example 'REPLACE THIS WITH AS MANY case_attibutes properties as you need to read from the REPT
 					case_count = case_count+1 'add 1 to the case count'
 				END IF
 
 				MAXIS_row = MAXIS_row + 1
-				case_number = ""			'Blanking out variable
+				MAXIS_case_number = ""			'Blanking out variable
 				STATS_counter = STATS_counter + 1   'adds one instance to the stats counter
 			Loop until MAXIS_row = 19
 			PF8
@@ -200,7 +200,7 @@ excel_row = 2 '2, because row 1 has column headings
 'Enter logic to read the needed maxis screens for finding further case criteria'
 'And add the cases you want to your spreadsheet
 For current_case = 0 to ubound(case_array)
-	case_number = case_array(current_case).case_number 'passing the case_number back to the variable used by functions'
+	MAXIS_case_number = case_array(current_case).MAXIS_case_number 'passing the MAXIS_case_number back to the variable used by functions'
 
 	call navigate_to_MAXIS_screen("CASE", "CURR") 'This could be any desired MAXIS screen, only an example
 	this_is_a_case_to_add = true 'remove this, it is only for testing.
@@ -208,7 +208,7 @@ For current_case = 0 to ubound(case_array)
 
 	IF this_is_a_case_to_add = true THEN 'Change this variable to whatever it is you are looking for
 					ObjExcel.cells(excel_row, 1).value = case_array(current_case).worker_number 'Column 1 is worker number
-					ObjExcel.Cells(excel_row, 2).value = case_array(current_case).case_number 'Column 2 is case number'
+					ObjExcel.Cells(excel_row, 2).value = case_array(current_case).MAXIS_case_number 'Column 2 is case number'
 					ObjExcel.Cells(excel_row, 3).value = case_array(current_case).example 'Enter any criteria you defined here and in subsequent rows'
 					excel_row = excel_row + 1 'move to the next row
 
