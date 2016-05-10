@@ -60,7 +60,7 @@ footer_year = right(datepart("yyyy", prev_month), 2)
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
+  EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 65, 25, 30, 15, footer_month
   EditBox 140, 25, 30, 15, footer_year
   CheckBox 10, 60, 30, 10, "GRH", GRH_check
@@ -155,7 +155,7 @@ Dim col
 EMConnect ""
 
 'Grabbing case number and footer year/month
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
@@ -163,8 +163,8 @@ call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Do
 	Dialog case_number_dialog
 	cancel_confirmation
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Checking for MAXIS
 call check_for_MAXIS(False)
