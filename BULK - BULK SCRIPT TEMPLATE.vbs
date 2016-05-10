@@ -12,7 +12,8 @@ STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 13                      'manual run time in seconds
 STATS_denomination = "C"       							'C is for each CASE
 'END OF stats block==============================================================================================
-
+run_locally = FALSE
+use_master_branch = true
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -86,8 +87,13 @@ BeginDialog Dialog1, 0, 0, 218, 120, "Pull REPT data into Excel dialog"
 EndDialog
 
 'Shows dialog
-Dialog
-If buttonpressed = cancel then stopscript
+Do
+	err_msg = ""
+	Dialog
+	cancel_confirmation
+	IF worker_number = "" and all_workers_check = unchecked THEN err_msg = err_msg & "You must enter at least 1 worker number or select county-wide."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE ***" & vbCr & err_msg & vbCr & "Please resolve to continue."
+Loop until err_msg = ""
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -97,7 +103,7 @@ Call check_for_password(false)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
-	call create_array_of_all_active_x_numbers_in_county(worker_array, worker_county_code)
+	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code_variable)
 Else
 	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
@@ -227,4 +233,4 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("")
+script_end_procedure("Success! The script has finished pulling cases to Excel.")
