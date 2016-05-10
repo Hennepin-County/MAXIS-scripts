@@ -51,7 +51,7 @@ END IF
 'DIALOGS----------------------------------------------------------------------------------------------------
 
 BeginDialog Potential_Eligibility_MEMO_dialog, 0, 0, 181, 120, "Potential Eligibility MEMO"
-  EditBox 75, 5, 50, 15, case_number
+  EditBox 75, 5, 50, 15, MAXIS_case_number
   CheckBox 10, 30, 30, 10, "SNAP", SNAP_checkbox
   CheckBox 55, 30, 30, 10, "CASH", CASH_checkbox
   CheckBox 100, 30, 25, 10, "MA", MA_checkbox
@@ -71,7 +71,7 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 DO
@@ -82,7 +82,7 @@ DO
 		If SNAP_checkbox <> checked AND CASH_checkbox <> checked AND MA_checkbox <> checked AND MSP_checkbox <> checked THEN err_msg = err_msg & "Please select a program." & vbNewLine
 		If MSP_checkbox = checked AND HC_apply_method <> "Apply in MAXIS" THEN err_msg = err_msg & "You selected MSP, at this time you cannot apply in Mnsure if you have Medicare. Please review selections" & vbNewLine
 		If (MSP_checkbox = checked or MA_checkbox = checked) AND HC_apply_method = "" THEN err_msg = err_msg & "You selected a HC program, please select a system to apply in." & vbNewLine
-		If isnumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
+		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
 		If worker_signature = "" then err_msg = err_msg & "You must sign your case note." & vbNewLine
 		IF err_msg <> "" THEN msgbox err_msg
 	Loop until err_msg = ""
