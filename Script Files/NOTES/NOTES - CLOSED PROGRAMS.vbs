@@ -55,7 +55,7 @@ If case_noting_intake_dates = False then dialog_shrink_amt = 65
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog closed_dialog, 0, 0, 471, 265, "Closed Programs Dialog"
-  EditBox 70, 5, 55, 15, case_number
+  EditBox 70, 5, 55, 15, MAXIS_case_number
   CheckBox 185, 10, 35, 10, "SNAP", SNAP_check
   CheckBox 220, 10, 35, 10, "Cash", cash_check
   CheckBox 255, 10, 25, 10, "HC", HC_check
@@ -110,7 +110,7 @@ cash_check = 0
 HC_check = 0
 
 'Autofills case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Dialog starts. Checks for MAXIS, includes nav button for SPEC/WCOM, validates the date of closure, confirms that date
 '    of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE.
