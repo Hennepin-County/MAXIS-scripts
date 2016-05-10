@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
 BeginDialog OHP_dialog, 0, 0, 301, 160, "OHP received"
-  EditBox 90, 5, 75, 15, Case_number
+  EditBox 90, 5, 75, 15, MAXIS_case_number
   EditBox 145, 25, 65, 15, OOHP_date
   EditBox 65, 45, 90, 15, Date_change
   EditBox 65, 70, 145, 15, Change
@@ -74,15 +74,15 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
 'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
 	Dialog OHP_dialog
 	IF buttonpressed = 0 THEN stopscript
-	IF case_number = "" THEN MsgBox "You must have a case number to continue!"
+	IF MAXIS_case_number = "" THEN MsgBox "You must have a case number to continue!"
 	IF Worker_Signature = "" THEN MsgBox "You must enter a worker signature."
-LOOP until Case_number <> "" and Worker_Signature <> ""
+LOOP until MAXIS_case_number <> "" and Worker_Signature <> ""
 
 'checking for an active MAXIS session
 CALL check_for_MAXIS(FALSE)
