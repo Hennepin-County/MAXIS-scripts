@@ -169,7 +169,7 @@ BeginDialog number_of_paystubs_dlg, 0, 0, 211, 65, "Number of Pay Dates"
 EndDialog
 
 BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
-  EditBox 100, 5, 60, 15, case_number
+  EditBox 100, 5, 60, 15, MAXIS_case_number
   EditBox 70, 25, 25, 15, MAXIS_footer_month
   EditBox 125, 25, 25, 15, MAXIS_footer_year
   EditBox 110, 45, 25, 15, HH_member
@@ -195,7 +195,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Default member is member 01
