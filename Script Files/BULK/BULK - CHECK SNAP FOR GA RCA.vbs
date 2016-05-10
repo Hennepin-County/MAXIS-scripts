@@ -78,7 +78,7 @@ DO
 LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
 
 IF all_worker_check = 1 THEN
-	CALL navigate_to_screen("REPT", "USER")
+	CALL navigate_to_MAXIS_screen("REPT", "USER")
 	PF5
 
 	rept_user_row = 7
@@ -123,7 +123,7 @@ NEXT
 excel_row = 2
 FOR EACH worker IN worker_array
 	IF worker = "" THEN EXIT FOR
-	CALL navigate_to_screen("REPT", "ACTV")
+	CALL navigate_to_MAXIS_screen("REPT", "ACTV")
 	EMWriteScreen worker, 21, 13
 	transmit
 
@@ -167,7 +167,7 @@ FOR EACH case_number IN case_array
 	rca_amount = ""
 	cash_prog = ""
 	pa_amount = ""
-	CALL navigate_to_screen("ELIG", "FS")
+	CALL navigate_to_MAXIS_screen("ELIG", "FS")
 	EMReadScreen approved, 8, 3, 3
 	EMReadScreen version, 2, 2, 12
 	version = trim(version)
@@ -185,7 +185,7 @@ FOR EACH case_number IN case_array
 	pa_amount = replace(pa_amount, "_", "")
 	pa_amount = trim(pa_amount)
 	IF pa_amount = "" THEN pa_amount = "0.00"
-	CALL navigate_to_screen("CASE", "CURR")
+	CALL navigate_to_MAXIS_screen("CASE", "CURR")
 	CALL find_variable("GA: ", ga_status, 6)
 	IF ga_status = "ACTIVE" OR ga_status = "APP CL" THEN
 		cash_prog = "GA"
@@ -194,7 +194,7 @@ FOR EACH case_number IN case_array
 		IF rca_status = "ACTIVE" OR rca_status = "APP CL" THEN cash_prog = "RCA"
 	END IF
 	IF cash_prog = "GA" THEN
-		CALL navigate_to_screen("ELIG", "GA")
+		CALL navigate_to_MAXIS_screen("ELIG", "GA")
 		EMReadScreen approved, 8, 3, 3
 		EMReadScreen version, 2, 2, 12
 		version = trim(version)
@@ -211,7 +211,7 @@ FOR EACH case_number IN case_array
 		ga_amount = trim(ga_amount)
 		ga_to_be_paid = trim(ga_to_be_paid)
 		IF pa_amount <> ga_amount AND pa_amount <> ga_to_be_paid THEN
-			CALL navigate_to_screen("STAT", "REVW")
+			CALL navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
 			bene_date = benefit_month & "/" & benefit_year
@@ -232,7 +232,7 @@ FOR EACH case_number IN case_array
 			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
 		END IF
 	ELSEIF cash_prog = "RCA" THEN
-		CALL navigate_to_screen("ELIG", "RCA")
+		CALL navigate_to_MAXIS_screen("ELIG", "RCA")
 		EMReadScreen approved, 8, 3, 3
 		EMReadScreen version, 2, 2, 12
 		version = trim(version)
@@ -248,7 +248,7 @@ FOR EACH case_number IN case_array
 		CALL find_variable("Grant Amount..............$", rca_amount, 10)
 		rca_amount = trim(rca_amount)
 		IF pa_amount <> rca_amount THEN
-			CALL navigate_to_screen("STAT", "REVW")
+			CALL navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
 			bene_date = benefit_month & "/" & benefit_year
