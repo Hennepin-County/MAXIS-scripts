@@ -81,7 +81,7 @@ EndDialog
 EMConnect ""
 
 'Grabs the MAXIS case number            
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
@@ -89,7 +89,7 @@ DO
 	Dialog preg_dialog
 		IF ButtonPressed = 0 THEN StopScript
 		IF report_method = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
-		IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
 		IF due_date = "" OR (due_date <> "" AND IsDate(due_date) = False) THEN err_msg = err_msg & vbCr & "* You must enter a due date in a MM/DD/YY format."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
