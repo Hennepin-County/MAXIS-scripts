@@ -60,11 +60,11 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in DAIL, Please n
 'The following reads the message in full for the end part (which tells the script which message was selected)
 EMReadScreen full_message, 23, 6, 20
 IF full_message = "~*~CONSIDER SENDING 1ST" THEN     'script finds 1st TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)		
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
@@ -83,11 +83,11 @@ IF full_message = "~*~CONSIDER SENDING 1ST" THEN     'script finds 1st TIKL mess
 	script_end_procedure("Success! Script has case noted that 1st Quarter form was sent and added a TIKL to send the 2nd quarter report form on " & second_quart_send)
 END IF
 IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
@@ -106,11 +106,11 @@ IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL mess
 	script_end_procedure("Success! Script has case noted that 2nd Quarter form was sent and added a TIKL for return of 2nd quarter report form on " & second_quart_due)
 END IF
 IF full_message = "~*~2ND QUARTERLY REPORT" THEN     'script finds 3rd TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	'TIKLS FOR THIRD FORM SEND DATE
@@ -124,11 +124,11 @@ IF full_message = "~*~2ND QUARTERLY REPORT" THEN     'script finds 3rd TIKL mess
 	script_end_procedure("Success! Script has added a TIKL to send the 3rd quarter report form on " & third_quart_send)
 END IF
 IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
@@ -147,11 +147,11 @@ IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL mess
 	script_end_procedure("Success! Script has case noted that 3rd Quarter form was sent and added a TIKL for return of 3rd quarter report form on " & third_quart_due)
 END IF
 IF full_message = "~*~3RD QUARTERLY REPORT" THEN     'script finds 5th TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	'TIKLS FOR SECOND FORM DUE DATE
