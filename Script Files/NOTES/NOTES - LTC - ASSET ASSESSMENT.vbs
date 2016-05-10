@@ -163,7 +163,7 @@ If ButtonPressed = 0 then stopscript
 EMConnect ""
 Call check_for_MAXIS(False)
 back_to_self
-call navigate_to_screen("aset", "____")
+call navigate_to_MAXIS_screen("aset", "____")
 
 EMWriteScreen "________", 13, 62
 If community_spouse_check = 1 then 
