@@ -52,7 +52,7 @@ STATS_denomination = "C"                   'C is for each CASE
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, footer_month
   EditBox 110, 25, 30, 15, footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
@@ -266,7 +266,7 @@ application_signed_checkbox = checked 'The script should default to having the a
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(footer_month, footer_year)
 
 'initial dialog
@@ -275,9 +275,9 @@ Do
 		Dialog case_number_dialog
 		cancel_confirmation
 		If CAF_type = "Select one..." Then MsgBox "You must select the CAF type."
-		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 	Loop until CAF_type <> "Select one..."	
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
