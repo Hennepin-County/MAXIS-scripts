@@ -105,8 +105,8 @@ End if
 
 'Navigating to case/curr
 EMSendKey "h"
-EMReadScreen case_number, 8, 5, 73
-case_number = trim(case_number)
+EMReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
 transmit
 
 'Searching for active SNAP
