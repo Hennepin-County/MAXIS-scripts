@@ -212,7 +212,6 @@ FOR EACH case_number IN case_array
 		ga_to_be_paid = trim(ga_to_be_paid)
 		IF pa_amount <> ga_amount AND pa_amount <> ga_to_be_paid THEN
 			CALL navigate_to_screen("STAT", "REVW")
-			ERRR_screen_check
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
 			bene_date = benefit_month & "/" & benefit_year
@@ -250,7 +249,6 @@ FOR EACH case_number IN case_array
 		rca_amount = trim(rca_amount)
 		IF pa_amount <> rca_amount THEN
 			CALL navigate_to_screen("STAT", "REVW")
-			ERRR_screen_check
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
 			bene_date = benefit_month & "/" & benefit_year
