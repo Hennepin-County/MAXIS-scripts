@@ -274,7 +274,6 @@ DO
 					PF3
 					EMReadScreen hh_memb_num, 2, hhmm_row, 3
 					CALL navigate_to_screen("STAT", "MEMB")
-					ERRR_screen_check
 					EMWriteScreen hh_memb_num, 20, 76
 					transmit
 					EMReadScreen cl_pmi, 8, 4, 46
