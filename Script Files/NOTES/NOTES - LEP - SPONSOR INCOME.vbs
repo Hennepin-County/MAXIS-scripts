@@ -52,7 +52,7 @@ STATS_denomination = "C"        'C is for each case
 
 'DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog sponsor_income_calculation_dialog, 0, 0, 216, 165, "Sponsor income calculation dialog"
-  EditBox 65, 10, 70, 15, case_number
+  EditBox 65, 10, 70, 15, MAXIS_case_number
   EditBox 40, 45, 55, 15, primary_sponsor_earned_income
   EditBox 150, 45, 55, 15, spousal_sponsor_earned_income
   EditBox 40, 80, 55, 15, primary_sponsor_unearned_income
@@ -78,7 +78,7 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, and finding case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
@@ -88,8 +88,8 @@ Do
 				DO
 					Dialog sponsor_income_calculation_dialog
 					If ButtonPressed = 0 then stopscript
-					If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must enter a valid case number."
-				Loop until isnumeric(case_number) = True and len(case_number) <= 8
+					If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must enter a valid case number."
+				Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 				If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False then MsgBox "You must enter some income. You can enter a ''0'' if that is accurate."
 			Loop until isnumeric(primary_sponsor_earned_income) = True or isnumeric(spousal_sponsor_earned_income) = True or isnumeric(primary_sponsor_unearned_income) = True or isnumeric(spousal_sponsor_unearned_income) = True
 			If isnumeric(sponsor_HH_size) = False then MsgBox "You must enter a sponsor HH size."
