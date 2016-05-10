@@ -125,7 +125,7 @@ END If
 
 If Sig_change_status_dropdown = "Denied" THEN
 	'Navigating to SPEC/MEMO
-	call navigate_to_screen("SPEC", "MEMO")
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 	'This checks to make sure we've moved passed SELF.
 	EMReadScreen SELF_check, 27, 2, 28
