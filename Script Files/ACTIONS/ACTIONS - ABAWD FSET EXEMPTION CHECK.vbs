@@ -91,7 +91,7 @@ DO
 		IF footer_year = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit year."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
-case_number = MAXIS_case_number
+MAXIS_case_number = MAXIS_case_number
 CALL check_for_MAXIS(False)
 
 back_to_SELF
