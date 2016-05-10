@@ -121,7 +121,7 @@ BeginDialog asset_assessment_dialog, 0, 0, 266, 280, "Asset assessment dialog"
   CheckBox 145, 205, 110, 10, "Sent 5181 to Case Manager?", sent_5181_check
   EditBox 195, 220, 65, 15, worker_signature
   CheckBox 5, 245, 175, 10, "Write MAXIS case note? If so, write case number:", write_MAXIS_case_note_check
-  EditBox 185, 240, 75, 15, case_number
+  EditBox 185, 240, 75, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 150, 260, 50, 15
     CancelButton 210, 260, 50, 15
@@ -145,7 +145,7 @@ EndDialog
 BeginDialog case_and_PMI_number_dialog, 0, 0, 196, 101, "Case and PMI number dialog"
   EditBox 80, 5, 70, 15, LTC_spouse_PMI
   EditBox 105, 25, 70, 15, community_spouse_PMI
-  EditBox 100, 45, 70, 15, case_number
+  EditBox 100, 45, 70, 15, MAXIS_case_number
   CheckBox 5, 65, 190, 10, "Check here to enter ASET under the community spouse.", community_spouse_check
   ButtonGroup ButtonPressed
     OkButton 45, 80, 50, 15
