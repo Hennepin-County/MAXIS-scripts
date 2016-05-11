@@ -2,6 +2,9 @@
 name_of_script = "NOTES - MAIN MENU (H-Z).vbs"
 start_time = timer
 
+'Message alerting the worker that the Power Pad is updated. This script is due for deletion in the June 2016 release
+veronica_message = MsgBox("You appear to be using an old Power Pad! A new version was released earlier this year. It looks like you need to update! The separate NOTES buttons are now combined. Contact a scripts administrator and ask them to update your scripts by running the scripts installer again!" & vbNewLine & vbNewLine & "The separate NOTES main menus will become disconnected on or before June 27, 2016. Access to these scripts will be lost unless your Power Pad is updated!" & vbNewLine & vbNewLine & "The script will now continue.", vbExclamation)
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
