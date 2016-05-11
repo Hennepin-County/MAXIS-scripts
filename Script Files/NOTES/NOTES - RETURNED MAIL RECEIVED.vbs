@@ -117,11 +117,11 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
 IF on_SELF = "SELF" THEN
-	CALL find_variable("Benefit Period (MM YY): ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Benefit Period (MM YY): ", MAXIS_footer_month, 2)
+	IF MAXIS_footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 ELSE
-	CALL find_variable("Month: ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Month: " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Month: ", MAXIS_footer_month, 2)
+	IF MAXIS_footer_month <> "" THEN CALL find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 END IF
 
 ' >>>>> GATHERING & CONFIRMING THE MAXIS CASE NUMBER <<<<<
