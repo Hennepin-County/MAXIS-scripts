@@ -51,10 +51,10 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", date) & ""
-If len(footer_month) = 1 then footer_month = "0" & footer_month & ""
-footer_year = datepart("yyyy", date)
-footer_year = "" & footer_year - 2000
+MAXIS_footer_month = datepart("m", date) & ""
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month & ""
+MAXIS_footer_year = datepart("yyyy", date)
+MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 97, "Case number dialog"
