@@ -118,41 +118,41 @@ report_month_dropdown = trim(report_month_dropdown)			'prevents matching errors 
 'This assigns a footer month and year based on the worksheet names selected in the dropdown from the dialog'
 Select Case report_month_dropdown
 Case "January 2016"
-	footer_month = "01"
-	footer_year = "16"
+	MAXIS_footer_month = "01"
+	MAXIS_footer_year = "16"
 Case "February 2016"
-	footer_month = "02"
-	footer_year = "16"
+	MAXIS_footer_month = "02"
+	MAXIS_footer_year = "16"
 Case "March 2016"
-	footer_month = "03"
-	footer_year = "16"
+	MAXIS_footer_month = "03"
+	MAXIS_footer_year = "16"
 Case "April 2016"
-	footer_month = "04"
-	footer_year = "16"
+	MAXIS_footer_month = "04"
+	MAXIS_footer_year = "16"
 Case "May 2016"
-	footer_month = "05"
-	footer_year = "16"
+	MAXIS_footer_month = "05"
+	MAXIS_footer_year = "16"
 Case "June 2016"
-	footer_month = "06"
-	footer_year = "16"
+	MAXIS_footer_month = "06"
+	MAXIS_footer_year = "16"
 Case "July 2016"
-	footer_month = "07"
-	footer_year = "16"
+	MAXIS_footer_month = "07"
+	MAXIS_footer_year = "16"
 Case "August 2016"
-	footer_month = "08"
-	footer_year = "16"
+	MAXIS_footer_month = "08"
+	MAXIS_footer_year = "16"
 Case "September 2016"
-	footer_month = "09"
-	footer_year = "16"
+	MAXIS_footer_month = "09"
+	MAXIS_footer_year = "16"
 Case "October 2016"
-	footer_month = "10"
-	footer_year = "16"
+	MAXIS_footer_month = "10"
+	MAXIS_footer_year = "16"
 Case "November 2016"
-	footer_month = "11"
-	footer_year = "16"
+	MAXIS_footer_month = "11"
+	MAXIS_footer_year = "16"
 Case "December 2016"
-	footer_month = "12"
-	footer_year = "16"
+	MAXIS_footer_month = "12"
+	MAXIS_footer_year = "16"
 End Select
 
 'Sets up the array to store all the information for each client'
@@ -254,7 +254,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		EMReadScreen no_SNAP, 10, 24, 2
 		If no_SNAP = "NO VERSION" then						'NO SNAP version means no banked months could have been used'
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No version of SNAP exists for " & footer_month & "/" & footer_year & " | "
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 		END IF 
 		EMWriteScreen "99", 19, 78 		
 		transmit	
@@ -264,7 +264,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 			EMReadScreen app_status, 8, status_row, 50
 			If app_status = "        " then 
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
-				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No approved eligibility results exists in " & footer_month & "/" & footer_year & " | "
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 				PF3
 				exit do 	'if end of the list is reached then exits the do loop
 			End if 
@@ -272,7 +272,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		Loop until  app_status = "APPROVED" or app_status = "        "
 			If app_status <> "APPROVED" then 
 				Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
-				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No approved eligibility results exists in " & footer_month & "/" & footer_year & " | "
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 			Elseif app_status = "APPROVED" then 
 				EMReadScreen vers_number, 1, status_row, 23
 				EMWriteScreen vers_number, 18, 54
@@ -286,12 +286,12 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 						If pers_elig = "ELIGIBLE" then exit do 
 						IF pers_elig = "INELIGIB" Then						'If ineligible the footer month, they did not use banked months'
 							Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
-							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client listed as Ineligible for SNAP on ELIG/FS for " & footer_month & "/" & footer_year & " | "
+							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client listed as Ineligible for SNAP on ELIG/FS for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 							exit do
 						End If
 					ElseIf clt_on_snap = "  " Then							'If client is not found, they did not receive SNAP on this case in this month'
 						Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
-						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client not listed on ELIG/FS for " &  footer_month & "/" & footer_year & " | "
+						Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "Client not listed on ELIG/FS for " &  MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 					Else
 						elig_maxis_row = elig_maxis_row + 1
 						If elig_maxis_row = 19 Then
@@ -305,7 +305,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 				EMReadScreen fs_prorated, 8, 11,40			'Looking to see if benefits were prorated, if so, no banked months were used'
 				IF fs_prorated = "Prorated" Then
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
-					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & footer_month & "/" & footer_year & " | "
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 				End If
 			END If
 		'///////SCRIPT WILL NOW CHECK FOR POSSIBLE EXPEMTIONS FOR CLIENT'
@@ -539,7 +539,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 
 		'//////////WREG PORTION//////////////////////////////////////////////
 		'This is intense, the script is going to check every line on the WREG tracker to list all of the counted ABAWD months for the report'
-		report_date = footer_month & "/" & footer_year			'creating date variables to measure against person note counted dates
+		report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
 
 		Call navigate_to_MAXIS_screen("stat","wreg")		'navigates to stat/wreg
 		EMWriteScreen Banked_Month_Client_Array(memb_num, item), 20, 76
@@ -554,7 +554,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		IF wreg_total <> "0" THEN
 			EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 			transmit
-			bene_mo_col = (15 + (4*cint(footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+			bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
 			bene_yr_row = 10
 				abawd_counted_months = 0					'delclares the variables values at 0
 				second_abawd_period = 0
@@ -580,7 +580,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 						EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
 						abawd_counted_months_string = counted_date_month & "/" & counted_date_year
 						If abawd_counted_months_string <> report_date then
-							If counted_date_year < footer_year then 			'does not add dates that are report month or later to the array
+							If counted_date_year < MAXIS_footer_year then 			'does not add dates that are report month or later to the array
 								abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
 								abawd_counted_months = abawd_counted_months + 1				'adding counted months
 							Elseif abawd_counted_months_string < report_date then
@@ -723,7 +723,7 @@ Next
 
 'The user already selected the month in the initial excel sheet - this was used to set the footer month.'
 'Now the footer month is used to select the right worksheet in the DHS report to match'
-Select Case footer_month
+Select Case MAXIS_footer_month
 Case "01"
 	DHS_report_month = DHS_report_month_array(0)	'January, arrays start at 0'
 Case "02"
