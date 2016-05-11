@@ -199,8 +199,8 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	footer_month = "" 'clearing variable to prevent breaking when in Cm+2
-	footer_year = ""
+	MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
+	MAXIS_footer_year = ""
 	temp_footer_month = "0" & datepart("m", date)
 	temp_footer_year = datepart("yyyy", date)
 	EMWriteScreen right(temp_footer_month, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
@@ -217,9 +217,9 @@ For each worker in worker_array
 		EMWriteScreen future_footer_year, 20, 58
 		transmit
 	End if
-	EMReadScreen footer_month, 2, 20, 55
-	EMReadScreen footer_year, 2, 20, 58
-	review_date = footer_month & "/01/" & footer_year
+	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	EMReadScreen MAXIS_footer_year, 2, 20, 58
+	review_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
