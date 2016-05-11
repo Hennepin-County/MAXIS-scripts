@@ -338,7 +338,7 @@ END If
 
 'Updates STAT MEMB with client's date of death (client_deceased_check)
 IF client_deceased_check = 1 THEN  	'Goes to STAT MEMB	
-	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
 	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 	'Calculates the difference between the two dates (date of death and footer month)
 	difference_between_dates = DateDiff("m", date_of_death_editbox, footer_month_as_date)
@@ -363,7 +363,7 @@ END IF
 '------ADDRESS UPDATES----------------------------------------------------------------------------------------------------
 'Updates ADDR if selected on DIALOG 1 "have script update ADDR panel"
 IF update_addr_checkbox = 1 THEN 
-	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
 	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
@@ -406,7 +406,7 @@ END If
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for move to LTCF
 IF LTCF_update_ADDR_checkbox = 1 THEN 
-		'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+		'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
 	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
@@ -449,7 +449,7 @@ END If
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
 IF update_addr_new_ADDR_checkbox = 1 THEN 
-	'Creates a new variable with footer_month and footer_year concatenated into a single date starting on the 1st of the month.
+	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
 	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Calculates the difference between the two dates (date of admission and footer month)
