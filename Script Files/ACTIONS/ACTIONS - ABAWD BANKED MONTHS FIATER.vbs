@@ -159,8 +159,8 @@ REDIM ABAWD_months_array(ubound(footer_month_array))	'Minus one because arrays
 check_for_maxis(true)
 
 'Need to make sure we start in the correct year for maxis'
-footer_month = initial_month
-footer_year = initial_year
+MAXIS_footer_month = initial_month
+MAXIS_footer_year = initial_year
 
 'Create hh_member_array
 call HH_member_custom_dialog(HH_member_array)
@@ -247,9 +247,9 @@ END IF
 
 'The following loop will take the script through each month in the package, from appl month. to CM+1
 For i = 0 to ubound(footer_month_array)
-	footer_month = datepart("m", footer_month_array(i)) 'Need to assign footer month / year each time through
-	if len(footer_month) = 1 THEN footer_month = "0" & footer_month
-	footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
+	MAXIS_footer_month = datepart("m", footer_month_array(i)) 'Need to assign footer month / year each time through
+	if len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
 
 	Set ABAWD_months_array(i) = new ABAWD_month_data
 
@@ -418,7 +418,7 @@ For i = 0 to ubound(footer_month_array)
 			call verif_confirm_message(unea_verif, "Unearned income")
 			EMReadScreen unea_end_date, 8, 7, 68
 			IF unea_end_date <> "__ __ __" THEN 'THere is a job end, determine whether it is prior to current footer month, if yes, don't count it.
-				IF datediff("d", footer_month & "/01/" & footer_year, replace(unea_end_date, " ", "/")) < 0 THEN unea_verif = "?" 'This will prevent the script from reading the panel on income that ended in past'
+				IF datediff("d", MAXIS_footer_month & "/01/" & MAXIS_footer_year, replace(unea_end_date, " ", "/")) < 0 THEN unea_verif = "?" 'This will prevent the script from reading the panel on income that ended in past'
 			END IF
 			IF unea_verif <> "?" THEN
 				If unea_type = "01" OR unea_type = "02" then '<<<<<< RSDI
@@ -482,7 +482,7 @@ For i = 0 to ubound(footer_month_array)
 				call verif_confirm_message(jobs_verified, "job")
 				income_counted = vbYes 'defaults to counted, the next statement will confirm certain income types'
 				IF job_end_date <> "__ __ __" THEN 'THere is a job end, determine whether it is prior to current footer month, if yes, don't count it.
-					IF datediff("d", footer_month & "/01/" & footer_year, replace(job_end_date, " ", "/")) < 0 THEN income_counted = false
+					IF datediff("d", MAXIS_footer_month & "/01/" & MAXIS_footer_year, replace(job_end_date, " ", "/")) < 0 THEN income_counted = false
 				END IF
 				IF jobs_verified = "?" or jobs_verified = "_?" THEN income_counted = false 'this will set to not counted if the user selected no on the verif_confirm popup'
 				If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
@@ -647,8 +647,8 @@ For i = 0 to ubound(footer_month_array)
 	back_to_self
 	EMwritescreen "FIAT", 16, 43
 	EMWritescreen MAXIS_case_number, 18, 43
-	EMwritescreen footer_month, 20, 43
-	EMWritescreen footer_year, 20, 46
+	EMwritescreen MAXIS_footer_month, 20, 43
+	EMWritescreen MAXIS_footer_year, 20, 46
 	transmit
 	EMReadscreen results_check, 4, 14, 46 'We need to make sure results exist, otherwise stop.
 	'IF results_check = "    " THEN script_end_procedure("The script was unable to find unapproved SNAP results for the benefit month, please check your case and try again.")
@@ -726,7 +726,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen ABAWD_months_array(i).HEST_phone, 11, 29
 		EMWriteScreen ABAWD_months_array(i).SHEL_other, 12, 29
 		'this enters the proration date in the initial month'
-		IF abs(footer_month) = abs(left(proration_date, 2)) THEN
+		IF abs(MAXIS_footer_month) = abs(left(proration_date, 2)) THEN
 			EMWriteScreen left(proration_date, 2), 11, 56
 			EMWriteScreen mid(proration_date, 4, 2), 11, 59
 			EMWriteScreen right(proration_date, 2), 11, 62
