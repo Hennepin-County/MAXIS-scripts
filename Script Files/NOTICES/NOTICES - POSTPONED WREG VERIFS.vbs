@@ -66,7 +66,7 @@ BeginDialog case_number_dlg, 0, 0, 196, 85, "Postponed WREG WCOM"
 EndDialog
 
 BeginDialog WCOM_dlg, 0, 0, 196, 115, "Postponed WREG WCOM"
-  EditBox 55, 10, 60, 15, verif_due_date
+  EditBox 75, 10, 60, 15, ten_day_cutoff
   EditBox 55, 30, 60, 15, closure_date
   EditBox 70, 50, 115, 15, verifications_needed
   EditBox 75, 70, 60, 15, worker_signature
@@ -76,7 +76,7 @@ BeginDialog WCOM_dlg, 0, 0, 196, 115, "Postponed WREG WCOM"
   Text 5, 75, 70, 10, "Worker signature: "
   Text 5, 35, 45, 10, "Closure Date: "
   Text 5, 55, 60, 10, "Verifs Postponed: "
-  Text 5, 15, 50, 10, "Verif Due date: "
+  Text 5, 15, 65, 10, "Next 10 day cutoff: "
 EndDialog
 '--------------------------------------------------------------------------------------------------------------------------------
 
@@ -123,20 +123,27 @@ EMReadScreen First_name, 12, 6, 63
 EMReadScreen Last_name, 25, 6, 30
 EMReadScreen Middle_initial, 1, 6, 79
 client_name = replace(First_name, "_", "") & " " & replace(Middle_initial, "_", "") & " " & replace(Last_name, "_", "")
-verif_due_date = dateadd("D", 10, date)  'adding standard 10 day verif request due date
 mid_month = left(app_date, 2) & "/15/" & right(app_date, 2)  'determining if the application date is before or after the 15th this affects when case must close by.
 mid_month_check = datediff("D", mid_month, app_date)		'subtracting the day part of the app_date against the 15th
-IF mid_month_check <= 0 THEN closure_date = dateadd("D", -1, (dateadd("M", 1, left(app_date, 2) & "/01/" & right(app_date, 2)))) ' 0 and below are before the 15th and close last day of the 1st month after application
-IF mid_month_check > 0 THEN closure_date = dateadd("D", -1, (dateadd("M", 2, left(app_date, 2) & "/01/" & right(app_date, 2))))	' anything above 0 is after the 15th and closes the last day of the 2nd month after application
-verif_due_date = cstr(verif_due_date)
-closure_date = cstr(closure_date)
+IF mid_month_check <= 0 THEN 
+	closure_date = dateadd("D", -1, (dateadd("M", 1, left(app_date, 2) & "/01/" & right(app_date, 2)))) ' 0 and below are before the 15th and close last day of the 1st month after application
+	closure_date = cstr(closure_date)
+	call ten_day_cutoff_check(left(closure_date, 2), right(closure_date, 2), ten_day_cutoff)
+	ten_day_cutoff = cstr(ten_day_cutoff)
+END IF
+IF mid_month_check > 0 THEN 
+	closure_date = dateadd("D", -1, (dateadd("M", 2, left(app_date, 2) & "/01/" & right(app_date, 2))))	' anything above 0 is after the 15th and closes the last day of the 2nd month after application
+	closure_date = cstr(closure_date)
+	call ten_day_cutoff_check(left(closure_date, 2), right(closure_date, 2), ten_day_cutoff)
+	ten_day_cutoff = cstr(ten_day_cutoff)
+END IF
 
 '2nd Dialog---------------------------------------------------------------------------------------------------------------------------------------------
 DO
 	err_msg = ""
 	dialog WCOM_dlg
 	cancel_confirmation
-	IF verif_due_date = "" THEN err_msg = err_msg & "Please enter your verif due date." & vbNewLine
+	IF ten_day_cutoff = "" THEN err_msg = err_msg & "Please enter your verif due date." & vbNewLine
 	IF closure_date = "" THEN err_msg = err_msg & "Please enter your closure date." & vbNewLine
 	IF verifications_needed = "" THEN err_msg = err_msg & "Please enter postponed verifications." & vbNewLine
 	IF worker_signature = "" THEN err_msg = err_msg & "Please sign your NOTE" & vbNewLine
@@ -172,7 +179,7 @@ DO
 		pf9
 	    EMSetCursor 03, 15
     	CALL write_variable_in_SPEC_MEMO(client_name & " has used their 3 entitled months of SNAP benefits as an Able Bodied Adult Without Dependents. ")
-		CALL write_variable_in_SPEC_MEMO("Verification of " & verifications_needed & " has been postponed. You must turn in verification of " & verifications_needed & " by " & verif_due_date & " to continue to be eligible for SNAP benefits. ")
+		CALL write_variable_in_SPEC_MEMO("Verification of " & verifications_needed & " has been postponed. You must turn in verification of " & verifications_needed & " by " & closure_date & " to continue to be eligible for SNAP benefits. ")
 		CALL write_variable_in_SPEC_MEMO("If you do not turn in the required verifications, your case will close on " & closure_date & ".")
 	    PF4
 		PF3
@@ -196,15 +203,16 @@ ELSE 					'If a waiting FS notice is found
 	start_a_blank_case_note
 	call write_variable_in_CASE_NOTE("---WCOM regarding Postponed WREG verifs added---")
 	call write_variable_in_CASE_NOTE("Client has had verification of " & verifications_needed & " postponed.")
-	call write_bullet_and_variable_in_CASE_note("Verif Due Date", verif_due_date)
+	call write_bullet_and_variable_in_CASE_note("Next Cutoff Date", ten_day_cutoff)
 	call write_bullet_and_variable_in_CASE_note("Closure Date", closure_date)
+	call write_variable_in_CASE_NOTE("* TIKLed for next cutoff date. If verifs not received by cutoff date take appropriate action..")
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 
 	'Navigating to DAIL/WRIT
 	call navigate_to_MAXIS_screen("dail", "writ")
 	'The following will generate a TIKL formatted date for 10 days from now.
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
+	call create_MAXIS_friendly_date(ten_day_cutoff, 0, 5, 18)
 	'Writing in the rest of the TIKL.
 	call write_variable_in_TIKL("Verification of postponed WREG verification(s) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 	transmit
