@@ -131,8 +131,8 @@ DO
 LOOP Until err_msg = ""
 
 'Setting the correct footer month (for snap budget noting)
-footer_month = datepart("m", dateadd("d", 1, closure_date))
-if len(footer_month) = 1 THEN footer_month = "0" & footer_month
+MAXIS_footer_month = datepart("m", dateadd("d", 1, closure_date))
+if len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 
 Call check_for_maxis(true)
 call HH_member_custom_dialog(HH_member_array)
