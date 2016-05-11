@@ -202,21 +202,21 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
 	EMWriteScreen day_hired, 9, 38			'Adds day hired
 	EMWriteScreen year_hired, 9, 41			'Adds year hired
-	EMReadScreen footer_month, 2, 20, 55	'Reads footer month for updating the panel
-	EMReadScreen footer_year, 2, 20, 58		'Reads footer year
-	EMWriteScreen footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
-	IF month_hired = footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date. 
+	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
+	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
+	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
+	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date. 
 		EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
 	ELSE
 		EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
 	END IF
-	EMWriteScreen footer_year, 12, 60		'Puts footer year in on prospective side
+	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
 	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
 	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
 	If FS_case = True then 					'If case is SNAP, it creates a PIC
 		EMWriteScreen "x", 19, 38			
 		transmit	
-		IF month_hired = footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date. 
+		IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date. 
 			EMWriteScreen month_hired, 5, 34
 			EMWriteScreen day_hired, 5, 37
 			EMWriteScreen year_hired, 5, 40
