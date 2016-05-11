@@ -98,9 +98,9 @@ Dialog database_update_dialog
 If buttonpressed = cancel then stopscript
 
 'setting footer month and year for MAXIS'
-footer_year = "16"
-footer_month = db_month
-if len(footer_month) = 1 then footer_month = "0" & footer_month
+MAXIS_footer_year = "16"
+MAXIS_footer_month = db_month
+if len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 
 'Checking for MAXIS
 call check_for_maxis(false)
@@ -157,7 +157,7 @@ call check_for_maxis(false)
 
 				'If not active, update the DB accordingly
 				IF abawd_active = false THEN
-				objConnection.Execute("UPDATE banked_month_log Set " & replace(footer_month, "0", "") & " = 0 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & member_number &"")
+				objConnection.Execute("UPDATE banked_month_log Set " & replace(MAXIS_footer_month, "0", "") & " = 0 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & member_number &"")
 				updated_case_list = updated_case_list & " " & MAXIS_case_number
 				END IF
 				END IF
