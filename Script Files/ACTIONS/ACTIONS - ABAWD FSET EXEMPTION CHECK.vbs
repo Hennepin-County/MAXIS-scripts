@@ -53,8 +53,8 @@ END IF
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 166, 70, "Case number dialog"
   EditBox 65, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 130, 25, 30, 15, footer_year
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 130, 25, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 35, 50, 50, 15
     CancelButton 95, 50, 50, 15
@@ -64,31 +64,31 @@ BeginDialog case_number_dialog, 0, 0, 166, 70, "Case number dialog"
 EndDialog
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", date)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = Cstr(right(DatePart("YYYY", date), 2))
-cstr(footer_month)
+MAXIS_footer_month = datepart("m", date)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = Cstr(right(DatePart("YYYY", date), 2))
+cstr(MAXIS_footer_month)
 
 EMConnect ""
 CALL check_for_MAXIS(False)
 
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-call find_variable("Month: ", footer_month, 2)
+call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-  footer_month = footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = footer_year
+  MAXIS_footer_month = MAXIS_footer_month
+  call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
+  If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
 End if
 
-cstr(footer_month)
+cstr(MAXIS_footer_month)
 
 DO
 	err_msg = ""
 	DIALOG case_number_dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "* Please enter a case number."
-		IF footer_month = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."
-		IF footer_year = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit year."
+		IF MAXIS_footer_month = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."
+		IF MAXIS_footer_year = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit year."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 MAXIS_case_number = MAXIS_case_number
@@ -97,8 +97,8 @@ CALL check_for_MAXIS(False)
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
 
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 '>>>>>Checking for privileged<<<<<
