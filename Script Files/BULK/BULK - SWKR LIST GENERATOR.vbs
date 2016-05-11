@@ -56,8 +56,8 @@ EMConnect ""
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
 BeginDialog SWKR_list_generator_dialog, 0, 0, 156, 115, "SWKR list generator dialog"
   DropListBox 65, 5, 85, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
-  EditBox 55, 25, 20, 15, footer_month
-  EditBox 130, 25, 20, 15, footer_year
+  EditBox 55, 25, 20, 15, MAXIS_footer_month
+  EditBox 130, 25, 20, 15, MAXIS_footer_year
   EditBox 75, 45, 75, 15, worker_number
   ButtonGroup ButtonPressed
     OkButton 20, 95, 50, 15
@@ -89,11 +89,11 @@ If right(REPT_panel, 4) = "REVS" then
 	EMWriteScreen current_month_plus_one, 20, 43
 	EMWriteScreen current_month_plus_one_year, 20, 46
 	transmit
-	EMWriteScreen footer_month, 20, 55
-	EMWriteScreen footer_year, 20, 58
+	EMWriteScreen MAXIS_footer_month, 20, 55
+	EMWriteScreen MAXIS_footer_year, 20, 58
 	transmit
-	footer_month = current_month_plus_one
-	footer_year = current_month_plus_one_year
+	MAXIS_footer_month = current_month_plus_one
+	MAXIS_footer_year = current_month_plus_one_year
 End if
 
 'CHECKS TO MAKE SURE WE'VE MOVED PAST SELF MENU. IF WE HAVEN'T, THE SCRIPT WILL STOP. AN ERROR MESSAGE SHOULD DISPLAY ON THE BOTTOM OF THE MENU.

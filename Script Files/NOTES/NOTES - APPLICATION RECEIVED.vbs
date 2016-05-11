@@ -114,15 +114,15 @@ call navigate_to_MAXIS_screen("REPT","PND2")
 dateofapp_row = 1 
 dateofapp_col = 1 
 EMSearch MAXIS_case_number, dateofapp_row, dateofapp_col
-EMReadScreen footer_month, 2, dateofapp_row, 38
+EMReadScreen MAXIS_footer_month, 2, dateofapp_row, 38
 EMReadScreen app_day, 2, dateofapp_row, 41
-EMReadScreen footer_year, 2, dateofapp_row, 44
-date_of_app = footer_month & "/" & app_day & "/" & footer_year
+EMReadScreen MAXIS_footer_year, 2, dateofapp_row, 44
+date_of_app = MAXIS_footer_month & "/" & app_day & "/" & MAXIS_footer_year
 
 'If case is not in PND2 status this defaults the date information to current date to allow correct navigation
 If date_of_app = "  /  /  " then 
 	date_of_app = date 
-	Call convert_date_into_MAXIS_footer_month (date, footer_month, footer_year)
+	Call convert_date_into_MAXIS_footer_month (date, MAXIS_footer_month, MAXIS_footer_year)
 End If
 
 'Determines which programs are currently pending in the month of application

@@ -340,12 +340,12 @@ For cases_to_make = 1 to how_many_cases_to_make
 	APPL_date = DateAdd("D", 0, APPL_date)
 
 	'Gets the footer month and year of the application off of the spreadsheet, enters into SELF and transmits (can only enter an application on APPL in the footer month of app)
-	footer_month = DatePart("M", APPL_date)
-	IF len(footer_month) = 1 THEN footer_month = "0" & footer_month
-	If right(footer_month, 1) = "/" then footer_month = "0" & left(footer_month, 1)		'Does this to account for single digit months
-	footer_year = right(APPL_date, 2)
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	MAXIS_footer_month = DatePart("M", APPL_date)
+	IF len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+	If right(MAXIS_footer_month, 1) = "/" then MAXIS_footer_month = "0" & left(MAXIS_footer_month, 1)		'Does this to account for single digit months
+	MAXIS_footer_year = right(APPL_date, 2)
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
 
 	'Goes to APPL function
@@ -1998,12 +1998,12 @@ End if
 '========================================================================APPROVAL========================================================================
 FOR EACH MAXIS_case_number IN case_number_array
 	back_to_SELF
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
 
-	appl_date_month = footer_month
-	appl_date_year = footer_year
+	appl_date_month = MAXIS_footer_month
+	appl_date_year = MAXIS_footer_year
 
 	If cash_application = True then
 		'=====DETERMINING CASH PROGRAM =========

@@ -301,9 +301,9 @@ caper_closure_total = 0
 For c = 0 to ubound(caper_array)
 	MAXIS_case_number = caper_array(c).MAXIS_case_number
 	'Make sure in correct footer month, sometimes we drop back a month
-	footer_month = datepart("m", date)
-	IF len(footer_month) = 1 then footer_month = "0" & footer_month
-	footer_year = right(datepart("YYYY", date), 2)
+	MAXIS_footer_month = datepart("m", date)
+	IF len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+	MAXIS_footer_year = right(datepart("YYYY", date), 2)
 	call navigate_to_MAXIS_screen("CASE", "CURR") 'Case/curr first, to find inactive date and reason
 	EMWriteScreen "x", 4, 9
 
@@ -321,8 +321,8 @@ For c = 0 to ubound(caper_array)
 		IF inactive_reason = "DENIED" Then caper_array(c).inactive_reason = "denial"
 		IF inactive_reason = "CLOSED" or inactive_reason = "NO REV" THEN caper_array(c).inactive_reason = "REV/CSR"
 		If datediff("m", caper_array(c).inactive_date, date) <= 1 AND inactive_reason <> "CLOSED" AND inactive_reason <> "NO REV" Then
-			footer_month = left(inactive_date, 2)
-			footer_year = right(inactive, 2)
+			MAXIS_footer_month = left(inactive_date, 2)
+			MAXIS_footer_year = right(inactive, 2)
 			call navigate_to_MAXIS_screen("ELIG", "FS")
 
 			EMReadScreen version, 2, 2, 18 'Finding most recent approved version
@@ -381,9 +381,9 @@ ObjExcel.Cells(1, 4).Font.Bold = TRUE
 excel_row = 2
 	For n = 0 to ubound(SNAP_active_array) 'to ubound(SNAP_active_array)
 		'Make sure in correct footer month, sometimes we drop back a month
-		footer_month = datepart("m", date)
-		IF len(footer_month) = 1 then footer_month = "0" & footer_month
-		footer_year = right(datepart("YYYY", date), 2)
+		MAXIS_footer_month = datepart("m", date)
+		IF len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+		MAXIS_footer_year = right(datepart("YYYY", date), 2)
 		MAXIS_case_number = SNAP_active_array(n).MAXIS_case_number
 		call navigate_to_MAXIS_screen ("ELIG", "FS")
 		EMReadScreen version, 2, 2, 18 'Finding most recent approved version

@@ -151,9 +151,9 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15

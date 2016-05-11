@@ -202,11 +202,11 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
 	EMWriteScreen day_hired, 9, 38			'Adds day hired
 	EMWriteScreen year_hired, 9, 41			'Adds year hired
-	EMReadScreen footer_month, 2, 20, 55	'Reads footer month for updating the panel
-	EMReadScreen footer_year, 2, 20, 58		'Reads footer year
-	EMWriteScreen footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
+	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
+	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
+	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
 	EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
-	EMWriteScreen footer_year, 12, 60		'Puts footer year in on prospective side
+	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
 	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
 	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
 	If FS_case = True then 					'If case is SNAP, it creates a PIC

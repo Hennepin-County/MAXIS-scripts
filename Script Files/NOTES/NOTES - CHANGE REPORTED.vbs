@@ -58,8 +58,8 @@ BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
     OkButton 5, 85, 50, 15
     CancelButton 115, 85, 50, 15
   EditBox 85, 5, 60, 15, MAXIS_case_number
-  EditBox 85, 25, 30, 15, footer_month
-  EditBox 125, 25, 30, 15, footer_year
+  EditBox 85, 25, 30, 15, MAXIS_footer_month
+  EditBox 125, 25, 30, 15, MAXIS_footer_year
   DropListBox 25, 65, 125, 15, "Select One"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp Change", List1
   Text 30, 10, 50, 10, "Case number:"
   Text 15, 30, 65, 10, "Footer month/year: "
@@ -129,11 +129,11 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
 IF on_SELF = "SELF" THEN
-	CALL find_variable("Benefit Period (MM YY): ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Benefit Period (MM YY): ", MAXIS_footer_month, 2)
+	IF MAXIS_footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 ELSE
-	CALL find_variable("Month: ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Month: " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Month: ", MAXIS_footer_month, 2)
+	IF MAXIS_footer_month <> "" THEN CALL find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 END IF
 
 

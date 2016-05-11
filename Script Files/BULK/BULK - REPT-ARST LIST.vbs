@@ -68,8 +68,8 @@ BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
   CheckBox 180, 30, 85, 10, "Pending 31-45 days", pending_31_to_45_check
   CheckBox 180, 45, 85, 10, "Pending 46-60 days", pending_46_to_60_check
   CheckBox 180, 60, 85, 10, "Pending > 60 days", pending_over_60_check
-  EditBox 55, 95, 25, 15, footer_month
-  EditBox 55, 115, 25, 15, footer_year
+  EditBox 55, 95, 25, 15, MAXIS_footer_month
+  EditBox 55, 115, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 215, 95, 50, 15
     CancelButton 215, 115, 50, 15
@@ -85,9 +85,9 @@ EndDialog
 
 'DEFINING VARIABLES----------------------------------------------------------------------------------------------------
 excel_row = 3 'this is the row the workers will start on the spreadsheet
-footer_month = datepart("m", date) & ""		'Footer month defaults to this month
-If len(footer_month) = 1 then footer_month = "0" & footer_month	'In case this month is a single digit month
-footer_year = right(datepart("yyyy", date), 2)	'Footer year is the right two digits of the current year
+MAXIS_footer_month = datepart("m", date) & ""		'Footer month defaults to this month
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month	'In case this month is a single digit month
+MAXIS_footer_year = right(datepart("yyyy", date), 2)	'Footer year is the right two digits of the current year
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to BlueZone
@@ -543,8 +543,8 @@ call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_coun
 back_to_self
 
 'Resetting the footer month
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
 transmit
 
 'Getting to REPT/ARST

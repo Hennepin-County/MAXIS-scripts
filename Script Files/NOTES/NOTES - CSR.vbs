@@ -53,16 +53,16 @@ STATS_denomination = "C"        'C is for each case
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+MAXIS_footer_month = datepart("m", next_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = datepart("yyyy", next_month)
+MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 166, 265, "Case number dialog"
   EditBox 75, 5, 70, 15, MAXIS_case_number
-  EditBox 80, 25, 30, 15, footer_month
-  EditBox 115, 25, 30, 15, footer_year
+  EditBox 80, 25, 30, 15, MAXIS_footer_month
+  EditBox 115, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 95, 60, 30, 10, "HC", HC_checkbox
   CheckBox 10, 80, 100, 10, "Is this an exempt (*) IR?", paperless_checkbox
@@ -209,7 +209,7 @@ Call check_for_MAXIS(False)
 'If "paperless" was checked, the script will put a simple case note in and end.
 If paperless_checkbox = 1 then
 	call start_a_blank_CASE_NOTE
-	Call write_variable_in_case_note("***Cleared paperless IR for " & footer_month & "/" & footer_year & "***")
+	Call write_variable_in_case_note("***Cleared paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "***")
 	Call write_variable_in_case_note("---")
 	Call write_variable_in_case_note(worker_signature)
 	call script_end_procedure("")
@@ -262,7 +262,7 @@ programs_recertifying = trim(programs_recertifying)
 if right(programs_recertifying, 1) = "," then programs_recertifying = left(programs_recertifying, len(programs_recertifying) - 1)
 
 'Determining the CSR month for header
-CSR_month = footer_month & "/" & footer_year
+CSR_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'Showing the case note dialog
 DO

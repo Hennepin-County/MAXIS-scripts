@@ -52,10 +52,10 @@ STATS_denomination = "C"        'C is for each case
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+MAXIS_footer_month = datepart("m", next_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = datepart("yyyy", next_month)
+MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
@@ -239,11 +239,11 @@ transmit
 'SEARCHES FOR FOOTER MONTH AND YEAR
 row = 6
 col = 1
-EMSearch " " & footer_month & "/" & footer_year & " ", row, col
-If row = 0 then script_end_procedure("A " & footer_month & "/" & footer_year & " span could not be found. Try this again. You may need to run the case through background.")
+EMSearch " " & MAXIS_footer_month & "/" & MAXIS_footer_year & " ", row, col
+If row = 0 then script_end_procedure("A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background.")
 
 'MAKES THE MONTH_MA-LTC_STARTS VARIABLE THE FOOTER MONTH AND YEAR
-month_MA_LTC_starts = footer_month & "/" & footer_year
+month_MA_LTC_starts = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'GRABS ELIG TYPE INFO FROM ELIG/HC
 EMReadScreen elig_type_std_01, 6, 12, 17

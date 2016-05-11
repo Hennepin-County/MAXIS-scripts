@@ -51,15 +51,15 @@ STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", date)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = "" & datepart("yyyy", date) - 2000
+MAXIS_footer_month = datepart("m", date)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 140, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
@@ -127,9 +127,9 @@ If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
 
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-  footer_month = MAXIS_footer_month
-  call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then footer_year = MAXIS_footer_year
+  MAXIS_footer_month = MAXIS_footer_month
+  call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
+  If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
 End if
 
 MAXIS_case_number = trim(MAXIS_case_number)
@@ -202,7 +202,7 @@ check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has 
 start_a_blank_CASE_NOTE
 
 'Adding footer month to the recertification case notes
-If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year & " Recert"
+If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " Recert"
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & " Interview Completed ***")

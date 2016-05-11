@@ -165,13 +165,13 @@ EMWriteScreen "n", 6, 38
 EMWriteScreen employer, 7, 42
 
 'Reading footer month/year, to be used in the prospective column
-EMReadScreen footer_month, 2, 20, 55
-EMReadScreen footer_year, 2, 20, 58
+EMReadScreen MAXIS_footer_month, 2, 20, 55
+EMReadScreen MAXIS_footer_year, 2, 20, 58
 
 'Writing the first day of the footer month as the prospective paydate, and 0 for both wage and hours
-EMWriteScreen footer_month, 12, 54
+EMWriteScreen MAXIS_footer_month, 12, 54
 EMWriteScreen "01", 12, 57
-EMWriteScreen footer_year, 12, 60
+EMWriteScreen MAXIS_footer_year, 12, 60
 EMWriteScreen "0", 12, 67
 EMWriteScreen "0", 18, 72
 

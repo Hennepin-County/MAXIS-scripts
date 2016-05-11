@@ -54,15 +54,15 @@ STATS_denomination = "C"        'C is for each case
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 prev_month = dateadd("m", -1, date)
-footer_month = datepart("m", prev_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = right(datepart("yyyy", prev_month), 2)
+MAXIS_footer_month = datepart("m", prev_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = right(datepart("yyyy", prev_month), 2)
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 140, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "GRH", GRH_check
   CheckBox 50, 60, 30, 10, "HC", HC_check
   ButtonGroup ButtonPressed
@@ -234,7 +234,7 @@ Next
 faci = variable_written_to
 
 'Cleaning up info for case note
-HRF_computer_friendly_month = footer_month & "/01/" & footer_year
+HRF_computer_friendly_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 retro_month_name = monthname(datepart("m", (dateadd("m", -2, HRF_computer_friendly_month))))
 pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = pro_month_name 'retro_month_name & "/" & pro_month_name
@@ -271,7 +271,7 @@ If grab_GRH_info_check = 1 then
 				EMReadScreen GRSM_line_04, 69, 13, 3
 				EMReadScreen GRSM_Obligation, 9, 18, 31
 			ELSE
-				MsgBox "The most recent results in ELIG/GRH for " & footer_month & " have not been approved. It will now jump to case note."
+				MsgBox "The most recent results in ELIG/GRH for " & MAXIS_footer_month & " have not been approved. It will now jump to case note."
 			END IF
 		End if	
 	End if

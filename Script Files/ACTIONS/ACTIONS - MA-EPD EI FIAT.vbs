@@ -52,11 +52,11 @@ END IF
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 current_month_plus_one = dateadd("m", 1, date)
 
-footer_month = datepart("m", current_month_plus_one)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
+MAXIS_footer_month = datepart("m", current_month_plus_one)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 
-footer_year = datepart("yyyy", current_month_plus_one)
-footer_year = footer_year - 2000
+MAXIS_footer_year = datepart("yyyy", current_month_plus_one)
+MAXIS_footer_year = MAXIS_footer_year - 2000
 
 current_month = datepart("m", date)
 If len(current_month) = 1 then current_month = "0" & current_month
@@ -65,7 +65,7 @@ current_year = datepart("yyyy", date)
 current_year = current_year - 2000
 
 current_month_and_year = current_month & "/" & current_year
-next_month_and_year = footer_month & "/" & footer_year
+next_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'DIALOGS--------------------------------
 BeginDialog case_number_dialog, 0, 0, 156, 61, "Case number"

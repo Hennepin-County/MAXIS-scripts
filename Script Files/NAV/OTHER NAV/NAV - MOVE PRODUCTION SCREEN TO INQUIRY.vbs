@@ -80,8 +80,8 @@ If row = 0 then
   MsgBox "Footer month not found."
   StopScript
 End if
-EMReadScreen footer_month, 2, row, col + 7
-EMReadScreen footer_year, 2, row, col + 10
+EMReadScreen MAXIS_footer_month, 2, row, col + 7
+EMReadScreen MAXIS_footer_year, 2, row, col + 10
 
 row = 1
 col = 1
@@ -111,8 +111,8 @@ back_to_self
 EMWriteScreen MAXIS_function, 16, 43
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
 EMWriteScreen MAXIS_command, 21, 70
 transmit
 

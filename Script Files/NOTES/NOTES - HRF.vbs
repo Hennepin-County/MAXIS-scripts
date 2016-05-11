@@ -52,16 +52,16 @@ STATS_denomination = "C"        'C is for each case
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
-footer_month = datepart("m", next_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", next_month)
-footer_year = "" & footer_year - 2000
+MAXIS_footer_month = datepart("m", next_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = datepart("yyyy", next_month)
+MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 140, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
   CheckBox 55, 60, 35, 10, "SNAP", SNAP_check
   CheckBox 100, 60, 30, 10, "HC", HC_check
@@ -180,7 +180,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'Cleaning up info for case note
-HRF_computer_friendly_month = footer_month & "/01/" & footer_year
+HRF_computer_friendly_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 retro_month_name = monthname(datepart("m", (dateadd("m", -2, HRF_computer_friendly_month))))
 pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = retro_month_name & "/" & pro_month_name

@@ -73,10 +73,10 @@ If inquiry_testing = vbCancel then stopscript
 If inquiry_testing <> vbYes and datepart("m", dateadd("d", 8, date)) = datepart("m", date) then script_end_procedure("This script cannot be run until the last week of the month.")
 
 'Date calculations
-footer_month = datepart("m", dateadd("m", 1, date))
-if len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = datepart("yyyy", dateadd("m", 1, date))
-footer_year = footer_year - 2000
+MAXIS_footer_month = datepart("m", dateadd("m", 1, date))
+if len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = datepart("yyyy", dateadd("m", 1, date))
+MAXIS_footer_year = MAXIS_footer_year - 2000
 
 '----------------------THIS IS THE DIALOG FOR THE SCRIPT
 BeginDialog REVW_MONT_closures_dialog, 0, 0, 256, 110, "REVW/MONT closures"
@@ -114,9 +114,9 @@ If revw_check = checked then
 	End if
 	EMReadScreen current_footer_month, 2, 20, 55
 	EMReadScreen current_footer_year, 2, 20, 58
-	If (current_footer_month <> footer_month) or (current_footer_year <> footer_year) then
-		EMWriteScreen footer_month, 20, 55
-		EMWriteScreen footer_year, 20, 58
+	If (current_footer_month <> MAXIS_footer_month) or (current_footer_year <> MAXIS_footer_year) then
+		EMWriteScreen MAXIS_footer_month, 20, 55
+		EMWriteScreen MAXIS_footer_year, 20, 58
 		transmit
 	End if
 	row = 7
@@ -341,9 +341,9 @@ If mont_check = 1 then
   'Checking the footer month/year. If it's incorrect it will adjust.
   EMReadScreen current_footer_month, 2, 20, 54
   EMReadScreen current_footer_year, 2, 20, 57
-  If (current_footer_month <> footer_month) or (current_footer_year <> footer_year) then
-    EMWriteScreen footer_month, 20, 54
-    EMWriteScreen footer_year, 20, 57
+  If (current_footer_month <> MAXIS_footer_month) or (current_footer_year <> MAXIS_footer_year) then
+    EMWriteScreen MAXIS_footer_month, 20, 54
+    EMWriteScreen MAXIS_footer_year, 20, 57
     transmit
   End if
 
