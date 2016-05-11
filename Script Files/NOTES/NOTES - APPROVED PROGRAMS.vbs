@@ -1,4 +1,4 @@
-'Rewrite by Casey Love from Ramsey County. Based on the original script by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County.
+'Rewrite by Casey Love from Ramsey County. Based on the original script by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County. Veronica from DHS helped.
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
@@ -775,4 +775,7 @@ IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("BANKED
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
+'Navigates to WCOM so the user can check the notice.
+call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly. The script has navigated to SPEC/WCOM for your convenience.")
