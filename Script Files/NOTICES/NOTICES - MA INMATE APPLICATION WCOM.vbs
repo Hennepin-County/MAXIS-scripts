@@ -1,3 +1,9 @@
+Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+Set fso_command = run_another_script_fso.OpenTextFile("Q:\Blue Zone Scripts\Public assistance script files\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
+text_from_the_other_script = fso_command.ReadAll
+fso_command.Close
+Execute text_from_the_other_script
+
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "NOTICES - MA INMATE APPLICATION WCOM.vbs"
 start_time = timer
@@ -198,7 +204,7 @@ DO
 		Transmit
 		pf9
 	    EMSetCursor 03, 15
-		CALL write_variable_in_SPEC_MEMO("MA begins " & date_out & ", the date you are released from the correctional facility.")
+		CALL write_variable_in_SPEC_MEMO("MA begins " & most_recent_release_date & ", the date you are released from the correctional facility.")
 	    PF4
 		PF3
 		WCOM_count = WCOM_count + 1
@@ -220,7 +226,7 @@ ELSE 					'If a waiting FS notice is found
 	'Case note
 	start_a_blank_case_note
 	call write_variable_in_CASE_NOTE("---WCOM Regarding Inmate Application Added---")
-	call write_bullet_and_variable_in_CASE_NOTE("MA Start Date/Release Date", date_out)
+	call write_bullet_and_variable_in_CASE_NOTE("MA Start Date/Release Date", most_recent_release_date)
 	call write_bullet_and_variable_in_CASE_note("Facility", facility_name)
 	call write_variable_in_CASE_note("* WCOM added to notice for member " & reference_number)
 	call write_variable_in_CASE_NOTE("---")
