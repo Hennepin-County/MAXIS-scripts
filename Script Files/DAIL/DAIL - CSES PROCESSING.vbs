@@ -348,22 +348,22 @@ Do
 Loop until ObjExcel.Cells(excel_row, 2).Value = ""
 
 'Now it reads the footer month for the case, determines what the retro month would be, and gets to REVW for HC cases
-EMReadScreen footer_month, 2, 20, 55
-EMReadScreen footer_year, 2, 20, 58
-retro_month = footer_month - 2
-retro_year = footer_year
-If retro_month = -1 then retro_year = footer_year - 1
+EMReadScreen MAXIS_footer_month, 2, 20, 55
+EMReadScreen MAXIS_footer_year, 2, 20, 58
+retro_month = MAXIS_footer_month - 2
+retro_year = MAXIS_footer_year
+If retro_month = -1 then retro_year = MAXIS_footer_year - 1
 If retro_month = -1 then retro_month = 11
-If retro_month = 0 then retro_year = footer_year - 1
+If retro_month = 0 then retro_year = MAXIS_footer_year - 1
 If retro_month = 0 then retro_month = 12
-If len(footer_month) = 1 then footer_month = "0" & footer_month
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 If len(retro_month) = 1 then retro_month = "0" & retro_month
 If HC_active = "True" then 
   EMWriteScreen "revw", 20, 71
   transmit
   EMReadScreen revw_month, 2, 9, 70
-  If revw_month <> footer_month then HC_status = "* No HC review due at this time."
-  If revw_month = footer_month then HC_status = "* A review is due for HC. Updated UNEA."
+  If revw_month <> MAXIS_footer_month then HC_status = "* No HC review due at this time."
+  If revw_month = MAXIS_footer_month then HC_status = "* A review is due for HC. Updated UNEA."
 End if
 
 
@@ -462,13 +462,13 @@ Sub MFIP_sub
   EMWriteScreen retro_year, 13, 31
   payment_amount = FormatNumber(ObjExcel.Cells(excel_row, 4).Value, 2, , , 0)
   EMWriteScreen payment_amount, 13, 39
-  EMWriteScreen footer_month, 13, 54
+  EMWriteScreen MAXIS_footer_month, 13, 54
   issue_date = ObjExcel.Cells(excel_row, 6).Value
   prospective_issue_date = dateadd("m", 2, issue_date)
   prospective_issue_day = datepart ("d", prospective_issue_date)
   If len(prospective_issue_day) = 1 then prospective_issue_day = "0" & prospective_issue_day
   EMWriteScreen prospective_issue_day, 13, 57
-  EMWriteScreen footer_year, 13, 60
+  EMWriteScreen MAXIS_footer_year, 13, 60
   EMWriteScreen payment_amount, 13, 68
 'The following determines if there are multiple amounts that need to be added into the case for MFIP.
   MFIP_memb_excel_row = excel_row 'Setting the variable for the next Do...Loop
@@ -491,13 +491,13 @@ Sub MFIP_sub
       EMWriteScreen "        ", MAXIS_payment_row, 39
       EMWriteScreen next_payment_amount, MAXIS_payment_row, 39
       ObjExcel.Cells(MFIP_memb_excel_row, 8).Value = "checked"
-      EMWriteScreen footer_month, MAXIS_payment_row, 54
+      EMWriteScreen MAXIS_footer_month, MAXIS_payment_row, 54
       issue_date = ObjExcel.Cells(MFIP_memb_excel_row, 6).Value               'added next four lines 08/08/2012
       prospective_next_issue_date = dateadd("m", 2, issue_date)
       prospective_next_issue_day = datepart ("d", prospective_next_issue_date)
       If len(prospective_next_issue_day) = 1 then prospective_next_issue_day = "0" & prospective_next_issue_day
       EMWriteScreen prospective_next_issue_day, MAXIS_payment_row, 57 'changed from "next_issue_day" 08/08/2012
-      EMWriteScreen footer_year, MAXIS_payment_row, 60
+      EMWriteScreen MAXIS_footer_year, MAXIS_payment_row, 60
       EMWriteScreen "        ", MAXIS_payment_row, 68
       EMWriteScreen next_payment_amount, MAXIS_payment_row, 68
       MAXIS_payment_row = MAXIS_payment_row + 1
@@ -652,14 +652,14 @@ Do
       end_excel_and_script
     End if
   Loop until Cint(income_type_on_UNEA) = ObjExcel.Cells(excel_row, 5).Value
-  If (MFIP_active = "True" or (HC_active = "True" and revw_month = footer_month)) and ObjExcel.Cells(excel_row, 8).Value <> "checked" then call MFIP_sub
+  If (MFIP_active = "True" or (HC_active = "True" and revw_month = MAXIS_footer_month)) and ObjExcel.Cells(excel_row, 8).Value <> "checked" then call MFIP_sub
   If MFIP_active <> "True" and FS_active = "True" and ObjExcel.Cells(excel_row, 7).Value <> "checked" then call FS_sub
   excel_row = excel_row + 1
 Loop until ObjExcel.Cells(excel_row, 3).Value = ""
 
 'NOW THE SCRIPT LOOKS BACK THROUGH, TO SEE IF ANY UNEA PANELS DIDN'T GET UPDATED. IT WILL NOTIFY THE WORKER IF SO. IT WILL ONLY NOTIFY THE WORKER ONCE.
 'THIS IS ONLY FOR MFIP AND HC REVIEWS AT THIS TIME
-If MFIP_active = "True" or (HC_active = "True" and revw_month = footer_month) then
+If MFIP_active = "True" or (HC_active = "True" and revw_month = MAXIS_footer_month) then
   excel_row = 1
   EMWriteScreen "unea", 20, 71
   EMWriteScreen "01", 20, 76
@@ -681,7 +681,7 @@ If MFIP_active = "True" or (HC_active = "True" and revw_month = footer_month) th
       If income_type_on_UNEA = "36" or income_type_on_UNEA = "37" or income_type_on_UNEA = "39" then
         EMReadScreen UNEA_prospective_month, 2, 13, 54
         EMReadScreen UNEA_prospective_year, 2, 13, 60
-        If UNEA_prospective_month <> footer_month or UNEA_prospective_year <> footer_year then
+        If UNEA_prospective_month <> MAXIS_footer_month or UNEA_prospective_year <> MAXIS_footer_year then
           EMReadScreen UNEA_prospective_amt, 8, 13, 68
           If UNEA_prospective_amt <> "________" and UNEA_prospective_amt <> "    0.00" then
             income_end = MsgBox ("This script couldn't find a DAIL message that matches this UNEA CSES panel. You may want to look this case over. Would you like the script to continue?", 4)
