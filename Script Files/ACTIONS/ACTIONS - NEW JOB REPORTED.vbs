@@ -54,9 +54,9 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
@@ -100,10 +100,10 @@ BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
 EndDialog
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", dateadd("m", 1, date))
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
-footer_month = CStr(footer_month)
+MAXIS_footer_month = datepart("m", dateadd("m", 1, date))
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
+MAXIS_footer_month = CStr(MAXIS_footer_month)
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -122,11 +122,11 @@ Call check_for_MAXIS(False)
 
 'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
 EMReadScreen footer_month_year_check, 5, 20, 55
-If left(footer_month_year_check, 2) <> footer_month or right(footer_month_year_check, 2) <> footer_year then
+If left(footer_month_year_check, 2) <> MAXIS_footer_month or right(footer_month_year_check, 2) <> MAXIS_footer_year then
 	back_to_self
 	EMWriteScreen "________", 18, 43
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
 End if
 
@@ -150,7 +150,7 @@ DO
 							cancel_confirmation
 							MAXIS_dialog_navigation
 							If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
-								If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
+								If (datediff("m", MAXIS_footer_month & "/01/20" & MAXIS_footer_year, income_start_date) > 0) then
 									MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
 									pass_through_inc_date_loop = False
 								Else
@@ -198,16 +198,16 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen employer, 7, 42
 	If income_start_date <> "" then call create_MAXIS_friendly_date(income_start_date, 0, 9, 35)
 	If contract_through_date <> "" then call create_MAXIS_friendly_date(contract_through_date, 0, 9, 73)
-	EMReadScreen footer_month, 2, 20, 55
-	EMReadScreen footer_year, 2, 20, 58
+	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	EMReadScreen MAXIS_footer_year, 2, 20, 58
 	If isdate(income_start_date) = True then
-		If datediff("d", income_start_date, footer_month & "/01/20" & footer_year) > 0 then
-			call create_MAXIS_friendly_date(footer_month & "/01/20" & footer_year, 0, 12, 54)
+		If datediff("d", income_start_date, MAXIS_footer_month & "/01/20" & MAXIS_footer_year) > 0 then
+			call create_MAXIS_friendly_date(MAXIS_footer_month & "/01/20" & MAXIS_footer_year, 0, 12, 54)
 		Else
 			call create_MAXIS_friendly_date(income_start_date, 0, 12, 54)
 		End if
 	Else
-		call create_MAXIS_friendly_date(footer_month & "/01/20" & footer_year, 0, 12, 54)
+		call create_MAXIS_friendly_date(MAXIS_footer_month & "/01/20" & MAXIS_footer_year, 0, 12, 54)
 	End if
 	EMWriteScreen "0", 12, 67
 	EMWriteScreen "0", 18, 72
