@@ -64,9 +64,9 @@ END IF
 'DIM ButtonPressed
 'DIM SNAP_sanction_type_dialog
 'DIM MAXIS_case_number
-'DIM footer_month
 'DIM MAXIS_footer_month
-'DIM footer_year
+'DIM MAXIS_footer_month
+'DIM MAXIS_footer_year
 'DIM MAXIS_footer_year
 'DIM worker_signature
 'DIM sanction_type_droplist
@@ -103,9 +103,9 @@ END IF
 FUNCTION MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)'Grabbing the footer month/year
 	Call find_variable("Month: ", MAXIS_footer_month, 2)
 	If isnumeric(MAXIS_footer_month) = true then 	'checking to see if a footer month 'number' is present 
-		footer_month = MAXIS_footer_month	
-		call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-		If isnumeric(MAXIS_footer_year) = true then footer_year = MAXIS_footer_year 'checking to see if a footer year 'number' is present
+		MAXIS_footer_month = MAXIS_footer_month	
+		call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
+		If isnumeric(MAXIS_footer_year) = true then MAXIS_footer_year = MAXIS_footer_year 'checking to see if a footer year 'number' is present
 	Else 'If we don’t have one found, we’re going to assign the current month/year.
 		MAXIS_footer_month = DatePart("m", date)   'Datepart delivers the month number to the variable
 		If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month   'If it’s a single digit month, add a zero
