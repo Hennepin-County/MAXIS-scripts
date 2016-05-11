@@ -66,8 +66,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
 	EditBox 80, 80, 80, 15, worker_signature
 	EditBox 145, 100, 60, 15, worker_number
-	EditBox 55, 120, 35, 15, footer_month
-	EditBox 145, 120, 35, 15, footer_year
+	EditBox 55, 120, 35, 15, MAXIS_footer_month
+	EditBox 145, 120, 35, 15, MAXIS_footer_year
 	ButtonGroup ButtonPressed
 		OkButton 45, 140, 50, 15
 		CancelButton 110, 140, 50, 15
@@ -83,7 +83,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	'THE SCRIPT----------------------------------------------------------------------------------------------------
 	EMConnect ""
 	
-	'Shows the dialog, requires 7 digits for worker number, a worker signature, a footer_month and year. Contains developer mode to bypass case noting and XFERing.
+	'Shows the dialog, requires 7 digits for worker number, a worker signature, a MAXIS_footer_month and year. Contains developer mode to bypass case noting and XFERing.
 	Do
 		Do
 			Do
@@ -100,23 +100,23 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			Loop until len(worker_number) = 7
 			If worker_signature = "" and developer_mode = False then MsgBox "You must sign your case notes!"	'Must sign case notes, or be in developer mode which does not case note.
 		Loop until worker_signature <> "" or developer_mode = True
-		If footer_month = "" or footer_year = "" then MsgBox "You must provide a footer month and year!"
-	Loop until footer_month <> "" and footer_year <> ""
+		If MAXIS_footer_month = "" or MAXIS_footer_year = "" then MsgBox "You must provide a footer month and year!"
+	Loop until MAXIS_footer_month <> "" and MAXIS_footer_year <> ""
 	
 	
 	'Converts system/footer month and year to a MAXIS-appropriate number, for validation
 	current_system_month = DatePart("m", Now)
 	If len(current_system_month) = 1 then current_system_month = "0" & current_system_month
 	current_system_year = DatePart("yyyy", Now) - 2000
-	If len(footer_month) <> 2 or isnumeric(footer_month) = False or footer_month > 13 or len(footer_year) <> 2 or isnumeric(footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
-	footer_month_first_day = footer_month & "/01/" & footer_year
+	If len(MAXIS_footer_month) <> 2 or isnumeric(MAXIS_footer_month) = False or MAXIS_footer_month > 13 or len(MAXIS_footer_year) <> 2 or isnumeric(MAXIS_footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
+	footer_month_first_day = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 	date_compare = datediff("d", footer_month_first_day, date)
 	If date_compare < 0 then script_end_procedure("You appear to have entered a future month and year. The script will now stop.")
-	If cint(current_system_month) = cint(footer_month) and cint(footer_year) = cint(current_system_year) AND developer_mode = False then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
+	If cint(current_system_month) = cint(MAXIS_footer_month) and cint(MAXIS_footer_year) = cint(current_system_year) AND developer_mode = False then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
 	
 	'Warning message before executing
 	warning_message = MsgBox(	"Worker: " & worker_number & vbCr & _
-								"Footer month/year: " & footer_month & "/" & footer_year & vbCr & _
+								"Footer month/year: " & MAXIS_footer_month & "/" & MAXIS_footer_year & vbCr & _
 								vbCr & _
 								"This script will case note EACH case on the above REPT/INAC, in the selected footer month, and XFER to " & CLS_x1_number & ", under the following conditions:" & vbCr & _
 								"   " & chr(183) & " Case has no open HC on this case number. " & vbCr & _
@@ -165,8 +165,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	'Enters REPT/INAC under the specific footer month and year, clearing any case number currently loaded.
 	EMWriteScreen "REPT", 16, 43
 	EMWriteScreen "________", 18, 43
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	EMWriteScreen "INAC", 21, 70
 	transmit
 	
@@ -577,7 +577,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False AND INAC_scrubber_primary_array(x, 8) = True then
 			call navigate_to_MAXIS_screen("CASE", "NOTE")
 			PF9
-			tikl_date = dateadd("M", 4, (footer_month & "/01/" & footer_year))
+			tikl_date = dateadd("M", 4, (MAXIS_footer_month & "/01/" & MAXIS_footer_year))
 			last_rein_date = dateadd("D", -1, tikl_date)
 			IF developer_mode = False THEN
 				CALL write_variable_in_case_note("-----ALL PROGRAMS INACTIVE-----")
@@ -656,8 +656,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	BeginDialog INAC_scrubber_dialog, 0, 0, 211, 165, "INAC scrubber dialog"
 	EditBox 80, 80, 80, 15, worker_signature
 	EditBox 145, 100, 60, 15, worker_number
-	EditBox 55, 120, 35, 15, footer_month
-	EditBox 145, 120, 35, 15, footer_year
+	EditBox 55, 120, 35, 15, MAXIS_footer_month
+	EditBox 145, 120, 35, 15, MAXIS_footer_year
 	ButtonGroup ButtonPressed
 		OkButton 45, 140, 50, 15
 		CancelButton 110, 140, 50, 15
@@ -671,7 +671,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	EndDialog
 	
 	'THE SCRIPT----------------------------------------------------------------------------------------------------
-	'Shows the dialog, requires 7 digits for worker number, a worker signature, a footer_month and year. Contains developer mode to bypass case noting and XFERing.
+	'Shows the dialog, requires 7 digits for worker number, a worker signature, a MAXIS_footer_month and year. Contains developer mode to bypass case noting and XFERing.
 	Do
 		Do
 			Do
@@ -688,8 +688,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 			Loop until len(worker_number) = 7
 			If worker_signature = "" and developer_mode = False then MsgBox "You must sign your case notes!"	'Must sign case notes, or be in developer mode which does not case note.
 		Loop until worker_signature <> "" or developer_mode = True
-		If footer_month = "" or footer_year = "" then MsgBox "You must provide a footer month and year!"
-	Loop until footer_month <> "" and footer_year <> ""
+		If MAXIS_footer_month = "" or MAXIS_footer_year = "" then MsgBox "You must provide a footer month and year!"
+	Loop until MAXIS_footer_month <> "" and MAXIS_footer_year <> ""
 	
 	'Converts worker number to the MAXIS friendly all-caps
 	worker_number = UCase(worker_number)
@@ -698,15 +698,15 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	current_system_month = DatePart("m", Now)
 	If len(current_system_month) = 1 then current_system_month = "0" & current_system_month
 	current_system_year = DatePart("yyyy", Now) - 2000
-	If len(footer_month) <> 2 or isnumeric(footer_month) = False or footer_month > 13 or len(footer_year) <> 2 or isnumeric(footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
-	footer_month_first_day = footer_month & "/01/" & footer_year
+	If len(MAXIS_footer_month) <> 2 or isnumeric(MAXIS_footer_month) = False or MAXIS_footer_month > 13 or len(MAXIS_footer_year) <> 2 or isnumeric(MAXIS_footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
+	footer_month_first_day = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 	date_compare = datediff("d", footer_month_first_day, date)
 	If date_compare < 0 then script_end_procedure("You appear to have entered a future month and year. The script will now stop.")
-	If cint(current_system_month) = cint(footer_month) and cint(footer_year) = cint(current_system_year) then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
+	If cint(current_system_month) = cint(MAXIS_footer_month) and cint(MAXIS_footer_year) = cint(current_system_year) then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
 	
 	'Warning message before executing
 	warning_message = MsgBox(	"Worker: " & worker_number & vbCr & _
-								"Footer month/year: " & footer_month & "/" & footer_year & vbCr & _
+								"Footer month/year: " & MAXIS_footer_month & "/" & MAXIS_footer_year & vbCr & _
 								vbCr & _
 								"This script will case note EACH case on the above REPT/INAC, in the selected footer month, and XFER to " & CLS_x1_number & ", under the following conditions:" & vbCr & _
 								"   " & chr(183) & " Case has no open HC on this case number. " & vbCr & _
@@ -757,8 +757,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	'Enters REPT/INAC under the specific footer month and year, clearing any case number currently loaded.
 	EMWriteScreen "REPT", 16, 43
 	EMWriteScreen "________", 18, 43
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	EMWriteScreen "INAC", 21, 70
 	transmit
 	
