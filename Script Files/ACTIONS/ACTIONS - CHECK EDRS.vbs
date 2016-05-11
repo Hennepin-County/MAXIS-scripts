@@ -77,9 +77,9 @@ call HH_member_custom_dialog(HH_member_array)
 
 
 'changing footer dates to current month to avoid invalid months. 
-footer_month = datepart("M", date)
-	IF Len(footer_month) <> 2 THEN footer_month = "0" & footer_month 
-footer_year = right(datepart("YYYY", date), 2)
+MAXIS_footer_month = datepart("M", date)
+	IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month 
+MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 'Error proof functions
 Call check_for_MAXIS(False)
