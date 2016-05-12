@@ -113,6 +113,9 @@ EndDialog
 
 '----------------The Script---------------------------------------------------------------------
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 'Connects to BlueZone
 EMConnect ""
 
@@ -201,7 +204,7 @@ call write_bullet_and_variable_in_case_note("Date Sent to Accounting", date_to_a
 call write_bullet_and_variable_in_case_note("Docs requested", docs_reqd)
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-If How_funds_issued_dropbox = "Mileage Reimbursement" AND clientworker_county_code = "x179" then call write_variable_in_CASE_NOTE("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.")	'Should only do this for Wabasha County, unless other counties request it.
+If How_funds_issued_dropbox = "Mileage Reimbursement" AND worker_county_code = "x179" then call write_variable_in_CASE_NOTE("* Please note: DO NOT SCAN!! Accounting will scan into OnBase when processed.")	'Should only do this for Wabasha County, unless other counties request it.
 
 call write_bullet_and_variable_in_case_note("Date bus tokens issued", date_tokens_issued)
 call write_bullet_and_variable_in_case_note("Amount of tokens issued", Amount_tokens_given)
