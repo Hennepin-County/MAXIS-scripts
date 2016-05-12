@@ -141,10 +141,7 @@ check_for_MAXIS(True)
 DIALOG xfer_menu_dialog
 cancel_confirmation
 
-call find_variable("Case Nbr: ", MAXIS_case_number, 8)
-MAXIS_case_number = trim(MAXIS_case_number)
-MAXIS_case_number = replace(MAXIS_case_number, "_", "")
-If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 IF XFERRadioGroup = 0 THEN
 		'Displays the dialog and navigates to case note
@@ -163,38 +160,89 @@ IF XFERRadioGroup = 0 THEN
 			EMReadScreen MAXIS_check, 5, 1, 39
 			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
 		  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-		  start_a_blank_CASE_NOTE
 
-		'Cleaning up for case note
-		  IF SNAP_active_check = 1 THEN active_programs = active_programs & "SNAP/"
-		  IF hc_active_check = 1 THEN active_programs = active_programs & "HC/"
-		  IF cash_active_check = 1 THEN active_programs = active_programs & "CASH/"
-		  IF mnsure_active_check = 1 THEN active_programs = active_programs & "Mnsure/"
-		  IF EMER_active_check = 1 THEN active_programs = active_programs & "EMER/"
+		'goes to MEMO and create a new memo to be send out
+		If spec_memo_withincty_check = checked THEN
+			Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
+			'Creates a new MEMO. If it's unable the script will stop.
+			PF5
+			EMReadScreen memo_display_check, 12, 2, 33
+			If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 
-		  IF SNAP_pend_check = 1 THEN pend_programs = pend_programs & "SNAP/"
-		  IF hc_pend_check = 1 THEN pend_programs = pend_programs & "HC/"
-		  IF cash_pend_check = 1 THEN pend_programs = pend_programs & "CASH/"
-		  IF mnsure_pend_check = 1 THEN pend_programs = pend_programs & "Mnsure/"
-		  IF EMER_pend_check = 1 THEN pend_programs = pend_programs & "EMER/"
+			'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+			row = 4                             'Defining row and col for the search feature.
+			col = 1
+			EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+			IF row > 4 THEN                     'If it isn't 4, that means it was found.
+				arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+				call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+				EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+				call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+				PF5                                                     'PF5s again to initiate the new memo process
+			END IF
+			'Checking for SWKR
+			row = 4                             'Defining row and col for the search feature.
+			col = 1
+			EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+			IF row > 4 THEN                     'If it isn't 4, that means it was found.
+				swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+				call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+				EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+				call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+				PF5                                           'PF5s again to initiate the new memo process
+			END IF
+			EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			transmit                                                        'Transmits to start the memo writing process
 
-		'Case notes
-		EMSendKey "***Transfer within county***" & "<newline>"
-		IF unit_drop_down <> "N/A" THEN call write_variable_in_case_note("* Transfer to: " & unit_drop_down)
-		IF active_programs <> "" THEN
-		  EMSendKey "* Active Programs: " & active_programs & "<backspace>"
-		  EMSendKey "<newline>"
-		END IF
-		IF pend_programs <> "" THEN
-		  EMSendKey "* Pending Programs: " & pend_programs & "<backspace>"
-		  EMSendKey "<newline>"
-		END IF
-		IF preg_y_n <> "N/A" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
-		call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason)
-		call write_bullet_and_variable_in_case_note("Actions to be taken", Action_to_be_taken)
-		IF spec_memo_withincty_check = checked THEN call write_variable_in_case_note ("SPEC/MEMO sent to client") 'adding this line in case note indicating a memo is sent to client
-		call write_variable_in_case_note("---")
-		call write_variable_in_case_note(worker_signature)
+			Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
+			Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
+			Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
+			Call write_variable_in_SPEC_MEMO ("   ")
+			Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
+			Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request.")
+			Call write_variable_in_SPEC_MEMO ("   ")
+			Call write_variable_in_SPEC_MEMO ("Thank you,")
+				PF4
+				PF3
+		END If
+		'NOTING THE TRANSFER'
+		start_a_blank_CASE_NOTE
+
+	'Cleaning up for case note
+		IF SNAP_active_check = 1 THEN active_programs = active_programs & "SNAP/"
+		IF hc_active_check = 1 THEN active_programs = active_programs & "HC/"
+		IF cash_active_check = 1 THEN active_programs = active_programs & "CASH/"
+		IF mnsure_active_check = 1 THEN active_programs = active_programs & "Mnsure/"
+		IF EMER_active_check = 1 THEN active_programs = active_programs & "EMER/"
+
+		IF SNAP_pend_check = 1 THEN pend_programs = pend_programs & "SNAP/"
+		IF hc_pend_check = 1 THEN pend_programs = pend_programs & "HC/"
+		IF cash_pend_check = 1 THEN pend_programs = pend_programs & "CASH/"
+		IF mnsure_pend_check = 1 THEN pend_programs = pend_programs & "Mnsure/"
+		IF EMER_pend_check = 1 THEN pend_programs = pend_programs & "EMER/"
+
+	'Case notes
+	EMSendKey "***Transfer within county***" & "<newline>"
+	IF unit_drop_down <> "N/A" THEN call write_variable_in_case_note("* Transfer to: " & unit_drop_down)
+	IF active_programs <> "" THEN
+		EMSendKey "* Active Programs: " & active_programs & "<backspace>"
+		EMSendKey "<newline>"
+	END IF
+	IF pend_programs <> "" THEN
+		EMSendKey "* Pending Programs: " & pend_programs & "<backspace>"
+		EMSendKey "<newline>"
+	END IF
+	IF preg_y_n <> "N/A" THEN call write_variable_in_case_note("* Pregnancy verification rec'd: " & preg_y_n)
+	call write_bullet_and_variable_in_case_note("Reason for transfer", Transfer_reason)
+	call write_bullet_and_variable_in_case_note("Actions to be taken", Action_to_be_taken)
+	IF spec_memo_withincty_check = checked THEN call write_variable_in_case_note ("SPEC/MEMO sent to client") 'adding this line in case note indicating a memo is sent to client
+	IF forms_to_arep = "Y" THEN call write_variable_in_case_note("Copy of SPEC/MEMO sent to AREP.")
+	IF forms_to_swkr = "Y" THEN call write_variable_in_case_note("Copy of SPEC/MEMO sent to social worker.")
+	call write_variable_in_case_note("---")
+	call write_variable_in_case_note(worker_signature)
+
 
 		'Transfers case
 		back_to_self
@@ -209,33 +257,6 @@ IF XFERRadioGroup = 0 THEN
 		EMWriteScreen worker_to_transfer_to, 18, 61
 		transmit
 
-		'goes back to SELF menu, then navigate to SPEC/MEMO and send a memo out to client regarding their new worker within the county
-		back_to_self
-
-		'goes to MEMO and create a new memo to be send out 
-		If spec_memo_withincty_check = checked THEN 
-			Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
-				PF5
-				EMWriteScreen "X", 5, 10
-				Transmit
-				'this reads the bottom of the screen if worker is not able to update or write memo due to wrong case # or inqury mode, otherwise it goes on writing spec/memo to client, save, and exit.
-					EMReadScreen memo_access, 33, 24, 2
-					IF memo_access = "YOU ARE NOT AUTHORIZED FOR UPDATE" THEN script_end_procedure ("You do not have access to modify this case. Please double check your case number and try again or alternatively, you may be in INQUIRY MODE.")
-
-				Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
-                        	Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
-                        	Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
-                		Call write_variable_in_SPEC_MEMO ("   ")
-                        	Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
-                        	Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request.")
-                        	Call write_variable_in_SPEC_MEMO ("   ")
-                        	Call write_variable_in_SPEC_MEMO ("Thank you,")
-
-				PF4
-				PF3
-		END If
-
-		back_to_self
 
 		script_end_procedure("")
 
@@ -353,9 +374,37 @@ IF XFERRadioGroup = 0 THEN
 	'----------Sending the CL a SPEC/MEMO notifying them of the details of the transfer----------
 	If SPEC_MEMO_check = checked then
 		call navigate_to_MAXIS_screen("SPEC", "MEMO")
+		'Creates a new MEMO. If it's unable the script will stop.
 		PF5
-		EMWriteScreen "X", 5, 10
-		transmit
+		EMReadScreen memo_display_check, 12, 2, 33
+		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+
+		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+    	arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+    	call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+    	EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+    	call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+    	PF5                                                     'PF5s again to initiate the new memo process
+		END IF
+		'Checking for SWKR
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+    	swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+    	call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+    	EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+    	call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+    	PF5                                           'PF5s again to initiate the new memo process
+		END IF
+		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		transmit                                                        'Transmits to start the memo writing process
 
 		EMWriteScreen "Your case has been transferred. Your new worker/agency is:", 3, 15
 		memo_line = 5
@@ -446,6 +495,9 @@ IF XFERRadioGroup = 0 THEN
 	If transfer_form_check = checked THEN call write_variable_in_case_note("* DHS 3195 Inter Agency Case Transfer Form completed and sent.")
 	IF Transfer_reason <> "" THEN CALL write_bullet_and_variable_in_case_note("Reason for Transfer", Transfer_reason)
 	IF Action_to_be_taken <> "" THEN call write_bullet_and_variable_in_case_note("Actions to be Taken", Action_to_be_taken)
+	IF SPEC_MEMO_check = checked THEN call write_variable_in_case_note("SPEC / MEMO sent to client with new worker information.")
+	IF forms_to_arep = "Y" THEN call write_variable_in_case_note("Copy of SPEC/MEMO sent to AREP.")
+	IF forms_to_swkr = "Y" THEN call write_variable_in_case_note("Copy of SPEC/MEMO sent to social worker.")
 	call write_variable_in_case_note("---")
 	call write_variable_in_case_note(worker_signature)
 	PF3
