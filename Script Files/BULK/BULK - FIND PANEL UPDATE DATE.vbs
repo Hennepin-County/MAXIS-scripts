@@ -563,6 +563,7 @@ FOR EACH maxis_worker IN workers_list
 						END IF
 					NEXT
 				END IF
+				'PACT is the only case-based panel so the person array has been removed
 				IF PACT_checkbox = 1 THEN
 					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					EMReadScreen in_stat, 4, 20, 21
@@ -571,26 +572,19 @@ FOR EACH maxis_worker IN workers_list
 					ELSE
 						CALL navigate_to_MAXIS_screen("STAT", "PACT")
 					END IF
-					CALL build_hh_array(BUSI_array)
-					FOR EACH person IN BUSI_array
-						IF person <> "" THEN
-							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-							CALL write_value_and_transmit(person, 20, 76)
-							EMReadScreen updated_date, 8, 21, 55
-							updated_date = replace(updated_date, " ", "/")
-							IF updated_date <> "////////" THEN
-								IF time_period = "Updated in prev. 30 days" THEN
-									IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, PACT_col).Value = objExcel.Cells(excel_row, PACT_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Updated in prev. 6 mos" THEN
-									IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, PACT_col).Value = objExcel.Cells(excel_row, PACT_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 12 mos" THEN
-									IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, PACT_col).Value = objExcel.Cells(excel_row, PACT_col).Value & person & ", " & updated_date & "; "
-								ELSEIF time_period = "Not updated more than 24 mos" THEN
-									IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, PACT_col).Value = objExcel.Cells(excel_row, PACT_col).Value & person & ", " & updated_date & "; "
-								END IF
-							END IF
+					EMReadScreen updated_date, 8, 21, 55
+					updated_date = replace(updated_date, " ", "/")
+					IF updated_date <> "////////" THEN
+						IF time_period = "Updated in prev. 30 days" THEN
+							IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, PACT_col).Value = updated_date 
+						ELSEIF time_period = "Updated in prev. 6 mos" THEN
+							IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, PACT_col).Value = updated_date
+						ELSEIF time_period = "Not updated more than 12 mos" THEN
+							IF DateDiff("D", updated_date, date) > 365 THEN objExcel.Cells(excel_row, PACT_col).Value = updated_date
+						ELSEIF time_period = "Not updated more than 24 mos" THEN
+							IF DateDiff("D", updated_date, date) > 730 THEN objExcel.Cells(excel_row, PACT_col).Value = updated_date
 						END IF
-					NEXT
+					END IF
 				END IF
 				IF PARE_checkbox = 1 THEN
 					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
@@ -600,8 +594,8 @@ FOR EACH maxis_worker IN workers_list
 					ELSE
 						CALL navigate_to_MAXIS_screen("STAT", "PARE")
 					END IF
-					CALL build_hh_array(BUSI_array)
-					FOR EACH person IN BUSI_array
+					CALL build_hh_array(PARE_array)
+					FOR EACH person IN PARE_array
 						IF person <> "" THEN
 							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
@@ -629,8 +623,8 @@ FOR EACH maxis_worker IN workers_list
 					ELSE
 						CALL navigate_to_MAXIS_screen("STAT", "PBEN")
 					END IF
-					CALL build_hh_array(BUSI_array)
-					FOR EACH person IN BUSI_array
+					CALL build_hh_array(PBEN_array)
+					FOR EACH person IN PBEN_array
 						IF person <> "" THEN
 							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
@@ -658,8 +652,8 @@ FOR EACH maxis_worker IN workers_list
 					ELSE
 						CALL navigate_to_MAXIS_screen("STAT", "STWK")
 					END IF
-					CALL build_hh_array(BUSI_array)
-					FOR EACH person IN BUSI_array
+					CALL build_hh_array(STWK_array)
+					FOR EACH person IN STWK_array
 						IF person <> "" THEN
 							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
@@ -687,8 +681,8 @@ FOR EACH maxis_worker IN workers_list
 					ELSE
 						CALL navigate_to_MAXIS_screen("STAT", "WREG")
 					END IF
-					CALL build_hh_array(BUSI_array)
-					FOR EACH person IN BUSI_array
+					CALL build_hh_array(WREG_array)
+					FOR EACH person IN WREG_array
 						IF person <> "" THEN
 							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 							CALL write_value_and_transmit(person, 20, 76)
