@@ -43,6 +43,9 @@ next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
 last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
   EditBox 85, 5, 55, 15, MAXIS_case_number

@@ -64,9 +64,8 @@ FUNCTION verif_confirm_message(verif, verif_name)
 END FUNCTION
 '-------------------------------END FUNCTIONS
 
-'Defining variables----------------------------------------------------------------------------------------------------
-'Dim gross_wages, busi_income, gross_RSDI, gross_SSI, gross_VA, gross_UC, gross_CS, gross_other
-'Dim deduction_FMED, deduction_DCEX, deduction_COEX
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 251, 230, "ABAWD BANKED MONTHS FIATER"
