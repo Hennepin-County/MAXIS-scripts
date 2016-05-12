@@ -39,6 +39,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 BeginDialog search_dialog, 0, 0, 186, 180, "Client Look Up"
   EditBox 120, 25, 55, 15, person_look_up
   EditBox 120, 60, 55, 15, phone_look_up
