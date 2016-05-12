@@ -115,9 +115,10 @@ DO
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP Until err_msg = ""
 
-'Setting the correct footer month (for snap budget noting)
+'Setting the correct footer month and year (so snap budget is pulled from month snap is approved in)
 MAXIS_footer_month = datepart("m", dateadd("d", 1, closure_date))
 if len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = right(datepart("YYYY", dateadd("d", 1, closure_date)), 2)
 
 Call check_for_maxis(true)
 call HH_member_custom_dialog(HH_member_array)
