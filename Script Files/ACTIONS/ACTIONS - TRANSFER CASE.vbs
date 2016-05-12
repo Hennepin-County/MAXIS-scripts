@@ -41,6 +41,9 @@ END IF
 'VARIABLES TO DECLARE----------------------------------------------------------------------------
 SPEC_MEMO_check = checked		'Should default to checked, as we usually want to send a new worker memo
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 '----------DIALOGS----------
 BeginDialog xfer_menu_dialog, 0, 0, 156, 80, "Case XFER"
   OptionGroup XFERRadioGroup
