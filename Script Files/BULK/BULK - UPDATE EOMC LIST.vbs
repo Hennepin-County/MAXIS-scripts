@@ -195,21 +195,21 @@ Do
 		END If
 	END IF
 	IF cash_col <> "" THEN
-		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MF" THEN 'checking MFIP status'
-			call find_variable("MFIP: ", cash_status, 6)
-			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-		END If
-		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MS" THEN 'checking MSA status'
-			call find_variable("MSA: ", cash_status, 6)
-			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-		END If
-		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "GA" THEN 'checking GA status'
-			call find_variable("GA: ", cash_status, 6)
-			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-		END If
-		IF left(objExcel.cells(excel_row, cash_col).value, 2) = "DW" THEN 'checking DWP status'
-			call find_variable("DWP: ", cash_status, 6)
-			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
+			IF left(objExcel.cells(excel_row, cash_col).value, 2) <> "" THEN 'This checks for generic cash pending'
+			call find_variable("Cash: ", cash_status, 6)
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).value = cash_status
+		END IF
+		IF cash_status <> "PENDIN" THEN 'generic pending not found, search each program'
+			IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MF" THEN 'checking MFIP status'
+				call find_variable("MFIP: ", cash_status, 6)
+			ELSEIF left(objExcel.cells(excel_row, cash_col).value, 2) = "MS" THEN 'checking MSA status'
+				call find_variable("MSA: ", cash_status, 6)
+			ELSEIF left(objExcel.cells(excel_row, cash_col).value, 2) = "GA" THEN 'checking GA status'
+				call find_variable("GA: ", cash_status, 6)
+			ELSEIF left(objExcel.cells(excel_row, cash_col).value, 2) = "DW" THEN 'checking DWP status'
+				call find_variable("DWP: ", cash_status, 6)
+			END IF
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).value = cash_status
 		END If
 	END IF
 	IF HC_col <> "" THEN
@@ -224,6 +224,11 @@ Do
 			IF GRH_status <> "" THEN ObjExcel.Cells(excel_row, GRH_col+1).Value = GRH_status
 		END If
 	END IF
+	'reset variables
+	fs_status = ""
+	cash_status = ""
+	HC_status = ""
+	GRH_status = ""
 	excel_row = excel_row + 1
 Loop until MAXIS_case_number = ""
 
