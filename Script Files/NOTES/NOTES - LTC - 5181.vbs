@@ -1,5 +1,5 @@
 'STATS GATHERING ----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - 5181.vbs"
+name_of_script = "NOTES - LTC - 5181.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 360          'manual run time in seconds
@@ -8,10 +8,10 @@ STATS_denomination = "C"        'C is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -20,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -47,31 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Declaring variables----------------------------------------------------------------------------------------------------
-'DIM start_time, name_of_script, url, row, script_end_procedure, case_number_and_footer_month_dialog, MAXIS_case_number
-'DIM MAXIS_footer_month, MAXIS_footer_year, next_month, ButtonPressed, case_note_dialog, yes_case_note_button, no_case_note_button
-'DIM cancel_dialog, no_cancel_button, yes_cancel_button, DHS_5181_dialog_1, date_5181_editbox, date_received_editbox, lead_agency_editbox
-'DIM lead_agency_assessor_editbox, casemgr_ADDR_line_01, casemgr_ADDR_line_02, casemgr_city, casemgr_state, casemgr_zip_code
-'DIM phone_area_code, phone_prefix, phone_second_four, phone_extension, fax_editbox, update_SWKR_info_checkbox, update_addr_checkbox
-'DIM name_of_facility_editbox, date_of_admission_editbox, facility_address_line_01, facility_address_line_02, facility_city
-'DIM facility_state, facility_county_code, facility_zip_code, waiver_type_droplist, essential_community_supports_check, next_to_page_02_button
-'DIM DHS_5181_dialog_2, waiver_assessment_date_editbox, needs_waiver_checkbox, estimated_effective_date_editbox, estimated_monthly_check
-'DIM estimated_monthly_waiver_costs_editbox, does_not_meet_waiver_LOC_check, ongoing_waiver_case_manager_check, ongoing_waiver_case_manager_editbox
-'DIM LTCF_assessment_date_editbox, meets_MALOC_check, ongoing_case_manager_check, ongoing_case_manager_editbox, ongoing_case_manager_not_available_check
-'DIM does_not_meet_MALTC_LOC_check, client_applied_MA_check, client_MA_enrollee_3543_provided_check, Client_MA_enrollee_editbox
-'DIM completed_3543_3531_check, completed_3543_3531_faxed_check, completed_3543_3531_faxed_editbox, please_send_3543_check
-'DIM please_send_3531_check, please_send_3531_editbox, please_send_3340_check, previous_to_page_01_button, requested_1503_check
-'DIM onfile_1503_check, DHS_5181_Dialog_3, client_no_longer_meets_LOC_check, client_no_longer_meets_LOC_efffective_date_editbox
-'DIM waiver_program_change_by_assessor_check, waiver_program_change_from_assessor_editbox, waiver_program_change_to_assessor_editbox
-'DIM waiver_program_change_effective_date_editbox, exited_waiver_program_check, exit_waiver_end_date_editbox, client_choice_check
-'DIM client_deceased_check, date_of_death_editbox, client_moved_to_LTCF_check, client_moved_to_LTCF_editbox, waiver_program_change_check
-'DIM waiver_program_change_from_editbox, waiver_program_change_to_editbox, client_disenrolled_health_plan_check, client_disenrolled_from_healthplan_editbox
-'DIM new_address_check, new_address_effective_date_editbox, case_action_editbox, other_notes_editbox, write_TIKL_for_worker_check
-'DIM sent_5181_to_caseworker_check, worker_signature, previous_to_page_02_button, LTCF_ADDR_line_01, LTCF_ADDR_line_02, LTCF_city
-'DIM LTCF_state, LTCF_county_code, LTCF_zip_code, LTCF_update_ADDR_checkbox, update_addr_new_ADDR_checkbox, change_ADDR_line_1
-'DIM change_ADDR_line_2, change_city, change_state, change_county_code, change_zip_code, case_note_confirm, next_to_page_03_button
-'DIM footer_month_as_date, difference_between_dates, move_on_to_case_note, from_droplist, to_droplist
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
