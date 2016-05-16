@@ -38,6 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 'THE DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog submitting_case_HENNEPIN_dialog, 0, 0, 271, 155, "Submitting Case for SNAP case review dialog"
   EditBox 70, 5, 60, 15, MAXIS_case_number					

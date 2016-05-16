@@ -38,144 +38,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-FUNCTION navigate_to_MMIS
-	attn
-	Do
-		EMReadScreen MAI_check, 3, 1, 33
-		If MAI_check <> "MAI" then EMWaitReady 1, 1
-	Loop until MAI_check = "MAI"
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
-	EMReadScreen mmis_check, 7, 15, 15
-	IF mmis_check = "RUNNING" THEN
-		EMWriteScreen "10", 2, 15
-		transmit
-	ELSE
-		EMConnect"A"
-		attn
-		EMReadScreen mmis_check, 7, 15, 15
-		IF mmis_check = "RUNNING" THEN
-			EMWriteScreen "10", 2, 15
-			transmit
-		ELSE
-			EMConnect"B"
-			attn
-			EMReadScreen mmis_b_check, 7, 15, 15
-			IF mmis_b_check <> "RUNNING" THEN
-				script_end_procedure("You do not appear to have MMIS running. This script will now stop. Please make sure you have an active version of MMIS and re-run the script.")
-			ELSE
-				EMWriteScreen "10", 2, 15
-				transmit
-			END IF
-		END IF
-	END IF
-
-	DO
-		PF6
-		EMReadScreen password_prompt, 38, 2, 23
-		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
-		EMReadScreen session_start, 18, 1, 7
-	LOOP UNTIL session_start = "SESSION TERMINATED"
-
-	'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
-	EMWriteScreen "MW00", 1, 2
-	transmit
-	transmit
-
-	'The following will select the correct version of MMIS. First it looks for C302, then EK01, then C402.
-	row = 1
-	col = 1
-	EMSearch ("C3" & right(worker_county_code, 2)), row, col
-	If row <> 0 then
-		If row <> 1 then 'It has to do this in case the worker only has one option (as many LTC and OSA workers don't have the option to decide between MAXIS and MCRE case access). The MMIS screen will show the text, but it's in the first row in these instances.
-			EMWriteScreen "x", row, 4
-			transmit
-		End if
-	Else 'Some staff may only have EK01 (MMIS MCRE). The script will allow workers to use that if applicable.
-		row = 1
-		col = 1
-		EMSearch "EK01", row, col
-		If row <> 0 then
-			If row <> 1 then
-				EMWriteScreen "x", row, 4
-				transmit
-			End if
-		Else 'Some OSAs have C402 (limited access). This will search for that.
-			row = 1
-			col = 1
-			EMSearch ("C4" & right(worker_county_code, 2)), row, col
-			If row <> 0 then
-				If row <> 1 then
-					EMWriteScreen "x", row, 4
-					transmit
-				End if
-			Else 'Some OSAs have EKIQ (limited MCRE access). This will search for that.
-				row = 1
-				col = 1
-				EMSearch "EKIQ", row, col
-				If row <> 0 then
-					If row <> 1 then
-						EMWriteScreen "x", row, 4
-						transmit
-					End if
-				Else
-					script_end_procedure("C4" & right(worker_county_code, 2) & ", C3" & right(worker_county_code, 2) & ", EKIQ, or EK01 not found. Your access to MMIS may be limited. Contact your script Alpha user if you have questions about using this script.")
-				End if
-			End if
-		End if
-	END IF
-
-	'Now it finds the recipient file application feature and selects it.
-	row = 1
-	col = 1
-	EMSearch "RECIPIENT FILE APPLICATION", row, col
-	EMWriteScreen "x", row, col - 3
-	transmit
-END FUNCTION
-
-FUNCTION navigate_to_MAXIS(maxis_mode)
-	attn
-	EMConnect "A"
-	IF maxis_mode = "PRODUCTION" THEN
-		EMReadScreen prod_running, 7, 6, 15
-		IF prod_running = "RUNNING" THEN
-			x = "A"
-		ELSE
-			EMConnect"B"
-			attn
-			EMReadScreen prod_running, 7, 6, 15
-			IF prod_running = "RUNNING" THEN
-				x = "B"
-			ELSE
-				script_end_procedure("Please do not run this script in a session larger than S2.")
-			END IF
-		END IF
-	ELSEIF maxis_mode = "INQUIRY DB" THEN
-		EMReadScreen inq_running, 7, 7, 15
-		IF inq_running = "RUNNING" THEN
-			x = "A"
-		ELSE
-			EMConnect "B"
-			attn
-			EMReadScreen inq_running, 7, 7, 15
-			IF inq_running = "RUNNING" THEN
-				x = "B"
-			ELSE
-				script_end_procedure("Please do not run this script in a session larger than 2.")
-			END IF
-		END IF
-	END IF
-
-
-	EMConnect (x)
-	IF maxis_mode = "PRODUCTION" THEN
-		EMWriteScreen "1", 2, 15
-		transmit
-	ELSEIF maxis_mode = "INQUIRY DB" THEN
-		EMWriteScreen "2", 2, 15
-		transmit
-	END IF
-END FUNCTION
-
+'Dialogs---------------------------------------------------------------------------------------------------------------------------------
 BeginDialog maepd_dlg, 0, 0, 191, 85, "MA-EPD Reimburseables"
   EditBox 100, 10, 65, 15, x_number
   ButtonGroup ButtonPressed
@@ -185,11 +51,12 @@ BeginDialog maepd_dlg, 0, 0, 191, 85, "MA-EPD Reimburseables"
   Text 10, 30, 175, 10, "This script will check REPT/ACTV on this X number."
 EndDialog
 
+'The script----------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 
 CALL check_for_MAXIS(True)
 DO
-	err_msg = ""
+	err_msg = ""								'err message handling to loop until the user has entered the proper information
 	Dialog maepd_dlg
 		IF ButtonPressed = 0 THEN stopscript
 		IF len(x_number) <> 7 THEN err_msg = err_msg & vbCr & "* The X number must be the full 7 digits."
@@ -199,66 +66,67 @@ LOOP UNTIL err_msg = ""
 CALL check_for_MAXIS(False)
 back_to_SELF
 
-CALL navigate_to_MAXIS_screen("REPT", "ACTV")
+CALL navigate_to_MAXIS_screen("REPT", "ACTV")						'navigating to rept actv for requested user
 EMReadScreen current_rept_actv, 7, 21, 13
-IF ucase(current_rept_actv) <> ucase(x_number) THEN CALL write_value_and_transmit(x_number, 21, 13)
+IF ucase(current_rept_actv) <> ucase(x_number) THEN CALL write_value_and_transmit(x_number, 21, 13)			'making sure that the X# was written correctly sometimes there are issues with lower case worker numbers
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
-objExcel.Cells(1, 1).Value = "CASE NUMBER"
+objExcel.Cells(1, 1).Value = "CASE NUMBER"						'creating columns to store the information
 objExcel.Cells(1, 2).Value = "CLIENT NAME"
 objExcel.Cells(1, 3).Value = "NEXT REVW DT"
 objExcel.Cells(1, 4).Value = "REIMBURSEMENT ELIG?"
 
+'setting variables for first run through
 rept_row = 7
 excel_row = 2
 DO
-	EMReadScreen last_page, 21, 24, 2
+	EMReadScreen last_page, 21, 24, 2											'checking to see if this is the last page, if it is the loop can end. 
 	DO
-		EMReadScreen MAXIS_case_number, 8, rept_row, 12
+		EMReadScreen MAXIS_case_number, 8, rept_row, 12						'reading the case numbers from rept/actv
 		MAXIS_case_number = trim(MAXIS_case_number)
-		EMReadScreen hc_case, 1, rept_row, 64
-		IF MAXIS_case_number <> "" AND hc_case <> " " THEN
-			objExcel.Cells(excel_row, 1).Value = MAXIS_case_number
-			EMReadScreen client_name, 21, rept_row, 21
+		EMReadScreen hc_case, 1, rept_row, 64	
+		IF MAXIS_case_number <> "" AND hc_case <> " " THEN					'checking for HC cases
+			objExcel.Cells(excel_row, 1).Value = MAXIS_case_number			'adding read variables to the spreadsheet
+			EMReadScreen client_name, 21, rept_row, 21						'grabbing client name
 			client_name = trim(client_name)
-			EMReadScreen next_revw_dt, 8, rept_row, 42
+			EMReadScreen next_revw_dt, 8, rept_row, 42						'grabbing next review date
 			next_revw_dt = replace(next_revw_dt, " ", "/")
-			objExcel.Cells(excel_row, 2).Value = client_name
-			objExcel.Cells(excel_row, 3).Value = next_revw_dt
+			objExcel.Cells(excel_row, 2).Value = client_name				'adding read variables to the spreadsheet
+			objExcel.Cells(excel_row, 3).Value = next_revw_dt				'adding read variables to the spreadsheet
 			excel_row = excel_row + 1
 		END IF
 		rept_row = rept_row + 1
-	LOOP UNTIL rept_row = 19
-	PF8
-	rept_row = 7
+	LOOP UNTIL rept_row = 19								'looping until the script reads through the bottom of the page. 
+	PF8														'pf8 navigates to next page of ACTV
+	rept_row = 7											'resetting the row to the top of the page.
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 LOOP UNTIL last_page = "THIS IS THE LAST PAGE"
 
-excel_row = 2
+excel_row = 2												'resetting excel row so script can review each case number found in previous loops.
 DO
 	back_to_SELF
-	MAXIS_case_number = objExcel.Cells(excel_row, 1).Value
-	CALL find_variable("Environment: ", production_or_inquiry, 10)
-	CALL navigate_to_MAXIS_screen("ELIG", "HC")
-	hhmm_row = 8
-	DO
+	MAXIS_case_number = objExcel.Cells(excel_row, 1).Value					'reading case number from excel spreadsheet
+	CALL find_variable("Environment: ", production_or_inquiry, 10)			'reading if script was started in production of inquiry, this is used later to navigate back from MMIS.
+	CALL navigate_to_MAXIS_screen("ELIG", "HC")							
+	hhmm_row = 8															'setting starting point to review all HH members in ELIG HC
+	DO																		'the script will now navigate to ELIG HC and begin to search for MA caes with DP as the elig type. 
 		EMReadScreen hc_type, 2, hhmm_row, 28
-		IF hc_type = "MA" THEN
+		IF hc_type = "MA" THEN												'if it finds MA as the HC type it will go into those results
 			EMWriteScreen "X", hhmm_row, 26
 			transmit
 			EMReadScreen elig_type, 2, 12, 72
-			IF elig_type = "DP" THEN
+			IF elig_type = "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
 				EMWriteScreen "X", 9, 76
 				transmit
-				EMReadScreen pct_fpg, 4, 18, 38
+				EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at. 
 				pct_fpg = trim(pct_fpg)
 				pct_fpg = pct_fpg * 1
-				IF pct_fpg < 201 THEN
-					PF3
+				IF pct_fpg < 201 THEN										'If the client is 200% or under they may eligible for reimbursement
+					PF3														'the script will now grab that person's member number and head into memb to get that person's PMI this will be used later to check MMIS
 					PF3
 					EMReadScreen hh_memb_num, 2, hhmm_row, 3
 					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -269,7 +137,7 @@ DO
 					DO
 						IF len(cl_pmi) <> 8 THEN cl_pmi = "0" & cl_pmi
 					LOOP UNTIL len(cl_pmi) = 8
-					navigate_to_MMIS
+					navigate_to_MMIS										'the script will now take the PMI and go into MMIS and check RELG
 					DO
 						EMReadScreen RKEY, 4, 1, 52
 						IF RKEY <> "RKEY" THEN EMWaitReady 0, 0
@@ -280,7 +148,7 @@ DO
 					EMWriteScreen "RELG", 1, 8
 					transmit
 
-					'Reading RELG to determine if the CL is active on MA-EPD
+					'Reading RELG to determine if the CL is active on MA-EPD		
 					EMReadScreen prog01_type, 8, 6, 13
 						EMReadScreen elig01_type, 2, 6, 33
 						EMReadScreen elig01_end, 8, 7, 36
@@ -299,7 +167,7 @@ DO
 						(prog03_type = "MEDICAID" AND elig03_type = "DP" AND elig03_end = "99/99/99") OR _
 						(prog04_type = "MEDICAID" AND elig04_type = "DP" AND elig04_end = "99/99/99")) THEN
 
-						EMWriteScreen "RMCR", 1, 8
+						EMWriteScreen "RMCR", 1, 8							'the script will now check RMCR for an active medicare case
 						transmit
 
 						'-----CHECKING FOR ON-GOING MEDICARE PART B-----
@@ -310,7 +178,7 @@ DO
 							part_b_begin02 = trim(part_b_begin02)
 						EMReadScreen part_b_end02, 8, 14, 15
 
-						IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN
+						IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN				'lastly the script will check RBYB to see what the client's buy in status is
 							EMWriteScreen "RBYB", 1, 8
 							transmit
 
@@ -318,34 +186,34 @@ DO
 							EMReadScreen delete_date, 8, 6, 65
 							accrete_date = replace(accrete_date, " ", "")
 
-							IF ((accrete_date = "") OR (accrete_date <> "" AND delete_date <> "99/99/99")) THEN
-								objExcel.Cells(excel_row, 4).Value = objExcel.Cells(excel_row, 4).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT, ")
+							IF ((accrete_date = "") OR (accrete_date <> "" AND delete_date <> "99/99/99")) THEN				'if the PMI is found to be open on MA-EPD, under 200% open on medicare and they don't have an end date on the delete date (rbyb) the script marks them as eligible for reimbursement.
+								objExcel.Cells(excel_row, 4).Value = objExcel.Cells(excel_row, 4).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT, ")  'writing eligibility status in spreadsheet
 							END IF
 							CALL write_value_and_transmit("RKEY", 1, 8)
 						END IF
 					ELSE
 						CALL write_value_and_transmit("RKEY", 1, 8)
 					END IF
-					CALL navigate_to_MAXIS(production_or_inquiry)
+					CALL navigate_to_MAXIS(production_or_inquiry)				'the script now navigates back to the environment the user left MAXIS in to continue searching Household members on the current case. 
 					hhmm_row = hhmm_row + 1
 					CALL navigate_to_MAXIS_screen("ELIG", "HC")
 				ELSE
 					DO
-						EMReadScreen at_hhmm, 4, 3, 51
+						EMReadScreen at_hhmm, 4, 3, 51						'making sure the script made it back to ELIG/HC
 						IF at_hhmm <> "HHMM" THEN PF3
 					LOOP UNTIL at_hhmm = "HHMM"
-					hhmm_row = hhmm_row + 1
+					hhmm_row = hhmm_row + 1									'adding to the read row since we have finished evaluating this particular HH member. 
 				END IF
 			ELSE
-				PF3
-				hhmm_row = hhmm_row + 1
+				PF3															'if the MA elig results don't have DP we end up here
+				hhmm_row = hhmm_row + 1										'adding to the read row since we have finished evaluating this particular HH member. 
 			END IF
 		ELSE
-			hhmm_row = hhmm_row + 1
+			hhmm_row = hhmm_row + 1											'If the elig/hc results aren't MA we end up here and add to the read row since we have finished evaluating this particular HH member. 
 		END IF
-		IF hhmm_row = 20 THEN
-			PF8
-			EMReadScreen this_is_the_last_page, 21, 24, 2
+		IF hhmm_row = 20 THEN												'here we are determining that we've read all of the HH members on the current HHMM screen. 
+			PF8																'pf8 will cause elig hc to move to the next set of HH members if that page is full
+			EMReadScreen this_is_the_last_page, 21, 24, 2					'if the script has read everyone on a page and PF8'd and reached the last page the script is done evaulating this case
 		END IF
 	LOOP UNTIL hc_type = "  " OR this_is_the_last_page = "THIS IS THE LAST PAGE"
 	'Deleting the blank results to clean up the spreadsheet
@@ -354,10 +222,10 @@ DO
 		objRange.Delete
 		excel_row = excel_row - 1
 	END IF
-	excel_row = excel_row + 1
+	excel_row = excel_row + 1										'the script adds 1 to the excel row to move onto the next case to evaluate
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""
 
-FOR i = 1 to 4
+FOR i = 1 to 4							'making the columns stretch to fit the widest cell
 	objExcel.Columns(i).AutoFit()
 NEXT
 

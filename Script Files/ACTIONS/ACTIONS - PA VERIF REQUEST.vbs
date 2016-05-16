@@ -45,6 +45,9 @@ If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_mont
 MAXIS_footer_year = datepart("yyyy", next_month)
 MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
