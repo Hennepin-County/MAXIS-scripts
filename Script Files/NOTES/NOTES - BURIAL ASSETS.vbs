@@ -85,7 +85,7 @@ EndDialog
 'Burial Agreement Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog burial_assets_dialog_01, 0, 0, 301, 190, "Burial assets dialog (01)"
   CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-  DropListBox 95, 40, 55, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  ComboBox 90, 40, 65, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
   EditBox 215, 40, 65, 15, purchase_date
   EditBox 55, 60, 125, 15, issuer_name
   EditBox 225, 60, 55, 15, policy_number
@@ -97,7 +97,7 @@ BeginDialog burial_assets_dialog_01, 0, 0, 301, 190, "Burial assets dialog (01)"
   ButtonGroup ButtonPressed
     PushButton 95, 165, 50, 15, "Next", next_to_02_button
     CancelButton 155, 165, 50, 15
-  Text 5, 45, 90, 10, "Type of burial agreement:"
+  Text 5, 45, 85, 10, "Type of burial agreement:"
   Text 160, 45, 50, 10, "Purchase date:"
   Text 5, 65, 50, 10, "Issuer name:"
   Text 195, 65, 30, 10, "Policy #:"
@@ -310,10 +310,12 @@ Do
 		Dialog burial_assets_dialog_01
 		cancel_confirmation
 		If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
-		If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
-		If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
-		If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
-		If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		If type_of_burial_agreement <> "None" THEN
+			If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
+			If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
+			If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
+			If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
 	Do
