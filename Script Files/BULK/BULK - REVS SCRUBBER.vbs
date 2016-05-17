@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - REVS SCRUBBER.vbs"
 start_time = timer
+STATS_counter = 1			 'sets the stats counter at one
+STATS_manualtime = 304			 'manual run time in seconds
+STATS_denomination = "C"		 'C is for each case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,13 +48,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1			 'sets the stats counter at one
-STATS_manualtime = 304			 'manual run time in seconds
-STATS_denomination = "C"		 'C is for each case
-'END OF stats block==============================================================================================
-
-'Declaring variables
+'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM month, full_date_to_display, num_of_days, next_month, available_dates_array, month_to_use
 'DIM first_appointment_listbox, olAppointmentItem, olRecursDaily
 'DIM appointment_length_listbox, last_appointment_listbox, time_array_30_min
@@ -391,10 +389,6 @@ IF alt_appointments_per_time_slot = "" THEN alt_appointments_per_time_slot = 1
 
 'We need to get back to SELF and manually update the footer month
 back_to_SELF
-current_month = DatePart("M", date)
-IF len(current_month) = 1 THEN current_month = "0" & current_month
-current_year = DatePart("YYYY", date)
-current_year = right(current_year, 2)
 
 'Determining the month that the script will access REPT/REVS. It's CM+2 for most, but CM+1 in developer mode
 revs_month = DateAdd("M", 2, date)
@@ -405,8 +399,8 @@ revs_month = DatePart("M", revs_month)
 IF len(revs_month) = 1 THEN revs_month = "0" & revs_month
 
 'writing current month and transmitting
-EMWriteScreen current_month, 20, 43
-EMWriteScreen current_year, 20, 46
+EMWriteScreen CM_mo, 20, 43
+EMWriteScreen CM_yr, 20, 46
 transmit
 
 'navigating to REVS and entering REVS Month and year as determined above
@@ -429,7 +423,6 @@ For each worker_number in worker_number_array
 	IF UCASE(current_worker) <> UCASE(worker_number) THEN
 		EMWriteScreen UCASE(worker_number), 21, 6
 		transmit
-		msgbox worker_number
 	END IF
 
 	'Grabbing case numbers from REVS for requested worker
@@ -531,28 +524,40 @@ DO 'Loops until there are no more cases in the Excel list
 			recert_status = "NO"	'some cases were sliping through the logic, so this worked to catch the other NO cases'
 		END IF 
 		
-		'If it's not a recert, delete it from the excel list and move on with our lives
+        'If it's not a recert, delete it from the excel list and move on with our lives
 		IF recert_status = "NO" THEN
 			Call navigate_to_MAXIS_screen("STAT", "PROG")
 			MFIP_prog_check = ""
 			MFIP_status_check = ""
 			EMReadScreen MFIP_prog_check, 2, 6, 67		'checking for an active MFIP case
 			EMReadScreen MFIP_status_check, 4, 6, 74
-			If MFIP_prog_check = "MF" then 
-				If MFIP_status_check <> "ACTV" THEN 	'if MFIP is active, then case will not be deleted.
+			PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+            
+			'Some cases get stuck on HCRE if HCRE isn't fully complete. This DO...LOOP handles that.
+            Do
+				EMReadscreen HCRE_panel_check, 4, 2, 50
+				If HCRE_panel_check = "HCRE" then 
+					PF10	'exists edit mode in cases where HCRE isn't complete for a member
+					PF3
+				END IF
+			Loop until HCRE_panel_check <> "HCRE"
+            
+            'IF MFIP is active, case remains on the list. If not, case is deleted from Excel spreadsheet.
+			If MFIP_prog_check = "MF" THEN
+				IF MFIP_status_check <> "ACTV" THEN				'if MFIP is active, then case will not be deleted.
 					SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 					objRange.Delete				'all other cases that are not due for a recert will be deleted
-					excel_row = excel_row - 1	
-				ELSE 	
-					STATS_counter = STATS_counter + 1						'adds one instance to the stats counter	
-				END If
-			END if
-		ELSE 
-			SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-			objRange.Delete				'all other cases that are not due for a recert will be deleted
-			excel_row = excel_row - 1
+					excel_row = excel_row - 1
+				END IF
+			ELSE 
+				SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+				objRange.Delete				'all other cases that are not due for a recert will be deleted
+				excel_row = excel_row - 1
+			END If 
 		END IF
 	END IF
+		
+	STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
 	excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, case_number_col).value = ""	'looping until the list of cases to check for recert is complete
 
@@ -645,7 +650,7 @@ objExcel.Columns(case_number_col).autofit()
 objExcel.Columns(interview_time_col).autofit()
 
 'VbOKCancel allows the user to review and confirm the scheduled appointments prior to case notes, TIKL's and MEMOs being sent
-recertificaiton_date_confirmation = MsgBox("Please review your Excel spreadsheet carefully to ensure that the dates and times are accurate." & vbNewLine & vbNewLine & "Press OK to confirm the dates and times of your scheduled appointments. Press cancel to stop the script.", vbOKCancel, "Please review and confirm")
+recertificaiton_date_confirmation = MsgBox("Please review your Excel spreadsheet carefully to ensure that the dates and times are accurate." & vbNewLine & vbNewLine & "Press OK to confirm the dates and times of your scheduled appointments. Press cancel to stop the script.", vbOKCancel + vbExclamation, "Please review and confirm")
 If recertificaiton_date_confirmation = vbCancel then script_end_procedure("The script has ended. No appointments have been scheduled, or appointment letters have been issued.")
 
 excel_row = 2					'resetting excel row to start reading at the top
@@ -666,13 +671,13 @@ DO 								'looping until it meets a blank excel cell without a case number
 	IF MAXIS_case_number = "" THEN EXIT DO      'exiting do if it finds a blank cell on the case number column
 
 	back_to_self
-	IF len(datepart("m", date)) = 1 THEN EMwritescreen "0" & datepart("m", date), 20, 43			'writing current month
-	EMwritescreen right(datepart("YYYY", date), 2), 20, 46		'writing current year
+	EMwritescreen CM_mo, 20, 43			'writing current month
+	EMwritescreen CM_yr, 20, 46		'writing current year
 	transmit
 
 	If county_code <> "x127" then
 		'Grabbing the phone number from ADDR
-		CALL navigate_to_screen("STAT", "ADDR")
+		CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 		EMReadScreen area_code, 3, 17, 45
 		EMReadScreen remaining_digits, 9, 17, 50
 		IF area_code = "___" THEN 'Reading phone 2 in case it is the only entered number
@@ -689,11 +694,11 @@ DO 								'looping until it meets a blank excel cell without a case number
 
 	back_to_self
 	If developer_mode = true Then
-		CALL navigate_to_screen("SPEC", "MEMO")
+		CALL navigate_to_MAXIS_screen("SPEC", "MEMO")
 		'Checking for AREP if found sending memo to them as well
 		'AREP/ALTP DISPLAY NOT CURRENTLY WORKING IN DEV MODE, THIS IS SOMETHING THAT SHOULD BE ADDED
 
-		Memo_to_display = "The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by " & left(cm_plus_1, 2) & "/08/" & right(cm_plus_1, 2) & vbNewLine &_
+		Memo_to_display = "The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by " & left(CM_plus_1_mo, 2) & "/08/" & right(CM_plus_1_yr, 2) & vbNewLine &_
 		"You must also do an interview for your SNAP case to continue. Your phone interview is scheduled for " & interview_time & "." & vbNewLine
 		IF county_code = "x127" then    'allows for county 27 to have clients call them.
 			Memo_to_display = Memo_to_display & "The phone number for you to call is " & contact_phone_number & "."
@@ -730,14 +735,16 @@ DO 								'looping until it meets a blank excel cell without a case number
 
 		msgbox Case_note_to_display
 
-		tikl_date = DatePart("M", interview_time) & "/" & DatePart("D", interview_time) & "/" & DatePart("YYYY", interview_time)
+        IF len(datepart("M", interview_time)) = 1 THEN interview_time = "0" & datepart("M", interview_time)	    'ensuring interview date's month is 2 digits
+        IF len(datepart("D", interview_time)) = 1 THEN interview_time = "0" & datepart("D", interview_time)	    'ensuring interview date's day is 2 digits
+		tikl_date = DatePart("M", interview_time) & "/" & DatePart("D", interview_time) & "/" & right(DatePart("YYYY", interview_time), 2)
 
-		MsgBox "Dail: ~*~*~CLIENT HAD RECERT INTERVIEW APPT AT " & interview_time & ". IF MISSED SEND NOMI." & vbNewLine &_
+		MsgBox MAXIS_case_number & vbnewLine & "Dail: ~*~*~CLIENT HAD RECERT INTERVIEW APPT AT " & interview_time & ". IF MISSED SEND NOMI." & vbNewLine & _
 			"tikl date: " & tikl_date
 	
 	ELSE			'ELSE in this case is LIVE cases, not testing in developer mode
 	 
-		CALL navigate_to_screen("SPEC", "MEMO")
+		CALL navigate_to_MAXIS_screen("SPEC", "MEMO")
 		PF5
 		EMReadScreen memo_display_check, 12, 2, 33
 		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
@@ -747,9 +754,9 @@ DO 								'looping until it meets a blank excel cell without a case number
 		EMSearch "ALTREP", row, col
 		IF row > 4 THEN
 			arep_row = row
-			CALL navigate_to_screen("STAT", "AREP")
+			CALL navigate_to_MAXIS_screen("STAT", "AREP")
 			EMReadscreen forms_to_arep, 1, 10, 45
-			call navigate_to_screen("SPEC", "MEMO")
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")
 			PF5
 		END IF
 		
@@ -759,9 +766,9 @@ DO 								'looping until it meets a blank excel cell without a case number
 		EMSearch "SOCWKR", row, col
 		IF row > 4 THEN
 			swkr_row = row
-			call navigate_to_screen("STAT", "SWKR")
+			call navigate_to_MAXIS_screen("STAT", "SWKR")
 			EMReadscreen forms_to_swkr, 1, 15, 63
-			call navigate_to_screen("SPEC", "MEMO")
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")
 			PF5
 		END IF
 		
@@ -771,7 +778,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 		transmit
 		'Writing the appointment and letter into a memo
 		EMSendKey("************************************************************")
-		CALL write_variable_in_SPEC_MEMO("The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by " & left(cm_plus_1, 2) & "/08/" & right(cm_plus_1, 2) & ".")
+		CALL write_variable_in_SPEC_MEMO("The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by " & left(CM_plus_1_mo, 2) & "/08/" & right(CM_plus_1_yr, 2) & ".")
 		CALL write_variable_in_SPEC_MEMO("")
 		CALL write_variable_in_SPEC_MEMO("You must also do an interview for your SNAP case to continue.")
 		CALL write_variable_in_SPEC_MEMO("")
