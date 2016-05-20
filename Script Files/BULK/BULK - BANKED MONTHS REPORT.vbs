@@ -683,6 +683,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		abawd_info_list = ""
 		second_counted_months_string = ""
 		second_set_info_list = ""
+		banked_months_list = ""
 	End If
 Next	
 '-----------------------------------END OF WREG PIECE---------------------------------------------------------------
