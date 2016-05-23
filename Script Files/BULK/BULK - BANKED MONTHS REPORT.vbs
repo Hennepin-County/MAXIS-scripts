@@ -626,14 +626,14 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 			EMReadScreen last_page_check, 21, 24, 2	'Checking for the last page of cases.
 		Loop until last_page_check = "THIS IS THE LAST PAGE" OR notes_exist <> "_"
 
+		Dim PNOTE_array
+		Dim Filter_array
+
 		'declaring & splitting for the person note cases
 		banked_months_list = trim(banked_months_list)
 		if right(banked_months_list, 1) = "," then banked_months_list = left(banked_months_list, len(banked_months_list) - 1)
 		'created new array of the banked months list cases
 		PNOTE_array = Split(banked_months_list, ",")
-
-		Dim PNOTE_array
-		Dim Filter_array
 
 		For each PNOTE in PNOTE_array	'This will remove any counted month that was actually a banked month'
 			Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
@@ -683,6 +683,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		abawd_info_list = ""
 		second_counted_months_string = ""
 		second_set_info_list = ""
+		banked_months_list = ""
 	End If
 Next	
 '-----------------------------------END OF WREG PIECE---------------------------------------------------------------
