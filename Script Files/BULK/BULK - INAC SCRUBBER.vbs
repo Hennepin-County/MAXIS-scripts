@@ -1,13 +1,18 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - INAC SCRUBBER.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 169                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
+
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +21,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 169                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
 
 'THE FOLLOWING VARIABLE IS DYNAMICALLY DETERMINED BY THE PRESENCE OF DATA IN CLS_x1_number. IT WILL BE ADDED DYNAMICALLY TO THE DIALOG BELOW.
 If CLS_x1_number <> "" then CLS_dialog_string = "**This script will XFER cases in REPT/INAC to " & CLS_x1_number & ".**"
@@ -66,8 +55,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	BeginDialog INAC_scrubber_dialog, 0, 0, 206, 162, "INAC scrubber dialog"
 	EditBox 80, 80, 80, 15, worker_signature
 	EditBox 145, 100, 60, 15, worker_number
-	EditBox 55, 120, 35, 15, footer_month
-	EditBox 145, 120, 35, 15, footer_year
+	EditBox 55, 120, 35, 15, MAXIS_footer_month
+	EditBox 145, 120, 35, 15, MAXIS_footer_year
 	ButtonGroup ButtonPressed
 		OkButton 45, 140, 50, 15
 		CancelButton 110, 140, 50, 15
@@ -83,7 +72,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	'THE SCRIPT----------------------------------------------------------------------------------------------------
 	EMConnect ""
 	
-	'Shows the dialog, requires 7 digits for worker number, a worker signature, a footer_month and year. Contains developer mode to bypass case noting and XFERing.
+	'Shows the dialog, requires 7 digits for worker number, a worker signature, a MAXIS_footer_month and year. Contains developer mode to bypass case noting and XFERing.
 	Do
 		Do
 			Do
@@ -100,23 +89,23 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			Loop until len(worker_number) = 7
 			If worker_signature = "" and developer_mode = False then MsgBox "You must sign your case notes!"	'Must sign case notes, or be in developer mode which does not case note.
 		Loop until worker_signature <> "" or developer_mode = True
-		If footer_month = "" or footer_year = "" then MsgBox "You must provide a footer month and year!"
-	Loop until footer_month <> "" and footer_year <> ""
+		If MAXIS_footer_month = "" or MAXIS_footer_year = "" then MsgBox "You must provide a footer month and year!"
+	Loop until MAXIS_footer_month <> "" and MAXIS_footer_year <> ""
 	
 	
 	'Converts system/footer month and year to a MAXIS-appropriate number, for validation
 	current_system_month = DatePart("m", Now)
 	If len(current_system_month) = 1 then current_system_month = "0" & current_system_month
 	current_system_year = DatePart("yyyy", Now) - 2000
-	If len(footer_month) <> 2 or isnumeric(footer_month) = False or footer_month > 13 or len(footer_year) <> 2 or isnumeric(footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
-	footer_month_first_day = footer_month & "/01/" & footer_year
+	If len(MAXIS_footer_month) <> 2 or isnumeric(MAXIS_footer_month) = False or MAXIS_footer_month > 13 or len(MAXIS_footer_year) <> 2 or isnumeric(MAXIS_footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
+	footer_month_first_day = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 	date_compare = datediff("d", footer_month_first_day, date)
 	If date_compare < 0 then script_end_procedure("You appear to have entered a future month and year. The script will now stop.")
-	If cint(current_system_month) = cint(footer_month) and cint(footer_year) = cint(current_system_year) AND developer_mode = False then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
+	If cint(current_system_month) = cint(MAXIS_footer_month) and cint(MAXIS_footer_year) = cint(current_system_year) AND developer_mode = False then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
 	
 	'Warning message before executing
 	warning_message = MsgBox(	"Worker: " & worker_number & vbCr & _
-								"Footer month/year: " & footer_month & "/" & footer_year & vbCr & _
+								"Footer month/year: " & MAXIS_footer_month & "/" & MAXIS_footer_year & vbCr & _
 								vbCr & _
 								"This script will case note EACH case on the above REPT/INAC, in the selected footer month, and XFER to " & CLS_x1_number & ", under the following conditions:" & vbCr & _
 								"   " & chr(183) & " Case has no open HC on this case number. " & vbCr & _
@@ -133,11 +122,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 								"Please press OK to continue, or cancel to exit the script.", vbOKCancel)
 	If warning_message = vbCancel then stopscript
 	
-	'Connects to MAXIS
+	'Connects to (and checks for) MAXIS
 	EMConnect ""
-	
-	'It sends an enter to force the screen to refresh, in order to check for a password prompt.
-	MAXIS_check_function
+	check_for_MAXIS(True)
 	
 	'Gets back to SELF
 	back_to_self
@@ -167,8 +154,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	'Enters REPT/INAC under the specific footer month and year, clearing any case number currently loaded.
 	EMWriteScreen "REPT", 16, 43
 	EMWriteScreen "________", 18, 43
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	EMWriteScreen "INAC", 21, 70
 	transmit
 	
@@ -224,21 +211,21 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	'This loop grabs the case number, client name, and inac date for each case.
 	Do
 		Do
-			EMReadScreen case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
+			EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
 			EMReadScreen client_name, 25, MAXIS_row, 14
 			EMReadScreen inac_date, 8, MAXIS_row, 49
 			EMReadScreen appl_date, 8, MAXIS_row, 39
-			case_number = Trim(case_number)                    'Then it trims the spaces from the edges of each. 
+			MAXIS_case_number = Trim(MAXIS_case_number)                    'Then it trims the spaces from the edges of each. 
 			client_name = Trim(client_name)
 			inac_date = Trim(inac_date)
 			appl_date = Trim(appl_date)
 			If appl_date <> inac_date then                     'Because if the two dates equal each other, then this is a denial and not a case closure.
 				
-				'Adds case info to an array. Uses tildes to differentiate the case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
+				'Adds case info to an array. Uses tildes to differentiate the MAXIS_case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
 				If INAC_info_array = "" then
-					INAC_info_array = case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = MAXIS_case_number & "~" & client_name & "~" & inac_date
 				Else
-					INAC_info_array = INAC_info_array & "|" & case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = INAC_info_array & "|" & MAXIS_case_number & "~" & client_name & "~" & inac_date
 				End if
 			End if
 			MAXIS_row = MAXIS_row + 1
@@ -260,8 +247,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'Assigns info to the array. If developer_mode is on, it'll also add to an Excel spreadsheet
 	For x = 0 to total_cases
-		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (case_number, client_name, INAC_date)
-		INAC_scrubber_primary_array(x, 0) = interim_array(0)	'The case_number
+		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (MAXIS_case_number, client_name, INAC_date)
+		INAC_scrubber_primary_array(x, 0) = interim_array(0)	'The MAXIS_case_number
 		INAC_scrubber_primary_array(x, 1) = interim_array(1)	'The client_name
 		INAC_scrubber_primary_array(x, 2) = interim_array(2)	'The inac_date
 		If developer_mode = True then 
@@ -279,9 +266,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'Grabs any claims due for each case. Adds to Excel if developer_mode = True
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array(x, 0)
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		EMWriteScreen "________", 4, 8
-		EMWriteScreen case_number, 4, 8
+		EMWriteScreen MAXIS_case_number, 4, 8
 		transmit
 		EMReadScreen claims_due, 10, 19, 58
 		INAC_scrubber_primary_array(x, 3) = claims_due
@@ -290,29 +277,29 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'Entering claims into the Word doc
 	For x = 0 to total_cases
-		'Grabbing the case_number, client_name, and claims_due from the array
-		case_number = INAC_scrubber_primary_array(x, 0)
+		'Grabbing the MAXIS_case_number, client_name, and claims_due from the array
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		client_name = INAC_scrubber_primary_array(x, 1)
 		claims_due = INAC_scrubber_primary_array(x, 3)
 		
 		'If there's a claim due, it'll add to the Word doc
 		If claims_due <> 0 then 
-			objselection.typetext case_number & ": " & client_name & "; amount due: $" & claims_due
+			objselection.typetext MAXIS_case_number & ": " & client_name & "; amount due: $" & claims_due
 			objselection.TypeParagraph()
 		End if
 	Next
 	
-	'Navigating to the DAIL (Goes back to self as there are issues in CCOL/CLIC with the direct navigate_to_screen)
+	'Navigating to the DAIL (Goes back to self as there are issues in CCOL/CLIC with the direct navigate_to_MAXIS_screen)
 	back_to_SELF
-	call navigate_to_screen("DAIL", "DAIL")
+	call navigate_to_MAXIS_screen("DAIL", "DAIL")
 	
 	
 	
 	'This checks the DAIL for messages, sends a variable to the array. We don't transfer cases with DAIL messages. (True for "has DAIL", False for "doesn't have DAIL")
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array(x, 0)		'Grabbing case number
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)		'Grabbing case number
 		EMWriteScreen "________", 20, 38
-		EMWriteScreen case_number, 20, 38
+		EMWriteScreen MAXIS_case_number, 20, 38
 		transmit
 		EMReadScreen DAIL_check, 1, 5, 5
 		If DAIL_check <> " " then 
@@ -334,11 +321,11 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	For x = 0 to total_cases
 		
 		'Grabbing case number and name for this loop
-		case_number = INAC_scrubber_primary_array(x, 0)	
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)	
 		client_name = INAC_scrubber_primary_array(x, 1)	
 		
 		'Gets to MEMB
-		call navigate_to_screen("STAT", "MEMB")
+		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		
 		'Checks to make sure we're past SELF. If we aren't, it'll save that the case is privileged (most likely cause) in the array.
 		EMReadScreen SELF_check, 4, 2, 50
@@ -365,10 +352,10 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			Loop until no_more_MEMBs_check = "ENTER A VALID COMMAND OR PF-KEY"
 			
 			'Goes to ABPS to check good cause. Good cause will not hang the case from being sent to CLS, as such, it does not get entered in the array (just the Word doc).
-			call navigate_to_screen("STAT", "ABPS")
+			call navigate_to_MAXIS_screen("STAT", "ABPS")
 			EMReadScreen good_cause_check, 1, 5, 47
 			If good_cause_check = "P" then
-				objselection.typetext case_number & ", " & client_name
+				objselection.typetext MAXIS_case_number & ", " & client_name
 				objselection.TypeParagraph()
 			End if
 		End if
@@ -524,21 +511,21 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'This do...loop updates case notes for all of the cases that don't have DAIL messages or cases still open in MMIS
 	For x = 0 to total_cases
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		DAILS_out = INAC_scrubber_primary_array(x, 4)
 		MMIS_status = INAC_scrubber_primary_array(x, 5)
 		privileged_status = INAC_scrubber_primary_array(x, 7)
 	
 		'Adds the case number to word doc if MMIS is active
 		If MMIS_status = true Then
-			objselection.typetext case_number
+			objselection.typetext MAXIS_case_number
 			objselection.TypeParagraph()
 		End If
 	
 		'Checking to determine that the client is a MAGI that closed for no or incomplete review. If that is the case, then the script does not transfer the client to CLS
 		IF INAC_scrubber_primary_array(x, 8) = True THEN
-			CALL navigate_to_screen("CASE", "CURR")
+			CALL navigate_to_MAXIS_screen("CASE", "CURR")
 			EMWriteScreen "X", 4, 9
 			transmit
 	
@@ -551,7 +538,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 			inac_month = replace(inac_month, " ", "/")
 			IF closure_reason = "NO REVIEW" AND inac_month = closure_date THEN 
 				INAC_scrubber_primary_array(x, 8) = True
-				objSelection.typetext case_number & ": case has MAGI HC client(s) that closed for incomplete or no review."
+				objSelection.typetext MAXIS_case_number & ": case has MAGI HC client(s) that closed for incomplete or no review."
 				objSelection.TypeParagraph()
 			ELSE
 				INAC_scrubber_primary_array(x, 8) = False
@@ -563,32 +550,32 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 		back_to_self
 		'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False  AND INAC_scrubber_primary_array(x, 8) = False then
-			call navigate_to_screen("CASE", "NOTE")
+			call navigate_to_MAXIS_screen("CASE", "NOTE")
 			PF9
 			If developer_mode = False then
-				call write_new_line_in_case_note("--------------------Case is closed--------------------")
-				call write_new_line_in_case_note("* Reviewed closed case for claims via automated script.")
-				If CLS_x1_number <> "" then call write_new_line_in_case_note("* XFERed to " & CLS_x1_number & ".")
-				call write_new_line_in_case_note("---")
-				call write_new_line_in_case_note(worker_signature & ", via automated script.")
+				call write_variable_in_case_note("--------------------Case is closed--------------------")
+				call write_variable_in_case_note("* Reviewed closed case for claims via automated script.")
+				If CLS_x1_number <> "" then call write_variable_in_case_note("* XFERed to " & CLS_x1_number & ".")
+				call write_variable_in_case_note("---")
+				call write_variable_in_case_note(worker_signature & ", via automated script.")
 			Else
 				'case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
 				If case_note_box = vbCancel then stopscript
 			End if
 		End if
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False AND INAC_scrubber_primary_array(x, 8) = True then
-			call navigate_to_screen("CASE", "NOTE")
+			call navigate_to_MAXIS_screen("CASE", "NOTE")
 			PF9
-			tikl_date = dateadd("M", 4, (footer_month & "/01/" & footer_year))
+			tikl_date = dateadd("M", 4, (MAXIS_footer_month & "/01/" & MAXIS_footer_year))
 			last_rein_date = dateadd("D", -1, tikl_date)
 			IF developer_mode = False THEN
-				CALL write_new_line_in_case_note("-----ALL PROGRAMS INACTIVE-----")
-				CALL write_new_line_in_case_note("* Not transfering to Closed Cases because of current MAGI rules")
-				CALL write_new_line_in_case_note("* Last HC REIN Date for MAGI client: " & last_rein_date)
-				CALL write_new_line_in_case_note("---")
-				CALL write_new_line_in_case_note(worker_signature)
+				CALL write_variable_in_case_note("-----ALL PROGRAMS INACTIVE-----")
+				CALL write_variable_in_case_note("* Not transfering to Closed Cases because of current MAGI rules")
+				CALL write_variable_in_case_note("* Last HC REIN Date for MAGI client: " & last_rein_date)
+				CALL write_variable_in_case_note("---")
+				CALL write_variable_in_case_note(worker_signature)
 	
-				CALL navigate_to_screen("DAIL", "WRIT")
+				CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 				CALL create_maxis_friendly_date(tikl_date, 0, 5, 18)
 				EMWriteScreen ("IF CASE IS INACTIVE TRANSFER TO CLOSED - " & CLS_x1_number), 9, 3
 				transmit
@@ -614,8 +601,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 	
 	'This do...loop transfers the cases to the CLS_x1_number.
 	For x = 0 to total_cases
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
 		DAILS_out = INAC_scrubber_primary_array(x, 4)
 		MMIS_status = INAC_scrubber_primary_array(x, 5)
 		privileged_status = INAC_scrubber_primary_array(x, 7)
@@ -627,7 +614,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False AND INAC_scrubber_primary_array(x, 8) = False then
 			EMWriteScreen "SPEC", 16, 43
 			EMWriteScreen "________", 18, 43
-			EMWriteScreen case_number, 18, 43
+			EMWriteScreen MAXIS_case_number, 18, 43
 			EMWriteScreen "XFER", 21, 70
 			transmit
 			If developer_mode = False then
@@ -658,8 +645,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	BeginDialog INAC_scrubber_dialog, 0, 0, 211, 165, "INAC scrubber dialog"
 	EditBox 80, 80, 80, 15, worker_signature
 	EditBox 145, 100, 60, 15, worker_number
-	EditBox 55, 120, 35, 15, footer_month
-	EditBox 145, 120, 35, 15, footer_year
+	EditBox 55, 120, 35, 15, MAXIS_footer_month
+	EditBox 145, 120, 35, 15, MAXIS_footer_year
 	ButtonGroup ButtonPressed
 		OkButton 45, 140, 50, 15
 		CancelButton 110, 140, 50, 15
@@ -673,7 +660,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	EndDialog
 	
 	'THE SCRIPT----------------------------------------------------------------------------------------------------
-	'Shows the dialog, requires 7 digits for worker number, a worker signature, a footer_month and year. Contains developer mode to bypass case noting and XFERing.
+	'Shows the dialog, requires 7 digits for worker number, a worker signature, a MAXIS_footer_month and year. Contains developer mode to bypass case noting and XFERing.
 	Do
 		Do
 			Do
@@ -690,8 +677,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 			Loop until len(worker_number) = 7
 			If worker_signature = "" and developer_mode = False then MsgBox "You must sign your case notes!"	'Must sign case notes, or be in developer mode which does not case note.
 		Loop until worker_signature <> "" or developer_mode = True
-		If footer_month = "" or footer_year = "" then MsgBox "You must provide a footer month and year!"
-	Loop until footer_month <> "" and footer_year <> ""
+		If MAXIS_footer_month = "" or MAXIS_footer_year = "" then MsgBox "You must provide a footer month and year!"
+	Loop until MAXIS_footer_month <> "" and MAXIS_footer_year <> ""
 	
 	'Converts worker number to the MAXIS friendly all-caps
 	worker_number = UCase(worker_number)
@@ -700,15 +687,15 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	current_system_month = DatePart("m", Now)
 	If len(current_system_month) = 1 then current_system_month = "0" & current_system_month
 	current_system_year = DatePart("yyyy", Now) - 2000
-	If len(footer_month) <> 2 or isnumeric(footer_month) = False or footer_month > 13 or len(footer_year) <> 2 or isnumeric(footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
-	footer_month_first_day = footer_month & "/01/" & footer_year
+	If len(MAXIS_footer_month) <> 2 or isnumeric(MAXIS_footer_month) = False or MAXIS_footer_month > 13 or len(MAXIS_footer_year) <> 2 or isnumeric(MAXIS_footer_year) = False then script_end_procedure("Your footer month and year must be 2 digits and numeric. The script will now stop.")
+	footer_month_first_day = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 	date_compare = datediff("d", footer_month_first_day, date)
 	If date_compare < 0 then script_end_procedure("You appear to have entered a future month and year. The script will now stop.")
-	If cint(current_system_month) = cint(footer_month) and cint(footer_year) = cint(current_system_year) then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
+	If cint(current_system_month) = cint(MAXIS_footer_month) and cint(MAXIS_footer_year) = cint(current_system_year) then script_end_procedure("Do not use this script in the current footer month. These cases need to be in your REPT/INAC for 30 days. The script will now stop.")
 	
 	'Warning message before executing
 	warning_message = MsgBox(	"Worker: " & worker_number & vbCr & _
-								"Footer month/year: " & footer_month & "/" & footer_year & vbCr & _
+								"Footer month/year: " & MAXIS_footer_month & "/" & MAXIS_footer_year & vbCr & _
 								vbCr & _
 								"This script will case note EACH case on the above REPT/INAC, in the selected footer month, and XFER to " & CLS_x1_number & ", under the following conditions:" & vbCr & _
 								"   " & chr(183) & " Case has no open HC on this case number. " & vbCr & _
@@ -759,8 +746,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	'Enters REPT/INAC under the specific footer month and year, clearing any case number currently loaded.
 	EMWriteScreen "REPT", 16, 43
 	EMWriteScreen "________", 18, 43
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	EMWriteScreen "INAC", 21, 70
 	transmit
 	
@@ -814,21 +801,21 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	'This loop grabs the case number, client name, and inac date for each case.
 	Do
 		Do
-			EMReadScreen case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
+			EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3          'First it reads the case number, name, date they closed, and the APPL date.
 			EMReadScreen client_name, 25, MAXIS_row, 14
 			EMReadScreen inac_date, 8, MAXIS_row, 49
 			EMReadScreen appl_date, 8, MAXIS_row, 39
-			case_number = Trim(case_number)                    'Then it trims the spaces from the edges of each.
+			MAXIS_case_number = Trim(MAXIS_case_number)                    'Then it trims the spaces from the edges of each.
 			client_name = Trim(client_name)
 			inac_date = Trim(inac_date)
 			appl_date = Trim(appl_date)
 			If appl_date <> inac_date then                     'Because if the two dates equal each other, then this is a denial and not a case closure.
 	
-				'Adds case info to an array. Uses tildes to differentiate the case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
+				'Adds case info to an array. Uses tildes to differentiate the MAXIS_case_number, client_name, and inac_date. Uses vert lines to differentiate entries. Will be fleshed out later.
 				If INAC_info_array = "" then
-					INAC_info_array = case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = MAXIS_case_number & "~" & client_name & "~" & inac_date
 				Else
-					INAC_info_array = INAC_info_array & "|" & case_number & "~" & client_name & "~" & inac_date
+					INAC_info_array = INAC_info_array & "|" & MAXIS_case_number & "~" & client_name & "~" & inac_date
 				End if
 			End if
 			MAXIS_row = MAXIS_row + 1
@@ -851,8 +838,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'Assigns info to the array. If developer_mode is on, it'll also add to an Excel spreadsheet
 	For x = 0 to total_cases
-		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (case_number, client_name, INAC_date)
-		INAC_scrubber_primary_array_2(x, 0) = interim_array(0)	'The case_number
+		interim_array = split(INAC_info_array(x), "~")			'This is a temporary array, and is always three objects (MAXIS_case_number, client_name, INAC_date)
+		INAC_scrubber_primary_array_2(x, 0) = interim_array(0)	'The MAXIS_case_number
 		INAC_scrubber_primary_array_2(x, 1) = interim_array(1)	'The client_name
 		INAC_scrubber_primary_array_2(x, 2) = interim_array(2)	'The inac_date
 		If developer_mode = True then
@@ -869,9 +856,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'Grabs any claims due for each case. Adds to Excel if developer_mode = True
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		EMWriteScreen "________", 4, 8
-		EMWriteScreen case_number, 4, 8
+		EMWriteScreen MAXIS_case_number, 4, 8
 		transmit
 		EMReadScreen claims_due, 10, 19, 58
 		INAC_scrubber_primary_array_2(x, 3) = claims_due
@@ -880,14 +867,14 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'Entering claims into the Word doc
 	For x = 0 to total_cases
-		'Grabbing the case_number, client_name, and claims_due from the array
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		'Grabbing the MAXIS_case_number, client_name, and claims_due from the array
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		client_name = INAC_scrubber_primary_array_2(x, 1)
 		claims_due = INAC_scrubber_primary_array_2(x, 3)
 	
 		'If there's a claim due, it'll add to the Word doc
 		If claims_due <> 0 then
-			objselection.typetext case_number & ": " & client_name & "; amount due: $" & claims_due
+			objselection.typetext MAXIS_case_number & ": " & client_name & "; amount due: $" & claims_due
 			objselection.TypeParagraph()
 		End if
 	Next
@@ -898,9 +885,9 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'This checks the DAIL for messages, sends a variable to the array. We don't transfer cases with DAIL messages. (True for "has DAIL", False for "doesn't have DAIL")
 	For x = 0 to total_cases
-		case_number = INAC_scrubber_primary_array_2(x, 0)		'Grabbing case number
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)		'Grabbing case number
 		EMWriteScreen "________", 20, 38
-		EMWriteScreen case_number, 20, 38
+		EMWriteScreen MAXIS_case_number, 20, 38
 		transmit
 		EMReadScreen DAIL_check, 1, 5, 5
 		If DAIL_check <> " " then
@@ -923,7 +910,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	For x = 0 to total_cases
 	
 		'Grabbing case number and name for this loop
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		client_name = INAC_scrubber_primary_array_2(x, 1)
 	
 		'Gets to MEMB
@@ -957,7 +944,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 			call navigate_to_MAXIS_screen("STAT", "ABPS")
 			EMReadScreen good_cause_check, 1, 5, 47
 			If good_cause_check = "P" then
-				objselection.typetext case_number & ", " & client_name
+				objselection.typetext MAXIS_case_number & ", " & client_name
 				objselection.TypeParagraph()
 			End if
 		End if
@@ -1105,14 +1092,14 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	'This do...loop updates case notes for all of the cases that don't have DAIL messages or cases still open in MMIS
 	For x = 0 to total_cases
 	
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		DAILS_out = INAC_scrubber_primary_array_2(x, 4)
 		MMIS_status = INAC_scrubber_primary_array_2(x, 5)
 		privileged_status = INAC_scrubber_primary_array_2(x, 7)
 			'Adds the case number to word doc if MMIS is active
 		If MMIS_status = true Then
-			objselection.typetext case_number
+			objselection.typetext MAXIS_case_number
 			objselection.TypeParagraph()
 		End If
 	
@@ -1148,8 +1135,8 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 	
 	'This do...loop transfers the cases to the CLS_x1_number.
 	For x = 0 to total_cases
-		'Grabs case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-		case_number = INAC_scrubber_primary_array_2(x, 0)
+		'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+		MAXIS_case_number = INAC_scrubber_primary_array_2(x, 0)
 		DAILS_out = INAC_scrubber_primary_array_2(x, 4)
 		MMIS_status = INAC_scrubber_primary_array_2(x, 5)
 		privileged_status = INAC_scrubber_primary_array_2(x, 7)
@@ -1161,7 +1148,7 @@ IF MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE THEN
 		If privileged_status <> True and DAILS_out = False and MMIS_status = False then
 			EMWriteScreen "SPEC", 16, 43
 			EMWriteScreen "________", 18, 43
-			EMWriteScreen case_number, 18, 43
+			EMWriteScreen MAXIS_case_number, 18, 43
 			EMWriteScreen "XFER", 21, 70
 			transmit
 			If developer_mode = False then

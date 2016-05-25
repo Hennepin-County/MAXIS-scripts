@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTICES - APPOINTMENT LETTER.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 195                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 195                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
 
 'CLASSES----------------------------------------------------------------------------------------------------------------------
 'IF THIS WORKS, CONSIDER INCORPORATING INTO FUNCTIONS LIBRARY
@@ -75,7 +63,7 @@ end class
 'Declaring variables needed by the script
 'First, determining the county code. If it isn't declared, it will ask (proxy)
 
-call worker_county_code_determination(worker_county_code, two_digit_county_code_variable)
+get_county_code
 
 
 if worker_county_code = "x101" then
@@ -268,7 +256,7 @@ call convert_array_to_droplist_items(agency_office_array, county_office_list)
 'NOTE: this dialog contains a special modification to allow dynamic creation of the county office list. You cannot edit it in
 '   Dialog Editor without modifying the commented line.
 BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
-  EditBox 75, 5, 50, 15, case_number
+  EditBox 75, 5, 50, 15, MAXIS_case_number
   DropListBox 50, 25, 95, 15, "new application"+chr(9)+"recertification", app_type
   CheckBox 10, 43, 150, 10, "Check here if this is a reschedule.", reschedule_check
   EditBox 50, 55, 95, 15, CAF_date
@@ -305,7 +293,7 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 'restricting the usage for Hennepin County users
 If worker_county_code = "x127" then script_end_procedure ("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user, or your supervisor if you have questions. Thank you.")
 
@@ -322,8 +310,8 @@ DO
 	                            Do
 	                                Dialog appointment_letter_dialog
 	                                If ButtonPressed = cancel then stopscript
-	                                If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-	                            Loop until isnumeric(case_number) = True and len(case_number) <= 8
+	                                If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+	                            Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 	                            CAF_date = replace(CAF_date, ".", "/")
 	                            If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
 	                            If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
@@ -873,7 +861,7 @@ If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = i
 
 'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
 Do
-	call navigate_to_screen("STAT", "SUMM")
+	call navigate_to_MAXIS_screen("STAT", "SUMM")
 	EMReadScreen month_check, 11, 24, 56 'checking for the error message when PND1 cases are not in APPL month
 	IF left(month_check, 5) = "CASES" THEN 'this means the case can't get into stat in current month
 		EMWriteScreen mid(month_check, 7, 2), 20, 43 'writing the correct footer month (taken from the error message)
@@ -1003,4 +991,3 @@ call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
-

@@ -8,10 +8,10 @@ STATS_denomination = "C"        'C is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -20,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -114,7 +104,7 @@ Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, eme
 	Call navigate_to_MAXIS_screen("REPT", "PND2")
 	row = 7
 	col = 5
-	EMSearch case_number, row, col      'finding correct case to check PND2 codes
+	EMSearch MAXIS_case_number, row, col      'finding correct case to check PND2 codes
 	'IF HC_check = checked Then
 	'	EMReadScreen HC_pnd2_code, 1, 7, 65
 	'	'IF HC_pnd2_code = 
@@ -140,7 +130,7 @@ End function
 'THE DIALOG----------------------------------------------------------------------------------------------------
 'This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
 BeginDialog denied_dialog, 0, 0, 401, 385 - dialog_shrink_amt, "Denied progs dialog"
-  EditBox 65, 5, 55, 15, case_number
+  EditBox 65, 5, 55, 15, MAXIS_case_number
   EditBox 185, 5, 55, 15, application_date
   CheckBox 60, 25, 35, 10, "SNAP", SNAP_check
   CheckBox 145, 25, 25, 10, "HC", HC_check
@@ -208,7 +198,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'SCRIPT CONNECTS, THEN FINDS THE CASE NUMBER
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Call check_for_MAXIS(True)
 
@@ -227,7 +217,7 @@ DO
 	cancel_confirmation
 	If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
 	If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
-	If case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
+	If MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
 	If application_date = "" THEN err_msg = err_msg & vbCr & "Please enter an application date."
 	If (SNAP_check = checked and SNAP_denial_date = "") or (SNAP_check = unchecked and SNAP_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked SNAP but not added a denial date, or vice versa." 
 	If (HC_check = checked and HC_denial_date = "") or (HC_check = unchecked and HC_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked HC but not added a denial date, or vice versa." 
@@ -248,6 +238,7 @@ DO
 	If (open_prog_check = checked and open_progs = "") and (open_prog_check = unchecked and open_progs <> "") THEN err_msg = err_msg & vbCr & "You checked that there are open/pending progs but didn't list them, or vice versa."
 	If (HH_membs_on_HC_check = checked and HH_membs_on_HC = "") and (HH_membs_on_HC_check = unchecked and HH_membs_on_HC <> "") THEN err_msg = err_msg & vbCr & "You checked that there are members open on HC but didn't list them, or vice versa."
 	If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+	coded_denial = "" 			'Reseting this value to make sure we are not duplicating the case note.
 	call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
 	If SNAP_pnd2_code = "R" and withdraw_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as R. Please select withdraw checkbox."
 	If SNAP_pnd2_code = "I" and denied_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as I. Please select deny from PND2 checkbox."
@@ -368,7 +359,7 @@ If emer_intake_date > intake_date and emer_check = 1 then intake_date = emer_int
 
 IF edit_notice_check = 1 THEN
 	notice_edited = false 'Resetting this variable
-	call navigate_to_screen("SPEC", "WCOM")
+	call navigate_to_MAXIS_screen("SPEC", "WCOM")
 	notice_month = DatePart("m", application_date) 'Entering the benefit month to find notices
 	IF len(notice_month) = 1 THEN notice_month = "0" & notice_month
 	EMWritescreen notice_month, 3, 46

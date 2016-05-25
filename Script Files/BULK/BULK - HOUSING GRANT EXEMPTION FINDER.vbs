@@ -8,10 +8,10 @@ STATS_denomination = "C"       			'C is for each CASE
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -20,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -47,6 +37,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'DIALOGS----------------------------------------------------------------------
 BeginDialog Housing_grant_exemption_finder_dialog, 0, 0, 218, 120, "Housing Grant Exemption Finder"
@@ -207,26 +200,26 @@ For each worker in worker_array
 					emps_status = "27" OR emps_status = "15" OR _
 					emps_status = "18" OR emps_status = "30" OR _
 					emps_status = "33" THEN
-						EMReadScreen case_number, 8, MAXIS_row, 6  	'Reading case number
+						EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6  	'Reading case number
 						EMReadScreen emps_status, 2, MAXIS_row, 52	'Reading emps_status
 						'if more than one HH member is on the list then non-MEMB 01's don't have a case number listed, this fixes that
-						If trim(case_number) = "" AND trim(client_name) <> "" then 			'if there's a name and no case number
+						If trim(MAXIS_case_number) = "" AND trim(client_name) <> "" then 			'if there's a name and no case number
 							EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6				'then it reads the row above
-							case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'
+							MAXIS_case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'
 						END IF
 
 						'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-						If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-						all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
-						If trim(case_number) = "" and trim(client_name) = "" then exit do			'Exits do if we reach the end
+						If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+						all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
+						If trim(MAXIS_case_number) = "" and trim(client_name) = "" then exit do			'Exits do if we reach the end
 
 					'add case/case information to Excel
         			ObjExcel.Cells(excel_row, 1).Value = worker
-        			ObjExcel.Cells(excel_row, 2).Value = case_number
+        			ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
     				ObjExcel.Cells(excel_row, 5).Value = emps_status
 					excel_row = excel_row + 1	'moving excel row to next row'
 					'Blanking out variable
-					case_number = ""
+					MAXIS_case_number = ""
 				END IF
 				MAXIS_row = MAXIS_row + 1	'adding one row to search for in MAXIS
 			Loop until MAXIS_row = 19
@@ -239,15 +232,15 @@ next
 'Now the script goes back into MFCM and grabs the member # and client name, then cchecks the potentially exempt members for subsidized housing
 excel_row = 2           're-establishing the row to start checking the members for
 Do
-	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case number to use for the case
+	MAXIS_case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case number to use for the case
 	Call navigate_to_MAXIS_screen("REPT", "MFCM")
 	EMWriteScreen "________", 20, 28					'clears case number
-	EMWriteScreen case_number, 20, 28					'enters case number
+	EMWriteScreen MAXIS_case_number, 20, 28					'enters case number
 	EMWriteScreen "x", 7, 36		'going into the SANC panel to get case info
 	transmit
 	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
 	If PRIV_check = "PRIV" then
-		priv_case_list = priv_case_list & "|" & case_number
+		priv_case_list = priv_case_list & "|" & MAXIS_case_number
 		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 		objRange.Delete				'row gets deleted since it will get added to the priv case list at end of script in col 20
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
@@ -267,7 +260,7 @@ Do
 
 	If len(memb_number) = 1 then memb_number = "0" & right(memb_number, 2)		'adds 0 to member number and reads the right 2 digits
 	client_name = trim(client_name)							'trims client name
-	If case_number = "" then exit do						'exits do if the case number is ""
+	If MAXIS_case_number = "" then exit do						'exits do if the case number is ""
 
 	ObjExcel.Cells(excel_row, 3).Value = client_name		'adds client name to Excel list
     ObjExcel.Cells(excel_row, 4).Value = memb_number		'adds client member number to Excel list
@@ -289,8 +282,8 @@ LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no mor
 'Now the script checks for MFIP start date, disa dates
 excel_row = 2           're-establishing the row to start checking the members for
 DO
-	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
-	If case_number = "" then exit do					'if case number is blank then exits do loop
+	MAXIS_case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
+	If MAXIS_case_number = "" then exit do					'if case number is blank then exits do loop
 	Call navigate_to_MAXIS_screen("STAT", "PROG")
 	'reading the MFIP start date
 	EMReadScreen prog_one, 2, 6, 67				'checking 1st line of CASH PROG for elig MFIP
@@ -338,11 +331,11 @@ LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is co
 'Now the script inputs the payment information from INQD/INQX
 excel_row = 2           're-establishing the row to start checking issuances for
 DO
-	case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
-	If case_number = "" then exit do
+	MAXIS_case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case numbers
+	If MAXIS_case_number = "" then exit do
 	back_to_self
 	EMWriteScreen "________", 18, 43				'blanking out case number
-	EMWriteScreen case_number, 18, 43				'adding case number
+	EMWriteScreen MAXIS_case_number, 18, 43				'adding case number
 	Call navigate_to_MAXIS_screen("MONY", "INQX")
 	EMWriteScreen CM_minus_11_mo, 6, 38		'entering footer month/year 11 months prior to see full year
 	EMWriteScreen CM_minus_11_yr, 6, 41
@@ -410,8 +403,8 @@ LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'looping until the list is co
 prived_case_array = split(priv_case_list, "|")
 excel_row = 2				'establishes the row to start writing the PRIV cases to
 
-FOR EACH case_number in prived_case_array
-	objExcel.cells(excel_row, 20).value = case_number		'inputs cases into Excel
+FOR EACH MAXIS_case_number in prived_case_array
+	objExcel.cells(excel_row, 20).value = MAXIS_case_number		'inputs cases into Excel
 	excel_row = excel_row + 1								'increases the row
 NEXT
 

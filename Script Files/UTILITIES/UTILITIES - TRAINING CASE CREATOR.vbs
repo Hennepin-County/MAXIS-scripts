@@ -54,11 +54,11 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	'Creates an array of the workers selected in the dialog
 	workers_to_XFER_cases_to = split(replace(workers_to_XFER_cases_to, " ", ""), ",")
 
-	'Creates a new two-dimensional array for assigning a worker to each case_number, and collecting the county code for each worker
+	'Creates a new two-dimensional array for assigning a worker to each MAXIS_case_number, and collecting the county code for each worker
 	Dim transfer_array()
 	ReDim transfer_array(ubound(case_number_array), 2)
 
-	'Assigns a case_number to each row in the first column of the array
+	'Assigns a MAXIS_case_number to each row in the first column of the array
 	For x = 0 to ubound(case_number_array)
 		transfer_array(x, 0) = case_number_array(x)
 	Next
@@ -77,7 +77,7 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 		If y > ubound(workers_to_XFER_cases_to) then y = 0	'Resets to allow the first worker in the array to get anonther one
 	Loop until x > ubound(case_number_array)
 
-	'--------Now, the array is two columns (case_number, worker_assigned)!
+	'--------Now, the array is two columns (MAXIS_case_number, worker_assigned)!
 
 '	'Script must figure out who the current worker is, and what agency they are with. This is vital because transferring within an agency uses different screens than inter-agency.
 '		'To do this, the script will start by analysing the current worker in REPT/ACTV.
@@ -87,7 +87,7 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	EMReadScreen current_user, 7, 22, 8
 
 	'Now, it will go to REPT/USER, and look up the county code for this individual.
-	call navigate_to_screen("REPT", "USER")
+	call navigate_to_MAXIS_screen("REPT", "USER")
 	EMWriteScreen current_user, 21, 12
 	transmit
 
@@ -107,8 +107,8 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 
 	'Now we actually transfer the cases. This for...next does the work (details in comments below)
 	For x = 0 to ubound(case_number_array)		'case_number_array is the same as the first col of the transfer_array
-		'Assigns the number from the array to the case_number variable
-		case_number = transfer_array(x, 0)
+		'Assigns the number from the array to the MAXIS_case_number variable
+		MAXIS_case_number = transfer_array(x, 0)
 
 		'Checks to make sure case isn't in background
 		MAXIS_background_check
@@ -124,7 +124,7 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 		back_to_SELF
 		EMWriteScreen "SPEC", 16, 43
 		EMWriteScreen "________", 18, 43
-		EMWriteScreen case_number, 18, 43
+		EMWriteScreen MAXIS_case_number, 18, 43
 		EMWriteScreen "XFER", 21, 70
 		transmit
 
@@ -340,16 +340,16 @@ For cases_to_make = 1 to how_many_cases_to_make
 	APPL_date = DateAdd("D", 0, APPL_date)
 
 	'Gets the footer month and year of the application off of the spreadsheet, enters into SELF and transmits (can only enter an application on APPL in the footer month of app)
-	footer_month = DatePart("M", APPL_date)
-	IF len(footer_month) = 1 THEN footer_month = "0" & footer_month
-	If right(footer_month, 1) = "/" then footer_month = "0" & left(footer_month, 1)		'Does this to account for single digit months
-	footer_year = right(APPL_date, 2)
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	MAXIS_footer_month = DatePart("M", APPL_date)
+	IF len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+	If right(MAXIS_footer_month, 1) = "/" then MAXIS_footer_month = "0" & left(MAXIS_footer_month, 1)		'Does this to account for single digit months
+	MAXIS_footer_year = right(APPL_date, 2)
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
 
 	'Goes to APPL function
-	call navigate_to_screen("APPL", "____")
+	call navigate_to_MAXIS_screen("APPL", "____")
 
 	'Enters info in APPL and transmits
 	call create_MAXIS_friendly_date(APPL_date, 0, 4, 63)
@@ -546,9 +546,9 @@ End if
 '========================================================================PND1 PANELS========================================================================
 
 
-For each case_number in case_number_array
+For each MAXIS_case_number in case_number_array
 	'Navigates into STAT. For PND1 cases, this will trigger workflow for adding the right panels.
-	call navigate_to_screen ("STAT", "____")
+	call navigate_to_MAXIS_screen ("STAT", "____")
 
 	'Transmits, to get to TYPE panel
 	transmit
@@ -685,12 +685,13 @@ If approve_case_dropdown = "no, but do TYPE/PROG/REVW" then
 End if
 '========================================================================PND2 PANELS========================================================================
 
-For each case_number in case_number_array
+For each MAXIS_case_number in case_number_array
 
 	'Navigates to STAT/SUMM for each case
-	call navigate_to_screen("STAT", "SUMM")
+	call navigate_to_MAXIS_screen("STAT", "SUMM")
 	MAXIS_background_check
-	ERRR_screen_check
+	EMReadScreen ERRR_check, 4, 2, 52	'Extra err handling in case the case was in background
+	If ERRR_check = "ERRR" then transmit
 
 	'Uses a for...next to enter each HH member's info (person based panels only
 	For current_memb = 1 to total_membs
@@ -1437,7 +1438,7 @@ For each case_number in case_number_array
 		'-------------------------------ACTUALLY FILLING OUT MAXIS
 
 		'Goes to STAT/MEMB to associate a SSN to each member, this will be useful for UNEA/MEDI panels
-		call navigate_to_screen("STAT", "MEMB")
+		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		EMWriteScreen reference_number, 20, 76
 		transmit
 		EMReadScreen SSN_first, 3, 7, 42
@@ -1995,19 +1996,19 @@ If approve_case_dropdown = "no, but enter all STAT panels needed to approve" the
 End if
 
 '========================================================================APPROVAL========================================================================
-FOR EACH case_number IN case_number_array
+FOR EACH MAXIS_case_number IN case_number_array
 	back_to_SELF
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
 
-	appl_date_month = footer_month
-	appl_date_year = footer_year
+	appl_date_month = MAXIS_footer_month
+	appl_date_year = MAXIS_footer_year
 
 	If cash_application = True then
 		'=====DETERMINING CASH PROGRAM =========
 		'This scans CASE CURR to find what type of cash program to approve.
-		call navigate_to_screen("case", "curr")
+		call navigate_to_MAXIS_screen("case", "curr")
 		DO
 			EMReadScreen cash_type, 4, 10, 3
 			cash_type = trim(cash_type)
@@ -2023,7 +2024,7 @@ FOR EACH case_number IN case_number_array
 			DO
 				back_to_SELF
 				EMWriteScreen "ELIG", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				EMWriteScreen "MFIP", 21, 70
@@ -2081,7 +2082,7 @@ FOR EACH case_number IN case_number_array
 		IF cash_type = "DWP" then
 			DO 'We need to put this all in a loop because MAXIS likes to have an error at the end that causes us to start over.
 				'===== Needs to send a WF1 referral before approval can be done =======
-				Call navigate_to_screen("INFC", "WORK")
+				Call navigate_to_MAXIS_screen("INFC", "WORK")
 				work_row = 7
 				EMReadScreen referral_sent, 2, 7, 72
 				IF referral_sent = "  " Then 'Makes sure the referral wasn't already sent, if it was it skips this
@@ -2107,7 +2108,7 @@ FOR EACH case_number IN case_number_array
 				DO
 					back_to_SELF
 					EMWriteScreen "ELIG", 16, 43
-					EMWriteScreen case_number, 18, 43
+					EMWriteScreen MAXIS_case_number, 18, 43
 					EMWriteScreen appl_date_month, 20, 43
 					EMWriteScreen appl_date_year, 20, 46
 					EMWriteScreen "DWP", 21, 70
@@ -2203,7 +2204,7 @@ FOR EACH case_number IN case_number_array
 			DO
 				back_to_SELF
 				EMWriteScreen "ELIG", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				EMWriteScreen "MSA", 21, 70
@@ -2265,7 +2266,7 @@ FOR EACH case_number IN case_number_array
 			DO
 				back_to_SELF
 				EMWriteScreen "FIAT", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				transmit
@@ -2375,7 +2376,7 @@ FOR EACH case_number IN case_number_array
 			IF SNAP_application = True THEN
 				back_to_SELF
 				EMWriteScreen "FIAT", 16, 43
-				EMWriteScreen case_number, 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
 				EMWriteScreen appl_date_month, 20, 43
 				EMWriteScreen appl_date_year, 20, 46
 				transmit
@@ -2467,7 +2468,7 @@ FOR EACH case_number IN case_number_array
 		DO
 			back_to_SELF
 			EMWriteScreen "ELIG", 16, 43
-			EMWriteScreen case_number, 18, 43
+			EMWriteScreen MAXIS_case_number, 18, 43
 			EMWriteScreen appl_date_month, 20, 43
 			EMWriteScreen appl_date_year, 20, 46
 			EMWriteScreen "FS", 21, 70
@@ -2550,7 +2551,7 @@ FOR EACH case_number IN case_number_array
 		'Approve HC, please.
 		'=====THE SCRIPT NEEDS TO GET AROUND ELIG/HC RESULTS BEING STUCK IN BACKGROUND
 		DO
-			call navigate_to_screen("ELIG", "HC")
+			call navigate_to_MAXIS_screen("ELIG", "HC")
 			hhmm_row = 8
 			DO
 				EMReadScreen no_version, 10, hhmm_row, 28
@@ -2773,7 +2774,7 @@ FOR EACH case_number IN case_number_array
 		'CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 		'
 		'
-		'CALL navigate_to_screen("CASE", "NOTE")
+		'CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 		'PF9
 		'IF cash_application = True THEN all_programs = all_programs & "CASH/"
 		'IF SNAP_application = True THEN all_programs = all_programs & "SNAP/"

@@ -1,14 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - ABAWD BANKED MONTHS FIATER.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 225                	'manual run time in seconds
+STATS_denomination = "C"       			'C is for each Case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -17,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 225                	'manual run time in seconds
-STATS_denomination = "C"       			'C is for each Case
-'END OF stats block=========================================================================================================
 
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
@@ -77,13 +64,12 @@ FUNCTION verif_confirm_message(verif, verif_name)
 END FUNCTION
 '-------------------------------END FUNCTIONS
 
-'Defining variables----------------------------------------------------------------------------------------------------
-'Dim gross_wages, busi_income, gross_RSDI, gross_SSI, gross_VA, gross_UC, gross_CS, gross_other
-'Dim deduction_FMED, deduction_DCEX, deduction_COEX
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 251, 230, "ABAWD BANKED MONTHS FIATER"
-  EditBox 105, 10, 60, 15, case_number
+  EditBox 105, 10, 60, 15, MAXIS_case_number
   EditBox 105, 30, 25, 15, initial_month
   EditBox 140, 30, 25, 15, initial_year
   ButtonGroup ButtonPressed
@@ -124,7 +110,7 @@ end class
 'The script----------------------------------------------------------------------------------------------------
 EMConnect ""
 call check_for_maxis(false)
-call maxis_case_number_finder(case_number)
+call maxis_case_number_finder(MAXIS_case_number)
 
 If worker_county_code = "x101" OR _
 		worker_county_code = "x115" OR _
@@ -140,15 +126,15 @@ DO
 	err_msg = ""
 	dialog case_number_dialog
 	If buttonpressed = 0 THEN stopscript
-	IF left(case_number, 10) <> "UUDDLRLRBA" AND isnumeric(case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
+	IF left(MAXIS_case_number, 10) <> "UUDDLRLRBA" AND isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
 	IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial month."
 	IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial year."
 	IF err_msg <> "" THEN msgbox err_msg & vbCr & "Please resolve to continue."
 LOOP UNTIL err_msg = ""
 
 'THIS ACTIVATES DEVELOPER MODE if Konami code is entered left of the case number
-IF left(case_number, 10) = "UUDDLRLRBA" THEN developer_mode = true
-case_number = replace(case_number, "UUDDLRLRBA", "") 'removing it so the case number works in the rest of the script
+IF left(MAXIS_case_number, 10) = "UUDDLRLRBA" THEN developer_mode = true
+MAXIS_case_number = replace(MAXIS_case_number, "UUDDLRLRBA", "") 'removing it so the case number works in the rest of the script
 
 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
 	'We will need to remove the string "/1/" from each element in the array
@@ -161,8 +147,8 @@ REDIM ABAWD_months_array(ubound(footer_month_array))	'Minus one because arrays
 check_for_maxis(true)
 
 'Need to make sure we start in the correct year for maxis'
-footer_month = initial_month
-footer_year = initial_year
+MAXIS_footer_month = initial_month
+MAXIS_footer_year = initial_year
 
 'Create hh_member_array
 call HH_member_custom_dialog(HH_member_array)
@@ -249,9 +235,9 @@ END IF
 
 'The following loop will take the script through each month in the package, from appl month. to CM+1
 For i = 0 to ubound(footer_month_array)
-	footer_month = datepart("m", footer_month_array(i)) 'Need to assign footer month / year each time through
-	if len(footer_month) = 1 THEN footer_month = "0" & footer_month
-	footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
+	MAXIS_footer_month = datepart("m", footer_month_array(i)) 'Need to assign footer month / year each time through
+	if len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
 
 	Set ABAWD_months_array(i) = new ABAWD_month_data
 
@@ -420,43 +406,49 @@ For i = 0 to ubound(footer_month_array)
 			call verif_confirm_message(unea_verif, "Unearned income")
 			EMReadScreen unea_end_date, 8, 7, 68
 			IF unea_end_date <> "__ __ __" THEN 'THere is a job end, determine whether it is prior to current footer month, if yes, don't count it.
-				IF datediff("d", footer_month & "/01/" & footer_year, replace(unea_end_date, " ", "/")) < 0 THEN unea_verif = "?" 'This will prevent the script from reading the panel on income that ended in past'
+				IF datediff("d", MAXIS_footer_month & "/01/" & MAXIS_footer_year, replace(unea_end_date, " ", "/")) < 0 THEN unea_verif = "?" 'This will prevent the script from reading the panel on income that ended in past'
 			END IF
 			IF unea_verif <> "?" THEN
 				If unea_type = "01" OR unea_type = "02" then '<<<<<< RSDI
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen rsdi_amount, 8, 18, 56
+					IF rsdi_amount = "        " THEN rsdi_amount = 0
 					gross_RSDI = abs(gross_RSDI) + abs(rsdi_amount)
 					transmit
 					ElseIf unea_type = "03" then 				'<<<<<< SSI
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen ssi_amount, 8, 18, 56
+					IF ssi_amount = "        " THEN ssi_amount = 0
 					gross_SSI = abs(gross_SSI) + abs(ssi_amount)
 					transmit
 					ElseIf unea_type = "11" OR unea_type = "12" OR unea_type = "13" OR unea_type = "38" then 	'<<<<<< VA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen va_amount, 8, 18, 56
+					IF va_amount = "        " THEN va_amount = 0
 					gross_VA = abs(gross_VA) + abs(va_amount)
 					transmit
 					ElseIf unea_type = "14" then 				'<<<<<< UC
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen uc_amount, 8, 18, 56
+					IF uc_amount = "        " THEN uc_amount = 0
 					gross_UC = abs(gross_UC) + abs(uc_amount)
 					transmit
 					ElseIf unea_type = "08" OR unea_type = "36" OR unea_type = "39" then 	'<<<<<< CS
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen cs_amount, 8, 18, 56
+					IF cs_amount = "        " THEN cs_amount = 0
 					gross_CS = abs(gross_CS) + abs(cs_amount)
 					transmit
 					ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" then 	'<<<<<< Other UNEA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen other_unea_amount, 8, 18, 56
+					IF other_unea_amount = "        " THEN other_unea_amount = 0
 					gross_other = abs(gross_other) + abs(other_unea_amount)
 					transmit
 					End If
@@ -478,7 +470,7 @@ For i = 0 to ubound(footer_month_array)
 				call verif_confirm_message(jobs_verified, "job")
 				income_counted = vbYes 'defaults to counted, the next statement will confirm certain income types'
 				IF job_end_date <> "__ __ __" THEN 'THere is a job end, determine whether it is prior to current footer month, if yes, don't count it.
-					IF datediff("d", footer_month & "/01/" & footer_year, replace(job_end_date, " ", "/")) < 0 THEN income_counted = false
+					IF datediff("d", MAXIS_footer_month & "/01/" & MAXIS_footer_year, replace(job_end_date, " ", "/")) < 0 THEN income_counted = false
 				END IF
 				IF jobs_verified = "?" or jobs_verified = "_?" THEN income_counted = false 'this will set to not counted if the user selected no on the verif_confirm popup'
 				If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
@@ -642,9 +634,9 @@ For i = 0 to ubound(footer_month_array)
 	'-----------------GO TO FIAT!---------------------------------
 	back_to_self
 	EMwritescreen "FIAT", 16, 43
-	EMWritescreen case_number, 18, 43
-	EMwritescreen footer_month, 20, 43
-	EMWritescreen footer_year, 20, 46
+	EMWritescreen MAXIS_case_number, 18, 43
+	EMwritescreen MAXIS_footer_month, 20, 43
+	EMWritescreen MAXIS_footer_year, 20, 46
 	transmit
 	EMReadscreen results_check, 4, 14, 46 'We need to make sure results exist, otherwise stop.
 	'IF results_check = "    " THEN script_end_procedure("The script was unable to find unapproved SNAP results for the benefit month, please check your case and try again.")
@@ -722,7 +714,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen ABAWD_months_array(i).HEST_phone, 11, 29
 		EMWriteScreen ABAWD_months_array(i).SHEL_other, 12, 29
 		'this enters the proration date in the initial month'
-		IF abs(footer_month) = abs(left(proration_date, 2)) THEN
+		IF abs(MAXIS_footer_month) = abs(left(proration_date, 2)) THEN
 			EMWriteScreen left(proration_date, 2), 11, 56
 			EMWriteScreen mid(proration_date, 4, 2), 11, 59
 			EMWriteScreen right(proration_date, 2), 11, 62

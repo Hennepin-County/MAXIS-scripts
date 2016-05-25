@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - MA-EPD EI FIAT.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 600                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,20 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 600                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
-'END OF stats block=========================================================================================================
-
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 current_month_plus_one = dateadd("m", 1, date)
 
-footer_month = datepart("m", current_month_plus_one)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
+MAXIS_footer_month = datepart("m", current_month_plus_one)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 
-footer_year = datepart("yyyy", current_month_plus_one)
-footer_year = footer_year - 2000
+MAXIS_footer_year = datepart("yyyy", current_month_plus_one)
+MAXIS_footer_year = MAXIS_footer_year - 2000
 
 current_month = datepart("m", date)
 If len(current_month) = 1 then current_month = "0" & current_month
@@ -66,12 +54,12 @@ current_year = datepart("yyyy", date)
 current_year = current_year - 2000
 
 current_month_and_year = current_month & "/" & current_year
-next_month_and_year = footer_month & "/" & footer_year
+next_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 'DIALOGS--------------------------------
 BeginDialog case_number_dialog, 0, 0, 156, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 90, 0, 60, 15, case_number
+  EditBox 90, 0, 60, 15, MAXIS_case_number
   Text 25, 25, 65, 10, "HH memb number:"
   EditBox 90, 20, 30, 15, memb_number
   ButtonGroup ButtonPressed
@@ -83,7 +71,7 @@ EndDialog
 
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 memb_number = "01" 'Setting a default
 
@@ -108,7 +96,12 @@ If jobs_current = "1" then
   If pay_freq_01 = "3" then frequency_job_01 = "3: every 2 weeks"
   If pay_freq_01 = "4" then frequency_job_01 = "4. every week"
   If pay_freq_01 = "5" then frequency_job_01 = "5. other (use monthly avg)"
-  EMWriteScreen "x", 19, 54
+  EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+  IF HC_income_est_check = "Est" Then 'this is the old position
+	EMWriteScreen "x", 19, 54
+  ELSE								'this is the new position
+	EMWriteScreen "x", 19, 48
+  END IF
   transmit
   EMReadScreen income_job_01, 8, 11, 63
   income_job_01 = trim(replace(income_job_01, "_", ""))
@@ -124,7 +117,12 @@ If jobs_current = "2" then
   If pay_freq_02 = "3" then frequency_job_02 = "3: every 2 weeks"
   If pay_freq_02 = "4" then frequency_job_02 = "4. every week"
   If pay_freq_02 = "5" then frequency_job_02 = "5. other (use monthly avg)"
-  EMWriteScreen "x", 19, 54
+  EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+  IF HC_income_est_check = "Est" Then 'this is the old position
+	EMWriteScreen "x", 19, 54
+  ELSE								'this is the new position
+	EMWriteScreen "x", 19, 48
+  END IF
   transmit
   EMReadScreen income_job_02, 8, 11, 63
   income_job_02 = trim(replace(income_job_02, "_", ""))
@@ -140,7 +138,12 @@ If jobs_current = "3" then
   If pay_freq_03 = "3" then frequency_job_03 = "3: every 2 weeks"
   If pay_freq_03 = "4" then frequency_job_03 = "4. every week"
   If pay_freq_03 = "5" then frequency_job_03 = "5. other (use monthly avg)"
-  EMWriteScreen "x", 19, 54
+  EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+  IF HC_income_est_check = "Est" Then 'this is the old position
+	EMWriteScreen "x", 19, 54
+  ELSE								'this is the new position
+	EMWriteScreen "x", 19, 48
+  END IF
   transmit
   EMReadScreen income_job_03, 8, 11, 63
   income_job_03 = trim(replace(income_job_03, "_", ""))

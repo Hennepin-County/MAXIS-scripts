@@ -1,4 +1,4 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - TARGETED SNAP REVIEW SELECTION.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
@@ -8,10 +8,10 @@ STATS_denomination = "C"       							'C is for each CASE
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -20,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -50,7 +40,7 @@ END IF
 
 'Defining classes-----------------------------
 Class case_attributes 'This class holds case-specific data
-	public case_number
+	public MAXIS_case_number
 	public SNAP_status
 	public worker_number
 	public benefit_level
@@ -101,7 +91,7 @@ EndDialog
 'THE SCRIPT-------------------------------------------------------------------------
 
 'Determining specific county for multicounty agencies...
-CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
+get_county_code
 
 'Connects to BlueZone
 EMConnect ""
@@ -175,25 +165,25 @@ For each worker in worker_array
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
 				EMReadScreen SNAP_status, 1, MAXIS_row, 61		'Reading SNAP status
 
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 
 				'Using if...thens to decide if a case should be added (status isn't blank or inactive and respective box is checked)
 
 				If SNAP_status = "A" and Active_check = checked then
 					redim preserve SNAP_active_array(sa_count)
 					set SNAP_active_array(sa_count) = new case_attributes
-					SNAP_active_array(sa_count).case_number = case_number
-				''	msgbox sa_count & " " & SNAP_active_array(sa_count).case_number & " " & ubound(SNAP_active_array)
+					SNAP_active_array(sa_count).MAXIS_case_number = MAXIS_case_number
+				''	msgbox sa_count & " " & SNAP_active_array(sa_count).MAXIS_case_number & " " & ubound(SNAP_active_array)
 					SNAP_active_array(sa_count).SNAP_status = SNAP_status
 					SNAP_active_array(sa_count).worker_number = worker
 					sa_count = sa_count+1
@@ -202,7 +192,7 @@ For each worker in worker_array
 				If SNAP_status = "I" and CAPER_check = checked then
 					redim preserve caper_array(ca_count)
 						set caper_array(ca_count) = new case_attributes
-					caper_array(ca_count).case_number = case_number
+					caper_array(ca_count).MAXIS_case_number = MAXIS_case_number
 					caper_array(ca_count).SNAP_status = SNAP_status
 					caper_array(ca_count).worker_number = worker
 					ca_count = ca_count + 1
@@ -210,7 +200,7 @@ For each worker in worker_array
 
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
-				case_number = ""			'Blanking out variable
+				MAXIS_case_number = ""			'Blanking out variable
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			Loop until MAXIS_row = 19
 			PF8
@@ -232,17 +222,17 @@ For each worker in worker_array
 		DO
 			MAXIS_row = 7
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 3		'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 14		'Reading client name
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 				redim preserve caper_array(ca_count)
 				set caper_array(ca_count) = new case_attributes
-				caper_array(ca_count).case_number = case_number
+				caper_array(ca_count).MAXIS_case_number = MAXIS_case_number
 				caper_array(ca_count).SNAP_status = SNAP_status
 				caper_array(ca_count).worker_number = worker
 				ca_count = ca_count + 1
@@ -299,11 +289,11 @@ caper_denial_total = 0
 caper_closure_total = 0
 
 For c = 0 to ubound(caper_array)
-	case_number = caper_array(c).case_number
+	MAXIS_case_number = caper_array(c).MAXIS_case_number
 	'Make sure in correct footer month, sometimes we drop back a month
-	footer_month = datepart("m", date)
-	IF len(footer_month) = 1 then footer_month = "0" & footer_month
-	footer_year = right(datepart("YYYY", date), 2)
+	MAXIS_footer_month = datepart("m", date)
+	IF len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+	MAXIS_footer_year = right(datepart("YYYY", date), 2)
 	call navigate_to_MAXIS_screen("CASE", "CURR") 'Case/curr first, to find inactive date and reason
 	EMWriteScreen "x", 4, 9
 
@@ -321,8 +311,8 @@ For c = 0 to ubound(caper_array)
 		IF inactive_reason = "DENIED" Then caper_array(c).inactive_reason = "denial"
 		IF inactive_reason = "CLOSED" or inactive_reason = "NO REV" THEN caper_array(c).inactive_reason = "REV/CSR"
 		If datediff("m", caper_array(c).inactive_date, date) <= 1 AND inactive_reason <> "CLOSED" AND inactive_reason <> "NO REV" Then
-			footer_month = left(inactive_date, 2)
-			footer_year = right(inactive, 2)
+			MAXIS_footer_month = left(inactive_date, 2)
+			MAXIS_footer_year = right(inactive, 2)
 			call navigate_to_MAXIS_screen("ELIG", "FS")
 
 			EMReadScreen version, 2, 2, 18 'Finding most recent approved version
@@ -346,7 +336,7 @@ For c = 0 to ubound(caper_array)
 			IF caper_array(c).failure_reason = "Verification" or caper_array(c).failure_reason = "PACT" THEN 'Add cases that meet criteria to excel'
 				IF caper_array(c).inactive_reason = "denial" THEN
 					ObjExcel.Worksheets("denials").cells(denial_row, 1).value = caper_array(c).worker_number
-					ObjExcel.Worksheets("denials").cells(denial_row, 2).value = caper_array(c).case_number
+					ObjExcel.Worksheets("denials").cells(denial_row, 2).value = caper_array(c).MAXIS_case_number
 					ObjExcel.Worksheets("denials").cells(denial_row, 3).value = caper_array(c).failure_reason
 					ObjExcel.Worksheets("denials").cells(denial_row, 4).value = caper_array(c).inactive_reason
 					denial_row = denial_row + 1
@@ -354,7 +344,7 @@ For c = 0 to ubound(caper_array)
 				END IF
 				IF caper_array(c).inactive_reason = "closure" THEN
 					ObjExcel.Worksheets("closures").cells(closure_row, 1).value = caper_array(c).worker_number
-					ObjExcel.Worksheets("closures").cells(closure_row, 2).value = caper_array(c).case_number
+					ObjExcel.Worksheets("closures").cells(closure_row, 2).value = caper_array(c).MAXIS_case_number
 					ObjExcel.Worksheets("closures").cells(closure_row, 3).value = caper_array(c).failure_reason
 					ObjExcel.Worksheets("closures").cells(closure_row, 4).value = caper_array(c).inactive_reason
 					closure_row = closure_row + 1
@@ -381,10 +371,10 @@ ObjExcel.Cells(1, 4).Font.Bold = TRUE
 excel_row = 2
 	For n = 0 to ubound(SNAP_active_array) 'to ubound(SNAP_active_array)
 		'Make sure in correct footer month, sometimes we drop back a month
-		footer_month = datepart("m", date)
-		IF len(footer_month) = 1 then footer_month = "0" & footer_month
-		footer_year = right(datepart("YYYY", date), 2)
-		case_number = SNAP_active_array(n).case_number
+		MAXIS_footer_month = datepart("m", date)
+		IF len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+		MAXIS_footer_year = right(datepart("YYYY", date), 2)
+		MAXIS_case_number = SNAP_active_array(n).MAXIS_case_number
 		call navigate_to_MAXIS_screen ("ELIG", "FS")
 		EMReadScreen version, 2, 2, 18 'Finding most recent approved version
 		For approved = version to 0 Step -1
@@ -425,7 +415,7 @@ excel_row = 2
 			'And add to spreadsheet if needed
 			IF snap_active_array(n).total_income > 250 AND snap_active_array(n).snap_grant > 50 THEN
 			objExcel.cells(excel_row, 1).value = snap_active_array(n).worker_number
-			objExcel.cells(excel_row, 2).value = case_number
+			objExcel.cells(excel_row, 2).value = MAXIS_case_number
 			objExcel.cells(excel_row, 3).value = snap_active_array(n).total_income
 			objExcel.cells(excel_row, 4).value = snap_active_array(n).snap_grant
 			active_criteria_total = active_criteria_total + 1

@@ -1,18 +1,17 @@
-'OPTION EXPLICIT
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - EMPLOYMENT PLAN OR STATUS UPDATE.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 90           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
-'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
-
-''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -21,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -48,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 90           'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
 
 'For agencies using the access es database, we need to collect the ES providers before dialog
 IF collecting_ES_statistics = TRUE THEN
@@ -81,11 +64,11 @@ BeginDialog agency_dropdown_case_number_dialog, 0, 0, 196, 160, "Status Update /
   ButtonGroup ButtonPressed
     OkButton 65, 130, 50, 15
     CancelButton 125, 130, 50, 15
-  EditBox 110, 10, 65, 15, case_number
+  EditBox 110, 10, 65, 15, MAXIS_case_number
   DropListBox 15, 35, 85, 15, "Status Update"+chr(9)+"Employment Plan", update_type
   DropListBox 115, 35, 60, 15, "Received"+chr(9)+"Sent", received_sent
   DropListBox 75, 60, 100, 15, ES_agency_list, agency
-  EditBox 110, 10, 65, 15, case_number
+  EditBox 110, 10, 65, 15, MAXIS_case_number
   EditBox 110, 85, 65, 15, document_date
   Text 20, 85, 65, 15, "Document Date:"
   Text 20, 60, 55, 15, "Agency:"
@@ -97,7 +80,7 @@ BeginDialog case_number_dialog, 0, 0, 196, 130, "Status Update / Employment Plan
     CancelButton 120, 95, 50, 15
   DropListBox 15, 40, 85, 15, "Status Update"+chr(9)+"Employment Plan", update_type
   DropListBox 110, 40, 60, 15, "Received"+chr(9)+"Sent", received_sent
-  EditBox 110, 10, 65, 15, case_number
+  EditBox 110, 10, 65, 15, MAXIS_case_number
   EditBox 110, 60, 65, 15, document_date
   Text 20, 15, 55, 15, "Case Number:"
   Text 20, 65, 65, 15, "Document Date:"
@@ -168,7 +151,7 @@ EndDialog
 '-grabbing case number
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 '---------------Calling the case number dialog
 DO
@@ -181,8 +164,8 @@ DO
 			END IF
 			IF ButtonPressed = 0 THEN stopscript
 		LOOP UNTIL ButtonPressed = OK
-		IF isnumeric(case_number) = FALSE THEN MsgBox "You must enter a case number. Please try again."
-	LOOP UNTIL isnumeric(case_number) = True
+		IF isnumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must enter a case number. Please try again."
+	LOOP UNTIL isnumeric(MAXIS_case_number) = True
 	IF isdate(document_date) = FALSE THEN  MsgBox "Please enter a valid document date."
 LOOP UNTIL isdate(document_date) = True
 
@@ -303,7 +286,7 @@ call write_variable_in_CASE_NOTE(worker_signature)
 
 IF collecting_ES_statistics = True THEN
 	'Updating the database
-	call write_MAXIS_info_to_ES_database(case_number, hh_member, ESMembName, EsSanctionPercentage, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, disa_end_date, primary_activity, ESDate, agency, ES_Counselor, ES_active, insert_string)
+	call write_MAXIS_info_to_ES_database(MAXIS_case_number, hh_member, ESMembName, EsSanctionPercentage, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, disa_end_date, primary_activity, ESDate, agency, ES_Counselor, ES_active, insert_string)
 END IF
 
 script_end_procedure("")

@@ -1,17 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTICES - NOMI.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 276                     'manual run time in seconds
 STATS_denomination = "C"       			   'C is for each CASE
-'END OF stats block==============================================================================================
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -20,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -53,9 +43,12 @@ next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
 last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
-  EditBox 85, 5, 55, 15, case_number
+  EditBox 85, 5, 55, 15, MAXIS_case_number
   EditBox 85, 25, 55, 15, date_of_missed_interview
   EditBox 225, 25, 55, 15, time_of_missed_interview
   EditBox 100, 45, 55, 15, last_day_for_recert
@@ -74,7 +67,7 @@ BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
 EndDialog
 
 BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
-  EditBox 55, 5, 55, 15, case_number
+  EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 200, 5, 55, 15, application_date
   EditBox 95, 25, 55, 15, date_of_missed_interview
   EditBox 95, 45, 55, 15, time_of_missed_interview
@@ -95,7 +88,7 @@ EndDialog
 'Hennepin County specific dialogs
 BeginDialog Hennepin_application_NOMI, 0, 0, 306, 275, "Hennepin County Application SNAP NOMI"
   DropListBox 90, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
-  EditBox 240, 10, 55, 15, case_number
+  EditBox 240, 10, 55, 15, MAXIS_case_number
   EditBox 90, 35, 60, 15, date_of_missed_interview
   EditBox 240, 35, 55, 15, time_of_missed_interview
   EditBox 90, 65, 60, 15, application_date
@@ -124,7 +117,7 @@ BeginDialog Hennepin_application_NOMI, 0, 0, 306, 275, "Hennepin County Applicat
 EndDialog
 
 BeginDialog Hennepin_ER_NOMI, 0, 0, 286, 170, "Hennepin County ER SNAP NOMI"
-  EditBox 60, 10, 55, 15, case_number
+  EditBox 60, 10, 55, 15, MAXIS_case_number
   DropListBox 200, 10, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South MPLS"+chr(9)+"S. Suburban"+chr(9)+"West", region_residence
   EditBox 80, 35, 55, 15, date_of_missed_interview
   EditBox 225, 35, 55, 15, time_of_missed_interview
@@ -150,7 +143,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone & grabs case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Call check_for_MAXIS(False)			'checking for an active MAXIS session
 
@@ -167,7 +160,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 				'Opening the the HSR manual to the NOMI page
 				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
 				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
-				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
@@ -180,7 +173,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 			Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
 			cancel_confirmation
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
@@ -289,7 +282,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 				'Opening the the HSR manual to the NOMI page
 				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
 				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
-				If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+				If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 				If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
@@ -303,7 +296,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 			Dialog NOMI_dialog
 			cancel_confirmation
 			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
@@ -366,7 +359,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		ELSEIF region_residence = "North" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	    ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "South MPLS" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then

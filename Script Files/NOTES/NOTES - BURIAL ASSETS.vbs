@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - BURIAL ASSETS.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 600                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 600                     'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
-
 'SECTION 01 -- Dialogs
 BeginDialog opening_dialog_01, 0, 0, 311, 420, "LTC Burial Assets"
-  EditBox 95, 25, 60, 15, case_number
+  EditBox 95, 25, 60, 15, MAXIS_case_number
   EditBox 225, 25, 30, 15, hh_member
   DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
   EditBox 135, 65, 120, 15, worker_signature
@@ -97,7 +85,7 @@ EndDialog
 'Burial Agreement Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog burial_assets_dialog_01, 0, 0, 301, 190, "Burial assets dialog (01)"
   CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-  DropListBox 95, 40, 55, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  ComboBox 90, 40, 65, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
   EditBox 215, 40, 65, 15, purchase_date
   EditBox 55, 60, 125, 15, issuer_name
   EditBox 225, 60, 55, 15, policy_number
@@ -109,7 +97,7 @@ BeginDialog burial_assets_dialog_01, 0, 0, 301, 190, "Burial assets dialog (01)"
   ButtonGroup ButtonPressed
     PushButton 95, 165, 50, 15, "Next", next_to_02_button
     CancelButton 155, 165, 50, 15
-  Text 5, 45, 90, 10, "Type of burial agreement:"
+  Text 5, 45, 85, 10, "Type of burial agreement:"
   Text 160, 45, 50, 10, "Purchase date:"
   Text 5, 65, 50, 10, "Issuer name:"
   Text 195, 65, 30, 10, "Policy #:"
@@ -296,7 +284,7 @@ END function
 
 'SECTION 03: The script----------------------------------------------------------------------------------------------------
 EMConnect "" 		'connecting to MAXIS
-Call MAXIS_case_number_finder(case_number)	'grabbing the case number
+Call MAXIS_case_number_finder(MAXIS_case_number)	'grabbing the case number
 
 insurance_policy_number = "none"			'establishing value of the variable
 
@@ -311,7 +299,7 @@ DO
 	"Insurance Counted Value is not a number. Do not include letters or special characters."
 	If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
 	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
@@ -322,10 +310,12 @@ Do
 		Dialog burial_assets_dialog_01
 		cancel_confirmation
 		If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
-		If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
-		If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
-		If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
-		If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		If type_of_burial_agreement <> "None" THEN
+			If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
+			If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
+			If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
+			If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
 	Do
