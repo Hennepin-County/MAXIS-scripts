@@ -1,3 +1,4 @@
+
 'Required for statistical purposes===============================================================================
 name_of_script = "BULK - REVW-MONT CLOSURES.vbs"
 start_time = timer
@@ -137,10 +138,9 @@ If revw_check = checked then
 	  '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
 	For each MAXIS_case_number in case_number_array
 		CALL navigate_to_MAXIS_screen("rept", "revw")  'Reads MAGI code for each case.
+		EMReadScreen MAGI_code, 4, 7, 54
 		EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
 		IF priv_check <> "PRIV" THEN 'Not privileged, we can go ahead and do everything
-			call navigate_to_MAXIS_screen("stat", "revw")
-			EMREADSCREEN MAGI_code, 4, 7, 54
 			call navigate_to_MAXIS_screen("stat", "revw") 'In case of error prone cases
 			EMReadScreen cash_review_code, 1, 7, 40
 			EMReadScreen FS_review_code, 1, 7, 60
