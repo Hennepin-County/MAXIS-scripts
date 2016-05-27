@@ -333,6 +333,24 @@ For cases_to_make = 1 to how_many_cases_to_make
 		month_modifier = -4
 	ELSEIF APPL_month = "CM -5" THEN
 		month_modifier = -5
+	ELSEIF APPL_month = "CM -6" THEN
+		month_modifier = -6
+		second_span = True
+	ELSEIF APPL_month = "CM -7" THEN
+		month_modifier = -7
+		second_span = True
+	ELSEIF APPL_month = "CM -8" THEN
+		month_modifier = -8
+		second_span = True
+	ELSEIF APPL_month = "CM -9" THEN
+		month_modifier = -9
+		second_span = True
+	ELSEIF APPL_month = "CM -10" THEN
+		month_modifier = -10
+		second_span = True
+	ELSEIF APPL_month = "CM -11" THEN
+		month_modifier = -11
+		second_span = True
 	END IF
 
 	APPL_date = DateAdd("M", month_modifier, date)
