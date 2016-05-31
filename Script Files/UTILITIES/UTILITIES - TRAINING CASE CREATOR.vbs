@@ -2617,7 +2617,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 	If HC_application = True AND (HCRE_retro_months_input = "" OR HCRE_retro_months_input = "0") then			'IF the case is requesting retro, it should not approve. That is a scenario that needn't be auto-approved.
 		'Approve HC, please.
 		Do				'Need to make sure the case has come all the way through background
-			call navigate_to_screen ("STAT", "SUMM")		'Otherwise occasionally the FIATING getts messed up with the MNSURE FIAT part
+			call navigate_to_MAXIS_screen ("STAT", "SUMM")		'Otherwise occasionally the FIATING getts messed up with the MNSURE FIAT part
 			EMReadScreen summ_check, 4, 2, 46
 		Loop until summ_check = "SUMM"
 		'=====THE SCRIPT NEEDS TO GET AROUND ELIG/HC RESULTS BEING STUCK IN BACKGROUND
@@ -2820,7 +2820,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 			EMWriteScreen six_month_year, 20, 59
 			transmit
 			DO
-				call navigate_to_screen("ELIG", "HC")
+				call navigate_to_MAXIS_screen("ELIG", "HC")
 				hhmm_row = 8
 				DO
 					EMReadScreen no_version, 10, hhmm_row, 28
