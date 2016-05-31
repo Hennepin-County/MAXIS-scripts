@@ -2616,6 +2616,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 
 	If HC_application = True AND (HCRE_retro_months_input = "" OR HCRE_retro_months_input = "0") then			'IF the case is requesting retro, it should not approve. That is a scenario that needn't be auto-approved.
 		'Approve HC, please.
+		Do				'Need to make sure the case has come all the way through background
+			call navigate_to_screen ("STAT", "SUMM")		'Otherwise occasionally the FIATING getts messed up with the MNSURE FIAT part
+			EMReadScreen summ_check, 4, 2, 46
+		Loop until summ_check = "SUMM"
 		'=====THE SCRIPT NEEDS TO GET AROUND ELIG/HC RESULTS BEING STUCK IN BACKGROUND
 		DO
 			call navigate_to_MAXIS_screen("ELIG", "HC")
@@ -2731,6 +2735,23 @@ FOR EACH MAXIS_case_number IN case_number_array
 							END IF
 						LOOP UNTIL back_to_bsum = "BSUM"
 						'---Now the script needs to determine if the case passes income test for cert period
+						EMReadScreen clt_ref_num, 2, 5, 16 
+						EMWriteScreen "X", 18, 3 
+						Transmit
+						For spddn_row = 6 to 18 
+							EMReadScreen spenddown_type, 12, spddn_row, 39 
+							EMReadScreen listed_clt, 2, spddn_row, 6 
+							IF spenddown_type <> "NO SPENDDOWN" AND listed_clt = clt_ref_num Then 
+								EMWriteScreen "X", spddn_row, 3
+								transmit
+								EMWriteScreen " ", 5, 14 
+								Transmit
+								Transmit
+								PF3 
+								Exit For 
+							End If
+							If spddn_row = 18 then PF3
+						Next 
 						EMWriteScreen "X", 18, 34
 						transmit		'---Opens the Cert Period Amount sub-menu
 						DO
@@ -2748,9 +2769,28 @@ FOR EACH MAXIS_case_number IN case_number_array
 							EMWriteScreen "X", 7, 72
 							transmit
 							DO
-								EMWriteScreen "PASSED", 6, 46
-								transmit
-								EMReadScreen back_to_BSUM, 4, 3, 57
+								EMReadScreen mapt_check, 4, 3, 51 
+								EMReadScreen mobl_check, 4, 3, 49
+								IF mapt_check = "MAPT" Then
+									EMWriteScreen "PASSED", 6, 46
+									EMWriteScreen "PASSED", 9, 46
+									EMWriteScreen "PASSED", 10, 46
+									transmit
+									EMReadScreen back_to_BSUM, 4, 3, 57
+								ElseIf mobl_check = "MOBL" then 
+									For spdwn_row = 6 to 18 
+										EMReadScreen spdwn_check, 9, spdwn_row, 39 
+										IF spdwn_check = "SPENDDOWN" Then 
+											EMWriteScreen "X", spdwn_row, 3 
+											transmit 
+											EMWriteScreen "_", 5, 14
+											transmit
+											transmit
+										End If 
+									Next 
+									PF3 
+									EMReadScreen back_to_BSUM, 4, 3, 57
+								End If
 							LOOP UNTIL back_to_BSUM = "BSUM"
 						END IF
 					END IF
@@ -2774,6 +2814,8 @@ FOR EACH MAXIS_case_number IN case_number_array
 			hhmm_row = hhmm_row + 1
 
 		LOOP UNTIL hc_requested = " "			'===== Loops until there are no more HC versions to review
+
+		
 
 		'===== Now the script goes back in and approves everything.
 		hhmm_row = 8
