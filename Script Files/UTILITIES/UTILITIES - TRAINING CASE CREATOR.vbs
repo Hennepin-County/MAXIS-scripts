@@ -690,6 +690,9 @@ For each MAXIS_case_number in case_number_array
 		ElseIf REVW_ar_or_ir = "AR" then
 			EMWriteScreen six_month_month, 8, 71
 			EMWriteScreen six_month_year, 8, 77
+		ElseIf REVW_ar_or_ir = "ER Only" then
+			EMWriteScreen one_year_month, 8, 27
+			EMWriteScreen one_year_year, 8, 33 
 		End if
 		EMWriteScreen one_year_month, 9, 27
 		EMWriteScreen one_year_year, 9, 33
