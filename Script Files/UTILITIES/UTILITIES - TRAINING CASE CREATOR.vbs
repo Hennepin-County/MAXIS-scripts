@@ -2401,6 +2401,17 @@ FOR EACH MAXIS_case_number IN case_number_array
 					EMSendKey "1"
 					transmit
 				END IF
+				row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+				col = 1
+				EMSearch "More: +", row, col 
+				If row <> 0 then 
+					PF8
+					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "(Y/N)", row, col 
+					EMWriteScreen "Y", row, col +7
+					transmit
+				End If  
 			LOOP UNTIL total_package = "approved"
 			transmit
 
@@ -2433,7 +2444,11 @@ FOR EACH MAXIS_case_number IN case_number_array
 					DO
 						EMReadScreen ffpr, 4, 3, 47
 					LOOP UNTIL ffpr = "FFPR"
+					EMWriteScreen "N", 7, 58 
+					EMWriteScreen "P", 7, 66
 					PF3
+					EMReadScreen ffpr, 4, 3, 47
+					If ffpr = "FFPR" Then PF3 
 					DO
 						EMReadScreen ffcr, 4, 3, 46
 					LOOP UNTIL ffcr = "FFCR"
@@ -2481,10 +2496,18 @@ FOR EACH MAXIS_case_number IN case_number_array
 							transmit
 							EMSendKey "Y"
 							transmit
+							row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+							col = 1
+							EMSearch "More: +", row, col 
+							If row <> 0 then PF8 
 							EMSendKey "Y"
 							transmit
 						END IF
 						IF ups_delivery_confirmation = "PACKAGE" THEN
+							row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+							col = 1
+							EMSearch "More: +", row, col 
+							If row <> 0 then PF8 
 							EMSendKey "Y"
 							transmit
 						END IF
@@ -2531,6 +2554,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
+					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8 
 					row = 1
 					col = 1
 					EMSearch "(Y/N)  _", row, col
@@ -2541,6 +2568,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 					EMSearch "Do you want to continue with the approval?", row, col
 				LOOP UNTIL row <> 0
 				DO
+					row = 1						'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8 
 					row = 1
 					col = 1
 					EMSearch "(Y/N)  _", row, col
@@ -2562,6 +2593,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
+					row = 1								'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8 
 					row = 1
 					col = 1
 					EMSearch "(Y/N)", row, col
