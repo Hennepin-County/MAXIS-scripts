@@ -1687,6 +1687,7 @@ For each MAXIS_case_number in case_number_array
 		END IF
 		'SCHL
 		If SCHL_status <> "" then
+			If right(left(SCHL_grad_date, 2), 1) = "/" Then SCHL_grad_date = "0" & SCHL_grad_date	'Making sure that the grad date has the correct formating
 			call write_panel_to_MAXIS_SCHL(appl_date, SCHL_status, SCHL_ver, SCHL_type, SCHL_district_nbr, SCHL_kindergarten_start_date, SCHL_grad_date, SCHL_grad_date_ver, SCHL_primary_secondary_funding, SCHL_FS_eligibility_status, SCHL_higher_ed)
 			STATS_manualtime = STATS_manualtime + 20
 		END IF
