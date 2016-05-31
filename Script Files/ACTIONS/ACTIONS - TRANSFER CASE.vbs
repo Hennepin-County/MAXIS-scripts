@@ -147,84 +147,134 @@ cancel_confirmation
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 IF XFERRadioGroup = 0 THEN
-		'Displays the dialog and navigates to case note
-		  Do
+	'BEGINNING OF IN COUNTY TRANSFER-------------------------------------------------------------------------------------------------------------------------------------
+	'Displays the dialog and navigates to case note
+	DO
+		Do
 			Do
-			  err_msg = ""
-			  Dialog within_county_dlg
-			  cancel_confirmation
-			  If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
-			  IF len(worker_to_transfer_to) <> 7 then err_msg = err_msg & vbCr & "Please include X1## in the worker number"
-			  IF preg_y_n = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
-			  IF unit_drop_down = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
-			  IF err_msg <> "" THEN Msgbox err_msg
+			err_msg = ""
+			Dialog within_county_dlg
+			cancel_confirmation
+			If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
+			IF len(worker_to_transfer_to) <> 7 then err_msg = err_msg & vbCr & "Please include X1## in the worker number"
+			IF preg_y_n = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate if a pregnancy verification was submitted or N/A if that is not applicable."
+			IF unit_drop_down = "Select one..." THEN err_msg = err_msg & vbCr & "Please indicate the unit to which the case is being transferred or N/A if that is not applicable."
+			IF err_msg <> "" THEN Msgbox err_msg
 			Loop until err_msg = ""
 			transmit
 			EMReadScreen MAXIS_check, 5, 1, 39
 			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
-		  Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+		Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+		
+		'----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases. 
+		call navigate_to_MAXIS_screen("REPT", "USER")
+		EMWriteScreen worker_to_transfer_to, 21, 12
+		transmit
+		EMReadScreen worker_found, 15, 24, 2
+		EMReadScreen inactive_worker, 8, 7, 38
+		IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
+		IF worker_found = "NO WORKER FOUND" THEN MsgBox "The worker or agency selected does not exist. Please try again."
+	LOOP UNTIL inactive_worker <> "INACTIVE" AND worker_found <> "NO WORKER FOUND"
 
-		'goes to MEMO and create a new memo to be send out
-		If spec_memo_withincty_check = checked THEN
-			Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
-			'Creates a new MEMO. If it's unable the script will stop.
-			PF5
-			EMReadScreen memo_display_check, 12, 2, 33
-			If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+	EMWriteScreen "X", 7, 3
+	transmit
 
-			'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-			row = 4                             'Defining row and col for the search feature.
-			col = 1
-			EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-			IF row > 4 THEN                     'If it isn't 4, that means it was found.
-				arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-				call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-				EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-				call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-				PF5                                                     'PF5s again to initiate the new memo process
-			END IF
-			'Checking for SWKR
-			row = 4                             'Defining row and col for the search feature.
-			col = 1
-			EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-			IF row > 4 THEN                     'If it isn't 4, that means it was found.
-				swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-				call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-				EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-				call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-				PF5                                           'PF5s again to initiate the new memo process
-			END IF
-			EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
-			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-			transmit                                                        'Transmits to start the memo writing process
+	EMReadScreen worker_agency_name, 43, 8, 27
+		worker_agency_name = trim(worker_agency_name)
+	EMReadScreen mail_addr_line_one, 43, 9, 27
+		mail_addr_line_one = trim(mail_addr_line_one)
+	EMReadScreen mail_addr_line_two, 43, 10, 27
+		mail_addr_line_two = trim(mail_addr_line_two)
+	EMReadScreen mail_addr_line_three, 43, 11, 27
+		mail_addr_line_three = trim(mail_addr_line_three)
+	EMReadScreen mail_addr_line_four, 43, 12, 27
+		mail_addr_line_four = trim(mail_addr_line_four)
+	EMReadScreen worker_agency_phone, 14, 13, 27
 
-			Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
-			Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
-			Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
-			Call write_variable_in_SPEC_MEMO ("   ")
-			Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
-			Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request.")
-			Call write_variable_in_SPEC_MEMO ("   ")
-			Call write_variable_in_SPEC_MEMO ("Thank you,")
-				PF4
-				PF3
-		END If
-		'NOTING THE TRANSFER'
-		start_a_blank_CASE_NOTE
+	back_to_SELF
+
+	'goes to MEMO and create a new memo to be send out
+	If spec_memo_withincty_check = checked THEN
+		Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
+		'Creates a new MEMO. If it's unable the script will stop.
+		PF5
+		EMReadScreen memo_display_check, 12, 2, 33
+		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+
+		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+			arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+			call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+			EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+			PF5                                                     'PF5s again to initiate the new memo process
+		END IF
+		'Checking for SWKR
+		row = 4                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+		IF row > 4 THEN                     'If it isn't 4, that means it was found.
+			swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+			call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+			EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+			call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+			PF5                                           'PF5s again to initiate the new memo process
+		END IF
+		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		transmit                                                        'Transmits to start the memo writing process
+
+		EMWriteScreen "Your case has been transferred. Your new worker/agency is:", 3, 15
+		memo_line = 5
+		IF worker_agency_name <> "" THEN
+			EMWriteScreen ("  " & worker_agency_name), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_one <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_one), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_two <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_two), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_three <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_three), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		IF mail_addr_line_four <> "" THEN
+			EMWriteScreen ("  " & mail_addr_line_four), memo_line, 15
+			memo_line = memo_line + 1
+		END IF
+		EMWriteScreen ("  " & worker_agency_phone), memo_line, 15
+		memo_line = memo_line + 2
+		EMWriteScreen "If you have any questions, or to send in requested proofs,", memo_line, 15
+		memo_line = memo_line + 1
+		EMWriteScreen "please direct all communications to the worker or agency", memo_line, 15
+		memo_line = memo_line + 1
+		EMWriteScreen "listed above.", memo_line, 15
+		PF4
+		PF3
+	END If
+	'NOTING THE TRANSFER'
+	start_a_blank_CASE_NOTE
 
 	'Cleaning up for case note
-		IF SNAP_active_check = 1 THEN active_programs = active_programs & "SNAP/"
-		IF hc_active_check = 1 THEN active_programs = active_programs & "HC/"
-		IF cash_active_check = 1 THEN active_programs = active_programs & "CASH/"
-		IF mnsure_active_check = 1 THEN active_programs = active_programs & "Mnsure/"
-		IF EMER_active_check = 1 THEN active_programs = active_programs & "EMER/"
+	IF SNAP_active_check = 1 THEN active_programs = active_programs & "SNAP/"
+	IF hc_active_check = 1 THEN active_programs = active_programs & "HC/"
+	IF cash_active_check = 1 THEN active_programs = active_programs & "CASH/"
+	IF mnsure_active_check = 1 THEN active_programs = active_programs & "Mnsure/"
+	IF EMER_active_check = 1 THEN active_programs = active_programs & "EMER/"
 
-		IF SNAP_pend_check = 1 THEN pend_programs = pend_programs & "SNAP/"
-		IF hc_pend_check = 1 THEN pend_programs = pend_programs & "HC/"
-		IF cash_pend_check = 1 THEN pend_programs = pend_programs & "CASH/"
-		IF mnsure_pend_check = 1 THEN pend_programs = pend_programs & "Mnsure/"
-		IF EMER_pend_check = 1 THEN pend_programs = pend_programs & "EMER/"
+	IF SNAP_pend_check = 1 THEN pend_programs = pend_programs & "SNAP/"
+	IF hc_pend_check = 1 THEN pend_programs = pend_programs & "HC/"
+	IF cash_pend_check = 1 THEN pend_programs = pend_programs & "CASH/"
+	IF mnsure_pend_check = 1 THEN pend_programs = pend_programs & "Mnsure/"
+	IF EMER_pend_check = 1 THEN pend_programs = pend_programs & "EMER/"
 
 	'Case notes
 	EMSendKey "***Transfer within county***" & "<newline>"
@@ -246,25 +296,23 @@ IF XFERRadioGroup = 0 THEN
 	call write_variable_in_case_note("---")
 	call write_variable_in_case_note(worker_signature)
 
+	'Transfers case
+	back_to_self
+	EMWriteScreen "spec", 16, 43
+	EMWriteScreen "________", 18, 43
+	EMWriteScreen MAXIS_case_number, 18, 43
+	EMWriteScreen "xfer", 21, 70
+	transmit
+	EMWriteScreen "x", 7, 16
+	transmit
+	PF9
+	EMWriteScreen worker_to_transfer_to, 18, 61
+	transmit
 
-		'Transfers case
-		back_to_self
-		EMWriteScreen "spec", 16, 43
-		EMWriteScreen "________", 18, 43
-		EMWriteScreen MAXIS_case_number, 18, 43
-		EMWriteScreen "xfer", 21, 70
-		transmit
-		EMWriteScreen "x", 7, 16
-		transmit
-		PF9
-		EMWriteScreen worker_to_transfer_to, 18, 61
-		transmit
-
-
-		script_end_procedure("")
-
+	script_end_procedure("")
+	'END OF IN COUNTY TRANSFER-------------------------------------------------------------------------------------------------------------------------------------
 	ELSEIF XFERRadioGroup = 1 THEN
-
+	'BEGINNING OF OUT OF COUNTY TRANSFER----------------------------------------------------------------------------------------------------
 	DO
 		DO
 			DO
