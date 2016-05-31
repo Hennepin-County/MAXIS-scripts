@@ -396,6 +396,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 		MEMB_interpreter_yn = ObjExcel.Cells(MEMB_starting_excel_row + 10, current_excel_col).Value
 		MEMB_alias_yn = ObjExcel.Cells(MEMB_starting_excel_row + 11, current_excel_col).Value
 		MEMB_hisp_lat_yn = ObjExcel.Cells(MEMB_starting_excel_row + 12, current_excel_col).Value
+		If ObjExcel.Cells(345, current_excel_col).Value = "28 - Undocumented" Then Blank_IMIG = TRUE 	'Setting a variable for different process for undocumented
 
 		'Gets MEMI info from spreadsheet
 		MEMI_starting_excel_row = 19
@@ -405,20 +406,26 @@ For cases_to_make = 1 to how_many_cases_to_make
 		MEMI_cit_yn = ObjExcel.Cells(MEMI_starting_excel_row + 3, current_excel_col).Value
 
 		DO	'This DO-LOOP is to check that the CL's SSN created via random number generation is unique. If the SSN matches an SSN on file, the script creates a new SSN and re-enters the CL's information on MEMB. The checking for duplicates part is on the bottom, as that occurs when the worker presses transmit.
-			DO
+			IF Blank_IMIG <> True Then		'Non-undocumented client creation will have a SSN 
+				DO
+					Randomize
+					ssn_first = Rnd
+					ssn_first = 1000000000 * ssn_first
+					ssn_first = left(ssn_first, 3)
+				LOOP UNTIL left(ssn_first, 1) <> "9"	'starting with a 9 is invalid
 				Randomize
-				ssn_first = Rnd
-				ssn_first = 1000000000 * ssn_first
-				ssn_first = left(ssn_first, 3)
-			LOOP UNTIL left(ssn_first, 1) <> "9"	'starting with a 9 is invalid
-			Randomize
-			ssn_mid = Rnd
-			ssn_mid = 100000000 * ssn_mid
-			ssn_mid = left(ssn_mid, 2)
-			Randomize
-			ssn_end = Rnd
-			ssn_end = 100000000 * ssn_end
-			ssn_end = left(ssn_end, 4)
+				ssn_mid = Rnd
+				ssn_mid = 100000000 * ssn_mid
+				ssn_mid = left(ssn_mid, 2)
+				Randomize
+				ssn_end = Rnd
+				ssn_end = 100000000 * ssn_end
+				ssn_end = left(ssn_end, 4)
+			Else 						'If clt is undocumented - SSN  will be blank
+				ssn_first = "   "
+				ssn_mid = "  "
+				ssn_end = "    "
+			End If 
 
 			'Entering info on MEMB
 			EMWriteScreen reference_number, 4, 33
@@ -429,6 +436,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen ssn_mid, 7, 46
 			EMWriteScreen ssn_end, 7, 49
 			EMWriteScreen "P", 7, 68			'All SSNs should pend in the training region
+			If Blank_IMIG = TRUE Then EMWriteScreen "N", 7, 68		'If client is listed as undocumneted, no verif of a blank SSN
 			'Generating the DOB
 				year_of_birth = datepart("yyyy", date) - abs(MEMB_age)
 				IF MEMB_dob_mm_dd = "" THEN
@@ -448,7 +456,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen MEMB_spoken_lang, 13, 42
 			EMWriteScreen MEMB_interpreter_yn, 14, 68
 			EMWriteScreen MEMB_alias_yn, 15, 42
-			IF MEMI_cit_yn = "N" THEN
+			IF MEMI_cit_yn = "N" AND Blank_IMIG <> TRUE THEN		'No Alien ID numbers for undocumneted
 				MEMB_alien_ID = "A" & ssn_first & ssn_mid & ssn_end
 				EMWriteScreen MEMB_alien_ID, 15, 68
 			END IF
@@ -465,17 +473,19 @@ For cases_to_make = 1 to how_many_cases_to_make
 			LOOP UNTIL race_mini_box = "X AS MANY AS APPLY"
 			cl_ssn = ssn_first & "-" & ssn_mid & "-" & ssn_end
 			EMReadScreen ssn_match, 11, 8, 7
-			IF cl_ssn <> ssn_match THEN
+			IF cl_ssn <> ssn_match OR Blank_IMIG = TRUE THEN
 				PF8
 				PF8
 				PF5
 			ELSE
 				PF3
 			END IF
-		LOOP UNTIL cl_ssn <> ssn_match
+		LOOP UNTIL cl_ssn <> ssn_match  OR Blank_IMIG = TRUE 
 		EMWaitReady 0, 0
 		EMWriteScreen "Y", 6, 67
 		transmit
+		
+		Blank_IMIG = ""		'Blanking out for the next client
 
 		'Updates MEMI with the info
 		EMWriteScreen MEMI_marital_status, 7, 49
