@@ -332,7 +332,7 @@ Do							'Loops until the HH memb list is out of PMIs
 Loop until ObjExcel.Cells(excel_row, col_HH_memb_PMI_list_PMI).Value = ""		'Out of PMIs!!
 
 'Grabs the case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-----------------------------------------------------------------------------------MOW IT ASSOCIATES EACH MESSAGE WITH A PANEL
 'Gets to UNEA
