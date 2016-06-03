@@ -1,5 +1,5 @@
 'Gathering stats
-name_of_script = "BULK - MAGI NON MAGI LIST GEN.vbs"
+name_of_script = "BULK - MAGI NON MAGI REPORT.vbs"
 start_time = timer
 stats_counter = 1
 stats_manualtime = 67
