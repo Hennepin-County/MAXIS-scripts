@@ -39,7 +39,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'dialog block with case details
-BeginDialog deceased_client_summary, 0, 0, 206, 190, "Deceased Client Summary"
+BeginDialog , 0, 0, 206, 190, "Deceased Client Summary"
   Text 5, 10, 50, 10, "Case Number"
   EditBox 65, 5, 50, 15, MAXIS_case_number
   Text 5, 30, 50, 10, "Date of Death"
@@ -76,7 +76,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 'Do loop for Deceased Client Summary Shows dialog and creates and displays an error message if worker completes things incorrectly.
  DO
 	err_msg = ""
-	dialog deceased_client_summary
+	dialog 
 	cancel_confirmation
 
 	'case number required for case note	
