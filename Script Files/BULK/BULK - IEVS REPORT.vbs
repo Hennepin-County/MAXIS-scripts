@@ -103,6 +103,9 @@ objExcel.Cells(1, 8).Font.Bold = True
 objExcel.Cells(1, 9).Value     = "DATE DIFF NOTICE SENT"
 objExcel.Cells(1, 9).Font.Bold = True
 
+ObjExcel.ActiveSheet.Range("A2").Select
+objExcel.ActiveWindow.FreezePanes = True
+
 'Sets variable for all of the Excel stuff
 excel_row = 2
 
@@ -254,17 +257,24 @@ objExcel.Cells(2, 5).Font.Bold = TRUE
 ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
 objExcel.Cells(2, 6).Font.Bold = TRUE
 
+ObjExcel.ActiveSheet.Range("A3").Select
+objExcel.ActiveWindow.FreezePanes = True
+
 worker_row = 3
 'Writes each worker from the worker_array in the Excel spreadsheet
 For each x_number in x_number_array
 	'Trims the x_number so that we don't have glitches
 	x_number = trim(x_number)
 	x_number = UCase(x_number)
-	Call navigate_to_MAXIS_screen ("REPT", "ACTV")
-	EMWriteScreen x_number, 21, 13
-	transmit
-	EMReadScreen worker_name, 24, 3, 11
-	worker_name = trim(worker_name)
+	IF right(x_number, 3) <> "CLS" then 
+		Call navigate_to_MAXIS_screen ("REPT", "ACTV")
+		EMWriteScreen x_number, 21, 13
+		transmit
+		EMReadScreen worker_name, 24, 3, 11
+		worker_name = trim(worker_name)
+	Else 
+		worker_name = "CLOSED RECORDS"
+	End IF 
 	ObjExcel.Cells(worker_row, 1).Value = x_number
 	ObjExcel.Cells(worker_row, 2).Value = worker_name
 	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ", 'Case information'!G:G, " & Chr(34) & "<=0" & Chr(34) & ")"
