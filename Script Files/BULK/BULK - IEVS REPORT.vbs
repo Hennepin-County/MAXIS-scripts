@@ -38,6 +38,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'DIALOG=============================================================================
 BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
   CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
@@ -49,14 +50,14 @@ BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "Bulk DAIL report dialog"
   Text 10, 55, 290, 10, "Note: please enter the entire 7-digit number x1 number. (Example: ''x100abc, x100abc'')"
   Text 20, 85, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
-
+'=================================================================================
 'Connects to MAXIS
 EMConnect ""
 
 'Looks up an existing user for autofilling the next dialog
 CALL find_variable("User: ", x_number_editbox, 7)
 
-'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
+'Shows the dialog. 
 DO
 	dialog bulk_ievs_report_dialog
 	cancel_confirmation
@@ -103,6 +104,7 @@ objExcel.Cells(1, 8).Font.Bold = True
 objExcel.Cells(1, 9).Value     = "DATE DIFF NOTICE SENT"
 objExcel.Cells(1, 9).Font.Bold = True
 
+'This bit freezes the top row of the Excel sheet for better useability when there is a lot of information
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
@@ -118,39 +120,39 @@ For each x_number in x_number_array
 
 	back_to_SELF
 	CALL navigate_to_MAXIS_screen("REPT", "IEVC")	'Navigates to the worker based report'
-	EMReadScreen non_disclosure_screen, 14, 2, 46
+	EMReadScreen non_disclosure_screen, 14, 2, 46	'Checks to make sure the NDA is current
 	If non_disclosure_screen = "Non-disclosure" Then script_end_procedure ("It appears you need to confirm agreement to access IEVC. Please navigate there manually to confirm and then run the script again.")
 	EMWriteScreen x_number, 4, 11					'goes to the specific worker's report
 	transmit
 	
 	EMReadScreen unresolved_ievs_exists, 1, 8, 5	'Checks to see if there is something listed on the first line
 	If unresolved_ievs_exists <> " " Then 			'If so, the script will gather data
-		EMReadScreen supervisor_id, 7, 4, 32
-		EMReadScreen IEVC_check, 4, 2, 53
+		EMReadScreen supervisor_id, 7, 4, 32		'Pulls the X-Number of the supervisor
+		EMReadScreen IEVC_check, 4, 2, 53			'Makes sure still on the IEVC report - sometimes this glitches and causes all kinds of errors
 		If IEVC_check = "IEVC" Then 
-			EMSendKey "HOME"
-			PF1
-			EMReadScreen worker_name, 21, 19, 10
-			worker_name = trim(worker_name)
-			transmit 
+			EMSendKey "HOME"						'Sets the cursor at the first editable field - which is the worker X-Number
+			PF1										'PF1 on the X-Number to pull up worker information
+			EMReadScreen worker_name, 21, 19, 10	'Reads the worker name
+			worker_name = trim(worker_name)			'Trims the worker name
+			transmit 								'Closes the worker information pop-up
 		End If 
-		EMWriteScreen x_number, 4, 11					'goes to the specific worker's report
-		transmit
+		EMWriteScreen x_number, 4, 11				'goes to the specific worker's report - again
+		transmit									'This part happens again after looking at worker information due to some weird glitchy thing on this report
 		IEVC_Row = 8
 		DO	
 			'Reading and trimming the MAXIS case number and dumping it in Excel
 			EMReadScreen maxis_case_number, 8, IEVC_Row, 31
 			If maxis_case_number = "        " then exit Do 		'Once the script reaches the last line in the list, it will go to the next worker
 			maxis_case_number = trim(maxis_case_number)
-			objExcel.Cells(excel_row, 4).Value = maxis_case_number	
+			objExcel.Cells(excel_row, 4).Value = maxis_case_number	'Adds case number to Excel
 			
-			objExcel.Cells(excel_row, 2).Value = x_number	'enters the worker number to the excel spreadsheet
-			objExcel.Cells(excel_row, 1).Value = supervisor_id
-			objExcel.Cells(excel_row, 3).Value = worker_name
+			objExcel.Cells(excel_row, 2).Value = x_number		'enters the worker number to the excel spreadsheet
+			objExcel.Cells(excel_row, 1).Value = supervisor_id	'Adds Supervisor X-Numner to Excel
+			objExcel.Cells(excel_row, 3).Value = worker_name	'Adds the worker name to Excel
 
 			EMReadScreen client_name, 17, IEVC_Row, 14			'Reads the client name and adds to excel
 			client_name = trim(client_name)
-			objExcel.Cells(excel_row, 5).Value = client_name
+			objExcel.Cells(excel_row, 5).Value = client_name	
 			
 			EMReadScreen covered_period, 11, IEVC_Row, 62		'Reads the dates of the match and adds to excel
 			covered_period = trim(covered_period)
@@ -193,10 +195,10 @@ For each x_number in x_number_array
 		LOOP until last_page_check = "THIS IS THE LAST PAGE"
 	Else 
 		objExcel.Cells(excel_row, 2).Value = x_number						'If there are no items on a worker's report, this adds that information to the excel sheet
-		EMReadScreen supervisor_id, 7, 4, 32
+		EMReadScreen supervisor_id, 7, 4, 32				'Finding Supervisor X Number and adding to Excel
 		objExcel.Cells(excel_row, 1).Value = supervisor_id
 		EMReadScreen IEVC_check, 4, 2, 53
-		If IEVC_check = "IEVC" Then 
+		If IEVC_check = "IEVC" Then 						'Getting the worker name from the info pop-up and adding to Excel
 			EMSendKey "HOME"
 			PF1
 			EMReadScreen worker_name, 21, 19, 10
@@ -204,7 +206,7 @@ For each x_number in x_number_array
 			objExcel.Cells(excel_row, 3).Value = worker_name
 			transmit 
 		End If 
-		objExcel.Cells(excel_row, 5).Value = "No IEVS for this worker."
+		objExcel.Cells(excel_row, 5).Value = "No IEVS for this worker."		'Adds line to Excel sheet indicating no matches
 		excel_row = excel_row + 1
 	End If 
 Next 
@@ -214,10 +216,9 @@ objExcel.Columns(6).HorizontalAlignment = -4108
 objExcel.Columns(7).HorizontalAlignment = -4108
 objExcel.Columns(8).HorizontalAlignment = -4108
 
-excel_is_not_blank = chr(34) & "<>" & chr(34)
+excel_is_not_blank = chr(34) & "<>" & chr(34)		'Setting up a variable for useable quote marks in Excel
 
 'Query date/time/runtime info
-
 objExcel.Cells(1, 11).Font.Bold = TRUE
 objExcel.Cells(2, 11).Font.Bold = TRUE
 objExcel.Cells(3, 11).Font.Bold = TRUE
@@ -257,6 +258,7 @@ objExcel.Cells(2, 5).Font.Bold = TRUE
 ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
 objExcel.Cells(2, 6).Font.Bold = TRUE
 
+'This bit freezes the top 2 rows for scrolling ease of use
 ObjExcel.ActiveSheet.Range("A3").Select
 objExcel.ActiveWindow.FreezePanes = True
 
@@ -266,20 +268,23 @@ For each x_number in x_number_array
 	'Trims the x_number so that we don't have glitches
 	x_number = trim(x_number)
 	x_number = UCase(x_number)
-	IF right(x_number, 3) <> "CLS" then 
+	IF right(x_number, 3) <> "CLS" then 	'This bit gets worker names from REPT ACTV
 		Call navigate_to_MAXIS_screen ("REPT", "ACTV")
 		EMWriteScreen x_number, 21, 13
 		transmit
 		EMReadScreen worker_name, 24, 3, 11
 		worker_name = trim(worker_name)
 	Else 
-		worker_name = "CLOSED RECORDS"
+		worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
 	End IF 
+	'Adding all the information to Excel
 	ObjExcel.Cells(worker_row, 1).Value = x_number
 	ObjExcel.Cells(worker_row, 2).Value = worker_name
+	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
 	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ", 'Case information'!G:G, " & Chr(34) & "<=0" & Chr(34) & ")"
+	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
 	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ")"
-	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then
+	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
 		ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
 	Else 
 		ObjExcel.Cells(worker_row, 5).Value = "0"
