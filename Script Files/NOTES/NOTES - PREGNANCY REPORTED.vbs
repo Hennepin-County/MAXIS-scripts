@@ -39,7 +39,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'THE DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog preg_dialog, 0, 0, 351, 185, "Pregnancy Reported"
+BeginDialog , 0, 0, 351, 185, "Pregnancy Reported"
   EditBox 95, 5, 80, 15, maxis_case_number
   EditBox 95, 25, 80, 15, member_preg
   EditBox 260, 25, 70, 15, due_date
@@ -74,7 +74,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 'Shows dialog
 DO
 	err_msg = ""		
-	Dialog preg_dialog
+	Dialog
 		IF ButtonPressed = 0 THEN StopScript
 		IF report_method = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
 		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
