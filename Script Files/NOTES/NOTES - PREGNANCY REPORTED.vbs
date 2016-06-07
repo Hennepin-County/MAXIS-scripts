@@ -38,7 +38,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+
 'THE DIALOG--------------------------------------------------------------------------------------------------
+'This script currently only runs one dialog, so it can be defined at the beginning
 BeginDialog , 0, 0, 351, 185, "Pregnancy Reported"
   EditBox 95, 5, 80, 15, maxis_case_number
   EditBox 95, 25, 80, 15, member_preg
@@ -74,7 +78,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 'Shows dialog
 DO
 	err_msg = ""		
-	Dialog
+	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		IF ButtonPressed = 0 THEN StopScript
 		IF report_method = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
 		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."

@@ -37,6 +37,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'THE SCRIPT CODE-----------------------------------------------------------------------------------------------------
 
@@ -46,7 +48,7 @@ EMConnect ""
 'Grabs the MAXIS case number            
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'Shows the FIRST dialog box
+'Shows and defines the FIRST dialog box
 BeginDialog , 0, 0, 166, 85, "Incarceration"
   EditBox 80, 5, 75, 15, MAXIS_case_number
   EditBox 80, 25, 75, 15, hh_member
@@ -60,7 +62,7 @@ BeginDialog , 0, 0, 166, 85, "Incarceration"
   Text 5, 30, 70, 10, "HH Member Number:"
 EndDialog
 DO 
-	Dialog
+	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	IF isnumeric(MAXIS_case_number)= FALSE THEN MsgBox "You must enter a valid case number!"
 LOOP UNTIL Isnumeric(MAXIS_case_number) = TRUE
@@ -74,7 +76,7 @@ CALL navigate_to_MAXIS_screen("stat", "faci")
 		'transmit
 	END IF
 
-'Shows the MAIN dialog
+'Shows and defines the MAIN dialog 
 BeginDialog , 0, 0, 451, 200, "Incarceration"
   EditBox 85, 10, 85, 15, MAXIS_case_number
   EditBox 280, 10, 75, 15, hh_member
@@ -109,7 +111,7 @@ BeginDialog , 0, 0, 451, 200, "Incarceration"
 EndDialog
 DO
 	err_msg = ""		
-	Dialog 
+	Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		IF ButtonPressed = 0 THEN StopScript
 		IF info_recd = "Click here to enter info" THEN err_msg = err_msg & vbCr & "You must select how the incarceration info was received!"
 		IF faci_type = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a facility type!"

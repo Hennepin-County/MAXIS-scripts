@@ -37,8 +37,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'DIALOGS--------------------------------------------------------------------------------------------------
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+'This script has only one dialog and so can be defined in the beginning but is unnamed
 BeginDialog , 0, 0, 226, 135, "AREP Case Note"
   EditBox 60, 5, 100, 15, MAXIS_case_number
   CheckBox 65, 30, 35, 10, "SNAP", SNAP_AREP_check
@@ -69,7 +70,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 'Shows dialog and creates and displays an error message if worker completes things incorrectly. 
 Do
 	err_msg = ""
-	dialog 
+	dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	IF SNAP_AREP_check <> checked AND HC_AREP_check <> checked AND CASH_AREP_check <> checked THEN err_msg = err_msg & "Please select a program" & vbNewLine
 	IF isdate(arep_signature_date) = false THEN err_msg = err_msg & "Please enter a valid date for the date the form was signed/valid from." & vbNewLine

@@ -38,12 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 MAXIS_footer_month = datepart("m", dateadd("m", 1, date))
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
 MAXIS_footer_month = CStr(MAXIS_footer_month)
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
@@ -52,7 +54,7 @@ EMConnect ""
 'Finds a case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Shows the case number dialog
+'Shows and defines the case number dialog
 BeginDialog , 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
@@ -65,7 +67,7 @@ BeginDialog , 0, 0, 161, 65, "Case number and footer month"
     CancelButton 85, 45, 50, 15
 EndDialog
 
-Dialog
+Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 cancel_confirmation
 
 'checking for an active MAXIS session
@@ -89,7 +91,7 @@ create_JOBS_checkbox = 1
 HH_memb = "01"
 HH_memb_row = 5 'This helps the navigation buttons work!
 
-'Shows the dialog.
+'Shows and defines the main dialog.
 BeginDialog , 0, 0, 286, 280, "New job reported dialog"
   EditBox 80, 5, 25, 15, HH_memb
   DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIA (JTPA)"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income", income_type_dropdown
@@ -132,7 +134,7 @@ DO
 				Do
 					Do
 						Do
-							Dialog
+							Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 							cancel_confirmation
 							MAXIS_dialog_navigation
 							If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional

@@ -38,6 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
 LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel)
@@ -53,6 +56,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	DO
 		Do
 			Do
+				'Dialog for LTC cases is defined here - not named
 				BeginDialog , 0, 0, 351, 435, "Verifs needed (LTC) dialog"
 				  EditBox 55, 5, 70, 15, MAXIS_case_number
 				  EditBox 250, 5, 60, 15, verif_due_date
@@ -106,7 +110,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 				  Text 5, 10, 50, 10, "Case number:"
 				  Text 5, 325, 45, 10, "Veteran info:"
 				EndDialog
-				DIALOG 
+				DIALOG 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation													'quits if cancel is pressed
 				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
 			Loop until buttonpressed = OK																	'Loops until you press OK
@@ -118,6 +122,7 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 	DO
 		Do
 			Do
+				'Dialog for all other cases is defined here
 				BeginDialog , 0, 0, 351, 360, "Verifs needed"
 				  EditBox 55, 5, 70, 15, MAXIS_case_number
 				  EditBox 250, 5, 60, 15, verif_due_date
@@ -159,7 +164,7 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 				  Text 5, 240, 45, 10, "Other proofs:"
 				  Text 215, 320, 70, 10, "Sign your case note:"
 				 EndDialog
-				DIALOG 
+				DIALOG 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation													'quits if cancel is pressed
 				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
 			Loop until buttonpressed = OK																	'Loops until you press OK

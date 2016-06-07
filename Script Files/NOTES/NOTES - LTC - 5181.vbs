@@ -38,71 +38,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-BeginDialog DHS_5181_Dialog_3, 0, 0, 361, 340, "5181 Dialog 3"
-  CheckBox 5, 20, 135, 15, "Exited waiver program- Effective date: ", exited_waiver_program_check
-  EditBox 140, 20, 40, 15, exit_waiver_end_date_editbox
-  CheckBox 5, 35, 65, 15, "Client's choice", client_choice_check
-  CheckBox 5, 50, 115, 15, "Client deceased.  Date of death:", client_deceased_check
-  EditBox 135, 50, 45, 15, date_of_death_editbox
-  CheckBox 5, 65, 95, 15, "Client moved to LTCF on:", client_moved_to_LTCF_check
-  EditBox 135, 65, 45, 15, client_moved_to_LTCF_editbox
-  CheckBox 190, 65, 115, 15, "Have script update ADDR panel", LTCF_update_ADDR_checkbox
-  EditBox 65, 85, 235, 15, LTCF_ADDR_line_01
-  EditBox 65, 100, 235, 15, LTCF_ADDR_line_02
-  EditBox 25, 120, 55, 15, LTCF_city
-  EditBox 110, 120, 45, 15, LTCF_state
-  EditBox 210, 120, 45, 15, LTCF_county_code
-  EditBox 295, 120, 45, 15, LTCF_zip_code
-  CheckBox 5, 145, 90, 15, "Waiver program change", waiver_program_change_check
-  EditBox 115, 145, 45, 15, waiver_program_change_from_editbox
-  EditBox 180, 145, 45, 15, waiver_program_change_to_editbox
-  CheckBox 5, 160, 175, 15, "Client disenrolled from health plan.  Effective date: ", client_disenrolled_health_plan_check
-  EditBox 180, 160, 45, 15, client_disenrolled_from_healthplan_editbox
-  CheckBox 5, 175, 105, 15, "New address-Effective date:", new_address_check
-  EditBox 115, 175, 45, 15, new_address_effective_date_editbox
-  CheckBox 190, 175, 115, 15, "Have script update ADDR panel", update_addr_new_ADDR_checkbox
-  EditBox 70, 195, 235, 15, change_ADDR_line_1
-  EditBox 70, 210, 235, 15, change_ADDR_line_2
-  EditBox 25, 230, 60, 15, change_city
-  EditBox 115, 230, 45, 15, change_state
-  EditBox 215, 230, 45, 15, change_county_code
-  EditBox 300, 230, 45, 15, change_zip_code
-  EditBox 55, 260, 285, 15, case_action_editbox
-  EditBox 55, 280, 285, 15, other_notes_editbox
-  CheckBox 10, 300, 120, 10, "Inform worker of 5181 via TIKL?", write_TIKL_for_worker_check
-  CheckBox 135, 300, 125, 10, "Sent 5181 back to Case Manager?", sent_5181_to_caseworker_check
-  EditBox 70, 320, 120, 15, worker_signature
-  ButtonGroup ButtonPressed
-    PushButton 195, 320, 50, 15, "Previous", previous_to_page_02_button
-    OkButton 250, 320, 50, 15
-    CancelButton 305, 320, 50, 15
-  Text 5, 100, 55, 15, "Address line 2:"
-  Text 5, 120, 20, 15, "City:"
-  Text 5, 320, 65, 15, "Worker signature:"
-  Text 85, 120, 25, 15, "State:"
-  Text 165, 145, 15, 15, "To: "
-  Text 160, 120, 45, 15, "County code:"
-  Text 260, 120, 35, 15, "Zip code:"
-  Text 5, 260, 45, 15, "Case Action:"
-  Text 5, 85, 60, 15, "Facility Address:"
-  Text 5, 195, 60, 15, "Address line 1:"
-  Text 5, 210, 55, 15, "Address line 2:"
-  Text 5, 230, 20, 15, "City:"
-  Text 90, 230, 25, 15, "State:"
-  Text 5, 5, 125, 15, "**CHANGES** (check all that apply):"
-  Text 165, 230, 45, 15, "County code:"
-  Text 95, 145, 20, 15, "From:"
-  Text 265, 230, 35, 15, "Zip code:"
-  Text 5, 280, 45, 15, "Other notes:"
-  GroupBox 0, 0, 355, 250, ""
-EndDialog
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number and footer month/year
@@ -110,7 +47,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Showing the case number
+'Showing the case number - defining the dialog for the case number
 BeginDialog , 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
@@ -123,7 +60,7 @@ BeginDialog , 0, 0, 161, 65, "Case number and footer month"
 	CancelButton 85, 45, 50, 15
 EndDialog
 Do
-	Dialog
+	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
@@ -137,6 +74,7 @@ Do
 	Do
 		Do
 			Do
+				'The successive dialogs for this script need to be defined in the loop just before being called
 				BeginDialog , 0, 0, 361, 305, "5181 Dialog 1"
 				  EditBox 55, 5, 55, 15, date_5181_editbox
 				  EditBox 170, 5, 55, 15, date_received_editbox
@@ -195,7 +133,7 @@ Do
 				  Text 185, 215, 45, 15, "County code:"
 				  Text 185, 140, 165, 15, "**Script will default to sending the SWKR notices**"
 				EndDialog
-				Dialog 							'Displays the first dialog
+				Dialog 							'Displays the first dialog - defined just above.
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_02_button
@@ -206,6 +144,7 @@ Do
 		Do
 			Do
 				Do
+					'The successive dialogs for this script need to be defined in the loop just before being called
 					BeginDialog , 0, 0, 361, 415, "5181 Dialog 2"
 					  EditBox 75, 35, 45, 15, waiver_assessment_date_editbox
 					  EditBox 270, 50, 45, 15, estimated_effective_date_editbox
@@ -257,7 +196,7 @@ Do
 					  Text 5, 350, 225, 10, "Client no longer meets LOC - Effective date should be no sooner than:"
 					  Text 5, 375, 100, 10, "Waiver program change from:"
 					EndDialog
-					Dialog 							'Displays the second dialog
+					Dialog 							'Displays the second dialog - defined just above.
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
@@ -268,6 +207,7 @@ Do
 		If ButtonPressed = previous_to_page_01_button then exit do
 		Do
 			Do
+				'The successive dialogs for this script need to be defined in the loop just before being called
 				BeginDialog , 0, 0, 361, 340, "5181 Dialog 3"
 				  CheckBox 5, 20, 135, 15, "Exited waiver program- Effective date: ", exited_waiver_program_check
 				  EditBox 140, 20, 40, 15, exit_waiver_end_date_editbox
@@ -327,7 +267,7 @@ Do
 				  GroupBox 0, 0, 355, 250, ""
 				EndDialog
 				err_msg = ""
-				Dialog 								'Displays the third dialog
+				Dialog 								'Displays the third dialog - defined just above.
 				cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
 				MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				IF case_action_editbox = "" THEN err_msg = err_msg & vBcr & "Complete case actions section."
