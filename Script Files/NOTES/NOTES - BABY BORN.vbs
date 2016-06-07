@@ -38,8 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-------------------------------------------------------------------------------------------------------------
-BeginDialog baby_born_dialog, 0, 0, 211, 310, "BABY BORN"
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+'This script currently only has one dialog and so it can be defined in the beginning but is unnamedBeginDialog , 0, 0, 211, 310, "BABY BORN"
   EditBox 55, 5, 95, 15, MAXIS_case_number
   EditBox 55, 25, 95, 15, babys_name
   EditBox 55, 45, 95, 15, date_of_birth
@@ -91,7 +92,7 @@ END IF
 DO
 	DO
 		err_msg = ""
-		DIALOG Baby_Born_Dialog
+		DIALOG  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"

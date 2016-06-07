@@ -38,17 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'----DIALOGS------------------------------------------------------------------------------------------------------------------------------ 
-BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+'This script currently only has one dialog and so it can be defined in the beginning but is unnamedBeginDialog , 0, 0, 291, 175, "Household Comp Change"
   Text 5, 15, 50, 10, "Case Number"
   EditBox 60, 10, 100, 15, MAXIS_case_number
   Text 5, 35, 80, 10, "Unit Member HH Change"
   EditBox 90, 30, 45, 15, HH_member
   Text 5, 55, 85, 10, "Date Reported/Addendum"
   EditBox 95, 50, 60, 15, date_reported
-  Text 165, 55, 45, 10, "Effective Date"
+  Text 160, 55, 55, 10, "Effective Date"
   EditBox 215, 50, 70, 15, effective_date
-  CheckBox 110, 70, 110, 10, "Check if the change is temporary.", temporary_change_checkbox
+  CheckBox 110, 70, 120, 10, "Check if the change is temporary.", temporary_change_checkbox
   Text 10, 90, 45, 10, "Action Taken"
   EditBox 60, 85, 225, 15, actions_taken
   Text 5, 110, 60, 10, "Additional Notes"
@@ -84,7 +85,7 @@ check_for_maxis(False)
 DO
 	DO
 		err_msg = ""
-		DIALOG HHLD_Comp_Change_Dialog
+		DIALOG  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
