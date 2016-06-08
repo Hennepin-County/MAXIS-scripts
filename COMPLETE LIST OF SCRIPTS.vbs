@@ -34,13 +34,14 @@
 
 
 
-class script
+class script_bowie
 
     'Stuff the user indicates
 	public script_name             	'The familiar name of the script (file name without file extension or category, and using familiar case)
 	public description             	'The description of the script
 	public button                  	'A variable to store the actual results of ButtonPressed (used by much of the script functionality)
     public category               	'The script category (ACTIONS/BULK/etc)
+	public workflows               	'The script workflows associated with this script (Changes Reported, Applications, etc)
     public subcategory				'An array of all subcategories a script might exist in, such as "LTC" or "A-F"
     
     'Details the menus will figure out (does not need to be explicitly declared)
@@ -49,11 +50,7 @@ class script
 	public total_times_to_run		'A variable for the total times the script should run
 
     'Details the class itself figures out
-	public property get button_size	'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
-		button_size = round ( len( script_name ) * 3.5 ) + 10
-	end property
-    
-    public property get script_URL
+	public property get script_URL
         If script_repository = "" then script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script%20Files/"    'Assumes we're scriptwriters
         script_URL = script_repository & ucase(category) & "/" & replace(ucase(category & "%20-%20" & script_name) & ".vbs", " ", "%20")
     end property
@@ -62,28 +59,43 @@ class script
         SIR_instructions_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/" & replace(ucase(script_name) & ".aspx", " ", "%20")
     end property
 
-    'THIS IS DEPRECIATED AND SHOULD BE REMOVED FROM MAIN MENU SCRIPTS ONCE IT'S FULLY TESTED
-	public file_name               	'The actual file name
-
 end class
 
 script_num = 0
 ReDim Preserve script_array(script_num)
-Set script_array(script_num) = new script
+Set script_array(script_num) = new script_bowie
+script_array(script_num).script_name 			= "ABAWD Banked Months FIATer"																		'Script name
+script_array(script_num).description 			= "FIATS SNAP eligibility, income, and deductions for HH members using banked months."
+script_array(script_num).category               = "ACTIONS"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ABAWD FSET Exemption Check"																		'Script name
+script_array(script_num).description 			= "Double checks a case to see if any possible ABAWD/FSET exemptions exist."
+script_array(script_num).category               = "ACTIONS"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Application Received"																		'Script name
 script_array(script_num).description 			= "Template for documenting details about an application recevied."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).subcategory            = "#-C"
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script		'Set this array element to be a new script. Script details below...
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Approved programs"																		'Script name
 script_array(script_num).description 			= "Template for when you approve a client's programs."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).subcategory            = "#-C"
 
-For each script_to_test in script_array
-    CreateObject("WScript.Shell").Run(script_to_test.SIR_instructions_URL)
-    CreateObject("WScript.Shell").Run(script_to_test.script_URL)
-Next
+'For each script_to_test in script_array
+'    CreateObject("WScript.Shell").Run(script_to_test.SIR_instructions_URL)
+'    CreateObject("WScript.Shell").Run(script_to_test.script_URL)
+'Next
