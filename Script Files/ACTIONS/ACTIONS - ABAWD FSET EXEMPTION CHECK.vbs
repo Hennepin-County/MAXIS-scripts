@@ -40,9 +40,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 166, 70, "Case number dialog"
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+'This script currently only has one dialog and so it can be defined in the beginning but is unnamed
+BeginDialog , 0, 0, 166, 70, "Case number dialog"
   EditBox 65, 5, 70, 15, MAXIS_case_number
   EditBox 65, 25, 30, 15, MAXIS_footer_month
   EditBox 130, 25, 30, 15, MAXIS_footer_year
@@ -75,7 +76,7 @@ cstr(MAXIS_footer_month)
 
 DO
 	err_msg = ""
-	DIALOG case_number_dialog
+	DIALOG  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "* Please enter a case number."
 		IF MAXIS_footer_month = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."

@@ -38,8 +38,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS & grabs the case number and footer month/year
+EMConnect ""
+call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+'The initial dialog------defined and displayed------------------------------------------------------------------------
+BeginDialog , 0, 0, 141, 80, "Case number dialog"
   EditBox 65, 10, 65, 15, MAXIS_case_number
   EditBox 65, 30, 30, 15, MAXIS_footer_month
   EditBox 100, 30, 30, 15, MAXIS_footer_year
@@ -49,8 +58,16 @@ BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
   Text 10, 30, 50, 15, "Footer month:"
   Text 10, 10, 50, 15, "Case number: "
 EndDialog
+DO
+	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid case number."
+	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
+	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
 
-BeginDialog DHS_1503_dialog, 0, 0, 366, 285, "1503 Dialog"
+'THE 1503 MAIN DIALOG---------defined and displayed-----------------------------------------------------------------------
+BeginDialog , 0, 0, 366, 285, "1503 Dialog"
   EditBox 55, 5, 135, 15, FACI
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
   DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
@@ -90,25 +107,8 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 285, "1503 Dialog"
   GroupBox 0, 205, 335, 55, "Script actions"
   Text 95, 270, 60, 10, "Worker signature:"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS & grabs the case number and footer month/year
-EMConnect ""
-call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'The initial dialog----------------------------------------------------------------------------------------------------
-DO
-	Dialog case_number_dialog
-	cancel_confirmation
-	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid case number."
-	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
-	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
-LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
-
-'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do
-	Dialog DHS_1503_dialog
+	Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
 LOOP UNTIL worker_signature <> ""  
