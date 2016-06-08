@@ -369,7 +369,7 @@ objExcel.Cells(1, 3).Font.Bold = TRUE
 ObjExcel.Cells(1, 4).Value = "SNAP GRANT"
 ObjExcel.Cells(1, 4).Font.Bold = TRUE
 excel_row = 2
-	For n = 0 to ubound(SNAP_active_array) 'to ubound(SNAP_active_array)
+	For n = 0 to ubound(SNAP_active_array)
 		'Make sure in correct footer month, sometimes we drop back a month
 		MAXIS_footer_month = datepart("m", date)
 		IF len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
@@ -383,7 +383,9 @@ excel_row = 2
 			version = version -1
 			EMWriteScreen version, 19, 78
 			transmit
-			Next
+		Next
+		EMReadScreen approval_date, 8, 3, 14
+		If datepart("m", approval_date) = datepart("m", (dateadd("m", -1, date))) THEN 'If this was approved in current month minus one, look it up
 			'On this screen, we are reading the gross income / unearned income amounts'
 			EMWriteScreen "FSB1", 19, 70
 			Transmit
@@ -414,16 +416,17 @@ excel_row = 2
 			'!!!!!!!!!!!!!!make a criteria met value for future use with if/thens'
 			'And add to spreadsheet if needed
 			IF snap_active_array(n).total_income > 250 AND snap_active_array(n).snap_grant > 50 THEN
-			objExcel.cells(excel_row, 1).value = snap_active_array(n).worker_number
-			objExcel.cells(excel_row, 2).value = MAXIS_case_number
-			objExcel.cells(excel_row, 3).value = snap_active_array(n).total_income
-			objExcel.cells(excel_row, 4).value = snap_active_array(n).snap_grant
-			active_criteria_total = active_criteria_total + 1
-			excel_row = excel_row + 1
+				objExcel.cells(excel_row, 1).value = snap_active_array(n).worker_number
+				objExcel.cells(excel_row, 2).value = MAXIS_case_number
+				objExcel.cells(excel_row, 3).value = snap_active_array(n).total_income
+				objExcel.cells(excel_row, 4).value = snap_active_array(n).snap_grant
+				active_criteria_total = active_criteria_total + 1
+				excel_row = excel_row + 1
 			END IF
 			sa_count = sa_count + 1
-			NEXT
-	END IF
+		END IF
+	NEXT
+END IF
 
 
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns

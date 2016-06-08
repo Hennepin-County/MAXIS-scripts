@@ -163,8 +163,8 @@ For each worker in worker_array
 	transmit
 
 	'Skips workers with no info
-	EMReadScreen has_content_check, 1, 7, 8
-	If has_content_check <> " " then
+	EMReadScreen has_content_check, 8, 7, 6
+	If has_content_check <> "        " then
 
 		'Grabbing each case number on screen
 		Do
