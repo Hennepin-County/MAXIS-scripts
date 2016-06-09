@@ -2083,6 +2083,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 						EMSendKey "Y"
 						transmit
 					END IF
+					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8
 					EMReadScreen package_approved, 8, 4, 38
 				LOOP Until package_approved = "approved"
 				transmit
