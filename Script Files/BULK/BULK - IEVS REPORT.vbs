@@ -2,7 +2,7 @@
 name_of_script = "BULK - IEVS REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 25                               'manual run time, per line, in seconds
+STATS_manualtime = 35                               'manual run time, per line, in seconds
 STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
@@ -190,7 +190,7 @@ For each x_number in x_number_array
 				EMReadScreen last_page_check, 21, 24, 2	
 			End If 
 			excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
-			diff_notc_date = ""			'blanks this out so that the information is not carried over in the do-loop'
+			STATS_counter = STATS_counter + 1		'Counts 1 item for every Match found and entered into excel.			diff_notc_date = ""			'blanks this out so that the information is not carried over in the do-loop'
 			maxis_case_number = ""
 		LOOP until last_page_check = "THIS IS THE LAST PAGE"
 	Else 
@@ -305,5 +305,7 @@ objExcel.Cells(1, 2).HorizontalAlignment = -4108
 For col_to_autofit = 1 to 20
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
+
+STATS_counter = STATS_counter - 1		'removing the initial counter so that this number is correct.
 
 script_end_procedure("Success! The spreadsheet has all requested information.")
