@@ -86,8 +86,8 @@ Function approval_summary
   EMWriteScreen "stat", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen MAXIS_case_number, 18, 43
-  EMWriteScreen Approval_month, 20, 43
-  EMWriteScreen Approval_year, 20, 46
+  EMWriteScreen MAXIS_footer_month, 20, 43
+  EMWriteScreen MAXIS_footer_year, 20, 46
   EMWriteScreen "hcmi", 21, 70
   transmit
 
@@ -143,8 +143,8 @@ Function approval_summary
   EMWriteScreen "elig", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen MAXIS_case_number, 18, 43
-  EMWriteScreen Approval_month, 20, 43
-  EMWriteScreen Approval_year, 20, 46
+  EMWriteScreen MAXIS_footer_month, 20, 43
+  EMWriteScreen MAXIS_footer_year, 20, 46
   EMWriteScreen "hc", 21, 70
   transmit
  'checks if the first person has HC if not it selects person 02.
@@ -158,9 +158,9 @@ Function approval_summary
 
   row = 3
   col = 1
-  EMSearch Approval_month & "/" & Approval_year, row, col
+  EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
   If row = 0 then
-    MsgBox "A " & Approval_month & "/" & Approval_year & " span could not be found. Try this again. You may need to run the case through background."
+    MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
     stopscript
   End if
 
@@ -298,9 +298,9 @@ EndDialog
   			 transmit
 			 row = 3
   			 col = 1
-  			 EMSearch Approval_month & "/" & Approval_year, row, col
+  			 EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
  			 If row = 0 then
- 			   MsgBox "A " & Approval_month & "/" & Approval_year & " span could not be found. Try this again. You may need to run the case through background."
+ 			   MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
  			   stopscript
 			  End if
 			  EMReadScreen elig_type, 2, 12, col - 2
@@ -344,8 +344,8 @@ function income_summary
 
 	
 	back_to_self
-	EMWriteScreen Approval_month, 20, 43
-	EMWriteScreen Approval_year, 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 
 	'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	call navigate_to_MAXIS_screen("stat", "unea")
@@ -600,8 +600,8 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 	BeginDialog COLA_case_number_dialog, 0, 0, 211, 110, "COLA case number dialog"
 		EditBox 100, 0, 60, 15, MAXIS_case_number
-		EditBox 80, 20, 20, 15, Approval_month
-		EditBox 180, 20, 20, 15, Approval_year
+		EditBox 80, 20, 20, 15, MAXIS_footer_month
+		EditBox 180, 20, 20, 15, MAXIS_footer_year
 		CheckBox 65, 55, 75, 10, "Approval Summary", approval_summary_check
 		CheckBox 65, 70, 70, 10, "Income Summary", income_summary_check
 		ButtonGroup ButtonPressed
@@ -618,8 +618,8 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 		Dialog COLA_case_number_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number." & vBCr
-		If len(Approval_month) <> 2 THEN err_msg = err_msg & "* Enter the Approval month in MM format (include leading zero if needed)" & vBCr
-		If len(Approval_month) <> 2 THEN err_msg = err_msg & "* Enter the Approval year in YY format (include leading zero if needed)" & vBCr
+		If len(MAXIS_footer_month) <> 2 THEN err_msg = err_msg & "* Enter the Approval month in MM format (include leading zero if needed)" & vBCr
+		If len(MAXIS_footer_year) <> 2 THEN err_msg = err_msg & "* Enter the Approval year in YY format (include leading zero if needed)" & vBCr
 		IF err_msg <> "" THEN msgbox err_msg
 	LOOP until err_msg = ""
 
