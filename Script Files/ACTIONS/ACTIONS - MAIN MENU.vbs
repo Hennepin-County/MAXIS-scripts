@@ -94,7 +94,7 @@ Function declare_main_menu_dialog(script_category)
 		subcategory_array(i).subcat_name = subcategory_list(i)
 	Next
 	
-	BeginDialog dialog1, 0, 0, 600, 340, script_category & " scripts main menu dialog"
+	BeginDialog dialog1, 0, 0, 600, 400, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		
@@ -158,7 +158,7 @@ Function declare_main_menu_dialog(script_category)
 			End if
 		next
 
-		CancelButton 540, 320, 50, 15
+		CancelButton 540, 380, 50, 15
 	EndDialog
 End function
 'END CUSTOM FUNCTIONS=======================================================================================================
