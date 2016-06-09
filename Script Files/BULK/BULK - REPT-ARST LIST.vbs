@@ -157,6 +157,9 @@ objExcel.Cells(2, 2).Font.Bold = TRUE
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
 col_to_use = 3 'Starting with 3 because cols 1-2 are already used
 
+'creates a gather_cases_pending veriable as TRUE if any of the pending options is checked to get case data correctly 
+If pending_check = checked OR pending_under_31_check = checked OR pending_31_to_45_check = checked OR pending_46_to_60_check = checked OR pending_over_60_check = checked THEN gather_cases_pending = TRUE 
+
 case_header_col = col_to_use		'Sets the header to be used later for merging Cells
 
 'Sets the Excel Sheet up to document CASE information - headers and variable information
@@ -183,7 +186,7 @@ If REIN_check = checked then
 	col_to_use = col_to_use + 1
 	case_REIN_letter_col = convert_digit_to_excel_column(case_REIN_col)
 End if
-If pending_check = checked then
+If gather_cases_pending = TRUE then
 	ObjExcel.Cells(2, col_to_use).Value = "PND2"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	case_pnd2_col = col_to_use
@@ -693,7 +696,7 @@ For each worker_number in worker_array
 		ObjExcel.Cells(excel_row, case_total_col).Value = total_cases
 		If active_check = checked then ObjExcel.Cells(excel_row, case_actv_col).Value = cases_actv
 		If REIN_check = checked then ObjExcel.Cells(excel_row, case_REIN_col).Value = cases_rein
-		If pending_check = checked then 
+		If gather_cases_pending = TRUE then 
 			ObjExcel.Cells(excel_row, case_pnd2_col).Value = cases_pnd2
 			ObjExcel.Cells(excel_row, case_pnd1_col).Value = cases_pnd1
 		End If 
