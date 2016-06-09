@@ -603,11 +603,15 @@ For each worker_number in worker_array
 	transmit
 
 	'The following will determine if the worker is active or inactive. Inactive workers will show a 0 for all numbers, and will not be entered into the spreadsheet
-	EMReadScreen total_cases, 9, 5, 47
-	EMReadScreen CAF_I_APPL_taken, 9, 12, 47
-	EMReadScreen CAF_II_APPL_taken, 9, 13, 47
-	EMReadScreen cases_auto_denied, 9, 14, 47
-	EMReadScreen address_changes_count, 9, 15, 47	'Reading address changes, which will be used later
+	EMReadScreen total_cases, 			 9, 5, 47
+	EMReadScreen cases_actv, 			 9, 6, 47 
+	EMReadScreen cases_rein, 			 9, 7, 47
+	EMReadScreen cases_pnd2, 			 9, 8, 47
+	EMReadScreen cases_pnd1, 			 9, 9, 47
+	EMReadScreen CAF_I_APPL_taken, 	 	 9, 12, 47
+	EMReadScreen CAF_II_APPL_taken, 	 9, 13, 47
+	EMReadScreen cases_auto_denied, 	 9, 14, 47
+	EMReadScreen address_changes_count,  9, 15, 47	'Reading address changes, which will be used later
 	EMReadScreen ASET_versions_approved, 9, 16, 47
 
 	'Deciding if the case is active based on the above responses.
@@ -686,6 +690,14 @@ For each worker_number in worker_array
 		ObjExcel.Cells(excel_row, 1).Value = worker_number
 		ObjExcel.Cells(excel_row, 2).Value = worker_name
 
+		ObjExcel.Cells(excel_row, case_total_col).Value = total_cases
+		If active_check = checked then ObjExcel.Cells(excel_row, case_actv_col).Value = cases_actv
+		If REIN_check = checked then ObjExcel.Cells(excel_row, case_REIN_col).Value = cases_rein
+		If pending_check = checked then 
+			ObjExcel.Cells(excel_row, case_pnd2_col).Value = cases_pnd2
+			ObjExcel.Cells(excel_row, case_pnd1_col).Value = cases_pnd1
+		End If 
+		
 		'Cash info to Excel
 		If cash_check = checked then
 			If active_check = checked then ObjExcel.Cells(excel_row, cash_actv_col).Value = cash_active_count
