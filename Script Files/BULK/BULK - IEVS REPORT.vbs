@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "BULK - IEVS Report.vbs"
+name_of_script = "BULK - IEVS REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 25                               'manual run time, per line, in seconds
