@@ -42,8 +42,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-
 'DIALOGS-------------------------------------------------------
 BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
   CheckBox 10, 15, 60, 10, "Cash", cash_check
@@ -805,6 +803,10 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
+
+'This bit freezes the top 2 rows for scrolling ease of use
+ObjExcel.ActiveSheet.Range("A3").Select
+objExcel.ActiveWindow.FreezePanes = True
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The statistics have loaded.")
