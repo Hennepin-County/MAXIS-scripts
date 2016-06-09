@@ -549,6 +549,135 @@ script_array(script_num).subcategory            = array("")
 
 'DAIL SCRIPTS=====================================================================================================================================
 
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ABAWD FSET Exemption Check"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Affiliated Case Lookup"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "BNDX Scrubber"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Citizenship Verified"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "CS Reported New Employer"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "CSES Processing"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "DISA Message"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "FMED Deduction"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "LTC - Remedial Care"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = "LTC"
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "New Hire NDNH"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "New Hire"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "SDX Info Has Been Stored"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Send NOMI"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Student Income"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "TPQY Response"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "TYMA Scrubber"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).subcategory            = ""
+
+
 
 
 
@@ -562,7 +691,7 @@ script_array(script_num).subcategory            = array("")
 'NAV SCRIPTS=====================================================================================================================================
 
 
-
+'HOLDING UP ON THIS UNTIL WE GET A RESOLUTION ON GITHUB ISSUE #2301: https://github.com/MN-Script-Team/DHS-MAXIS-Scripts/issues/2301
 
 
 
@@ -578,7 +707,7 @@ Set script_array(script_num) = new script_bowie		'Set this array element to be a
 script_array(script_num).script_name 			= "Application Received"																		'Script name
 script_array(script_num).description 			= "Template for documenting details about an application recevied."
 script_array(script_num).category               = "NOTES"
-script_array(script_num).subcategory            = "#-C"
+script_array(script_num).subcategory            = array("#-C")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -586,7 +715,7 @@ Set script_array(script_num) = new script_bowie		'Set this array element to be a
 script_array(script_num).script_name 			= "Approved programs"																		'Script name
 script_array(script_num).description 			= "Template for when you approve a client's programs."
 script_array(script_num).category               = "NOTES"
-script_array(script_num).subcategory            = "#-C"
+script_array(script_num).subcategory            = array("#-C")
 
 
 
