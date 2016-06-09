@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - LTC - COLA SUMMARY 2016.vbs"
+name_of_script = "NOTES - LTC - COLA SUMMARY.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 480          'manual run time in seconds
@@ -86,8 +86,8 @@ Function approval_summary
   EMWriteScreen "stat", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen MAXIS_case_number, 18, 43
-  EMWriteScreen "01", 20, 43
-  EMWriteScreen "16", 20, 46
+  EMWriteScreen MAXIS_footer_month, 20, 43
+  EMWriteScreen MAXIS_footer_year, 20, 46
   EMWriteScreen "hcmi", 21, 70
   transmit
 
@@ -143,8 +143,8 @@ Function approval_summary
   EMWriteScreen "elig", 16, 43
   EMWriteScreen "________", 18, 43
   EMWriteScreen MAXIS_case_number, 18, 43
-  EMWriteScreen "01", 20, 43
-  EMWriteScreen "16", 20, 46
+  EMWriteScreen MAXIS_footer_month, 20, 43
+  EMWriteScreen MAXIS_footer_year, 20, 46
   EMWriteScreen "hc", 21, 70
   transmit
  'checks if the first person has HC if not it selects person 02.
@@ -158,9 +158,9 @@ Function approval_summary
 
   row = 3
   col = 1
-  EMSearch "01/16", row, col
+  EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
   If row = 0 then
-    MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
+    MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
     stopscript
   End if
 
@@ -298,9 +298,9 @@ EndDialog
   			 transmit
 			 row = 3
   			 col = 1
-  			 EMSearch "01/16", row, col
+  			 EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
  			 If row = 0 then
- 			   MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
+ 			   MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
  			   stopscript
 			  End if
 			  EMReadScreen elig_type, 2, 12, col - 2
@@ -342,10 +342,10 @@ function income_summary
 
 	EMConnect ""
 
-	'FORCING THE CASE INTO FOOTER MONTH 01/15
+	
 	back_to_self
-	EMWriteScreen "01", 20, 43
-	EMWriteScreen "16", 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 
 	'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	call navigate_to_MAXIS_screen("stat", "unea")
@@ -596,31 +596,34 @@ End function
 'CONNECTS TO MAXIS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 
-row = 1
-col = 1
-EMSearch "Case Nbr:", row, col
-If row <> 0 then EMReadScreen MAXIS_case_number, 8, row, col + 10
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Checking to see that we are in an appropriate footer month to be updating in CY2016
-If DateDiff("D", #12/01/2015#, date) < 0 THEN
-	script_end_procedure("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
-Else
-	BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
-	EditBox 100, 0, 60, 15, MAXIS_case_number
-	CheckBox 45, 30, 75, 10, "Approval Summary", approval_summary_check
-	CheckBox 45, 45, 70, 10, "Income Summary", income_summary_check
-	ButtonGroup ButtonPressed
-		OkButton 25, 65, 50, 15
-		CancelButton 90, 65, 50, 15
-	Text 10, 5, 85, 10, "Enter your case number:"
-	GroupBox 40, 20, 85, 40, "COLA case note types"
+	BeginDialog COLA_case_number_dialog, 0, 0, 211, 110, "COLA case number dialog"
+		EditBox 100, 0, 60, 15, MAXIS_case_number
+		EditBox 80, 20, 20, 15, MAXIS_footer_month
+		EditBox 180, 20, 20, 15, MAXIS_footer_year
+		CheckBox 65, 55, 75, 10, "Approval Summary", approval_summary_check
+		CheckBox 65, 70, 70, 10, "Income Summary", income_summary_check
+		ButtonGroup ButtonPressed
+			OkButton 45, 90, 50, 15
+			CancelButton 110, 90, 50, 15
+		Text 5, 25, 70, 10, "Approval Month(MM):"
+		Text 110, 25, 65, 10, "Approval Year(YY):"
+		Text 10, 5, 85, 10, "Enter your case number:"
+		GroupBox 60, 45, 85, 40, "COLA case note types"
 	EndDialog
-
-	Dialog COLA_case_number_dialog
-	cancel_confirmation
+	
+	DO
+		err_msg = ""
+		Dialog COLA_case_number_dialog
+		cancel_confirmation
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number." & vBCr
+		If len(MAXIS_footer_month) <> 2 THEN err_msg = err_msg & "* Enter the Approval month in MM format (include leading zero if needed)" & vBCr
+		If len(MAXIS_footer_year) <> 2 THEN err_msg = err_msg & "* Enter the Approval year in YY format (include leading zero if needed)" & vBCr
+		IF err_msg <> "" THEN msgbox err_msg
+	LOOP until err_msg = ""
 
 	If approval_summary_check = 1 then call approval_summary
 	If income_summary_check = 1 then call income_summary
-END IF
 
 script_end_procedure("")
