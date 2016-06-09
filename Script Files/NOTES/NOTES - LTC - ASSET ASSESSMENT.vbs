@@ -268,7 +268,7 @@ ELSE
 			'4th page of the total marital asset list
 			EMReadScreen total_marital_asset_list_line_40, 53, 6, 25
 			EMReadScreen total_marital_asset_list_line_41, 53, 7, 25
-			EMReadScreacen total_marital_asset_list_line_42, 53, 8, 25
+			EMReadScreen total_marital_asset_list_line_42, 53, 8, 25
 			EMReadScreen total_marital_asset_list_line_43, 53, 9, 25
 			EMReadScreen total_marital_asset_list_line_44, 53, 10, 25
 			EMReadScreen total_marital_asset_list_line_45, 53, 11, 25
