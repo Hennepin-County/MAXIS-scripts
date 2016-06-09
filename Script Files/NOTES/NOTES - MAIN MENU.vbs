@@ -581,9 +581,9 @@ script_array_LTC(script_num).description				= "Template for the LTC asset assess
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
 Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
-script_array_LTC(script_num).script_name 				= "LTC - COLA summary 2016"
-script_array_LTC(script_num).file_name					= "NOTES - LTC - COLA SUMMARY 2016.vbs"
-script_array_LTC(script_num).description				= "Template to summarize actions for the 2016 COLA.*"
+script_array_LTC(script_num).script_name 				= "LTC - COLA summary"
+script_array_LTC(script_num).file_name					= "NOTES - LTC - COLA SUMMARY.vbs"
+script_array_LTC(script_num).description				= "Template to summarize actions for the changes due to COLA.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
