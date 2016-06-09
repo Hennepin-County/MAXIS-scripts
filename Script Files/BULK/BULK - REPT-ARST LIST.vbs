@@ -157,6 +157,58 @@ objExcel.Cells(2, 2).Font.Bold = TRUE
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
 col_to_use = 3 'Starting with 3 because cols 1-2 are already used
 
+case_header_col = col_to_use		'Sets the header to be used later for merging Cells
+
+'Sets the Excel Sheet up to document CASE information - headers and variable information
+ObjExcel.Cells(2, col_to_use).Value = "Total"
+objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+case_total_col = col_to_use
+objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+col_to_use = col_to_use + 1
+case_total_letter_col = convert_digit_to_excel_column(case_total_col)
+
+If active_check = checked then
+	ObjExcel.Cells(2, col_to_use).Value = "ACTV"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_actv_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_actv_letter_col = convert_digit_to_excel_column(case_actv_col)
+End if
+If REIN_check = checked then
+	ObjExcel.Cells(2, col_to_use).Value = "REIN"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_REIN_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_REIN_letter_col = convert_digit_to_excel_column(case_REIN_col)
+End if
+If pending_check = checked then
+	ObjExcel.Cells(2, col_to_use).Value = "PND2"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_pnd2_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_pnd2_letter_col = convert_digit_to_excel_column(case_pnd2_col)
+
+	ObjExcel.Cells(2, col_to_use).Value = "PND1"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_pnd1_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_pnd1_letter_col = convert_digit_to_excel_column(case_pnd1_col)
+End if
+
+'Header cell
+ObjExcel.Cells(1, case_header_col).Value = "CASES"
+objExcel.Cells(1, case_header_col).Font.Bold = TRUE
+
+'Merging header cell. Uses col_to_use - 1 because we already moved on to the next column.
+ObjExcel.Range(ObjExcel.Cells(1, case_header_col), ObjExcel.Cells(1, col_to_use - 1)).Merge
+
+'Centering the cell
+objExcel.Cells(1, case_header_col).HorizontalAlignment = -4108
+
 'Headers and variable declaration for cash
 If cash_check = checked then
 	cash_header_col = col_to_use 'will use this later to merge cells
