@@ -90,7 +90,7 @@ script_array(script_num).script_name 			= "ABAWD FSET Exemption Check"										
 script_array(script_num).description 			= "Double checks a case to see if any possible ABAWD/FSET exemptions exist."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("ABAWD")
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -99,7 +99,7 @@ script_array(script_num).script_name			= "ABAWD Screening Tool"
 script_array(script_num).description			= "A tool to walk through a screening to determine if client is ABAWD."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("ABAWD")
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
