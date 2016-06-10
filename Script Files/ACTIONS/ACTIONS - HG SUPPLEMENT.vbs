@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - HOUSING GRANT MONY CHCK ISSUANCE.vbs"
+name_of_script = "ACTIONS - HG SUPPLEMENT.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 269                	'manual run time in seconds
