@@ -47,7 +47,7 @@ CM_minus_11_mo =  left("0" &            DatePart("m",           DateAdd("m", -11
 CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
 
 'DIALOG===========================================================================================================================
-BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 200, "MFIP Housing Grant MONY/CHCK issuance "
+BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 200, "Housing grant supplement"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 165, 10, 25, 15, member_number
   EditBox 245, 10, 25, 15, initial_month
@@ -60,7 +60,7 @@ BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 200, "MFIP Housi
   Text 15, 80, 280, 35, "Before you use the script, please review the case for eligibility for the MFIP housing grant, and ensure that the results in ELIG/MFIP reflect eligibility for the month the MONY/CHCK is being issued. You can do this by running the case through background for the applicable footer month/year."
   Text 200, 15, 40, 10, "month/year:"
   Text 10, 180, 60, 10, "Worker signature:"
-  GroupBox 10, 35, 290, 110, "MFIP Housing Grant MONY/CHCK Issuance:"
+  GroupBox 10, 35, 290, 110, "Housing grant supplement:"
   Text 125, 15, 35, 10, "Member #:"
   Text 10, 15, 50, 10, "Case Number:"
   Text 10, 155, 45, 10, "Other notes:"
