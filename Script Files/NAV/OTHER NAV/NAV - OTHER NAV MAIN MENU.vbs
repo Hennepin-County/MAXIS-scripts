@@ -63,9 +63,9 @@ Loop until buttonpressed <> SIR_instructions_button
 'Connecting to BlueZone
 EMConnect ""
 
-If buttonpressed = LOOK_UP_MAXIS_CASE_IN_MMIS_button						then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - LOOK UP MAXIS CASE IN MMIS.vbs")
-If buttonpressed = LOOK_UP_MMIS_PMI_IN_MAXIS_button						then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - LOOK UP MMIS PMI IN MAXIS.vbs")
-If buttonpressed = VIEW_INFC_button									then call run_from_GitHub(script_repository & "/NAV/OTHER NAV/NAV - VIEW INFC.vbs")
+If buttonpressed = LOOK_UP_MAXIS_CASE_IN_MMIS_button						then call run_from_GitHub(script_repository & "/NAV/NAV - FIND MAXIS CASE IN MMIS.vbs")
+If buttonpressed = LOOK_UP_MMIS_PMI_IN_MAXIS_button						then call run_from_GitHub(script_repository & "/NAV/NAV - FIND MMIS PMI IN MAXIS.vbs")
+If buttonpressed = VIEW_INFC_button									then call run_from_GitHub(script_repository & "/NAV/NAV - VIEW INFC.vbs")
 
 'Logging usage stats
 script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
