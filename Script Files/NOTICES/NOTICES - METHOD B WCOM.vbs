@@ -210,7 +210,7 @@ Transmit
 PF9
 
 'Worker Comment Input
-Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount the amount, or the amount you pay each month, is $" & recipient_amt & ". This is how the recipeint amount is determined:")
+Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount, or the amount you pay each month, is $" & recipient_amt & ". This is how the recipient amount is determined:")
 Write_variable_in_SPEC_MEMO("Income: $" & income &" - MA Income Standard $" & income_standard & " = $" & spenddown)
 Write_variable_in_SPEC_MEMO("Spenddown:            $" & spenddown)
 If medi_part_a <> "" then Write_variable_in_SPEC_MEMO("Medicare Part A     - $" & medi_part_a)
