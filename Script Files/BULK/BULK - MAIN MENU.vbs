@@ -230,7 +230,7 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_list(script_num).script_name 			= "IEVC"
-script_array_BULK_list(script_num).file_name			= "BULK - IEVS REPORT.vbs"
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-IEVC LIST.vbs"
 script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
 
 script_num = script_num + 1								'Increment by one
