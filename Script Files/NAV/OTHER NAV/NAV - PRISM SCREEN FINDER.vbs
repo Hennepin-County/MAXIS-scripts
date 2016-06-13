@@ -1,6 +1,9 @@
 'Required for statistical purposes===============================================================================
 name_of_script = "NAV - PRISM SCREEN FINDER.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "I"                   'I is for each instance
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
