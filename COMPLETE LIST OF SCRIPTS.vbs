@@ -432,6 +432,15 @@ script_array(script_num).subcategory            = array("REPORTS")
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-GRMR List"
+script_array(script_num).description 			= "Pulls a list of cases in REPT/GRMR into an Excel spreadsheet."
+script_array(script_num).category               = "BULK"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("REPORTS")
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "REPT-INAC List"
 script_array(script_num).description 			= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
 script_array(script_num).category               = "BULK"
