@@ -226,8 +226,8 @@ End if
 
 'Calculating Sanction date
 IF Sanction_checkbox = 1 Then
-	end_of_sanction = dateadd("m", Sanction_months, closure_month_first_day)
-	sanction_period = datepart("m", closure_month_first_day) & "/" & datepart("yyyy", closure_month_first_day) & "-" & datepart("m", end_of_sanction) & "/" & datepart("yyyy", end_of_sanction)
+	end_of_sanction = dateadd("d", -1, dateadd("m", Sanction_months, closure_month_first_day))
+	sanction_period = closure_month_first_day & "-" & end_of_sanction
 END IF
 
 'Removing the last character of the progs_closed variable, as it is always a trailing slash
