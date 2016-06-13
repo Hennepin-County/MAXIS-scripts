@@ -350,15 +350,6 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
 
 script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "IEVS Report"
-script_array(script_num).description 			= "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
-script_array(script_num).category               = "BULK"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("REPORTS")
-
-script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name				= "INAC Scrubber"
@@ -426,6 +417,15 @@ ReDim Preserve script_array(script_num)		'Resets the array to add one more eleme
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "REPT-EOMC List"
 script_array(script_num).description 			= "Pulls a list of cases in REPT/EOMC into an Excel spreadsheet."
+script_array(script_num).category               = "BULK"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("REPORTS")
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-IEVC LIST"
+script_array(script_num).description 			= "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
