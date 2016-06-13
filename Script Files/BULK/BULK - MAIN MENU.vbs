@@ -222,6 +222,13 @@ script_array_BULK_list(script_num).description 			= "Creates a list of cases fro
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " GRMR "
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-GRMR LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/GRMR into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_list(script_num).script_name 			= "Housing Grant Exemption Finder"
 script_array_BULK_list(script_num).file_name			= "BULK - HOUSING GRANT EXEMPTION FINDER.vbs"
 script_array_BULK_list(script_num).description 			= "Creates a list the rolling 12 months of housing grant issuances for MFIP recipients who've met an exemption."
