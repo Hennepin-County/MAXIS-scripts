@@ -428,7 +428,7 @@ IF XFERRadioGroup = 0 THEN
 		'Creates a new MEMO. If it's unable the script will stop.
 		PF5
 		EMReadScreen memo_display_check, 12, 2, 33
-		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. You may not have the proper authorization to send a Spec/Memo or you may be in inquiry by mistake. Please try again in production first then contact your supervisor about obtaining permissions if still unable to access.")
 
 		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 		row = 4                             'Defining row and col for the search feature.
