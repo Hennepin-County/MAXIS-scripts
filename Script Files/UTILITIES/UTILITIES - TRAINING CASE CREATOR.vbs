@@ -333,6 +333,24 @@ For cases_to_make = 1 to how_many_cases_to_make
 		month_modifier = -4
 	ELSEIF APPL_month = "CM -5" THEN
 		month_modifier = -5
+	ELSEIF APPL_month = "CM -6" THEN
+		month_modifier = -6
+		second_span = True
+	ELSEIF APPL_month = "CM -7" THEN
+		month_modifier = -7
+		second_span = True
+	ELSEIF APPL_month = "CM -8" THEN
+		month_modifier = -8
+		second_span = True
+	ELSEIF APPL_month = "CM -9" THEN
+		month_modifier = -9
+		second_span = True
+	ELSEIF APPL_month = "CM -10" THEN
+		month_modifier = -10
+		second_span = True
+	ELSEIF APPL_month = "CM -11" THEN
+		month_modifier = -11
+		second_span = True
 	END IF
 
 	APPL_date = DateAdd("M", month_modifier, date)
@@ -378,6 +396,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 		MEMB_interpreter_yn = ObjExcel.Cells(MEMB_starting_excel_row + 10, current_excel_col).Value
 		MEMB_alias_yn = ObjExcel.Cells(MEMB_starting_excel_row + 11, current_excel_col).Value
 		MEMB_hisp_lat_yn = ObjExcel.Cells(MEMB_starting_excel_row + 12, current_excel_col).Value
+		If ObjExcel.Cells(345, current_excel_col).Value = "28 - Undocumented" Then Blank_IMIG = TRUE 	'Setting a variable for different process for undocumented
 
 		'Gets MEMI info from spreadsheet
 		MEMI_starting_excel_row = 19
@@ -387,20 +406,26 @@ For cases_to_make = 1 to how_many_cases_to_make
 		MEMI_cit_yn = ObjExcel.Cells(MEMI_starting_excel_row + 3, current_excel_col).Value
 
 		DO	'This DO-LOOP is to check that the CL's SSN created via random number generation is unique. If the SSN matches an SSN on file, the script creates a new SSN and re-enters the CL's information on MEMB. The checking for duplicates part is on the bottom, as that occurs when the worker presses transmit.
-			DO
+			IF Blank_IMIG <> True Then		'Non-undocumented client creation will have a SSN 
+				DO
+					Randomize
+					ssn_first = Rnd
+					ssn_first = 1000000000 * ssn_first
+					ssn_first = left(ssn_first, 3)
+				LOOP UNTIL left(ssn_first, 1) <> "9"	'starting with a 9 is invalid
 				Randomize
-				ssn_first = Rnd
-				ssn_first = 1000000000 * ssn_first
-				ssn_first = left(ssn_first, 3)
-			LOOP UNTIL left(ssn_first, 1) <> "9"	'starting with a 9 is invalid
-			Randomize
-			ssn_mid = Rnd
-			ssn_mid = 100000000 * ssn_mid
-			ssn_mid = left(ssn_mid, 2)
-			Randomize
-			ssn_end = Rnd
-			ssn_end = 100000000 * ssn_end
-			ssn_end = left(ssn_end, 4)
+				ssn_mid = Rnd
+				ssn_mid = 100000000 * ssn_mid
+				ssn_mid = left(ssn_mid, 2)
+				Randomize
+				ssn_end = Rnd
+				ssn_end = 100000000 * ssn_end
+				ssn_end = left(ssn_end, 4)
+			Else 						'If clt is undocumented - SSN  will be blank
+				ssn_first = "   "
+				ssn_mid = "  "
+				ssn_end = "    "
+			End If 
 
 			'Entering info on MEMB
 			EMWriteScreen reference_number, 4, 33
@@ -411,6 +436,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen ssn_mid, 7, 46
 			EMWriteScreen ssn_end, 7, 49
 			EMWriteScreen "P", 7, 68			'All SSNs should pend in the training region
+			If Blank_IMIG = TRUE Then EMWriteScreen "N", 7, 68		'If client is listed as undocumneted, no verif of a blank SSN
 			'Generating the DOB
 				year_of_birth = datepart("yyyy", date) - abs(MEMB_age)
 				IF MEMB_dob_mm_dd = "" THEN
@@ -430,7 +456,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen MEMB_spoken_lang, 13, 42
 			EMWriteScreen MEMB_interpreter_yn, 14, 68
 			EMWriteScreen MEMB_alias_yn, 15, 42
-			IF MEMI_cit_yn = "N" THEN
+			IF MEMI_cit_yn = "N" AND Blank_IMIG <> TRUE THEN		'No Alien ID numbers for undocumneted
 				MEMB_alien_ID = "A" & ssn_first & ssn_mid & ssn_end
 				EMWriteScreen MEMB_alien_ID, 15, 68
 			END IF
@@ -447,17 +473,19 @@ For cases_to_make = 1 to how_many_cases_to_make
 			LOOP UNTIL race_mini_box = "X AS MANY AS APPLY"
 			cl_ssn = ssn_first & "-" & ssn_mid & "-" & ssn_end
 			EMReadScreen ssn_match, 11, 8, 7
-			IF cl_ssn <> ssn_match THEN
+			IF cl_ssn <> ssn_match OR Blank_IMIG = TRUE THEN
 				PF8
 				PF8
 				PF5
 			ELSE
 				PF3
 			END IF
-		LOOP UNTIL cl_ssn <> ssn_match
+		LOOP UNTIL cl_ssn <> ssn_match  OR Blank_IMIG = TRUE 
 		EMWaitReady 0, 0
 		EMWriteScreen "Y", 6, 67
 		transmit
+		
+		Blank_IMIG = ""		'Blanking out for the next client
 
 		'Updates MEMI with the info
 		EMWriteScreen MEMI_marital_status, 7, 49
@@ -662,6 +690,9 @@ For each MAXIS_case_number in case_number_array
 		ElseIf REVW_ar_or_ir = "AR" then
 			EMWriteScreen six_month_month, 8, 71
 			EMWriteScreen six_month_year, 8, 77
+		ElseIf REVW_ar_or_ir = "ER Only" then
+			EMWriteScreen one_year_month, 8, 27
+			EMWriteScreen one_year_year, 8, 33 
 		End if
 		EMWriteScreen one_year_month, 9, 27
 		EMWriteScreen one_year_year, 9, 33
@@ -1656,6 +1687,7 @@ For each MAXIS_case_number in case_number_array
 		END IF
 		'SCHL
 		If SCHL_status <> "" then
+			If right(left(SCHL_grad_date, 2), 1) = "/" Then SCHL_grad_date = "0" & SCHL_grad_date	'Making sure that the grad date has the correct formating
 			call write_panel_to_MAXIS_SCHL(appl_date, SCHL_status, SCHL_ver, SCHL_type, SCHL_district_nbr, SCHL_kindergarten_start_date, SCHL_grad_date, SCHL_grad_date_ver, SCHL_primary_secondary_funding, SCHL_FS_eligibility_status, SCHL_higher_ed)
 			STATS_manualtime = STATS_manualtime + 20
 		END IF
@@ -2051,6 +2083,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 						EMSendKey "Y"
 						transmit
 					END IF
+					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8
 					EMReadScreen package_approved, 8, 4, 38
 				LOOP Until package_approved = "approved"
 				transmit
@@ -2255,6 +2291,12 @@ FOR EACH MAXIS_case_number IN case_number_array
 						EXIT DO
 					END IF
 				LOOP
+				row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+				col = 1
+				EMSearch "More: +", row, col 
+				If row <> 0 then PF8 
+				EMSendKey "Y"
+				transmit
 			END IF
 		END IF
 		'================= GA Approval ===============================================
@@ -2369,6 +2411,17 @@ FOR EACH MAXIS_case_number IN case_number_array
 					EMSendKey "1"
 					transmit
 				END IF
+				row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+				col = 1
+				EMSearch "More: +", row, col 
+				If row <> 0 then 
+					PF8
+					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "(Y/N)", row, col 
+					EMWriteScreen "Y", row, col +7
+					transmit
+				End If  
 			LOOP UNTIL total_package = "approved"
 			transmit
 
@@ -2401,7 +2454,11 @@ FOR EACH MAXIS_case_number IN case_number_array
 					DO
 						EMReadScreen ffpr, 4, 3, 47
 					LOOP UNTIL ffpr = "FFPR"
+					EMWriteScreen "N", 7, 58 
+					EMWriteScreen "P", 7, 66
 					PF3
+					EMReadScreen ffpr, 4, 3, 47
+					If ffpr = "FFPR" Then PF3 
 					DO
 						EMReadScreen ffcr, 4, 3, 46
 					LOOP UNTIL ffcr = "FFCR"
@@ -2449,10 +2506,18 @@ FOR EACH MAXIS_case_number IN case_number_array
 							transmit
 							EMSendKey "Y"
 							transmit
+							row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+							col = 1
+							EMSearch "More: +", row, col 
+							If row <> 0 then PF8 
 							EMSendKey "Y"
 							transmit
 						END IF
 						IF ups_delivery_confirmation = "PACKAGE" THEN
+							row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+							col = 1
+							EMSearch "More: +", row, col 
+							If row <> 0 then PF8 
 							EMSendKey "Y"
 							transmit
 						END IF
@@ -2499,6 +2564,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
+					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8 
 					row = 1
 					col = 1
 					EMSearch "(Y/N)  _", row, col
@@ -2509,6 +2578,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 					EMSearch "Do you want to continue with the approval?", row, col
 				LOOP UNTIL row <> 0
 				DO
+					row = 1						'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8 
 					row = 1
 					col = 1
 					EMSearch "(Y/N)  _", row, col
@@ -2530,6 +2603,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
+					row = 1								'This is looking for if there are more months listed that need to be scrolled through to review.
+					col = 1
+					EMSearch "More: +", row, col 
+					If row <> 0 then PF8 
 					row = 1
 					col = 1
 					EMSearch "(Y/N)", row, col
@@ -2549,6 +2626,10 @@ FOR EACH MAXIS_case_number IN case_number_array
 
 	If HC_application = True AND (HCRE_retro_months_input = "" OR HCRE_retro_months_input = "0") then			'IF the case is requesting retro, it should not approve. That is a scenario that needn't be auto-approved.
 		'Approve HC, please.
+		Do				'Need to make sure the case has come all the way through background
+			call navigate_to_MAXIS_screen ("STAT", "SUMM")		'Otherwise occasionally the FIATING getts messed up with the MNSURE FIAT part
+			EMReadScreen summ_check, 4, 2, 46
+		Loop until summ_check = "SUMM"
 		'=====THE SCRIPT NEEDS TO GET AROUND ELIG/HC RESULTS BEING STUCK IN BACKGROUND
 		DO
 			call navigate_to_MAXIS_screen("ELIG", "HC")
@@ -2664,6 +2745,23 @@ FOR EACH MAXIS_case_number IN case_number_array
 							END IF
 						LOOP UNTIL back_to_bsum = "BSUM"
 						'---Now the script needs to determine if the case passes income test for cert period
+						EMReadScreen clt_ref_num, 2, 5, 16 
+						EMWriteScreen "X", 18, 3 
+						Transmit
+						For spddn_row = 6 to 18 
+							EMReadScreen spenddown_type, 12, spddn_row, 39 
+							EMReadScreen listed_clt, 2, spddn_row, 6 
+							IF spenddown_type <> "NO SPENDDOWN" AND listed_clt = clt_ref_num Then 
+								EMWriteScreen "X", spddn_row, 3
+								transmit
+								EMWriteScreen " ", 5, 14 
+								Transmit
+								Transmit
+								PF3 
+								Exit For 
+							End If
+							If spddn_row = 18 then PF3
+						Next 
 						EMWriteScreen "X", 18, 34
 						transmit		'---Opens the Cert Period Amount sub-menu
 						DO
@@ -2681,9 +2779,28 @@ FOR EACH MAXIS_case_number IN case_number_array
 							EMWriteScreen "X", 7, 72
 							transmit
 							DO
-								EMWriteScreen "PASSED", 6, 46
-								transmit
-								EMReadScreen back_to_BSUM, 4, 3, 57
+								EMReadScreen mapt_check, 4, 3, 51 
+								EMReadScreen mobl_check, 4, 3, 49
+								IF mapt_check = "MAPT" Then
+									EMWriteScreen "PASSED", 6, 46
+									EMWriteScreen "PASSED", 9, 46
+									EMWriteScreen "PASSED", 10, 46
+									transmit
+									EMReadScreen back_to_BSUM, 4, 3, 57
+								ElseIf mobl_check = "MOBL" then 
+									For spdwn_row = 6 to 18 
+										EMReadScreen spdwn_check, 9, spdwn_row, 39 
+										IF spdwn_check = "SPENDDOWN" Then 
+											EMWriteScreen "X", spdwn_row, 3 
+											transmit 
+											EMWriteScreen "_", 5, 14
+											transmit
+											transmit
+										End If 
+									Next 
+									PF3 
+									EMReadScreen back_to_BSUM, 4, 3, 57
+								End If
 							LOOP UNTIL back_to_BSUM = "BSUM"
 						END IF
 					END IF
@@ -2707,6 +2824,212 @@ FOR EACH MAXIS_case_number IN case_number_array
 			hhmm_row = hhmm_row + 1
 
 		LOOP UNTIL hc_requested = " "			'===== Loops until there are no more HC versions to review
+
+		If second_span = True Then				'If the application date is more than 5 months ago, a second HC span needs to be approved
+			EMWriteScreen six_month_month, 20, 56 
+			EMWriteScreen six_month_year, 20, 59
+			transmit
+			DO
+				call navigate_to_MAXIS_screen("ELIG", "HC")
+				hhmm_row = 8
+				DO
+					EMReadScreen no_version, 10, hhmm_row, 28
+					no_version = trim(no_version)
+					IF no_version = "NO VERSION" THEN hhmm_row = hhmm_row + 1
+				LOOP UNTIL no_version = "" OR left(no_version, 2) = "MA"
+			LOOP UNTIL left(no_version, 2) = "MA"
+			'=====This part of the script makes the FIAT changes to HH members with Budg Mthd A
+			hhmm_row = 8
+			EMWriteScreen six_month_month, 20, 56 
+			EMWriteScreen six_month_year, 20, 59
+			transmit
+			DO
+				EMReadScreen hc_requested, 1, hhmm_row, 28
+				EMReadScreen hc_status, 5, hhmm_row, 68
+				IF hc_requested = "M" AND hc_status = "UNAPP" THEN
+					DO						'===== This DO/LOOP is for the check to determine the case is not stuck in ELIG. If it is, it will not let you FIAT Elig Standard.
+						EMWriteScreen "X", hhmm_row, 26
+						transmit				'===== Navigates to BSUM for the HH member
+
+						'The script now reads the budget method for each month in the period.
+						EMReadScreen budg_mthd_mo1, 1, 13, 21
+						EMReadScreen budg_mthd_mo2, 1, 13, 32
+						EMReadScreen budg_mthd_mo3, 1, 13, 43
+						EMReadScreen budg_mthd_mo4, 1, 13, 54
+						EMReadScreen budg_mthd_mo5, 1, 13, 65
+						EMReadScreen budg_mthd_mo6, 1, 13, 76
+
+						'If ALL 6 budget months are not method A, the script backs out of the DO/LOOP and begins searching for the next HC applicant.
+						IF (budg_mthd_mo1 <> "A") AND (budg_mthd_mo2 <> "A") AND (budg_mthd_mo3 <> "A") AND (budg_mthd_mo4 <> "A") AND (budg_mthd_mo5 <> "A") AND (budg_mthd_mo6 <> "A") THEN
+							PF3
+							EXIT DO
+
+						'If the script finds any budget method A months in the ELIG period, it will FIAT the results to accommodate the appropriate Eligibility Standard...
+						'=====THE FOLLOWING IS DOCUMENTATION ON THE FIATING=====
+						'	When the script EMWriteScreens "X" on row 7, it is selecting the PERSON TEST for that month. The script needs to do this to FIAT "PASSED" on the MNSure test.
+						'	When the script EMWriteScreens "X" on row 9, it is selective the BUDGET for that month.
+						'	The script also needs to change the eligibility standard, but that is dependent on the prevailing eligibility standard. This is the variable "mo#_elig_type"
+						ELSEIF (budg_mthd_mo1 = "A") OR (budg_mthd_mo2 = "A") OR (budg_mthd_mo3 = "A") OR (budg_mthd_mo4 = "A") OR (budg_mthd_mo5 = "A") OR (budg_mthd_mo6 = "A") THEN
+								PF9
+								DO
+									EMReadScreen fiat_reason, 4, 10, 20		'=====The script gets stuck in ELIG background...it's running faster than the training region will allow.
+								LOOP UNTIL fiat_reason = "FIAT"
+								EMWriteScreen "05", 11, 26
+								transmit
+							IF budg_mthd_mo1 = "A" THEN
+								EMWriteScreen "X", 7, 17
+								EMWriteScreen "X", 9, 21
+								EMReadScreen mo1_elig_type, 2, 12, 17
+								IF (mo1_elig_type = "AX" OR mo1_elig_type = "AA" OR mo1_elig_type = "CX") THEN EMWriteScreen "J", 12, 22
+								IF (mo1_elig_type = "PX" OR mo1_elig_type = "PC") THEN EMWriteScreen "T", 12, 22
+								IF (mo1_elig_type = "CK") THEN EMWriteScreen "K", 12, 22
+								IF mo1_elig_type = "CB" THEN EMWriteScreen "I", 12, 22
+							END IF
+							IF budg_mthd_mo2 = "A" THEN
+								EMWriteScreen "X", 7, 28
+								EMWriteScreen "X", 9, 32
+								EMReadScreen mo2_elig_type, 2, 12, 28
+								IF (mo2_elig_type = "AX" OR mo2_elig_type = "AA" OR mo2_elig_type = "CX") THEN EMWriteScreen "J", 12, 33
+								IF (mo2_elig_type = "PX" OR mo2_elig_type = "PC") THEN EMWriteScreen "T", 12, 33
+								IF (mo2_elig_type = "CK") THEN EMWriteScreen "K", 12, 33
+								IF mo2_elig_type = "CB" THEN EMWriteScreen "I", 12, 33
+							END IF
+							IF budg_mthd_mo3 = "A" THEN
+								EMWriteScreen "X", 7, 39
+								EMWriteScreen "X", 9, 43
+								EMReadScreen mo3_elig_type, 2, 12, 39
+								IF (mo3_elig_type = "AX" OR mo3_elig_type = "AA" OR mo3_elig_type = "CX") THEN EMWriteScreen "J", 12, 44
+								IF (mo3_elig_type = "PX" OR mo3_elig_type = "PC") THEN EMWriteScreen "T", 12, 44
+								IF (mo3_elig_type = "CK") THEN EMWriteScreen "K", 12, 44
+								IF mo3_elig_type = "CB" THEN EMWriteScreen "I", 12, 44
+							END IF
+							IF budg_mthd_mo4 = "A" THEN
+								EMWriteScreen "X", 7, 50
+								EMWriteScreen "X", 9, 54
+								EMReadScreen mo4_elig_type, 2, 12, 50
+								IF (mo4_elig_type = "AX" OR mo4_elig_type = "AA" OR mo4_elig_type = "CX") THEN EMWriteScreen "J", 12, 55
+								IF (mo4_elig_type = "PX" OR mo4_elig_type = "PC") THEN EMWriteScreen "T", 12, 55
+								IF (mo4_elig_type = "CK") THEN EMWriteScreen "K", 12, 55
+								IF mo4_elig_type = "CB" THEN EMWriteScreen "I", 12, 55
+							END IF
+							IF budg_mthd_mo5 = "A" THEN
+								EMWriteScreen "X", 7, 61
+								EMWriteScreen "X", 9, 65
+								EMReadScreen mo5_elig_type, 2, 12, 61
+								IF (mo5_elig_type = "AX" OR mo5_elig_type = "AA" OR mo5_elig_type = "CX") THEN EMWriteScreen "J", 12, 66
+								IF (mo5_elig_type = "PX" OR mo5_elig_type = "PC") THEN EMWriteScreen "T", 12, 66
+								IF (mo5_elig_type = "CK") THEN EMWriteScreen "K", 12, 66
+								IF mo5_elig_type = "CB" THEN EMWriteScreen "I", 12, 66
+							END IF
+							IF budg_mthd_mo6 = "A" THEN
+								EMWriteScreen "X", 7, 72
+								EMWriteScreen "X", 9, 76
+								EMReadScreen mo6_elig_type, 2, 12, 72
+								IF (mo6_elig_type = "AX" OR mo6_elig_type = "AA" OR mo6_elig_type = "CX") THEN EMWriteScreen "J", 12, 77
+								IF (mo6_elig_type = "PX" OR mo6_elig_type = "PC") THEN EMWriteScreen "T", 12, 77
+								IF (mo6_elig_type = "CK") THEN EMWriteScreen "K", 12, 77
+								IF mo6_elig_type = "CB" THEN EMWriteScreen "I", 12, 77
+							END IF
+							transmit		'IF Budg Mthd A, transmit to navigate to MAPT & CBUD
+							DO
+								EMReadScreen back_to_bsum, 4, 3, 57
+								IF back_to_BSUM <> "BSUM" THEN
+									EMReadScreen mapt, 4, 3, 51
+									EMReadScreen cbud, 4, 3, 54
+									EMReadScreen abud, 4, 3, 47
+									IF mapt = "MAPT" THEN
+										EMWriteScreen "PASSED", 8, 46		'=====Passes MNSure test
+										transmit
+										transmit
+									END IF
+									IF cbud = "CBUD" OR abud = "ABUD" THEN transmit		'======Getting out of the budget window for that month.
+								END IF
+							LOOP UNTIL back_to_bsum = "BSUM"
+							'---Now the script needs to determine if the case passes income test for cert period
+							EMReadScreen clt_ref_num, 2, 5, 16 
+							EMWriteScreen "X", 18, 3 
+							Transmit
+							For spddn_row = 6 to 18 
+								EMReadScreen spenddown_type, 12, spddn_row, 39 
+								EMReadScreen listed_clt, 2, spddn_row, 6 
+								IF spenddown_type <> "NO SPENDDOWN" AND listed_clt = clt_ref_num Then 
+									EMWriteScreen "X", spddn_row, 3
+									transmit
+									EMWriteScreen " ", 5, 14 
+									Transmit
+									Transmit
+									PF3 
+									Exit For 
+								End If
+								If spddn_row = 18 then PF3 
+							Next 
+							EMWriteScreen "X", 18, 34
+							transmit		'---Opens the Cert Period Amount sub-menu
+							DO
+								EMReadScreen at_cert_period_screen, 13, 5, 13
+							LOOP UNTIL at_cert_period_screen = "Certification"
+							EMReadScreen excess_income, 5, 9, 39
+							PF3
+							IF excess_income = " 0.00" THEN
+								'---The script will go into the MAPT for all appropriate months and pass Income - Budget Period.
+								EMWriteScreen "X", 7, 17
+								EMWriteScreen "X", 7, 28
+								EMWriteScreen "X", 7, 39
+								EMWriteScreen "X", 7, 50
+								EMWriteScreen "X", 7, 61
+								EMWriteScreen "X", 7, 72
+								EMWriteScreen "X", 18, 3 
+								transmit
+								DO
+									EMReadScreen mapt_check, 4, 3, 51 
+									EMReadScreen mobl_check, 4, 3, 49
+									IF mapt_check = "MAPT" Then
+										EMWriteScreen "PASSED", 6, 46
+										EMWriteScreen "PASSED", 9, 46
+										EMWriteScreen "PASSED", 10, 46
+										transmit
+										EMReadScreen back_to_BSUM, 4, 3, 57
+									ElseIf mobl_check = "MOBL" then
+										For spdwn_row = 6 to 18 
+											EMReadScreen spdwn_check, 9, spdwn_row, 39 
+											IF spdwn_check = "SPENDDOWN" Then 
+												EMWriteScreen "X", spdwn_row, 3 
+												transmit 
+												EMWriteScreen "_", 5, 14
+												transmit
+												transmit
+											End If 
+										Next 
+										PF3 
+										EMReadScreen back_to_BSUM, 4, 3, 57
+									End If 
+								LOOP UNTIL back_to_BSUM = "BSUM"
+							END IF
+						END IF
+
+						EMReadScreen cannot_fiat, 10, 24, 6
+						cannot_fiat = trim(cannot_fiat)
+						IF cannot_fiat <> "" THEN 		'===== IF the case is stuck in ELIG, it will not allow you to change the ELIG standard to the ACA-appropriate standard.
+							PF10							'===== The script OOPS's the FIAT and backs out. It will reread and re-transmit the FIAT'd elig information.
+							PF3
+							EMWriteScreen "WAIT", 20, 71
+							EMWaitReady 2, 2000
+							EMWriteScreen "____", 20, 71
+						ELSE
+							PF3
+						END IF
+
+					LOOP UNTIL cannot_fiat = ""
+
+				END IF
+
+				hhmm_row = hhmm_row + 1
+
+			LOOP UNTIL hc_requested = " "			'===== Loops until there are no more HC versions to review
+			EMWriteScreen appl_date_month, 20, 56
+			EMWriteScreen appl_date_year, 20, 59 
+			transmit 
+		End If 
 
 		'===== Now the script goes back in and approves everything.
 		hhmm_row = 8
