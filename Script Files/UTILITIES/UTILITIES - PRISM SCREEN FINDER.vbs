@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "NAV - PRISM SCREEN FINDER.vbs"
+name_of_script = "UTILITIES - PRISM SCREEN FINDER.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 10                      'manual run time in seconds

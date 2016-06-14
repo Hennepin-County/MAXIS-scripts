@@ -170,13 +170,13 @@ scriptwriter_array(scriptwriter_counter).formerrole		= 	"-"
 scriptwriter_array(scriptwriter_counter).email			= 	"larson.laura@co.olmsted.mn.us"
 scriptwriter_counter = scriptwriter_counter + 1
 
-'Yang Lor, Ramsey
+'Kenny Lee, Ramsey
 set scriptwriter_array(scriptwriter_counter) = new scriptwriter
-scriptwriter_array(scriptwriter_counter).name			=	"Yang Lor"
+scriptwriter_array(scriptwriter_counter).name			=	"Kenny Lee"
 scriptwriter_array(scriptwriter_counter).agency			= 	"Ramsey County"
 scriptwriter_array(scriptwriter_counter).role			= 	"Financial Worker"
 scriptwriter_array(scriptwriter_counter).formerrole		= 	"-"
-scriptwriter_array(scriptwriter_counter).email			= 	"Yang.Tou.Lor@CO.RAMSEY.MN.US"
+scriptwriter_array(scriptwriter_counter).email			= 	"kenneth.a.lee@CO.RAMSEY.MN.US"
 scriptwriter_counter = scriptwriter_counter + 1
 
 'Casey Love, Ramsey
