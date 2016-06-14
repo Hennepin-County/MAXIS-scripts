@@ -44,21 +44,27 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog UTILITIES_scripts_main_menu_dialog, 0, 0, 461, 110, "Utilities scripts main menu dialog"
+BeginDialog UTILITIES_scripts_main_menu_dialog, 0, 0, 461, 165, "Utilities scripts main menu dialog"
   ButtonGroup ButtonPressed
-    CancelButton 405, 90, 50, 15
-    PushButton 5, 20, 95, 10, "Banked Month DB Updater", banked_month_database_updater_button
-    PushButton 60, 35, 40, 10, "INFO", INFO_button
-    PushButton 35, 50, 65, 10, "POLI TEMP List", POLI_TEMP_LIST_button
-    PushButton 20, 65, 80, 10, "Training Case Creator", TRAINING_CASE_CREATOR_button
-    PushButton 5, 80, 95, 10, "Update Worker Signature", UPDATE_WORKER_SIGNATURE_button
+    CancelButton 405, 140, 50, 15
+    PushButton 30, 20, 95, 10, "Banked Month DB Updater", banked_month_database_updater_button
+    PushButton 85, 35, 40, 10, "INFO", INFO_button
+    PushButton 5, 50, 120, 10, "Move Production Screen to Inquiry", MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button
+    PushButton 5, 65, 120, 10, "Phone Number or Name Look Up", PHONE_NUMBER_OR_NAME_LOOK_UP_button
+    PushButton 60, 85, 65, 10, "POLI TEMP List", POLI_TEMP_LIST_button
+    PushButton 45, 100, 80, 10, "PRISM Screen Finder", PRISM_SCREENFINDER_button
+    PushButton 45, 115, 80, 10, "Training Case Creator", TRAINING_CASE_CREATOR_button
+    PushButton 30, 130, 95, 10, "Update Worker Signature", UPDATE_WORKER_SIGNATURE_button
     PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
+  Text 130, 85, 260, 10, "-- Creates a list of current POLI/TEMP topics, TEMP reference and revised date."
+  Text 130, 115, 300, 10, "-- Creates training case scenarios en masse and XFERs them to workers."
+  Text 130, 130, 195, 10, "-- Sets or updates the default worker signature for this user."
+  Text 130, 20, 245, 10, "-- Updates cases in the banked month database with actual MAXIS status."
   Text 5, 5, 250, 10, "Utilities scripts main menu: select the script to run from the choices below."
-  Text 105, 20, 305, 10, "-- NEW 02/2016!!! Updates cases in the banked month database with actual MAXIS status."
-  Text 105, 35, 265, 10, "-- Displays information about your BlueZone Scripts installation."
-  Text 105, 50, 315, 10, "-- NEW 03/2016!!! Creates a list of current POLI/TEMP topics, TEMP reference and revised date."
-  Text 105, 65, 300, 10, "-- NEW 03/2016!!! Creates training case scenarios en masse and XFERs them to workers."
-  Text 105, 80, 195, 10, "-- Sets or updates the default worker signature for this user."
+  Text 130, 35, 215, 10, "-- Displays information about your BlueZone Scripts installation."
+  Text 130, 50, 220, 10, "-- Moves a screen from MAXIS prouduction mode to MAXIS inquiry."
+  Text 130, 65, 320, 20, "-- Checks every case on PND1, PND2, ACTV, REVW, or INAC, to find a case number when you have a phone number. *OR* Searches for a specific case on multiple REPT screens by last name."
+  Text 130, 100, 310, 10, "-- Navigates to popular PRISM screens. The navigation window stays open until user closes it."
 EndDialog
 
 'Variables to declare
@@ -77,7 +83,10 @@ EMConnect ""
 
 IF buttonpressed = banked_month_database_updater_button 		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - BANKED MONTH DATABASE UPDATER.vbs")
 IF buttonpressed = INFO_button 									then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - INFO.vbs")
+If buttonpressed = MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - MOVE PRODUCTION SCREEN TO INQUIRY.vbs")
+IF ButtonPressed = PHONE_NUMBER_OR_NAME_LOOK_UP_button			then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - PHONE NUMBER OR NAME LOOK UP.vbs")
 IF buttonpressed = POLI_TEMP_LIST_button						then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - POLI TEMP LIST.vbs")
+IF buttonpressed = PRISM_SCREENFINDER_button                    then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - PRISM SCREEN FINDER.vbs")         
 IF buttonpressed = TRAINING_CASE_CREATOR_button 				then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - TRAINING CASE CREATOR.vbs")
 IF buttonpressed = UPDATE_WORKER_SIGNATURE_button				then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - UPDATE WORKER SIGNATURE.vbs")
 

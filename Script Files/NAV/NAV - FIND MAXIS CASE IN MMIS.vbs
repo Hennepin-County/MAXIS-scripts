@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "NAV - LOOK UP MAXIS CASE IN MMIS.vbs"
+name_of_script = "NAV - FIND MAXIS CASE IN MMIS.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 40                      'manual run time in seconds
