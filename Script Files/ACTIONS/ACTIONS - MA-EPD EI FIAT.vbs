@@ -96,7 +96,12 @@ If jobs_current = "1" then
   If pay_freq_01 = "3" then frequency_job_01 = "3: every 2 weeks"
   If pay_freq_01 = "4" then frequency_job_01 = "4. every week"
   If pay_freq_01 = "5" then frequency_job_01 = "5. other (use monthly avg)"
-  EMWriteScreen "x", 19, 54
+  EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+  IF HC_income_est_check = "Est" Then 'this is the old position
+	EMWriteScreen "x", 19, 54
+  ELSE								'this is the new position
+	EMWriteScreen "x", 19, 48
+  END IF
   transmit
   EMReadScreen income_job_01, 8, 11, 63
   income_job_01 = trim(replace(income_job_01, "_", ""))
@@ -112,7 +117,12 @@ If jobs_current = "2" then
   If pay_freq_02 = "3" then frequency_job_02 = "3: every 2 weeks"
   If pay_freq_02 = "4" then frequency_job_02 = "4. every week"
   If pay_freq_02 = "5" then frequency_job_02 = "5. other (use monthly avg)"
-  EMWriteScreen "x", 19, 54
+  EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+  IF HC_income_est_check = "Est" Then 'this is the old position
+	EMWriteScreen "x", 19, 54
+  ELSE								'this is the new position
+	EMWriteScreen "x", 19, 48
+  END IF
   transmit
   EMReadScreen income_job_02, 8, 11, 63
   income_job_02 = trim(replace(income_job_02, "_", ""))
@@ -128,7 +138,12 @@ If jobs_current = "3" then
   If pay_freq_03 = "3" then frequency_job_03 = "3: every 2 weeks"
   If pay_freq_03 = "4" then frequency_job_03 = "4. every week"
   If pay_freq_03 = "5" then frequency_job_03 = "5. other (use monthly avg)"
-  EMWriteScreen "x", 19, 54
+  EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+  IF HC_income_est_check = "Est" Then 'this is the old position
+	EMWriteScreen "x", 19, 54
+  ELSE								'this is the new position
+	EMWriteScreen "x", 19, 48
+  END IF
   transmit
   EMReadScreen income_job_03, 8, 11, 63
   income_job_03 = trim(replace(income_job_03, "_", ""))

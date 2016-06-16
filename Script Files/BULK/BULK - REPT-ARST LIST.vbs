@@ -42,8 +42,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-
 'DIALOGS-------------------------------------------------------
 BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
   CheckBox 10, 15, 60, 10, "Cash", cash_check
@@ -156,6 +154,61 @@ objExcel.Cells(2, 2).Font.Bold = TRUE
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
 col_to_use = 3 'Starting with 3 because cols 1-2 are already used
+
+'creates a gather_cases_pending veriable as TRUE if any of the pending options is checked to get case data correctly 
+If pending_check = checked OR pending_under_31_check = checked OR pending_31_to_45_check = checked OR pending_46_to_60_check = checked OR pending_over_60_check = checked THEN gather_cases_pending = TRUE 
+
+case_header_col = col_to_use		'Sets the header to be used later for merging Cells
+
+'Sets the Excel Sheet up to document CASE information - headers and variable information
+ObjExcel.Cells(2, col_to_use).Value = "Total"
+objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+case_total_col = col_to_use
+objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+col_to_use = col_to_use + 1
+case_total_letter_col = convert_digit_to_excel_column(case_total_col)
+
+If active_check = checked then
+	ObjExcel.Cells(2, col_to_use).Value = "ACTV"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_actv_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_actv_letter_col = convert_digit_to_excel_column(case_actv_col)
+End if
+If REIN_check = checked then
+	ObjExcel.Cells(2, col_to_use).Value = "REIN"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_REIN_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_REIN_letter_col = convert_digit_to_excel_column(case_REIN_col)
+End if
+If gather_cases_pending = TRUE then
+	ObjExcel.Cells(2, col_to_use).Value = "PND2"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_pnd2_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_pnd2_letter_col = convert_digit_to_excel_column(case_pnd2_col)
+
+	ObjExcel.Cells(2, col_to_use).Value = "PND1"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_pnd1_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_pnd1_letter_col = convert_digit_to_excel_column(case_pnd1_col)
+End if
+
+'Header cell
+ObjExcel.Cells(1, case_header_col).Value = "CASES"
+objExcel.Cells(1, case_header_col).Font.Bold = TRUE
+
+'Merging header cell. Uses col_to_use - 1 because we already moved on to the next column.
+ObjExcel.Range(ObjExcel.Cells(1, case_header_col), ObjExcel.Cells(1, col_to_use - 1)).Merge
+
+'Centering the cell
+objExcel.Cells(1, case_header_col).HorizontalAlignment = -4108
 
 'Headers and variable declaration for cash
 If cash_check = checked then
@@ -551,11 +604,15 @@ For each worker_number in worker_array
 	transmit
 
 	'The following will determine if the worker is active or inactive. Inactive workers will show a 0 for all numbers, and will not be entered into the spreadsheet
-	EMReadScreen total_cases, 9, 5, 47
-	EMReadScreen CAF_I_APPL_taken, 9, 12, 47
-	EMReadScreen CAF_II_APPL_taken, 9, 13, 47
-	EMReadScreen cases_auto_denied, 9, 14, 47
-	EMReadScreen address_changes_count, 9, 15, 47	'Reading address changes, which will be used later
+	EMReadScreen total_cases, 			 9, 5, 47
+	EMReadScreen cases_actv, 			 9, 6, 47 
+	EMReadScreen cases_rein, 			 9, 7, 47
+	EMReadScreen cases_pnd2, 			 9, 8, 47
+	EMReadScreen cases_pnd1, 			 9, 9, 47
+	EMReadScreen CAF_I_APPL_taken, 	 	 9, 12, 47
+	EMReadScreen CAF_II_APPL_taken, 	 9, 13, 47
+	EMReadScreen cases_auto_denied, 	 9, 14, 47
+	EMReadScreen address_changes_count,  9, 15, 47	'Reading address changes, which will be used later
 	EMReadScreen ASET_versions_approved, 9, 16, 47
 
 	'Deciding if the case is active based on the above responses.
@@ -634,6 +691,14 @@ For each worker_number in worker_array
 		ObjExcel.Cells(excel_row, 1).Value = worker_number
 		ObjExcel.Cells(excel_row, 2).Value = worker_name
 
+		ObjExcel.Cells(excel_row, case_total_col).Value = total_cases
+		If active_check = checked then ObjExcel.Cells(excel_row, case_actv_col).Value = cases_actv
+		If REIN_check = checked then ObjExcel.Cells(excel_row, case_REIN_col).Value = cases_rein
+		If gather_cases_pending = TRUE then 
+			ObjExcel.Cells(excel_row, case_pnd2_col).Value = cases_pnd2
+			ObjExcel.Cells(excel_row, case_pnd1_col).Value = cases_pnd1
+		End If 
+		
 		'Cash info to Excel
 		If cash_check = checked then
 			If active_check = checked then ObjExcel.Cells(excel_row, cash_actv_col).Value = cash_active_count
@@ -738,6 +803,10 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
+
+'This bit freezes the top 2 rows for scrolling ease of use
+ObjExcel.ActiveSheet.Range("A3").Select
+objExcel.ActiveWindow.FreezePanes = True
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The statistics have loaded.")

@@ -1,9 +1,9 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "BULK - REPT-PND1 LIST.vbs"
+MMname_of_script = "BULK - REPT-MAMS LIST.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 13                      'manual run time in seconds
-STATS_denomination = "C"       							'C is for each CASE
+STATS_denomination = "C"       			   'C is for each CASE
 'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -38,36 +38,42 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-'DIALOGS-------------------------------------------------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT PND1 data into Excel dialog"
-  EditBox 150, 20, 130, 15, worker_number
-  CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  ButtonGroup ButtonPressed
-    OkButton 175, 100, 50, 15
-    CancelButton 230, 100, 50, 15
-  Text 5, 25, 65, 10, "Worker(s) to check:"
-  Text 5, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-  Text 5, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 5, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-EndDialog
-
-'THE SCRIPT-----------------------------------------------------------------------------------------------------------
-'Determining specific county for multicounty agencies...
+'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
+'CONSTANTS FOR EXCEL SPREADSHEET--------------------------------------------------------------
+const worker_col 	= 1
+const case_col 		= 2
+const name_col		= 3
+const status_col 	= 4
+const revw_date_col	= 5
+
+'DIALOGS----------------------------------------------------------------------
+BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 231, 130, "Pull REPT/MAMS data into Excel dialog"
+  EditBox 80, 20, 145, 15, worker_number
+  CheckBox 10, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  ButtonGroup ButtonPressed
+    OkButton 120, 110, 50, 15
+    CancelButton 175, 110, 50, 15
+  Text 10, 25, 65, 10, "Worker(s) to check:"
+  Text 10, 80, 215, 20, "NOTE: running queries county-wide can take a significant amount of time/resources."
+  Text 55, 5, 125, 10, "***PULL REPT MAMS INTO EXCEL***"
+  Text 10, 40, 210, 20, "Enter the 7-digit worker number(s) (ex: x1#####), separated by a comma."
+EndDialog
+
+'THE SCRIPT---------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
 
 'Shows dialog
-Dialog pull_rept_data_into_Excel_dialog
-If buttonpressed = cancel then stopscript
+DO
+	Dialog pull_rept_data_into_Excel_dialog
+	If buttonpressed = cancel then script_end_procedure("")
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in	
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-
-'Checking for MAXIS
-Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -75,21 +81,23 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
-'Setting the first 4 col as worker, case number, name, and APPL date
-ObjExcel.Cells(1, 1).Value = "WORKER"
-objExcel.Cells(1, 1).Font.Bold = TRUE
-ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
-objExcel.Cells(1, 2).Font.Bold = TRUE
-ObjExcel.Cells(1, 3).Value = "NAME"
-objExcel.Cells(1, 3).Font.Bold = TRUE
-ObjExcel.Cells(1, 4).Value = "APPL DATE"
-objExcel.Cells(1, 4).Font.Bold = TRUE
-ObjExcel.Cells(1, 5).Value = "NBR DAYS PENDING"
-objExcel.Cells(1, 5).Font.Bold = TRUE
-ObjExcel.Cells(1, 6).Value = "STOP AUTODENY"
-objExcel.Cells(1, 6).Font.Bold = TRUE
-ObjExcel.Cells(1, 7).Value = "AUTODENY DATE"
-objExcel.Cells(1, 7).Font.Bold = TRUE
+'Setting the first 3 col as worker, case number, and name
+ObjExcel.Cells(1, worker_col).Value = "WORKER"
+ObjExcel.Cells(1, case_col).Value = "CASE NUMBER"
+ObjExcel.Cells(1, name_col).Value = "NAME"
+ObjExcel.Cells(1, status_col).Value = "STATUS"
+ObjExcel.Cells(1, revw_date_col).Value = "DATE REVW REC'D"
+
+HC_letter_col = convert_digit_to_excel_column(status_col)
+
+FOR i = worker_col to revw_date_col		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	objExcel.Columns(i).AutoFit()						'sizing the colums'
+NEXT
+
+'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
+'	Below, use the "[blank]_col" variable to recall which col you set for which option.
+col_to_use = 6 'Starting with 6 because cols 1-5 are already used
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -115,12 +123,21 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("rept", "pnd1")
-	EMWriteScreen worker, 21, 13
+	MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
+	MAXIS_footer_year = ""
+	'making footer month/year the current month - 1 since current month will not produce results
+	temp_footer_month =  right("0" &            DatePart("m",           DateAdd("m", -1, date)            ), 2)
+	temp_footer_year =   right(                 DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+	EMWriteScreen right(temp_footer_month, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
+	EMWriteScreen right(temp_footer_year, 2), 20, 46
+	transmit
+
+	Call navigate_to_MAXIS_screen("REPT", "MAMS")
+	EMWriteScreen worker, 21, 6
 	transmit
 
 	'Skips workers with no info
-	EMReadScreen has_content_check, 8, 7, 3
+	EMReadScreen has_content_check, 8, 7, 6
 	If has_content_check <> "        " then
 
 		'Grabbing each case number on screen
@@ -128,12 +145,10 @@ For each worker in worker_array
 			'Set variable for next do...loop
 			MAXIS_row = 7
 			Do
-				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3			'Reading case number
-				EMReadScreen client_name, 25, MAXIS_row, 13		'Reading client name
-				EMReadScreen appl_date, 8, MAXIS_row, 41		      'Reading application date
-				EMReadScreen nbr_days_pending, 4, MAXIS_row, 54		'Reading nbr days pending
-				EMReadScreen stop_autodeny, 1, MAXIS_row, 65		'Reading stop autodeny
-				EMReadScreen autodeny_date, 8, MAXIS_row, 72		'Reading autodeny date
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6			'Reading case number
+				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
+				EMReadScreen HRF_status, 2, MAXIS_row, 45		'Reading HRF status
+				EMReadScreen revw_recd_date, 8, MAXIS_row, 54	'Reading review received date
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
@@ -141,29 +156,33 @@ For each worker in worker_array
 
 				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 
-				ObjExcel.Cells(excel_row, 1).Value = worker
-				ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-				ObjExcel.Cells(excel_row, 3).Value = client_name
-				ObjExcel.Cells(excel_row, 4).Value = replace(APPL_date, " ", "/")
-				ObjExcel.Cells(excel_row, 5).Value = abs(nbr_days_pending)
-				ObjExcel.Cells(excel_row, 6).Value = stop_autodeny
-				ObjExcel.Cells(excel_row, 7).Value = replace(autodeny_date, " ", "/")
+				'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
+				If HRF_status = "-" then HRF_status = ""
+	
+				'Cleaning up the blank revw_recd_date and interview_date variables
+				revw_recd_date = trim(replace(revw_recd_date, "__ __ __", ""))
 
-				MAXIS_row = MAXIS_row + 1
+				'Adding the case to Excel
+				ObjExcel.Cells(excel_row, worker_col).Value = worker
+				ObjExcel.Cells(excel_row, case_col).Value = MAXIS_case_number
+				ObjExcel.Cells(excel_row, name_col).Value = client_name
+				ObjExcel.Cells(excel_row, status_col).Value = HRF_status
+				ObjExcel.Cells(excel_row, revw_date_col).Value = replace(revw_recd_date, " ", "/")
 				excel_row = excel_row + 1
+				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
-				autoclose_string = ""		'Blanking out variable
 				MAXIS_case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
-			EMReadScreen last_page_check, 21, 24, 2
+			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
-'col_to_use is normally used for setting a variable amount of columns. PND1, however, always uses the same amount. I'm setting it as a firm variable here, but this could just as easily include a "col_to_use = col_to_use + 2", like in the PND2 script. -VKC, 01/12/2015
-col_to_use = 10
+'IF error_check = checked THEN col_to_use = col_to_use + 1 'need to add the extra column for this outside the DO...LOOP
+col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
+row_to_use = 3			'Declaring here before the following if...then statements
 
 'Query date/time/runtime info
 objExcel.Cells(1, col_to_use - 1).Font.Bold = TRUE
@@ -178,6 +197,6 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
-'logging usage stats
+'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("")
+script_end_procedure("Success! Your list has been created.")

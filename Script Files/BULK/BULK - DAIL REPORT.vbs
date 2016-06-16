@@ -135,7 +135,14 @@ For each x_number in x_number_array
 	If tikl_check = 1 then EMWriteScreen "x", 19, 39
 	If wf1_check = 1 then EMWriteScreen "x", 20, 39
 	transmit
+	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	DO
+		If number_of_dails = " " Then 			'if this space is blank the rest of the DAIL reading is skipped
+			objExcel.Cells(excel_row, 1).Value = x_number
+			objExcel.Cells(excel_row, 3).Value = "No DAILs for this worker."
+			excel_row = excel_row + 1
+			Exit Do
+		End If 
 		'Reading and trimming the MAXIS case number and dumping it in Excel
 		EMReadScreen maxis_case_number, 8, 5, 73
 		maxis_case_number = trim(maxis_case_number)

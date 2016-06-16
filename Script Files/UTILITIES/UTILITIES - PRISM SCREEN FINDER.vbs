@@ -1,10 +1,9 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "NAV - MOVE PRODUCTION SCREEN TO INQUIRY.vbs"
+name_of_script = "UTILITIES - PRISM SCREEN FINDER.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 40                      'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "I"                   'I is for each instance
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -38,70 +37,42 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-EMConnect "A"
-row = 1
-col = 1
-EMSearch "Function: ", row, col
-If row = 0 then
-  MsgBox "Function not found."
-  StopScript
-End if
-EMReadScreen MAXIS_function, 4, row, col + 10
-If MAXIS_function = "____" then
-  MsgBox "Function not found."
-  StopScript
-End if
+'DIALOGS----------------------------------------------------------------------------------------------------
+BeginDialog PRISM_screen_finder_dialog, 0, 0, 261, 135, "PRISM screen finder"
+  ButtonGroup ButtonPressed
+    CancelButton 210, 120, 50, 15
+    PushButton 140, 70, 45, 10, "DDPL", DDPL_button
+    PushButton 140, 40, 45, 10, "CAAD", CAAD_button
+    PushButton 140, 55, 45, 10, "CAFS", CAFS_button
+    PushButton 140, 85, 45, 10, "GCSC", GCSC_button
+    PushButton 140, 115, 45, 10, "PESE", PESE_button
+ 
+  Text 35, 70, 90, 10, "Direct deposit listing:"
+  Text 35, 40, 65, 10, "Case notes:"
+  Text 35, 55, 100, 10, "Case financial summary:"
+  Text 35, 85, 100, 10, "Good cause/safety concerns:"
+  Text 35, 115, 65, 10, "Person search:"
+  Text 10, 0, 250, 25, "Press a button below to navigate to PRISM screens.  Then press F1 in the case number or MCI number field to select the participant or case information you are looking for."
+EndDialog
 
-row = 1
-col = 1
-EMSearch "Case Nbr: ", row, col
-If row = 0 then
-  MsgBox "Case number not found."
-  StopScript
-End if
-EMReadScreen MAXIS_case_number, 8, row, col + 10
 
-row = 1
-col = 1
-EMSearch "Month: ", row, col
-If row = 0 then
-  MsgBox "Footer month not found."
-  StopScript
-End if
-EMReadScreen MAXIS_footer_month, 2, row, col + 7
-EMReadScreen MAXIS_footer_year, 2, row, col + 10
+'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-row = 1
-col = 1
-EMSearch "(", row, col
-If row = 0 then
-  MsgBox "Command not found."
-  StopScript
-End if
-EMReadScreen MAXIS_command, 4, row, col + 1
-If MAXIS_command = "NOTE" then MAXIS_function = "CASE"
+'Connect to BlueZone
+EMConnect ""
 
-EMConnect "B"
-EMFocus
+CALL check_for_PRISM(FALSE)
 
-attn
-EMReadScreen inquiry_check, 7, 7, 15
-If inquiry_check <> "RUNNING" then 
-  MsgBox "Inquiry not found. The script will now stop."
-  StopScript
-End if
+DO
 
-EMWriteScreen "FMPI", 2, 15
-transmit
+	Dialog PRISM_screen_finder_dialog
 
-back_to_self
-
-EMWriteScreen MAXIS_function, 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen MAXIS_footer_month, 20, 43
-EMWriteScreen MAXIS_footer_year, 20, 46
-EMWriteScreen MAXIS_command, 21, 70
-transmit
+	'Now it'll navigate to any of the screens chosen
+	If buttonpressed = DDPL_button then call navigate_to_PRISM_screen("DDPL")
+	If buttonpressed = CAAD_button then call navigate_to_PRISM_screen("CAAD")
+	If buttonpressed = CAFS_button then call navigate_to_PRISM_screen("CAFS")
+	If buttonpressed = GCSC_button then call navigate_to_PRISM_screen("GCSC")
+	If buttonpressed = PESE_button then call navigate_to_PRISM_screen("PESE")
+LOOP until buttonpressed = 0
 
 script_end_procedure("")

@@ -325,9 +325,9 @@ FOR EACH person IN HH_member_array
 		IF num_of_RBIC <> "0" THEN closing_message = closing_message & vbCr & "* Household member " & person & " has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
 	
 		IF prosp_inc >= 935.25 OR prosp_hrs >= 129 THEN 
-			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
+			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working 30 hours/wk (regardless of wage level) or  earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
 		ELSEIF prosp_hrs >= 80 AND prosp_hrs < 129 THEN 
-			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption."
+			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
 		END IF
 	END IF
 NEXT

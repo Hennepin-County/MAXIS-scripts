@@ -1070,8 +1070,11 @@ Loop until transfer_check = checked OR query_check = checked
 
 cases_to_xfer_numb = abs(cases_to_xfer_numb)	'Sometimes the script thinks this is a string and does not do math correctly.
 
+'Standardizing the worker numbers to uppercase so that transfering doesn't break
+worker_receiving_cases = UCase(worker_receiving_cases)
+worker_receiving_cases = Replace(worker_receiving_cases, " ", "")	'Removing stray spaces
 'Creating the array of all workers to receive cases
-receiving_worker_array = split(worker_receiving_cases, ", ")
+receiving_worker_array = split(worker_receiving_cases, ",")
 
 r = 0 	'counter for the receiving worker array
 P = 0 	'Counter for the cases transferred 
