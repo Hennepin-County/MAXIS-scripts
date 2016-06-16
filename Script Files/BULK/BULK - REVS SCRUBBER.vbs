@@ -46,9 +46,9 @@ END IF
 'DIM last_day_of_recert, cm_plus_1, cm_plus_2, alt_duplicate_appt_times
 'DIM worker_numberm, calendar_dlgm, ButtonPressed, duplicate_appt_times
 'DIM alt_appointments_per_time_slot, contact_phone_number, worker_signature
-'DIM err_msg, day_of_month, time_array, outlook_calendar_check, worker_number
+'DIM err_msg, day_of_month, time_array, worker_number
 'DIM REVS_scrubber_time_dialog, REVS_scrubber_initial_dialog
-'DIM objWorkbook, objOutlook, objRange, appointments_per_time_slot
+'DIM objWorkbook, objRange, appointments_per_time_slot
 'DIM calendar_month, worker_county_code, objAppointment, objExcel
 'DIM appt_date, appt_category, appt_body, appt_month, developer_mode
 'DIM appt_minute_place_holder_because_reasons, appt_location, appt_end_time
@@ -126,32 +126,6 @@ Function create_dynamic_calendar_dialog(month_to_use, available_dates_array)
 	IF ButtonPressed = cancel THEN stopscript
 END FUNCTION
 
-FUNCTION create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	'Assigning needed numbers as variables for readability
-	olAppointmentItem = 1
-	olRecursDaily = 0
-
-	'Creating an Outlook object item
-	Set objOutlook = CreateObject("Outlook.Application")
-	Set objAppointment = objOutlook.CreateItem(olAppointmentItem)
-
-	'Assigning individual appointment options
-	objAppointment.Start = appt_date & " " & appt_start_time		'Start date and time are carried over from parameters
-	objAppointment.End = appt_date & " " & appt_end_time			'End date and time are carried over from parameters
-	objAppointment.AllDayEvent = False 								'Defaulting to false for this. Perhaps someday this can be true. Who knows.
-	objAppointment.Subject = appt_subject							'Defining the subject from parameters
-	objAppointment.Body = appt_body									'Defining the body from parameters
-	objAppointment.Location = appt_location							'Defining the location from parameters
-	If appt_reminder = FALSE then									'If the reminder parameter is false, it skips the reminder, otherwise it sets it to match the number here.
-		objAppointment.ReminderSet = False
-	Else
-		objAppointment.ReminderMinutesBeforeStart = appt_reminder
-		objAppointment.ReminderSet = True
-	End if
-	objAppointment.Categories = appt_category						'Defines a category
-	objAppointment.Save												'Saves the appointment
-END FUNCTION
-
 'DIALOGS -----------------------------------------------------------------------------------------------
 BeginDialog REVS_scrubber_initial_dialog, 0, 0, 501, 130, "REVS scrubber initial dialog"
   EditBox 165, 5, 195, 15, worker_number_editbox
@@ -169,25 +143,25 @@ BeginDialog REVS_scrubber_initial_dialog, 0, 0, 501, 130, "REVS scrubber initial
   GroupBox 365, 65, 130, 40, "What you need before you start"
   Text 375, 75, 115, 25, "Individual or case-banked caseloads which have cases that require an interview. "
   GroupBox 5, 65, 350, 40, "PLEASE NOTE"
-  Text 10, 75, 340, 25, "The script will not be available for use until the 16th of each month, as the script goes into current month plus two to schedule the appointments with proper advance notice (example: REVS scrubber will be available 02/16/16 to schedule recertification interviews for March reviews)."
+  Text 10, 75, 340, 25, "The script will not be available for use until the 16th of each month, as the script goes into current month plus two to schedule the appointments with proper advance notice (example: REVS scrubber will be available 02/16/YYYY to schedule recertification interviews for 04/YYYY reviews)."
 EndDialog
+
 BeginDialog REVS_scrubber_time_dialog, 0, 0, 291, 270, "REVS Scrubber Time Dialog"
-  DropListBox 75, 25, 60, 15, "Select one..."+chr(9)+time_array, first_appointment_listbox
-  DropListBox 215, 25, 60, 15, "Select one..."+chr(9)+time_array, last_appointment_listbox
-  DropListBox 110, 50, 50, 15, "Select one..."+chr(9)+appt_time_list, appointment_length_listbox
+  DropListBox 75, 25, 60, 15, "Select one..."+chr(9)+ time_array, first_appointment_listbox
+  DropListBox 215, 25, 60, 15, "Select one..."+chr(9)+ time_array, last_appointment_listbox
+  DropListBox 110, 50, 65, 15, "Select one..."+chr(9)+ appt_time_list, appointment_length_listbox
   CheckBox 10, 75, 140, 10, "Duplicate appointments per time slot?", duplicate_appt_times
   EditBox 240, 70, 35, 15, appointments_per_time_slot
-  DropListBox 75, 135, 60, 15, "Select one..."+chr(9)+time_array, alt_first_appointment_listbox
-  DropListBox 215, 135, 60, 15, "Select one..."+chr(9)+time_array, alt_last_appointment_listbox
-  DropListBox 115, 160, 50, 15, "Select one..."+chr(9)+appt_time_list, alt_appointment_length_listbox
+  DropListBox 75, 135, 60, 15, "Select one..."+chr(9)+ time_array, alt_first_appointment_listbox
+  DropListBox 215, 135, 60, 15, "Select one..."+chr(9)+ time_array, alt_last_appointment_listbox
+  DropListBox 115, 160, 65, 15, "Select one..."+chr(9)+ appt_time_list, alt_appointment_length_listbox
   CheckBox 10, 185, 135, 10, "Duplicate appointments per time slot?", alt_duplicate_appt_times
   EditBox 240, 180, 35, 15, alt_appointments_per_time_slot
-  CheckBox 10, 215, 200, 10, "Check here to add appointments to your Outlook calendar.", outlook_calendar_check
-  EditBox 230, 230, 55, 15, max_reviews_per_worker
+  EditBox 230, 210, 45, 15, max_reviews_per_worker
   ButtonGroup ButtonPressed
-    OkButton 175, 250, 50, 15
-    CancelButton 230, 250, 50, 15
-    PushButton 10, 255, 105, 10, "SIR instructions for this script", SIR_instructions_button
+    OkButton 170, 230, 50, 15
+    CancelButton 225, 230, 50, 15
+    PushButton 10, 235, 105, 10, "SIR instructions for this script", SIR_instructions_button
   Text 10, 30, 60, 10, "First appointment:"
   Text 150, 30, 60, 10, "Last appointment:"
   Text 10, 55, 95, 10, "Time between Appointments:"
@@ -197,7 +171,7 @@ BeginDialog REVS_scrubber_time_dialog, 0, 0, 291, 270, "REVS Scrubber Time Dialo
   Text 150, 140, 60, 10, "Last appointment:"
   Text 10, 165, 95, 10, "Time between Appointments:"
   Text 160, 185, 80, 10, "How many per time slot:"
-  Text 10, 235, 215, 10, "Maximum reviews to schedule per worker (leave blank for no cap):"
+  Text 10, 215, 215, 10, "Maximum reviews to schedule per worker (leave blank for no cap):"
   GroupBox 5, 10, 275, 85, "Main Appointment Block"
   GroupBox 5, 100, 275, 105, "Additional Appointment Block"
 EndDialog
@@ -205,7 +179,6 @@ EndDialog
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
-
 
 'creating a last day of recert variable
 last_day_of_recert = CM_plus_2_mo & "/01/" & CM_plus_2_yr
@@ -821,36 +794,14 @@ DO 								'looping until it meets a blank excel cell without a case number
 		transmit
 		PF3
 	END IF 
-				
-	'adding appointment time and date to outlook calendar if requested by worker
-	IF outlook_calendar_check = 1 THEN
-		appt_date_for_outlook = DatePart("M", interview_time) & "/" & DatePart("D", interview_time) & "/" & DatePart("YYYY", interview_time)
-		appt_time_for_outlook = DatePart("H", interview_time) & ":" & DatePart("N", interview_time)
-		IF DatePart("N", interview_time) = 0 THEN appt_time_for_outlook = DatePart("H", interview_time) & ":00"
-		appt_end_time_for_outlook = DateAdd("N", appointment_length_listbox, interview_time)
-		appt_end_time_for_outlook = DatePart("H", appt_end_time_for_outlook) & ":" & DatePart("N", appt_end_time_for_outlook)
-		IF DatePart("N", interview_time) = 0 THEN appt_end_time_for_outlook = DatePart("H", appt_end_time_for_outlook) & ":00"
-		appointment_subject = "SNAP RECERT"
-		appointment_body = "Case Number: " & MAXIS_case_number
-		IF phone_number = "            " THEN
-			appointment_location = "No phone number in MAXIS as of " & date & "."
-		ELSE
-			appointment_location = "Phone: " & phone_number
-		END IF
-		appointment_reminder = 5	'5 minutes
-		appointment_category = "Recertification Interview"
-		'using the variables created above to generate the Outlook Appointment from the custom function.
-		CALL create_outlook_appointment(appt_date_for_outlook, appt_time_for_outlook, appt_end_time_for_outlook, appointment_subject, appointment_body, appointment_location, appointment_reminder, appointment_category)
-	END IF
-
 	excel_row = excel_row + 1
 LOOP until objExcel.cells(excel_row, case_number_col).value = "" or objExcel.cells(excel_row, interview_time_col).value = "SKIPPED" 'If this was skipped it needs to stop here
 
-	'Formatting the columns to autofit after they are all finished being created.
-	objExcel.Columns(1).autofit()
-	objExcel.Columns(2).autofit()
-	objExcel.Columns(3).autofit()
-	objExcel.Columns(4).autofit()
+'Formatting the columns to autofit after they are all finished being created.
+objExcel.Columns(1).autofit()
+objExcel.Columns(2).autofit()
+objExcel.Columns(3).autofit()
+objExcel.Columns(4).autofit()
 
 'Creating the list of privileged cases and adding to the spreadsheet
 prived_case_array = split(priv_case_list, "|")
