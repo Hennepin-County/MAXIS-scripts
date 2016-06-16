@@ -743,8 +743,371 @@ script_array(script_num).subcategory            = array("")
 
 'NAV SCRIPTS=====================================================================================================================================
 
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "CASE-CURR"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
 
-'HOLDING UP ON THIS UNTIL WE GET A RESOLUTION ON GITHUB ISSUE #2301: https://github.com/MN-Script-Team/DHS-MAXIS-Scripts/issues/2301
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "CASE-NOTE"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "DAIL-DAIL"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "DAIL-WRIT"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-DWP"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-EMER"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-FS"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-GA"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-GRH"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-HC"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-MFIP"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG-MSA"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Find MAXIS case in MMIS"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Find MMIS PMI in MAXIS"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "PERS"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "POLI-TEMP"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-ACTV - Bottom"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-ACTV"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-INAC"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-MFCM"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-MONT"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-PND1"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-PND2"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-REVW"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-USER"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "SELF"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "SPEC-MEMO"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "SPEC-WCOM"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "SPEC-XFER"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-ACCT"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-ADDR"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-AREP"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-JOBS"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-MEMB"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-MONT"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-PNLP"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-PROG"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-REVW"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-UNEA"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "View INFC"
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+
+
+
+
+
+
 
 
 
