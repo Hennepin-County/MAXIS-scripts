@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTICES - DUPLICATE ASSISTANCE WCOM.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 90                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,18 +37,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
 
 'Dialog--------------------------------------------
 BeginDialog dup_dlg, 0, 0, 156, 95, "Duplicate Assistance WCOM"
-  EditBox 65, 5, 75, 15, case_number
+  EditBox 65, 5, 75, 15, MAXIS_case_number
   EditBox 75, 25, 65, 15, worker_signature
-  EditBox 60, 45, 20, 15, footer_month
-  EditBox 130, 45, 20, 15, footer_year
+  EditBox 60, 45, 20, 15, MAXIS_footer_month
+  EditBox 130, 45, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 75, 50, 15
     CancelButton 80, 75, 50, 15
@@ -79,23 +68,23 @@ Do
 		Do
 			dialog dup_dlg
 			cancel_confirmation
-			If footer_month = "" or footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
-			If case_number = "" THEN MsgBox "Please enter a case number."
+			If MAXIS_footer_month = "" or MAXIS_footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
+			If MAXIS_case_number = "" THEN MsgBox "Please enter a case number."
 			If worker_signature = "" THEN MsgBox "Please sign your note."
-		Loop until footer_month <> "" & footer_year <> ""
-	Loop until case_number <> ""
+		Loop until MAXIS_footer_month <> "" & MAXIS_footer_year <> ""
+	Loop until MAXIS_case_number <> ""
 Loop until worker_signature <> ""
 
 'Converting dates into useable forms
-If len(footer_month) < 2 THEN footer_month = "0" & footer_month
-If len(footer_year) > 2 THEN footer_year = right(footer_year, 2)
+If len(MAXIS_footer_month) < 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+If len(MAXIS_footer_year) > 2 THEN MAXIS_footer_year = right(MAXIS_footer_year, 2)
 
 'Navigating to the spec wcom screen
 CALL Check_for_MAXIS(false)
 
-Emwritescreen case_number, 18, 43
-Emwritescreen footer_month, 20, 43
-Emwritescreen footer_year, 20, 46
+Emwritescreen MAXIS_case_number, 18, 43
+Emwritescreen MAXIS_footer_month, 20, 43
+Emwritescreen MAXIS_footer_year, 20, 46
 
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
 

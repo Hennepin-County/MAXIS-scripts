@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - APPLICATION RECEIVED.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 145                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 145                     'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
-
 'DIALOGS-------------------------------------------------------------
 BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
-  EditBox 95, 5, 60, 15, case_number
+  EditBox 95, 5, 60, 15, MAXIS_case_number
   EditBox 95, 25, 60, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 45, 45, 50, 15
@@ -96,15 +84,15 @@ EndDialog
 'Grabs the case number
 EMConnect ""
 
-CALL MAXIS_case_number_finder (case_number)
+CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 'Runs the first dialog - which confirms the case number and gathers worker signature
 Do 
 	Dialog case_appld_dialog
 	If buttonpressed = cancel then stopscript
-	If case_number = "" then MsgBox "You must have a case number to continue!"
+	If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"
 	If worker_signature = "" then Msgbox "Please sign your case note"
-Loop until case_number <> "" AND worker_signature <> ""
+Loop until MAXIS_case_number <> "" AND worker_signature <> ""
 
 call check_for_MAXIS(true)
 
@@ -113,16 +101,16 @@ call check_for_MAXIS(true)
 call navigate_to_MAXIS_screen("REPT","PND2")
 dateofapp_row = 1 
 dateofapp_col = 1 
-EMSearch case_number, dateofapp_row, dateofapp_col
-EMReadScreen footer_month, 2, dateofapp_row, 38
+EMSearch MAXIS_case_number, dateofapp_row, dateofapp_col
+EMReadScreen MAXIS_footer_month, 2, dateofapp_row, 38
 EMReadScreen app_day, 2, dateofapp_row, 41
-EMReadScreen footer_year, 2, dateofapp_row, 44
-date_of_app = footer_month & "/" & app_day & "/" & footer_year
+EMReadScreen MAXIS_footer_year, 2, dateofapp_row, 44
+date_of_app = MAXIS_footer_month & "/" & app_day & "/" & MAXIS_footer_year
 
 'If case is not in PND2 status this defaults the date information to current date to allow correct navigation
 If date_of_app = "  /  /  " then 
 	date_of_app = date 
-	Call convert_date_into_MAXIS_footer_month (date, footer_month, footer_year)
+	Call convert_date_into_MAXIS_footer_month (date, MAXIS_footer_month, MAXIS_footer_year)
 End If
 
 'Determines which programs are currently pending in the month of application

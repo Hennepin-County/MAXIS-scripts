@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - CAF.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 720                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 720                     'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number
+  EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, MAXIS_footer_month
   EditBox 110, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
@@ -72,6 +60,7 @@ EndDialog
 BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
   ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
+  CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
   EditBox 60, 25, 50, 15, interview_date
   ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed"+chr(9)+"emailed", how_app_was_received
   ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
@@ -120,7 +109,6 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
     PushButton 275, 240, 25, 10, "TYPE", TYPE_button
   Text 5, 10, 55, 10, "CAF datestamp:"
   Text 120, 10, 50, 10, "Interview type:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 30, 55, 10, "Interview date:"
   Text 120, 30, 110, 10, "How was application received?:"
   Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
@@ -129,7 +117,9 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   Text 5, 215, 50, 10, "Verifs needed:"
   GroupBox 5, 230, 130, 25, "ELIG panels:"
   GroupBox 145, 230, 160, 25, "other STAT panels:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
 EndDialog
+
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -264,7 +254,7 @@ application_signed_checkbox = checked 'The script should default to having the a
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'initial dialog
@@ -273,9 +263,9 @@ Do
 		Dialog case_number_dialog
 		cancel_confirmation
 		If CAF_type = "Select one..." Then MsgBox "You must select the CAF type."
-		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 	Loop until CAF_type <> "Select one..."	
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
@@ -418,34 +408,38 @@ If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 	End if
 End if
 
-'Going to TIKL, there's a custom function for this. Evaluate using it.
+'Going to TIKL. Now using the write TIKL function
 If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
-		EMSetCursor 9, 3
-		If cash_checkbox = checked then EMSendKey "cash/"
-		If SNAP_checkbox = checked then EMSendKey "SNAP/"
-		If EMER_checkbox = checked then EMSendKey "EMER/"
-		EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
-		transmit	
-		PF3
+		If DateDiff ("d", CAF_datestamp, date) > 30 Then 'Error handling to prevent script from attempting to write a TIKL in the past
+			MsgBox "Cannot set TIKL as CAF Date is over 30 days old and TIKL would be in the past. You must manually track."
+		Else 
+			call navigate_to_MAXIS_screen("dail", "writ")
+			call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
+			If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
+			If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
+			If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
+			TIKL_msg_one = Left(TIKL_msg_one, (len(TIKL_msg_one) - 1))
+			TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
+			Call write_variable_in_TIKL (TIKL_msg_one)
+			PF3
+		End If 
 	End if
 	If HC_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
-		EMSetCursor 9, 3
-		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-		transmit
-		PF3
+		If DateDiff ("d", CAF_datestamp, date) > 45 Then 'Error handling to prevent script from attempting to write a TIKL in the past
+			MsgBox "Cannot set TIKL as CAF Date is over 45 days old and TIKL would be in the past. You must manually track."
+		Else
+			call navigate_to_MAXIS_screen("dail", "writ")
+			call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
+			Call write_variable_in_TIKL ("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
+			PF3
+		End If 
 	End if
 End if
 If client_delay_TIKL_checkbox = checked then
 	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 10, 5, 18) 
-	EMSetCursor 9, 3
-	EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
-	transmit
+	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
 	PF3
 End if
 '----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
@@ -478,7 +472,11 @@ If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & CAF_status & "***")
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF datestamp", CAF_datestamp)
-CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)											
+If Used_Interpreter_checkbox = checked then 
+	CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " w/ interpreter")	
+Else 
+	CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)	
+End if 											
 CALL write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("HC document received", HC_document_received)								
 CALL write_bullet_and_variable_in_CASE_NOTE("HC datestamp", HC_datestamp)

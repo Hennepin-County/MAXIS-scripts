@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - LEP - SPONSOR INCOME.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 300          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 300          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog sponsor_income_calculation_dialog, 0, 0, 216, 165, "Sponsor income calculation dialog"
-  EditBox 65, 10, 70, 15, case_number
+  EditBox 65, 10, 70, 15, MAXIS_case_number
   EditBox 40, 45, 55, 15, primary_sponsor_earned_income
   EditBox 150, 45, 55, 15, spousal_sponsor_earned_income
   EditBox 40, 80, 55, 15, primary_sponsor_unearned_income
@@ -78,7 +66,7 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, and finding case number
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
@@ -88,8 +76,8 @@ Do
 				DO
 					Dialog sponsor_income_calculation_dialog
 					If ButtonPressed = 0 then stopscript
-					If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must enter a valid case number."
-				Loop until isnumeric(case_number) = True and len(case_number) <= 8
+					If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must enter a valid case number."
+				Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 				If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False then MsgBox "You must enter some income. You can enter a ''0'' if that is accurate."
 			Loop until isnumeric(primary_sponsor_earned_income) = True or isnumeric(spousal_sponsor_earned_income) = True or isnumeric(primary_sponsor_unearned_income) = True or isnumeric(spousal_sponsor_unearned_income) = True
 			If isnumeric(sponsor_HH_size) = False then MsgBox "You must enter a sponsor HH size."
@@ -100,15 +88,16 @@ Do
 Loop until worker_signature <> ""
 
 'Determines the income limits
-If sponsor_HH_size = 1 then income_limit = 1265
-If sponsor_HH_size = 2 then income_limit = 1705
-If sponsor_HH_size = 3 then income_limit = 2144
-If sponsor_HH_size = 4 then income_limit = 2584
-If sponsor_HH_size = 5 then income_limit = 3024
-If sponsor_HH_size = 6 then income_limit = 3464
-If sponsor_HH_size = 7 then income_limit = 3904
-If sponsor_HH_size = 8 then income_limit = 4344
-If sponsor_HH_size > 8 then income_limit = 4344 + (440 * (sponsor_HH_size - 8))
+' >> Income limits from CM 19.06
+If sponsor_HH_size = 1 then income_limit = 1276
+If sponsor_HH_size = 2 then income_limit = 1726
+If sponsor_HH_size = 3 then income_limit = 2177
+If sponsor_HH_size = 4 then income_limit = 2628
+If sponsor_HH_size = 5 then income_limit = 3078
+If sponsor_HH_size = 6 then income_limit = 3529
+If sponsor_HH_size = 7 then income_limit = 3980
+If sponsor_HH_size = 8 then income_limit = 4430
+If sponsor_HH_size > 8 then income_limit = 4430 + (451 * (sponsor_HH_size - 8))
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
 If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0

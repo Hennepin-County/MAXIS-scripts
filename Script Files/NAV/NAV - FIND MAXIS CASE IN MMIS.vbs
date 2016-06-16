@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - LOOK UP MAXIS CASE IN MMIS.vbs"
+'Required for statistical purposes===============================================================================
+name_of_script = "NAV - FIND MAXIS CASE IN MMIS.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 40                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 40                      'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block=========================================================================================================
 
 'SCRIPT----------------------------------------------------------------------------------------------------
 
@@ -67,11 +55,11 @@ EMSearch "Case Nbr: ", row, col
 If row = 0 then script_end_procedure("A valid case number could not be found. This script works best from a STAT, CASE, or ELIG screen.")
 
 'Reading the case number, then removing spaces and underscores, and adding the leading zeroes for MMIS.
-EMReadScreen case_number, 8, row, col + 10
-case_number = replace(replace(case_number, " ", ""), "_", "0") 'Removing any underscores.
+EMReadScreen MAXIS_case_number, 8, row, col + 10
+MAXIS_case_number = replace(replace(MAXIS_case_number, " ", ""), "_", "0") 'Removing any underscores.
 Do
-	If len(case_number) < 8 then case_number = "0" & case_number
-Loop until len(case_number) = 8
+	If len(MAXIS_case_number) < 8 then MAXIS_case_number = "0" & MAXIS_case_number
+Loop until len(MAXIS_case_number) = 8
 
 'Checking to see if we are on the HC/APP screen, which is not supported at this time (case number is in different place)
 EMReadScreen HC_app_check, 16, 3, 33 
@@ -126,7 +114,7 @@ transmit
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 EMWriteScreen "i", 2, 19
-EMWriteScreen case_number, 9, 19
+EMWriteScreen MAXIS_case_number, 9, 19
 transmit
 EMReadscreen RKEY_check, 4, 1, 52
 If RKEY_check = "RKEY" then script_end_procedure("A correct case number was not taken from MAXIS. Check your case number and try again.")
@@ -139,9 +127,3 @@ EMWriteScreen "relg", 1, 8
 transmit
 
 script_end_procedure("")
-
-
-
-
-
-

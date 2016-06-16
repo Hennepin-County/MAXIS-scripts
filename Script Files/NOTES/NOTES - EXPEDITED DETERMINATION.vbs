@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - EXPEDITED DETERMINATION.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 150                	'manual run time in seconds
+STATS_denomination = "C"       			'C is for each Case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,16 +38,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 150                	'manual run time in seconds
-STATS_denomination = "C"       			'C is for each Case
-'END OF stats block=========================================================================================================
-
 'DIALOGS--------------------------------------------------------------------------------------------------------------------
 
 BeginDialog Case_Number_Dialog, 0, 0, 171, 85, "Case Information"
-  EditBox 70, 5, 80, 15, case_number
+  EditBox 70, 5, 80, 15, MAXIS_case_number
   EditBox 55, 25, 15, 15, elig_month
   EditBox 120, 25, 15, 15, elig_year
   EditBox 80, 45, 85, 15, worker_signature
@@ -85,7 +73,7 @@ EndDialog
 'connecting to MAXIS
 EMConnect ""
 'Finds the case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'dialog to gather the Case Number and such
 Do
@@ -93,7 +81,7 @@ Do
 	cancel_confirmation
 	err_msg = ""
 	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your worker signature"
-	IF case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
+	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
 	IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
 Loop until err_msg = ""
 
@@ -123,7 +111,6 @@ IF row <> 0 THEN
 	Next 
 ELSEIF row = 0 THEN 
 	XFS_Screening_CNote = FALSE
-	
 END IF 
 
 'Script is gathering the income/asset/expense information from the XFS Screening note
@@ -257,9 +244,14 @@ End If
 navigate_to_MAXIS_screen "STAT", "PNLR"
 For pnlr_row = 3 to 19 
 	EMReadScreen asset_panel_type, 4, pnlr_row, 5
-	IF asset_panel_type = "CASH" THEN EMReadScreen asset_amount, 6, 3, 26
-	IF asset_panel_type = "ACCT" THEN EMReadScreen asset_amount, 6, 4, 31 
-	asset_amount = abs(trim(asset_amount))
+	IF asset_panel_type = "CASH" THEN 
+		EMReadScreen asset_listed, 6, pnlr_row, 26
+	ELSEIF asset_panel_type = "ACCT" THEN 
+		EMReadScreen asset_listed, 6, pnlr_row, 31 
+	Else 
+		asset_listed = 0
+	End If	
+	asset_amount = asset_amount + abs(trim(asset_listed))
 Next 
 
 'Notifying the worker as to if the script found the XFS screening information
@@ -317,14 +309,17 @@ BeginDialog Expedited_Detail_Dialog, 0, 0, 401, 325, "Expedited Determination"
 EndDialog
 
 'Running the Dialog asking for all the detail and explanations
-Do 
-	Dialog Expedited_Detail_Dialog
-	cancel_confirmation
-	err_msg = ""
-	IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
-	IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
-	IF err_msg <> "" Then MsgBox err_msg
-Loop until err_msg = ""
+DO
+	Do
+		Dialog Expedited_Detail_Dialog
+		cancel_confirmation
+		err_msg = ""
+		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
+		IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
+		IF err_msg <> "" Then MsgBox err_msg
+	Loop until err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Formating the information from the edit boxes
 If determined_income = "" Then determined_income = 0

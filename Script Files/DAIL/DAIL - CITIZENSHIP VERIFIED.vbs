@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "DAIL - CITIZENSHIP VERIFIED.vbs"
 start_time = timer
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 55          'manual run time in seconds
+STATS_denomination = "M"       'M is for each MEMBER
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 55          'manual run time in seconds
-STATS_denomination = "M"       'M is for each MEMBER
-'END OF stats block==============================================================================================
 
 'custom function for this script---------------------------------------------------------------------------------
 Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
@@ -79,7 +67,7 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
 		Interim_array = split(client_array, "|")
 		all_clients_array(x, 0) = Interim_array(x)
-		all_clients_array(x, 1) = 1
+		all_clients_array(x, 1) = 0			'Defaulting to update none persons so the user has to update them thar persons
 	NEXT
 
 	BEGINDIALOG HH_memb_dialog, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
@@ -93,20 +81,30 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 	ENDDIALOG
 													'runs the dialog that has been dynamically created. Streamlined with new functions.
 	Call navigate_to_MAXIS_screen("DAIL","DAIL")
-	Dialog HH_memb_dialog
-	If buttonpressed = 0 then stopscript
-	check_for_maxis(True)
-
-	HH_member_array = ""					
 	
-	FOR i = 0 to total_clients
-		IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts. 
-			IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
-				'msgbox all_clients_
-				HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+	'Sticking a do/loop around the dialog call to verify that the user has selected some household members.
+	DO
+		Dialog HH_memb_dialog
+		If buttonpressed = 0 then stopscript
+		check_for_maxis(True)
+
+		HH_member_array = ""					
+	
+		FOR i = 0 to total_clients
+			IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts. 
+				IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+					'msgbox all_clients_
+					HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+				END IF
 			END IF
+		NEXT
+		
+		'If the user has not selected any household members, they will receive a msgbox informing them of that, requesting that they either try again or go home
+		IF HH_member_array = "" THEN 
+			nobody_selected = MsgBox("You have not selected any household members to update. Press OK to try again. Press CANCEL to stop the script.", vbOKCancel)
+			IF nobody_selected = vbCancel THEN stopscript
 		END IF
-	NEXT
+	LOOP UNTIL HH_member_array <> ""
 	
 	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
 	HH_member_array = SPLIT(HH_member_array, " ")
@@ -124,9 +122,9 @@ col = 1
 'Finding case number
 EMSearch "CASE NBR:", row, col
 If row <> 0 then 
-  EMReadScreen case_number, 8, row, col + 10
-  case_number = replace(case_number, "_", "")
-  case_number = trim(case_number)
+  EMReadScreen MAXIS_case_number, 8, row, col + 10
+  MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+  MAXIS_case_number = trim(MAXIS_case_number)
 End if
 
 'Error out in case it can't find the case number

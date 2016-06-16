@@ -1,15 +1,18 @@
 'Script Created by Casey Love from Ramsey County 
-
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "BULK - CASE TRANSFER.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 20                	'manual run time in seconds
+STATS_denomination = "I"       			'I is for each Item
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -18,22 +21,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -45,12 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 20                	'manual run time in seconds
-STATS_denomination = "I"       			'I is for each Item
-'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------
 BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameters for Cases to Transfer"
@@ -106,7 +93,7 @@ BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameter
   Text 280, 150, 85, 25, "Use the Spacebar to check and uncheck boxes without your mouse"
   Text 5, 25, 65, 10, "Worker(s) to check:"
   Text 5, 75, 235, 10, " This will not give a transfer option but will look for all possible criteria."
-  Text 5, 40, 210, 20, "Enter last 3 digits of your workers' x1 numbers (ex: x100###), separated by a comma."
+  Text 5, 40, 210, 20, "Note: please enter the entire 7-digit number x1 number (x100abc), separated by a comma."
   Text 5, 95, 235, 10, "Check all that apply - What type of cases do you want to transfer?"
   Text 65, 5, 100, 10, "***Case Parameters to Pull***"
 EndDialog
@@ -114,7 +101,7 @@ EndDialog
 'THE SCRIPT-------------------------------------------------------------------------
 
 'Determining specific county for multicounty agencies...
-CALL worker_county_code_determination(worker_county_code, two_digit_county_code)
+get_county_code
 
 'Connects to BlueZone
 EMConnect ""
@@ -129,7 +116,7 @@ Do
 		IF query_all_check = unchecked AND snap_check = unchecked AND mfip_check = unchecked AND DWP_check = unchecked AND EA_check = unchecked AND HC_check = unchecked AND ga_check = unchecked AND msa_check = unchecked AND GRH_check = unchecked Then err_msg = err_msg & _ 
 		  vbCr & "You must select a type of program for the cases you want to transfer, please pick one - SNAP, MFIP, DWP, EA, HC, GA, MSA, or GRH"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	Loop until query_all_check = checked OR snap_check = checked OR mfip_check = checked OR DWP_check = checked OR EA_check = checked OR HC_check = checked OR ga_check = checked OR msa_check = checked OR GRH_check = checked AND worker_number <> ""
+	Loop until err_msg = "" 
 	err_msg = ""
 	If SNAP_check = unchecked then 
 		IF SNAP_Only_check = checked OR SNAP_ABAWD_check = checked OR SNAP_UH_check = checked then err_msg = err_msg & vbCr & "If you select SNAP details, you must filter FOR SNAP cases - Check the SNAP box"
@@ -157,7 +144,7 @@ Loop until err_msg = ""
 query_start_time = timer
 
 'Checking for MAXIS
-Call check_for_MAXIS(True)
+Call check_for_MAXIS(False)
 
 'In order to make the code a little cleaner, this sets all the option check boxes to checked when the Query All option exists.
 IF query_all_check = checked THEN 
@@ -364,21 +351,8 @@ IF query_all_check = unchecked THEN
 	new_worker_letter_col = convert_digit_to_excel_column(new_worker_col)
 End IF 
 
-'create a single-object "array" just for simplicity of code.
-
-x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
-
-'Need to add the worker_county_code to each one
-For each x1_number in x1s_from_dialog
-	If worker_array = "" then
-		worker_array = worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))		'replaces worker_county_code if found in the typed x1 number
-	Else
-		worker_array = worker_array & ", " & worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")) 'replaces worker_county_code if found in the typed x1 number
-	End if
-Next
-
 'Split worker_array
-worker_array = split(worker_array, ", ")
+worker_array = split(worker_number, ", ")
 
 'Arrays that need delcaring and resizing 
 Dim All_case_information_array ()
@@ -434,7 +408,7 @@ For each worker in worker_array
 				cash_one_type = ""
 				cash_two_type = "" 
 				
-				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
 				EMReadScreen cash_one_status, 1, MAXIS_row, 54		'Reading cash status
@@ -447,9 +421,9 @@ For each worker in worker_array
 				EMReadScreen GRH_status, 1, MAXIS_row, 70			'Reading GRH status
 				EMReadScreen CCAP_status, 1, MAXIS_row, 80 			'Reading CCAP Status
 				
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 				
-				Full_case_list_array(0,m) = case_number
+				Full_case_list_array(0,m) = MAXIS_case_number
 				Full_case_list_array(1,m) = client_name
 				Full_case_list_array(2,m) = replace(next_revw_date, " ", "/")
 				Full_case_list_array(3,m) = cash_one_type
@@ -466,11 +440,11 @@ For each worker in worker_array
 				Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
 				
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 				
 				MAXIS_row = MAXIS_row + 1
-				case_number = ""			'Blanking out variable 
+				MAXIS_case_number = ""			'Blanking out variable 
 				m = m + 1
 			Loop until MAXIS_row = 19 
 			PF8
@@ -481,7 +455,7 @@ next
 k = 0	'Setting the inital value for the next array
 
 For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from REPT/ACTV for any of the criteria selected in initial dialog 
-	case_number = Full_case_list_array(0,n)	'Setting the case number for the FuncLib fucntions to work
+	MAXIS_case_number = Full_case_list_array(0,n)	'Setting the case number for the FuncLib fucntions to work
 	IF SNAP_ABAWD_check = checked OR SNAP_UH_check = checked OR MFIP_tanf_check = checked OR child_only_mfip_check = checked OR mont_rept_check = checked OR HC_msp_check = checked OR adult_hc_check = checked OR family_hc_check = checked OR ltc_HC_check = checked OR waiver_HC_check = checked OR exclude_ievs_check = checked OR exclude_paris_check = checked then
 		'////// Checking number of TANF months if requested
 		IF MFIP_tanf_check = checked then 
@@ -491,8 +465,8 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 				EMReadScreen reg_mo, 2, 17, 69
 				EMReadScreen ext_mo, 3, 19, 69
 				If ext_mo = "   " then ext_mo = 0 
-				reg_mo = reg_mo * 1
-				ext_mo = ext_mo * 1 
+				reg_mo = abs(reg_mo)
+				ext_mo = abs(ext_mo)
 				TANF_used = abs(reg_mo) + abs(ext_mo)
 				PF3
 			End If
@@ -873,7 +847,10 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 			IF UH_SNAP = FALSE then Save_case_for_transfer = FALSE 
 		End If 
 		IF MFIP_tanf_check = checked then 
-			IF abs(TANF_used) < abs(tanf_months) then Save_case_for_transfer = FALSE 
+			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then 
+				IF TANF_used = "" then TANF_used = 0 
+				IF abs(TANF_used) < abs(tanf_months) then Save_case_for_transfer = FALSE 
+			End If
 		End If
 		IF child_only_mfip_check = checked AND adult_on_mfip = TRUE then Save_case_for_transfer = FALSE 
 		IF mont_rept_check = checked AND reporter_type <> "MONTHLY" then Save_case_for_transfer = FALSE 
@@ -992,7 +969,7 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 		k = k + 1 'Goes to the next entry for the All_case_information_array
 	End if
 	'Blanking out variables for next go round
-	case_number = "" 
+	MAXIS_case_number = "" 
 	Save_case_for_transfer = ""	
 	reg_mo = ""
 	ext_mo = ""
@@ -1070,7 +1047,7 @@ BeginDialog case_transfer_dialog, 0, 0, 376, 130, "Select Transfer Options"
   Text 115, 10, 20, 10, cases_found
   Text 140, 10, 130, 10, "cases that meet your selected criteria"
   Text 165, 30, 60, 10, "of these cases to:"
-  Text 230, 40, 140, 25, "Enter the last 3 digits of the worker X1***** number. You may enter more than one worker, seperate workers by a comma."
+  Text 230, 40, 140, 25, "Enter the entire 7-digit number x1 number. You may enter more than one worker, seperate workers by a comma."
   Text 15, 85, 70, 10, "New Worker's Name"
   Text 15, 65, 65, 10, "Sign your case note"
   Text 170, 80, 170, 20, "This is optional, it only adds the worker's name to the case note - you can only enter one name."
@@ -1091,22 +1068,13 @@ Do
 	IF transfer_check = checked AND query_check = checked THEN MsgBox "You cannot select both"
 Loop until transfer_check = checked OR query_check = checked 
 
-'create an array of all the workers receiving cases
-x1s_from_dialog_two = split(worker_receiving_cases, ",")	'Splits the worker array based on commas
-
-'Need to add the worker_county_code to each one - WORKER NUMBERS MUST BE IN UPPERCASE BECAUSE MAXIS has issues sometimes when lowercase
-For each x1_number in x1s_from_dialog_two
-	If receiving_worker_array = "" then
-		receiving_worker_array = UCase(worker_county_code & trim(replace(ucase(x1_number), worker_county_code, "")))		'replaces worker_county_code if found in the typed x1 number
-	Else
-		receiving_worker_array = receiving_worker_array & ", " & UCase(worker_county_code & trim(replace(ucase(x1_number), worker_county_code, ""))) 'replaces worker_county_code if found in the typed x1 number
-	End if
-Next
-
 cases_to_xfer_numb = abs(cases_to_xfer_numb)	'Sometimes the script thinks this is a string and does not do math correctly.
 
+'Standardizing the worker numbers to uppercase so that transfering doesn't break
+worker_receiving_cases = UCase(worker_receiving_cases)
+worker_receiving_cases = Replace(worker_receiving_cases, " ", "")	'Removing stray spaces
 'Creating the array of all workers to receive cases
-receiving_worker_array = split(receiving_worker_array, ", ")
+receiving_worker_array = split(worker_receiving_cases, ",")
 
 r = 0 	'counter for the receiving worker array
 P = 0 	'Counter for the cases transferred 
@@ -1114,7 +1082,7 @@ P = 0 	'Counter for the cases transferred
 If transfer_check = checked then 
 	Do 
 		back_to_self 
-		case_number = All_case_information_array(0,p) 'setting case number variable for the FuncLib functions to work
+		MAXIS_case_number = All_case_information_array(0,p) 'setting case number variable for the FuncLib functions to work
 		navigate_to_MAXIS_screen "SPEC", "XFER"
 		STATS_counter = STATS_counter + 1
 		EMWriteScreen "x", 7, 16 
@@ -1126,7 +1094,7 @@ If transfer_check = checked then
 		IF confirm_xfer <> "CASE" then 
 			'If a transfer is not successful it will be noted on the spreadsheet and a msgbox will alert the user but the script will not stop. 
 			'Option to disable the message box if this holds up the runtime
-			MsgBox "This case " & case_number & " cannot be transferred and has been noted on the spreadsheet"
+			MsgBox "This case " & MAXIS_case_number & " cannot be transferred and has been noted on the spreadsheet"
 			PF10 
 			ObjExcel.Cells (All_case_information_array(19,p), xfered_col).Value = "N" 
 		ElseIf confirm_xfer = "CASE" then 
@@ -1166,7 +1134,7 @@ If transfer_check = checked then
 			End If 
 			'If cases_to_xfer_numb = total_cases_transfered Then Exit Do 
 		End If 
-		case_number = "" 'Blanking out variable
+		MAXIS_case_number = "" 'Blanking out variable
 		p = p + 1 
 		If p = UBound(All_case_information_array,2) Then Exit Do 
 	Loop until total_cases_transfered = cases_to_xfer_numb 'continues to attempt to transfer until the requested number is reached 

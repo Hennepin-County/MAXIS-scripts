@@ -18,9 +18,6 @@ run_locally = true
 'This is used by almost every script which calls a specific agency worker number (like the REPT/ACTV nav and list gen scripts).
 worker_county_code = "MULTICOUNTY"
 
-'This is used for MEMO scripts, such as appointment letter
-county_name = "Anoka County"
-
 'This merely exists to help the installer determine which dropdown box to default. It is not used by any scripts.
 code_from_installer = "SCRIPTWRITER"
 
@@ -87,7 +84,12 @@ banked_month_database_path = "C:\DHS-MAXIS-Scripts\Databases for script usage\ba
 'BRANCH CONFIGURATION=====================
 
 'This is a variable which sets the scripts to use the master branch (common with scriptwriters)
-use_master_branch = False
+use_master_branch = true
+
+'TRAINING CASE SCENARIO SETTINGS==========
+
+'This is a variable which decides the default location of training case scenario Excel sheets
+training_case_creator_excel_file_path = "C:\DHS-MAXIS-Scripts\Script Files\SETTINGS - TRAINING CASE SCENARIOS.xlsx"
 
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
@@ -122,4 +124,4 @@ ELSE							'Everyone else (who isn't a scriptwriter) typically uses the release 
 END IF
 
 'If run locally is set to "True", the scripts will totally bypass GitHub and run locally.
-IF run_locally = TRUE THEN script_repository = "C:\DHS-MAXIS-Scripts\Script Files"
+IF run_locally = TRUE THEN script_repository = "C:\DHS-MAXIS-Scripts\Script Files\"

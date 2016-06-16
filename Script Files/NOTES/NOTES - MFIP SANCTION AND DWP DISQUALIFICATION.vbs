@@ -1,18 +1,17 @@
-'OPTION EXPLICIT
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 180          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
-'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
-
-''LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF default_directory = "C:\DHS-MAXIS-Scripts\Script Files\" OR default_directory = "" THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		ELSEIF beta_agency = "" or beta_agency = True then							'If you're a beta agency, you should probably use the beta branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/BETA/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -21,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -49,38 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 180          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
-'Dimming variables----------------------------------------------------------------------------------------------------
-'DIM MFIP_Sanction_DWP_Disq_Dialog
-'DIM case_number
-'DIM sanction_status_droplist
-'DIM HH_Member_Number
-'DIM sanction_type_droplist
-'DIM number_occurances_droplist
-'DIM Date_Sanction
-'DIM Sanction_Percentage_droplist
-'DIM sanction_information
-'DIM sanction_reason_droplist
-'DIM other_sanction_notes
-'DIM Memo_to_Client
-'DIM Impact_Other_Programs
-'DIM Vendor_Information
-'DIM Last_Day_Cure
-'DIM Update_Sent_ES_Checkbox
-'DIM FIAT_check
-'DIM Update_Sent_CCA_Checkbox
-'DIM mandatory_vendor_check
-'DIM TIKL_next_month
-'DIM Sent_SPEC_MEMO
-'DIM set_TIKL_check
-'DIM worker_signature
-'DIM ButtonPressed
-'DIM TIKL_date
 DIM Resolution_date 'DIM this so that the "IF's" date calculation below to return a value and for case noting to have a variable place holder.
 
 
@@ -88,7 +45,7 @@ DIM Resolution_date 'DIM this so that the "IF's" date calculation below to retur
 'MFIP Sanction/DWP Disqualification Dialog Box
 '
 BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 346, 325, "MFIP Sanction - DWP Disqualification"
-  EditBox 55, 5, 60, 15, case_number
+  EditBox 55, 5, 60, 15, MAXIS_case_number
   EditBox 180, 5, 25, 15, HH_Member_Number
   DropListBox 265, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
   DropListBox 65, 25, 110, 15, "Select one..."+chr(9)+"CS"+chr(9)+"ES"+chr(9)+"No show to orientation"+chr(9)+"Minor mom truancy", sanction_type_droplist
@@ -142,11 +99,11 @@ EndDialog
 EMConnect ""
 
 'Asks for Case Number
-CALL MAXIS_case_number_finder(case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 
 'Grabbing counselor name and phone from database if applicable
-IF collecting_ES_statistics = true AND case_number <> "" THEN
+IF collecting_ES_statistics = true AND MAXIS_case_number <> "" THEN
 		'Setting constants
 		Const adOpenStatic = 3
 		Const adLockOptimistic = 3
@@ -158,7 +115,7 @@ IF collecting_ES_statistics = true AND case_number <> "" THEN
 		'Opening DB
 	objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & ES_database_path
 		'This looks for an existing case number and edits it if needed
-		set rs = objConnection.Execute("SELECT * FROM ESTrackingTbl WHERE ESCaseNbr = " & case_number & "")
+		set rs = objConnection.Execute("SELECT * FROM ESTrackingTbl WHERE ESCaseNbr = " & MAXIS_case_number & "")
 		IF NOT(rs.eof) THEN ES_counselor_name = rs("ESCounselor")
 	objConnection.Close
 	set rs = nothing
@@ -169,7 +126,7 @@ DO
 	err_msg = ""						
 	Dialog MFIP_Sanction_DWP_Disq_Dialog
 	cancel_confirmation
-	IF IsNumeric(case_number) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid numeric case number."
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid numeric case number."
 	IF sanction_status_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction status type."
 	IF HH_Member_Number = "" THEN err_msg = err_msg & vbCr & "You must enter a HH member number."
 	IF sanction_type_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction type."
@@ -254,8 +211,8 @@ CALL write_variable_in_case_note(worker_signature)
 
 If notating_spec_wcom = checked THEN 
 	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-	EMReadscreen CASH_check, 2, read_row, 26  'checking to make sure that notice is for MFIP or DWP
-	EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
+	EMReadscreen CASH_check, 2, 7, 26  'checking to make sure that notice is for MFIP or DWP
+	EMReadScreen Print_status_check, 7, 7, 71 'checking to see if notice is in 'waiting status'
 	'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
 	If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
 		EMSetcursor read_row, 13
@@ -264,10 +221,11 @@ If notating_spec_wcom = checked THEN
 		PF9
 		EMSetCursor 03, 15
 		'WCOM required by workers to informed client what who they need to contact, the contact info, and by when they need to resolve the sanction.
-		Call write_variable_in_SPEC_WCOM("")
-		Call write_variable_in_SPEC_WCOM("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
-		Call write_variable_in_SPEC_WCOM("You need to be in compliance on/by " & Resolution_date & ".")
-		Call write_variable_in_SPEC_WCOM("")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("You need to be in compliance on/by " & Resolution_date & ".")
+		Call write_variable_in_SPEC_MEMO("")
 		PF4
 		PF3
 	ELSE 
@@ -279,7 +237,7 @@ END If
 IF collecting_ES_statistics = true THEN
 	IF Sanction_Percentage_droplist = "100%" THEN ESActive = "No" 'updating ESActive when case is sanctioned out
 	Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only                               
-	CALL write_MAXIS_info_to_ES_database(case_number, HH_Member_Number, ESMembName, Sanction_Percentage_droplist, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
+	CALL write_MAXIS_info_to_ES_database(MAXIS_case_number, HH_Member_Number, ESMembName, Sanction_Percentage_droplist, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
 END IF
 
 CALL script_end_procedure ("")

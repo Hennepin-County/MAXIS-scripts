@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTICES - CS DISREGARD WCOM.vbs"
+name_of_script = "UTILITIES - POLI TEMP.vbs" 'BULK script that creates a spreadsheet of the POLI/TEMP topics, sections, and revision dates'
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -45,90 +45,70 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 64                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
+STATS_counter = 1			     'sets the stats counter at one
+STATS_manualtime = 23			 'manual run time in seconds
+STATS_denomination = "I"		 'I is for item
 'END OF stats block==============================================================================================
 
-'>>>>> DIALOG <<<<<
-BeginDialog case_number_dlg, 0, 0, 136, 80, "Case Number"
-  EditBox 65, 10, 65, 15, case_number
-  EditBox 85, 30, 20, 15, benefit_month
-  EditBox 110, 30, 20, 15, benefit_year
-  ButtonGroup ButtonPressed
-    OkButton 30, 60, 50, 15
-    CancelButton 80, 60, 50, 15
-  Text 10, 15, 50, 10, "Case Number"
-  Text 10, 35, 70, 10, "Benefit Month/Year"
-EndDialog
+'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
+EMConnect ""				'Connects to BlueZone
+back_to_self				'navigates back to the self screen since POLI/TEMP is super picky
+Call check_for_MAXIS(False)	'stops script if user is passworded out
 
-'>>>>> THE SCRIPT <<<<<
-EMConnect ""
-
-'>>>>> CHECKING FOR MAXIS <<<<<
-CALL check_for_MAXIS(True)
-
-EMReadScreen at_self, 4, 2, 50
-IF at_self = "SELF" THEN 
-	EMReadScreen case_number, 8, 18, 43
-	case_number = replace(case_number, "_", "")
-	case_number = trim(case_number)
-	EMReadScreen benefit_month, 2, 20, 43
-	EMReadScreen benefit_year, 2, 20, 46
-ELSE
-	CALL find_variable("Case Nbr: ", case_number, 8)
-	case_number = replace(case_number, "_", "")
-	case_number = trim(case_number)
-	CALL find_variable("Month: ", benefit_month, 2)
-	CALL find_variable("Month: " & benefit_month & " ", benefit_year, 2)
-END IF
-
-DO
-	err_msg = ""
-	Dialog case_number_dlg
-		cancel_confirmation
-		IF case_number = "" 	THEN err_msg = err_msg & vbCr & "* Please enter a case number."
-		IF benefit_month = "" 	THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."
-		IF benefit_year = "" 	THEN err_msg = err_msg & vbCr & "* Please enter a benefit year."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
-
-call navigate_to_screen("spec", "wcom")
-EMWriteScreen benefit_month, 3, 46
-EMWriteScreen benefit_year, 3, 51
+Call navigate_to_MAXIS_screen("POLI", "____")
+EMWriteScreen "TEMP", 5, 40
+EMWriteScreen "TABLE", 21, 71
 transmit
 
-DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
-	EMReadScreen more_pages, 8, 18, 72
-	IF more_pages = "MORE:  -" THEN PF7
-LOOP until more_pages <> "MORE:  -"
+'Opening the Excel file, (now that the dialog is done)
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
 
-read_row = 7
-DO
-	EMReadscreen cash_program, 2, read_row, 26 
-	EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
-	If waiting_check = "Waiting" and cash_program = "MF" THEN 'checking program type and if it's been printed, needs more fool proofing
-		EMWriteScreen "X", read_row, 13
-		Transmit
-		PF9
-		EMWriteScreen "STARTING OCTOBER 1, 2015, A NEW LAW BEGINS THAT ALLOWS", 3, 15
-      	EMWriteScreen "US TO NOT COUNT SOME OF THE CHILD SUPPORT YOU GET", 4, 15
-		EMWriteScreen "WHEN DETERMINING YOUR MONTHLY MFIP/DWP BENEFIT AMOUNT:", 5, 15
-		EMWriteScreen "", 6, 15
-		EMWriteScreen "  - Up to $100 for an assistance unit with one child", 7, 15
-		EMWriteScreen "  - Up to $200 for an assistance unit with two or more", 8, 15
-		EMWriteScreen "     children", 9, 15
-		EMWriteScreen "", 10, 15
-		EMWriteScreen "BECAUSE OF THIS CHANGE, YOU MAY SEE AN INCREASE IN", 11, 15
-		EMWriteScreen "YOUR BENEFIT AMOUNT.", 12, 15
-	    PF4
-		PF3
-	END IF
-	read_row = read_row + 1
-	IF read_row = 18 THEN
-		PF8          'Navigates to the next page of notices.  DO/LOOP until read_row = 18??
-		read_row = 7
-	End if
-LOOP until cash_program = "  "
+'formatting excel file with columns for case number and phone numbers
+objExcel.cells(1, 1).Value = "TITLE"
+objExcel.Cells(1, 2).Value = "SECTION"
+objExcel.Cells(1, 3).Value = "REVISED"
 
-script_end_procedure("")
+FOR i = 1 to 3		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+Excel_row = 2 'Declaring the row to start with
+
+'DO...LOOP adds the POLI/TEMP info to the spreadsheet and checks for the end of the page
+Do
+	MAXIS_row = 6	'Setting or resetting this to look at the top of the list
+	DO	'All of this loops until MAXIS_row = 19
+		'Reading POLI TEMP info
+		EMReadScreen title_info, 45, MAXIS_row, 8
+		EMReadScreen section_info, 11, MAXIS_row, 54
+		EMReadScreen revised_info, 7, MAXIS_row, 74
+		'Adding the case to Excel
+		ObjExcel.Cells(excel_row, 1).Value = trim(title_info)
+		ObjExcel.Cells(excel_row, 2).Value = trim(section_info)
+		ObjExcel.Cells(excel_row, 3).Value = trim(revised_info)
+		STATS_counter = STATS_counter + 1								'adds one instance to the stats counter
+		If trim(title_info) = "TESTING UPLOAD PROCES" then exit do		'this is the last entry of POLI/TEMP, no page breaks
+		excel_row = excel_row + 1										'shifting to the next excel row
+		MAXIS_row = MAXIS_row + 1										'
+	Loop until MAXIS_row = 21		'Last row on POLI/TEMP screen
+	'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s
+	PF8
+Loop until trim(title_info) = "TESTING UPLOAD PROCES"
+
+'Deleting the last line of POLI/TEMP to clean up the spreadsheet (the last line is "TESTING UPLOAD PROCES")
+SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+objRange.Delete
+
+'Formatting the columns to auto-fit after they are all finished being created.
+FOR i = 1 to 3									'formatting the cells
+ 	objExcel.Cells(1, i).Font.Bold = True		'bold font
+ 	objExcel.Columns(i).AutoFit()				'sizing the columns
+ NEXT
+
+STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
+
+script_end_procedure("Success! The list of current POLI/TEMP topics is now complete.")

@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - BURIAL ASSETS.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 600                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 600                     'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
-
 'SECTION 01 -- Dialogs
 BeginDialog opening_dialog_01, 0, 0, 311, 420, "LTC Burial Assets"
-  EditBox 95, 25, 60, 15, case_number
+  EditBox 95, 25, 60, 15, MAXIS_case_number
   EditBox 225, 25, 30, 15, hh_member
   DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
   EditBox 135, 65, 120, 15, worker_signature
@@ -95,28 +83,30 @@ BeginDialog opening_dialog_01, 0, 0, 311, 420, "LTC Burial Assets"
 EndDialog
 
 'Burial Agreement Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog burial_assets_dialog_01, 0, 0, 301, 190, "Burial assets dialog (01)"
+BeginDialog burial_assets_dialog_01, 0, 0, 301, 210, "Burial assets dialog (01)"
   CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-  DropListBox 95, 40, 55, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
-  EditBox 215, 40, 65, 15, purchase_date
-  EditBox 55, 60, 125, 15, issuer_name
-  EditBox 225, 60, 55, 15, policy_number
-  EditBox 55, 80, 55, 15, face_value
-  EditBox 165, 80, 115, 15, funeral_home
-  CheckBox 10, 105, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
-  CheckBox 10, 120, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
-  CheckBox 10, 135, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
+  ComboBox 95, 70, 65, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  EditBox 220, 70, 65, 15, purchase_date
+  EditBox 60, 90, 125, 15, issuer_name
+  EditBox 230, 90, 55, 15, policy_number
+  EditBox 60, 110, 55, 15, face_value
+  EditBox 170, 110, 115, 15, funeral_home
+  CheckBox 10, 130, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
+  CheckBox 10, 145, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
+  CheckBox 10, 160, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
   ButtonGroup ButtonPressed
-    PushButton 95, 165, 50, 15, "Next", next_to_02_button
-    CancelButton 155, 165, 50, 15
-  Text 5, 45, 90, 10, "Type of burial agreement:"
-  Text 160, 45, 50, 10, "Purchase date:"
-  Text 5, 65, 50, 10, "Issuer name:"
-  Text 195, 65, 30, 10, "Policy #:"
-  Text 5, 85, 40, 10, "Face value:"
-  Text 115, 85, 50, 10, "Funeral home:"
-  GroupBox 0, 5, 290, 150, "Burial agreements"
+    PushButton 95, 185, 50, 15, "Next", next_to_02_button
+    CancelButton 155, 185, 50, 15
+  Text 10, 75, 85, 10, "Type of burial agreement:"
+  Text 165, 75, 50, 10, "Purchase date:"
+  Text 10, 95, 50, 10, "Issuer name:"
+  Text 200, 95, 30, 10, "Policy #:"
+  Text 10, 115, 40, 10, "Face value:"
+  Text 120, 115, 50, 10, "Funeral home:"
+  GroupBox 0, 5, 290, 170, "Burial agreements"
+  Text 35, 40, 205, 25, "NOTE: You can mark specific items/services as applied to the BFE on the following panels. These will be calculated and case noted"
 EndDialog
+
 
 BeginDialog burial_assets_dialog_02, 0, 0, 305, 380, "Burial Assets Dialog (02)"
   CheckBox 10, 25, 110, 10, "Basic service funeral director", basic_service_funeral_director_check
@@ -124,156 +114,167 @@ BeginDialog burial_assets_dialog_02, 0, 0, 305, 380, "Burial Assets Dialog (02)"
   Text 155, 5, 25, 10, "VALUE"
   Text 240, 5, 30, 10, "STATUS"
   EditBox 140, 20, 55, 15, basic_service_funeral_director_value
-  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", basic_service_funeral_director_status
+  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", basic_service_funeral_director_status
   CheckBox 10, 45, 110, 10, "Embalming", embalming_check
   EditBox 140, 40, 55, 15, embalming_value
-  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", embalming_status
+  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", embalming_status
   CheckBox 10, 65, 110, 10, "Other preparation to body", other_preparation_to_body_check
   EditBox 140, 60, 55, 15, other_preparation_to_body_value
-  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", other_preparation_to_body_status
+  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", other_preparation_to_body_status
   CheckBox 10, 85, 110, 10, "Visitation at funeral chapel", visitation_at_funeral_chapel_check
   EditBox 140, 80, 55, 15, visitation_at_funeral_chapel_value
-  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", visitation_at_funeral_chapel_status
+  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", visitation_at_funeral_chapel_status
   CheckBox 10, 105, 110, 10, "Visitation at other facility", visitation_at_other_facility_check
   EditBox 140, 100, 55, 15, visitation_at_other_facility_value
-  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", visitation_at_other_facility_status
+  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", visitation_at_other_facility_status
   CheckBox 10, 125, 110, 10, "Funeral serv at funeral chapel", funeral_serv_at_funeral_chapel_check
   EditBox 140, 120, 55, 15, funeral_serv_at_funeral_chapel_value
-  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", funeral_serv_at_funeral_chapel_status
+  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_serv_at_funeral_chapel_status
   CheckBox 10, 145, 110, 10, "Funeral serv at other facility", funeral_serv_at_other_facility_check
   EditBox 140, 140, 55, 15, funeral_serv_at_other_facility_value
-  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", funeral_serv_at_other_facility_status
+  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_serv_at_other_facility_status
   CheckBox 10, 165, 110, 10, "Memorial serv at funeral chapel", memorial_serv_at_funeral_chapel_check
   EditBox 140, 160, 55, 15, memorial_serv_at_funeral_chapel_value
-  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", memorial_serv_at_funeral_chapel_status
+  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", memorial_serv_at_funeral_chapel_status
   CheckBox 10, 185, 110, 10, "Memorial serv at other facility", memorial_serv_at_other_facility_check
   EditBox 140, 180, 55, 15, memorial_serv_at_other_facility_value
-  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", memorial_serv_at_other_facility_status
+  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", memorial_serv_at_other_facility_status
   CheckBox 10, 205, 110, 10, "Graveside service", graveside_service_check
   EditBox 140, 200, 55, 15, graveside_service_value
-  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", graveside_service_status
+  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", graveside_service_status
   CheckBox 10, 225, 120, 10, "Transfer remains to funeral home", transfer_remains_to_funeral_home_check
   EditBox 140, 220, 55, 15, transfer_remains_to_funeral_home_value
-  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", transfer_remains_to_funeral_home_status
+  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", transfer_remains_to_funeral_home_status
   CheckBox 10, 245, 110, 10, "Funeral coach", funeral_coach_check
   EditBox 140, 240, 55, 15, funeral_coach_value
-  DropListBox 215, 240, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", funeral_coach_status
+  DropListBox 215, 240, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_coach_status
   CheckBox 10, 265, 110, 10, "Funeral sedan/limousine", funeral_sedan_check
   EditBox 140, 260, 55, 15, funeral_sedan_value
-  DropListBox 215, 260, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", funeral_sedan_status
+  DropListBox 215, 260, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_sedan_status
   CheckBox 10, 285, 110, 10, "Service vehicle", service_vehicle_check
   EditBox 140, 280, 55, 15, service_vehicle_value
-  DropListBox 215, 280, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", service_vehicle_status
+  DropListBox 215, 280, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", service_vehicle_status
   CheckBox 10, 305, 110, 10, "Forwarding of remains", forwarding_of_remains_check
   EditBox 140, 300, 55, 15, forwarding_of_remains_value
-  DropListBox 215, 300, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", forwarding_of_remains_status
+  DropListBox 215, 300, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", forwarding_of_remains_status
   CheckBox 10, 325, 110, 10, "Receiving of remains", receiving_of_remains_check
   EditBox 140, 320, 55, 15, receiving_of_remains_value
-  DropListBox 215, 320, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", receiving_of_remains_status
+  DropListBox 215, 320, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", receiving_of_remains_status
   CheckBox 10, 345, 110, 10, "Direct cremation", direct_cremation_check
   EditBox 140, 340, 55, 15, direct_cremation_value
-  DropListBox 215, 340, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", direct_cremation_status
+  DropListBox 215, 340, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", direct_cremation_status
   ButtonGroup ButtonPressed
     PushButton 45, 360, 50, 15, "previous", previous_to_01_button
     PushButton 105, 360, 50, 15, "next", next_to_03_button
     CancelButton 165, 360, 50, 15
 EndDialog
 
-BeginDialog burial_assets_dialog_03, 0, 0, 305, 260, "Burial Assets Dialog (03)"
+BeginDialog burial_assets_dialog_03, 0, 0, 306, 280, "Burial Assets Dialog (03)"
   Text 30, 5, 100, 10, "BURIAL SPACE/ITEM"
   Text 155, 5, 25, 10, "VALUE"
   Text 240, 5, 30, 10, "STATUS"
   CheckBox 10, 25, 110, 10, "Markers/Headstone", markers_headstone_check
   EditBox 140, 20, 55, 15, markers_headstone_value
-  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", markers_headstone_status
+  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", markers_headstone_status
   CheckBox 10, 45, 110, 10, "Engraving", engraving_check
   EditBox 140, 40, 55, 15, engraving_value
-  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", engraving_status
+  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", engraving_status
   CheckBox 10, 65, 110, 10, "Opening/Closing of space", opening_closing_of_space_check
   EditBox 140, 60, 55, 15, opening_closing_of_space_value
-  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", opening_closing_of_space_status
+  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", opening_closing_of_space_status
   CheckBox 10, 85, 110, 10, "Perpetual Care", perpetual_care_check
   EditBox 140, 80, 55, 15, perpetual_care_value
-  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", perpetual_care_status
+  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", perpetual_care_status
   CheckBox 10, 105, 110, 10, "Casket", casket_check
   EditBox 140, 100, 55, 15, casket_value
-  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", casket_status
+  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", casket_status
   CheckBox 10, 125, 110, 10, "Vault", vault_check
   EditBox 140, 120, 55, 15, vault_value
-  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", vault_status
+  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", vault_status
   CheckBox 10, 145, 110, 10, "Cemetery plot", cemetery_plot_check
   EditBox 140, 140, 55, 15, cemetery_plot_value
-  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", cemetery_plot_status
+  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", cemetery_plot_status
   CheckBox 10, 165, 110, 10, "Crypt", crypt_check
   EditBox 140, 160, 55, 15, crypt_value
-  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", crypt_status
+  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", crypt_status
   CheckBox 10, 185, 110, 10, "Mausoleum", mausoleum_check
   EditBox 140, 180, 55, 15, mausoleum_value
-  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", mausoleum_status
+  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", mausoleum_status
   CheckBox 10, 205, 110, 10, "Urns", urns_check
   EditBox 140, 200, 55, 15, urns_value
-  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", urns_status
+  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", urns_status
   CheckBox 10, 225, 120, 10, "Niches", niches_check
   EditBox 140, 220, 55, 15, niches_value
-  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", niches_status
+  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", niches_status
+  CheckBox 10, 245, 120, 10, "Alternative Container", Alternative_Container_check
+  EditBox 140, 240, 55, 15, alternative_container_value
+  DropListBox 215, 240, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", alternative_container_status
   ButtonGroup ButtonPressed
-    PushButton 45, 240, 50, 15, "previous", previous_to_02_button
-    PushButton 105, 240, 50, 15, "next", next_to_04_button
-    CancelButton 165, 240, 50, 15
+    PushButton 45, 260, 50, 15, "previous", previous_to_02_button
+    PushButton 105, 260, 50, 15, "next", next_to_04_button
+    CancelButton 165, 260, 50, 15
 EndDialog
 
-BeginDialog burial_assets_dialog_04, 0, 0, 306, 370, "Burial Assets Dialog (04)"
+
+BeginDialog burial_assets_dialog_04, 0, 0, 306, 400, "Burial Assets Dialog (04)"
   Text 30, 5, 80, 10, "CASH ADVANCED ITEM"
   Text 155, 5, 25, 10, "VALUE"
   Text 240, 5, 30, 10, "STATUS"
   CheckBox 10, 25, 110, 10, "Certified death certificate", certified_death_certificate_check
   EditBox 140, 20, 55, 15, certified_death_certificate_value
-  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", certified_death_certificate_status
+  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", certified_death_certificate_status
   CheckBox 10, 45, 110, 10, "Motor escort", motor_escort_check
   EditBox 140, 40, 55, 15, motor_escort_value
-  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", motor_escort_status
+  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", motor_escort_status
   CheckBox 10, 65, 110, 10, "Clergy honorarium", clergy_honorarium_check
   EditBox 140, 60, 55, 15, clergy_honorarium_value
-  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", clergy_honorarium_status
+  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", clergy_honorarium_status
   CheckBox 10, 85, 110, 10, "Music honorarium", music_honorarium_check
   EditBox 140, 80, 55, 15, music_honorarium_value
-  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", music_honorarium_status
+  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", music_honorarium_status
   CheckBox 10, 105, 110, 10, "Flowers", flowers_check
   EditBox 140, 100, 55, 15, flowers_value
-  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", flowers_status
+  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", flowers_status
   CheckBox 10, 125, 110, 10, "Obituary notice", obituary_notice_check
   EditBox 140, 120, 55, 15, obituary_notice_value
-  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", obituary_notice_status
+  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", obituary_notice_status
   CheckBox 10, 145, 110, 10, "Crematory charges", crematory_charges_check
   EditBox 140, 140, 55, 15, crematory_charges_value
-  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", crematory_charges_status
+  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", crematory_charges_status
   CheckBox 10, 165, 110, 10, "Acknowledgement card", acknowledgement_card_check
   EditBox 140, 160, 55, 15, acknowledgement_card_value
-  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", acknowledgement_card_status
+  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", acknowledgement_card_status
   CheckBox 10, 185, 110, 10, "Register book", register_book_check
   EditBox 140, 180, 55, 15, register_book_value
-  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", register_book_status
+  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", register_book_status
   CheckBox 10, 205, 110, 10, "Service folders/prayer cards", service_folders_prayer_cards_check
   EditBox 140, 200, 55, 15, service_folders_prayer_cards_value
-  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", service_folders_prayer_cards_status
-  Text 10, 230, 30, 10, "Other(1):"
-  EditBox 45, 225, 85, 15, other_01
-  EditBox 140, 225, 55, 15, other_01_value
-  DropListBox 215, 225, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", other_01_status
-  Text 40, 245, 35, 10, "This is a: "
-  DropListBox 80, 245, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_01_type
-  Text 10, 275, 30, 10, "Other(2):"
-  EditBox 45, 270, 85, 15, other_02
-  EditBox 140, 270, 55, 15, other_02_value
-  DropListBox 215, 270, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable", other_02_status
-  Text 40, 290, 35, 10, "This is a: "
-  DropListBox 80, 290, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_02_type
-  Text 5, 320, 50, 10, "Actions taken:"
-  EditBox 55, 315, 240, 15, case_action
+  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", service_folders_prayer_cards_status
+  CheckBox 10, 225, 110, 10, "Luncheon", luncheon_check
+  EditBox 140, 220, 55, 15, luncheon_value
+  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", luncheon_status
+  CheckBox 10, 245, 110, 10, "Medical Exam Fee", medical_exam_fee_check
+  EditBox 140, 240, 55, 15, medical_exam_fee_value
+  DropListBox 215, 240, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", medical_exam_fee_status
+  Text 10, 265, 30, 10, "Other(1):"
+  EditBox 45, 260, 85, 15, other_01
+  EditBox 140, 260, 55, 15, other_01_value
+  DropListBox 215, 260, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", other_01_status
+  Text 40, 280, 35, 10, "This is a: "
+  DropListBox 80, 280, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_01_type
+  Text 10, 310, 30, 10, "Other(2):"
+  EditBox 45, 305, 85, 15, other_02
+  EditBox 140, 305, 55, 15, other_02_value
+  DropListBox 215, 305, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", other_02_status
+  Text 40, 325, 35, 10, "This is a: "
+  DropListBox 80, 325, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_02_type
+  Text 5, 355, 50, 10, "Actions taken:"
+  EditBox 55, 350, 240, 15, case_action
   ButtonGroup ButtonPressed
-    PushButton 75, 340, 50, 15, "previous", previous_to_03_button
-    OkButton 130, 340, 50, 15
-    CancelButton 185, 340, 50, 15
+    PushButton 75, 375, 50, 15, "previous", previous_to_03_button
+    OkButton 130, 375, 50, 15
+    CancelButton 185, 375, 50, 15
+
 EndDialog
 
 'SECTION 2: Functions----------------------------------------------------------------------------------------------------
@@ -296,7 +297,7 @@ END function
 
 'SECTION 03: The script----------------------------------------------------------------------------------------------------
 EMConnect "" 		'connecting to MAXIS
-Call MAXIS_case_number_finder(case_number)	'grabbing the case number
+Call MAXIS_case_number_finder(MAXIS_case_number)	'grabbing the case number
 
 insurance_policy_number = "none"			'establishing value of the variable
 
@@ -311,7 +312,7 @@ DO
 	"Insurance Counted Value is not a number. Do not include letters or special characters."
 	If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
 	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
@@ -322,10 +323,12 @@ Do
 		Dialog burial_assets_dialog_01
 		cancel_confirmation
 		If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
-		If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
-		If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
-		If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
-		If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		If type_of_burial_agreement <> "None" THEN
+			If purchase_date = "" or IsDate(purchase_date) = FALSE then err_msg = err_msg & vbNewLine & " You must enter the purchase date."
+			If issuer_name = "" then err_msg = err_msg & vbNewLine & "You must enter the issuer name."
+			If policy_number = "" then err_msg = err_msg & vbNewLine & "You must enter the policy number."
+			If face_value = "" or IsNumeric(face_value) = FALSE then err_msg = err_msg & vbNewLine & "You must enter the policy's face value."
+		END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
 	Do
@@ -383,6 +386,7 @@ If isnumeric(crypt_value) = False then crypt_value = 0
 If isnumeric(mausoleum_value) = False then mausoleum_value = 0
 If isnumeric(urns_value) = False then urns_value = 0
 If isnumeric(niches_value) = False then niches_value = 0
+If isnumeric(alternative_container_value) = False then alternative_container_value = 0
 If isnumeric(certified_death_certificate_value) = False then certified_death_certificate_value = 0
 If isnumeric(motor_escort_value) = False then motor_escort_value = 0
 If isnumeric(clergy_honorarium_value) = False then clergy_honorarium_value = 0
@@ -393,6 +397,8 @@ If isnumeric(crematory_charges_value) = False then crematory_charges_value = 0
 If isnumeric(acknowledgement_card_value) = False then acknowledgement_card_value = 0
 If isnumeric(register_book_value) = False then register_book_value = 0
 If isnumeric(service_folders_prayer_cards_value) = False then service_folders_prayer_cards_value = 0
+If isnumeric(luncheon_value) = False then luncheon_value = 0
+If isnumeric(medical_exam_fee_value) = False then medical_exam_fee_value = 0
 If isnumeric(other_01_value) = False then other_01_value = 0
 If isnumeric(other_02_value) = False then other_02_value = 0
 
@@ -413,8 +419,54 @@ If crypt_check = 1 and crypt_status = "excluded" then total_BS_BSI_excluded_amou
 If mausoleum_check = 1 and mausoleum_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(mausoleum_value)
 If urns_check = 1 and urns_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(urns_value)
 If niches_check = 1 and niches_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(niches_value)
+If Alternative_Container_check = 1 and alternative_container_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(alternative_container_value)
 If other_01 <> "" and other_01_type = "BS-BSI" and other_01_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(other_01_value)
 If other_02 <> "" and other_02_type = "BS-BSI" and other_02_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(other_02_value)
+
+'This adds all the items that are used towards the Burial fund exclusion BFE
+If basic_service_funeral_director_check = 1 and basic_service_funeral_director_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(basic_service_funeral_director_value)
+If embalming_check = 1 and embalming_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(embalming_value)
+If other_preparation_to_body_check = 1 and other_preparation_to_body_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(other_preparation_to_body_value)
+If visitation_at_funeral_chapel_check = 1 and visitation_at_funeral_chapel_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(visitation_at_funeral_chapel_value)
+If visitation_at_other_facility_check = 1 and visitation_at_other_facility_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(visitation_at_other_facility_value)
+If funeral_serv_at_funeral_chapel_check = 1 and funeral_serv_at_funeral_chapel_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_serv_at_funeral_chapel_value)
+If funeral_serv_at_other_facility_check = 1 and funeral_serv_at_other_facility_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_serv_at_other_facility_value)
+If memorial_serv_at_funeral_chapel_check = 1 and memorial_serv_at_funeral_chapel_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(memorial_serv_at_funeral_chapel_value)
+If memorial_serv_at_other_facility_check = 1 and memorial_serv_at_other_facility_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(memorial_serv_at_other_facility_value)
+If graveside_service_check = 1 and graveside_service_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(graveside_service_value)
+If transfer_remains_to_funeral_home_check = 1 and transfer_remains_to_funeral_home_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(transfer_remains_to_funeral_home_value)
+If funeral_coach_check = 1 and funeral_coach_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_coach_value)
+If funeral_sedan_check = 1 and funeral_sedan_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_sedan_value)
+If service_vehicle_check = 1 and service_vehicle_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(service_vehicle_value)
+If forwarding_of_remains_check = 1 and forwarding_of_remains_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(forwarding_of_remains_value)
+If receiving_of_remains_check = 1 and receiving_of_remains_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(receiving_of_remains_value)
+If direct_cremation_check = 1 and direct_cremation_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(direct_cremation_value)
+If markers_headstone_check = 1 and markers_headstone_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(markers_headstone_value)
+If engraving_check = 1 and engraving_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(engraving_value)
+If opening_closing_of_space_check = 1 and opening_closing_of_space_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(opening_closing_of_space_value)
+If perpetual_care_check = 1 and perpetual_care_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(perpetual_care_value)
+If casket_check = 1 and casket_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(casket_value)
+If vault_check = 1 and vault_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(vault_value)
+If cemetery_plot_check = 1 and cemetery_plot_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(cemetery_plot_value)
+If crypt_check = 1 and crypt_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(crypt_value)
+If mausoleum_check = 1 and mausoleum_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(mausoleum_value)
+If urns_check = 1 and urns_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(urns_value)
+If niches_check = 1 and niches_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(niches_value)
+If Alternative_Container_check = 1 and alternative_container_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(alternative_container_value)
+If certified_death_certificate_check = 1 and certified_death_certificate_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(certified_death_certificate_value)
+If motor_escort_check = 1 and motor_escort_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(motor_escort_value)
+If clergy_honorarium_check = 1 and clergy_honorarium_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(clergy_honorarium_value)
+If music_honorarium_check = 1 and music_honorarium_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(music_honorarium_value)
+If flowers_check = 1 and flowers_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(flowers_value)
+If obituary_notice_check = 1 and obituary_notice_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(obituary_notice_value)
+If crematory_charges_check = 1 and crematory_charges_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(crematory_charges_value)
+If acknowledgement_card_check = 1 and acknowledgement_card_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(acknowledgement_card_value)
+If register_book_check = 1 and register_book_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(register_book_value)
+If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(service_folders_prayer_cards_value)
+If luncheon_check = 1 and luncheon_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(luncheon_value)
+If medical_exam_fee_check = 1 and medical_exam_fee_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(medical_exam_fee_value)
+If other_01 <> "" and other_01_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(other_01_value)
+If other_02 <> "" and other_02_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(other_02_value)
 
 'This adds all unavailable cash advance items (CAI) together.
 If certified_death_certificate_check = 1 and certified_death_certificate_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(certified_death_certificate_value)
@@ -427,6 +479,8 @@ If crematory_charges_check = 1 and crematory_charges_status = "unavailable" then
 If acknowledgement_card_check = 1 and acknowledgement_card_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(acknowledgement_card_value)
 If register_book_check = 1 and register_book_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(register_book_value)
 If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(service_folders_prayer_cards_value)
+If luncheon_check = 1 and luncheon_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(luncheon_value)
+If medical_exam_fee_check = 1 and medical_exam_fee_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(medical_exam_fee_value)
 If other_01 <> "" and other_01_type = "CAI" and other_01_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_01_value)
 If other_02 <> "" and other_02_type = "CAI" and other_02_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_02_value)
 
@@ -459,6 +513,7 @@ If crypt_check = 1 and crypt_status = "counted" then total_counted_amount = tota
 If mausoleum_check = 1 and mausoleum_status = "counted" then total_counted_amount = total_counted_amount + cint(mausoleum_value)
 If urns_check = 1 and urns_status = "counted" then total_counted_amount = total_counted_amount + cint(urns_value)
 If niches_check = 1 and niches_status = "counted" then total_counted_amount = total_counted_amount + cint(niches_value)
+If Alternative_Container_check = 1 and alternative_container_status = "counted" then total_counted_amount = total_counted_amount + cint(alternative_container_value)
 If certified_death_certificate_check = 1 and certified_death_certificate_status = "counted" then total_counted_amount = total_counted_amount + cint(certified_death_certificate_value)
 If motor_escort_check = 1 and motor_escort_status = "counted" then total_counted_amount = total_counted_amount + cint(motor_escort_value)
 If clergy_honorarium_check = 1 and clergy_honorarium_status = "counted" then total_counted_amount = total_counted_amount + cint(clergy_honorarium_value)
@@ -469,6 +524,8 @@ If crematory_charges_check = 1 and crematory_charges_status = "counted" then tot
 If acknowledgement_card_check = 1 and acknowledgement_card_status = "counted" then total_counted_amount = total_counted_amount + cint(acknowledgement_card_value)
 If register_book_check = 1 and register_book_status = "counted" then total_counted_amount = total_counted_amount + cint(register_book_value)
 If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_status = "counted" then total_counted_amount = total_counted_amount + cint(service_folders_prayer_cards_value)
+If luncheon_check = 1 and luncheon_status = "counted" then total_counted_amount = total_counted_amount + cint(luncheon_value)
+If medical_exam_fee_check = 1 and medical_exam_fee_status = "counted" then total_counted_amount = total_counted_amount + cint(medical_exam_fee_value)
 If other_01 <> "" and other_01_status = "counted" then total_counted_amount = total_counted_amount + cint(other_01_value)
 If other_02 <> "" and other_02_status = "counted" then total_counted_amount = total_counted_amount + cint(other_02_value)
 If counted_value_designated <> "" then total_counted_amount = total_counted_amount + cint(counted_value_designated)
@@ -505,7 +562,7 @@ IF insurance_policy_number <> "none" THEN
 	call write_bullet_and_variable_in_case_note("Info on BFE", insurance_BFE_steps_info)
 END IF
 IF type_of_burial_agreement <> "None" THEN
-	If applied_BFE_check = 1 then CALL write_variable_in_case_note("* Applied $1500 of burial services to BFE.")
+	If applied_BFE_check = 1 AND total_applied_to_BFE = "" then CALL write_variable_in_case_note("* Applied $1500 of burial services to BFE.")
 	CALL write_variable_in_case_note("* Type: " & type_of_burial_agreement & ". Purchase date: " & purchase_date & ".")
 	CALL write_variable_in_case_note("* Issuer: " & issuer_name & ". Policy #: " & policy_number & ".")
 	CALL write_bullet_and_variable_in_case_note("Face value", face_value)
@@ -668,6 +725,11 @@ IF type_of_burial_agreement <> "None" THEN
 	  call write_three_columns_in_case_note(3, "                             Niches:", 44, "$" & niches_value, 59, niches_status)
 	End if
 	case_note_page_four
+	If Alternative_Container_check = 1 then
+	  new_BS_BSI_heading
+	  call write_three_columns_in_case_note(3, "              Alternative Container:", 44, "$" & alternative_container_value, 59, alternative_container_status)
+	End if
+	case_note_page_four
 	If other_01 <> "" and other_01_type = "BS-BSI" then
 	  new_BS_BSI_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
@@ -731,6 +793,16 @@ IF type_of_burial_agreement <> "None" THEN
 	  call write_three_columns_in_case_note(3, "       Service folders prayer cards:", 44, "$" & service_folders_prayer_cards_value, 59, service_folders_prayer_cards_status)
 	End if
 	case_note_page_four
+	If luncheon_check = 1 then
+	  new_CAI_heading
+	  call write_three_columns_in_case_note(3, "                           Luncheon:", 44, "$" & luncheon_value, 59, luncheon_status)
+	End if
+	case_note_page_four
+	If medical_exam_fee_check = 1 then
+	  new_CAI_heading
+	  call write_three_columns_in_case_note(3, "                   Medical Exam Fee:", 44, "$" & medical_exam_fee_value, 59, medical_exam_fee_status)
+	End if
+	case_note_page_four
 	If other_01 <> "" and other_01_type = "CAI" then
 	  new_CAI_heading
 	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
@@ -741,21 +813,23 @@ IF type_of_burial_agreement <> "None" THEN
 	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
 	End if
 	case_note_page_four
-	CALL write_variable_in_case_note( "---------------------------------------------------------------------------") ' & "<newline>"
+	CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
 	case_note_page_four
-	CALL write_variable_in_case_note( "* Total service amount: $" & total_service_amount) ' & "<newline>"
+	CALL write_variable_in_case_note( "* Total service amount: $" & total_service_amount)
 	case_note_page_four
-	CALL write_variable_in_case_note( "* Total BS/BSI excluded amount: $" & total_BS_BSI_excluded_amount) ' & "<newline>"
+	IF total_applied_to_BFE <> "" THEN CALL write_variable_in_case_note( "* Total services/items applied to BFE: $" & total_applied_to_BFE)
 	case_note_page_four
-	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & total_unavailable_CAI_amount) ' & "<newline>"
+	CALL write_variable_in_case_note( "* Total BS/BSI excluded amount: $" & total_BS_BSI_excluded_amount)
+	case_note_page_four
+	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & total_unavailable_CAI_amount)
 END IF
 
 case_note_page_four
 CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
 case_note_page_four
-CALL write_variable_in_case_note( "* Total counted amount: $" & total_counted_amount) ' & "<newline>"
+CALL write_variable_in_case_note( "* Total counted amount: $" & total_counted_amount)
 case_note_page_four
-CALL write_variable_in_case_note( "* Actions taken: " & case_action) ' & "<newline>"
+CALL write_variable_in_case_note( "* Actions taken: " & case_action)
 case_note_page_four
 CALL write_variable_in_case_note("---")
 case_note_page_four
