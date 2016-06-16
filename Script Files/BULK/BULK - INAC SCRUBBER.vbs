@@ -42,11 +42,6 @@ END IF
 'THE FOLLOWING VARIABLE IS DYNAMICALLY DETERMINED BY THE PRESENCE OF DATA IN CLS_x1_number. IT WILL BE ADDED DYNAMICALLY TO THE DIALOG BELOW.
 If CLS_x1_number <> "" then CLS_dialog_string = "**This script will XFER cases in REPT/INAC to " & CLS_x1_number & ".**"
 
-'THE SCRIPT WILL RUN ONE OF TWO WAYS DEPENDING ON WHAT IS ENTERED INTO GLOBAL VARIABLES.
-'FOR AGENCIES THAT WANT TO KEEP INACTIVE MAGI CASES THAT CLOSED FOR NO RENEWAL IN THE CURRENT WORKER'S
-'NUMBER FOR 4 MONTHS THE GLOBAL VARIABLE MAGI_cases_closed_four_month_TIKL_no_XFER MUST BE SET TO TRUE. 
-'IF SET TO FALSE THE SCRIPT WILL TRANSFER ALL ALLOWABLE INACTIVE CASES TO CLS OR WHEREEVER AGENCY SETS IN GLOBAL VARIABLES.
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
 
@@ -109,12 +104,14 @@ warning_message = MsgBox(	"Worker: " & worker_number & vbCr & _
 							"This script will case note EACH case on the above REPT/INAC, in the selected footer month, and XFER to " & CLS_x1_number & ", under the following conditions:" & vbCr & _
 							"   " & chr(183) & " Case has no open HC on this case number. " & vbCr & _
 							"   " & chr(183) & " Case has no open IMA. " & vbCr & _
+							"   " & chr(183) & " Case has HC that did not close for no-or-incomplete renewal. " & vbCr & _ 
 							"   " & chr(183) & " Case has no messages currently on the DAIL. " & vbCr & _
 							"   " & chr(183) & " Case is a closure, and not a denial. For denials, use ''Denied progs''. " & vbCr & _
 							vbCr & _
 							"This script will also generate a Word document with the following info from the entire caseload: " & vbCr & _
 							"   " & chr(183) & " CCOL/CLIC information. " & vbCr & _
 							"   " & chr(183) & " Good cause ABPS status. " & vbCr & _
+							"   " & chr(183) & " Privileged cases you cannot access. " & vbCr & _
 							vbCr & _
 							"It requires the use of MDHS for your state systems log-on, as it needs to check MMIS. Also, it only runs in the month before the current footer month (or any month prior)." & vbCr & _
 							vbCr & _
@@ -191,7 +188,7 @@ If developer_mode = True then
 	ObjExcel.Cells(1, 6).Value = "MMIS?"
 	ObjExcel.Cells(1, 7).Value = "PMIs"
 	ObjExcel.Cells(1, 8).Value = "Privileged?"
-	ObjExcel.Cells(1, 9).Value = "MAGI?"
+	ObjExcel.Cells(1, 9).Value = "HC renewal closure?"
 	objExcel.Cells(1, 10).Value = "Transfer Case?"
 End if
 
@@ -244,12 +241,16 @@ total_cases = ubound(INAC_info_array)
 'Declares INAC_scrubber_primary_array, redims it to be the size needed for our total amount of cases.
 Dim INAC_scrubber_primary_array()
 ReDim INAC_scrubber_primary_array(total_cases, 8)
-'If the agency is not holding on to MAGI cases that close for no-or-incomplete HC ER for 4 months, the script will set the value for array position 8 to ignore MAGI considerations
-IF MAGI_cases_closed_four_month_TIKL_no_XFER <> TRUE THEN 
-	FOR i = 0 to total_cases
-		INAC_scrubber_primary_array(i, 8) = ""
-	NEXT
-END IF
+' 0 = MAXIS case #
+' 1 = CL Name
+' 2 = INAC Date
+' 3 = Claims?
+' 4 = DAILs?
+' 5 = MMIS Status
+' 6 = PMI array
+' 7 = privileged
+' 8 = to transfer or not to transfer b/c of HC...that is the question...true means TRANSFER, false means NO TRANSFER
+
 
 'Assigns info to the array. If developer_mode is on, it'll also add to an Excel spreadsheet
 For x = 0 to total_cases
@@ -262,6 +263,8 @@ For x = 0 to total_cases
 		ObjExcel.Cells(x + 2, 2).Value = INAC_scrubber_primary_array(x, 1)
 		ObjExcel.Cells(x + 2, 3).Value = INAC_scrubber_primary_array(x, 2)
 	End if
+	'Setting a default value for (x, 8)
+	INAC_scrubber_primary_array(x, 8) = TRUE
 Next
 
 'Navigates to CCOL/CLIC
@@ -333,6 +336,8 @@ For x = 0 to total_cases
 	EMReadScreen SELF_check, 4, 2, 50
 	If SELF_check = "SELF" then 
 		INAC_scrubber_primary_array(x, 7) = True		'If it's privileged, it won't get past SELF. If so, it'll enter a True value in the array.
+		objSelection.TypeText MAXIS_case_number & ": Case is privileged. Cannot transfer."
+		objSelection.TypeParagraph()
 	Else
 		INAC_scrubber_primary_array(x, 7) = False		'If it gets through, it isn't privileged.
 		
@@ -462,10 +467,7 @@ IF mmis_mode = TRUE THEN
 		MAXIS_case_number = INAC_scrubber_primary_array(x, 0)		
 		PMI_array = INAC_scrubber_primary_array(x, 6)
 		privileged_status = INAC_scrubber_primary_array(x, 7)
-	
-		'If the agency is holding MAGI for 4 months...
-		IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN INAC_scrubber_primary_array(x, 8) = False
-			
+				
 		'Splits the PMI_array from the main array into an actual array, which will be used by the script.
 		PMI_array = split(PMI_array, "|")
 		
@@ -499,7 +501,6 @@ IF mmis_mode = TRUE THEN
 				ElseIf MMIS_case_status = "C" or MMIS_case_status = "D" then
 					EMReadScreen elig_type, 2, 6, 33
 					EMReadScreen elig_end_date, 8, 7, 36
-					IF elig_type = "AX" OR elig_type = "AA" OR elig_type = "CB" OR elig_type = "CK" OR elig_type = "CX" OR elig_type = "PX" AND MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN INAC_scrubber_primary_array(x, 8) = True
 					If elig_end_date = "99/99/99" then 
 						INAC_scrubber_primary_array(x, 5) = True
 					Else		'Allows for cases that are closing next month
@@ -543,7 +544,8 @@ IF mmis_mode = TRUE THEN
 END IF
 
 'Header for the MMIS discrepancies section of the doc
-objselection.typetext "Case numbers with MMIS discrepancies: "
+objSelection.TypeParagraph()
+objselection.typetext "Case numbers not transferred because of HC: "
 objselection.TypeParagraph()
 objselection.TypeParagraph()
 
@@ -554,50 +556,62 @@ For x = 0 to total_cases
 	DAILS_out = INAC_scrubber_primary_array(x, 4)
 	MMIS_status = INAC_scrubber_primary_array(x, 5)
 	privileged_status = INAC_scrubber_primary_array(x, 7)
-
+	
+	'Reseting this value for CASE NOTING and TIKLing reasons
+	closure_reason = ""
+	closure_date = ""
+	inac_month = ""
+	
 	'Adds the case number to word doc if MMIS is active
 	If MMIS_status = true Then
 		objselection.typetext MAXIS_case_number
 		objselection.TypeParagraph()
 	End If
 
-	'Checking to determine that the client is a MAGI that closed for no or incomplete review. If that is the case, then the script does not transfer the client to CLS
+	'Checking to determine that the client closed for no or incomplete review. If that is the case, then the script does not transfer the client to CLS
 	'This is also where the script will check to see that HC closed in the most recent month. If HC closed and the user bypassed MMIS, the script will skip over this case.
-	IF (INAC_scrubber_primary_array(x, 8) = True AND MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE) OR mmis_mode = FALSE THEN
-		CALL navigate_to_MAXIS_screen("CASE", "CURR")
-		EMWriteScreen "X", 4, 9
-		transmit
 
-		EMWriteScreen "MA", 3, 19
-		transmit
+	CALL navigate_to_MAXIS_screen("CASE", "CURR")
+	EMWriteScreen "X", 4, 9
+	transmit
+
+	'Need to check for HC closing this month.
+	'First, we are going to write "MA" at 3, 19. IF MA is not found to have closed this month, then we
+	' ... will write "QM" then "SL" then "Q1"...
+	
+	'Creating an array of HC programs to check.
+	'We would put in a policy citation but the new manual does not have numbers because that would be too easy.
+	'See EPM for details.
+	hc_progs_array = "MA,QM,SL,Q1"
+	hc_progs_array = split(hc_progs_array, ",")
+	FOR EACH maxis_hc_program IN hc_progs_array
+		CALL write_value_and_transmit(maxis_hc_program, 3, 19)
 
 		EMReadScreen closure_reason, 9, 8, 60
 		EMReadScreen closure_date, 5, 8, 28
 		EMReadScreen inac_month, 5, 20, 54
 		inac_month = replace(inac_month, " ", "/")
-		'Checking that the case closed on in the review month		
 		
+		'Checking to determine if this program closed in the INAC month.
 		IF inac_month = closure_date THEN
-			'Avoiding this case if HC closed in the INAC month and the user opted to bypass MMIS.
-			MMIS_status = TRUE
-			INAC_scrubber_primary_array(x, 5) = TRUE
-			'Assigning value to (x, 8) if the user is in an agency keeping the MAGI case 4 months.
-			IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN 
-				IF closure_reason = "NO REVIEW" THEN 
-					INAC_scrubber_primary_array(x, 8) = True
-					objSelection.typetext MAXIS_case_number & ": case has MAGI HC client(s) that closed for incomplete or no review."
-					objSelection.TypeParagraph()
-				ELSE
-					INAC_scrubber_primary_array(x, 8) = False	'MAGI STATUS
-					INAC_scrubber_primary_array(x, 5) = False    'MMIS status
-				END IF
+			'if worker bypassed MMIS we are marking case to keep them. 
+			IF mmis_mode = FALSE THEN 
+				objSelection.typetext MAXIS_case_number & ": case has HC that closed this month. Please review manually as MMIS was bypassed."
+				objSelection.TypeParagraph()
+				INAC_scrubber_primary_array(x, 8) = FALSE
+				EXIT FOR
 			END IF
-		ELSE
-			MMIS_status = FALSE
-			INAC_scrubber_primary_array(x, 5) = FALSE
+			'Otherwise, if the user navigates to MMIS, the script will check for "NO REVIEW" as the reason for closure.
+			IF closure_reason = "NO REVIEW" THEN 
+				'If "NO REVIEW" is found as the reason for the closure, the script will hang on to the case
+				INAC_scrubber_primary_array(x, 8) = FALSE
+				objSelection.typetext MAXIS_case_number & ": case has HC client(s) that closed for incomplete or no review. Policy gives CL 4-month reinstate period."
+				objSelection.TypeParagraph()
+				EXIT FOR
+			END IF
 		END IF
-	END IF
-
+	NEXT
+	
 	'Reseting values in the Excel spreadsheet
 	IF developer_mode = True THEN 
 		FOR asdf = 0 TO 8
@@ -609,85 +623,74 @@ For x = 0 to total_cases
 	
 	MMIS_status = INAC_scrubber_primary_array(x, 5)
 	
-	'The case notey gobbins...
-	'...if the agency is holding on to MAGI cases for 4 months after they close for no-or-incomplete renewal...
-	IF MAGI_cases_closed_four_month_TIKL_no_XFER = TRUE THEN 
-		'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
-		If privileged_status <> True and DAILS_out = False and ((mmis_mode = TRUE AND MMIS_status = FALSE) OR (mmis_mode = FALSE AND MMIS_status <> TRUE)) AND INAC_scrubber_primary_array(x, 8) = FALSE then
-			call navigate_to_MAXIS_screen("CASE", "NOTE")
-			PF9
-			If developer_mode = False then
-				call write_variable_in_case_note("--------------------Case is closed--------------------")
-				call write_variable_in_case_note("* Reviewed closed case for claims via automated script.")
-				If CLS_x1_number <> "" then call write_variable_in_case_note("* XFERed to " & CLS_x1_number & ".")
-				call write_variable_in_case_note("---")
-				call write_variable_in_case_note(worker_signature & ", via automated script.")
-			Else
-				'Displaying results in Developer Mode
-				case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
-				If case_note_box = vbCancel then stopscript
-			End if
-		End if
-		'IF the case is not privileged, 
-		'	there are NO DAILS on the case, 
-		'	the case either closed on MA in INAC month and MMIS was bypassed OR the client was MAGI that closed for no or incomplete renewal
-		If privileged_status <> True and DAILS_out = False and ((MMIS_status = TRUE and mmis_mode = FALSE) OR INAC_scrubber_primary_array(x, 8) = True) then
-			call navigate_to_MAXIS_screen("CASE", "NOTE")
-			PF9
-			tikl_date = dateadd("M", 4, (MAXIS_footer_month & "/01/" & MAXIS_footer_year))
-			last_rein_date = dateadd("D", -1, tikl_date)
-			IF developer_mode = False THEN
-				CALL write_variable_in_case_note("-----ALL PROGRAMS INACTIVE-----")
-				CALL write_variable_in_case_note("* Not transfering to CLOSED CASES")
-				IF mmis_mode = FALSE THEN CALL write_variable_in_CASE_NOTE("* CL closed on MA for " & inac_month & " but MMIS bypassed.")
-				IF INAC_scrubber_primary_array(x, 8) = TRUE THEN CALL write_variable_in_case_note("* Last HC REIN Date for MAGI client: " & last_rein_date)
-				CALL write_variable_in_case_note("---")
-				CALL write_variable_in_case_note(worker_signature)
-			
-				IF INAC_scrubber_primary_array(x, 8) = TRUE THEN 
-					CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-					CALL create_maxis_friendly_date(tikl_date, 0, 5, 18)
-					EMWriteScreen ("IF CASE IS INACTIVE TRANSFER TO CLOSED - " & CLS_x1_number), 9, 3
-					transmit
-					PF3
-				END IF
+	'Now determining whether or not the script is going to transfer this case. This determines the verbiage in CASE NOTE
+	'If we are to this point and we have not said that we are holding on to this case (b/c of HC considerations) then 
+	' ... we need to determine if there are other reasons why we would not transfer this case...
+	IF INAC_scrubber_primary_array(x, 8) = TRUE THEN 
+		'If it is privileged, we cannot transfer
+		IF privileged_status = TRUE THEN 
+			INAC_scrubber_primary_array(x, 8) = FALSE
+		ELSE
+			'If there are DAILS, we cannot transfer
+			IF DAILS_out = TRUE THEN 
+				INAC_scrubber_primary_array(x, 8) = FALSE
 			ELSE
-				'Displaying results in developer mode.
-				IF INAC_scrubber_primary_array(x, 8) = TRUE THEN MsgBox ("The script would case note the last date to REIN is " & last_rein_date & " and then TIKL to XFER to CLS on " & tikl_date)
-				IF mmis_mode = FALSE THEN MsgBox ("Not XFERing case to CLS because MA closed for " & inac_month)
+				'If we have gone into MMIS and found that the case has an active HC program that we care aboot then we are hanging on to this case
+				IF MMIS_status = TRUE AND mmis_mode = TRUE THEN INAC_scrubber_primary_array(x, 8) = FALSE
 			END IF
 		END IF
-	'...or if the agency is NOT holding on to MAGI cases for 4 months after they close fo no-or-incomplete renewal...
-	ELSE
-		'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll case note.
-		If privileged_status <> True and DAILS_out = False and MMIS_status <> TRUE then
-			call navigate_to_MAXIS_screen("CASE", "NOTE")
-			PF9
-			If developer_mode = False then
-				call write_variable_in_CASE_NOTE("--------------------Case is closed--------------------")
-				call write_variable_in_CASE_NOTE("* Reviewed closed case for claims via automated script.")
-				If CLS_x1_number <> "" then call write_variable_in_CASE_NOTE("* XFERed to " & CLS_x1_number & ".")
-				call write_variable_in_CASE_NOTE("---")
-				call write_variable_in_CASE_NOTE(worker_signature & ", via automated script.")
-			Else
-				case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
-				If case_note_box = vbCancel then stopscript
-			End if
-		ELSEIF privileged_status <> TRUE AND DAILS_out = FALSE AND (MMIS_status = TRUE AND mmis_mode = FALSE) THEN 
-			call navigate_to_MAXIS_screen("CASE", "NOTE")
-			PF9
-			tikl_date = dateadd("M", 4, (MAXIS_footer_month & "/01/" & MAXIS_footer_year))
-			last_rein_date = dateadd("D", -1, tikl_date)
-			IF developer_mode = False THEN
-				CALL write_variable_in_case_note("-----ALL PROGRAMS INACTIVE-----")
-				CALL write_variable_in_case_note("* Not transfering to CLOSED CASES")
-				CALL write_variable_in_CASE_NOTE("* CL closed on MA for " & inac_month & " but MMIS check bypassed.")
-				call write_variable_in_CASE_NOTE("---")
-				call write_variable_in_CASE_NOTE(worker_signature & ", via automated script.")
-			Else
-				case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
-				If case_note_box = vbCancel then stopscript
-			End if
+	END IF
+	
+	'The case notey gobbins...
+	'If we are going to transfer this case, then we get the following case note...
+	If privileged_status <> TRUE AND INAC_scrubber_primary_array(x, 8) = TRUE then
+		call navigate_to_MAXIS_screen("CASE", "NOTE")
+		PF9
+		If developer_mode = False then
+			call write_variable_in_case_note("--------------------Case is closed--------------------")
+			call write_variable_in_case_note("* Reviewed closed case for claims via automated script.")
+			If CLS_x1_number <> "" then call write_variable_in_case_note("* XFERed to " & CLS_x1_number & ".")
+			call write_variable_in_case_note("---")
+			call write_variable_in_case_note(worker_signature & ", via automated script.")
+		Else
+			'Displaying results in Developer Mode
+			case_note_box = MsgBox("This case would get case noted if developer mode wasn't on." & worker_signature, vbOKCancel)
+			If case_note_box = vbCancel then stopscript
+		End if
+	' ... or, if the case is not allowed to be XFER'd and it is not privileged, we give it the following case note ... 
+	ELSEIF privileged_status <> TRUE AND INAC_scrubber_primary_array(x, 8) = FALSE THEN 
+		call navigate_to_MAXIS_screen("CASE", "NOTE")
+		PF9
+		tikl_date = dateadd("M", 4, (MAXIS_footer_month & "/01/" & MAXIS_footer_year))
+		last_rein_date = dateadd("D", -1, tikl_date)
+		IF developer_mode = False THEN
+			CALL write_variable_in_case_note("-----ALL PROGRAMS INACTIVE-----")
+			CALL write_variable_in_case_note("* Not transfering to CLOSED CASES")
+			IF mmis_mode = FALSE THEN CALL write_variable_in_CASE_NOTE("* CL closed on HC for " & inac_month & " but MMIS check bypassed.")
+			IF mmis_mode = TRUE THEN CALL write_variable_in_case_note("* HC closed for no-or-incomplete renewal. Last HC REIN Date: " & last_rein_date)
+			CALL write_variable_in_case_note("---")
+			CALL write_variable_in_case_note(worker_signature)
+		
+			'TIKL'ing for 4 months
+			IF mmis_mode = TRUE AND closure_reason = "NO REVIEW" THEN 
+				CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+				CALL create_maxis_friendly_date(tikl_date, 0, 5, 18)
+				EMWriteScreen ("IF CASE IS INACTIVE TRANSFER TO CLOSED - " & CLS_x1_number), 9, 3
+				transmit
+				PF3
+			'Adding TIKL to remind worker to check case. This is if MMIS was bypassed.
+			ELSEIF mmis_mode = FALSE AND DAILS_out = FALSE THEN 
+				CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+				CALL create_maxis_friendly_date(date, 0, 5, 18)
+				EMWriteScreen ("HC CLOSED BUT MMIS NOT CHECKED. REVIEW TO DETERMINE IF TO SEND TO " & CLS_x1_number), 9, 3
+				transmit
+				PF3			
+			END IF
+			
+		ELSE
+			'Displaying results in developer mode.
+			IF INAC_scrubber_primary_array(x, 8) = false THEN MsgBox ("The script would case note the last date to REIN is " & last_rein_date & " and then TIKL to XFER to CLS on " & tikl_date)
+			IF mmis_mode = FALSE THEN MsgBox ("Not XFERing case to CLS because MA closed for " & inac_month)
 		END IF
 	END IF
 Next
@@ -706,17 +709,17 @@ End if
 
 'This do...loop transfers the cases to the CLS_x1_number.
 For x = 0 to total_cases
-	'Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
-	MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
-	DAILS_out = INAC_scrubber_primary_array(x, 4)
-	MMIS_status = INAC_scrubber_primary_array(x, 5)
-	privileged_status = INAC_scrubber_primary_array(x, 7)
-
+	''Grabs MAXIS_case_number, DAIL info (if any messages are unresolved), MMIS_status, and privileged_status from the main array
+	'MAXIS_case_number = INAC_scrubber_primary_array(x, 0)
+	'DAILS_out = INAC_scrubber_primary_array(x, 4)
+	'MMIS_status = INAC_scrubber_primary_array(x, 5)
+	'privileged_status = INAC_scrubber_primary_array(x, 7)
+		
 	'Gets back to SELF (SPEC/XFER gets wonky sometimes, this is safer than using the function)
 	back_to_SELF
 	
 	'If it isn't privileged, DAILS aren't out there, and MMIS contains no info on this case (or an IMA case), then it'll SPEC/XFER
-	If privileged_status <> True and DAILS_out = False and MMIS_status <> TRUE then
+	If INAC_scrubber_primary_array(x, 8) = TRUE THEN 
 		EMWriteScreen "SPEC", 16, 43
 		EMWriteScreen "________", 18, 43
 		EMWriteScreen MAXIS_case_number, 18, 43
