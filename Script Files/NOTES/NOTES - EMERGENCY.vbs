@@ -134,14 +134,6 @@ BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
 
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 Dim row
@@ -155,18 +147,17 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
-Do
-  Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-
-'Checking for an active MAXIS session
-Call check_for_MAXIS(False)
+DO 
+	Do
+  		Dialog case_number_dialog
+  		If ButtonPressed = 0 then stopscript
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'Jumping into STAT
 call navigate_to_MAXIS_screen("stat", "hcre")
-
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
@@ -186,7 +177,6 @@ call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", monthly_expense)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 call autofill_editbox_from_MAXIS(HH_member_array, "HEST", monthly_expense) 'Does this last because people like it tacked on to the end, not before. The rest are alphabetical.
-
 
 'Showing the case note
 DO
@@ -217,20 +207,20 @@ End if
 'Writing the case note
 call start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("***Emergency app: "& replace(crisis, ".", "") & "***")
-If interview_date <> "" then call write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
-If HH_comp <> "" then call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
-If crisis <> "" then call write_bullet_and_variable_in_CASE_NOTE("Crisis", crisis)
-If cause_of_crisis <> "" then call write_bullet_and_variable_in_CASE_NOTE("Cause of crisis", cause_of_crisis)
-If income <> "" then call write_bullet_and_variable_in_CASE_NOTE("Income, past " & emer_number_of_income_days & " days", income)
-If income_under_200_FPG <> "" then call write_bullet_and_variable_in_CASE_NOTE("Income under 200% FPG", income_under_200_FPG)
-If percent_rule_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE(emer_percent_rule_amt & "% rule notes", percent_rule_notes)
-If monthly_expense <> "" then call write_bullet_and_variable_in_CASE_NOTE("Monthly expense", monthly_expense)
-If assets <> "" then call write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
-if verifs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
-If crisis_resolvable <> "" then call write_bullet_and_variable_in_CASE_NOTE("Crisis resolvable?", crisis_resolvable)
-If discussion_of_crisis <> "" then call write_bullet_and_variable_in_CASE_NOTE("Discussion of crisis", discussion_of_crisis)
-If actions_taken <> "" then call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
-If referrals <> "" then call write_bullet_and_variable_in_CASE_NOTE("Referrals", referrals)
+call write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
+call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
+call write_bullet_and_variable_in_CASE_NOTE("Crisis", crisis)
+call write_bullet_and_variable_in_CASE_NOTE("Cause of crisis", cause_of_crisis)
+call write_bullet_and_variable_in_CASE_NOTE("Income, past " & emer_number_of_income_days & " days", income)
+call write_bullet_and_variable_in_CASE_NOTE("Income under 200% FPG", income_under_200_FPG)
+call write_bullet_and_variable_in_CASE_NOTE(emer_percent_rule_amt & "% rule notes", percent_rule_notes)
+call write_bullet_and_variable_in_CASE_NOTE("Monthly expense", monthly_expense)
+call write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
+call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
+call write_bullet_and_variable_in_CASE_NOTE("Crisis resolvable?", crisis_resolvable)
+call write_bullet_and_variable_in_CASE_NOTE("Discussion of crisis", discussion_of_crisis)
+call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+ call write_bullet_and_variable_in_CASE_NOTE("Referrals", referrals)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
