@@ -217,7 +217,6 @@ If SNAP_check = 1 then
 		Call navigate_to_MAXIS_screen("STAT", "PROG")		'must NAV to find appl date to determine if when it was rec'd
 		EMReadScreen SNAP_application_date, 8, 10, 33
 		SNAP_application_date = replace(SNAP_application_date, " ", "/")
-		SNAP_application_date = "06/18/16"
 		fifteen_of_appl_month = left(SNAP_application_date, 2) & "/15/" & right(SNAP_application_date, 2)
 		IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'if rec'd ON or BEFORE 15th client gets 30 days from date of application to be reinstated. 
 			progs_closed = progs_closed & "SNAP/"
