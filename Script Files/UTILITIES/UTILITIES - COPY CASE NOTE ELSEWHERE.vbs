@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "UTILITIES - COPY CASE NOTE TO.vbs"
+name_of_script = "UTILITIES - COPY CASE NOTE ELSEWHERE.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 15           'manual run time in seconds
