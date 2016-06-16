@@ -255,6 +255,15 @@ If contact_phone_number = "UUDDLRLRBA" then
 	MsgBox "You have enabled Developer Mode." & vbCr & vbCr & "The script will not enter information into MAXIS, but it will navigate, showing you where the script would otherwise have been."
 END IF
 
+'resetting variables for developer mode to allow testing in current month before the 16th. 
+If developer_mode = true then
+	day_of_month = DatePart("D", date)
+	IF day_of_month < 16 THEN 
+		cm_plus_2 = dateadd("M", 1, date)
+		If right(left(cm_plus_2, 1),1) = "/" Then cm_plus_2 = "0" & cm_plus_2
+	END IF
+End IF
+
 'Stopping the script if the user is running it before the 16th of the month.
 day_of_month = DatePart("D", date)
 If developer_mode <> true then
