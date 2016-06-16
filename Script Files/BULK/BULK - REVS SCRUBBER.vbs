@@ -533,41 +533,6 @@ DO 'Loops until there are no more cases in the Excel list
 			recert_status = "NO"	'some cases were sliping through the logic, so this worked to catch the other NO cases'
 		END IF 
 		
-		IF recert_status = "YES" THEN		'this will catch cases where a cash program that doesn't require an interview is active but SNAP isn't. 
-			Call navigate_to_MAXIS_screen("STAT", "PROG")
-			MFIP_prog_check = ""
-			MFIP_status_check = ""
-			SNAP_status_check = ""
-			EMReadScreen MFIP_prog_check, 2, 6, 67		'checking for an active MFIP case
-			EMReadScreen MFIP_status_check, 4, 6, 74
-			EMReadScreen SNAP_status_check, 4, 10, 74	'checking for active SNAP case
-			PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-            
-			'Some cases get stuck on HCRE if HCRE isn't fully complete. This DO...LOOP handles that.
-            Do
-				EMReadscreen HCRE_panel_check, 4, 2, 50
-				If HCRE_panel_check = "HCRE" then 
-					PF10	'exists edit mode in cases where HCRE isn't complete for a member
-					PF3
-				END IF
-			Loop until HCRE_panel_check <> "HCRE"
-            
-			IF SNAP_status_check <> "ACTV" THEN     'if the snap status is not active then we need to delete if the case is not MFIP as only MFIP requires interview for recert.
-				'IF MFIP is active, case remains on the list. If not, case is deleted from Excel spreadsheet.
-				If MFIP_prog_check = "MF" THEN
-					IF MFIP_status_check <> "ACTV" THEN				'if MFIP is active, then case will not be deleted.
-						SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-						objRange.Delete				'all other cases that are not due for a recert interview will be deleted
-						excel_row = excel_row - 1
-					END IF
-				ELSE 
-					SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-					objRange.Delete				'all other cases that are not due for a recert interview will be deleted
-					excel_row = excel_row - 1
-				END IF
-			END IF
-		END IF
-		
         'If it's not a recert, delete it from the excel list and move on with our lives
 		IF recert_status = "NO" THEN
 			Call navigate_to_MAXIS_screen("STAT", "PROG")
