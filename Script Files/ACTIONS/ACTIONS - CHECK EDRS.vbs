@@ -53,6 +53,8 @@ EMConnect ""
 'Hunts for Maxis case number to autofill it
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
+'Error proof functions
+Call check_for_MAXIS(true)
 
 DO
 	dialog EDRS_dialog
@@ -61,18 +63,19 @@ DO
 
 LOOP UNTIL MAXIS_case_number <> ""
 
+'Error proof functions
+Call check_for_MAXIS(False)
+
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
-
+'Error proof functions
+Call check_for_MAXIS(False)
 
 'changing footer dates to current month to avoid invalid months. 
 MAXIS_footer_month = datepart("M", date)
 	IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month 
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
-
-'Error proof functions
-Call check_for_MAXIS(False)
 
 Dim Member_Info_Array()
 Redim Member_Info_Array(UBound(HH_member_array), 4)
