@@ -1124,7 +1124,7 @@ script_array(script_num).script_name 			= "Application Received"																
 script_array(script_num).description 			= "Template for documenting details about an application recevied."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1133,7 +1133,7 @@ script_array(script_num).script_name 			= "Approved programs"																		'
 script_array(script_num).description 			= "Template for when you approve a client's programs."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1142,7 +1142,7 @@ script_array(script_num).script_name				= "AREP Form Received"
 script_array(script_num).description				= "Template for when you receive an Authorized Representative (AREP) form."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1151,7 +1151,7 @@ script_array(script_num).script_name				= "Burial Assets"
 script_array(script_num).description				= "Template for burial assets."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1160,7 +1160,7 @@ script_array(script_num).script_name				= "CAF"
 script_array(script_num).description				= "Template for when you're processing a CAF. Works for intake as well as recertification and reapplication.*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1169,7 +1169,7 @@ script_array(script_num).script_name				= "Change Report Form Received"
 script_array(script_num).description				= "Template for case noting information reported from a Change Report Form."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1178,7 +1178,7 @@ script_array(script_num).script_name				= "Change Reported"
 script_array(script_num).description				= "Template for case noting HHLD Comp or Baby Born being reported. **More changes to be added in the future**"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1187,7 +1187,7 @@ script_array(script_num).script_name				= "Citizenship-Identity Verified"
 script_array(script_num).description				= "Template for documenting citizenship/identity status for a case."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1196,7 +1196,7 @@ script_array(script_num).script_name				= "Client Contact"
 script_array(script_num).description				= "Template for documenting client contact, either from or to a client."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1205,7 +1205,7 @@ script_array(script_num).script_name				= "Client Transportation Costs"
 script_array(script_num).description				= "Template for documenting client transportation costs."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1214,7 +1214,7 @@ script_array(script_num).script_name				= "Closed Programs"
 script_array(script_num).description				= "Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1223,7 +1223,7 @@ script_array(script_num).script_name				= "Combined AR"
 script_array(script_num).description				= "Template for the Combined Annual Renewal.*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1232,7 +1232,7 @@ script_array(script_num).script_name				= "County Burial Application"
 script_array(script_num).description				= "Template for the County Burial Application.*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1241,7 +1241,7 @@ script_array(script_num).script_name				= "CSR"
 script_array(script_num).description				= "Template for the Combined Six-month Report (CSR).*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -1250,7 +1250,7 @@ script_array(script_num).script_name 			= "Deceased Client Summary"													
 script_array(script_num).description 			= "Adds details about a deceased client to a CASE/NOTE."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = "04/25/2016"
 
 script_num = script_num + 1								'Increment by one
@@ -1260,7 +1260,7 @@ script_array(script_num).script_name 			= "Denied Programs"																		'Sc
 script_array(script_num).description 			= "Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1269,7 +1269,7 @@ script_array(script_num).script_name 			= "Documents Received"
 script_array(script_num).description 			= "Template for case noting information about documents received."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1278,7 +1278,7 @@ script_array(script_num).script_name 			= "Drug Felon"
 script_array(script_num).description 			= "Template for noting drug felon info."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1287,7 +1287,7 @@ script_array(script_num).script_name 			= "DWP Budget"
 script_array(script_num).description 			= "Template for noting DWP budgets."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("#-D")
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
