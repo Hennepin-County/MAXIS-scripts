@@ -70,7 +70,6 @@ class subcat
 	public subcat_button
 End class
 
-'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_main_menu_dialog(script_category)
 
 	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
@@ -160,11 +159,10 @@ Function declare_main_menu_dialog(script_category)
 				End if
 			End if
 		next
-
+		
 		CancelButton 540, 380, 50, 15
 	EndDialog
 End function
-'END CUSTOM FUNCTIONS=======================================================================================================
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -207,13 +205,14 @@ Do
 	For i = 0 to ubound(script_array)
 		If ButtonPressed = script_array(i).button then 
 			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
-			call run_from_GitHub(script_array(i).script_URL)
+			script_to_run = script_array(i).script_URL
+			Exit for
 		End if
 	Next    
 	
 
 Loop until ready_to_exit_loop = true
 
-
+call run_from_GitHub(script_to_run)
 
 stopscript
