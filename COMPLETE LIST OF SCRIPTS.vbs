@@ -83,6 +83,7 @@ script_array(script_num).description 			= "FIATS SNAP eligibility, income, and d
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("ABAWD")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -92,6 +93,7 @@ script_array(script_num).description 			= "Double checks a case to see if any po
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("ABAWD")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -101,6 +103,7 @@ script_array(script_num).description			= "A tool to walk through a screening to 
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("ABAWD")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -110,6 +113,7 @@ script_array(script_num).description			= "Updates a BILS panel with reoccurring 
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -119,33 +123,27 @@ script_array(script_num).description			= "Checks EDRS for HH members with disqua
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "Copy Panels to Word"
-script_array(script_num).description			= "Copies MAXIS panels to Word en masse for a case for easier review."
-script_array(script_num).category               = "ACTIONS"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "FSET SANCTION"
+script_array(script_num).script_name			= "FSET Sanction"
 script_array(script_num).description			= "Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "HG SUPPLEMENT"
-script_array(script_num).description			= "NEW 04/2016!!! Issues a housing grant in MONY/CHCK for cases that should have been issued in prior months."
+script_array(script_num).script_name			= "HG Supplement"
+script_array(script_num).description			= "Issues a housing grant in MONY/CHCK for cases that should have been issued in prior months."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #04/25/2016#
 
 
 script_num = script_num + 1								'Increment by one
@@ -156,6 +154,7 @@ script_array(script_num).description			= "FIATs a spousal allocation across a bu
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -165,6 +164,7 @@ script_array(script_num).description 			= "FIATs earned income and deductions ac
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #05/23/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -174,6 +174,7 @@ script_array(script_num).description			= "FIATs MA-EPD earned income (JOBS incom
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -183,6 +184,7 @@ script_array(script_num).description			= "Creates a JOBS panel, CASE/NOTE and TI
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -192,6 +194,7 @@ script_array(script_num).description			= "Creates a Word document with PA benefi
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -201,6 +204,7 @@ script_array(script_num).description			= "Enter in pay stubs, and puts it on JOB
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -210,6 +214,7 @@ script_array(script_num).description			= "Enter shelter expense/address informat
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -219,6 +224,7 @@ script_array(script_num).description			= "Sends a SVES/QURY."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -228,6 +234,7 @@ script_array(script_num).description			= "SPEC/XFERs a case, and can send a clie
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -237,6 +244,7 @@ script_array(script_num).description			= "TIKLS for TYMA report forms to be sent
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #02/22/2016#
 
 
 
@@ -258,6 +266,7 @@ script_array(script_num).description 			= "Creates a list of all addresses from 
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -267,6 +276,7 @@ script_array(script_num).description 			= "Creates a month specific report of ba
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #04/25/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -276,6 +286,7 @@ script_array(script_num).description 			= "Creates the same case note on cases l
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -285,6 +296,7 @@ script_array(script_num).description 			= "Searches caseload(s) by selected para
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -294,6 +306,7 @@ script_array(script_num).description				= "Case notes recurring CEI premiums on 
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -303,6 +316,7 @@ script_array(script_num).description 			= "Compares the amount of GA and RCA FIA
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -312,6 +326,7 @@ script_array(script_num).description				= "Case notes all cases on DAIL/DAIL wit
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -321,6 +336,7 @@ script_array(script_num).description 			= "Pulls a list of DAILS in DAIL/DAIL in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -330,6 +346,7 @@ script_array(script_num).description 			= "Creates a list of cases and clients a
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -339,6 +356,7 @@ script_array(script_num).description 			= "Creates a list of cases from a caselo
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -348,6 +366,7 @@ script_array(script_num).description 			= "Creates a list the rolling 12 months 
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -357,6 +376,7 @@ script_array(script_num).description				= "Checks cases on REPT/INAC (for criter
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -366,15 +386,17 @@ script_array(script_num).description 			= "Creates a list of FACIs, AREPs, and w
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "MAGI Non MAGI Report"
-script_array(script_num).description 			= "NEW 06/2016!! Creates a list of cases and clients active on health care in MAXIS by MAGI/Non-MAGI."
+script_array(script_num).description 			= "Creates a list of cases and clients active on health care in MAXIS by MAGI/Non-MAGI."
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -384,6 +406,7 @@ script_array(script_num).description				= "Creates the same MEMO on cases listed
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -393,6 +416,7 @@ script_array(script_num).description 			= "Creates a list of cases with non-MAGI
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -402,6 +426,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/ACTV in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -411,6 +436,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/ARST in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -420,6 +446,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/EOMC in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -429,6 +456,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/GRMR in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -438,6 +466,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/IEVC in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -447,6 +476,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/INAC in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -456,6 +486,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/MAMS in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -465,6 +496,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/MFCM in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -474,6 +506,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/MONT in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -483,6 +516,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/MRSR in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -492,6 +526,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/PND1 in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -501,6 +536,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/PND2 in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -510,6 +546,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/REVS in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -519,6 +556,7 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/REVW in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -528,6 +566,7 @@ script_array(script_num).description				= "Case notes that returned mail (withou
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -537,6 +576,7 @@ script_array(script_num).description				= "Case notes all cases on REPT/REVW or 
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -546,6 +586,7 @@ script_array(script_num).description 			= "Creates a list of SWKRs assigned to t
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -555,6 +596,7 @@ script_array(script_num).description				= "Creates a list of SNAP cases meeting 
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -564,6 +606,7 @@ script_array(script_num).description				= "Creates the same TIKL on cases listed
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -573,6 +616,7 @@ script_array(script_num).description				= "Updates a saved REPT/EOMC excel file 
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 
 
@@ -594,6 +638,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -603,6 +648,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -612,6 +658,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -621,6 +668,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -630,6 +678,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -639,6 +688,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -648,6 +698,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -657,6 +708,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -666,6 +718,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -675,6 +728,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -684,6 +738,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -693,6 +748,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -702,6 +758,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -711,6 +768,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -720,6 +778,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -729,6 +788,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 
 
@@ -751,6 +811,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -760,6 +821,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -769,6 +831,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -778,6 +841,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -787,6 +851,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -796,6 +861,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -805,6 +871,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -814,6 +881,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -823,6 +891,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -832,6 +901,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -841,6 +911,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -850,6 +921,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -859,6 +931,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -868,6 +941,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -877,6 +951,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -886,6 +961,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -895,6 +971,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -904,6 +981,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -913,6 +991,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -922,6 +1001,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -931,6 +1011,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -940,6 +1021,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -949,6 +1031,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -958,6 +1041,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -967,6 +1051,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -976,6 +1061,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -985,6 +1071,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -994,6 +1081,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1003,6 +1091,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1012,6 +1101,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1021,6 +1111,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1030,6 +1121,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1039,6 +1131,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1048,6 +1141,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1057,6 +1151,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1066,6 +1161,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1075,6 +1171,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1084,6 +1181,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1093,6 +1191,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1102,6 +1201,7 @@ script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 
 
@@ -1125,6 +1225,7 @@ script_array(script_num).description 			= "Template for documenting details abou
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1134,6 +1235,7 @@ script_array(script_num).description 			= "Template for when you approve a clien
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1143,6 +1245,7 @@ script_array(script_num).description				= "Template for when you receive an Auth
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1152,6 +1255,7 @@ script_array(script_num).description				= "Template for burial assets."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1161,6 +1265,7 @@ script_array(script_num).description				= "Template for when you're processing a
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1170,6 +1275,7 @@ script_array(script_num).description				= "Template for case noting information 
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1179,6 +1285,7 @@ script_array(script_num).description				= "Template for case noting HHLD Comp or
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1188,6 +1295,7 @@ script_array(script_num).description				= "Template for documenting citizenship/
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1197,6 +1305,7 @@ script_array(script_num).description				= "Template for documenting client conta
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1206,6 +1315,7 @@ script_array(script_num).description				= "Template for documenting client trans
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1215,6 +1325,7 @@ script_array(script_num).description				= "Template for indicating which program
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1224,6 +1335,7 @@ script_array(script_num).description				= "Template for the Combined Annual Rene
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1233,6 +1345,7 @@ script_array(script_num).description				= "Template for the County Burial Applic
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1242,6 +1355,7 @@ script_array(script_num).description				= "Template for the Combined Six-month R
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -1251,7 +1365,7 @@ script_array(script_num).description 			= "Adds details about a deceased client 
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
-script_array(script_num).release_date           = "04/25/2016"
+script_array(script_num).release_date           = #04/25/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1261,6 +1375,7 @@ script_array(script_num).description 			= "Template for indicating which program
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1270,6 +1385,7 @@ script_array(script_num).description 			= "Template for case noting information 
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1279,6 +1395,7 @@ script_array(script_num).description 			= "Template for noting drug felon info."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1288,6 +1405,7 @@ script_array(script_num).description 			= "Template for noting DWP budgets."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1297,6 +1415,7 @@ script_array(script_num).description 			= "Template for noting the action steps 
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1306,6 +1425,7 @@ script_array(script_num).description 			= "Template for EA/EGA applications.*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1315,6 +1435,7 @@ script_array(script_num).description 			= "Template for case noting an employmen
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1324,6 +1445,7 @@ script_array(script_num).description 			= "Template for noting information about
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1333,6 +1455,7 @@ script_array(script_num).description 			= "Template for sending an MFIP or DWP r
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1342,6 +1465,7 @@ script_array(script_num).description 			= "Template for noting detail about how 
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1351,6 +1475,7 @@ script_array(script_num).description 			= "Template for screening a client for e
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1360,6 +1485,7 @@ script_array(script_num).description 			= "Template for explaining the income bu
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1369,6 +1495,7 @@ script_array(script_num).description 			= "Template for noting foster care HCAPP
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1378,6 +1505,7 @@ script_array(script_num).description 			= "Template for noting foster care revie
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1387,6 +1515,7 @@ script_array(script_num).description 			= "Template for noting fraud info."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -1396,6 +1525,7 @@ script_array(script_num).description				= "Template for requests of good cause t
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1405,6 +1535,7 @@ script_array(script_num).description				= "Template for Good Cause results for d
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1414,6 +1545,7 @@ script_array(script_num).description				= "Template for GRH HRFs. Case must be p
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1433,6 +1565,7 @@ script_array(script_num).description				= "Template for HC renewals.*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1442,6 +1575,7 @@ script_array(script_num).description				= "Template for HCAPPs.*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1451,6 +1585,7 @@ script_array(script_num).description				= "Template for HRFs (for GRH, use the '
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1460,6 +1595,7 @@ script_array(script_num).description				= "Template to case note when a IEVS not
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1469,6 +1605,7 @@ script_array(script_num).description				= "Template to note details of an incarc
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1478,6 +1615,7 @@ script_array(script_num).description				= "Template to case note an interview be
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1487,6 +1625,7 @@ script_array(script_num).description				= "Template for case noting a client's n
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -1496,6 +1635,7 @@ script_array(script_num).description				= "Template for case noting information 
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1505,6 +1645,7 @@ script_array(script_num).description				= "Template for noting the curing of an 
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1514,6 +1655,7 @@ script_array(script_num).description				= "Template for MFIP sanctions and DWP d
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1523,6 +1665,7 @@ script_array(script_num).description				= "Template for noting when closing MFIP
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1532,6 +1675,7 @@ script_array(script_num).description				= "Template for noting Medical Service Q
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1541,6 +1685,7 @@ script_array(script_num).description				= "Template for the MN Transition Applic
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1550,6 +1695,7 @@ script_array(script_num).description				= "Template for noting Out of Home Place
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1559,6 +1705,7 @@ script_array(script_num).description				= "Template for noting basic information
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1568,6 +1715,7 @@ script_array(script_num).description				= "Template for case noting a pregnancy.
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1577,6 +1725,7 @@ script_array(script_num).description				= "Template for documenting proof of rel
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -1586,6 +1735,7 @@ script_array(script_num).description				= "Template for noting program reinstate
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1595,6 +1745,7 @@ script_array(script_num).description				= "Template for noting Returned Mail Rec
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1604,6 +1755,7 @@ script_array(script_num).description				= "Template for noting Significant Chang
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1613,6 +1765,7 @@ script_array(script_num).description				= "Template for SNAP reviewers to use th
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1622,6 +1775,7 @@ script_array(script_num).description				= "Template for when a worker sends a ca
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1631,6 +1785,7 @@ script_array(script_num).description				= "Template for when verifications are n
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 'NOTES subcategories (placing them here to be sure buttons go in right place)-------------------------------------------------------------------------------------
 
@@ -1642,6 +1797,7 @@ script_array(script_num).description				= "Template for EMA applications."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LEP")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1651,6 +1807,7 @@ script_array(script_num).description				= "Template for the SAVE system for veri
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LEP")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1660,6 +1817,7 @@ script_array(script_num).description				= "Template for the sponsor income deemi
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LEP")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -1669,6 +1827,7 @@ script_array(script_num).description				= "Template for processing DHS-1503."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1678,6 +1837,7 @@ script_array(script_num).description				= "Template for processing DHS-5181."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1687,6 +1847,7 @@ script_array(script_num).description				= "Template for initial details of a LTC
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1696,6 +1857,7 @@ script_array(script_num).description				= "Template for the LTC asset assessment
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1705,6 +1867,7 @@ script_array(script_num).description				= "Template to summarize actions for the
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1714,6 +1877,7 @@ script_array(script_num).description				= "Template for use when approving a LTC
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1723,6 +1887,7 @@ script_array(script_num).description				= "Template for approving LTC MA (can be
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1732,6 +1897,7 @@ script_array(script_num).description				= "Template for LTC renewals.*"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)				'Resets the array to add one more element to it
@@ -1741,6 +1907,7 @@ script_array(script_num).description				= "Template for noting a transfer penalt
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1749,7 +1916,8 @@ script_array(script_num).script_name 			= "MNSure - Documents Requested"
 script_array(script_num).description				= "Template for when MNsure documents have been requested."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("MNSure")
+script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1758,7 +1926,14 @@ script_array(script_num).script_name 			= "MNSure Retro HC Application"
 script_array(script_num).description				= "Template for when MNsure retro HC has been requested."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("MNSure")
+script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #10/01/2000#
+
+
+
+
+
+
 
 
 
@@ -1774,6 +1949,7 @@ script_array(script_num).description 			= "Sends a MEMO to the client of their r
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1783,6 +1959,7 @@ script_array(script_num).description 			= "Sends a MEMO containing the appointme
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1792,6 +1969,7 @@ script_array(script_num).description 			= "Sends a MEMO informing client of poss
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1801,6 +1979,7 @@ script_array(script_num).description			= "Sends a MEMO to a facility indicating 
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1810,6 +1989,7 @@ script_array(script_num).description			= "Sends a MEMO to a LTC client regarding
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1819,6 +1999,7 @@ script_array(script_num).description			= "Sends a WCOM on a MA notice for Inmate
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1828,6 +2009,7 @@ script_array(script_num).description			= "Sends a WCOM on a denial for no initia
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1837,6 +2019,7 @@ script_array(script_num).description			= "Makes detailed WCOM regarding spenddow
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1846,6 +2029,7 @@ script_array(script_num).description			= "Sends a MEMO to a client regarding MFI
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1855,6 +2039,7 @@ script_array(script_num).description			= "Sends a MEMO to a client regarding MNs
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1864,6 +2049,7 @@ script_array(script_num).description			= "Sends the SNAP notice of missed interv
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1873,6 +2059,7 @@ script_array(script_num).description			= "Sends a MEMO informing client that the
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1882,6 +2069,7 @@ script_array(script_num).description			= "Sends a SPEC/LETR informing client tha
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1905,6 +2093,7 @@ script_array(script_num).description 			= "Adds a WCOM to a notice for an ABAWD 
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1914,6 +2103,7 @@ script_array(script_num).description 			= "Adds various WCOMS to a notice for re
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1923,6 +2113,7 @@ script_array(script_num).description 			= "Adds a WCOM to a notice for duplicate
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1932,6 +2123,7 @@ script_array(script_num).description 			= "Sends a WCOM informing the client of 
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #10/01/2000#
 
 
 
@@ -1951,70 +2143,98 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Banked Month Database Updater"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Updates cases in the banked month database with actual MAXIS status."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Copy CASE NOTE Elsewhere"
+script_array(script_num).description 			= "Copies a CASE/NOTE to either a claims note or a SPEC/MEMO."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/27/2016#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Copy Panels to Word"
+script_array(script_num).description			= "Copies MAXIS panels to Word en masse for a case for easier review."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Info"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Displays information about your BlueZone Scripts installation."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Move Production Screen to Inquiry"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Moves a screen from MAXIS prouduction mode to MAXIS inquiry."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Phone Number or Name Lookup"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Checks every case on PND1, PND2, ACTV, REVW, or INAC, to find a case number when you have a phone number. *OR* Searches for a specific case on multiple REPT screens by last name."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "POLI TEMP List"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Creates a list of current POLI/TEMP topics, TEMP reference and revised date."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "PRISM Screen Finder"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Navigates to popular PRISM screens. The navigation window stays open until user closes it."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Training Case Creator"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Creates training case scenarios en masse and XFERs them to workers."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Update Worker Signature"
-script_array(script_num).description 			= ""
+script_array(script_num).description 			= "Sets or updates the default worker signature for this user."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
