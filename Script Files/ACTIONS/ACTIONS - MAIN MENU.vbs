@@ -70,16 +70,22 @@ class subcat
 	public subcat_button
 End class
 
-'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_main_menu_dialog(script_category)
 
-	'Runs through each script in the array and generates a list of subcategories based on the category located in the function
+	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
 	For current_script = 0 to ubound(script_array)
+		'Subcategory handling (creating a second list as a string which gets converted later to an array)
 		If ucase(script_array(current_script).category) = ucase(script_category) then																								'If the script in the array is of the correct category (ACTIONS/NOTES/ETC)...
 			For each listed_subcategory in script_array(current_script).subcategory																									'...then iterate through each listed subcategory, and...
 				If listed_subcategory <> "" and InStr(subcategory_list, ucase(listed_subcategory)) = 0 then subcategory_list = subcategory_list & "|" & ucase(listed_subcategory)	'...if the listed subcategory isn't blank and isn't already in the list, then add it to our handy-dandy list.	
 			Next
 		End if
+		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
+		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then 
+			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+		End if
+		
 	Next
 	
 	subcategory_list = split(subcategory_list, "|")
@@ -131,9 +137,8 @@ Function declare_main_menu_dialog(script_category)
 				'Accounts for scripts without subcategories
 				If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
 				
-				'If the selected subcategory is in the subcategory string, it will display that script
+				'If the selected subcategory is in the subcategory string, it will display those scripts
 				If InStr(subcategory_string, subcategory_selected) <> 0 then 
-				'If subcategory_string = "ABAWD" then
 				
 				
 
@@ -154,11 +159,10 @@ Function declare_main_menu_dialog(script_category)
 				End if
 			End if
 		next
-
+		
 		CancelButton 540, 380, 50, 15
 	EndDialog
 End function
-'END CUSTOM FUNCTIONS=======================================================================================================
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -172,7 +176,7 @@ subcat_button_placeholder 	= 1701
 'Other pre-loop and pre-function declarations
 subcategory_array = array()
 subcategory_string = ""
-subcategory_selected = "MAIN"		'Should start with MAIN the first time it's run
+subcategory_selected = "MAIN"
 
 'Displays the dialog
 Do
@@ -201,13 +205,14 @@ Do
 	For i = 0 to ubound(script_array)
 		If ButtonPressed = script_array(i).button then 
 			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
-			call run_from_GitHub(script_array(i).script_URL)
+			script_to_run = script_array(i).script_URL
+			Exit for
 		End if
 	Next    
 	
 
 Loop until ready_to_exit_loop = true
 
-
+call run_from_GitHub(script_to_run)
 
 stopscript
