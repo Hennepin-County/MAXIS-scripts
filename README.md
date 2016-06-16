@@ -10,6 +10,7 @@ Table of contents for this README
   * [Issue guidelines/best practices](#issue-guidelinesbest-practices)
   * [Critical issues](#critical-issues)
   * [Script freezes](#script-freezes)
+  * [When to remove a script from the project] (#when-to-remove-a-script-from-the-project)
 * **[Pull Requests](#pull-requests)**
   * [Anatomy of a pull request](#anatomy-of-a-pull-request)
     * [Title](#title)
@@ -97,6 +98,13 @@ Script freezes are needed for making sure each new script, bug fix, and enhancem
 
 When there are over 40 issues, no new scripts or enhancements will be allowed on the GitHub issue list, unless they are critical from a policy standpoint (bug fixes are always welcome). Administrators may institute script freezes at other times dependent on need, and in these cases an email will be sent to scriptwriters.
 
+#### When to remove a script from the project
+Some scripts will be very popular in some agencies, and not-so-popular in others; such is the nature of a large collaborative project. It may be tempting to advocate for the removal of a script based on preferences in your agency, or even preferences among scriptwriter agencies as a whole. However, each script represents someone's hard work, and should be treated with respect. Generally speaking, this project will strive to improve existing scripts, and not to remove scripts from the project. Even so, there are going to be circumstances in which removing a script could become necessary:
+
+* An older script is completely superseded by another, newer script. For example, a NOTES script becoming an ACTIONS script.
+* A policy change (or clarification) has made the script completely unnecessary, or even incorrect.
+
+In all other instances, the work should be toward the improvement and augmentation of our scripts. Discussions about removing a script must remain respectful of the work other scriptwriters have done, and the script must meet either of the criteria above in order to be considered for removal.
 
 _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
 

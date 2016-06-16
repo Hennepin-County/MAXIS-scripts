@@ -45,7 +45,7 @@ get_county_code
 If case_noting_intake_dates = False then dialog_shrink_amt = 65
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog closed_dialog, 0, 0, 471, 265, "Closed Programs Dialog"
+BeginDialog closed_dialog, 0, 0, 471, 285, "Closed Programs Dialog"
   EditBox 70, 5, 55, 15, MAXIS_case_number
   CheckBox 185, 10, 35, 10, "SNAP", SNAP_check
   CheckBox 220, 10, 35, 10, "Cash", cash_check
@@ -58,14 +58,15 @@ BeginDialog closed_dialog, 0, 0, 471, 265, "Closed Programs Dialog"
   CheckBox 10, 135, 115, 10, "Case is at HC annual renewal.", HC_ER_check
   CheckBox 10, 150, 215, 10, "Case is entering Sanction.     Enter number of Sanction months:", Sanction_checkbox
   EditBox 230, 145, 30, 15, sanction_months
-  CheckBox 10, 175, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
-  CheckBox 10, 195, 190, 10, "Check here if closure is due to client death (enter date):", death_check
-  EditBox 205, 195, 60, 15, hc_close_for_death_date
-  CheckBox 10, 210, 90, 10, "WCOM Added To Notice:", WCOM_check
+  CheckBox 10, 165, 195, 10, "Case is closing for not providing postoned verifications.", postponed_verif_checkbox
+  CheckBox 10, 195, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+  CheckBox 10, 215, 190, 10, "Check here if closure is due to client death (enter date):", death_check
+  EditBox 205, 210, 60, 15, hc_close_for_death_date
+  CheckBox 10, 230, 90, 10, "WCOM Added To Notice:", WCOM_check
   ButtonGroup ButtonPressed
-    PushButton 105, 210, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
-  CheckBox 10, 225, 65, 10, "Updated MMIS?", updated_MMIS_check
-  EditBox 75, 240, 50, 15, worker_signature
+    PushButton 105, 230, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
+  CheckBox 10, 245, 65, 10, "Updated MMIS?", updated_MMIS_check
+  EditBox 75, 260, 50, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 365, 245, 50, 15
     CancelButton 415, 245, 50, 15
@@ -75,19 +76,19 @@ BeginDialog closed_dialog, 0, 0, 471, 265, "Closed Programs Dialog"
   Text 10, 50, 70, 10, "Reason For Closure:"
   Text 10, 70, 105, 10, "Verifications/Info Still Needed:"
   Text 10, 90, 165, 10, "Are any programs still open? If so, list them here:"
-  GroupBox 5, 105, 260, 60, "Elements That May Affect REIN Date:"
-  GroupBox 5, 165, 130, 25, "For LTC Cases"
+  GroupBox 5, 105, 260, 75, "Elements That May Affect REIN Date:"
+  GroupBox 5, 185, 130, 25, "For LTC Cases"
   GroupBox 270, 40, 195, 105, "IMPORTANT - Note for SNAP:"
   Text 275, 100, 180, 45, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
   Text 275, 50, 180, 50, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
   GroupBox 270, 145, 195, 90, "IMPORTANT - Note for HC: "
   ButtonGroup ButtonPressed
-    PushButton 275, 220, 50, 10, "IAPM", IA_PM_Button
-    PushButton 325, 220, 50, 10, "HCPM", HC_PM_Button
+    PushButton 275, 220, 50, 10, "HCPM", HC_EPM_Button
   Text 275, 155, 180, 50, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. MAGI clients have up to three months (follows retro application policy) after case closure to turn in their renewals and have eligibility determined. They can also reapply online using METS.  "
-  Text 10, 245, 60, 10, "Worker Signature: "
+  Text 10, 265, 60, 10, "Worker Signature: "
   Text 275, 210, 180, 10, "For more information refer to:"
 EndDialog
+
 
 
 
@@ -113,8 +114,7 @@ DO
 					Dialog closed_dialog
 					cancel_confirmation
 					If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
-					If ButtonPressed = IA_PM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/iapmstd/")
-					If ButtonPressed = HC_PM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/")
+					If ButtonPressed = HC_EPM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/epm/#t=index_1.htm")
 				Loop until ButtonPressed = -1
 				If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."
 				IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
@@ -213,9 +213,27 @@ End if
 
 'SNAP closures have different logic for when to REIN. For SNAP the client gets an additional month to turn in proofs, and can be REINed without a new app.
 If SNAP_check = 1 then
-  progs_closed = progs_closed & "SNAP/"
-  SNAP_last_REIN_date = closure_month_last_day
-  SNAP_followup_text = ", after which a new CAF is required."
+	IF postponed_verif_checkbox = 1 THEN					'additional logic fo expedited cases closing for no postponed verifications returned. 
+		Call navigate_to_MAXIS_screen("STAT", "PROG")		'must NAV to find appl date to determine if when it was rec'd
+		EMReadScreen SNAP_application_date, 8, 10, 33
+		SNAP_application_date = replace(SNAP_application_date, " ", "/")
+		fifteen_of_appl_month = left(SNAP_application_date, 2) & "/15/" & right(SNAP_application_date, 2)
+		IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'if rec'd ON or BEFORE 15th client gets 30 days from date of application to be reinstated. 
+			progs_closed = progs_closed & "SNAP/"
+			SNAP_last_REIN_date = dateadd("d", 30, SNAP_application_date)
+			SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."	
+			IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)			        'if cash is not being closed the intake date needs to be the day after the rein date
+		Else
+			progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated. 
+			SNAP_last_REIN_date = closure_date
+			SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."	
+			IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)					'if cash is not being closed the intake date needs to be the day after the rein date
+		END IF
+	ELSE															'if the case didn't close for postponed verifs then the client gets the regular 30 day reinstate period. 
+		progs_closed = progs_closed & "SNAP/"
+		SNAP_last_REIN_date = closure_month_last_day
+		SNAP_followup_text = ", after which a new CAF is required."
+	END IF
 End if
 
 'Cash cases use similar logic to HC but don't have the "HC renewal can be used as a new app" issue.
