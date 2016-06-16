@@ -57,7 +57,7 @@ EndDialog
 BeginDialog worker_signature_dialog, 0, 0, 191, 80, "Worker signature"
   EditBox 80, 10, 55, 15, last_day_for_recert
   EditBox 80, 30, 105, 15, worker_signature
-  ButtonGroup ButtonPressed_worker_signature_dialog
+  ButtonGroup ButtonPressed
     OkButton 80, 50, 50, 15
     CancelButton 135, 50, 50, 15
   Text 5, 35, 70, 10, "Sign your case note:"
@@ -95,11 +95,31 @@ If interview_confirm = vbYes then  			'returns user back to DAIL/DAIL and stops 
 	script_end_procedure("Success! A NOMI is not required if the recertification interview is complete." & vbNewLine & "Please review the case for completion if necessary.")
 ELSEIF interview_confirm = vbNo then 		'interview was not completed 
 	If worker_county_code = "x127" then
-		dialog Hennepin_worker_signature		'dialog for Hennepin users with county office selection options
+		DO
+			DO
+				err_msg = ""
+				dialog Hennepin_worker_signature		'dialog for Hennepin users with county office selection options
+				cancel_confirmation 
+				If region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the client's region of residence."
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+		Loop until are_we_passworded_out = false					'loops until user passwords back in					
 	Else
-		dialog worker_signature_dialog			'dialog for everyone else...because elitism:) 
+		Do
+			Do
+				err_msg = ""
+				dialog worker_signature_dialog			'dialog for everyone else...because elitism:) 
+				cancel_confirmation
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+		Loop until are_we_passworded_out = false					'loops until user passwords back in					
 	End if
-	If ButtonPressed = worker_signature_dialog = 0 then script_end_procedure ("")
 	
 	PF3							'exits case note, back to DAIL
 	EMSendKey "p"				'navigates to SPEC
