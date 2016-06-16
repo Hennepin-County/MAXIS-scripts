@@ -48,7 +48,7 @@ BeginDialog UTILITIES_scripts_main_menu_dialog, 0, 0, 461, 175, "Utilities scrip
   ButtonGroup ButtonPressed
     CancelButton 405, 155, 50, 15
     PushButton 30, 20, 95, 10, "Banked Month DB Updater", banked_month_database_updater_button
-    PushButton 40, 35, 85, 10, "Copy CASE/NOTE to...", COPY_TO_CLAIM_button
+    PushButton 10, 35, 105, 10, "Copy CASE/NOTE Elsewhere", COPY_TO_CLAIM_button
     PushButton 85, 50, 40, 10, "INFO", INFO_button
     PushButton 5, 65, 120, 10, "Move Production Screen to Inquiry", MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button
     PushButton 5, 80, 120, 10, "Phone Number or Name Look Up", PHONE_NUMBER_OR_NAME_LOOK_UP_button
@@ -85,7 +85,7 @@ Loop until buttonpressed <> SIR_instructions_button
 EMConnect ""
 
 IF buttonpressed = banked_month_database_updater_button 		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - BANKED MONTH DATABASE UPDATER.vbs")
-IF buttonpressed = COPY_TO_CLAIM_button					 		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - COPY CASE NOTE TO.vbs")
+IF buttonpressed = COPY_TO_CLAIM_button					 		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - COPY CASE NOTE ELSEWHERE.vbs")
 IF buttonpressed = INFO_button 									then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - INFO.vbs")
 If buttonpressed = MOVE_PRODUCTION_SCREEN_TO_INQUIRY_button		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - MOVE PRODUCTION SCREEN TO INQUIRY.vbs")
 IF ButtonPressed = PHONE_NUMBER_OR_NAME_LOOK_UP_button			then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - PHONE NUMBER OR NAME LOOK UP.vbs")
