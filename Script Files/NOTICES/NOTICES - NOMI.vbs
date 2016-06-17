@@ -285,7 +285,8 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 				If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-				If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
+				If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* You did not enter a valid application date. Please try again."
+				If NOMI_selection = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select which NOMI to send."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP until err_msg = ""
@@ -299,7 +300,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
+			If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* You did not enter a valid application date. Please try again."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP until err_msg = ""
