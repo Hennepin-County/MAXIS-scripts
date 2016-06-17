@@ -214,10 +214,9 @@ EndDialog
 
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
 BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter"
-  EditBox 55, 10, 55, 15, MAXIS_case_number
-  EditBox 165, 10, 25, 15, member_number
-  CheckBox 200, 15, 100, 10, "Somali-language orientation", Somali_language
-  DropListBox 105, 35, 195, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
+  EditBox 105, 10, 55, 15, MAXIS_case_number
+  EditBox 220, 10, 25, 15, member_number
+  DropListBox 105, 35, 195, 15, "Select one..."+chr(9)+"Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)"+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
   DropListBox 105, 60, 110, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 105, 80, 195, 15, other_referral_notes
   EditBox 105, 105, 85, 15, worker_signature
@@ -230,11 +229,11 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter
   Text 15, 145, 435, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
   GroupBox 310, 10, 145, 115, "For non-English speaking ABAWD's:"
   Text 15, 170, 435, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 5, 15, 50, 10, "Case Number:"
+  Text 50, 15, 50, 10, "Case Number:"
   Text 5, 85, 100, 15, "Other manual referral reason:"
-  Text 115, 15, 45, 10, "HH Memb #:"
+  Text 170, 15, 45, 10, "HH Memb #:"
   Text 40, 110, 60, 10, "Worker Signature:"
-  Text 320, 25, 130, 25, "If your client is requsting a Somali language orientation, then select the check box to the left."
+  Text 320, 25, 130, 25, "If your client is requsting a Somali-language orientation, then select the check box to the left."
   Text 320, 60, 130, 60, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
 EndDialog
 
@@ -268,8 +267,19 @@ DO
 				SNAPET_phone = "612-596-7411"
 			END IF
 			'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
+			'Somali-language orientation
+			IF interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" then 
+				SNAPET_name = "Sabathani Community Center"
+				SNAPET_address_01 = "310 East 38th Street #120"
+				SNAPET_city = "Minneapolis"
+				SNAPET_ST = "MN"
+				SNAPET_zip = "55409"
+				appointment_time_prefix_editbox = "02"
+				appointment_time_post_editbox = "00"
+				AM_PM = "PM"
+				appointment_date = Date + 8 - Weekday(Date, vbTuesday)
 			'Central NE
-			IF interview_location = "Central NE (HSB, next Wednesday @ 2:00 p.m.)" THEN
+			Elseif interview_location = "Central NE (HSB, next Wednesday @ 2:00 p.m.)" THEN
 				SNAPET_name = "Health Services Building"
 				SNAPET_address_01 = "525 Portland Ave, 5th floor"
 				SNAPET_city = "Minneapolis"
@@ -383,7 +393,8 @@ DO
 		If AM_PM = "Select one..." then err_msg = err_msg & vbNewLine & "* Select either AM or PM for your appointment time."
 		IF SNAPET_contact = "" then err_msg = err_msg & vbNewLine & "* Enter a contact name."
 		IF SNAPET_phone = "" then err_msg = err_msg & vbNewLine & "* Enter a phone number."
-		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location."
+		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location." 
+		If (worker_county_code = "x127" and interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" AND date < "7/05/2016") then err_msg = err_msg & vbNewLine & "* Somali-language orientation is not available until 07/12/16."
 		IF (manual_referral = "Other manual referral" and other_referral_notes = "") then err_msg = err_msg & vbNewLine & "* Enter other manual referral notes."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
