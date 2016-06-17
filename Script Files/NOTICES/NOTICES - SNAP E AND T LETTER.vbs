@@ -141,7 +141,7 @@ IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (count
 'DIALOGS----------------------------------------------------------------------------------------------------
 ' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
-BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 275, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 240, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, MAXIS_case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
@@ -163,20 +163,18 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 275, "SNAP E&T Appointmen
   Text 5, 30, 60, 10, "Appointment Date:"
   Text 180, 75, 50, 10, "Contact phone:"
   Text 5, 50, 105, 10, "Location (select from dropdown):"
-  GroupBox 5, 165, 295, 95, "When is a manual referral needed"
+  GroupBox 5, 165, 295, 70, "When is a manual referral needed"
   Text 15, 180, 275, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
   Text 10, 10, 50, 10, "Case Number:"
   Text 5, 100, 80, 10, "Manual referral needed:"
   Text 15, 205, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 235, 280, 15, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
   Text 40, 145, 60, 10, "Worker Signature:"
   Text 5, 120, 95, 10, "Other manual referral notes:"
   Text 5, 130, 60, 10, " (for the referral)"
 EndDialog
 
-
 'This dialog is for counties that have not provided FSET office address(s)
-BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 305, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 275, "SNAP E&T Appointment Letter"
   EditBox 65, 5, 55, 15, MAXIS_case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 65, 25, 55, 15, appointment_date
@@ -204,41 +202,40 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 305, "SNAP E&T Appointment 
   Text 10, 90, 55, 10, "City/State/Zip:"
   Text 130, 10, 70, 10, "HH Member Number:"
   Text 5, 30, 60, 10, "Appointment Date:"
-  GroupBox 5, 195, 290, 100, "When is a manual referral needed"
+  GroupBox 5, 195, 290, 75, "When is a manual referral needed"
   Text 15, 210, 275, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
   Text 15, 235, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
   Text 130, 30, 60, 15, "Appointment Time:"
   Text 10, 130, 80, 10, "Manual referral needed:"
-  Text 15, 270, 275, 15, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
   Text 5, 50, 55, 10, "Provider Name:"
   Text 10, 150, 95, 10, "Other manual referral notes:"
   Text 10, 160, 55, 10, " (for the referral)"
 EndDialog
 
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
-BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 235, "SNAP E&T Appointment Letter"
-  EditBox 90, 10, 60, 15, MAXIS_case_number
-  EditBox 245, 10, 25, 15, member_number
-  DropListBox 90, 35, 180, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
-  EditBox 90, 75, 180, 15, other_referral_notes
-  EditBox 70, 100, 90, 15, worker_signature
+BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter"
+  EditBox 55, 10, 55, 15, MAXIS_case_number
+  EditBox 165, 10, 25, 15, member_number
+  CheckBox 200, 15, 100, 10, "Somali-language orientation", Somali_language
+  DropListBox 105, 35, 195, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
+  DropListBox 105, 60, 110, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
+  EditBox 105, 80, 195, 15, other_referral_notes
+  EditBox 105, 105, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 165, 100, 50, 15
-    CancelButton 220, 100, 50, 15
-  Text 290, 30, 130, 70, "HSRs: Do not use this script. Contact Mark Scherer at 612-596-7411 (if not available send email) and request language-specific SNAP E and T Orientation/intake. Provide ABAWD with Mark’s contact information, and instruct to contact him to schedule orientation within one week."
-  Text 5, 40, 70, 10, "Region of residence: "
-  GroupBox 5, 130, 420, 80, "When is a manual referral needed"
-  Text 5, 60, 80, 10, "Manual referral needed:"
-  Text 15, 145, 390, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
-  GroupBox 280, 15, 145, 90, "For non-English speaking ABAWD's:"
-  Text 15, 170, 390, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 195, 360, 10, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
-  Text 20, 15, 50, 10, "Case Number:"
-  Text 5, 80, 80, 10, "Manual referral needed:"
-  Text 190, 15, 50, 10, "HH Member #:"
-  Text 5, 105, 60, 10, "Worker Signature:"
-  Text 10, 90, 60, 10, "(for the referral):"
+    OkButton 195, 105, 50, 15
+    CancelButton 250, 105, 50, 15
+  Text 10, 40, 95, 10, "Client's region of residence: "
+  GroupBox 5, 130, 450, 65, "When is a manual referral needed"
+  Text 20, 65, 80, 10, "Manual referral needed:"
+  Text 15, 145, 435, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
+  GroupBox 310, 10, 145, 115, "For non-English speaking ABAWD's:"
+  Text 15, 170, 435, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
+  Text 5, 15, 50, 10, "Case Number:"
+  Text 5, 85, 100, 15, "Other manual referral reason:"
+  Text 115, 15, 45, 10, "HH Memb #:"
+  Text 40, 110, 60, 10, "Worker Signature:"
+  Text 320, 25, 130, 25, "If your client is requsting a Somali language orientation, then select the check box to the left."
+  Text 320, 60, 130, 60, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
