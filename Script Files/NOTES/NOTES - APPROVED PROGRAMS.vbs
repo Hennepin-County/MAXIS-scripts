@@ -505,7 +505,6 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 					pnlp_row = 3
 				End If 
 			Loop Until panel_name = "REVW"
-			MsgBox infant_on_case
 		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
@@ -589,7 +588,6 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 					pnlp_row = 3
 				End If 
 			Loop Until panel_name = "REVW"
-			MsgBox infant_on_case
 		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "DWP")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
