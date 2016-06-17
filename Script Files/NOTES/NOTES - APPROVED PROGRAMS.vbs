@@ -434,6 +434,8 @@ For each item in date_array
 	Next
 Next
 
+infant_on_case = "Unknown"
+
 'Here the script will use the program listed in the array to determine where to go to find the amounts - then add them to the array
 For all_elig_results = 0 to UBound (bene_amount_array,2)
 	If bene_amount_array(0, all_elig_results) = "Food" AND snap_approved_check = checked Then
@@ -482,6 +484,29 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 			End If 
 		End If 
 	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" AND cash_approved_check = checked Then 
+		If infant_on_case = "Unknown" Then 
+			Call navigate_to_MAXIS_screen ("STAT", "PNLP")
+			pnlp_row = 3
+			Do 
+				EMReadScreen panel_name, 4, pnlp_row, 5
+				If panel_name = "MEMB" Then 
+					EMReadScreen clt_age, 2, pnlp_row, 71
+					If clt_age = " 0" Then 
+						infant_on_case = TRUE
+						Exit Do 
+					End If 
+				ElseIf panel_name = "MEMI" Then 
+					infant_on_case = FALSE 
+					Exit Do 
+				End IF 
+				pnlp_row = pnlp_row + 1 
+				If pnlp_row = 20 Then 
+					transmit
+					pnlp_row = 3
+				End If 
+			Loop Until panel_name = "REVW"
+			MsgBox infant_on_case
+		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
 		row = 1
@@ -543,6 +568,29 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 			End If
 		End If
 	ElseIf bene_amount_array(0, all_elig_results) = "DWP" AND cash_approved_check = checked THEN
+		If infant_on_case = "Unknown" Then 
+			Call navigate_to_MAXIS_screen ("STAT", "PNLP")
+			pnlp_row = 3
+			Do 
+				EMReadScreen panel_name, 4, pnlp_row, 5
+				If panel_name = "MEMB" Then 
+					EMReadScreen clt_age, 2, pnlp_row, 71
+					If clt_age = " 0" Then 
+						infant_on_case = TRUE
+						Exit Do 
+					End If 
+				ElseIf panel_name = "MEMI" Then 
+					infant_on_case = FALSE 
+					Exit Do 
+				End IF 
+				pnlp_row = pnlp_row + 1 
+				If pnlp_row = 20 Then 
+					transmit
+					pnlp_row = 3
+				End If 
+			Loop Until panel_name = "REVW"
+			MsgBox infant_on_case
+		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "DWP")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
 		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
@@ -694,6 +742,11 @@ IF clt_banked_mo_apprvd <> 0 THEN 	'BANKED MONTH Case Note - each client gets a 
 		Call write_variable_in_CASE_NOTE ("---")
 		Call write_variable_in_CASE_NOTE (worker_signature)
 	Next 
+End If 
+
+IF infant_on_case = TRUE Then 
+	Call navigate_to_MAXIS_screen ("STAT", "EMPS")
+	baby_warning = MsgBox ("This is a family cash (MFIP or DWP) case with a child under 1 year old on it." & vbNewLine & vbNewLine & "These cases are error prone particularly at intake. Please review the EMPS panel to be sure the coding matches the client request.", vbSystemModal, "Child Under 1 Year Cash Case Warning")
 End If 
 
 call start_a_blank_CASE_NOTE	'Case note for the general approval
