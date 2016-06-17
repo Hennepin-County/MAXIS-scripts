@@ -663,7 +663,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 		'Checking for AREP if found sending memo to them as well
 		'AREP/ALTP DISPLAY NOT CURRENTLY WORKING IN DEV MODE, THIS IS SOMETHING THAT SHOULD BE ADDED
 
-		Memo_to_display = "The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by: " & left(CM_plus_1_mo, 2) & "/08/" & right(CM_plus_1_yr, 2) & "." & vbNewLine &_
+		Memo_to_display = "The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case. Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by: " & left(CM_plus_1_mo, 2) & "/08/" & right(CM_plus_1_yr, 2) & "." & vbNewLine &_
 		"You must also do an interview for your SNAP case to continue. Your phone interview is scheduled for: " & interview_time & "." & vbNewLine
 		IF county_code = "x127" then    'allows for county 27 to have clients call them.
 			Memo_to_display = Memo_to_display & "The phone number for you to call is " & contact_phone_number & "."
@@ -740,7 +740,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 		transmit
 		'Writing the appointment and letter into a memo
 		EMSendKey("************************************************************")
-		CALL write_variable_in_SPEC_MEMO("The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by " & left(CM_plus_1_mo, 2) & "/08/" & right(CM_plus_1_yr, 2) & ".")
+		CALL write_variable_in_SPEC_MEMO("The State DHS sent you a packet of paperwork. This is renewal paperwork for your SNAP case. Your SNAP case is set to close on " &  last_day_of_recert & ". Please sign, date and return your renewal paperwork by " & left(CM_plus_1_mo, 2) & "/08/" & right(CM_plus_1_yr, 2) & ".")
 		CALL write_variable_in_SPEC_MEMO("")
 		CALL write_variable_in_SPEC_MEMO("You must also do an interview for your SNAP case to continue.")
 		CALL write_variable_in_SPEC_MEMO("")
