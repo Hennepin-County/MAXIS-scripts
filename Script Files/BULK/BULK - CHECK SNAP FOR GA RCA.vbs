@@ -199,7 +199,7 @@ FOR EACH MAXIS_case_number IN case_array
 			CALL find_variable("Amount To Be Paid........$", ga_to_be_paid, 9)
 		ga_amount = trim(ga_amount)
 		ga_to_be_paid = trim(ga_to_be_paid)
-		IF pa_amount <> ga_amount AND pa_amount <> ga_to_be_paid THEN
+		IF pa_amount <> ga_amount OR pa_amount <> ga_to_be_paid THEN
 			CALL navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
