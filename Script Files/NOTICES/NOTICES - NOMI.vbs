@@ -145,43 +145,43 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-Call check_for_MAXIS(False)			'checking for an active MAXIS session
-
 'Asks if this is a recert (a recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add programs.)
 recert_check = MsgBox("Is this a missed SNAP recertification interview?", vbYesNoCancel, "Recertification for SNAP?")
 If recert_check = vbCancel then stopscript		'This is the cancel button on a MsgBox
 If recert_check = vbYes then 'This is the "yes" button on a MsgBox
-	If worker_county_code = "x127" then		'Hennepin specific ER NOMI
-		DO
+	DO
+		If worker_county_code = "x127" then		'Hennepin specific ER NOMI
 			DO
+				DO
+					Err_msg = ""
+					Dialog Hennepin_ER_NOMI
+					cancel_confirmation
+					'Opening the the HSR manual to the NOMI page
+					IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
+					IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+					If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+					If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
+					If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
+					If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+				LOOP until err_msg = ""
+			LOOP until ButtonPressed = -1	
+		ELSE		
+			DO								
 				Err_msg = ""
-				Dialog Hennepin_ER_NOMI
+				Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
 				cancel_confirmation
-				'Opening the the HSR manual to the NOMI page
-				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
-				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+				If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 				If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP until err_msg = ""
-		LOOP until ButtonPressed = -1	
-	ELSE		
-		DO								
-			Err_msg = ""
-			Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
-			cancel_confirmation
-			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""
-	END IF
+		END IF
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+	Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
-	Call check_for_MAXIS(False)			'checking for an active MAXIS session
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
@@ -273,40 +273,41 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 	back_to_self
 	'Shows dialog, checks for password prompt
-	If worker_county_code = "x127" then		'Hennepin county specific dialog
-		DO
+	DO 
+		If worker_county_code = "x127" then		'Hennepin county specific dialog	
 			DO
+				DO
+					Err_msg = ""
+					Dialog Hennepin_application_NOMI
+					cancel_confirmation
+					'Opening the the HSR manual to the NOMI page
+					IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
+					IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+					If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+					If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
+					If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
+					If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* You did not enter a valid application date. Please try again."
+					If NOMI_selection = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select which NOMI to send."
+					If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+				LOOP until err_msg = ""
+			Loop until ButtonPressed = -1 		
+		ELSE
+			DO					'dialog for all other users
 				Err_msg = ""
-				Dialog Hennepin_application_NOMI
+				Dialog NOMI_dialog
 				cancel_confirmation
-				'Opening the the HSR manual to the NOMI page
-				IF buttonpressed = HSR_NOMI_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx")
-				IF region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Select your client's region of residence."
+				If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 				If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 				If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-				If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
+				If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* You did not enter a valid application date. Please try again."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP until err_msg = ""
-		Loop until ButtonPressed = -1 		
-	ELSE
-		DO					'dialog for all other users
-			Err_msg = ""
-			Dialog NOMI_dialog
-			cancel_confirmation
-			If time_of_missed_interview = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			If isdate(date_of_missed_interview) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
-			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
-			If isdate(application_date) = False then MsgBox "You did not enter a valid application date. Please try again."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP until err_msg = ""
-	END IF
-
-	'checks for an active MAXIS session
-	Call check_for_MAXIS(False)
+		END IF
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+	Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 	IF worker_county_code = "x127" then  'sends SPEC/MEMO
 		Call navigate_to_MAXIS_screen("SPEC", "MEMO")	'Navigating to SPEC/MEMO
