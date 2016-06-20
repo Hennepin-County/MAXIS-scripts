@@ -143,6 +143,13 @@ script_array_BULK_main(script_num).description				= "Case notes that returned ma
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
 Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= " REVS Scrubber "
+script_array_BULK_main(script_num).file_name				= "BULK - REVS SCRUBBER.vbs"
+script_array_BULK_main(script_num).description				= "Sends appointment letters to all interview-requiring REVS cases, and creates a spreadsheet of when each appointment is."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_main(script_num).script_name				= " REVW/MONT Closures "													'needs spaces to generate button width properly.
 script_array_BULK_main(script_num).file_name				= "BULK - REVW-MONT CLOSURES.vbs"
 script_array_BULK_main(script_num).description				= "Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER."
