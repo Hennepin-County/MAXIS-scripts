@@ -456,6 +456,9 @@ call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
+'defining ending message without te TIKLS
+ending_message = "Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly."
+
 'TIKL PORTION -------------------------------------------------------------------------------------------------------------
 If TIKL_check = 1 THEN
 	'IF PROGRAMS ARE STILL OPEN, BUT THE "TIKL TO SEND TO CLS" PARAMETER WAS SET, THE SCRIPT NEEDS TO STOP, AS THE CASE CAN'T GO TO CLS.
@@ -483,9 +486,10 @@ If TIKL_check = 1 THEN
 	EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
 	'SAVES THE TIKL
 	PF3
+	ending_message = "Success! Case noted and TIKL sent. Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly."
 END IF
 
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
 
-script_end_procedure("Success! Case noted and TIKL sent. Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
+script_end_procedure(ending_message)
