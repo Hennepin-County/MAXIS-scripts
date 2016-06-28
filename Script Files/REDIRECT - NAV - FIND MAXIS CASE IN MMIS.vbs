@@ -1,12 +1,12 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "MEMOS - MAIN MENU.vbs"
-start_time = timer
-
-'Message alerting the worker that the Power Pad is updated. This script is due for deletion in the June 2016 release
-veronica_message = MsgBox("You appear to be using an old Power Pad! A new version was released earlier this year. It looks like you need to update! The MEMOS scripts are now called 'NOTICES' scripts. Contact a scripts administrator and ask them to update your scripts by running the scripts installer again!" & vbNewLine & vbNewLine & "The MEMOS main menu will become disconnected on or before June 27, 2016. Access to these scripts will be lost unless your Power Pad is updated!" & vbNewLine & vbNewLine & "The script will now continue.", vbExclamation)
+'LOADING GLOBAL VARIABLES--------------------------------------------------------------------
+Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
+text_from_the_other_script = fso_command.ReadAll
+fso_command.Close
+Execute text_from_the_other_script
 
 'LOADING SCRIPT
-script_URL = script_repository & "/NOTICES/NOTICES - MAIN MENU.vbs"
+script_URL = script_repository & "/NAV/NAV - FIND MAXIS CASE IN MMIS.vbs"
 IF run_locally = False THEN
 	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
 	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL

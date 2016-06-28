@@ -40,9 +40,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 166, 70, "Case number dialog"
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+'This script currently only has one dialog and so it can be defined in the beginning but is unnamed
+BeginDialog , 0, 0, 166, 70, "Case number dialog"
   EditBox 65, 5, 70, 15, MAXIS_case_number
   EditBox 65, 25, 30, 15, MAXIS_footer_month
   EditBox 130, 25, 30, 15, MAXIS_footer_year
@@ -75,7 +76,7 @@ cstr(MAXIS_footer_month)
 
 DO
 	err_msg = ""
-	DIALOG case_number_dialog
+	DIALOG  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "* Please enter a case number."
 		IF MAXIS_footer_month = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."
@@ -359,9 +360,9 @@ FOR EACH person IN HH_member_array
 		IF num_of_RBIC <> "0" THEN closing_message = closing_message & vbCr & "* Household member " & person & " has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
 	
 		IF prosp_inc >= 935.25 OR prosp_hrs >= 129 THEN 
-			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
+			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working 30 hours/wk (regardless of wage level) or earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
 		ELSEIF prosp_hrs >= 80 AND prosp_hrs < 129 THEN 
-			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption."
+			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
 		END IF
 	END IF
 NEXT

@@ -38,8 +38,24 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+MAXIS_footer_month = datepart("m", dateadd("m", 1, date))
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
+MAXIS_footer_month = CStr(MAXIS_footer_month)
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS
+EMConnect ""
+
+'Finds a case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+
+'Shows and defines the case number dialog
+BeginDialog , 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
@@ -51,59 +67,7 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
     CancelButton 85, 45, 50, 15
 EndDialog
 
-
-BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
-  EditBox 80, 5, 25, 15, HH_memb
-  DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIA (JTPA)"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income", income_type_dropdown
-  DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
-  EditBox 45, 65, 195, 15, employer
-  EditBox 100, 85, 55, 15, income_start_date
-  EditBox 125, 105, 55, 15, contract_through_date
-  EditBox 90, 125, 100, 15, who_reported_job
-  ComboBox 100, 145, 90, 15, "phone call"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
-  EditBox 30, 165, 210, 15, notes
-  CheckBox 5, 185, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_checkbox
-  CheckBox 5, 200, 190, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
-  CheckBox 5, 215, 190, 10, "Check here if you sent a status update to ES.", ES_checkbox
-  CheckBox 5, 230, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
-  CheckBox 5, 245, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  EditBox 70, 260, 80, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 175, 260, 50, 15
-    CancelButton 230, 260, 50, 15
-    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 175, 25, 45, 10, "next panel", next_panel_button
-    PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 235, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 10, 70, 10, "HH member number:"
-  GroupBox 170, 5, 115, 35, "STAT-based navigation"
-  Text 5, 30, 45, 10, "Income Type: "
-  Text 5, 50, 130, 10, "Subsidized Income Type (if applicable):"
-  Text 5, 70, 40, 10, "Employer:"
-  Text 5, 90, 95, 10, "Income start date (if known):"
-  Text 5, 110, 120, 10, "Contract through date (if applicable):"
-  Text 5, 130, 80, 10, "Who reported the job?:"
-  Text 5, 150, 90, 10, "How was the job reported?:"
-  Text 5, 170, 25, 10, "Notes:"
-  Text 5, 265, 60, 10, "Worker signature:"
-EndDialog
-
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = datepart("m", dateadd("m", 1, date))
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
-MAXIS_footer_month = CStr(MAXIS_footer_month)
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS
-EMConnect ""
-
-'Finds a case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-'Shows the case number dialog
-Dialog case_number_and_footer_month_dialog
+Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 cancel_confirmation
 
 'checking for an active MAXIS session
@@ -127,7 +91,42 @@ create_JOBS_checkbox = 1
 HH_memb = "01"
 HH_memb_row = 5 'This helps the navigation buttons work!
 
-'Shows the dialog.
+'Shows and defines the main dialog.
+BeginDialog , 0, 0, 286, 280, "New job reported dialog"
+  EditBox 80, 5, 25, 15, HH_memb
+  DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIA (JTPA)"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income", income_type_dropdown
+  DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
+  EditBox 45, 65, 195, 15, employer
+  EditBox 100, 85, 55, 15, income_start_date
+  EditBox 125, 105, 55, 15, contract_through_date
+  EditBox 90, 125, 100, 15, who_reported_job
+  ComboBox 100, 145, 90, 15, "phone call"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
+  EditBox 30, 165, 210, 15, notes
+  CheckBox 5, 185, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_checkbox
+  CheckBox 5, 200, 190, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
+  CheckBox 5, 215, 190, 10, "Check here if you sent a status update to ES.", ES_checkbox
+  CheckBox 5, 230, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
+  CheckBox 5, 245, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  EditBox 70, 260, 80, 15, worker_signature
+  ButtonGroup ButtonPressed
+	OkButton 175, 260, 50, 15
+	CancelButton 230, 260, 50, 15
+	PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+	PushButton 175, 25, 45, 10, "next panel", next_panel_button
+	PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
+	PushButton 235, 25, 45, 10, "next memb", next_memb_button
+  Text 5, 10, 70, 10, "HH member number:"
+  GroupBox 170, 5, 115, 35, "STAT-based navigation"
+  Text 5, 30, 45, 10, "Income Type: "
+  Text 5, 50, 130, 10, "Subsidized Income Type (if applicable):"
+  Text 5, 70, 40, 10, "Employer:"
+  Text 5, 90, 95, 10, "Income start date (if known):"
+  Text 5, 110, 120, 10, "Contract through date (if applicable):"
+  Text 5, 130, 80, 10, "Who reported the job?:"
+  Text 5, 150, 90, 10, "How was the job reported?:"
+  Text 5, 170, 25, 10, "Notes:"
+  Text 5, 265, 60, 10, "Worker signature:"
+EndDialog
 DO
 	Do
 		Do
@@ -135,7 +134,7 @@ DO
 				Do
 					Do
 						Do
-							Dialog new_job_reported_dialog
+							Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 							cancel_confirmation
 							MAXIS_dialog_navigation
 							If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
