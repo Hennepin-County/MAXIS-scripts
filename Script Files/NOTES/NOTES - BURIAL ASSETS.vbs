@@ -108,176 +108,33 @@ BeginDialog burial_assets_dialog_01, 0, 0, 301, 210, "Burial assets dialog (01)"
 EndDialog
 
 
-BeginDialog burial_assets_dialog_02, 0, 0, 305, 380, "Burial Assets Dialog (02)"
-  CheckBox 10, 25, 110, 10, "Basic service funeral director", basic_service_funeral_director_check
-  Text 50, 5, 30, 10, "SERVICE"
-  Text 155, 5, 25, 10, "VALUE"
-  Text 240, 5, 30, 10, "STATUS"
-  EditBox 140, 20, 55, 15, basic_service_funeral_director_value
-  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", basic_service_funeral_director_status
-  CheckBox 10, 45, 110, 10, "Embalming", embalming_check
-  EditBox 140, 40, 55, 15, embalming_value
-  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", embalming_status
-  CheckBox 10, 65, 110, 10, "Other preparation to body", other_preparation_to_body_check
-  EditBox 140, 60, 55, 15, other_preparation_to_body_value
-  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", other_preparation_to_body_status
-  CheckBox 10, 85, 110, 10, "Visitation at funeral chapel", visitation_at_funeral_chapel_check
-  EditBox 140, 80, 55, 15, visitation_at_funeral_chapel_value
-  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", visitation_at_funeral_chapel_status
-  CheckBox 10, 105, 110, 10, "Visitation at other facility", visitation_at_other_facility_check
-  EditBox 140, 100, 55, 15, visitation_at_other_facility_value
-  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", visitation_at_other_facility_status
-  CheckBox 10, 125, 110, 10, "Funeral serv at funeral chapel", funeral_serv_at_funeral_chapel_check
-  EditBox 140, 120, 55, 15, funeral_serv_at_funeral_chapel_value
-  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_serv_at_funeral_chapel_status
-  CheckBox 10, 145, 110, 10, "Funeral serv at other facility", funeral_serv_at_other_facility_check
-  EditBox 140, 140, 55, 15, funeral_serv_at_other_facility_value
-  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_serv_at_other_facility_status
-  CheckBox 10, 165, 110, 10, "Memorial serv at funeral chapel", memorial_serv_at_funeral_chapel_check
-  EditBox 140, 160, 55, 15, memorial_serv_at_funeral_chapel_value
-  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", memorial_serv_at_funeral_chapel_status
-  CheckBox 10, 185, 110, 10, "Memorial serv at other facility", memorial_serv_at_other_facility_check
-  EditBox 140, 180, 55, 15, memorial_serv_at_other_facility_value
-  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", memorial_serv_at_other_facility_status
-  CheckBox 10, 205, 110, 10, "Graveside service", graveside_service_check
-  EditBox 140, 200, 55, 15, graveside_service_value
-  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", graveside_service_status
-  CheckBox 10, 225, 120, 10, "Transfer remains to funeral home", transfer_remains_to_funeral_home_check
-  EditBox 140, 220, 55, 15, transfer_remains_to_funeral_home_value
-  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", transfer_remains_to_funeral_home_status
-  CheckBox 10, 245, 110, 10, "Funeral coach", funeral_coach_check
-  EditBox 140, 240, 55, 15, funeral_coach_value
-  DropListBox 215, 240, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_coach_status
-  CheckBox 10, 265, 110, 10, "Funeral sedan/limousine", funeral_sedan_check
-  EditBox 140, 260, 55, 15, funeral_sedan_value
-  DropListBox 215, 260, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", funeral_sedan_status
-  CheckBox 10, 285, 110, 10, "Service vehicle", service_vehicle_check
-  EditBox 140, 280, 55, 15, service_vehicle_value
-  DropListBox 215, 280, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", service_vehicle_status
-  CheckBox 10, 305, 110, 10, "Forwarding of remains", forwarding_of_remains_check
-  EditBox 140, 300, 55, 15, forwarding_of_remains_value
-  DropListBox 215, 300, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", forwarding_of_remains_status
-  CheckBox 10, 325, 110, 10, "Receiving of remains", receiving_of_remains_check
-  EditBox 140, 320, 55, 15, receiving_of_remains_value
-  DropListBox 215, 320, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", receiving_of_remains_status
-  CheckBox 10, 345, 110, 10, "Direct cremation", direct_cremation_check
-  EditBox 140, 340, 55, 15, direct_cremation_value
-  DropListBox 215, 340, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", direct_cremation_status
-  ButtonGroup ButtonPressed
-    PushButton 45, 360, 50, 15, "previous", previous_to_01_button
-    PushButton 105, 360, 50, 15, "next", next_to_03_button
-    CancelButton 165, 360, 50, 15
-EndDialog
-
-BeginDialog burial_assets_dialog_03, 0, 0, 306, 280, "Burial Assets Dialog (03)"
-  Text 30, 5, 100, 10, "BURIAL SPACE/ITEM"
-  Text 155, 5, 25, 10, "VALUE"
-  Text 240, 5, 30, 10, "STATUS"
-  CheckBox 10, 25, 110, 10, "Markers/Headstone", markers_headstone_check
-  EditBox 140, 20, 55, 15, markers_headstone_value
-  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", markers_headstone_status
-  CheckBox 10, 45, 110, 10, "Engraving", engraving_check
-  EditBox 140, 40, 55, 15, engraving_value
-  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", engraving_status
-  CheckBox 10, 65, 110, 10, "Opening/Closing of space", opening_closing_of_space_check
-  EditBox 140, 60, 55, 15, opening_closing_of_space_value
-  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", opening_closing_of_space_status
-  CheckBox 10, 85, 110, 10, "Perpetual Care", perpetual_care_check
-  EditBox 140, 80, 55, 15, perpetual_care_value
-  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", perpetual_care_status
-  CheckBox 10, 105, 110, 10, "Casket", casket_check
-  EditBox 140, 100, 55, 15, casket_value
-  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", casket_status
-  CheckBox 10, 125, 110, 10, "Vault", vault_check
-  EditBox 140, 120, 55, 15, vault_value
-  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", vault_status
-  CheckBox 10, 145, 110, 10, "Cemetery plot", cemetery_plot_check
-  EditBox 140, 140, 55, 15, cemetery_plot_value
-  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", cemetery_plot_status
-  CheckBox 10, 165, 110, 10, "Crypt", crypt_check
-  EditBox 140, 160, 55, 15, crypt_value
-  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", crypt_status
-  CheckBox 10, 185, 110, 10, "Mausoleum", mausoleum_check
-  EditBox 140, 180, 55, 15, mausoleum_value
-  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", mausoleum_status
-  CheckBox 10, 205, 110, 10, "Urns", urns_check
-  EditBox 140, 200, 55, 15, urns_value
-  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", urns_status
-  CheckBox 10, 225, 120, 10, "Niches", niches_check
-  EditBox 140, 220, 55, 15, niches_value
-  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", niches_status
-  CheckBox 10, 245, 120, 10, "Alternative Container", Alternative_Container_check
-  EditBox 140, 240, 55, 15, alternative_container_value
-  DropListBox 215, 240, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", alternative_container_status
-  ButtonGroup ButtonPressed
-    PushButton 45, 260, 50, 15, "previous", previous_to_02_button
-    PushButton 105, 260, 50, 15, "next", next_to_04_button
-    CancelButton 165, 260, 50, 15
-EndDialog
 
 
-BeginDialog burial_assets_dialog_04, 0, 0, 306, 400, "Burial Assets Dialog (04)"
-  Text 30, 5, 80, 10, "CASH ADVANCED ITEM"
-  Text 155, 5, 25, 10, "VALUE"
-  Text 240, 5, 30, 10, "STATUS"
-  CheckBox 10, 25, 110, 10, "Certified death certificate", certified_death_certificate_check
-  EditBox 140, 20, 55, 15, certified_death_certificate_value
-  DropListBox 215, 20, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", certified_death_certificate_status
-  CheckBox 10, 45, 110, 10, "Motor escort", motor_escort_check
-  EditBox 140, 40, 55, 15, motor_escort_value
-  DropListBox 215, 40, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", motor_escort_status
-  CheckBox 10, 65, 110, 10, "Clergy honorarium", clergy_honorarium_check
-  EditBox 140, 60, 55, 15, clergy_honorarium_value
-  DropListBox 215, 60, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", clergy_honorarium_status
-  CheckBox 10, 85, 110, 10, "Music honorarium", music_honorarium_check
-  EditBox 140, 80, 55, 15, music_honorarium_value
-  DropListBox 215, 80, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", music_honorarium_status
-  CheckBox 10, 105, 110, 10, "Flowers", flowers_check
-  EditBox 140, 100, 55, 15, flowers_value
-  DropListBox 215, 100, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", flowers_status
-  CheckBox 10, 125, 110, 10, "Obituary notice", obituary_notice_check
-  EditBox 140, 120, 55, 15, obituary_notice_value
-  DropListBox 215, 120, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", obituary_notice_status
-  CheckBox 10, 145, 110, 10, "Crematory charges", crematory_charges_check
-  EditBox 140, 140, 55, 15, crematory_charges_value
-  DropListBox 215, 140, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", crematory_charges_status
-  CheckBox 10, 165, 110, 10, "Acknowledgement card", acknowledgement_card_check
-  EditBox 140, 160, 55, 15, acknowledgement_card_value
-  DropListBox 215, 160, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", acknowledgement_card_status
-  CheckBox 10, 185, 110, 10, "Register book", register_book_check
-  EditBox 140, 180, 55, 15, register_book_value
-  DropListBox 215, 180, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", register_book_status
-  CheckBox 10, 205, 110, 10, "Service folders/prayer cards", service_folders_prayer_cards_check
-  EditBox 140, 200, 55, 15, service_folders_prayer_cards_value
-  DropListBox 215, 200, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", service_folders_prayer_cards_status
-  CheckBox 10, 225, 110, 10, "Luncheon", luncheon_check
-  EditBox 140, 220, 55, 15, luncheon_value
-  DropListBox 215, 220, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", luncheon_status
-  CheckBox 10, 245, 110, 10, "Medical Exam Fee", medical_exam_fee_check
-  EditBox 140, 240, 55, 15, medical_exam_fee_value
-  DropListBox 215, 240, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", medical_exam_fee_status
-  Text 10, 265, 30, 10, "Other(1):"
-  EditBox 45, 260, 85, 15, other_01
-  EditBox 140, 260, 55, 15, other_01_value
-  DropListBox 215, 260, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", other_01_status
-  Text 40, 280, 35, 10, "This is a: "
-  DropListBox 80, 280, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_01_type
-  Text 10, 310, 30, 10, "Other(2):"
-  EditBox 45, 305, 85, 15, other_02
-  EditBox 140, 305, 55, 15, other_02_value
-  DropListBox 215, 305, 80, 10, "counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE", other_02_status
-  Text 40, 325, 35, 10, "This is a: "
-  DropListBox 80, 325, 45, 15, "service"+chr(9)+"BS-BSI"+chr(9)+"CAI", other_02_type
-  Text 5, 355, 50, 10, "Actions taken:"
-  EditBox 55, 350, 240, 15, case_action
-  ButtonGroup ButtonPressed
-    PushButton 75, 375, 50, 15, "previous", previous_to_03_button
-    OkButton 130, 375, 50, 15
-    CancelButton 185, 375, 50, 15
+'SECTION 2: Functions/dimming array----------------------------------------------------------------------------------------------------
+function new_BS_BSI_heading
+  EMGetCursor MAXIS_row, MAXIS_col
+  If MAXIS_row = 4 then
+    EMSendKey "--------BURIAL SPACE/ITEMS---------------AMOUNT----------STATUS--------------" & "<newline>"
+    MAXIS_row = 5
+  end if
+End function
 
-EndDialog
+function new_CAI_heading
+  EMGetCursor MAXIS_row, MAXIS_col
+  If MAXIS_row = 4 then
+    EMSendKey "--------CASH ADVANCE ITEMS---------------AMOUNT----------STATUS--------------" & "<newline>"
+    MAXIS_row = 5
+  end if
+End function
 
-'SECTION 2: Functions----------------------------------------------------------------------------------------------------
+function new_service_heading
+  EMGetCursor MAXIS_service_row, MAXIS_service_col
+  If MAXIS_service_row = 4 then
+    EMSendKey "--------------SERVICE--------------------AMOUNT----------STATUS--------------" & "<newline>"
+    MAXIS_service_row = 5
+  end if
+End function
+
 function case_note_page_four 'check for 4th page of case note
   line_one_for_part_one = "**BURIAL ASSETS (1 of 2) -- Memb: " + hh_member
   line_one_for_part_two = "**BURIAL ASSETS (2 of 2) -- Memb: " + hh_member
@@ -294,6 +151,381 @@ function case_note_page_four 'check for 4th page of case note
     EMsetcursor 5, 3
   END IF
 END function
+
+'Dimming array
+DIM calc_array(42, 4)
+
+'Array Map
+' 0, 0 - name of asset
+' 0, 1 - value of asset
+' 0, 2 - status of asset (counted, excluded, not counted, applied to bfe etc)
+' 0, 3 - type of asset (service, bs/bse, cash advance items)
+
+
+calc_array(0, 0) = "Basic Service Funeral Director"
+calc_array(0, 3) = "Service"
+
+calc_array(1, 0) = "Embalming"
+calc_array(1, 3) = "Service"
+
+calc_array(2, 0) = "Other preperation to body"
+calc_array(2, 3) = "Service"
+
+calc_array(3, 0) = "Visitation at funeral chapel"
+calc_array(3, 3) = "Service"
+
+calc_array(4, 0) = "Visitation at other facility"
+calc_array(4, 3) = "Service"
+
+calc_array(5, 0) = "Funeral serv at funeral chapel"
+calc_array(5, 3) = "Service"
+
+calc_array(6, 0) = "Funeral serv at other facility"
+calc_array(6, 3) = "Service"
+
+
+calc_array(7, 0) = "Memorial serv at funeral chapel"
+calc_array(7, 3) = "Service"
+
+calc_array(8, 0) = "Memorial serv at other facility"
+calc_array(8, 3) = "Service"
+
+calc_array(9, 0) = "Graveside service"
+calc_array(9, 3) = "Service"
+
+calc_array(10, 0) = "Transfer remains to funeral home"
+calc_array(10, 3) = "Service"
+
+calc_array(11, 0) = "Funeral coach"
+calc_array(11, 3) = "Service"
+
+calc_array(12, 0) = "Funderal sedan/limo"
+calc_array(12, 3) = "Service"
+
+calc_array(13, 0) = "Service vehicle"
+calc_array(13, 3) = "Service"
+
+calc_array(14, 0) = "Forwarding of remains"
+calc_array(14, 3) = "Service"
+
+calc_array(15, 0) = "Receiving of remains"
+calc_array(15, 3) = "Service"
+
+calc_array(16, 0) = "Direct Cremation"
+calc_array(16, 3) = "Service"
+
+calc_array(17, 0) = "Markers/Headstone"
+calc_array(17, 3) = "Burial Space/Item"
+
+calc_array(18, 0) = "Engraving"
+calc_array(18, 3) = "Burial Space/Item"
+
+calc_array(19, 0) = "Opening/Closing of space"
+calc_array(19, 3) = "Burial Space/Item"
+
+calc_array(20, 0) = "Perpetual Care"
+calc_array(20, 3) = "Burial Space/Item"
+
+calc_array(21, 0) = "Casket"
+calc_array(21, 3) = "Burial Space/Item"
+
+calc_array(22, 0) = "Vault"
+calc_array(22, 3) = "Burial Space/Item"
+
+calc_array(23, 0) = "Cemetery plot"
+calc_array(23, 3) = "Burial Space/Item"
+
+calc_array(24, 0) = "Crypt"
+calc_array(24, 3) = "Burial Space/Item"
+
+calc_array(25, 0) = "Mausoleum"
+calc_array(25, 3) = "Burial Space/Item"
+
+calc_array(26, 0) = "Urns"
+calc_array(26, 3) = "Burial Space/Item"
+
+calc_array(27, 0) = "Niches"
+calc_array(27, 3) = "Burial Space/Item"
+
+calc_array(28, 0) = "Alternative Container"
+calc_array(28, 3) = "Burial Space/Item"
+
+calc_array(29, 0) = "Certified death certificate"
+calc_array(29, 3) = "Cash Advance Item"
+
+calc_array(30, 0) = "Motor Escort"
+calc_array(30, 3) = "Cash Advance Item"
+
+calc_array(31, 0) = "Clergy honorarium"
+calc_array(31, 3) = "Cash Advance Item"
+
+calc_array(32, 0) = "Music Honorarium"
+calc_array(32, 3) = "Cash Advance Item"
+
+calc_array(33, 0) = "Flowers"
+calc_array(33, 3) = "Cash Advance Item"
+
+calc_array(34, 0) = "Obituary notice"
+calc_array(34, 3) = "Cash Advance Item"
+
+calc_array(35, 0) = "Crematory charges"
+calc_array(35, 3) = "Cash Advance Item"
+
+calc_array(36, 0) = "Acknowledgement card"
+calc_array(36, 3) = "Cash Advance Item"
+
+calc_array(37, 0) = "Register book"
+calc_array(37, 3) = "Cash Advance Item"
+
+calc_array(38, 0) = "Service folder/prayer cards"
+calc_array(38, 3) = "Cash Advance Item"
+
+calc_array(39, 0) = "Luncheon"
+calc_array(39, 3) = "Cash Advance Item"
+
+calc_array(40, 0) = "Medical Exam Fee"
+calc_array(40, 3) = "Cash Advance Item"
+
+calc_array(41, 0) = ""							'these two options allows users to enter extra assets that aren't previously listed
+calc_array(41, 3) = other_status				'these will need to be specially accounted for when generating totals later. 
+
+calc_array(42, 0) = ""							
+calc_array(42, 3) = other_status
+
+'This sets the total to 0 for the calculation later, it also defines the starting dialog since it will be determined dynamically to cut down on dialog count. 
+running_total = 0
+current_dialog = "services"
+
+'function to create dynamic dialog for counting/listing assets. This contains the calculations to build totals
+'vairiables to pull through are: the calculation array, the total applied to the BFE, the total of BS/BSI items, the counted asset total, the unavailable asset total
+FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_counted_total, final_unavailable_total)
+	DO
+		DO 
+			FOR i = 0 TO 42											'defining each value as blank to make sure calculations work properly. 
+				calc_array(i, 1) = calc_array(i, 1) & ""
+			NEXT
+			
+			'resetting locations for items in dialog
+			row_height = 0
+			'defining err_msg as blank
+			err_msg = ""
+			
+			'dialog to be build dynamically
+			BeginDialog Dialog1, 0, 0, 306, 410, "Dialog"
+			Text 10, 5, 60, 10, "BFE Total: "												'here the running totals will be displayed for the end user to keep track.
+			Text 100, 5, 60, 10, FormatCurrency(running_total)
+			Text 10, 15, 60, 10, "Counted Total: "
+			Text 100, 15, 60, 10, FormatCurrency(counted_total)
+			Text 10, 25, 60, 10, "Unavailable Total: "
+			Text 100, 25, 60, 10, FormatCurrency(unavailable_total)
+			ButtonGroup ButtonPressed														'the buttons for calculating, and navigating between the other dialogs
+				PushButton 215, 10, 50, 15, "Calculate", calc_button
+				PushButton 10, 390, 50, 15, "Services", service_button
+				PushButton 65, 390, 50, 15, "BS/BSI", BSI_button
+				PushButton 120, 390, 50, 15, "CAI", CAI_button
+				OkButton 195, 390, 50, 15
+				CancelButton 250, 390, 50, 15
+			IF current_dialog = "services" THEN Text 25, 35, 240, 10, "BURIAL SERVICES                       VALUE                          STATUS"	
+			IF current_dialog = "bsi" THEN Text 25, 35, 240, 10, "BURIAL SPACE ITEMS                VALUE                            STATUS"	
+			IF current_dialog = "cai" THEN Text 25, 35, 240, 10, "CASH ADVANCE ITEMS                  VALUE                            STATUS"	
+			'Here is where the dialog differs, if a certain dialog is clicked on the asset fields will be generated based on the calc_array
+			IF current_dialog = "services" THEN							'values 0-16 are the services assets
+				FOR i = 0 TO 16										
+					Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
+					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
+					row_height = row_height + 1
+				NEXT
+			END IF
+			IF current_dialog = "bsi" THEN								'values 17-28 are the Burial space/burial space items assets
+				FOR i = 17 TO 28
+					Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
+					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded", calc_array(i, 2)
+					row_height = row_height + 1
+				NEXT
+			END IF
+			IF current_dialog = "cai" THEN								'values 29-40 are the cash advance items assets
+				FOR i = 29 TO 40
+					Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
+					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"unavailable", calc_array(i, 2)
+					row_height = row_height + 1
+				NEXT
+				FOR i = 41 TO 41										'this is the extra spot to allow users to enter their own asset, value, and type. 
+					Text 10, 50 + (20 * row_height), 40, 10, "Other 1:"
+					DropListBox 50, 50 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
+					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
+					row_height = row_height + 1
+					Text 15, 50 + (20 * row_height), 40, 10, "This is a:"
+					EditBox 55, 50 + (20 * row_height), 60, 15, calc_array(i, 0)
+				NEXT
+				FOR i = 42 to 42										'this is the extra spot to allow users to enter their own asset, value, and type. 
+					Text 10, 70 + (20 * row_height), 40, 10, "Other 2:"
+					DropListBox 50, 70 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
+					EditBox 120, 70 + (20 * row_height), 60, 15, calc_array(i, 1)
+					DropListBox 195, 70 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
+					row_height = row_height + 1
+					Text 15, 70 + (20 * row_height), 40, 10, "This is a:"
+					EditBox 55, 70 + (20 * row_height), 60, 15, calc_array(i, 0)
+				NEXT
+			END IF
+			EndDialog
+			
+			'calling the dynamic dialog
+			Dialog Dialog1
+			cancel_confirmation
+			'if the calc button or any of the other dialogs buttons are pressed this will activate the calculation function thus generating new totals
+			IF ButtonPressed = calc_button or ButtonPressed = service_button  or ButtonPressed = BSI_button or ButtonPressed = CAI_button or ButtonPressed = -1 THEN 
+				running_total = 0					'at the start of each calculation phase the totals need to be reset.
+				counted_total = 0
+				unavailable_total = 0
+				BFE_full = FALSE					'this is re-defined each time because if the BFE is true the calc function needs to act a different way.
+				FOR i = 0 TO 42
+					'first the array will single out the items applied to the BFE that are not blank and start adding them up.
+					IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND (calc_array(i, 2) = "applied to BFE" OR calc_array(i, 2) = "applied to BFE/counted" OR calc_array(i, 2) = "applied to BFE/unavailable") THEN 
+						calc_array(i, 1) = calc_array(i, 1) * 1								'converting what was entered to a number so we can manipulate it. 
+						running_total = running_total + calc_array(i, 1)					'a running total based on the values entered for the BFE related status
+						IF running_total > 1500 THEN 										'if we hit the limit of the BFE at $1500 we have to check if one of the assets needs to be re-defined
+							IF BFE_full <> TRUE THEN										'if we have not filled the BFE for this calc phase 
+								IF calc_array(i, 2) <> "applied to BFE/unavailable" THEN 	'if the current asset is not listed as applied to bfe/unavailable then we change it to counted. 
+									calc_array(i, 2) = "applied to BFE/counted"				
+									msgbox "BFE limit of $1500 has been met. " & vbCr & calc_array(i, 0) & " was relabeled as Applied to BFE/counted and the amount was split between the BFE and Counted Totals. Please review status for this change for accuracy."
+								END IF
+								BFE_full = TRUE												'if we've gone over 1500 we are over the BFE thus we need to change it to true. 
+							ELSE 
+								IF calc_array(i, 2) = "applied to BFE" THEN 				'otherwise if someone has left items that are applied to the BFE after we've already filled it we change those to counted. 
+									msgbox "BFE limit of $1500 has been met. " & vbCr & calc_array(i, 0) & " was relabeled as counted. Please review status for this change for accuracy."
+									calc_array(i, 2) = "counted"
+								END IF
+							END IF
+							remainder_total = running_total - 1500							'this is what builds out remainder total so we can accurately determine the running totals included the split bfe/other values. 
+							IF calc_array(i, 2) = "applied to BFE/counted" OR calc_array(i, 2) = "counted" THEN counted_total = remainder_total + counted_total
+							IF calc_array(i, 2) = "applied to BFE/unavailable" OR calc_array(i, 2) = "unavailable" THEN unavailable_total = remainder_total + unavailable_total
+							running_total = 1500											'since we've exceeded/maxed the BFE then we can redefine it as $1500
+						ELSEIF running_total < 1500 THEN 									'if the running total for the BFE is under $1500 we can keep BFE_full as false
+								BFE_full = FALSE
+						ELSEIF running_total = 1500 THEN									'if the running total for the BFE is EXACTLY 1500 then the current item that was added is changed to applied 
+								calc_array(i, 2) = "applied to BFE"							
+								BFE_full = TRUE												'we also need to mark the BFE as being full.
+						END IF
+					ELSE																	'if the current item isn't related to the BFE then we just add that value to the other totals. 
+						IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "counted" THEN 
+							calc_array(i, 1) = calc_array(i, 1) * 1
+							counted_total = counted_total + calc_array(i, 1)
+						END IF
+						IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "unavailable" THEN 
+							calc_array(i, 1) = calc_array(i, 1) * 1
+							unavailable_total = unavailable_total + calc_array(i, 1)
+						END IF
+					END IF
+				NEXT
+			END IF
+			'after the calculation is completed if the user hit a button to nav to another dialog the value to determine the dialog is redefined. 
+			IF ButtonPressed = service_button THEN current_dialog = "services"					
+			IF ButtonPressed = BSI_button THEN current_dialog = "bsi"
+			IF ButtonPressed = CAI_button THEN current_dialog = "cai"
+			'error proofing to ensure that people are entering the correct information into the fields. 
+			FOR i = 0 TO 42
+				IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = FALSE THEN err_msg = err_msg & "The value entered for " & calc_array(i, 0) & " is not a number." & vbCr
+				IF calc_array(i, 1) <> "" AND calc_array (i, 2) = "" THEN err_msg = err_msg & "You entered a value entered for " & calc_array(i, 0) & " but did not select a status." & vbCr
+				IF calc_array(i, 1) = "" AND calc_array (i, 2) <> "" THEN err_msg = err_msg & "You entered a status entered for " & calc_array(i, 0) & " but did not select a value." & vbCr
+			NEXT
+			'additional error proofing is needed for array positions 41 and 42 since the type is needed for these write
+			IF calc_array(41, 1) <> "" AND calc_array(41, 3) = "Select Type" THEN err_msg = err_msg & "You entered a value entered for " & calc_array(41, 0) & " but did not select a type." & vbCr
+			IF calc_array(42, 1) <> "" AND calc_array(42, 3) = "Select Type" THEN err_msg = err_msg & "You entered a value entered for " & calc_array(42, 0) & " but did not select a type." & vbCr
+			IF calc_array(41, 1) <> "" AND calc_array(41, 0) = "" THEN err_msg = err_msg & "You entered a value entered for " & calc_array(41, 0) & " but did enter what the value is for." & vbCr
+			IF calc_array(42, 1) <> "" AND calc_array(42, 0) = "" THEN err_msg = err_msg & "You entered a value entered for " & calc_array(42, 0) & " but did enter what the value is for." & vbCr
+			IF err_msg <> "" THEN msgbox "Please resolve these issues:" & vbCr & vbCr & err_msg
+		LOOP until ButtonPressed = -1								'keep looping this calculation and error checking until the worker clicks ok
+		
+		'Here is where the final totals are being build.
+		'Totalling BFE and defining starting point as 0.
+		remainder_counted_total = 0
+		remainder_unavailable_total = 0
+		BFE_total = 0
+		BFE_running_total = 0
+		FOR i = 0 to 42								'since the BFE can be applied to all of the assets we have to check each and every asset with a value marked as applied to BFE and or combination
+			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "applied to BFE" THEN  'if the item has a status of applied to BFE we need to add it to the total
+				calc_array(i, 1) = calc_array(i, 1) * 1
+				BFE_running_total = BFE_running_total + calc_array(i, 1)
+				IF BFE_running_total > 1500 THEN 											'however we must still keep track of the limit of the bfe total.
+					BFE_total = 1500
+				ELSEIF BFE_running_total < 1500 THEN 
+					BFE_total = BFE_running_total
+				ELSEIF BFE_running_total = 1500 THEN
+					BFE_total = 1500
+				END IF
+			ELSEIF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "applied to BFE/counted" THEN  'here we determine the remainders of the split status options to count everything correctly
+				BFE_running_total = BFE_running_total + calc_array(i, 1)
+				remainder_counted_total = BFE_running_total - 1500
+				final_counted_total = remainder_counted_total
+				BFE_total = 1500
+			ELSEIF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "applied to BFE/unavailable" THEN
+				BFE_running_total = BFE_running_total + calc_array(i, 1)
+				remainder_unavailable_total = BFE_running_total - 1500
+				final_unavailable_total = remainder_unavailable_total
+				BFE_total = 1500
+			END IF
+		NEXT
+		
+		'Totalling BS/BSI Excluded Amount
+		BS_BSI_total = 0
+		FOR i = 17 TO 28									'values in the array of 17-28 are defined as burial space/burial space items, there can be status counted or excluded only.
+			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "excluded" THEN 
+				calc_array(i, 1) = calc_array(i, 1) * 1
+				BS_BSI_total = BS_BSI_total + calc_array(i, 1)
+			END IF
+		NEXT															'the following two items need to be calculated as they can be labeled as BS/BSI items.
+		IF calc_array(41, 1) <> "" AND IsNumeric(calc_array(41, 1)) = TRUE AND calc_array(41, 2) = "excluded" AND calc_array(41, 3) = "BS/BSI" THEN 
+			calc_array(41, 1) = calc_array(41, 1) * 1
+			BS_BSI_total = BS_BSI_total + calc_array(41, 1)
+		END IF
+		IF calc_array(42, 1) <> "" AND IsNumeric(calc_array(42, 1)) = TRUE AND calc_array(42, 2) = "excluded" AND calc_array(42, 3) = "BS/BSI" THEN 
+			calc_array(42, 1) = calc_array(42, 1) * 1
+			BS_BSI_total = BS_BSI_total + calc_array(42, 1)
+		END IF
+		
+		'Totalling Unavailable Amount
+		final_unavailable_total = 0 + remainder_unavailable_total						'we need to define that starting value of the unavailable total to include the remainder of any applied to bfe/unavailable
+		FOR i = 0 to 42
+			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "unavailable" THEN 
+				calc_array(i, 1) = calc_array(i, 1) * 1
+				final_unavailable_total = final_unavailable_total + calc_array(i, 1)
+			END IF
+		NEXT
+		
+		'Totalling Counted Amount
+		final_counted_total = 0 + remainder_counted_total								'we need to define that starting value of the unavailable total to include the remainder of any applied to bfe/counted
+		FOR i = 0 to 42
+			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "counted" THEN 
+				calc_array(i, 1) = calc_array(i, 1) * 1
+				final_counted_total = final_counted_total + calc_array(i, 1)
+			END IF
+		NEXT
+		
+		'here we are defining a variable to be used in a special message box that will allow users to review before case noting and go back to fix things if needed. 
+		break_down_display = ""
+		FOR i = 0 TO 42										'this will grab every value for assets that are not blank and bring them over to the double check message box. 
+			IF calc_array(i, 1) <> "" THEN
+				break_down_display = break_down_display & vbCr & calc_array(i, 1) & ", " & calc_array(i, 0) & ",    " & calc_array(i, 3) & ",    " & calc_array(i, 2)
+			END IF
+		NEXT
+		
+		double_check_display = ""					'blank message box variable so that it won't carry information from previous runs if user chooses to alter data. 
+		double_check_display = Msgbox ("The script has finished calculating your Burial Assets. Please review the following information for accuracy." & vbCr &_
+			"If this is accurate, press YES to continue." & vbCr &_
+			"If this needs modification, press NO to retry." & vbCr &_
+			"If you wish to cancel the script, press CANCEL." & vbCr &_
+			break_down_display & vbCr & vbCr &_
+			"Applied to BFE: " & BFE_total & vbCr &_
+			"BS/BSI Excluded: " & BS_BSI_total & vbCr &_
+			"Unavailable: " & final_unavailable_total & vbCr &_
+			"Counted: " & final_counted_total, vbYesNoCancel + vbSystemModal + vbInformation, "PLEASE REVIEW")
+		IF double_check_display = vbCancel THEN stopscript
+	LOOP UNTIL double_check_display = vbYes					'we loop until the user decided they are happy with the results and then move on. 
+END FUNCTION
 
 'SECTION 03: The script----------------------------------------------------------------------------------------------------
 EMConnect "" 		'connecting to MAXIS
@@ -312,6 +544,7 @@ DO
 	"Insurance Counted Value is not a number. Do not include letters or special characters."
 	If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
 	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
+	
 	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -331,216 +564,25 @@ Do
 		END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
-	Do
-		Do
-			Dialog burial_assets_dialog_02
-			cancel_confirmation
-			If ButtonPressed = previous_to_01_button then exit do
-		Loop until ButtonPressed = next_to_03_button or ButtonPressed = previous_to_01_button
-		If ButtonPressed = previous_to_01_button then exit do
-		Do
-			Do
-				Dialog burial_assets_dialog_03
-				cancel_confirmation
-				If buttonpressed = previous_to_02_button then exit do
-			Loop until ButtonPressed = next_to_04_button or ButtonPressed = previous_to_02_button
-			If buttonpressed = previous_to_02_button then exit do
-			Do
-				Dialog burial_assets_dialog_04
-				cancel_confirmation
-				If buttonpressed = previous_to_03_button then exit do
-			Loop until ButtonPressed = -1	
-		LOOP until ButtonPressed = -1
-	LOOP until ButtonPressed = -1
-LOOP until ButtonPressed = -1
+	DO														'if the type of burial agreement is NONE the script will skip the detail asset breakdown. 
+		IF type_of_burial_agreement <> "None" THEN CALL build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_counted_total, final_unavailable_total)  'here we call the burial item dialogs, these are built dynamically with safe guarding built into function. 
+	LOOP until err_msg = ""
+	DO	
+		actions_taken = InputBox("Actions Taken: ", "Actions taken")
+	LOOP until actions_taken <> ""
+LOOP until err_msg = ""
 
 Call check_for_MAXIS(False) 'checking for an active MAXIS session
 
-'SECTION 04: Converting DESIGNATED ACCOUNT INFORMATION----------------------------------------------------------------------------------------------------
-'Must convert non-numeric "values" to numeric for calculations to work
-If isnumeric(basic_service_funeral_director_value) = False then basic_service_funeral_director_value = 0
-If isnumeric(embalming_value) = False then embalming_value = 0
-If isnumeric(other_preparation_to_body_value) = False then other_preparation_to_body_value = 0
-If isnumeric(visitation_at_funeral_chapel_value) = False then visitation_at_funeral_chapel_value = 0
-If isnumeric(visitation_at_other_facility_value) = False then visitation_at_other_facility_value = 0
-If isnumeric(funeral_serv_at_funeral_chapel_value) = False then funeral_serv_at_funeral_chapel_value = 0
-If isnumeric(funeral_serv_at_other_facility_value) = False then funeral_serv_at_other_facility_value = 0
-If isnumeric(memorial_serv_at_funeral_chapel_value) = False then memorial_serv_at_funeral_chapel_value = 0
-If isnumeric(memorial_serv_at_other_facility_value) = False then memorial_serv_at_other_facility_value = 0
-If isnumeric(graveside_service_value) = False then graveside_service_value = 0
-If isnumeric(transfer_remains_to_funeral_home_value) = False then transfer_remains_to_funeral_home_value = 0
-If isnumeric(funeral_coach_value) = False then funeral_coach_value = 0
-If isnumeric(funeral_sedan_value) = False then funeral_sedan_value = 0
-If isnumeric(service_vehicle_value) = False then service_vehicle_value = 0
-If isnumeric(forwarding_of_remains_value) = False then forwarding_of_remains_value = 0
-If isnumeric(receiving_of_remains_value) = False then receiving_of_remains_value = 0
-If isnumeric(direct_cremation_value) = False then direct_cremation_value = 0
-If isnumeric(markers_headstone_value) = False then markers_headstone_value = 0
-If isnumeric(engraving_value) = False then engraving_value = 0
-If isnumeric(opening_closing_of_space_value) = False then opening_closing_of_space_value = 0
-If isnumeric(perpetual_care_value) = False then perpetual_care_value = 0
-If isnumeric(casket_value) = False then casket_value = 0
-If isnumeric(vault_value) = False then vault_value = 0
-If isnumeric(cemetery_plot_value) = False then cemetery_plot_value = 0
-If isnumeric(crypt_value) = False then crypt_value = 0
-If isnumeric(mausoleum_value) = False then mausoleum_value = 0
-If isnumeric(urns_value) = False then urns_value = 0
-If isnumeric(niches_value) = False then niches_value = 0
-If isnumeric(alternative_container_value) = False then alternative_container_value = 0
-If isnumeric(certified_death_certificate_value) = False then certified_death_certificate_value = 0
-If isnumeric(motor_escort_value) = False then motor_escort_value = 0
-If isnumeric(clergy_honorarium_value) = False then clergy_honorarium_value = 0
-If isnumeric(music_honorarium_value) = False then music_honorarium_value = 0
-If isnumeric(flowers_value) = False then flowers_value = 0
-If isnumeric(obituary_notice_value) = False then obituary_notice_value = 0
-If isnumeric(crematory_charges_value) = False then crematory_charges_value = 0
-If isnumeric(acknowledgement_card_value) = False then acknowledgement_card_value = 0
-If isnumeric(register_book_value) = False then register_book_value = 0
-If isnumeric(service_folders_prayer_cards_value) = False then service_folders_prayer_cards_value = 0
-If isnumeric(luncheon_value) = False then luncheon_value = 0
-If isnumeric(medical_exam_fee_value) = False then medical_exam_fee_value = 0
-If isnumeric(other_01_value) = False then other_01_value = 0
-If isnumeric(other_02_value) = False then other_02_value = 0
-
-'This adds all service amounts together.
-total_service_amount = cint(basic_service_funeral_director_value) + cint(embalming_value) + cint(other_preparation_to_body_value) + cint(visitation_at_funeral_chapel_value) + cint(visitation_at_other_facility_value) + cint(funeral_serv_at_funeral_chapel_value) + cint(funeral_serv_at_other_facility_value) + cint(memorial_serv_at_funeral_chapel_value) + cint(memorial_serv_at_other_facility_value) + cint(graveside_service_value) + cint(transfer_remains_to_funeral_home_value) + cint(funeral_coach_value) + cint(funeral_sedan_value) + cint(service_vehicle_value) + cint(forwarding_of_remains_value) + cint(receiving_of_remains_value) + cint(direct_cremation_value)
-If other_01 <> "" and other_01_type = "service" then total_service_amount = total_service_amount + cint(other_01_value)
-If other_02 <> "" and other_02_type = "service" then total_service_amount = total_service_amount + cint(other_02_value)
-
-'This adds all exluded burial space/burial space items (BS/BSI) together.
-If markers_headstone_check = 1 and markers_headstone_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(markers_headstone_value)
-If engraving_check = 1 and engraving_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(engraving_value)
-If opening_closing_of_space_check = 1 and opening_closing_of_space_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(opening_closing_of_space_value)
-If perpetual_care_check = 1 and perpetual_care_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(perpetual_care_value)
-If casket_check = 1 and casket_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(casket_value)
-If vault_check = 1 and vault_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(vault_value)
-If cemetery_plot_check = 1 and cemetery_plot_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(cemetery_plot_value)
-If crypt_check = 1 and crypt_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(crypt_value)
-If mausoleum_check = 1 and mausoleum_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(mausoleum_value)
-If urns_check = 1 and urns_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(urns_value)
-If niches_check = 1 and niches_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(niches_value)
-If Alternative_Container_check = 1 and alternative_container_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(alternative_container_value)
-If other_01 <> "" and other_01_type = "BS-BSI" and other_01_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(other_01_value)
-If other_02 <> "" and other_02_type = "BS-BSI" and other_02_status = "excluded" then total_BS_BSI_excluded_amount = total_BS_BSI_excluded_amount + cint(other_02_value)
-
-'This adds all the items that are used towards the Burial fund exclusion BFE
-If basic_service_funeral_director_check = 1 and basic_service_funeral_director_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(basic_service_funeral_director_value)
-If embalming_check = 1 and embalming_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(embalming_value)
-If other_preparation_to_body_check = 1 and other_preparation_to_body_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(other_preparation_to_body_value)
-If visitation_at_funeral_chapel_check = 1 and visitation_at_funeral_chapel_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(visitation_at_funeral_chapel_value)
-If visitation_at_other_facility_check = 1 and visitation_at_other_facility_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(visitation_at_other_facility_value)
-If funeral_serv_at_funeral_chapel_check = 1 and funeral_serv_at_funeral_chapel_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_serv_at_funeral_chapel_value)
-If funeral_serv_at_other_facility_check = 1 and funeral_serv_at_other_facility_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_serv_at_other_facility_value)
-If memorial_serv_at_funeral_chapel_check = 1 and memorial_serv_at_funeral_chapel_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(memorial_serv_at_funeral_chapel_value)
-If memorial_serv_at_other_facility_check = 1 and memorial_serv_at_other_facility_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(memorial_serv_at_other_facility_value)
-If graveside_service_check = 1 and graveside_service_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(graveside_service_value)
-If transfer_remains_to_funeral_home_check = 1 and transfer_remains_to_funeral_home_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(transfer_remains_to_funeral_home_value)
-If funeral_coach_check = 1 and funeral_coach_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_coach_value)
-If funeral_sedan_check = 1 and funeral_sedan_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(funeral_sedan_value)
-If service_vehicle_check = 1 and service_vehicle_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(service_vehicle_value)
-If forwarding_of_remains_check = 1 and forwarding_of_remains_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(forwarding_of_remains_value)
-If receiving_of_remains_check = 1 and receiving_of_remains_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(receiving_of_remains_value)
-If direct_cremation_check = 1 and direct_cremation_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(direct_cremation_value)
-If markers_headstone_check = 1 and markers_headstone_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(markers_headstone_value)
-If engraving_check = 1 and engraving_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(engraving_value)
-If opening_closing_of_space_check = 1 and opening_closing_of_space_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(opening_closing_of_space_value)
-If perpetual_care_check = 1 and perpetual_care_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(perpetual_care_value)
-If casket_check = 1 and casket_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(casket_value)
-If vault_check = 1 and vault_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(vault_value)
-If cemetery_plot_check = 1 and cemetery_plot_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(cemetery_plot_value)
-If crypt_check = 1 and crypt_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(crypt_value)
-If mausoleum_check = 1 and mausoleum_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(mausoleum_value)
-If urns_check = 1 and urns_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(urns_value)
-If niches_check = 1 and niches_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(niches_value)
-If Alternative_Container_check = 1 and alternative_container_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(alternative_container_value)
-If certified_death_certificate_check = 1 and certified_death_certificate_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(certified_death_certificate_value)
-If motor_escort_check = 1 and motor_escort_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(motor_escort_value)
-If clergy_honorarium_check = 1 and clergy_honorarium_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(clergy_honorarium_value)
-If music_honorarium_check = 1 and music_honorarium_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(music_honorarium_value)
-If flowers_check = 1 and flowers_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(flowers_value)
-If obituary_notice_check = 1 and obituary_notice_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(obituary_notice_value)
-If crematory_charges_check = 1 and crematory_charges_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(crematory_charges_value)
-If acknowledgement_card_check = 1 and acknowledgement_card_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(acknowledgement_card_value)
-If register_book_check = 1 and register_book_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(register_book_value)
-If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(service_folders_prayer_cards_value)
-If luncheon_check = 1 and luncheon_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(luncheon_value)
-If medical_exam_fee_check = 1 and medical_exam_fee_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(medical_exam_fee_value)
-If other_01 <> "" and other_01_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(other_01_value)
-If other_02 <> "" and other_02_status = "applied to BFE" then total_applied_to_BFE = total_applied_to_BFE + cint(other_02_value)
-
-'This adds all unavailable cash advance items (CAI) together.
-If certified_death_certificate_check = 1 and certified_death_certificate_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(certified_death_certificate_value)
-If motor_escort_check = 1 and motor_escort_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(motor_escort_value)
-If clergy_honorarium_check = 1 and clergy_honorarium_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(clergy_honorarium_value)
-If music_honorarium_check = 1 and music_honorarium_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(music_honorarium_value)
-If flowers_check = 1 and flowers_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(flowers_value)
-If obituary_notice_check = 1 and obituary_notice_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(obituary_notice_value)
-If crematory_charges_check = 1 and crematory_charges_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(crematory_charges_value)
-If acknowledgement_card_check = 1 and acknowledgement_card_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(acknowledgement_card_value)
-If register_book_check = 1 and register_book_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(register_book_value)
-If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(service_folders_prayer_cards_value)
-If luncheon_check = 1 and luncheon_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(luncheon_value)
-If medical_exam_fee_check = 1 and medical_exam_fee_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(medical_exam_fee_value)
-If other_01 <> "" and other_01_type = "CAI" and other_01_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_01_value)
-If other_02 <> "" and other_02_type = "CAI" and other_02_status = "unavailable" then total_unavailable_CAI_amount = total_unavailable_CAI_amount + cint(other_02_value)
-
-'This adds all counted fields together.
-If basic_service_funeral_director_check = 1 and basic_service_funeral_director_status = "counted" then total_counted_amount = total_counted_amount + cint(basic_service_funeral_director_value)
-If embalming_check = 1 and embalming_status = "counted" then total_counted_amount = total_counted_amount + cint(embalming_value)
-If other_preparation_to_body_check = 1 and other_preparation_to_body_status = "counted" then total_counted_amount = total_counted_amount + cint(other_preparation_to_body_value)
-If visitation_at_funeral_chapel_check = 1 and visitation_at_funeral_chapel_status = "counted" then total_counted_amount = total_counted_amount + cint(visitation_at_funeral_chapel_value)
-If visitation_at_other_facility_check = 1 and visitation_at_other_facility_status = "counted" then total_counted_amount = total_counted_amount + cint(visitation_at_other_facility_value)
-If funeral_serv_at_funeral_chapel_check = 1 and funeral_serv_at_funeral_chapel_status = "counted" then total_counted_amount = total_counted_amount + cint(funeral_serv_at_funeral_chapel_value)
-If funeral_serv_at_other_facility_check = 1 and funeral_serv_at_other_facility_status = "counted" then total_counted_amount = total_counted_amount + cint(funeral_serv_at_other_facility_value)
-If memorial_serv_at_funeral_chapel_check = 1 and memorial_serv_at_funeral_chapel_status = "counted" then total_counted_amount = total_counted_amount + cint(memorial_serv_at_funeral_chapel_value)
-If memorial_serv_at_other_facility_check = 1 and memorial_serv_at_other_facility_status = "counted" then total_counted_amount = total_counted_amount + cint(memorial_serv_at_other_facility_value)
-If graveside_service_check = 1 and graveside_service_status = "counted" then total_counted_amount = total_counted_amount + cint(graveside_service_value)
-If transfer_remains_to_funeral_home_check = 1 and transfer_remains_to_funeral_home_status = "counted" then total_counted_amount = total_counted_amount + cint(transfer_remains_to_funeral_home_value)
-If funeral_coach_check = 1 and funeral_coach_status = "counted" then total_counted_amount = total_counted_amount + cint(funeral_coach_value)
-If funeral_sedan_check = 1 and funeral_sedan_status = "counted" then total_counted_amount = total_counted_amount + cint(funeral_sedan_value)
-If service_vehicle_check = 1 and service_vehicle_status = "counted" then total_counted_amount = total_counted_amount + cint(service_vehicle_value)
-If forwarding_of_remains_check = 1 and forwarding_of_remains_status = "counted" then total_counted_amount = total_counted_amount + cint(forwarding_of_remains_value)
-If receiving_of_remains_check = 1 and receiving_of_remains_status = "counted" then total_counted_amount = total_counted_amount + cint(receiving_of_remains_value)
-If direct_cremation_check = 1 and direct_cremation_status = "counted" then total_counted_amount = total_counted_amount + cint(direct_cremation_value)
-If markers_headstone_check = 1 and markers_headstone_status = "counted" then total_counted_amount = total_counted_amount + cint(markers_headstone_value)
-If engraving_check = 1 and engraving_status = "counted" then total_counted_amount = total_counted_amount + cint(engraving_value)
-If opening_closing_of_space_check = 1 and opening_closing_of_space_status = "counted" then total_counted_amount = total_counted_amount + cint(opening_closing_of_space_value)
-If perpetual_care_check = 1 and perpetual_care_status = "counted" then total_counted_amount = total_counted_amount + cint(perpetual_care_value)
-If casket_check = 1 and casket_status = "counted" then total_counted_amount = total_counted_amount + cint(casket_value)
-If vault_check = 1 and vault_status = "counted" then total_counted_amount = total_counted_amount + cint(vault_value)
-If cemetery_plot_check = 1 and cemetery_plot_status = "counted" then total_counted_amount = total_counted_amount + cint(cemetery_plot_value)
-If crypt_check = 1 and crypt_status = "counted" then total_counted_amount = total_counted_amount + cint(crypt_value)
-If mausoleum_check = 1 and mausoleum_status = "counted" then total_counted_amount = total_counted_amount + cint(mausoleum_value)
-If urns_check = 1 and urns_status = "counted" then total_counted_amount = total_counted_amount + cint(urns_value)
-If niches_check = 1 and niches_status = "counted" then total_counted_amount = total_counted_amount + cint(niches_value)
-If Alternative_Container_check = 1 and alternative_container_status = "counted" then total_counted_amount = total_counted_amount + cint(alternative_container_value)
-If certified_death_certificate_check = 1 and certified_death_certificate_status = "counted" then total_counted_amount = total_counted_amount + cint(certified_death_certificate_value)
-If motor_escort_check = 1 and motor_escort_status = "counted" then total_counted_amount = total_counted_amount + cint(motor_escort_value)
-If clergy_honorarium_check = 1 and clergy_honorarium_status = "counted" then total_counted_amount = total_counted_amount + cint(clergy_honorarium_value)
-If music_honorarium_check = 1 and music_honorarium_status = "counted" then total_counted_amount = total_counted_amount + cint(music_honorarium_value)
-If flowers_check = 1 and flowers_status = "counted" then total_counted_amount = total_counted_amount + cint(flowers_value)
-If obituary_notice_check = 1 and obituary_notice_status = "counted" then total_counted_amount = total_counted_amount + cint(obituary_notice_value)
-If crematory_charges_check = 1 and crematory_charges_status = "counted" then total_counted_amount = total_counted_amount + cint(crematory_charges_value)
-If acknowledgement_card_check = 1 and acknowledgement_card_status = "counted" then total_counted_amount = total_counted_amount + cint(acknowledgement_card_value)
-If register_book_check = 1 and register_book_status = "counted" then total_counted_amount = total_counted_amount + cint(register_book_value)
-If service_folders_prayer_cards_check = 1 and service_folders_prayer_cards_status = "counted" then total_counted_amount = total_counted_amount + cint(service_folders_prayer_cards_value)
-If luncheon_check = 1 and luncheon_status = "counted" then total_counted_amount = total_counted_amount + cint(luncheon_value)
-If medical_exam_fee_check = 1 and medical_exam_fee_status = "counted" then total_counted_amount = total_counted_amount + cint(medical_exam_fee_value)
-If other_01 <> "" and other_01_status = "counted" then total_counted_amount = total_counted_amount + cint(other_01_value)
-If other_02 <> "" and other_02_status = "counted" then total_counted_amount = total_counted_amount + cint(other_02_value)
-If counted_value_designated <> "" then total_counted_amount = total_counted_amount + cint(counted_value_designated)
-If insurance_counted_value <> "" then total_counted_amount = total_counted_amount + cint(insurance_counted_value)
-
-If total_service_amount = "" then total_service_amount = "0"
-If total_BS_BSI_excluded_amount = "" then total_BS_BSI_excluded_amount = "0"
-If total_unavailable_CAI_amount = "" then total_unavailable_CAI_amount = "0"
-If total_counted_amount = "" then total_counted_amount = "0"
+'SECTION 04: Finalizing totals-------------------------------------------------------------------------------------------------------
+If counted_value_designated <> "" then final_counted_total = final_counted_total + cint(counted_value_designated)
+If insurance_counted_value <> "" then final_counted_total = final_counted_total + cint(insurance_counted_value)
 
 'SECTION 05: The CASE NOTE----------------------------------------------------------------------------------------------------
-DIM MAXIS_service_row
+DIM MAXIS_service_row			'variables used for checking the headers to see if they need to be written on the top of a continuing case note. 
 DIM MAXIS_col
 
-'NOTE: "Other" sections need to be included in correct sections.
+'first section of case note is dependant on what types of designated accounts were chosen. 
 start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member & " for " & programs & "**")
 IF type_of_designated_account <> "None" then
@@ -561,8 +603,8 @@ IF insurance_policy_number <> "none" THEN
 	call write_bullet_and_variable_in_case_note("Counted Value", insurance_counted_value)
 	call write_bullet_and_variable_in_case_note("Info on BFE", insurance_BFE_steps_info)
 END IF
-IF type_of_burial_agreement <> "None" THEN
-	If applied_BFE_check = 1 AND total_applied_to_BFE = "" then CALL write_variable_in_case_note("* Applied $1500 of burial services to BFE.")
+IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement is NONE the script will skip the detail asset breakdown. 
+	If applied_BFE_check = 1 AND BFE_total = "" then CALL write_variable_in_case_note("* Applied $1500 of burial services to BFE.")
 	CALL write_variable_in_case_note("* Type: " & type_of_burial_agreement & ". Purchase date: " & purchase_date & ".")
 	CALL write_variable_in_case_note("* Issuer: " & issuer_name & ". Policy #: " & policy_number & ".")
 	CALL write_bullet_and_variable_in_case_note("Face value", face_value)
@@ -570,269 +612,80 @@ IF type_of_burial_agreement <> "None" THEN
 	IF Primary_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Primary beneficiary is: Any funeral provider whose interest may appear                irrevocably")
 	IF Contingent_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Contingent Beneficiary is: The estate of the insured")
 	IF policy_CSV_check = 1 THEN Call write_variable_in_case_note ("* Policy's CSV is irrevocably designated to the funeral provider")
+	
+	'the following section will write the various sections of assets and then for each items in the arrays (in certain spots) it will write the value, item, and status of the asset
+	
 	CALL write_variable_in_case_note("--------------SERVICE--------------------AMOUNT----------STATUS------------")
-	case_note_page_four
-	If basic_service_funeral_director_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "     Basic service funeral director:", 44, "$" & basic_service_funeral_director_value, 59, basic_service_funeral_director_status)
-	End if
-
-	case_note_page_four
-	If embalming_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "                          Embalming:", 44, "$" & embalming_value, 59, embalming_status)
-	End if
-	case_note_page_four
-	If other_preparation_to_body_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "          Other preparation to body:", 44, "$" & other_preparation_to_body_value, 59, other_preparation_to_body_status)
-	End if
-	case_note_page_four
-	If visitation_at_funeral_chapel_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "       Visitation at funeral chapel:", 44, "$" & visitation_at_funeral_chapel_value, 59, visitation_at_funeral_chapel_status)
-	End if
-	case_note_page_four
-	If visitation_at_other_facility_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "       Visitation at other facility:", 44, "$" & visitation_at_other_facility_value, 59, visitation_at_other_facility_status)
-	End if
-	case_note_page_four
-	If funeral_serv_at_funeral_chapel_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "     Funeral serv at funeral chapel:", 44, "$" & funeral_serv_at_funeral_chapel_value, 59, funeral_serv_at_funeral_chapel_status)
-	End if
-	case_note_page_four
-	If funeral_serv_at_other_facility_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "     Funeral serv at other facility:", 44, "$" & funeral_serv_at_other_facility_value, 59, funeral_serv_at_other_facility_status)
-	End if
-	case_note_page_four
-	If memorial_serv_at_funeral_chapel_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "    Memorial serv at funeral chapel:", 44, "$" & memorial_serv_at_funeral_chapel_value, 59, memorial_serv_at_funeral_chapel_status)
-	End if
-	case_note_page_four
-	If memorial_serv_at_other_facility_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "    Memorial serv at other facility:", 44, "$" & memorial_serv_at_other_facility_value, 59, memorial_serv_at_other_facility_status)
-	End if
-	case_note_page_four
-	If graveside_service_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "                  Graveside service:", 44, "$" & graveside_service_value, 59, graveside_service_status)
-	End if
-	case_note_page_four
-	If transfer_remains_to_funeral_home_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "   Transfer remains to funeral home:", 44, "$" & transfer_remains_to_funeral_home_value, 59, transfer_remains_to_funeral_home_status)
-	End if
-	case_note_page_four
-	If funeral_coach_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "                      Funeral coach:", 44, "$" & funeral_coach_value, 59, funeral_coach_status)
-	End if
-	case_note_page_four
-	If funeral_sedan_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "                      Funeral sedan:", 44, "$" & funeral_sedan_value, 59, funeral_sedan_status)
-	End if
-	case_note_page_four
-	If service_vehicle_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "                    Service vehicle:", 44, "$" & service_vehicle_value, 59, service_vehicle_status)
-	End if
-	case_note_page_four
-	If forwarding_of_remains_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "              Forwarding of remains:", 44, "$" & forwarding_of_remains_value, 59, forwarding_of_remains_status)
-	End if
-	case_note_page_four
-	If receiving_of_remains_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "               Receiving of remains:", 44, "$" & receiving_of_remains_value, 59, receiving_of_remains_status)
-	End if
-	case_note_page_four
-	If direct_cremation_check = 1 then
-	  new_service_heading
-	  call write_three_columns_in_case_note(3, "                   Direct cremation:", 44, "$" & direct_cremation_value, 59, direct_cremation_status)
-	End if
-	case_note_page_four
-	If other_01 <> "" and other_01_type = "service" then
-	  new_service_heading
-	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
-	End if
-	case_note_page_four
-	If other_02 <> "" and other_02_type = "service" then
-	  new_service_heading
-	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
-	End if
-	case_note_page_four
+	
+	FOR i = 0 to 16
+		case_note_page_four
+		extra_spaces = ""
+		If calc_array(i, 1) <> "" then
+			new_service_heading
+			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
+		End if
+	NEXT
+	
+	FOR i = 41 to 42								'these two spots on the array have special handling to write only if they are services.
+		case_note_page_four
+		extra_spaces = ""
+		If calc_array(i, 1) <> "" AND calc_array(i, 3) = "Services" THEN
+			new_service_heading
+			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
+		End if
+	NEXT
+	
 	CALL write_variable_in_case_note("--------BURIAL SPACE/ITEMS---------------AMOUNT----------STATUS------------")
-	case_note_page_four
-	If markers_headstone_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                  Markers headstone:", 44, "$" & markers_headstone_value, 59, markers_headstone_status)
-	End if
-	case_note_page_four
-	If engraving_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                          Engraving:", 44, "$" & engraving_value, 59, engraving_status)
-	End if
-	case_note_page_four
-	If opening_closing_of_space_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "           Opening closing of space:", 44, "$" & opening_closing_of_space_value, 59, opening_closing_of_space_status)
-	End if
-	case_note_page_four
-	If perpetual_care_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                     Perpetual care:", 44, "$" & perpetual_care_value, 59, perpetual_care_status)
-	End if
-	case_note_page_four
-	If casket_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                             Casket:", 44, "$" & casket_value, 59, casket_status)
-	End if
-	case_note_page_four
-	If vault_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                              Vault:", 44, "$" & vault_value, 59, vault_status)
-	End if
-	case_note_page_four
-	If cemetery_plot_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                      Cemetery plot:", 44, "$" & cemetery_plot_value, 59, cemetery_plot_status)
-	End if
-	case_note_page_four
-	If crypt_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                              Crypt:", 44, "$" & crypt_value, 59, crypt_status)
-	End if
-	case_note_page_four
-	If mausoleum_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                          Mausoleum:", 44, "$" & mausoleum_value, 59, mausoleum_status)
-	End if
-	case_note_page_four
-	If urns_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                               Urns:", 44, "$" & urns_value, 59, urns_status)
-	End if
-	case_note_page_four
-	If niches_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "                             Niches:", 44, "$" & niches_value, 59, niches_status)
-	End if
-	case_note_page_four
-	If Alternative_Container_check = 1 then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(3, "              Alternative Container:", 44, "$" & alternative_container_value, 59, alternative_container_status)
-	End if
-	case_note_page_four
-	If other_01 <> "" and other_01_type = "BS-BSI" then
-	  new_BS_BSI_heading
-	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
-	End if
-	case_note_page_four
-	If other_02 <> "" and other_02_type = "BS-BSI" then
-	  new_BS_BSI_heading
-	  other_02_length = len(other_02)
-	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
-	End if
-	case_note_page_four
+	
+	FOR i = 17 to 28
+		case_note_page_four
+		extra_spaces = ""
+		If calc_array(i, 1) <> "" then
+			new_BS_BSI_heading
+			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
+		End if
+	NEXT
+
+	FOR i = 41 to 42								'these two spots on the array have special handling to write only if they are BS/BSI.
+		case_note_page_four
+		extra_spaces = ""
+		If calc_array(i, 1) <> "" AND calc_array(i, 3) = "BS/BSI" THEN
+			new_BS_BSI_heading
+			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
+		End if
+	NEXT
+	
 	CALL write_variable_in_case_note("--------CASH ADVANCE ITEMS---------------AMOUNT----------STATUS------------")
-	case_note_page_four
-	If certified_death_certificate_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "        Certified death certificate:", 44, "$" & certified_death_certificate_value, 59, certified_death_certificate_status)
-	End if
-	case_note_page_four
-	If motor_escort_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                       Motor escort:", 44, "$" & motor_escort_value, 59, motor_escort_status)
-	End if
-	case_note_page_four
-	If clergy_honorarium_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                  Clergy honorarium:", 44, "$" & clergy_honorarium_value, 59, clergy_honorarium_status)
-	End if
-	case_note_page_four
-	If music_honorarium_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                   Music honorarium:", 44, "$" & music_honorarium_value, 59, music_honorarium_status)
-	End if
-	case_note_page_four
-	If flowers_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                            Flowers:", 44, "$" & flowers_value, 59, flowers_status)
-	End if
-	case_note_page_four
-	If obituary_notice_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                    Obituary notice:", 44, "$" & obituary_notice_value, 59, obituary_notice_status)
-	End if
-	case_note_page_four
-	If crematory_charges_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                  Crematory charges:", 44, "$" & crematory_charges_value, 59, crematory_charges_status)
-	End if
-	case_note_page_four
-	If acknowledgement_card_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "               Acknowledgement card:", 44, "$" & acknowledgement_card_value, 59, acknowledgement_card_status)
-	End if
-	case_note_page_four
-	If register_book_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                      Register book:", 44, "$" & register_book_value, 59, register_book_status)
-	End if
-	case_note_page_four
-	If service_folders_prayer_cards_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "       Service folders prayer cards:", 44, "$" & service_folders_prayer_cards_value, 59, service_folders_prayer_cards_status)
-	End if
-	case_note_page_four
-	If luncheon_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                           Luncheon:", 44, "$" & luncheon_value, 59, luncheon_status)
-	End if
-	case_note_page_four
-	If medical_exam_fee_check = 1 then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(3, "                   Medical Exam Fee:", 44, "$" & medical_exam_fee_value, 59, medical_exam_fee_status)
-	End if
-	case_note_page_four
-	If other_01 <> "" and other_01_type = "CAI" then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(38 - len(other_01), other_01 & ":", 44, "$" & other_01_value, 59, other_01_status)
-	End if
-	case_note_page_four
-	If other_02 <> "" and other_02_type = "CAI" then
-	  new_CAI_heading
-	  call write_three_columns_in_case_note(38 - len(other_02), other_02 & ":", 44, "$" & other_02_value, 59, other_02_status)
-	End if
-	case_note_page_four
+	
+	FOR i = 29 to 40
+		case_note_page_four
+		extra_spaces = ""
+		If calc_array(i, 1) <> "" then
+			new_CAI_heading
+			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
+		End if
+	NEXT
+	
+	FOR i = 41 to 42							'these two spots on the array have special handling to write only if they are CAI.
+		case_note_page_four
+		extra_spaces = ""
+		If calc_array(i, 1) <> "" AND calc_array(i, 3) = "CAI" THEN
+			new_CAI_heading
+			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
+		End if
+	NEXT
+
 	CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
-	case_note_page_four
-	CALL write_variable_in_case_note( "* Total service amount: $" & total_service_amount)
-	case_note_page_four
-	IF total_applied_to_BFE <> "" THEN CALL write_variable_in_case_note( "* Total services/items applied to BFE: $" & total_applied_to_BFE)
-	case_note_page_four
-	CALL write_variable_in_case_note( "* Total BS/BSI excluded amount: $" & total_BS_BSI_excluded_amount)
-	case_note_page_four
-	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & total_unavailable_CAI_amount)
+	IF BFE_total <> "" THEN CALL write_variable_in_case_note( "* Total services/items applied to BFE: $" & BFE_total)
+	CALL write_variable_in_case_note( "* Total BS/BSI excluded amount: $" & BS_BSI_total)
+	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & final_unavailable_total)
 END IF
 
-case_note_page_four
+
 CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
-case_note_page_four
-CALL write_variable_in_case_note( "* Total counted amount: $" & total_counted_amount)
-case_note_page_four
-CALL write_variable_in_case_note( "* Actions taken: " & case_action)
-case_note_page_four
+CALL write_variable_in_case_note( "* Total counted amount: $" & final_counted_total)
+CALL write_variable_in_case_note( "* Actions taken: " & actions_taken)
 CALL write_variable_in_case_note("---")
-case_note_page_four
 CALL write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
