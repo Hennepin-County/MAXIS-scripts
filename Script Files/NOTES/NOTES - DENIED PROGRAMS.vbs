@@ -492,4 +492,4 @@ END IF
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
 
-script_end_procedure(ending_message)
+script_end_procedure(ending_message) 'the ending message is determined earlier based on if a TIKL was created or not. This makes sure to include the "Success!" which is how we gather stats for scripts that ran to the end. 
