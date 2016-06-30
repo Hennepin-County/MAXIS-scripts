@@ -42,7 +42,7 @@ END IF
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-BeginDialog search_dialog, 0, 0, 186, 180, "Client Look Up"
+BeginDialog Dialog1, 0, 0, 186, 180, "Client Look Up"
   EditBox 120, 25, 55, 15, person_look_up
   EditBox 120, 60, 55, 15, phone_look_up
   EditBox 120, 115, 55, 15, case_load_look_up
@@ -68,7 +68,7 @@ CALL check_for_MAXIS(TRUE)
 call find_variable("User: ", user_number, 7)
 
 DO
-	DIALOG search_dialog
+	DIALOG
 	IF ButtonPressed = 0 THEN stopscript
 	IF len(case_load_look_up) = 3 THEN case_load_look_up = worker_county_code & case_load_look_up
 LOOP UNTIL case_load_look_up = "" OR (len(case_load_look_up) = 7 AND (ucase(LEFT(case_load_look_up, 1) = "X") or lcase(LEFT(case_load_look_up, 1) = "x")))

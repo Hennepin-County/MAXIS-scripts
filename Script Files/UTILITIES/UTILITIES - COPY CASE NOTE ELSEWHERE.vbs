@@ -70,7 +70,7 @@ IF CN_row < 5 or CN_row > 18 THEN script_end_procedure("Your cursor is not resti
 EMReadscreen current_CN_title, 73, CN_row, CN_col + 3
 
 'This needs to be built AFTER the case note title is read or it won't be able to fill into the text in the dialog. 
-BeginDialog copy_case_note_dlg, 0, 0, 346, 110, "Copy CASE/NOTE to.."
+BeginDialog dialog1, 0, 0, 346, 110, "Copy CASE/NOTE to.."
   EditBox 160, 5, 60, 15, MAXIS_case_number
   DropListBox 165, 65, 65, 15, "Select One..."+chr(9)+"CCOL NOTES"+chr(9)+"SPEC MEMO", copy_location
   ButtonGroup ButtonPressed
@@ -85,7 +85,7 @@ EndDialog
 'Dialog starts
 DO
 	err_msg = ""
-	Dialog copy_case_note_dlg
+	Dialog
 	cancel_confirmation
 	IF MAXIS_case_number = "" THEN err_msg = err_msg & "Please enter a case number" & vbCr
 	IF copy_location = "Select One..." THEN err_msg = err_msg & "Please select where to copy this case note" & vbCr
