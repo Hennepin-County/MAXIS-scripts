@@ -71,7 +71,7 @@ IF banked_months_db_tracking <> true THEN script_end_procedure("Your county must
 	call convert_array_to_droplist_items (months_array, months_list) 'This converts the array of months into a droplist for dialog
 
 'dialogs
-BeginDialog database_update_dialog, 0, 0, 191, 105, "ABAWD BANKED MONTH DATABASE UPDATE"
+BeginDialog dialog1, 0, 0, 191, 105, "ABAWD BANKED MONTH DATABASE UPDATE"
   ButtonGroup ButtonPressed
     OkButton 75, 85, 50, 15
     CancelButton 130, 85, 50, 15
@@ -85,7 +85,7 @@ EndDialog
 EMConnect ""
 
 'Shows dialog
-Dialog database_update_dialog
+Dialog
 If buttonpressed = cancel then stopscript
 
 'setting footer month and year for MAXIS'

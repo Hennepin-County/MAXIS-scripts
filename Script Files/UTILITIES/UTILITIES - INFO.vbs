@@ -216,7 +216,7 @@ scriptwriter_counter = scriptwriter_counter + 1
 
 'Here's the actual dialog---------------------------------------------
 'Text layout: X, Y, size X, size Y
-BeginDialog info_dialog, 0, 0, 375, 450, "DHS BlueZone Scripts Info dialog"
+BeginDialog Dialog1, 0, 0, 375, 450, "DHS BlueZone Scripts Info dialog"
   ButtonGroup ButtonPressed
     OkButton 320, 430, 50, 15
 
@@ -288,7 +288,7 @@ BeginDialog info_dialog, 0, 0, 375, 450, "DHS BlueZone Scripts Info dialog"
 EndDialog
 
 'Shows the dialog
-Dialog info_dialog
+Dialog
 
 'If the ButtonPressed wasn't OK or cancel, it ended because one of the email buttons was hit. This uses "mailto:" and a shell object to load a blank email addressed to the scriptwriter
 If ButtonPressed <> OK and ButtonPressed <> Cancel then

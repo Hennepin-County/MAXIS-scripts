@@ -163,11 +163,11 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	Next
 End function
 
-'This is the custom function to load the dialotg. It needs to be in a custom function because the user can change the excel file
+'This is the custom function to load the dialog. It needs to be in a custom function because the user can change the excel file
 FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)
 	'DIALOGS-----------------------------------------------------------------------------------------------------------
 	'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
-	BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator dialog"
+	BeginDialog Dialog1, 0, 0, 446, 125, "Training case creator dialog"
 	EditBox 85, 5, 295, 15, training_case_creator_excel_file_path
 	DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
 	DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
@@ -187,12 +187,12 @@ FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, sce
 	Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
 	EndDialog
 
-	DIALOG training_case_creator_dialog
+	DIALOG
 END FUNCTION
 
 
 'DIALOGS------------------------------------------------------------------------------------------------------------------
-BeginDialog training_case_creator_01, 0, 0, 381, 265, "Training case creator"
+BeginDialog Dialog1, 0, 0, 381, 265, "Training case creator"
   Text 10, 10, 170, 10, "Hello! Thanks for clicking the training case creator!"
   Text 10, 25, 365, 20, "This script is very new, and was put together with a lot of hard work from seven scriptwriters, using bits and pieces from various scripts written over the last few years."
   Text 10, 50, 365, 20, "We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!"
@@ -223,7 +223,7 @@ how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
 'Show initial dialog
 Do
-	Dialog training_case_creator_01
+	Dialog
 	If ButtonPressed = cancel then stopscript
 	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
 Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
