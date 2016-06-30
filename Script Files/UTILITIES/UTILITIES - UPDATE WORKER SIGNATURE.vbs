@@ -4,10 +4,10 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +16,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,8 +34,30 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Needs to determine MyDocs directory before proceeding.
+Set wshshell = CreateObject("WScript.Shell")
+user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
+
+'Looks for the file. If found, it alerts the user
+Dim oTxtFile
+With (CreateObject("Scripting.FileSystemObject"))
+	If .FileExists(user_myDocs_folder & "workersig.txt") Then
+		Set get_worker_sig = CreateObject("Scripting.FileSystemObject")
+		Set worker_sig_command = get_worker_sig.OpenTextFile(user_myDocs_folder & "workersig.txt")
+		worker_sig = worker_sig_command.ReadAll
+		IF worker_sig <> "" THEN worker_signature = worker_sig
+		worker_sig_command.Close
+		
+		worker_signature_msgbox = MsgBox("A worker signature was found! You are listed as: " & worker_signature & "." & vbNewLine & vbNewLine & _
+			"Your worker signature was found at: " & user_myDocs_folder & "workersig.txt." & vbNewLine & vbNewLine & _ 
+			"Would you like to update this signature? Press Yes to continue, or No to cancel.", vbYesNo + vbQuestion, "A worker signature was found!")
+			
+		If worker_signature_msgbox = vbNo then StopScript
+	END IF
+END WITH
+
 '----------DIALOGS----------
-BeginDialog update_worker_signature_dialog, 0, 0, 191, 105, "Update Worker Signature"
+BeginDialog dialog1, 0, 0, 191, 105, "Update Worker Signature"
   EditBox 10, 60, 175, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 45, 85, 50, 15
@@ -55,7 +67,7 @@ BeginDialog update_worker_signature_dialog, 0, 0, 191, 105, "Update Worker Signa
 EndDialog
 
 '----------THE SCRIPT----------
-dialog update_worker_signature_dialog				'Shows the dialog
+dialog 												'Shows the dialog
 IF ButtonPressed = cancel THEN stopscript			'Handling for if cancel is pressed
 IF worker_signature = "" THEN stopscript			'If they enter nothing, it exits
 
@@ -65,7 +77,7 @@ windows_user_ID = objNet.UserName		'Saves the .UserName object as a new variable
 
 'Opens an FSO, opens workersig.txt, writes the new signature in, and exits
 SET update_worker_sig_fso = CreateObject("Scripting.FileSystemObject")
-SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile("C:\USERS\" & windows_user_ID & "\MY DOCUMENTS\workersig.txt", 2)
+SET update_worker_sig_command = update_worker_sig_fso.CreateTextFile(user_myDocs_folder & "workersig.txt", 2)
 update_worker_sig_command.Write(worker_signature)
 update_worker_sig_command.Close
 
