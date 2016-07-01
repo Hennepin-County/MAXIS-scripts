@@ -115,6 +115,10 @@ If SDX_check = "SDX INFORMATION HAS BEEN STORED - CHECK INFC" then call run_from
 EMReadScreen SCHL_check, 58, 6, 20
 If SCHL_check = "STUDENT INCOME HAS ENDED - REVIEW FS AND/OR HC RESULTS/APP" then call run_from_GitHub(script_repository & "DAIL/DAIL - STUDENT INCOME.vbs")
 
+'XFS
+EMReadScreen SCHL_check, 49, 6, 20
+If SCHL_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then call run_from_GitHub(script_repository & "DAIL/DAIL - POSTPONED XFS VERIFICATIONS.vbs")
+
 'SSA info received by agency (loads TPQY RESPONSE)
 EMReadScreen TPQY_check, 31, 6, 30
 If TPQY_check = "TPQY RESPONSE RECEIVED FROM SSA" then call run_from_GitHub(script_repository & "DAIL/DAIL - TPQY RESPONSE.vbs")
