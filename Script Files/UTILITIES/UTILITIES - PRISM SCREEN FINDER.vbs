@@ -38,7 +38,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog PRISM_screen_finder_dialog, 0, 0, 261, 135, "PRISM screen finder"
+BeginDialog Dialog1, 0, 0, 261, 135, "PRISM screen finder"
   ButtonGroup ButtonPressed
     CancelButton 210, 120, 50, 15
     PushButton 140, 70, 45, 10, "DDPL", DDPL_button
@@ -65,7 +65,7 @@ CALL check_for_PRISM(FALSE)
 
 DO
 
-	Dialog PRISM_screen_finder_dialog
+	Dialog
 
 	'Now it'll navigate to any of the screens chosen
 	If buttonpressed = DDPL_button then call navigate_to_PRISM_screen("DDPL")
