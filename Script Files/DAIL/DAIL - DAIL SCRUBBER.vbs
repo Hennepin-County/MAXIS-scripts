@@ -76,13 +76,13 @@ If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then call run_fr
 EMReadScreen CS_new_emp_check, 25, 6, 20
 If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then call run_from_GitHub(script_repository & "DAIL/DAIL - CS REPORTED NEW EMPLOYER.vbs")
 
-'Child support messages (loads CSES PROCESSING)			<<<<<<REMOVE AFTER TESTING
+'Child support messages (loads CSES PROCESSING)			<<<<<<REMOVE AFTER TESTING, REPLACE WITH FIXED LINK TO NEW CSES SCRUBBER, REMOVE TEMP MSGBOX
 EMReadScreen CSES_check, 4, 6, 6
-If CSES_check = "CSES" or (CSES_check = "TIKL" and windows_user_ID = "Veronica") then
-	EMReadScreen CSES_DISB_check, 4, 6, 20
-	If CSES_DISB_check = "DISB" then 
-		If windows_user_ID = "Veronica" or _
-		   windows_user_ID = "PWVKC45" then
+If CSES_check = "CSES" or CSES_check = "TIKL" then		'TIKLs are used for fake cases and testing
+	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
+	If CSES_DISB_check = "DISB" then 					'If it's a disbursement message...
+		If use_master_branch = true or worker_county_code = "x162" then temp_CSES_msgbox = MsgBox ("You have selected a CSES message. Would you like to try the new CSES scrubber?", vbYesNo)
+		If temp_CSES_msgbox = vbYes then
 			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs")
 		Else
 			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES PROCESSING.vbs")
