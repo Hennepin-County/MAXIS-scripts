@@ -190,10 +190,29 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
     	ObjExcel.Cells(excel_row, col_PMI_number).Value 	= PMI_number						'We want this PMI for obvious reasons
     	ObjExcel.Cells(excel_row, col_amt_alloted).Value 	= COEX_amt / COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
 		'<<<<<<<<<<<<<<<<<<<<PROBABLY WHERE PENNY ISSUE SHOULD GO, MAYBE JUST ADD PARTIALS TO THE FIRST MEMB????????
+		
+		'Needs to resolve the so-called "penny issue", or the issue where an odd numbered amount of cents received causes the evaluation to tack on a
+		'	"partial penny" to each recipient. I.e.: $1.01 split amongst two children would net each $0.505. That doesn't work with MAXIS, so we need
+		'	"lop off" the partial pennies, and tack them onto the first household member. This part gets the total partial pennies, then adds the new 
+		'	amount to the worksheet.
+		
+		penny_issue_total_cell_amt_times_100 = (ObjExcel.Cells(excel_row, col_amt_alloted).Value) * 100 											'Grabs the amount to be evaluated multiplies by 100 to get rid of the first two digits of the decimal
+		penny_issue_partial_pennies_from_cell = (penny_issue_total_cell_amt_times_100 - int(penny_issue_total_cell_amt_times_100) ) / 100			'Grabs the actual partial pennies by eliminating the integer from the previous value, then dividing by 100 to return it to the proper place in the decimal
+		penny_issue_partial_pennies_total = penny_issue_partial_pennies_total + penny_issue_partial_pennies_from_cell 								'Adds the partial pennies to a new variable to be tacked on at the end
+		ObjExcel.Cells(excel_row, col_amt_alloted).Value = ObjExcel.Cells(excel_row, col_amt_alloted).Value - penny_issue_partial_pennies_from_cell	'Updates the cell to eliminate the partial pennies
+		
+		
     	ObjExcel.Cells(excel_row, col_CS_type).Value 		= CS_type						'This is the type, and it's helpful to know this when we write to UNEA
     	ObjExcel.Cells(excel_row, col_issue_date).Value 	= issue_date						'The date it was issued
     	excel_row = excel_row + 1											'Increments up one in order to start on the next Excel row
     Next
+	
+	'Adding partial pennies to the member 01
+	ObjExcel.Cells(3, col_amt_alloted).Value = ObjExcel.Cells(3, col_amt_alloted).Value + penny_issue_partial_pennies_total
+	
+	'Clearing this variable so we can start over again next message (next run through the loop)
+	penny_issue_partial_pennies_total = 0
+	
 	'GETS OUT OF THE MESSAGE
 	transmit
 
