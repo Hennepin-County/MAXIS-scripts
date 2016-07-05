@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - DAIL REPORT.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 25                               'manual run time, per line, in seconds
+STATS_denomination = "I"       'I is for each ITEM
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,38 +38,46 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 25                               'manual run time, per line, in seconds
-STATS_denomination = "I"       'I is for each ITEM
-'END OF stats block==============================================================================================
-
-BeginDialog bulk_dail_report_dialog, 0, 0, 361, 80, "Bulk DAIL report dialog"
+BeginDialog bulk_dail_report_dialog, 0, 0, 361, 150, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
+  CheckBox 20, 85, 25, 10, "ALL", All_check
   ButtonGroup ButtonPressed
-    OkButton 250, 55, 50, 15
-    CancelButton 305, 55, 50, 15
+    OkButton 250, 125, 50, 15
+    CancelButton 305, 125, 50, 15
+  CheckBox 60, 85, 30, 10, "COLA", cola_check
+  CheckBox 105, 85, 30, 10, "CLMS", clms_check
+  CheckBox 150, 85, 30, 10, "CSES", cses_check
+  CheckBox 195, 85, 30, 10, "ELIG", elig_check
+  CheckBox 240, 85, 30, 10, "IEVS", ievs_check
+  CheckBox 280, 85, 30, 10, "INFO", info_check
+  CheckBox 20, 100, 25, 10, "IV-E", iv3_check
+  CheckBox 60, 100, 25, 10, "MA", ma_check
+  CheckBox 105, 100, 30, 10, "MEC2", mec2_check
+  CheckBox 150, 100, 35, 10, "PARI", pari_chck
+  CheckBox 195, 100, 30, 10, "PEPR", pepr_check
+  CheckBox 240, 100, 30, 10, "TIKL", tikl_check
+  CheckBox 280, 100, 30, 10, "WF1", wf1_check
   Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
   Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
-  Text 10, 55, 185, 10, "Note: please enter the entire 7-digit number x1 number."
-  Text 20, 65, 160, 10, "(Example: ''x100abc, x100abc'')"
+  Text 10, 55, 290, 10, "Note: please enter the entire 7-digit number x1 number. (Example: ''x100abc, x100abc'')"
+  GroupBox 5, 70, 305, 50, "Select the type(s) of DAIL message to add to the report:"
 EndDialog
 
 'Connects to MAXIS
 EMConnect ""
 
-'Checks to make sure we're in MAXIS
-CALL check_for_MAXIS(false)
-
 'Looks up an existing user for autofilling the next dialog
 CALL find_variable("User: ", x_number_editbox, 7)
 
-'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
-dialog bulk_dail_report_dialog
-if ButtonPressed = 0 THEN stopscript
+'defaulting the script to check all DAILS on a DAIL list
+all_check = 1
 
-'Checks to make sure we're (still) in MAXIS
-CALL check_for_MAXIS(false)
+'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
+DO
+	dialog bulk_dail_report_dialog
+	cancel_confirmation
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'splits the results of the editbox into an array
 x_number_array = split(x_number_editbox, ",")
@@ -113,8 +115,34 @@ For each x_number in x_number_array
 	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 	EMWriteScreen x_number, 21, 6
 	transmit
-
+	
+	'selecting the type of DAIl message
+	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
+	transmit
+	EMWriteScreen "_", 7, 39		'clears the all selection
+	If all_check = 1 then EMWriteScreen "x", 7, 39
+	If cola_check = 1 then EMWriteScreen "x", 8, 39
+	If clms_check = 1 then EMWriteScreen "x", 9, 39
+	If cses_check = 1 then EMWriteScreen "x", 10, 39
+	If elig_check = 1 then EMWriteScreen "x", 11, 39
+	If ievs_check = 1 then EMWriteScreen "x", 12, 39
+	If info_check = 1 then EMWriteScreen "x", 13, 39
+	If iv3_check = 1 then EMWriteScreen "x", 14, 39
+	If ma_check = 1 then EMWriteScreen "x", 15, 39
+ 	If mec2_check = 1 then EMWriteScreen "x", 16, 39
+	If pari_chck = 1 then EMWriteScreen "x", 17, 39
+	If pepr_check = 1 then EMWriteScreen "x", 18, 39
+	If tikl_check = 1 then EMWriteScreen "x", 19, 39
+	If wf1_check = 1 then EMWriteScreen "x", 20, 39
+	transmit
+	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	DO
+		If number_of_dails = " " Then 			'if this space is blank the rest of the DAIL reading is skipped
+			objExcel.Cells(excel_row, 1).Value = x_number
+			objExcel.Cells(excel_row, 3).Value = "No DAILs for this worker."
+			excel_row = excel_row + 1
+			Exit Do
+		End If 
 		'Reading and trimming the MAXIS case number and dumping it in Excel
 		EMReadScreen maxis_case_number, 8, 5, 73
 		maxis_case_number = trim(maxis_case_number)
@@ -197,8 +225,6 @@ For each x_number in x_number_array
 	if x_number <> x_number_array(ubound(x_number_array)) then all_done = false
 Next
 
-STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-
 'Enters info about runtime for the benefit of folks using the script
 objExcel.Cells(2, 8).Value = "Lines added to Excel sheet:"
 objExcel.Cells(3, 8).Value = "Average time to find/select/copy/paste one line (in seconds):"
@@ -217,6 +243,5 @@ FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-
-
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The workers' DAILs are now entered.")

@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - NEW JOB REPORTED.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 345                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,27 +38,61 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 345                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
-'END OF stats block=========================================================================================================
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+MAXIS_footer_month = datepart("m", dateadd("m", 1, date))
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
+MAXIS_footer_month = CStr(MAXIS_footer_month)
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS
+EMConnect ""
+
+'Finds a case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+
+'Shows and defines the case number dialog
+BeginDialog , 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, case_number
+  EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
 EndDialog
 
+Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+cancel_confirmation
 
-BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+
+'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
+EMReadScreen footer_month_year_check, 5, 20, 55
+If left(footer_month_year_check, 2) <> MAXIS_footer_month or right(footer_month_year_check, 2) <> MAXIS_footer_year then
+	back_to_self
+	EMWriteScreen "________", 18, 43
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
+	transmit
+End if
+
+'NAV to stat/jobs
+call navigate_to_MAXIS_screen("stat", "jobs")
+
+'Declaring some variables to create defaults for the new_job_reported_dialog.
+create_JOBS_checkbox = 1
+HH_memb = "01"
+HH_memb_row = 5 'This helps the navigation buttons work!
+
+'Shows and defines the main dialog.
+BeginDialog , 0, 0, 286, 280, "New job reported dialog"
   EditBox 80, 5, 25, 15, HH_memb
   DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIA (JTPA)"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income", income_type_dropdown
   DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
@@ -81,12 +109,12 @@ BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
   CheckBox 5, 245, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
   EditBox 70, 260, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 260, 50, 15
-    CancelButton 230, 260, 50, 15
-    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 175, 25, 45, 10, "next panel", next_panel_button
-    PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 235, 25, 45, 10, "next memb", next_memb_button
+	OkButton 175, 260, 50, 15
+	CancelButton 230, 260, 50, 15
+	PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+	PushButton 175, 25, 45, 10, "next panel", next_panel_button
+	PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
+	PushButton 235, 25, 45, 10, "next memb", next_memb_button
   Text 5, 10, 70, 10, "HH member number:"
   GroupBox 170, 5, 115, 35, "STAT-based navigation"
   Text 5, 30, 45, 10, "Income Type: "
@@ -99,89 +127,51 @@ BeginDialog new_job_reported_dialog, 0, 0, 286, 280, "New job reported dialog"
   Text 5, 170, 25, 10, "Notes:"
   Text 5, 265, 60, 10, "Worker signature:"
 EndDialog
-
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", dateadd("m", 1, date))
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
-footer_month = CStr(footer_month)
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS
-EMConnect ""
-
-'Finds a case number
-call MAXIS_case_number_finder(case_number)
-
-'Shows the case number dialog
-Dialog case_number_and_footer_month_dialog
-cancel_confirmation
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
-
-'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
-EMReadScreen footer_month_year_check, 5, 20, 55
-If left(footer_month_year_check, 2) <> footer_month or right(footer_month_year_check, 2) <> footer_year then
-	back_to_self
-	EMWriteScreen "________", 18, 43
-	EMWriteScreen footer_month, 20, 43
-	EMWriteScreen footer_year, 20, 46
-	transmit
-End if
-
-'NAV to stat/jobs
-call navigate_to_MAXIS_screen("stat", "jobs")
-
-'Declaring some variables to create defaults for the new_job_reported_dialog.
-create_JOBS_checkbox = 1
-HH_memb = "01"
-HH_memb_row = 5 'This helps the navigation buttons work!
-
-'Shows the dialog.
-Do
+DO
 	Do
 		Do
 			Do
 				Do
 					Do
-						Dialog new_job_reported_dialog
-						cancel_confirmation
-						MAXIS_dialog_navigation
-						If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
-							If (datediff("m", footer_month & "/01/20" & footer_year, income_start_date) > 0) then
-								MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
-								pass_through_inc_date_loop = False
+						Do
+							Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+							cancel_confirmation
+							MAXIS_dialog_navigation
+							If isdate(income_start_date) = True then		'Logic to determine if the income start date is functional
+								If (datediff("m", MAXIS_footer_month & "/01/20" & MAXIS_footer_year, income_start_date) > 0) then
+									MsgBox "Your income start date is after your footer month. If the income start date is after this month, exit the script and try again in the correct footer month."
+									pass_through_inc_date_loop = False
+								Else
+									pass_through_inc_date_loop = True
+								End if
 							Else
-								pass_through_inc_date_loop = True
+								If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
 							End if
+						Loop until income_start_date = "" or pass_through_inc_date_loop = True
+						If employer = "" then MsgBox "You must type an employer!"
+					Loop until employer <> ""
+					If isdate(contract_through_date) = True or income_type_dropdown = "C Contract Income" then
+						If income_type_dropdown <> "C Contract Income" then
+							MsgBox "You should not put a ''contract through'' date in, unless the income type is ''C Contract Income''."
+							pass_through_contract_date_loop = False
+						Elseif income_type_dropdown = "C Contract Income" and isdate(contract_through_date) = False then
+							MsgBox "You should not put a ''C Contract Income'' code in, unless there is a ''contract through'' date."
+							pass_through_contract_date_loop = False
 						Else
-							If income_start_date <> "" then MsgBox "You must type a date in the Income Start Date field, or leave it blank."
+							pass_through_contract_date_loop = True
 						End if
-					Loop until income_start_date = "" or pass_through_inc_date_loop = True
-					If employer = "" then MsgBox "You must type an employer!"
-				Loop until employer <> ""
-				If isdate(contract_through_date) = True or income_type_dropdown = "C Contract Income" then
-					If income_type_dropdown <> "C Contract Income" then
-						MsgBox "You should not put a ''contract through'' date in, unless the income type is ''C Contract Income''."
-						pass_through_contract_date_loop = False
-					Elseif income_type_dropdown = "C Contract Income" and isdate(contract_through_date) = False then
-						MsgBox "You should not put a ''C Contract Income'' code in, unless there is a ''contract through'' date."
-						pass_through_contract_date_loop = False
 					Else
-						pass_through_contract_date_loop = True
+						If contract_through_date <> "" then MsgBox "You must type a date in the Contract Through date field, or leave it blank."
 					End if
-				Else
-					If contract_through_date <> "" then MsgBox "You must type a date in the Contract Through date field, or leave it blank."
-				End if
-			Loop until (contract_through_date = "" and income_type_dropdown <> "C Contract Income") or pass_through_contract_date_loop = True
-			If who_reported_job = "" then MsgBox "You must type out who reported the job!"
-		Loop until who_reported_job <> ""
-		If job_report_type = "" then MsgBox "You must select how you heard about the job, or write something in that field yourself."
-	Loop until job_report_type <> ""
-	If worker_signature = "" then MsgBox "You must sign your case note!"
-Loop until worker_signature <> ""
+				Loop until (contract_through_date = "" and income_type_dropdown <> "C Contract Income") or pass_through_contract_date_loop = True
+				If who_reported_job = "" then MsgBox "You must type out who reported the job!"
+			Loop until who_reported_job <> ""
+			If job_report_type = "" then MsgBox "You must select how you heard about the job, or write something in that field yourself."
+		Loop until job_report_type <> ""
+		If worker_signature = "" then MsgBox "You must sign your case note!"
+	Loop until worker_signature <> ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Creates a new JOBS panel if that was selected.
 If create_JOBS_checkbox = checked then
@@ -196,16 +186,16 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen employer, 7, 42
 	If income_start_date <> "" then call create_MAXIS_friendly_date(income_start_date, 0, 9, 35)
 	If contract_through_date <> "" then call create_MAXIS_friendly_date(contract_through_date, 0, 9, 73)
-	EMReadScreen footer_month, 2, 20, 55
-	EMReadScreen footer_year, 2, 20, 58
+	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	EMReadScreen MAXIS_footer_year, 2, 20, 58
 	If isdate(income_start_date) = True then
-		If datediff("d", income_start_date, footer_month & "/01/20" & footer_year) > 0 then
-			call create_MAXIS_friendly_date(footer_month & "/01/20" & footer_year, 0, 12, 54)
+		If datediff("d", income_start_date, MAXIS_footer_month & "/01/20" & MAXIS_footer_year) > 0 then
+			call create_MAXIS_friendly_date(MAXIS_footer_month & "/01/20" & MAXIS_footer_year, 0, 12, 54)
 		Else
 			call create_MAXIS_friendly_date(income_start_date, 0, 12, 54)
 		End if
 	Else
-		call create_MAXIS_friendly_date(footer_month & "/01/20" & footer_year, 0, 12, 54)
+		call create_MAXIS_friendly_date(MAXIS_footer_month & "/01/20" & MAXIS_footer_year, 0, 12, 54)
 	End if
 	EMWriteScreen "0", 12, 67
 	EMWriteScreen "0", 18, 72

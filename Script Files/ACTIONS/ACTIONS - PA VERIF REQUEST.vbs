@@ -1,13 +1,17 @@
-'STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - PA VERIF REQUEST.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 294                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,12 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 294                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
-'END OF stats block=========================================================================================================
-
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 MAXIS_footer_month = datepart("m", next_month)
@@ -57,13 +45,16 @@ If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_mont
 MAXIS_footer_year = datepart("yyyy", next_month)
 MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
+
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
   ButtonGroup ButtonPressed
     OkButton 40, 50, 50, 15
     CancelButton 95, 50, 50, 15
-  EditBox 75, 5, 70, 15, case_number
+  EditBox 75, 5, 70, 15, MAXIS_case_number
   EditBox 75, 25, 30, 15, MAXIS_footer_month
   EditBox 115, 25, 30, 15, MAXIS_footer_year
   Text 10, 10, 50, 10, "Case Number"
@@ -71,11 +62,10 @@ BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
 EndDialog
 
 
-BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
+BeginDialog PA_verif_dialog, 0, 0, 196, 285, "PA Verif Dialog"
   ButtonGroup ButtonPressed
-    OkButton 85, 230, 50, 15
-    CancelButton 140, 230, 50, 15
-
+    OkButton 85, 265, 50, 15
+    CancelButton 140, 265, 50, 15
   EditBox 50, 15, 25, 15, snap_grant
   EditBox 125, 15, 25, 15, MFIP_food
   EditBox 155, 15, 25, 15, MFIP_cash
@@ -84,16 +74,15 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   EditBox 155, 35, 25, 15, MFIP_housing
   EditBox 155, 55, 25, 15, DWP_grant
   EditBox 50, 75, 130, 15, other_notes
-  EditBox 50, 100, 130, 15, other_income
-  CheckBox 50, 120, 35, 10, "Yes", subsidy_check
-  EditBox 50, 140, 20, 15, cash_members
-  EditBox 150, 140, 20, 15, household_members
-  CheckBox 10, 170, 92, 15, "Include screenshot of last", inqd_check
-  EditBox 104, 170, 15, 15, number_of_months
-  EditBox 40, 190, 55, 15, completed_by
-  EditBox 140, 190, 45, 15, worker_phone
-  EditBox 120, 210, 65, 15, worker_signature
-
+  EditBox 50, 95, 130, 15, other_income
+  CheckBox 55, 150, 35, 10, "Yes", subsidy_check
+  EditBox 50, 175, 20, 15, cash_members
+  EditBox 160, 175, 20, 15, household_members
+  CheckBox 5, 195, 95, 15, "Include screenshot of last", inqd_check
+  EditBox 100, 195, 15, 15, number_of_months
+  EditBox 50, 220, 55, 15, completed_by
+  EditBox 140, 220, 45, 15, worker_phone
+  EditBox 120, 240, 65, 15, worker_signature
   Text 5, 15, 40, 15, "SNAP:"
   Text 100, 55, 20, 15, "DWP:"
   Text 5, 75, 40, 15, "Other notes:"
@@ -101,19 +90,18 @@ BeginDialog PA_verif_dialog, 0, 0, 190, 250, "PA Verif Dialog"
   Text 5, 35, 35, 15, "MSA:"
   Text 100, 15, 25, 15, "MFIP:"
   Text 100, 35, 30, 20, "MFIP Housing:"
-  Text 5, 100, 45, 20, "Other income and type:"
-  Text 5, 120, 45, 20, "$50 subsidy deduction?"
-  Text 5, 140, 45, 30, "Number of members on cash grant:"
-  Text 90, 140, 55, 25, "Total members in household:"
+  Text 5, 95, 45, 20, "Other income and type:"
+  Text 5, 145, 45, 20, "$50 subsidy deduction?"
+  Text 5, 165, 45, 25, "Number of members on cash grant:"
+  Text 95, 175, 55, 15, "Total members in household:"
   Text 130, 5, 25, 10, "Food:"
   Text 160, 5, 25, 10, "Cash:"
-  Text 123, 173, 60, 10, "months' benefits"
-  Text 110, 190, 25, 20, "Worker Phone:"
-  Text 5, 190, 35, 20, "Completed by:"
-  Text 20, 210, 90, 15, "Worker Signature (For case note):"
-
+  Text 120, 200, 60, 10, "months' benefits"
+  Text 110, 220, 25, 20, "Worker Phone:"
+  Text 5, 215, 35, 20, "Completed by:"
+  Text 10, 240, 90, 15, "Worker Signature (For case note):"
+  Text 5, 115, 175, 25, "Warning: Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
 EndDialog
-
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -123,7 +111,7 @@ Dim col
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to BlueZone & grabs the case number and footer month/year
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
@@ -131,8 +119,8 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Do
   Dialog case_number_dialog
   cancel_confirmation
-  If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Checking for MAXIS
 call check_for_MAXIS(False)

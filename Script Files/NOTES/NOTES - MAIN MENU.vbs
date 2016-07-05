@@ -4,10 +4,10 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +16,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -94,24 +84,6 @@ script_array_LTC    = array()
 
 'END VARIABLES TO DECLARE===================================================================================================
 
-'CLASSES TO DEFINE==========================================================================================================
-
-'A class for each script item
-class script
-
-	public script_name
-	public file_name
-	public description
-	public button
-
-	public property get button_size	'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
-		button_size = round ( len( script_name ) * 3.5 ) + 10
-	end property
-
-end class
-
-'END CLASSES TO DEFINE==========================================================================================================
-
 'LIST OF SCRIPTS================================================================================================================
 
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
@@ -138,7 +110,7 @@ ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one mo
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "AREP Form Received"
 script_array_0_to_C(script_num).file_name				= "NOTES - AREP FORM RECEIVED.vbs"
-script_array_0_to_C(script_num).description				= "NEW 02/2016!!! Template for when you receive an AREP form."
+script_array_0_to_C(script_num).description				= "NEW 02/2016!!! Template for when you receive an Authorized Representative (AREP) form."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
@@ -215,7 +187,7 @@ ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one mo
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "CSR"
 script_array_0_to_C(script_num).file_name				= "NOTES - CSR.vbs"
-script_array_0_to_C(script_num).description				= "Template for the CSR.*"
+script_array_0_to_C(script_num).description				= "Template for the Combined Six-month Report (CSR).*"
 
 
 
@@ -225,6 +197,13 @@ script_array_0_to_C(script_num).description				= "Template for the CSR.*"
 script_num = 0
 ReDim Preserve script_array_D_to_F(script_num)
 Set script_array_D_to_F(script_num) = new script
+script_array_D_to_F(script_num).script_name 			= "Deceased Client Summary"																		'Script name
+script_array_D_to_F(script_num).file_name				= "NOTES - DECEASED CLIENT SUMMARY.vbs"
+script_array_D_to_F(script_num).description 			= "NEW 04/2016!!! -- Adds details about a deceased client to a CASE/NOTE."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
+Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Denied programs"																		'Script name
 script_array_D_to_F(script_num).file_name				= "NOTES - DENIED PROGRAMS.vbs"
 script_array_D_to_F(script_num).description 			= "Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
@@ -342,6 +321,13 @@ script_array_G_to_L(script_num).description				= "Template for requests of good 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_G_to_L(script_num).script_name 			= "Good Cause Results"
+script_array_G_to_L(script_num).file_name				= "NOTES - GOOD CAUSE RESULTS.vbs"
+script_array_G_to_L(script_num).description				= "Template for Good Cause results for determination or renewal.*"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "GRH - HRF"
 script_array_G_to_L(script_num).file_name				= "NOTES - GRH - HRF.vbs"
 script_array_G_to_L(script_num).description				= "Template for GRH HRFs. Case must be post-pay.*"
@@ -351,7 +337,7 @@ ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one mo
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "HC ICAMA"
 script_array_G_to_L(script_num).file_name				= "NOTES - HC ICAMA.vbs"
-script_array_G_to_L(script_num).description				= "NEW 02/2016!!! Template for HC ICAMAs."
+script_array_G_to_L(script_num).description				= "NEW 02/2016!!! Template for HC Interstate Compact on Adoption and Medical Assistance (HC ICAMA)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
@@ -475,21 +461,21 @@ ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one mo
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MSQ"
 script_array_M_to_Q(script_num).file_name				= "NOTES - MSQ.vbs"
-script_array_M_to_Q(script_num).description				= "NEW 02/2016!!! Template for noting MSQs."
+script_array_M_to_Q(script_num).description				= "NEW 02/2016!!! Template for noting Medical Service Questionaires (MSQ)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MTAF"
 script_array_M_to_Q(script_num).file_name				= "NOTES - MTAF.vbs"
-script_array_M_to_Q(script_num).description				= "Template for the MTAF form."
+script_array_M_to_Q(script_num).description				= "Template for the MN Transition Application form (MTAF)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "OHP Received"
 script_array_M_to_Q(script_num).file_name				= "NOTES - OHP RECEIVED.vbs"
-script_array_M_to_Q(script_num).description				= "NEW 02/2016!!! Template for noting that an OHP was received."
+script_array_M_to_Q(script_num).description				= "NEW 02/2016!!! Template for noting Out of Home Placement (OHP)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
@@ -523,6 +509,13 @@ Set script_array_R_to_Z(script_num) = new script
 script_array_R_to_Z(script_num).script_name 			= "REIN Progs"
 script_array_R_to_Z(script_num).file_name				= "NOTES - REIN PROGS.vbs"
 script_array_R_to_Z(script_num).description				= "Template for noting program reinstatement information."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
+Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_R_to_Z(script_num).script_name 			= "Returned Mail"
+script_array_R_to_Z(script_num).file_name				= "NOTES - RETURNED MAIL RECEIVED.vbs"
+script_array_R_to_Z(script_num).description				= "Template for noting Returned Mail Received information."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
@@ -588,9 +581,9 @@ script_array_LTC(script_num).description				= "Template for the LTC asset assess
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
 Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
-script_array_LTC(script_num).script_name 				= "LTC - COLA summary 2016"
-script_array_LTC(script_num).file_name					= "NOTES - LTC - COLA SUMMARY 2016.vbs"
-script_array_LTC(script_num).description				= "Template to summarize actions for the 2016 COLA.*"
+script_array_LTC(script_num).script_name 				= "LTC - COLA summary"
+script_array_LTC(script_num).file_name					= "NOTES - LTC - COLA SUMMARY.vbs"
+script_array_LTC(script_num).description				= "Template to summarize actions for the changes due to COLA.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it

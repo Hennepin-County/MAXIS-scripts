@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - LTC - COLA SUMMARY 2016.vbs"
+'Required for statistical purposes==========================================================================================
+name_of_script = "NOTES - LTC - COLA SUMMARY.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 480          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 480          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
@@ -97,9 +85,9 @@ Function approval_summary
   back_to_self
   EMWriteScreen "stat", 16, 43
   EMWriteScreen "________", 18, 43
-  EMWriteScreen case_number, 18, 43
-  EMWriteScreen "01", 20, 43
-  EMWriteScreen "16", 20, 46
+  EMWriteScreen MAXIS_case_number, 18, 43
+  EMWriteScreen MAXIS_footer_month, 20, 43
+  EMWriteScreen MAXIS_footer_year, 20, 46
   EMWriteScreen "hcmi", 21, 70
   transmit
 
@@ -154,9 +142,9 @@ Function approval_summary
 'navigates to elig HC for first month of the year.
   EMWriteScreen "elig", 16, 43
   EMWriteScreen "________", 18, 43
-  EMWriteScreen case_number, 18, 43
-  EMWriteScreen "01", 20, 43
-  EMWriteScreen "16", 20, 46
+  EMWriteScreen MAXIS_case_number, 18, 43
+  EMWriteScreen MAXIS_footer_month, 20, 43
+  EMWriteScreen MAXIS_footer_year, 20, 46
   EMWriteScreen "hc", 21, 70
   transmit
  'checks if the first person has HC if not it selects person 02.
@@ -170,9 +158,9 @@ Function approval_summary
 
   row = 3
   col = 1
-  EMSearch "01/16", row, col
+  EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
   If row = 0 then
-    MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
+    MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
     stopscript
   End if
 
@@ -310,9 +298,9 @@ EndDialog
   			 transmit
 			 row = 3
   			 col = 1
-  			 EMSearch "01/16", row, col
+  			 EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
  			 If row = 0 then
- 			   MsgBox "A 01/16 span could not be found. Try this again. You may need to run the case through background."
+ 			   MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
  			   stopscript
 			  End if
 			  EMReadScreen elig_type, 2, 12, col - 2
@@ -329,7 +317,7 @@ EndDialog
 		End if
   Loop until buttonpressed = OK
   back_to_self
-  EMWriteScreen case_number, 18, 43
+  EMWriteScreen MAXIS_case_number, 18, 43
 
   Call start_a_blank_CASE_NOTE
   EMSendKey "**Approved COLA updates 01/16: " & elig_type & "-" & budget_type & " " & recipient_amt
@@ -354,10 +342,10 @@ function income_summary
 
 	EMConnect ""
 
-	'FORCING THE CASE INTO FOOTER MONTH 01/15
+	
 	back_to_self
-	EMWriteScreen "01", 20, 43
-	EMWriteScreen "16", 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
 
 	'GRABBING THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	call navigate_to_MAXIS_screen("stat", "unea")
@@ -608,31 +596,34 @@ End function
 'CONNECTS TO MAXIS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 
-row = 1
-col = 1
-EMSearch "Case Nbr:", row, col
-If row <> 0 then EMReadScreen case_number, 8, row, col + 10
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Checking to see that we are in an appropriate footer month to be updating in CY2016
-If DateDiff("D", #12/01/2015#, date) < 0 THEN
-	script_end_procedure("MAXIS is unable to be updated for the footer month of 01/16." & vbNewLine & "You must wait until 12/01/15 or after to run this script.")
-Else
-	BeginDialog COLA_case_number_dialog, 0, 0, 166, 82, "COLA case number dialog"
-	EditBox 100, 0, 60, 15, case_number
-	CheckBox 45, 30, 75, 10, "Approval Summary", approval_summary_check
-	CheckBox 45, 45, 70, 10, "Income Summary", income_summary_check
-	ButtonGroup ButtonPressed
-		OkButton 25, 65, 50, 15
-		CancelButton 90, 65, 50, 15
-	Text 10, 5, 85, 10, "Enter your case number:"
-	GroupBox 40, 20, 85, 40, "COLA case note types"
+	BeginDialog COLA_case_number_dialog, 0, 0, 211, 110, "COLA case number dialog"
+		EditBox 100, 0, 60, 15, MAXIS_case_number
+		EditBox 80, 20, 20, 15, MAXIS_footer_month
+		EditBox 180, 20, 20, 15, MAXIS_footer_year
+		CheckBox 65, 55, 75, 10, "Approval Summary", approval_summary_check
+		CheckBox 65, 70, 70, 10, "Income Summary", income_summary_check
+		ButtonGroup ButtonPressed
+			OkButton 45, 90, 50, 15
+			CancelButton 110, 90, 50, 15
+		Text 5, 25, 70, 10, "Approval Month(MM):"
+		Text 110, 25, 65, 10, "Approval Year(YY):"
+		Text 10, 5, 85, 10, "Enter your case number:"
+		GroupBox 60, 45, 85, 40, "COLA case note types"
 	EndDialog
-
-	Dialog COLA_case_number_dialog
-	cancel_confirmation
+	
+	DO
+		err_msg = ""
+		Dialog COLA_case_number_dialog
+		cancel_confirmation
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number." & vBCr
+		If len(MAXIS_footer_month) <> 2 THEN err_msg = err_msg & "* Enter the Approval month in MM format (include leading zero if needed)" & vBCr
+		If len(MAXIS_footer_year) <> 2 THEN err_msg = err_msg & "* Enter the Approval year in YY format (include leading zero if needed)" & vBCr
+		IF err_msg <> "" THEN msgbox err_msg
+	LOOP until err_msg = ""
 
 	If approval_summary_check = 1 then call approval_summary
 	If income_summary_check = 1 then call income_summary
-END IF
 
 script_end_procedure("")

@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - COMBINED AR.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 540          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,12 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 540          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", 1, date)
 MAXIS_footer_month = datepart("m", next_month)
@@ -59,7 +47,7 @@ MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
+  EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, MAXIS_footer_month
   EditBox 120, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "GRH", GRH_check
@@ -90,12 +78,12 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 50, 275, 385, 15, other_notes
   CheckBox 5, 300, 65, 10, "R/R explained?", R_R_explained
   CheckBox 80, 300, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 80, 315, 60, 10, "eDRS checked", eDRS_checked
   DropListBox 230, 295, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete"+chr(9)+"closed", review_status
   EditBox 370, 295, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 330, 315, 50, 15
     CancelButton 385, 315, 50, 15
-    PushButton 20, 15, 25, 10, "HCRE", HCRE_button
     PushButton 45, 15, 25, 10, "MEMB", MEMB_button
     PushButton 70, 15, 25, 10, "MEMI", MEMI_button
     PushButton 95, 15, 25, 10, "REVW", REVW_button
@@ -139,6 +127,8 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   GroupBox 15, 5, 110, 25, "STAT panels:"
   GroupBox 330, 5, 110, 35, "STAT-based navigation"
   Text 5, 60, 55, 10, "Interview Date:"
+  ButtonGroup ButtonPressed
+    PushButton 20, 15, 25, 10, "HCRE", HCRE_button
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -149,7 +139,7 @@ Dim col
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 'call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)  removed since typically CARs are run on current month + 1 anyway
 
 MAXIS_footer_month = cstr(MAXIS_footer_month)
@@ -159,8 +149,8 @@ MAXIS_footer_year = cstr(MAXIS_footer_year)
 Do
 	Dialog case_number_dialog
 	If buttonpressed = 0 then StopScript
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Checks for an active MAXIS session
 call check_for_MAXIS(False)
@@ -195,14 +185,17 @@ recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 recert_month = cstr(recert_month)
 
 'Showing the case note dialog
-Do
-	DO
-		Dialog combined_AR_dialog
-		cancel_confirmation
-		MAXIS_dialog_navigation
-	Loop until ButtonPressed = -1
-	If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
-Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""			
+DO
+	Do
+		DO
+			Dialog combined_AR_dialog
+			cancel_confirmation
+			MAXIS_dialog_navigation
+		Loop until ButtonPressed = -1
+		If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
+	Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false			
 
 'The case note----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
@@ -220,6 +213,7 @@ CALL write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 IF R_R_explained = checked THEN CALL write_variable_in_case_note("* R/R explained.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+IF eDRS_checked = checked THEN CALL write_variable_in_CASE_NOTE("* eDRS sent.")
 CALL write_bullet_and_variable_in_case_note("Notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)

@@ -1,13 +1,18 @@
-'STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - TYMA TIKLER.vbs"
 start_time = timer
+STATS_counter = 1              'sets the stats counter at one
+IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN STATS_manualtime = 136        'manual run time in seconds for TIKLING all at once
+IF TYMA_TIKL_ALL_AT_ONCE = FALSE THEN STATS_manualtime = 30        'manual run time in seconds for TIKLING as you go (1st TIKL)
+STATS_denomination = "C"		'C is for case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +21,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,16 +39,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1              'sets the stats counter at one
-IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN STATS_manualtime = 136        'manual run time in seconds for TIKLING all at once
-IF TYMA_TIKL_ALL_AT_ONCE = FALSE THEN STATS_manualtime = 30        'manual run time in seconds for TIKLING as you go (1st TIKL)
-STATS_denomination = "C"		'C is for case
-'END OF stats block==============================================================================================
-
 	'DIALOGS--------------------------------------------------------------------------------------------------------------------
 	BeginDialog TYMA_tikler, 0, 0, 261, 200, "TYMA/TMA TIKLer"
-	EditBox 65, 5, 65, 15, case_number
+	EditBox 65, 5, 65, 15, MAXIS_case_number
 	EditBox 190, 65, 20, 15, start_month
 	EditBox 225, 65, 25, 15, start_year
 	ButtonGroup ButtonPressed
@@ -82,7 +70,7 @@ STATS_denomination = "C"		'C is for case
 	EndDialog
 	
 	BeginDialog TYMA_tikler_full, 0, 0, 141, 130, "TYMA/TMA TIKLer"
-	EditBox 60, 5, 65, 15, case_number
+	EditBox 60, 5, 65, 15, MAXIS_case_number
 	EditBox 5, 55, 20, 15, start_month
 	EditBox 40, 55, 25, 15, start_year
 	EditBox 75, 90, 60, 15, worker_signature
@@ -106,7 +94,7 @@ EMConnect""
 
 'FIRST HALF------------------------------------------------------------------------------------------------------------------------------------
 IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLing all at once. 	
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
 	
 	Do
@@ -130,7 +118,7 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 				End If
 			End If
 		Loop until buttonpressed = OK
-		If case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."     'error message handling builds an error message based on items left off of the dialog.
+		If MAXIS_case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."     'error message handling builds an error message based on items left off of the dialog.
 		If isdate(first_quart_send) = False THEN err_msg = err_msg & vbcr & "1st quarter send date is invalid"
 		If isdate(second_quart_send) = False THEN err_msg = err_msg & vbcr & "2nd quarter send date is invalid"
 		If isdate(second_quart_due) = False THEN err_msg = err_msg & vbcr & "2nd quarter due date is invalid"
@@ -193,7 +181,7 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 	call write_variable_in_CASE_NOTE("The following TIKLs were created by an automated script. When processing these TIKLs follow current procedures.")
 	call write_variable_in_CASE_NOTE("---")
 	call write_bullet_and_variable_in_case_note("Send 1st Quarter Form", first_quart_send)
-	call write_bullet_and_variable_in_case_note("Send 1st Quarter Form", second_quart_send)
+	call write_bullet_and_variable_in_case_note("Send 2nd Quarter Form", second_quart_send)
 	call write_bullet_and_variable_in_case_note("2nd Quarter Form due", second_quart_due)
 	call write_bullet_and_variable_in_case_note("Send 3rd Quarter Form", third_quart_send)
 	call write_bullet_and_variable_in_case_note("3rd Quarter Form due", third_quart_due)
@@ -206,13 +194,13 @@ END If
 
 'SECOND HALF------------------------------------------------------------------------------------------------------------------------------------
 IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This portion will just add the first TIKL then the worker can use the DAIL scrubber on future TIKLS. 
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
 	Do
 		err_msg = ""
 		dialog TYMA_tikler_full
 		cancel_confirmation
-		If case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."
+		If MAXIS_case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."
 		If worker_signature = "" THEN err_msg = err_msg & Vbcr & "You must enter a worker signature."
 		IF err_msg <> "" THEN msgbox err_msg
 	Loop until err_msg = ""
@@ -232,5 +220,3 @@ IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This porti
 	PF3
 	script_end_procedure("Success! Script has added a TIKL to send the 1st quarter report form on " & first_quart_send)
 END IF
-
-

@@ -1,13 +1,17 @@
-'Grabbing stats----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - HCAPP.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 720          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,25 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 720          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-footer_month = datepart("m", date)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = right(datepart("yyyy", date), 2)
+MAXIS_footer_month = datepart("m", date)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = right(datepart("yyyy", date), 2)
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, case_number
+  EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
   Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
@@ -206,31 +194,31 @@ application_signed_check = 1 'The script should default to having the applicatio
 EMConnect ""
 
 'Grabbing the case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Grabbing the footer month/year
 call find_variable("Month: ", MAXIS_footer_month, 2)
 If row <> 0 then 
-	footer_month = MAXIS_footer_month
-	call find_variable("Month: " & footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then footer_year = MAXIS_footer_year
+	MAXIS_footer_month = MAXIS_footer_month
+	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
+	If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
 End if
 
-footer_month = CStr(footer_month)
+MAXIS_footer_month = CStr(MAXIS_footer_month)
 
 'Showing the case number
 Do
 	Dialog case_number_and_footer_month_dialog
 	If ButtonPressed = 0 then stopscript
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 transmit
 
 'Checking to see that we're in MAXIS
 call check_for_MAXIS(True)
 
 'Navigating to STAT, grabbing the HH members
-call navigate_to_screen("stat", "hcre")
+call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
 
@@ -267,35 +255,38 @@ call autofill_editbox_from_MAXIS(HH_member_array, "STWK", STWK)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'SECTION 07: CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Do
+DO
 	Do
 		Do
 			Do
-				err_msg = ""
-				Dialog HCAPP_dialog_01
-				cancel_confirmation
-				If HCAPP_datestamp = "" or len(HCAPP_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."  'creating err_msg if required items are missing
-				If err_msg <> "" THEN Msgbox err_msg
-			Loop until ButtonPressed <> no_cancel_button and err_msg = ""
-			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-		Loop until ButtonPressed = next_page_button
-		Do
+				Do
+					err_msg = ""
+					Dialog HCAPP_dialog_01
+					cancel_confirmation
+					If HCAPP_datestamp = "" or len(HCAPP_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."  'creating err_msg if required items are missing
+					If err_msg <> "" THEN Msgbox err_msg
+				Loop until ButtonPressed <> no_cancel_button and err_msg = ""
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+			Loop until ButtonPressed = next_page_button
 			Do
-				err_msg = ""
-				Dialog HCAPP_dialog_02
-				cancel_confirmation
-				If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
-				If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
-				If HCAPP_status = "Select one..." THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
-				If err_msg <> "" THEN Msgbox err_msg
-			Loop until ButtonPressed <> no_cancel_button and err_msg = ""
-			MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-		Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
-		If ButtonPressed = previous_page_button then exit do
-	Loop until err_msg = "" 
-	If ButtonPressed = -1 then dialog case_note_dialog
-	If buttonpressed = yes_case_note_button then exit do
-Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+				Do
+					err_msg = ""
+					Dialog HCAPP_dialog_02
+					cancel_confirmation
+					If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
+					If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
+					If HCAPP_status = "Select one..." THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
+					If err_msg <> "" THEN Msgbox err_msg
+				Loop until ButtonPressed <> no_cancel_button and err_msg = ""
+				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+			Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
+			If ButtonPressed = previous_page_button then exit do
+		Loop until err_msg = ""
+		If ButtonPressed = -1 then dialog case_note_dialog
+		If buttonpressed = yes_case_note_button then exit do
+	Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'PND2 updater------------------------------------------------------------------------------------------------------------------------
 If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED

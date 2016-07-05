@@ -1,16 +1,21 @@
 'PLEASE NOTE: this script was designed to run off of the BULK - pull data into Excel script.
 'As such, it might not work if ran separately from that.
 
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "BULK - REPT-ARST LIST.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
+
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -19,22 +24,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -46,12 +41,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 13                      'manual run time in seconds
-STATS_denomination = "C"       							'C is for each CASE
-'END OF stats block==============================================================================================
 
 'DIALOGS-------------------------------------------------------
 BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
@@ -68,8 +57,8 @@ BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
   CheckBox 180, 30, 85, 10, "Pending 31-45 days", pending_31_to_45_check
   CheckBox 180, 45, 85, 10, "Pending 46-60 days", pending_46_to_60_check
   CheckBox 180, 60, 85, 10, "Pending > 60 days", pending_over_60_check
-  EditBox 55, 95, 25, 15, footer_month
-  EditBox 55, 115, 25, 15, footer_year
+  EditBox 55, 95, 25, 15, MAXIS_footer_month
+  EditBox 55, 115, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 215, 95, 50, 15
     CancelButton 215, 115, 50, 15
@@ -85,9 +74,9 @@ EndDialog
 
 'DEFINING VARIABLES----------------------------------------------------------------------------------------------------
 excel_row = 3 'this is the row the workers will start on the spreadsheet
-footer_month = datepart("m", date) & ""		'Footer month defaults to this month
-If len(footer_month) = 1 then footer_month = "0" & footer_month	'In case this month is a single digit month
-footer_year = right(datepart("yyyy", date), 2)	'Footer year is the right two digits of the current year
+MAXIS_footer_month = datepart("m", date) & ""		'Footer month defaults to this month
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month	'In case this month is a single digit month
+MAXIS_footer_year = right(datepart("yyyy", date), 2)	'Footer year is the right two digits of the current year
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to BlueZone
@@ -165,6 +154,61 @@ objExcel.Cells(2, 2).Font.Bold = TRUE
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
 col_to_use = 3 'Starting with 3 because cols 1-2 are already used
+
+'creates a gather_cases_pending veriable as TRUE if any of the pending options is checked to get case data correctly 
+If pending_check = checked OR pending_under_31_check = checked OR pending_31_to_45_check = checked OR pending_46_to_60_check = checked OR pending_over_60_check = checked THEN gather_cases_pending = TRUE 
+
+case_header_col = col_to_use		'Sets the header to be used later for merging Cells
+
+'Sets the Excel Sheet up to document CASE information - headers and variable information
+ObjExcel.Cells(2, col_to_use).Value = "Total"
+objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+case_total_col = col_to_use
+objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+col_to_use = col_to_use + 1
+case_total_letter_col = convert_digit_to_excel_column(case_total_col)
+
+If active_check = checked then
+	ObjExcel.Cells(2, col_to_use).Value = "ACTV"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_actv_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_actv_letter_col = convert_digit_to_excel_column(case_actv_col)
+End if
+If REIN_check = checked then
+	ObjExcel.Cells(2, col_to_use).Value = "REIN"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_REIN_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_REIN_letter_col = convert_digit_to_excel_column(case_REIN_col)
+End if
+If gather_cases_pending = TRUE then
+	ObjExcel.Cells(2, col_to_use).Value = "PND2"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_pnd2_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_pnd2_letter_col = convert_digit_to_excel_column(case_pnd2_col)
+
+	ObjExcel.Cells(2, col_to_use).Value = "PND1"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	case_pnd1_col = col_to_use
+	objExcel.Cells(2, col_to_use).HorizontalAlignment = -4108
+	col_to_use = col_to_use + 1
+	case_pnd1_letter_col = convert_digit_to_excel_column(case_pnd1_col)
+End if
+
+'Header cell
+ObjExcel.Cells(1, case_header_col).Value = "CASES"
+objExcel.Cells(1, case_header_col).Font.Bold = TRUE
+
+'Merging header cell. Uses col_to_use - 1 because we already moved on to the next column.
+ObjExcel.Range(ObjExcel.Cells(1, case_header_col), ObjExcel.Cells(1, col_to_use - 1)).Merge
+
+'Centering the cell
+objExcel.Cells(1, case_header_col).HorizontalAlignment = -4108
 
 'Headers and variable declaration for cash
 If cash_check = checked then
@@ -543,8 +587,8 @@ call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_coun
 back_to_self
 
 'Resetting the footer month
-EMWriteScreen footer_month, 20, 43
-EMWriteScreen footer_year, 20, 46
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
 transmit
 
 'Getting to REPT/ARST
@@ -560,11 +604,15 @@ For each worker_number in worker_array
 	transmit
 
 	'The following will determine if the worker is active or inactive. Inactive workers will show a 0 for all numbers, and will not be entered into the spreadsheet
-	EMReadScreen total_cases, 9, 5, 47
-	EMReadScreen CAF_I_APPL_taken, 9, 12, 47
-	EMReadScreen CAF_II_APPL_taken, 9, 13, 47
-	EMReadScreen cases_auto_denied, 9, 14, 47
-	EMReadScreen address_changes_count, 9, 15, 47	'Reading address changes, which will be used later
+	EMReadScreen total_cases, 			 9, 5, 47
+	EMReadScreen cases_actv, 			 9, 6, 47 
+	EMReadScreen cases_rein, 			 9, 7, 47
+	EMReadScreen cases_pnd2, 			 9, 8, 47
+	EMReadScreen cases_pnd1, 			 9, 9, 47
+	EMReadScreen CAF_I_APPL_taken, 	 	 9, 12, 47
+	EMReadScreen CAF_II_APPL_taken, 	 9, 13, 47
+	EMReadScreen cases_auto_denied, 	 9, 14, 47
+	EMReadScreen address_changes_count,  9, 15, 47	'Reading address changes, which will be used later
 	EMReadScreen ASET_versions_approved, 9, 16, 47
 
 	'Deciding if the case is active based on the above responses.
@@ -643,6 +691,14 @@ For each worker_number in worker_array
 		ObjExcel.Cells(excel_row, 1).Value = worker_number
 		ObjExcel.Cells(excel_row, 2).Value = worker_name
 
+		ObjExcel.Cells(excel_row, case_total_col).Value = total_cases
+		If active_check = checked then ObjExcel.Cells(excel_row, case_actv_col).Value = cases_actv
+		If REIN_check = checked then ObjExcel.Cells(excel_row, case_REIN_col).Value = cases_rein
+		If gather_cases_pending = TRUE then 
+			ObjExcel.Cells(excel_row, case_pnd2_col).Value = cases_pnd2
+			ObjExcel.Cells(excel_row, case_pnd1_col).Value = cases_pnd1
+		End If 
+		
 		'Cash info to Excel
 		If cash_check = checked then
 			If active_check = checked then ObjExcel.Cells(excel_row, cash_actv_col).Value = cash_active_count
@@ -747,6 +803,10 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next
+
+'This bit freezes the top 2 rows for scrolling ease of use
+ObjExcel.ActiveSheet.Range("A3").Select
+objExcel.ActiveWindow.FreezePanes = True
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The statistics have loaded.")

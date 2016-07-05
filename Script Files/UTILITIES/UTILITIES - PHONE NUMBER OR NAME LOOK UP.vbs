@@ -1,15 +1,18 @@
 'This script combines the name search and phone number search OTHER NAV scripts. By Tim DeLong.
-
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NAV - PHONE NUMBER OR NAME LOOK UP.vbs"
+'Required for statistical purposes===============================================================================
+name_of_script = "UTILITIES - PHONE NUMBER OR NAME LOOK UP.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -18,22 +21,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -46,14 +39,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 10                      'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block=========================================================================================================
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
-
-BeginDialog search_dialog, 0, 0, 186, 180, "Client Look Up"
+BeginDialog Dialog1, 0, 0, 186, 180, "Client Look Up"
   EditBox 120, 25, 55, 15, person_look_up
   EditBox 120, 60, 55, 15, phone_look_up
   EditBox 120, 115, 55, 15, case_load_look_up
@@ -79,7 +68,7 @@ CALL check_for_MAXIS(TRUE)
 call find_variable("User: ", user_number, 7)
 
 DO
-	DIALOG search_dialog
+	DIALOG
 	IF ButtonPressed = 0 THEN stopscript
 	IF len(case_load_look_up) = 3 THEN case_load_look_up = worker_county_code & case_load_look_up
 LOOP UNTIL case_load_look_up = "" OR (len(case_load_look_up) = 7 AND (ucase(LEFT(case_load_look_up, 1) = "X") or lcase(LEFT(case_load_look_up, 1) = "x")))
@@ -117,10 +106,10 @@ IF search_where = "REPT/ACTV" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 12
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8	'No need for STATS counter on this because there's direct navigation for last name
@@ -146,7 +135,7 @@ IF search_where = "REPT/INAC" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 14
-					EMReadScreen case_number, 8, MAXIS_row, 3
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
 					MsgBox("REPT/INAC Search Complete. The person matching your search may be. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -164,10 +153,10 @@ IF search_where = "REPT/INAC" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 3
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -194,7 +183,7 @@ IF search_where = "REPT/PND1" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 14
-					EMReadScreen case_number, 8, MAXIS_row, 3
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
 					MsgBox("REPT/PND1 Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -216,10 +205,10 @@ IF search_where = "REPT/PND1" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 3
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -247,7 +236,7 @@ IF search_where = "REPT/PND2" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 16
-					EMReadScreen case_number, 8, MAXIS_row, 5
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5
 					MsgBox("REPT/PND2 Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -268,10 +257,10 @@ IF search_where = "REPT/PND2" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 5
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -298,7 +287,7 @@ IF search_where = "REPT/REVW" THEN
 				client_name = left(client_name, search_length)
 				IF person_look_up = client_name THEN
 					EMReadScreen full_name, 24, MAXIS_row, 16
-					EMReadScreen case_number, 8, MAXIS_row, 6
+					EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6
 					MsgBox("REPT/REVW Search Complete. The person matching your search may be on this page. If not, consider checking the next page(s) or revising your search.")
 				ELSE
 					MAXIS_row = MAXIS_row + 1
@@ -320,10 +309,10 @@ IF search_where = "REPT/REVW" THEN
 			MAXIS_row = 7
 			EMReadScreen last_page_check, 21, 24, 2
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 6
-				If case_number = "        " then exit do
-				case_number = replace(case_number, " ", "")
-				case_number_array = case_number_array & " " & case_number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6
+				If MAXIS_case_number = "        " then exit do
+				MAXIS_case_number = replace(MAXIS_case_number, " ", "")
+				case_number_array = case_number_array & " " & MAXIS_case_number
 				MAXIS_row = MAXIS_row + 1
 			Loop until MAXIS_row = 19
 			PF8
@@ -346,15 +335,15 @@ STATS_denomination = "I"                   'I is for each ITEM
 case_number_array = TRIM(case_number_array)
 case_number_array = SPLIT(case_number_array)
 
-FOR EACH case_number in case_number_array
+FOR EACH MAXIS_case_number in case_number_array
 	back_to_self
 	EMwritescreen "          ", 18, 43
-	EMwritescreen case_number, 18, 43
+	EMwritescreen MAXIS_case_number, 18, 43
 	CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 	row = 1
 	col = 1
 	EMSearch "PRIVILEGED", row, col
-	IF row <> 0 THEN msgbox case_number
+	IF row <> 0 THEN msgbox MAXIS_case_number
 	IF row = 0 THEN
 		EMReadscreen area_code_1, 3, 17, 45
 		EMReadscreen addr_phone_number_1, 8, 17, 51
@@ -365,7 +354,7 @@ FOR EACH case_number in case_number_array
 		complete_phone_1 = area_code_1 & replace(addr_phone_number_1, " ", "")
 		complete_phone_2 = area_code_2 & replace(addr_phone_number_2, " ", "")
 		complete_phone_3 = area_code_3 & replace(addr_phone_number_3, " ", "")
-		IF complete_phone_1 = phone_look_up OR complete_phone_2 = phone_look_up OR complete_phone_3 = phone_look_up then script_end_procedure(case_number & " contains requested phone number " & phone_look_up & ".")
+		IF complete_phone_1 = phone_look_up OR complete_phone_2 = phone_look_up OR complete_phone_3 = phone_look_up then script_end_procedure(MAXIS_case_number & " contains requested phone number " & phone_look_up & ".")
 		CALL navigate_to_MAXIS_screen("STAT", "AREP")
 		EMReadscreen arep_area_code_1, 3, 8, 34
 		EMReadscreen arep_phone_number_1, 8, 8, 40
@@ -373,7 +362,7 @@ FOR EACH case_number in case_number_array
 		EMReadscreen arep_phone_number_2, 8, 9, 40
 		arep_complete_phone_1 = arep_area_code_1 & replace(arep_phone_number_1, " ", "")
 		arep_complete_phone_2 = arep_area_code_2 & replace(arep_phone_number_2, " ", "")
-		IF arep_complete_phone_1 = phone_look_up OR arep_complete_phone_2 = phone_look_up then script_end_procedure("AREP on case " & case_number & " contains requested phone number " & phone_look_up & ".")
+		IF arep_complete_phone_1 = phone_look_up OR arep_complete_phone_2 = phone_look_up then script_end_procedure("AREP on case " & MAXIS_case_number & " contains requested phone number " & phone_look_up & ".")
 	END IF
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 NEXT

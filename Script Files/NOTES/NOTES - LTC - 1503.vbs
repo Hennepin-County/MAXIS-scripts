@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - LTC - 1503.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 360          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 360          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
-  EditBox 65, 10, 65, 15, case_number
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS & grabs the case number and footer month/year
+EMConnect ""
+call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+'The initial dialog------defined and displayed------------------------------------------------------------------------
+BeginDialog , 0, 0, 141, 80, "Case number dialog"
+  EditBox 65, 10, 65, 15, MAXIS_case_number
   EditBox 65, 30, 30, 15, MAXIS_footer_month
   EditBox 100, 30, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -61,8 +58,16 @@ BeginDialog case_number_dialog, 0, 0, 141, 80, "Case number dialog"
   Text 10, 30, 50, 15, "Footer month:"
   Text 10, 10, 50, 15, "Case number: "
 EndDialog
+DO
+	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid case number."
+	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
+	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
 
-BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
+'THE 1503 MAIN DIALOG---------defined and displayed-----------------------------------------------------------------------
+BeginDialog , 0, 0, 366, 285, "1503 Dialog"
   EditBox 55, 5, 135, 15, FACI
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
   DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
@@ -77,49 +82,33 @@ BeginDialog DHS_1503_dialog, 0, 0, 366, 275, "1503 Dialog"
   CheckBox 205, 115, 55, 10, "Need 3531?", need_3531_check
   CheckBox 265, 115, 95, 10, "Need asset assessment?", need_asset_assessment_check
   EditBox 130, 130, 225, 15, verifs_needed
-  CheckBox 15, 155, 85, 10, "Sent 3050 back to LTCF", sent_3050_check
+  CheckBox 15, 150, 85, 10, "Sent 3050 back to LTCF", sent_3050_check
   CheckBox 165, 155, 100, 10, "Sent verif req? If so, to who:", sent_verif_request_check
   ComboBox 270, 150, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Client & AREP", sent_request_to
-  EditBox 30, 180, 325, 15, notes
-  EditBox 170, 200, 75, 15, worker_signature
+  CheckBox 15, 165, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+  EditBox 30, 185, 325, 15, notes
+  CheckBox 30, 215, 260, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", TIKL_check
+  CheckBox 30, 230, 155, 10, "Check here to have the script update HCMI.", HCMI_update_check
+  CheckBox 30, 245, 150, 10, "Check here to have the script update FACI.", FACI_update_check
+  EditBox 160, 265, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 250, 200, 50, 15
-    CancelButton 305, 200, 50, 15
-  CheckBox 10, 230, 260, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", TIKL_check
-  CheckBox 10, 245, 155, 10, "Check here to have the script update HCMI.", HCMI_update_check
-  CheckBox 10, 260, 150, 10, "Check here to have the script update FACI.", FACI_update_check
-  Text 105, 205, 60, 10, "Worker signature:"
-  Text 5, 185, 25, 10, "Notes:"
-  Text 5, 50, 135, 10, "If hospital, list name/dates of admission:"
-  GroupBox 5, 100, 355, 75, "actions/proofs"
+    OkButton 255, 265, 50, 15
+    CancelButton 310, 265, 50, 15
+  Text 5, 10, 50, 10, "Facility name:"
+  Text 200, 10, 50, 10, "Length of stay:"
   Text 5, 30, 95, 10, "Recommended level of care:"
-  Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
   Text 160, 30, 50, 10, "Admitted from:"
-  Text 5, 10, 47, 10, "Facility name:"
+  Text 5, 50, 135, 10, "If hospital, list name/dates of admission:"
   Text 5, 70, 65, 10, "Date of admission:"
   Text 165, 70, 105, 10, "Date of discharge (if applicible):"
-  Text 200, 10, 50, 10, "Length of stay:"
-  GroupBox 5, 220, 260, 55, "Script actions"
+  GroupBox 0, 100, 360, 80, "Actions/Proofs"
+  Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
+  Text 5, 190, 25, 10, "Notes:"
+  GroupBox 0, 205, 335, 55, "Script actions"
+  Text 95, 270, 60, 10, "Worker signature:"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS & grabs the case number and footer month/year
-EMConnect ""
-call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'The initial dialog----------------------------------------------------------------------------------------------------
-DO
-	Dialog case_number_dialog
-	cancel_confirmation
-	IF IsNumeric(case_number) = FALSE THEN MsgBox "You must type a valid case number."
-	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
-	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
-LOOP UNTIL IsNumeric(case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
-
-'THE 1503 MAIN DIALOG----------------------------------------------------------------------------------------------------
 Do
-	Dialog DHS_1503_dialog
+	Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
 LOOP UNTIL worker_signature <> ""  
@@ -231,6 +220,7 @@ If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed
 If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
 If need_asset_assessment_check = 1 then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
 If sent_3050_check = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
+If sent_5181_check = 1 then call write_variable_in_CASE_NOTE("* Sent DHS-5181 to Case Manager.")
 Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
 If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")

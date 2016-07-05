@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - PAYSTUBS RECEIVED.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 458                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 458                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
-'END OF stats block=========================================================================================================
 
 'CUSTOM FUNCTIONS
 Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, total_prospective_pay, total_prospective_hours) 'Creates variables for total_prospective_pay and total_prospective_hours
@@ -132,30 +120,33 @@ FUNCTION create_paystubs_received_dialog(worker_signature, number_of_paystubs, p
 	EndDialog
 
 	DO
-		err_msg = ""
-		DIALOG paystubs_received_dialog
-			IF ButtonPressed = 0 THEN stopscript
-			If pay_frequency = "(select one)" then err_msg = err_msg & vbCr & "* You must select a pay frequency."
-			If JOBS_verif_code = "(select one)" then err_msg = err_msg & vbCr & "You must select a JOBS verif code."
-			If explanation_of_income = "" then err_msg = err_msg & vbCr & "* You must explain how you calculated this income (ie: ''all paystubs from last 30 days'')"
-			FOR i = 0 TO (number_of_paystubs - 1)
-				paystubs_array(i, 0) = Trim(paystubs_array(i, 0))
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				If isdate(paystubs_array(i, 0)) = False AND paystubs_array(i, 0) <> "" THEN err_msg = err_msg & vbCr & "* Your pay date must be ''MM/DD/YYYY'' format. Please try again."
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				If isdate(paystubs_array(i, 0)) = True AND datediff("d", date, paystubs_array(i, 0)) >= 0 THEN err_msg = err_msg & vbCr & "* You cannot enter a paydate in the future. Please remove and try again."
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				If isdate(paystubs_array(i, 0)) = True and (Isnumeric(paystubs_array(i, 1)) = False or Isnumeric(paystubs_array(i, 2)) = False) then err_msg = err_msg & vbCr & "* You must include a gross pay amount as well as an hours amount."
-			NEXT
-			FOR i = 0 TO (number_of_paystubs - 1)
-				IF paystubs_array(i, 0) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay dates blank."
-				IF paystubs_array(i, 1) = "" OR paystubs_array(i, 2) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay information blank."
-			NEXT
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
+		DO
+			err_msg = ""
+			DIALOG paystubs_received_dialog
+				IF ButtonPressed = 0 THEN stopscript
+				If pay_frequency = "(select one)" then err_msg = err_msg & vbCr & "* You must select a pay frequency."
+				If JOBS_verif_code = "(select one)" then err_msg = err_msg & vbCr & "You must select a JOBS verif code."
+				If explanation_of_income = "" then err_msg = err_msg & vbCr & "* You must explain how you calculated this income (ie: ''all paystubs from last 30 days'')"
+				FOR i = 0 TO (number_of_paystubs - 1)
+					paystubs_array(i, 0) = Trim(paystubs_array(i, 0))
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					If isdate(paystubs_array(i, 0)) = False AND paystubs_array(i, 0) <> "" THEN err_msg = err_msg & vbCr & "* Your pay date must be ''MM/DD/YYYY'' format. Please try again."
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					If isdate(paystubs_array(i, 0)) = True AND datediff("d", date, paystubs_array(i, 0)) >= 0 THEN err_msg = err_msg & vbCr & "* You cannot enter a paydate in the future. Please remove and try again."
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					If isdate(paystubs_array(i, 0)) = True and (Isnumeric(paystubs_array(i, 1)) = False or Isnumeric(paystubs_array(i, 2)) = False) then err_msg = err_msg & vbCr & "* You must include a gross pay amount as well as an hours amount."
+				NEXT
+				FOR i = 0 TO (number_of_paystubs - 1)
+					IF paystubs_array(i, 0) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay dates blank."
+					IF paystubs_array(i, 1) = "" OR paystubs_array(i, 2) = "" THEN err_msg = err_msg & vbCr & "* You cannot leave pay information blank."
+				NEXT
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		LOOP UNTIL err_msg = ""
+		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	LOOP UNTIL are_we_passworded_out = false
 END FUNCTION
 
 BeginDialog number_of_paystubs_dlg, 0, 0, 211, 65, "Number of Pay Dates"
@@ -167,7 +158,7 @@ BeginDialog number_of_paystubs_dlg, 0, 0, 211, 65, "Number of Pay Dates"
 EndDialog
 
 BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
-  EditBox 100, 5, 60, 15, case_number
+  EditBox 100, 5, 60, 15, MAXIS_case_number
   EditBox 70, 25, 25, 15, MAXIS_footer_month
   EditBox 125, 25, 25, 15, MAXIS_footer_year
   EditBox 110, 45, 25, 15, HH_member
@@ -193,7 +184,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Default member is member 01
@@ -201,8 +192,11 @@ HH_member = "01"
 
 DO
 	'Shows the case number dialog
-	Dialog paystubs_received_case_number_dialog
-		If buttonpressed = 0 then stopscript
+	DO
+		Dialog paystubs_received_case_number_dialog
+			If buttonpressed = 0 then stopscript
+		call check_for_password(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
 
 	CALL check_for_MAXIS(False)							'checkng for an active MAXIS session
 	Call MAXIS_footer_month_confirmation				'confirming that user is in the correct footer month
@@ -261,7 +255,12 @@ LOOP UNTIL ButtonPressed = -1 AND number_of_paystubs <> "" AND IsNumeric(number_
 
 DO
 	CALL create_paystubs_received_dialog(worker_signature, number_of_paystubs, paystubs_array, explanation_of_income, employer_name, document_datestamp, pay_frequency, JOBS_verif_code)
-
+	
+		'From Robert Fewins-Kalb on 03/31/2016 (because this script is massive and I want to document want what is added, when and why)
+		'Making sure that the script returns to the JOBS panel it is supposed to.
+		'Addition of check_for_password appears to force through a transmit which causes the script to jump ahead 1 JOBS panel
+	CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
+	
 	err_msg = ""
 	'Checking dates to make sure all are on the same day of the week, in instances of weekly or biweekly income. This avoids a possible issue
 	'resulting from a paydate being "moved" due to a holiday, and affecting the rest of the calculation for income. If the dates are not all on the
@@ -398,7 +397,7 @@ Do
 			EMReadScreen PIC_line_11, 50, 18, 22
 			PF20										'shift PF8 to the next PIC screen'
 			EMReadScreen PIC_page_2_check, 8, 20, 6
-			IF PIC_page_2_check <> "COMPLETE" THEN 
+			IF PIC_page_2_check <> "COMPLETE" THEN
 				EMReadScreen PIC2_line_01, 28, 9, 13		'reading the 2nd page of the PIC'
 				EMReadScreen PIC2_line_02, 28, 10, 13
 				EMReadScreen PIC2_line_03, 28, 11, 13
@@ -409,8 +408,8 @@ Do
 				PIC2_line_02 = Replace(PIC2_line_02, "__ __ __    ________  ______", "")
 				PIC2_line_03 = Replace(PIC2_line_03, "__ __ __    ________  ______", "")
 				PIC2_line_04 = Replace(PIC2_line_04, "__ __ __    ________  ______", "")
-				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")				
-			END IF 	
+				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")
+			END IF
 			transmit
 		END IF
   End if
@@ -526,7 +525,12 @@ Do
 
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
 	If update_HC_popup_check = 1 and datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then
-		EMWriteScreen "x", 19, 54
+		EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+		IF HC_income_est_check = "Est" Then 'this is the old position
+			EMWriteScreen "x", 19, 54
+		ELSE								'this is the new position
+			EMWriteScreen "x", 19, 48
+		END IF
 		transmit
 		EMWriteScreen "________", 11, 63
 		EMWriteScreen average_pay_per_paystub, 11, 63

@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - SWKR LIST GENERATOR.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 45                      'manual run time in seconds
+STATS_denomination = "C"       						 'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,20 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 45                      'manual run time in seconds
-STATS_denomination = "C"       						 'C is for each CASE
-'END OF stats block==============================================================================================
-
 'CONNECTS TO MAXIS
 EMConnect ""
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
 BeginDialog SWKR_list_generator_dialog, 0, 0, 156, 115, "SWKR list generator dialog"
   DropListBox 65, 5, 85, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
-  EditBox 55, 25, 20, 15, footer_month
-  EditBox 130, 25, 20, 15, footer_year
+  EditBox 55, 25, 20, 15, MAXIS_footer_month
+  EditBox 130, 25, 20, 15, MAXIS_footer_year
   EditBox 75, 45, 75, 15, worker_number
   ButtonGroup ButtonPressed
     OkButton 20, 95, 50, 15
@@ -89,11 +77,11 @@ If right(REPT_panel, 4) = "REVS" then
 	EMWriteScreen current_month_plus_one, 20, 43
 	EMWriteScreen current_month_plus_one_year, 20, 46
 	transmit
-	EMWriteScreen footer_month, 20, 55
-	EMWriteScreen footer_year, 20, 58
+	EMWriteScreen MAXIS_footer_month, 20, 55
+	EMWriteScreen MAXIS_footer_year, 20, 58
 	transmit
-	footer_month = current_month_plus_one
-	footer_year = current_month_plus_one_year
+	MAXIS_footer_month = current_month_plus_one
+	MAXIS_footer_year = current_month_plus_one_year
 End if
 
 'CHECKS TO MAKE SURE WE'VE MOVED PAST SELF MENU. IF WE HAVEN'T, THE SCRIPT WILL STOP. AN ERROR MESSAGE SHOULD DISPLAY ON THE BOTTOM OF THE MENU.
@@ -154,18 +142,18 @@ For each worker in worker_number_array
 		row = 7 'defining the row to look at
 		Do
 			If REPT_panel = "REPT/ACTV" then
-				EMReadScreen case_number, 8, row, 12 'grabbing case number
+				EMReadScreen MAXIS_case_number, 8, row, 12 'grabbing case number
 				EMReadScreen client_name, 18, row, 21 'grabbing client name
 			Else
-				EMReadScreen case_number, 8, row, 6 'grabbing case number
+				EMReadScreen MAXIS_case_number, 8, row, 6 'grabbing case number
 				EMReadScreen client_name, 15, row, 16 'grabbing client name
 			End if
 			ObjExcel.Cells(excel_row, 1).Value = worker_ID
-			ObjExcel.Cells(excel_row, 2).Value = trim(case_number)
+			ObjExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
 			ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
 			excel_row = excel_row + 1
 			row = row + 1
-		Loop until row = 19 or trim(case_number) = ""
+		Loop until row = 19 or trim(MAXIS_case_number) = ""
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
@@ -176,8 +164,8 @@ excel_row = 2 'Resetting the case row to investigate.
 
 do until ObjExcel.Cells(excel_row, 2).Value = "" 'shuts down when there's no more case numbers
 	SWKR_name = "" 'Resetting this variable in case a SWKR cannot be found.
-	case_number = ObjExcel.Cells(excel_row, 2).Value
-	If case_number = "" then exit do
+	MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
+	If MAXIS_case_number = "" then exit do
 
 	'This Do...loop gets back to SELF
 	back_to_self

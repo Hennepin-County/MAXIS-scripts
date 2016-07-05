@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - UPDATE EOMC LIST.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 20                	'manual run time in seconds
+STATS_denomination = "I"       			'I is for each Item
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,16 +37,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'This function pulls up a file browser'
-Function BrowseForFile()
-	Dim shell : Set shell = CreateObject("Shell.Application")
-	Dim file : Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "Computer")
-	IF file is Nothing THEN
-		script_end_procedure("The script will end.")
-	ELSE
-		BrowseForFile = file.self.Path
-	END IF
-End Function
+
 'this function converts excel column letters to numeric values'
 FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	IF isnumeric(excel_col) = FALSE THEN
@@ -69,12 +54,6 @@ FUNCTION convert_excel_letter_to_excel_number(excel_col)
 END FUNCTION
 
 '------------------'
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 20                	'manual run time in seconds
-STATS_denomination = "I"       			'I is for each Item
-'END OF stats block=========================================================================================================
-
 
 BeginDialog Dialog1, 0, 0, 191, 85, "REPT/EOMC List Update"
  ButtonGroup ButtonPressed
@@ -89,8 +68,11 @@ EndDialog
 dialog dialog1
 DO 'THIS loop makes sure this is a valid file created by EOMC'
 	DO 'This loop opens the file browser and asks user to confirm'
+	
+		call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
+	
 		Set objExcel = CreateObject("Excel.Application")
-		Set objWorkbook = objExcel.Workbooks.Open(BrowseForFile)
+		Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
 		objExcel.Visible = True
 		objExcel.DisplayAlerts = True
 
@@ -203,39 +185,52 @@ END IF
 'Going to the first case to begin reading information
 excel_row = 2
 Do
-	case_number = objExcel.Cells(excel_row, 2).value
+	MAXIS_case_number = objExcel.Cells(excel_row, 2).value
 	call navigate_to_MAXIS_screen("CASE", "CURR")
 	'checking for each prog on the listed
-	IF objExcel.cells(excel_row, fs_col).value <> "" THEN 'Checking SNAP status
-		call find_variable("FS: ", fs_status, 6)
-		IF fs_status <> "" THEN ObjExcel.Cells(excel_row, fs_col+1).Value = fs_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MF" THEN 'checking MFIP status'
-		call find_variable("MFIP: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MS" THEN 'checking MSA status'
-		call find_variable("MSA: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "GA" THEN 'checking GA status'
-		call find_variable("GA: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, cash_col).value, 2) = "DW" THEN 'checking DWP status'
-		call find_variable("DWP: ", cash_status, 6)
-		IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).Value = cash_status
-	END If
-	IF left(objExcel.cells(excel_row, HC_col).value, 2) <> "" THEN 'checking HC status'
-		call find_variable("HC: ", HC_status, 6)
-		IF HC_status <> "" THEN ObjExcel.Cells(excel_row, HC_col+1).Value = HC_status
-	END If
-	IF left(objExcel.cells(excel_row, GRH_col).value, 2) <> "" THEN 'checking GRH status'
-		call find_variable("GRH: ", GRH_status, 6)
-		IF GRH_status <> "" THEN ObjExcel.Cells(excel_row, GRH_col+1).Value = GRH_status
-	END If
+	IF fs_col <> "" THEN
+		IF objExcel.cells(excel_row, fs_col).value <> "" THEN 'Checking SNAP status
+			call find_variable("FS: ", fs_status, 6)
+			IF fs_status <> "" THEN ObjExcel.Cells(excel_row, fs_col+1).Value = fs_status
+		END If
+	END IF
+	IF cash_col <> "" THEN
+			IF left(objExcel.cells(excel_row, cash_col).value, 2) <> "" THEN 'This checks for generic cash pending'
+			call find_variable("Cash: ", cash_status, 6)
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).value = cash_status
+		END IF
+		IF cash_status <> "PENDIN" THEN 'generic pending not found, search each program'
+			IF left(objExcel.cells(excel_row, cash_col).value, 2) = "MF" THEN 'checking MFIP status'
+				call find_variable("MFIP: ", cash_status, 6)
+			ELSEIF left(objExcel.cells(excel_row, cash_col).value, 2) = "MS" THEN 'checking MSA status'
+				call find_variable("MSA: ", cash_status, 6)
+			ELSEIF left(objExcel.cells(excel_row, cash_col).value, 2) = "GA" THEN 'checking GA status'
+				call find_variable("GA: ", cash_status, 6)
+			ELSEIF left(objExcel.cells(excel_row, cash_col).value, 2) = "DW" THEN 'checking DWP status'
+				call find_variable("DWP: ", cash_status, 6)
+			END IF
+			IF cash_status <> "" THEN ObjExcel.Cells(excel_row, cash_col+1).value = cash_status
+		END If
+	END IF
+	IF HC_col <> "" THEN
+		IF left(objExcel.cells(excel_row, HC_col).value, 2) <> "" THEN 'checking HC status'
+			call find_variable("HC: ", HC_status, 6)
+			IF HC_status <> "" THEN ObjExcel.Cells(excel_row, HC_col+1).Value = HC_status
+		END If
+	END IF
+	IF GRH_col <> "" THEN
+		IF left(objExcel.cells(excel_row, GRH_col).value, 2) <> "" THEN 'checking GRH status'
+			call find_variable("GRH: ", GRH_status, 6)
+			IF GRH_status <> "" THEN ObjExcel.Cells(excel_row, GRH_col+1).Value = GRH_status
+		END If
+	END IF
+	'reset variables
+	fs_status = ""
+	cash_status = ""
+	HC_status = ""
+	GRH_status = ""
 	excel_row = excel_row + 1
-Loop until case_number = ""
+Loop until MAXIS_case_number = ""
 
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use + col_offset

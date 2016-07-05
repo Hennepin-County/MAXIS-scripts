@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "DAIL - TYMA SCRUBBER.vbs"
 start_time = timer
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 50        'manual run time in seconds
+STATS_denomination = "C"		'C is for case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,12 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 50        'manual run time in seconds
-STATS_denomination = "C"		'C is for case
-'END OF stats block==============================================================================================
-
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 
@@ -60,11 +48,11 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in DAIL, Please n
 'The following reads the message in full for the end part (which tells the script which message was selected)
 EMReadScreen full_message, 23, 6, 20
 IF full_message = "~*~CONSIDER SENDING 1ST" THEN     'script finds 1st TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)		
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
@@ -83,11 +71,11 @@ IF full_message = "~*~CONSIDER SENDING 1ST" THEN     'script finds 1st TIKL mess
 	script_end_procedure("Success! Script has case noted that 1st Quarter form was sent and added a TIKL to send the 2nd quarter report form on " & second_quart_send)
 END IF
 IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
@@ -106,11 +94,11 @@ IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL mess
 	script_end_procedure("Success! Script has case noted that 2nd Quarter form was sent and added a TIKL for return of 2nd quarter report form on " & second_quart_due)
 END IF
 IF full_message = "~*~2ND QUARTERLY REPORT" THEN     'script finds 3rd TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	'TIKLS FOR THIRD FORM SEND DATE
@@ -124,11 +112,11 @@ IF full_message = "~*~2ND QUARTERLY REPORT" THEN     'script finds 3rd TIKL mess
 	script_end_procedure("Success! Script has added a TIKL to send the 3rd quarter report form on " & third_quart_send)
 END IF
 IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
@@ -147,11 +135,11 @@ IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL mess
 	script_end_procedure("Success! Script has case noted that 3rd Quarter form was sent and added a TIKL for return of 3rd quarter report form on " & third_quart_due)
 END IF
 IF full_message = "~*~3RD QUARTERLY REPORT" THEN     'script finds 5th TIKL message and moves to take next action
-	call MAXIS_case_number_finder(case_number)
+	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)				
 	EMWritescreen "X", 6, 3
 	Transmit
-	EMReadScreen case_number, 8, 6, 57
+	EMReadScreen MAXIS_case_number, 8, 6, 57
 	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	'TIKLS FOR SECOND FORM DUE DATE
@@ -167,5 +155,3 @@ END IF
 
 'If the message doesn't match any of the ones above you get this message. 
 script_end_procedure("A Valid TYMA DAIL message was not found. Please place your cursor over one and try again, or navigate away from DAIL and restart script if trying to create first TIKL.")
-
-

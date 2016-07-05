@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - RETURNED MAIL.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 64                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 64                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
 
 'DIALOGS-------------------------------------------------------------------------------------------------------------------
 'The bulk-loading-case numbers dialog
@@ -168,7 +156,7 @@ Loop until (isnumeric(case_number_01) = True or case_number_01 = "") and (isnume
 worker_signature = InputBox("Sign your case note:", vbOKCancel)
 If worker_signature = vbCancel then stopscript
 
-'Splits the case_number(s) into a case_number_array
+'Splits the MAXIS_case_number(s) into a case_number_array
 case_number_array = array(case_number_01, case_number_02, case_number_03, case_number_04, case_number_05, _
   case_number_06, case_number_07, case_number_08, case_number_09, case_number_10, _
   case_number_11, case_number_12, case_number_13, case_number_14, case_number_15, _
@@ -192,18 +180,18 @@ call check_for_MAXIS(false)
 'Setting variables so we can compare between two arrays
 array_count=0
 
-For each case_number in case_number_array
+For each MAXIS_case_number in case_number_array
 
-	If case_number <> "" then	'skip blanks
+	If MAXIS_case_number <> "" then	'skip blanks
 
 		'Getting to case note
-		Call navigate_to_screen("case", "note")
+		Call navigate_to_MAXIS_screen("case", "note")
 
 		'If there was an error after trying to go to CASE/NOTE
 		EMReadScreen SELF_error_check, 27, 2, 28
 		If SELF_error_check = "Select Function Menu (SELF)" then
-			MsgBox "Script stopped on case " & case_number & "."
-			error_message = error_message & case_number & ", " 'Building error message to contain every failed case number, this will allow script to continue if it fails except for out of county cases.
+			MsgBox "Script stopped on case " & MAXIS_case_number & "."
+			error_message = error_message & MAXIS_case_number & ", " 'Building error message to contain every failed case number, this will allow script to continue if it fails except for out of county cases.
 		Else
 			'Opening a new case/note
 			start_a_blank_CASE_NOTE
@@ -228,15 +216,15 @@ For each case_number in case_number_array
 			'Exiting the case note
 			PF3
 			'Getting to DAIL/WRIT
-			call navigate_to_screen("dail", "writ")
+			call navigate_to_MAXIS_screen("dail", "writ")
 			'Inserting the date
 			call create_MAXIS_friendly_date(date, 10, 5, 18)
 
 			'Writes TIKL depending on MailType
 			If MailType_array(array_count) = "No Forwarding " then
-				write_TIKL_function("Request for address sent 10 days ago. If not responded to, take appropriate action. (TIKL generated via BULK script)")
+				write_variable_in_TIKL("Request for address sent 10 days ago. If not responded to, take appropriate action. (TIKL generated via BULK script)")
 			Else
-				write_TIKL_function("Returned mail processed 10 days ago.  If verifs were requested and have not been received back, take appropriate action. (TIKL generated via BULK script)")
+				write_variable_in_TIKL("Returned mail processed 10 days ago.  If verifs were requested and have not been received back, take appropriate action. (TIKL generated via BULK script)")
 			End If
 
 			'Exits case note
@@ -248,7 +236,7 @@ For each case_number in case_number_array
 	End if
 
 
-	'Increasing the array count for each case number processed from case_number array.
+	'Increasing the array count for each case number processed from MAXIS_case_number array.
 	array_count=array_count+1
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Next

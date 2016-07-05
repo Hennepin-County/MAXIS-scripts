@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - COPY PANELS TO WORD.vbs"
+'Required for statistical purposes==========================================================================================
+name_of_script = "UTILITIES - COPY PANELS TO WORD.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 43                	'manual run time in seconds
+STATS_denomination = "I"       		'I is for each ITEM
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 43                	'manual run time in seconds
-STATS_denomination = "I"       		'I is for each ITEM
-'END OF stats block=========================================================================================================
 
 '----------------------------------------------------------------------------------------------------
 'ADD TO FUNCTIONS FILE WHEN GITHUB IS WORKING AGAIN
@@ -68,8 +56,47 @@ End function
 all_possible_panels = "MEMB MEMI ADDR AREP ALTP ALIA TYPE PROG HCRE PARE SIBL EATS IMIG SPON FACI FCFC FCPL ADME REMO DISA ABPS PREG STRK STWK SCHL WREG EMPS CASH ACCT SECU CARS REST OTHR TRAN STIN STEC PBEN UNEA LUMP RBIC BUSI JOBS TRAC DSTT DCEX WKEX COEX SHEL HEST ACUT PDED PACT FMED ACCI MEDI INSA DIET DISQ SWKR REVW MISC RESI TIME EMMA BILS HCMI BUDG SANC MMSA DFLN MSUR WBSN"
 
 
+
+
+
+
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+
+'Connects to BlueZone
+EMConnect ""
+
+Call check_for_MAXIS(False)
+
+'Finds MAXIS case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+'Finds MAXIS footer month
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+BeginDialog dialog1, 0, 0, 161, 65, "Case number and footer month"
+  Text 5, 10, 85, 10, "Enter your case number:"
+  EditBox 95, 5, 60, 15, MAXIS_case_number
+  Text 15, 30, 50, 10, "Footer month:"
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
+  Text 95, 30, 20, 10, "Year:"
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
+  ButtonGroup ButtonPressed
+    OkButton 25, 45, 50, 15
+    CancelButton 85, 45, 50, 15
+EndDialog
+
+'Shows case number dialog
+Do
+	Dialog 
+	If buttonpressed = 0 then stopscript
+	If isnumeric(MAXIS_case_number) = False then MsgBox "You must type a valid case number."
+Loop until isnumeric(MAXIS_case_number) = True
+
+'Shows the MAXIS panel selection dialog
+back_to_SELF
+
 'DIALOG IS TOO LARGE FOR DIALOG EDITOR, CREATED MANUALLY
-BeginDialog all_MAXIS_panels_dialog, 0, 0, 371, 190, "All MAXIS panels dialog"
+BeginDialog dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
   Checkbox 10, 10, 35, 10, "MEMB", MEMB_check
   Checkbox 60, 10, 35, 10, "MEMI", MEMI_check
   Checkbox 110, 10, 35, 10, "ADDR", ADDR_check
@@ -149,43 +176,8 @@ BeginDialog all_MAXIS_panels_dialog, 0, 0, 371, 190, "All MAXIS panels dialog"
     CancelButton 310, 25, 50, 15
 EndDialog
 
-BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
-  Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, case_number
-  Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, footer_month
-  Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, footer_year
-  ButtonGroup ButtonPressed
-    OkButton 25, 45, 50, 15
-    CancelButton 85, 45, 50, 15
-EndDialog
+Dialog
 
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone
-EMConnect ""
-
-Call check_for_MAXIS(False)
-
-'Finds MAXIS case number
-call MAXIS_case_number_finder(case_number)
-'Finds MAXIS footer month
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'Shows case number dialog
-Do
-	Dialog case_number_and_footer_month_dialog
-	If buttonpressed = 0 then stopscript
-	If isnumeric(case_number) = False then MsgBox "You must type a valid case number."
-Loop until isnumeric(case_number) = True
-
-'Shows the MAXIS panel selection dialog
-back_to_SELF
-
-Dialog all_MAXIS_panels_dialog
 Cancel_confirmation
 
 call navigate_to_MAXIS_screen("STAT", "MEMI")

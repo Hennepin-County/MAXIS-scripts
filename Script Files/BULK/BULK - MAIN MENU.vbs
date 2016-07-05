@@ -4,10 +4,10 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +16,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -46,7 +36,7 @@ END IF
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_BULK_menu_dialog(script_array)
-	BeginDialog BULK_dialog, 0, 0, 516, 340, "BULK Scripts"
+	BeginDialog BULK_dialog, 0, 0, 516, 440, "BULK Scripts"
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "BULK", 				BULK_main_button
@@ -68,7 +58,7 @@ Function declare_BULK_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 320, 50, 15
+		CancelButton 460, 410, 50, 15
 		GroupBox 5, 20, 205, 35, "BULK Sub-Menus"
 	EndDialog
 End function
@@ -87,24 +77,6 @@ script_array_BULK_list = array()
 
 'END VARIABLES TO DECLARE===================================================================================================
 
-'CLASSES TO DEFINE==========================================================================================================
-
-'A class for each script item
-class script
-
-	public script_name
-	public file_name
-	public description
-	public button
-
-	public property get button_size	'This part determines the size of the button dynamically by determining the length of the script name, multiplying that by 3.5, rounding the decimal off, and adding 10 px
-		button_size = round ( len( script_name ) * 3.5 ) + 10
-	end property
-
-end class
-
-'END CLASSES TO DEFINE==========================================================================================================
-
 'LIST OF SCRIPTS================================================================================================================
 
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
@@ -114,6 +86,13 @@ end class
 'Resetting the variable
 script_num = 0
 ReDim Preserve script_array_BULK_main(script_num)
+Set script_array_BULK_main(script_num) = new script
+script_array_BULK_main(script_num).script_name 			= "Banked Months Report"																		'Script name
+script_array_BULK_main(script_num).file_name 				= "BULK - BANKED MONTHS REPORT.vbs"															'Script URL
+script_array_BULK_main(script_num).description 			= "Creates a month specific report of banked months used, also checks these cases to confirm banked month use and creates a rejected report."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
 Set script_array_BULK_main(script_num) = new script
 script_array_BULK_main(script_num).script_name 			= "CASE/NOTE from List"																		'Script name
 script_array_BULK_main(script_num).file_name 				= "BULK - CASE NOTE FROM LIST.vbs"															'Script URL
@@ -164,9 +143,23 @@ script_array_BULK_main(script_num).description				= "Case notes that returned ma
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
 Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= " REVS Scrubber "
+script_array_BULK_main(script_num).file_name				= "BULK - REVS SCRUBBER.vbs"
+script_array_BULK_main(script_num).description				= "Sends appointment letters to all interview-requiring REVS cases, and creates a spreadsheet of when each appointment is."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_main(script_num).script_name				= " REVW/MONT Closures "													'needs spaces to generate button width properly.
 script_array_BULK_main(script_num).file_name				= "BULK - REVW-MONT CLOSURES.vbs"
 script_array_BULK_main(script_num).description				= "Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "Targeted SNAP Review Selection"
+script_array_BULK_main(script_num).file_name				= "BULK - TARGETED SNAP REVIEW SELECTION.vbs"
+script_array_BULK_main(script_num).description				= "Creates a list of SNAP cases meeting review criteria and selects a random sample for review."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
@@ -236,6 +229,27 @@ script_array_BULK_list(script_num).description 			= "Creates a list of cases fro
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " GRMR "
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-GRMR LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/GRMR into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "Housing Grant Exemption Finder"
+script_array_BULK_list(script_num).file_name			= "BULK - HOUSING GRANT EXEMPTION FINDER.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list the rolling 12 months of housing grant issuances for MFIP recipients who've met an exemption."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "IEVC"
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-IEVC LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_list(script_num).script_name 			= "INAC"
 script_array_BULK_list(script_num).file_name			= "BULK - REPT-INAC LIST.vbs"
 script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
@@ -257,9 +271,37 @@ script_array_BULK_list(script_num).description 			= "Creates a list of cases and
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= "MAGI/Non-MAGI Report"
+script_array_BULK_list(script_num).file_name			= "BULK - MAGI NON MAGI REPORT.vbs"
+script_array_BULK_list(script_num).description 			= "NEW 06/2016!! Creates a list of cases and clients active on health care in MAXIS by MAGI/Non-MAGI."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " MAMS "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-MAMS LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MAMS into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_list(script_num).script_name 			= " MFCM "													'needs spaces to generate button width properly.
 script_array_BULK_list(script_num).file_name			= "BULK - REPT-MFCM LIST.vbs"
 script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MFCM into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " MONT "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-MONT LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MONT into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " MRSR "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - REPT-MRSR LIST.vbs"
+script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MRSR into an Excel spreadsheet."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
