@@ -60,10 +60,11 @@ EMReadScreen full_message, 58, 6, 20
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
-'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP)
+'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONTED XFS VERIFICATIONS)
+'Both of these messages start with 'FS' on the DAIL, so they need to be nested, or it never gets passed the affilated case look up
 EMReadScreen stat_check, 4, 6, 6
 If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then 
-	'XFS
+	'now it checks if you are acctually running from a XFS Autoclosed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
 	EMReadScreen xfs_check, 49, 6, 20
 	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then 
 		call run_from_GitHub(script_repository & "DAIL/DAIL - POSTPONED XFS VERIFICATIONS.vbs")
