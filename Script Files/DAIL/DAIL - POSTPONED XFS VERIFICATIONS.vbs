@@ -44,7 +44,10 @@ END IF
 
 EMReadscreen MAXIS_case_number, 8, 5, 72
 EMReadscreen DAIL_month, 2, 6, 11
-EMReadscreen DAIL_year, 2, 6, 13
+EMReadscreen DAIL_year, 2, 6, 14
+
+dail_date = DAIL_month & "/01/" & DAIL_year
+closure_date = dateadd("d", -1, dail_date)
 
 EMWriteScreen "S", 6, 3
 transmit
@@ -62,29 +65,41 @@ Else
 	progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated. 
 	SNAP_last_REIN_date = closure_date
 	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."	
-	IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)					'if cash is not being closed the intake date needs to be the day after the rein date
 END IF
+
+PF3 
+EMWriteScreen "N", 6, 3
+transmit
+
+BeginDialog verifs_dialog, 0, 0, 401, 70, "Verifications Needed"
+  EditBox 90, 5, 305, 15, verifs_needed
+  EditBox 305, 30, 90, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 295, 50, 50, 15
+    CancelButton 345, 50, 50, 15
+  Text 235, 35, 65, 10, "Sign your case note"
+  Text 10, 10, 70, 10, "Verifications Needed:"
+  Text 10, 35, 65, 10, "Date of application"
+  Text 95, 35, 90, 10, SNAP_application_date
+  Text 10, 50, 50, 10, "Case Number"
+  Text 95, 50, 75, 10, MAXIS_case_number
+EndDialog
+
+Do
+	Dialog verifs_dialog
+	If ButtonPressed = Cancel Then StopScript
+Loop until ButtonPressed = OK
 
 'The dialog navigated to CASE/NOTE. This will write the info into the case note.
 start_a_blank_CASE_NOTE
-IF death_check = 1 THEN
-	case_note_header = "---Closed " & progs_closed & " due to client death---"
-ELSE
-	case_note_header = "---Closed " & progs_closed & " " & closure_date & "---"
-END IF
+case_note_header = "---Expedited SNAP Autoclosed " & closure_date & "---"
+
 call write_variable_in_case_note(case_note_header)
-call write_bullet_and_variable_in_case_note("Reason for closure", reason_for_closure)
+call write_bullet_and_variable_in_case_note("Reason for closure", "Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
 If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
-If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
 If case_noting_intake_dates = True or case_noting_intake_dates = "" then  																								'Updated bug. With new/updated, scripts this functionality was not being accessed.'
 	call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
 	If death_check <> 1 and cash_check = 1 then call write_bullet_and_variable_in_case_note("Last cash REIN date", cash_last_REIN_date & cash_followup_text)
-''	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then
-''		call write_bullet_and_variable_in_case_note("Open programs", open_progs)
-''	Else
-''		IF death_check = 1 THEN call write_variable_in_case_note("* All programs closed.")
-''		IF death_check <> 1 THEN call write_variable_in_case_note("* All programs closed. Cash and/or SNAP (whichever applicable) case becomes intake again on " & intake_date & ".")
-''	End if
 Else
 	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
 End if

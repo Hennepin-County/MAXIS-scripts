@@ -116,8 +116,8 @@ EMReadScreen SCHL_check, 58, 6, 20
 If SCHL_check = "STUDENT INCOME HAS ENDED - REVIEW FS AND/OR HC RESULTS/APP" then call run_from_GitHub(script_repository & "DAIL/DAIL - STUDENT INCOME.vbs")
 
 'XFS
-EMReadScreen SCHL_check, 49, 6, 20
-If SCHL_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then call run_from_GitHub(script_repository & "DAIL/DAIL - POSTPONED XFS VERIFICATIONS.vbs")
+EMReadScreen xfs_check, 49, 6, 20
+If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then call run_from_GitHub(script_repository & "DAIL/DAIL - POSTPONED XFS VERIFICATIONS.vbs")
 
 'SSA info received by agency (loads TPQY RESPONSE)
 EMReadScreen TPQY_check, 31, 6, 30
