@@ -84,7 +84,7 @@ BeginDialog closed_dialog, 0, 0, 471, 285, "Closed Programs Dialog"
   GroupBox 270, 145, 195, 90, "IMPORTANT - Note for HC: "
   ButtonGroup ButtonPressed
     PushButton 275, 220, 50, 10, "HCPM", HC_EPM_Button
-  Text 275, 155, 180, 50, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. MAGI clients have up to three months (follows retro application policy) after case closure to turn in their renewals and have eligibility determined. They can also reapply online using METS.  "
+  Text 275, 155, 180, 50, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. Please refer to current policy. "
   Text 10, 265, 60, 10, "Worker Signature: "
   Text 275, 210, 180, 10, "For more information refer to:"
 EndDialog
