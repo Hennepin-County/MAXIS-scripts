@@ -130,9 +130,9 @@ For each worker in worker_array
 				entry_record = 0
 				'Adding client information to the array'
 				ReDim Preserve PND1_array(5, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-				
+				'The client information is added to the array'
 				PND1_array (work_num,   entry_record) = worker
-				PND1_array (case_num,	entry_record) = MAXIS_case_number		'The client information is added to the array'
+				PND1_array (case_num,	entry_record) = MAXIS_case_number		
 				PND1_array (clt_name,  		entry_record) = client_name
 				PND1_array (app_date, 			entry_record) = APPL_date
 				PND1_array (days_pending,   entry_record) = nbr_days_pending
@@ -147,10 +147,7 @@ For each worker in worker_array
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
-
 'Now the script goes into CASENOTE and searches for evidence that EXP screening has
-
-
 Do
 	MAXIS_case_number = objExcel.cells(excel_row, 2).Value	're-establishing the case number to use for the case
 	APPL_date = objExcel.cells(excel_row, 4).Value	're-establishing the appl date to measure against the case note search	
@@ -187,6 +184,75 @@ Loop until MAXIS_case_number = ""
 		
 msgbox "all done with PND1"		
 
+'PND2 information
+'Sets up the array to store all the information for each client'
+Dim PND2_array ()
+ReDim PND2_array (5, 0)
+
+'Sets constants for the array to make the script easier to read (and easier to code)'
+Const work_num          = 1     	'Each of the case numbers will be stored at this position'		
+Const case_num          = 2			
+Const clt_name          = 3
+Const app_date          = 4
+Const days_pending      = 5
+ 
+For each worker in worker_array
+	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+	Call navigate_to_MAXIS_screen("REPT", "PND2")
+	EMWriteScreen worker, 21, 13
+	transmit
+
+	'Skips workers with no info
+	EMReadScreen has_content_check, 8, 7, 3
+	If has_content_check <> "        " then
+		'Grabbing each case number on screen
+		Do
+			'Set variable for next do...loop
+			MAXIS_row = 7
+			Do
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5			'Reading case number
+				MAXIS_case_number = trim(MAXIS_case_number)				
+				EMReadScreen client_name, 25, MAXIS_row, 16				'Reading client name
+				EMReadScreen appl_date, 8, MAXIS_row, 38		      	'Reading application date
+				appl_date = replace(appl_date, " ", "/")
+				EMReadScreen nbr_days_pending, 4, MAXIS_row, 49			'Reading nbr days pending
+				EMReadScreen cash_pending, 2, MAXIS_row, 56				'checking for pending MFIP
+				EMReadScreen SNAP_pending, 1, MAXIS_row, 62				'checking for pending SNAP
+				
+				'if more than one application date exists, the case number is not present. This fixes that
+				If trim(MAXIS_case_number) = "" AND trim(client_name) <> "" then 			'if there's a name and no case number
+					EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6				'then it reads the row above
+					MAXIS_case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'
+				END IF
+				
+				
+				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
+				
+				'Now the script adds all the clients on the excel list into an array
+				entry_record = 0
+				'Adding client information to the array'
+				ReDim Preserve PND2_array(5, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+				'The client information is added to the array'
+				PND2_array (work_num,   entry_record) = worker
+				PND2_array (case_num,	entry_record) = MAXIS_case_number		
+				PND2_array (clt_name,  		entry_record) = client_name
+				PND2_array (app_date, 			entry_record) = APPL_date
+				PND2_array (days_pending,   entry_record) = nbr_days_pending
+				entry_record = entry_record + 1			'This increments to the next entry in the array'
+				
+				MAXIS_row = MAXIS_row + 1		
+			Loop until MAXIS_row = 19
+			PF8
+			EMReadScreen last_page_check, 21, 24, 2
+		Loop until last_page_check = "THIS IS THE LAST PAGE"
+	End if
+	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+next
+
+msgbox "all done with PND2"	
 
 ''Opening the Excel file
 'Set objExcel = CreateObject("Excel.Application")
