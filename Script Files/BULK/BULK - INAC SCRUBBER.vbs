@@ -722,7 +722,7 @@ For x = 0 to total_cases
 	If INAC_scrubber_primary_array(x, 8) = TRUE THEN 
 		EMWriteScreen "SPEC", 16, 43
 		EMWriteScreen "________", 18, 43
-		EMWriteScreen MAXIS_case_number, 18, 43
+		EMWriteScreen INAC_scrubber_primary_array(x, 0), 18, 43
 		EMWriteScreen "XFER", 21, 70		
 		transmit
 		If developer_mode = False then
