@@ -410,8 +410,12 @@ FOR EACH person IN HH_member_array
 					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN 
 						closing_message = closing_message & vbCr & "* Household member " & person & " appears to have pending, appealing, or eligible SSI benefits. Please review for ABAWD and SNAP E&T exemption."
 						EXIT DO
-					ELSE
-						pben_row = pben_row + 1
+					END IF
+				ELSEIF pben_type = "12" THEN		'UI pending'
+					EMReadScreen pben_disp, 1, pben_row, 77
+					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
+						closing_message = closing_message & vbCr & "* Household member " & person & " appears to have pending, appealing, or eligible Unemployment benefits. Please review for ABAWD and SNAP E&T exemption."
+						EXIT DO
 					END IF
 				ELSE
 					pben_row = pben_row + 1
