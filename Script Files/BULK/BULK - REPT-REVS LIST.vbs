@@ -77,15 +77,19 @@ future_footer_year = right(datepart("yyyy", dateadd("m", 2, date)), 2)
 'Connects to BlueZone
 EMConnect ""
 
-'Shows dialog
-Dialog pull_rept_data_into_Excel_dialog
-If buttonpressed = cancel then stopscript
+Do 
+	Do
+		err_msg = ""
+		Dialog pull_rept_data_into_Excel_dialog
+		If buttonpressed = cancel then stopscript
+		If SNAP_check = 0 and cash_check = 0 and HC_check = 0 then err_msg = err_msg & vbNewLine & "* You must select at least one program."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect					
+	LOOP until err_msg = ""	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in	
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-
-'Checking for MAXIS
-Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
