@@ -173,7 +173,7 @@ For each worker in worker_array
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
-				EMReadScreen cash_status, 1, MAXIS_row, 35		'Reading cash status
+				EMReadScreen cash_status, 1, MAXIS_row, 39		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 45		'Reading SNAP status
 				EMReadScreen HC_status, 1, MAXIS_row, 49			'Reading HC status
 				EMReadScreen exempt_IR_status, 1, MAXIS_row, 51		'Reading exempt IR status
@@ -313,4 +313,4 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("")
+script_end_procedure("Success! Your list has been created.")
