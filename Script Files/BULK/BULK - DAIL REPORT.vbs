@@ -112,6 +112,7 @@ For each x_number in x_number_array
 	x_number = trim(x_number)
 
 	back_to_SELF
+	MAXIS_case_number = ""			'Blanking this out for PRIV case handling.
 	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 	EMWriteScreen x_number, 21, 6
 	transmit
