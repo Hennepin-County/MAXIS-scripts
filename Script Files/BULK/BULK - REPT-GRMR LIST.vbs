@@ -123,15 +123,6 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
-	MAXIS_footer_year = ""
-	'making footer month/year the current month - 1 since current month will not produce results
-	temp_footer_month =  right("0" &            DatePart("m",           DateAdd("m", -1, date)            ), 2)
-	temp_footer_year =   right(                 DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-	EMWriteScreen right(temp_footer_month, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
-	EMWriteScreen right(temp_footer_year, 2), 20, 46
-	transmit
-
 	Call navigate_to_MAXIS_screen("REPT", "GRMR")
 	EMWriteScreen worker, 21, 6
 	transmit
