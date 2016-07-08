@@ -41,6 +41,27 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'FUNCTIONS=================================================================================================================
+FUNCTION create_mainframe_friendly_date(date_variable, screen_row, screen_col, year_type) 
+	var_month = datepart("m", date_variable)
+	IF len(var_month) = 1 THEN var_month = "0" & var_month
+	EMWriteScreen var_month, screen_row, screen_col
+	var_day = datepart("d", date_variable)
+	IF len(var_day) = 1 THEN var_day = "0" & var_day
+	EMWriteScreen var_day, screen_row, screen_col + 3
+	If year_type = "YY" then
+		var_year = right(datepart("yyyy", date_variable), 2)
+	ElseIf year_type = "YYYY" then
+		var_year = datepart("yyyy", date_variable)
+	Else
+		MsgBox "Year type entered incorrectly. Fourth parameter of function create_mainframe_friendly_date should read ""YYYY"" or ""YY"". The script will now stop."
+		StopScript
+	END IF
+	EMWriteScreen var_year, screen_row, screen_col + 6
+END FUNCTION
+
+'END FUNCTIONS=============================================================================================================
+
 'DIALOGS===================================================================================================================
 BeginDialog CSES_initial_dialog, 0, 0, 296, 40, "CSES Dialog"
   'CheckBox 5, 5, 290, 10, "Check here if you would like to see an Excel sheet of the CSES scrubber calculations.", excel_visible_checkbox
@@ -90,7 +111,7 @@ end class
 EMConnect ""
 
 'Displays initial dialog (script assumes you're on a CSES message by virtue of the DAIL scrubber). Dialog has no mandatory fields, so there's no loop.
-'Dialog CSES_initial_dialog			<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
+'Dialog CSES_initial_dialog			'<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
 'If ButtonPressed = cancel then stopscript	<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
 
 'If the worker signature is the Konami code (UUDDLRLRBA), developer mode will be triggered
@@ -603,9 +624,62 @@ If MFIP_active = true then
 		MFIP_evaluation_popup = MsgBox("The planned budget is indicated on the Excel spreadsheet. Evaluate the budget as indicated. If the budget appears correct for each UNEA panel indicated, press OK to update MAXIS and case note. Otherwise, press cancel and process manually.", vbOKCancel)
 		If MFIP_evaluation_popup = vbCancel then script_end_procedure("Script ended due to MFIP budget being marked as incorrect. The script will now close.")
 		'<<<<<<<<<<<<<<THIS IS WHERE THE MFIP BUDGET UPDATE WILL GO
+		If developer_mode <> TRUE Then
+			Call navigate_to_MAXIS_screen ("STAT", "UNEA")
+			'ObjExcel.Sheets("Message and Disb info").Activate
+			row = 1
+
+			Do 
+				If left(ObjExcel.Cells(row, 1).Value, 4) = "UNEA" Then
+					panel_to_update = left(ObjExcel.Cells(row, 1).Value, 10)
+					memb_to_update = right(left(panel_to_update, 7), 2)
+					panel_numb_to_update = right(panel_to_update, 2)
+					EMWriteScreen panel_to_update, 20, 71
+					EMWriteScreen memb_to_update, 20, 76
+					EMWriteScreen panel_numb_to_update, 20, 79
+					transmit
+					PF9
+					'Now it updates the code to be a "6" for verification type
+					EMWriteScreen "6", 5, 65
+					'This bit will erase all of the previous data that was listed on UNEA
+					For unea_row = 13 to 17		'Needs to go through each row of income data
+						unea_col = 25
+						Do
+							EMSetCursor unea_row, unea_col		'This is basically pressing 'end' on that field in UNEA
+							EMSendKey "<eraseeof>"
+							unea_col = unea_col + 3				'the date fields are 3 apart
+							If unea_col = 34 Then unea_col = 39	'income field
+							If unea_col = 42 Then unea_col = 54	'prospective side
+							If unea_col = 63 Then unea_col = 68	'income field
+						Loop until unea_col = 71
+					Next
+					row = row + 1
+					unea_row = 13
+					Do
+						If IsDate(ObjExcel.Cells(row, 1).Value) = TRUE Then 
+							Call create_mainframe_friendly_date (ObjExcel.Cells(row, 1).Value, unea_row, 25, "YY")
+							retro_amt = FormatNumber(ObjExcel.Cells(row, 2).Value, 2, , , 0)
+							EMWriteScreen retro_amt, unea_row, 39		
+							Call create_mainframe_friendly_date (ObjExcel.Cells(row, 3).Value, unea_row, 54, "YY")
+							prosp_amt = FormatNumber(ObjExcel.Cells(row, 4).Value, 2, , , 0)
+							EMWriteScreen prosp_amt, unea_row, 68
+							unea_row = unea_row + 1
+						End If 
+						
+						row = row + 1
+					Loop until ObjExcel.Cells(row, 1).Value = ""
+					transmit
+					transmit
+				End If
+				row = row + 1
+			Loop until ObjExcel.Cells(row, 1).Value = ""
+		End If 
 	End if
 	
 End if
+
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~Script check for HRF or REVW due for case noting purposes
 
         '~~~~~~~~~~~~~~~~~~~~Script updates UNEA for all messages with prospective amounts and actual amounts for retrospective budgeting
 
