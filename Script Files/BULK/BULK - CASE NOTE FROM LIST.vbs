@@ -156,6 +156,44 @@ END FUNCTION
 EMConnect ""
 
 CALL check_for_MAXIS(true)
+copy_case_note = FALSE 
+
+'Checking to see if script is being started on an already created case note
+EMReadScreen case_note_check, 10, 2, 33
+EMReadScreen case_note_list, 10, 2, 2
+EMReadScreen mode_check, 1, 20, 9
+
+If case_note_check = "Case Notes" AND case_note_list = "          " Then 
+	If mode_check = "D" or mode_check = "E" Then 
+		use_existing_note = MsgBox("It appears that you are currently in a case note that has already been written." & vbNewLine & "Would you like to copy this case note into other cases?", vbYesNo + vbQuestion, "Is this the case note?")
+	End If 
+End If 
+
+If use_existing_note = vbYes Then 
+	copy_case_note = TRUE 
+	note_row = 4
+	Do 
+		EMReadScreen note_line, 77, note_row, 3
+		If trim(note_line) = "" Then Exit Do
+		message_array = message_array & note_line & "~%~"
+		note_row = note_row + 1
+		If note_row = 18 then 
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 
+				PF8
+				note_row = 4
+			End If 
+		End If 
+	Loop until next_page = "More:  " OR next_page = "       "
+	message_array = message_array & "**Processed in bulk script**"
+	message_array = split(message_array, "~%~")
+	case_note_header = message_array (0)
+	For message_line = 1 to (UBound(message_array) - 2)
+		case_note_body = case_note_body & ", " & trim(message_array(message_line))
+	Next 
+	case_note_body = right(case_note_body, (len(case_note_body) - 2))
+	worker_signature = message_array (UBound(message_array) - 1)
+End If 
 
 '>>>>> loading the main dialog <<<<<
 DIALOG main_menu
@@ -275,8 +313,10 @@ case_number_array = trim(case_number_array)
 case_number_array = split(case_number_array, "~~~")
 
 'Formatting case note
-message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_signature & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
-message_array = split(message_array, "~%~")
+If copy_case_note = FALSE Then 
+	message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_signature & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
+	message_array = split(message_array, "~%~")
+End If 
 
 privileged_array = ""
 
