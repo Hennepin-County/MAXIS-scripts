@@ -419,6 +419,36 @@ IF inqd_check = checked THEN
 			objSelection.TypeText line & Chr(11)
 		END IF
 	NEXT
+	objSelection.TypeParagraph()
+	objSelection.TypeText "**********PROGRAM KEY**********"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "DW = DWP (Diversionary Work program"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "EA = Emergency Assistance"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "EG = Emergency General Assistance"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "FS = SNAP (Supplemental Nutrition)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "GA = General Assistance"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "HG = MFIP Housing Grant"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "MF-MF = MFIP (MN Family Investment program, cash portion)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "MF-FS = MFIP SNAP (food portion)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "MS = MSA (MN Supplemental Aid)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "RC = RCA (Refugee Cash Assistance)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "GR = Group Residential Housing"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "SA = Special Needs/Diet"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "SM = Special Needs MSA (MN Supplemental Aid)"
+	objSelection.TypeParagraph()
+	objSelection.TypeParagraph()
 END IF
 
 objSelection.TypeText "Completed By: "
@@ -432,7 +462,6 @@ start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE("PA verification request completed and sent to requesting agency.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
-
 
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show
