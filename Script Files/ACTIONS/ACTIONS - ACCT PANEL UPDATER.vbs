@@ -67,7 +67,7 @@ BeginDialog ACCT_UPDATERtwo, 0, 0, 206, 270, "ACCT UDATERtwo"
   EditBox 45, 110, 55, 15, as_of_date
   EditBox 148, 110, 55, 15, date_recd
   EditBox 80, 130, 30, 15, penalty
-  DropListBox 155, 130, 25, 15, " "+chr(9)+"Y"+chr(9)+"N", yes_no
+  DropListBox 155, 130, 25, 15, " "+chr(9)+"Y"+chr(9)+"N", withdrawal_penalty_yes_no
   DropListBox 125, 150, 60, 15, " "+chr(9)+"1 - Bank Stmnt"+chr(9)+"2 - Agency Verif Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Doc"+chr(9)+"6 - Personal Stmnt"+chr(9)+"N - No Verif Provided", penalty_verif
   DropListBox 25, 185, 20, 10, " "+chr(9)+"Y"+chr(9)+"N", CASH_counts
   DropListBox 60, 185, 20, 10, " "+chr(9)+"Y"+chr(9)+"N", FS_counts
@@ -116,7 +116,7 @@ BeginDialog ACCT_UPDATERthree, 0, 0, 206, 270, "ACCT UPDATERthree"
   EditBox 45, 110, 55, 15, as_of_date
   EditBox 148, 110, 55, 15, date_recd
   EditBox 80, 130, 30, 15, penalty
-  DropListBox 155, 130, 25, 15, " "+chr(9)+"Y"+chr(9)+"N", yes_no
+  DropListBox 155, 130, 25, 15, " "+chr(9)+"Y"+chr(9)+"N", withdrawal_penalty_yes_no
   EditBox 125, 150, 60, 15, penalty_verif
   EditBox 25, 185, 20, 15, CASH_counts
   EditBox 60, 185, 20, 15, FS_counts
@@ -203,7 +203,7 @@ DO
 		as_of_date = ""
 		date_recd = ""
 		penalty = "" 
-		yes_no = " "
+		withdrawal_penalty_yes_no = " "
 		CASH_counts = " "
 		FS_counts = " "
 		HC_counts = " "
@@ -268,7 +268,7 @@ DO
 			'checks if the date rec'd has been entered.
 			IF date_recd = "" THEN err_msg = err_msg & vbCr & "You must enter the date rec'd."
 			'checks if there is a withdrawl penalty has been entered. **check is commented out currently.
-			'IF yes_no = " " THEN err_msg = err_msg & vbCr & "You must enter if there is a withdrawal penalty."
+			'IF withdrawal_penalty_yes_no = " " THEN err_msg = err_msg & vbCr & "You must enter if there is a withdrawal penalty."
 			'checks if the CASH counts has been entered.
 			IF CASH_counts = " " THEN err_msg = err_msg & vbCr & "You must enter if the ACCT counts for Cash."
 			'checks if the FS counts has been entered.
@@ -307,7 +307,7 @@ DO
 		'Enters if there is a withdrawl penalty.		
 		EMWriteScreen penalty, 12, 46	
 		'Enters, yes or no, if there is a withdrawl penalty.						
-		EMWriteScreen yes_no, 12, 64 	
+		EMWriteScreen withdrawal_penalty_yes_no, 12, 64 	
 		'Enters if there is a verification of the withdrawl penalty.						
 		EMWriteScreen penalty_verif, 12, 72
 		'Enters if the ACCT counts towards cash programs.						
@@ -391,7 +391,7 @@ DO
           	EMReadScreen as_of_date, 8, 11, 44
           	as_of_date = replace(as_of_date, " ", "/")
           	EMReadScreen penalty, 8, 12, 46
-          	EMReadScreen yes_no, 1, 12, 64
+          	EMReadScreen withdrawal_penalty_yes_no, 1, 12, 64
          	EMReadScreen penalty_verif, 1, 12, 72
           	EMReadScreen CASH_counts, 1, 14, 50
           	EMReadScreen FS_counts, 1, 14, 57
@@ -416,8 +416,8 @@ DO
 			Balance = trim(Balance)
 			penalty = replace(penalty, "_", "")
 			penalty = trim(penalty)
-			yes_no = replace(yes_no, "_", "")
-			yes_no = trim(yes_no)
+			withdrawal_penalty_yes_no = replace(withdrawal_penalty_yes_no, "_", "")
+			withdrawal_penalty_yes_no = trim(withdrawal_penalty_yes_no)
 			penalty_verif = replace(penalty_verif, "_", "")
 			penalty_verif = trim(penalty_verif)
 			CASH_counts = replace(CASH_counts, "_", "")
@@ -442,7 +442,7 @@ DO
 			interest_year = trim(interest_year)
 			panel_number = trim(panel_number)
 
-				If ACCT_type <> "__" then variable_written_to = variable_written_to & ACCT_type & ACCT_number & ACCT_location & Balance & penalty & yes_no & penalty_verif & CASH_counts & FS_counts & HC_counts & GRH_counts & IVE_counts & joint_owner & ratio_one & ratio_two & interest_month & interest_year & "; "
+				If ACCT_type <> "__" then variable_written_to = variable_written_to & ACCT_type & ACCT_number & ACCT_location & Balance & penalty & withdrawal_penalty_yes_no & penalty_verif & CASH_counts & FS_counts & HC_counts & GRH_counts & IVE_counts & joint_owner & ratio_one & ratio_two & interest_month & interest_year & "; "
 				END IF
 
 		DO
@@ -467,7 +467,7 @@ DO
 			'checks if the date rec'd has been entered.
 			IF date_recd = "" THEN err_msg = err_msg & vbCr & "You must enter the date rec'd."
 			'checks if there is a withdrawl penalty has been entered. **check is commented out currently.
-			'IF yes_no = " " THEN err_msg = err_msg & vbCr & "You must enter if there is a withdrawal penalty."
+			'IF withdrawal_penalty_yes_no = " " THEN err_msg = err_msg & vbCr & "You must enter if there is a withdrawal penalty."
 			'checks if the CASH counts has been entered.
 			IF CASH_counts = "" THEN err_msg = err_msg & vbCr & "You must enter if the ACCT counts for Cash."
 			'checks if the FS counts has been entered.
@@ -510,7 +510,7 @@ DO
 		'Enters if there is a withdrawl penalty.			
 		EMWriteScreen penalty, 12, 46	
 		'Enters, yes or no, if there is a withdrawl penalty.						
-		EMWriteScreen yes_no, 12, 64 	
+		EMWriteScreen withdrawal_penalty_yes_no, 12, 64 	
 		'Enters if there is a verification of the withdrawl penalty.						
 		EMWriteScreen penalty_verif, 12, 72
 		'Enters if the ACCT counts towards cash programs.						
