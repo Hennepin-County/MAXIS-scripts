@@ -159,7 +159,6 @@ EndDialog
 BeginDialog DoneUpdating, 0, 0, 114, 74, "DoneUpdating"
   ButtonGroup ButtonPressed
     OkButton 4, 58, 40, 12
-    CancelButton 72, 58, 40, 12
   Text 8, 10, 98, 20, "Are there more ACCT panels that you need to update/add?"
   DropListBox 30, 36, 58, 12, "Select"+chr(9)+"Yes"+chr(9)+"No", more_updates
 EndDialog
@@ -281,11 +280,11 @@ DO
 			'checks if the IVE counts has been entered.
 			IF IVE_counts = " " THEN err_msg = err_msg & vbCr & "You must enter if the ACCT counts for IVE."
 			'checks if joint owner has been entered.
-			IF joint_owner = "Select" THEN err_msg = err_msg & vbCr & "You must enter if the ACCT is a joint acct."
+			IF joint_owner = " " THEN err_msg = err_msg & vbCr & "You must enter if the ACCT is a joint acct."
 			'checks if ratio one has been entered.
-			IF ratio_one = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
+			IF joint_owner = "Yes" and ratio_one = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
 			'checks if ratio two has been entered.
-			IF ratio_two = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
+			IF joint_owner = "Yes" and ratio_two = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
 			'popups the list of errors that need to be fixed.
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL err_msg = ""
@@ -377,7 +376,7 @@ DO
 				END IF
 				If account_check = 7 and current_panel_number = total_amt_of_panels then
 					pick_a_different_household_member = MsgBox("You have run through all the possible ACCT panels for this person. If you need to select a different household member, press CANCEL and restart the script using the correct MEMB number. Pressing OK will continue the script using info from the ACCT panel you are currently on", vbOKCancel)
-					IF pick_a_different_household_member = vbCancel THEN stopscript
+					IF pick_a_different_household_member = vbCancel THEN end_excel_and_script
 					IF pick_a_different_household_member = vkOK THEN EXIT DO
 				End if
 				transmit
@@ -451,7 +450,7 @@ DO
 			'starts the ACCT Panel Updater dialog
 			Dialog ACCT_UPDATERthree
 			'asks if you want to cancel and if "yes" is selected sends StopScript and closes excel
-			IF cancel = "yes" THEN end_excel_and_script
+			If ButtonPressed = 0 then end_excel_and_script
 			cancel_confirmation 
 			'checks that an ACCT type has been selected
 			IF ACCT_type = "  " THEN err_msg = err_msg & vbCr & "You must select an ACCT type."
@@ -482,9 +481,9 @@ DO
 			'checks if joint owner has been entered.
 			IF joint_owner = " " THEN err_msg = err_msg & vbCr & "You must enter if the ACCT is a joint acct."
 			'checks if ratio one has been entered.
-			IF ratio_one = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
+			IF joint_owner = "Yes" and ratio_one = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
 			'checks if ratio two has been entered.
-			IF ratio_two = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
+			IF joint_owner = "Yes" and ratio_two = "" THEN err_msg = err_msg & vbCr & "You must enter the ACCT ratio."
 			'popups the list of errors that need to be fixed.
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL err_msg = ""
@@ -541,8 +540,6 @@ DO
 		err_msg = ""
 		'starts the DoneUpdating dialog
 		Dialog DoneUpdating
-		'asks if you want to cancel and if "yes" is selected sends StopScript
-		IF cancel = "yes" THEN end_excel_and_script
 		If more_updates = "Select" then err_msg = err_msg & vbCr & "* Please select if there are more ACCT panels to update/add.."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."	
 	LOOP UNTIL err_msg = ""
