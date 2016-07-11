@@ -355,18 +355,18 @@ set objTable = objDoc.Tables(1)
 
 objTable.Cell(1, 2).Range.Text = "Cash  "
 objTable.Cell(1, 3).Range.Text = "Food Portion"
-objTable.Cell(2, 1).Range.Text = "MFIP  "
-objTable.Cell(3, 1).Range.Text = "MFIP Housing"
-objTable.Cell(4, 1).Range.Text = "GA    "
-objTable.Cell(5, 1).Range.Text = "MSA   "
-objTable.Cell(6, 1).Range.Text = "SNAP  "
+objTable.Cell(2, 1).Range.Text = "MFIP (MN Family Investment program) "
+objTable.Cell(3, 1).Range.Text = "MFIP Housing Grant"
+objTable.Cell(4, 1).Range.Text = "GA (General Assistance)"
+objTable.Cell(5, 1).Range.Text = "MSA (MN supplemental Aid)"
+objTable.Cell(6, 1).Range.Text = "SNAP (Supplemental Nutrition Assistance program)"
 objTable.Cell(2, 2).Range.Text = MFIP_cash
 objTable.Cell(2, 3).Range.Text = MFIP_food
 objTable.Cell(3, 2).Range.Text = MFIP_housing
 objTable.Cell(4, 2).Range.Text = GA_grant
 objTable.Cell(5, 2).Range.Text = MSA_Grant
 objTable.Cell(6, 3).Range.Text = SNAP_grant
-objTable.Cell(7, 1).Range.Text = "DWP   "
+objTable.Cell(7, 1).Range.Text = "DWP (Diversionary Work program) "
 objTable.Cell(7, 2).Range.Text = DWP_grant
 
 objTable.AutoFormat(16)
