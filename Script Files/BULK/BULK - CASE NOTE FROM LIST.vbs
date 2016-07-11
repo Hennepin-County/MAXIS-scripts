@@ -246,15 +246,16 @@ DIALOG main_menu
 				case_number_array = case_number_array & MAXIS_case_number & "~~~"
 				rept_row = rept_row + 1
 				IF rept_row = 19 THEN 
-					rept_row = 7 
-					PF8
-					EMReadScreen last_page_check, 4, 24, 14			'this prevents the script from erroring out if the worker only has one completely full page of cases. 
-					If last_page_check = "LAST" THEN EXIT DO
+					EMReadScreen next_page_check, 7, 19, 3			'this prevents the script from erroring out if the worker only has one completely full page of cases. 
+					If next_page_check = "More: +" Then 
+						rept_row = 7 
+						PF8
+					Else 
+						Exit Do 
+					End If 
 				END IF
-			ELSE
-				EXIT DO
 			END IF
-		LOOP 
+		LOOP until MAXIS_case_number = ""
 
 	ELSEIF run_mode = "Excel File" THEN 
 		'Opening the Excel file
