@@ -370,6 +370,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 	call navigate_to_MAXIS_screen("APPL", "____")
 
 	'Enters info in APPL and transmits
+	date_of_app = APPL_date 			'Sets a variable with the correct date format for calculation for determining client age
 	call create_MAXIS_friendly_date(APPL_date, 0, 4, 63)
 	EMWriteScreen APPL_last_name, 7, 30
 	EMWriteScreen APPL_first_name, 7, 63
@@ -438,14 +439,13 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen "P", 7, 68			'All SSNs should pend in the training region
 			If Blank_IMIG = TRUE Then EMWriteScreen "N", 7, 68		'If client is listed as undocumneted, no verif of a blank SSN
 			'Generating the DOB
-				year_of_birth = datepart("yyyy", date) - abs(MEMB_age)
+				year_of_birth = datepart("yyyy", date_of_app) - abs(MEMB_age)		'using date of application as the age listed should be age at appl
 				IF MEMB_dob_mm_dd = "" THEN
 					client_dob = "01/01/" & year_of_birth
 				ELSE
 					client_dob = DatePart("M", MEMB_dob_mm_dd) & "/" & DatePart("D", MEMB_dob_mm_dd) & "/" & year_of_birth
 				END IF
 				client_dob = DateAdd("D", 0, client_dob)
-				IF DateDiff("D", date, client_dob) =< (365 * (abs(MEMB_age) + 1)) THEN client_dob = DateAdd("YYYY", -1, client_dob)
 				CALL create_MAXIS_friendly_date_with_YYYY(client_dob, 0, 8, 42)
 			'Continuing as normal
 			EMWriteScreen MEMB_DOB_verif, 8, 68
