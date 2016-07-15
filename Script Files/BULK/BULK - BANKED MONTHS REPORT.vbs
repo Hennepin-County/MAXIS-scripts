@@ -536,10 +536,14 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		transmit
 		EMReadScreen wreg_code,  2, 8,  50
 		EMReadScreen abawd_code, 2, 13, 50
-		IF wreg_code <> "30" AND abawd_code <> "10" Then	'ALL Banked Month clients should have WREG coded 30-10'
+		IF wreg_code <> "30" Then	'ALL Banked Month clients should have WREG coded 30-10'
 			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "WREG is not coded 30-10. Review. | "
-		End If
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "WREG code is not a 30 (Mandatory FSET participant). Review. | "
+		Elseif abawd_code <> "10" then 			'this is to make sure that 30/11 (second set cases) are removed from the report for the report month
+			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD code is not a 10 (ABAWD counted month). Review. | "
+		END if
+			
 		EMReadScreen wreg_total, 1, 2, 78
 		IF wreg_total <> "0" THEN
 			EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
