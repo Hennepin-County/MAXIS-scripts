@@ -331,6 +331,7 @@ IF SNAP_banked_mo_check = checked THEN
 					If worker_county_code <> "x162" then 
 						msgbox "The Excel spreadsheet function will be depreciated effective August 22, 2016. If are an agency who uses this functionality exclusively to track banked months, please submit a comment on GitHub (Issue #2373). Thank you."
 					
+						'For counties (who are not Hennepin and Ramsey) with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
 						'Opening the Excel file
 						Set objExcel = CreateObject("Excel.Application")
 						objExcel.Visible = True
@@ -812,7 +813,4 @@ IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("BANKED
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-'Navigates to WCOM so the user can check the notice.
-call navigate_to_MAXIS_screen("SPEC", "WCOM")
-
-script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly. The script has navigated to SPEC/WCOM for your convenience.")
+script_end_procedure("Success! Please remember to check the generated notice to make sure it is correct. If not, please add WCOMs to make notice read correctly.")
