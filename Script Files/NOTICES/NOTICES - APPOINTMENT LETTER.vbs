@@ -169,7 +169,7 @@ elseif worker_county_code = "x150" then
 elseif worker_county_code = "x151" then
     agency_office_array = array("Murray")
 elseif worker_county_code = "x152" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
+    agency_office_array = array("St. Peter", "North Mankato")
 elseif worker_county_code = "x153" then
     agency_office_array = array("Nobles")
 elseif worker_county_code = "x154" then
@@ -594,6 +594,16 @@ ELSEIF worker_county_code = "x151" THEN
     agency_address.street = "3001 Maple Road, Suite 100"
     agency_address.city = "Slayton"
     agency_address.zip = "56172"
+ELSEIF worker_county_code = "x152" THEN
+    IF interview_location = "St. Peter" THEN
+        agency_address.street = "622 South Front St"
+        agency_address.city = "St. Peter"
+        agency_address.zip = "56082"
+    ELSEIF interview_location = "North Mankato" THEN
+        agency_address.street = "2070 Howard Dr"
+        agency_address.city = "North Mankato"
+        agency_address.zip = "56003"
+    END IF
 ELSEIF worker_county_code = "x153" THEN
     agency_address.street = "318 9th St."
     agency_address.city = "Worthington"
