@@ -570,11 +570,16 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		IF wreg_total <> "0" THEN
 			EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 			transmit
-			bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
-			bene_yr_row = 10
+			EMREADScreen tracking_record_check, 15, 4, 40  
+			If tracking_record_check <> "Tracking Record" then 
+				Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Unable to access the ABAWD tracking record. Review manually. | "
+			ELSE 
+				bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+				bene_yr_row = 10
 				abawd_counted_months = 0					'delclares the variables values at 0
 				second_abawd_period = 0
-			month_count = 0
+				month_count = 0
 				DO
 					'establishing variables for specific ABAWD counted month dates
 					If bene_mo_col = "19" then counted_date_month = "01"
@@ -630,9 +635,10 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					month_count = month_count + 1
 				LOOP until month_count = 36
 			PF3
+			End if
 		END If
 		'END OF ABAWD MONTHS AND SECOND ABAWD MONTHS----------------------------------------------------------------------------------------------------
-
+		
 		'Reading the person notes regarding which months are counted as banked months
 		PF5			'navigates to Person note from WREG PANEL
 		'adds case to the rejected list if cannot person note
@@ -716,16 +722,19 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 				END IF			
 			END IF
 			PF3 'exits person note'
-		
+			
 			'clears values of the following variables 
 			abawd_counted_months_string = ""
 			abawd_info_list = ""
 			second_counted_months_string = ""
 			second_set_info_list = ""
 			banked_months_list = ""
+			abawd_counted_months = ""
+			second_abawd_period = ""
 		End If
 	END If
 Next	
+
 '-----------------------------------END OF WREG PIECE---------------------------------------------------------------
 'Dialog to select the file that users will send to DHS 
 BeginDialog DHS_Report_Dialog, 0, 0, 226, 65, "DHS Banked Months"
