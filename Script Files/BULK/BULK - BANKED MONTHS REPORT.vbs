@@ -42,6 +42,8 @@ EMConnect ""		'connecting to MAXIS
 Call get_county_code	'gets county name to input into the 1st col of the spreadsheet
 developer_mode_checkbox = checked 	'defauting the person note option to NOT person note
 
+report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
+
 'Runs the dialog'
 Do
 	Do
@@ -296,7 +298,23 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 				IF fs_prorated = "Prorated" Then
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
 					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
-				End If
+				Else
+					Call navigate_to_MAXIS_screen("STAT", "PROG")
+					EMReadScreen elig_month, 2, 10, 44
+					EMReadScreen elig_date, 2, 10, 47
+					EMReadScreen elig_year, 2, 10, 50
+					report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against report month
+				
+					'handling for cases that do not have a completed HCRE panel
+	    			PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+	    			Do
+	    				EMReadscreen HCRE_panel_check, 4, 2, 50
+						If HCRE_panel_check = "HCRE" then 
+	                    	PF10	'exists edit mode in cases where HCRE isn't complete for a member
+	    					PF3
+	    				END IF
+	    			Loop until HCRE_panel_check <> "HCRE"
+				END IF
 			END If
 		'///////SCRIPT WILL NOW CHECK FOR POSSIBLE EXPEMTIONS FOR CLIENT'
 		'Age exemption'
@@ -529,8 +547,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 
 		'//////////WREG PORTION//////////////////////////////////////////////
 		'This is intense, the script is going to check every line on the WREG tracker to list all of the counted ABAWD months for the report'
-		report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
-
+		
 		Call navigate_to_MAXIS_screen("stat","wreg")		'navigates to stat/wreg
 		EMWriteScreen Banked_Month_Client_Array(memb_num, item), 20, 76
 		transmit
