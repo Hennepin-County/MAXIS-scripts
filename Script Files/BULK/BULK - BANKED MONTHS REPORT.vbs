@@ -303,8 +303,13 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					EMReadScreen elig_month, 2, 10, 44
 					EMReadScreen elig_date, 2, 10, 47
 					EMReadScreen elig_year, 2, 10, 50
-					report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against report month
-				
+					prorated_date = elig_month & "/" & elig_year		'creating date variables to measure against report month
+					If prorated_date = report_date then 
+						If elig_date <> "01" then 
+							Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
+							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
+						END if
+					END IF 
 					'handling for cases that do not have a completed HCRE panel
 	    			PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
 	    			Do
