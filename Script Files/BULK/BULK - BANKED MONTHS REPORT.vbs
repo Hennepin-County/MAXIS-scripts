@@ -655,26 +655,35 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 
 		'Write a new person note only for cases that are being sent to DHS on the 'true' list 
 		If (developer_mode_checkbox = unchecked AND Banked_Month_Client_Array(send_to_DHS, item) = True) then 
-			PF5
-			EMreadscreen edit_mode_required_check, 6, 5, 3		'if not person not exists, person note goes directly into edit mode
-			If edit_mode_required_check = "      " then 
-				EMWriteScreen "Banked Month Used " & report_date, 5, 3
-				EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
-			ElseIF edit_mode_required_check <> "      " then 	
-				'creating a Do loop to ensure that duplicate person notes are not being made
-				PNOTE_row = 5		'establishes the row to start searching the Person notes from
-				Do
-					EMReadScreen counted_banked_month, 12, PNOTE_row, 31
-					If counted_banked_month = "Banked Month" then EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
-					If abawd_counted_months_string = report_date then exit do	'if person note has already been made for the report date, then does not person note
-					PNOTE_row = PNOTE_row + 1	'adds incremental to row to search
-				LOOP until PNOTE_row = 18
-				If PNOTE_row = 18 then 
-					PF9
+			PF5		'enters person note screen
+			
+			'adds case to the rejected list if cannot person note
+			EMReadScreen person_note_confirmation, 12, 2, 31
+			If person_note_confirmation <> "Person Notes" then 
+				Banked_Month_Client_Array(send_to_DHS, item) = False	'Removing this client from DHS report - reason on next line'
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Unable to person note this case. Case may be in another county. | "
+			ELSE 
+				'if not person not exists, person note goes directly into edit mode
+				EMreadscreen edit_mode_required_check, 6, 5, 3		
+				If edit_mode_required_check = "      " then 
 					EMWriteScreen "Banked Month Used " & report_date, 5, 3
 					EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
-				END IF
-			END IF 
+				ElseIF edit_mode_required_check <> "      " then 	
+					'creating a Do loop to ensure that duplicate person notes are not being made
+					PNOTE_row = 5		'establishes the row to start searching the Person notes from
+					Do
+						EMReadScreen counted_banked_month, 12, PNOTE_row, 31
+						If counted_banked_month = "Banked Month" then EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
+						If abawd_counted_months_string = report_date then exit do	'if person note has already been made for the report date, then does not person note
+						PNOTE_row = PNOTE_row + 1	'adds incremental to row to search
+					LOOP until PNOTE_row = 18
+					If PNOTE_row = 18 then 
+						PF9
+						EMWriteScreen "Banked Month Used " & report_date, 5, 3
+						EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
+					END IF
+				END IF 
+			END IF			
 		END IF
 		PF3 'exits person note'
 		
