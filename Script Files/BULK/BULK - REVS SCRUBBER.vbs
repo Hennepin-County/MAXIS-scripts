@@ -397,7 +397,7 @@ For each worker_number in worker_number_array
 			'Reading case information (case number, SNAP status, and cash status)
 			EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6
 			EMReadScreen SNAP_status, 1, MAXIS_row, 45
-			EMReadScreen cash_status, 1, MAXIS_row, 34
+			EMReadScreen cash_status, 1, MAXIS_row, 39
 
 			'Navigates though until it runs out of case numbers to read
 			IF MAXIS_case_number = "        " then exit do
