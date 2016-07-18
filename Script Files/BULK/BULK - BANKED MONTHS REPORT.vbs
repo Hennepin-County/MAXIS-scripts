@@ -631,7 +631,6 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					If left(second_set_info_list, 1) = "," then second_set_info_list = right(second_set_info_list, len(second_set_info_list) - 1)
 					second_months_array = Split(second_set_info_list,",")
 					 
-			
 					bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
 					IF bene_mo_col = 15 THEN
 						bene_yr_row = bene_yr_row - 1
@@ -639,7 +638,6 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					END IF
 					month_count = month_count + 1
 				LOOP until month_count = 36
-			msgbox "end of abawd case" & vbcr & abawd_counted_months & vbCr & abawd_info_list & vbCr & "report date" & report_date
 			PF3
 			End if
 		END If
@@ -726,8 +724,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 						END IF
 					END IF 
 				END IF			
-			END IF
-			msgbox "end of pers case" & vbcr & abawd_counted_months & vbCr & abawd_info_list & vbCr & "report date" & report_date
+			END If
 			PF3 'exits person note'
 			
 			'clears values of the following variables 
