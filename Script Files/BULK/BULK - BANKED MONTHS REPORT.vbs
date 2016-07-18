@@ -565,6 +565,8 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
 			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD code is not a 10 (ABAWD counted month). Review. | "
 		END if
+		
+		report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
 			
 		EMReadScreen wreg_total, 1, 2, 78
 		IF wreg_total <> "0" THEN
@@ -594,46 +596,50 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					If bene_mo_col = "55" then counted_date_month = "10"
 					If bene_mo_col = "59" then counted_date_month = "11"
 					If bene_mo_col = "63" then counted_date_month = "12"
+					'counted date year
+					If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", date), 2)
+					If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
+					If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
+					If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
+					abawd_counted_months_string = counted_date_month & "/" & counted_date_year
+					
 					'reading to see if a month is counted month or not
 					EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
 					'counting and checking for counted ABAWD months
 					IF is_counted_month = "X" or is_counted_month = "M" THEN
-						EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
-						abawd_counted_months_string = counted_date_month & "/" & counted_date_year
 						If abawd_counted_months_string <> report_date then
-							If counted_date_year < MAXIS_footer_year then 			'does not add dates that are report month or later to the array
-								abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
-								abawd_counted_months = abawd_counted_months + 1				'adding counted months
-							Elseif abawd_counted_months_string < report_date then
-								abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
-								abawd_counted_months = abawd_counted_months + 1				'adding counted months
-							END IF
+							EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+							abawd_counted_months_string = counted_date_month & "/" & counted_date_year
+							abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
+							abawd_counted_months = abawd_counted_months + 1				'adding counted months
 						END IF
 					END IF
-
+			
 					'declaring & splitting the abawd months array
 					If left(abawd_info_list, 1) = "," then abawd_info_list = right(abawd_info_list, len(abawd_info_list) - 1)
 					abawd_months_array = Split(abawd_info_list, ",")
-
+					
 					'counting and checking for second set of ABAWD months
 					IF is_counted_month = "Y" or is_counted_month = "N" THEN
 						EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
 						second_abawd_period = second_abawd_period + 1				'adding counted months
 						second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
-						second_set_info_list = second_set_info_list & "," & second_counted_months_string	'adding variable to list to add to array
+						second_set_info_list = second_set_info_list & ", " & second_counted_months_string	'adding variable to list to add to array
 					END IF
 
 					'declaring & splitting the second set of abawd months array
 					If left(second_set_info_list, 1) = "," then second_set_info_list = right(second_set_info_list, len(second_set_info_list) - 1)
 					second_months_array = Split(second_set_info_list,",")
-
+					 
+			
 					bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
-		    		    IF bene_mo_col = 15 THEN
-							bene_yr_row = bene_yr_row - 1
-							bene_mo_col = 63
-						END IF
+					IF bene_mo_col = 15 THEN
+						bene_yr_row = bene_yr_row - 1
+						bene_mo_col = 63
+					END IF
 					month_count = month_count + 1
 				LOOP until month_count = 36
+			msgbox "end of abawd case" & vbcr & abawd_counted_months & vbCr & abawd_info_list & vbCr & "report date" & report_date
 			PF3
 			End if
 		END If
@@ -721,6 +727,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					END IF 
 				END IF			
 			END IF
+			msgbox "end of pers case" & vbcr & abawd_counted_months & vbCr & abawd_info_list & vbCr & "report date" & report_date
 			PF3 'exits person note'
 			
 			'clears values of the following variables 
