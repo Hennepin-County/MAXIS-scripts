@@ -567,7 +567,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		END if
 		
 		report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
-			
+		 	
 		EMReadScreen wreg_total, 1, 2, 78
 		IF wreg_total <> "0" THEN
 			EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
@@ -605,7 +605,18 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					
 					'reading to see if a month is counted month or not
 					EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
-					'counting and checking for counted ABAWD months
+					
+					'rejects cases that do not have the report month coded as a counted month
+					If report_date = abawd_counted_months_string then 
+						if is_counted_month <> "X" then 
+							if is_counted_month <> "M" then 
+								Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
+								Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD tracking record not coded a counted ABAWD month (codes X or M) for " & report_date & ". Review manually. | "
+							END IF 
+						END IF 
+					END IF 	
+				
+					'counting and checking for counted ABAWD months	
 					IF is_counted_month = "X" or is_counted_month = "M" THEN
 						If abawd_counted_months_string <> report_date then
 							EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
