@@ -731,7 +731,9 @@ For x = 0 to total_cases
 			PF9
 			EMWriteScreen CLS_x1_number, 18, 61		
 			transmit
+			
 		Else
+			Msgbox INAC_scrubber_primary_array(x, 0) & " transfered to " & CLS_x1_number    'leading a messagebox to show developer what case is being transferred and to where. This pause insures loop is operating correctly.
 			objExcel.Cells(x+2, 10).Value = "TRANSFERRED"
 		End if
 	End if
