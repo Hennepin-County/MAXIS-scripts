@@ -61,7 +61,7 @@ get_county_code
 
 'Connects to BlueZone
 EMConnect ""
-worker_number = "x127EL8"
+worker_number = "x127EL8, x127EL9"
 
 'Shows dialog
 DO 
@@ -101,6 +101,7 @@ End if
 'Sets up the array to store all the information for each client'
 Dim PND1_array ()
 ReDim PND1_array (5, 0)
+entry_record = 0
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
 Const work_num     = 1     	'Each of the case numbers will be stored at this position'		
@@ -118,8 +119,7 @@ For each worker in worker_array
 	'Skips workers with no info
 	EMReadScreen has_content_check, 8, 7, 3
 	If has_content_check <> "        " then
-		'Grabbing each case number on screen
-		entry_record = 0
+		'Grabbing each case number and case information 
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
@@ -170,6 +170,13 @@ For item = 0 to UBound(PND1_array, 2)
 	EMWriteScreen MAXIS_case_number, 18, 43
 	Call navigate_to_MAXIS_screen("CASE", "NOTE")
 	
+	'Checking for PRIV cases.
+	EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
+	IF priv_check = "PRIVIL" THEN 'Delete priv cases from excel sheet, save to a list for later
+		priv_case_list = priv_case_list & "|" & MAXIS_case_number
+		exit for
+	END IF 
+		
 	MAXIS_row = 5
 	Do 
 		EMReadScreen case_note_date, 8, MAXIS_row, 6
@@ -239,6 +246,7 @@ Msgbox "all done with PND1"
 'Sets up the array to store all the information for each client'
 Dim PND2_array ()
 ReDim PND2_array (5, 0)
+entry_record = 0
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
@@ -250,7 +258,6 @@ For each worker in worker_array
 	EMReadScreen has_content_check, 8, 7, 3
 	If has_content_check <> "        " then
 		'Grabbing each case number on screen
-		entry_record = 0
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
@@ -289,16 +296,15 @@ For each worker in worker_array
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
-msgbox entry_record
-
 'Now the script goes into CASENOTE and searches for evidence that EXP screening has
 For item = 0 to UBound(PND2_array, 2)
 	MAXIS_case_number = PND2_array(case_num, item)	'Case number for each loop from the array
-	appl_date = PND1_array(app_date, item)			'appl date for each loop from the array
+	appl_date = PND2_array(app_date, item)			'appl date for each loop from the array
 		
 	back_to_self
 	EMWriteScreen "________", 18, 43
 	EMWriteScreen MAXIS_case_number, 18, 43
+	
 	Call navigate_to_MAXIS_screen("CASE", "NOTE")
 	
 	MAXIS_row = 5
@@ -321,12 +327,7 @@ For item = 0 to UBound(PND2_array, 2)
 		END IF
 	LOOP until case_note_date < appl_date
 	If appears_exp = True then add_to_excel = True
-	
-	msgbox "case #: " & MAXIS_case_number & vbCR & add_to_excel
 NEXT		
-
-msgbox "all done with PND2"	
-
 
 'Adding another sheet 
 ObjExcel.Worksheets.Add().Name = "PND2 cases"
@@ -349,11 +350,11 @@ excel_row = 2		'Setting the excel_row to start writing data on
 
 For item = 0 to UBound(PND2_array, 2)
 	If add_to_excel = True then 
-		objExcel.Cells(excel_row, 1).Value = PND1_array (work_num,   	item)	'Adding worker number
-		objExcel.Cells(excel_row, 2).Value = PND1_array (case_num,	 	item)	'Adding case number
-		objExcel.Cells(excel_row, 3).Value = PND1_array (clt_name, 	   	item)	'Addubg client name
-		objExcel.Cells(excel_row, 4).Value = PND1_array (app_date, 	   	item)	'Adding application date
-		objExcel.Cells(excel_row, 5).Value = PND1_array (days_pending, 	item)	'Adding number of days pending
+		objExcel.Cells(excel_row, 1).Value = PND2_array (work_num,   	item)	'Adding worker number
+		objExcel.Cells(excel_row, 2).Value = PND2_array (case_num,	 	item)	'Adding case number
+		objExcel.Cells(excel_row, 3).Value = PND2_array (clt_name, 	   	item)	'Addubg client name
+		objExcel.Cells(excel_row, 4).Value = PND2_array (app_date, 	   	item)	'Adding application date
+		objExcel.Cells(excel_row, 5).Value = PND2_array (days_pending, 	item)	'Adding number of days pending
 		excel_row = excel_row + 1
 	End If
 Next
@@ -363,8 +364,19 @@ ObjExcel.Worksheets.Add().Name = "PRIV cases-runtime info"
 'adding information to the Excel list from PRIV array/runtime info
 ObjExcel.Cells(1, 1).Value = "PRIV cases"
 objExcel.Cells(1, 1).Font.Bold = TRUE
+objExcel.Columns(i).AutoFit()
+
+'Creating the list of privileged cases and adding to the spreadsheet
+prived_case_array = split(priv_case_list, "|")
+excel_row = 2
+
+FOR EACH MAXIS_case_number in prived_case_array
+	objExcel.cells(excel_row, privileged_case_col).value = MAXIS_case_number
+	excel_row = excel_row + 1
+NEXT
+
 'setting col to use to start writing run time information into to Excel
-col_to_use = 4
+col_to_use = 3
 
 'Query date/time/runtime info
 objExcel.Cells(1, col_to_use - 1).Font.Bold = TRUE
