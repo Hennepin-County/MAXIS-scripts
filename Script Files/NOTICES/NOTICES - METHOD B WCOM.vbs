@@ -114,8 +114,12 @@ EMWriteScreen MAXIS_footer_year, 20, 46
 transmit
 
 Call navigate_to_MAXIS_screen ("STAT", "MEDI")
-EMReadScreen Medicare_A, 8, 7, 46
-EMReadScreen Medicare_B, 8, 7, 73
+'checking for if Medicare is applied to spenddown or not
+EMReadscreen medicare_spenddown_check, 1, 11, 71
+IF medicare_spenddown_check = "Y" THEN
+	EMReadScreen Medicare_A, 8, 7, 46
+	EMReadScreen Medicare_B, 8, 7, 73
+END IF
 
 'cleaning up and creating variables to be autofilled into the dialog
 IF Medicare_A = "________" then Medicare_A = ""
@@ -218,7 +222,6 @@ If medi_part_b <> "" then Write_variable_in_SPEC_MEMO("Medicare Part B     - $" 
 If medi_part_d <> "" then Write_variable_in_SPEC_MEMO("Medicare Part D     - $" & medi_part_d)
 If remedial_care <> "" then Write_variable_in_SPEC_MEMO("Remedial care       - $" & remedial_care)
 If other_deductions <> "" then Write_variable_in_SPEC_MEMO("Other deductions    - $" & other_deductions)
-If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    - $" & health_insa)
 If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    - $" & health_insa)
 Call Write_variable_in_SPEC_MEMO("Recipient amount:   =$" & recipient_amt)
 If GRH_check = 1 Then Write_variable_in_SPEC_MEMO("This amount is in addition to your room and board.")

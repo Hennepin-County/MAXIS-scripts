@@ -48,7 +48,6 @@ MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
   ButtonGroup ButtonPressed
@@ -61,46 +60,46 @@ BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
   Text 10, 30, 65, 10, "Footer month/year:"
 EndDialog
 
-
-BeginDialog PA_verif_dialog, 0, 0, 196, 285, "PA Verif Dialog"
+BeginDialog PA_verif_dialog, 0, 0, 316, 235, "PA Verif Dialog"
   ButtonGroup ButtonPressed
-    OkButton 85, 265, 50, 15
-    CancelButton 140, 265, 50, 15
-  EditBox 50, 15, 25, 15, snap_grant
-  EditBox 125, 15, 25, 15, MFIP_food
-  EditBox 155, 15, 25, 15, MFIP_cash
-  EditBox 50, 35, 25, 15, MSA_Grant
-  EditBox 50, 55, 25, 15, GA_grant
-  EditBox 155, 35, 25, 15, MFIP_housing
-  EditBox 155, 55, 25, 15, DWP_grant
-  EditBox 50, 75, 130, 15, other_notes
-  EditBox 50, 95, 130, 15, other_income
-  CheckBox 55, 150, 35, 10, "Yes", subsidy_check
-  EditBox 50, 175, 20, 15, cash_members
-  EditBox 160, 175, 20, 15, household_members
-  CheckBox 5, 195, 95, 15, "Include screenshot of last", inqd_check
-  EditBox 100, 195, 15, 15, number_of_months
-  EditBox 50, 220, 55, 15, completed_by
-  EditBox 140, 220, 45, 15, worker_phone
-  EditBox 120, 240, 65, 15, worker_signature
-  Text 5, 15, 40, 15, "SNAP:"
-  Text 100, 55, 20, 15, "DWP:"
-  Text 5, 75, 40, 15, "Other notes:"
-  Text 5, 55, 35, 15, "GA:"
-  Text 5, 35, 35, 15, "MSA:"
-  Text 100, 15, 25, 15, "MFIP:"
-  Text 100, 35, 30, 20, "MFIP Housing:"
-  Text 5, 95, 45, 20, "Other income and type:"
-  Text 5, 145, 45, 20, "$50 subsidy deduction?"
-  Text 5, 165, 45, 25, "Number of members on cash grant:"
-  Text 95, 175, 55, 15, "Total members in household:"
-  Text 130, 5, 25, 10, "Food:"
-  Text 160, 5, 25, 10, "Cash:"
-  Text 120, 200, 60, 10, "months' benefits"
-  Text 110, 220, 25, 20, "Worker Phone:"
-  Text 5, 215, 35, 20, "Completed by:"
-  Text 10, 240, 90, 15, "Worker Signature (For case note):"
-  Text 5, 115, 175, 25, "Warning: Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
+    OkButton 200, 215, 50, 15
+    CancelButton 255, 215, 50, 15
+  EditBox 40, 15, 30, 15, snap_grant
+  EditBox 105, 15, 35, 15, MFIP_food
+  EditBox 145, 15, 35, 15, MFIP_cash
+  EditBox 40, 35, 30, 15, MSA_Grant
+  EditBox 145, 35, 35, 15, MFIP_housing
+  EditBox 40, 55, 30, 15, GA_grant
+  EditBox 145, 55, 35, 15, DWP_grant
+  EditBox 285, 15, 20, 15, cash_members
+  CheckBox 285, 40, 25, 10, "Yes", subsidy_check
+  EditBox 285, 55, 20, 15, household_members
+  EditBox 85, 75, 220, 15, other_income
+  EditBox 105, 95, 20, 15, number_of_months
+  EditBox 55, 165, 250, 15, other_notes
+  EditBox 55, 190, 90, 15, completed_by
+  EditBox 210, 190, 95, 15, worker_phone
+  EditBox 120, 215, 75, 15, worker_signature
+  CheckBox 10, 100, 95, 10, "Include screenshot of last", inqd_check
+  Text 10, 20, 20, 10, "SNAP:"
+  Text 110, 60, 20, 10, "DWP:"
+  Text 5, 170, 40, 10, "Other notes:"
+  Text 10, 60, 20, 10, "GA:"
+  Text 10, 40, 20, 10, "MSA:"
+  Text 80, 20, 20, 10, "MFIP:"
+  Text 80, 40, 50, 10, "MFIP Housing:"
+  Text 5, 80, 75, 10, "Other income and type:"
+  Text 200, 40, 80, 10, "$50 subsidy deduction?"
+  Text 190, 20, 95, 10, "HH members on cash grant:"
+  Text 215, 60, 65, 10, "Total HH members:"
+  Text 110, 5, 25, 10, "Food:"
+  Text 150, 5, 25, 10, "Cash:"
+  Text 130, 100, 60, 10, "months' benefits"
+  Text 155, 195, 55, 10, "Worker phone #:"
+  Text 5, 195, 50, 10, "Completed by:"
+  Text 5, 220, 110, 10, "Worker Signature (for case note):"
+  Text 15, 130, 280, 20, "Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
+  GroupBox 5, 120, 300, 35, "Warning!"
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,22 +113,20 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-
 'Showing case number dialog
 Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-
-'Checking for MAXIS
-call check_for_MAXIS(False)
-
-
+	Do 
+		err_msg = ""
+  		Dialog case_number_dialog
+  		cancel_confirmation
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine &  "* You need to type a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine								
+	LOOP until err_msg = ""	
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS				
+Loop until are_we_passworded_out = false					'loops until user passwords back in			
+					
 'Jumping to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
-
-
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
@@ -319,14 +316,18 @@ call navigate_to_MAXIS_screen("case", "curr")
 
 'calling the main dialog
 Do
-	Dialog PA_verif_dialog
-	cancel_confirmation
-	If worker_signature = ""  then MsgBox "Please sign your case note."
-	If completed_by = "" then MsgBox "Please fill out the completed by field."
-	If worker_phone = "" then MsgBox "Please fill out the worker phone field."
-Loop until worker_signature <> "" and completed_by <> "" and worker_phone <> ""
-
-
+	Do
+		err_msg = ""
+		Dialog PA_verif_dialog
+		cancel_confirmation
+		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please sign your case note."
+		If completed_by = "" then err_msg = err_msg & vbNewLine & "* Please fill out the completed by field."
+		If worker_phone = "" then err_msg = err_msg & vbNewLine & "* Please fill out the worker phone field."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine								
+	LOOP until err_msg = ""	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS				
+Loop until are_we_passworded_out = false					'loops until user passwords back in			
+							
 '****writing the word document
 Set objWord = CreateObject("Word.Application")
 Const wdDialogFilePrint = 88
@@ -355,18 +356,18 @@ set objTable = objDoc.Tables(1)
 
 objTable.Cell(1, 2).Range.Text = "Cash  "
 objTable.Cell(1, 3).Range.Text = "Food Portion"
-objTable.Cell(2, 1).Range.Text = "MFIP  "
-objTable.Cell(3, 1).Range.Text = "MFIP Housing"
-objTable.Cell(4, 1).Range.Text = "GA    "
-objTable.Cell(5, 1).Range.Text = "MSA   "
-objTable.Cell(6, 1).Range.Text = "SNAP  "
+objTable.Cell(2, 1).Range.Text = "MFIP (MN Family Investment program) "
+objTable.Cell(3, 1).Range.Text = "MFIP Housing Grant"
+objTable.Cell(4, 1).Range.Text = "GA (General Assistance)"
+objTable.Cell(5, 1).Range.Text = "MSA (MN supplemental Aid)"
+objTable.Cell(6, 1).Range.Text = "SNAP (Supplemental Nutrition Assistance program)"
 objTable.Cell(2, 2).Range.Text = MFIP_cash
 objTable.Cell(2, 3).Range.Text = MFIP_food
 objTable.Cell(3, 2).Range.Text = MFIP_housing
 objTable.Cell(4, 2).Range.Text = GA_grant
 objTable.Cell(5, 2).Range.Text = MSA_Grant
 objTable.Cell(6, 3).Range.Text = SNAP_grant
-objTable.Cell(7, 1).Range.Text = "DWP   "
+objTable.Cell(7, 1).Range.Text = "DWP (Diversionary Work program) "
 objTable.Cell(7, 2).Range.Text = DWP_grant
 
 objTable.AutoFormat(16)
@@ -419,6 +420,36 @@ IF inqd_check = checked THEN
 			objSelection.TypeText line & Chr(11)
 		END IF
 	NEXT
+	objSelection.TypeParagraph()
+	objSelection.TypeText "**********PROGRAM KEY**********"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "DW = DWP (Diversionary Work program"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "EA = Emergency Assistance"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "EG = Emergency General Assistance"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "FS = SNAP (Supplemental Nutrition)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "GA = General Assistance"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "HG = MFIP Housing Grant"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "MF-MF = MFIP (MN Family Investment program, cash portion)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "MF-FS = MFIP SNAP (food portion)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "MS = MSA (MN Supplemental Aid)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "RC = RCA (Refugee Cash Assistance)"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "GR = Group Residential Housing"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "SA = Special Needs/Diet"
+	objSelection.TypeParagraph()
+	objSelection.TypeText "SM = Special Needs MSA (MN Supplemental Aid)"
+	objSelection.TypeParagraph()
+	objSelection.TypeParagraph()
 END IF
 
 objSelection.TypeText "Completed By: "
@@ -432,7 +463,6 @@ start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE("PA verification request completed and sent to requesting agency.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
-
 
 'Starts the print dialog
 objword.dialogs(wdDialogFilePrint).Show

@@ -156,6 +156,46 @@ END FUNCTION
 EMConnect ""
 
 CALL check_for_MAXIS(true)
+copy_case_note = FALSE 
+
+'Checking to see if script is being started on an already created case note
+EMReadScreen case_note_check, 10, 2, 33
+EMReadScreen case_note_list, 10, 2, 2
+EMReadScreen mode_check, 1, 20, 9
+
+'If the script is started from a case note the script will ask if this is the note the worker wants to copy
+If case_note_check = "Case Notes" AND case_note_list = "          " Then 
+	If mode_check = "D" or mode_check = "E" Then 
+		use_existing_note = MsgBox("It appears that you are currently in a case note that has already been written." & vbNewLine & "Would you like to copy this case note into other cases?", vbYesNo + vbQuestion, "Is this the case note?")
+	End If 
+End If 
+
+'If it is the note the worker wants to copy, the script will create the message array from reading the case note lines'\
+If use_existing_note = vbYes Then 
+	copy_case_note = TRUE 	'Creating a boolean variable for future use if needed
+	note_row = 4			'Beginning of the case notes
+	Do 						'Read each line
+		EMReadScreen note_line, 77, note_row, 3
+		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+		message_array = message_array & note_line & "~%~"		'putting the lines together
+		note_row = note_row + 1
+		If note_row = 18 then 									'End of a single page of the case note
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 						'This indicates there is another page of the case note
+				PF8												'goes to the next line and resets the row to read'\
+				note_row = 4
+			End If 
+		End If 
+	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+	message_array = message_array & "**Processed in bulk script**"	'Adding the last line of the case note, indicating the note was bulk entered
+	message_array = split(message_array, "~%~")					'Creates the array
+	case_note_header = message_array (0)						'This defines the variables for the dialog boxes to come
+	For message_line = 1 to (UBound(message_array) - 2)
+		case_note_body = case_note_body & ", " & trim(message_array(message_line))
+	Next 
+	case_note_body = right(case_note_body, (len(case_note_body) - 2))
+	worker_signature = message_array (UBound(message_array) - 1)
+End If 
 
 '>>>>> loading the main dialog <<<<<
 DIALOG main_menu
@@ -208,15 +248,16 @@ DIALOG main_menu
 				case_number_array = case_number_array & MAXIS_case_number & "~~~"
 				rept_row = rept_row + 1
 				IF rept_row = 19 THEN 
-					rept_row = 7 
-					PF8
-					EMReadScreen last_page_check, 4, 24, 14			'this prevents the script from erroring out if the worker only has one completely full page of cases. 
-					If last_page_check = "LAST" THEN EXIT DO
+					EMReadScreen next_page_check, 7, 19, 3			'this prevents the script from erroring out if the worker only has one completely full page of cases. 
+					If next_page_check = "More: +" Then 
+						rept_row = 7 
+						PF8
+					Else 
+						Exit Do 
+					End If 
 				END IF
-			ELSE
-				EXIT DO
 			END IF
-		LOOP 
+		LOOP until MAXIS_case_number = ""
 
 	ELSEIF run_mode = "Excel File" THEN 
 		'Opening the Excel file
@@ -275,8 +316,10 @@ case_number_array = trim(case_number_array)
 case_number_array = split(case_number_array, "~~~")
 
 'Formatting case note
-message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_signature & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
-message_array = split(message_array, "~%~")
+If copy_case_note = FALSE Then 
+	message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_signature & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
+	message_array = split(message_array, "~%~")
+End If 
 
 privileged_array = ""
 
