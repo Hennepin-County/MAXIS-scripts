@@ -93,6 +93,10 @@ Else
 	worker_array = split(worker_array, ", ")
 End if
 
+'sets up PRIV case array
+Dim PRIV_case_array()
+Redim PRIV_case_array(5, 0)
+
 '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>PND1 information
 'Sets up the array to store all the information for each client'
 Dim PND1_array ()
@@ -162,44 +166,45 @@ For item = 0 to UBound(PND1_array, 2)
 	EMWriteScreen MAXIS_case_number, 18, 43
 	Call navigate_to_MAXIS_screen("CASE", "NOTE")
 	
-	'Checking for PRIV cases.
+	'Checking for PRIV cases
 	EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
 	IF priv_check = "PRIVIL" THEN 				'Delete priv cases from excel sheet, save to a list for later
-		priv_case_list = priv_case_list & "|" & MAXIS_case_number
-		appears_exp = False						'appears_exp = False makes the case not added to the pending list, instead adds to the PRIV list
-		exit for
-	END IF 
-	
-	'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text	
-	MAXIS_row = 5
-	Do 
-		EMReadScreen case_note_date, 8, MAXIS_row, 6
-		If case_note_date = "        " then 
-			appears_exp = True
-			exit do
-		End if 
-		If case_note_date => appl_date then 
-			EMReadScreen case_note_header, 55, MAXIS_row, 25
-			case_note_header = trim(case_note_header)	
-			IF instr(case_note_header, "client appears expedited") then				
-				appears_exp = True 
+		EMWriteScreen "________", 18, 43		'clears the case number
+		transmit
+		PF3
+		appears_exp = True
+	ELse
+		'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text	
+		MAXIS_row = 5
+		Do 
+			EMReadScreen case_note_date, 8, MAXIS_row, 6
+			If case_note_date = "        " then 
+				appears_exp = True
 				exit do
-			Elseif instr(case_note_header, "client does not appear expedited") then
-				appears_exp = FALSE
-				exit do
-			Else 
-				appears_exp = True			'defaults all other cases to true, to be addded to the list 
-			END IF
+			End if 
+			If case_note_date => appl_date then 
+				EMReadScreen case_note_header, 55, MAXIS_row, 25
+				case_note_header = trim(case_note_header)	
+				IF instr(case_note_header, "client appears expedited") then				
+					appears_exp = True 
+					exit do
+				Elseif instr(case_note_header, "client does not appear expedited") then
+					appears_exp = FALSE
+					exit do
+				Else 
+					appears_exp = True			'defaults all other cases to true, to be addded to the list 
+				END IF
+			END IF 
 			MAXIS_row = MAXIS_row + 1
-		END IF
-	LOOP until case_note_date < appl_date
-	
+		LOOP until case_note_date < appl_date
+	END If 
+				
 	'if cases are pending for MFIP or SNAP and appear to be EXP based on not having a EXP screening, or EXP screening shows they appear exp, then the cases will be added to Excel.
 	If appears_exp = True then 
 		add_to_excel = True
-	ELSE 
+	ELSEif appears_exp = False then 
 		add_to_excel = False
-	END IF  
+	END IF 
 NEXT		
 
 'Opening the Excel file
@@ -218,9 +223,10 @@ ObjExcel.Cells(1, 3).Value = "Client name"
 ObjExcel.Cells(1, 4).Value = "APPL date"
 objExcel.Columns(4).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
 ObjExcel.Cells(1, 5).Value = "# day pending"
+ObjExcel.Cells(1, 6).Value = "NOTES"
 
 'formatting the cells 
-FOR i = 1 to 5		
+FOR i = 1 to 6		
 	objExcel.Cells(1, i).Font.Bold = True		'bold font
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT	
@@ -239,7 +245,7 @@ For item = 0 to UBound(PND1_array, 2)
 	End If
 Next
 
-FOR i = 1 to 5		'formatting the cells
+FOR i = 1 to 6		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 	
@@ -322,75 +328,79 @@ For item = 0 to UBound(PND2_array, 2)
 	back_to_self
 	EMWriteScreen "________", 18, 43
 	EMWriteScreen MAXIS_case_number, 18, 43
-	
-	'Checking for PRIV cases.
-	EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
-	IF priv_check = "PRIVIL" THEN 'Delete priv cases from excel sheet, save to a list for later
-		priv_case_list = priv_case_list & "|" & MAXIS_case_number
-		appears_exp = False
-	END IF 
-	
-	'checking for ACTIVE SNAP 
-	Call navigate_to_MAXIS_screen("STAT", "PROG")
-	EMReadScreen SNAP_status, 4, 10, 74
-	If SNAP_status = "ACTV" then 
-		appears_exp = false
-	Elseif SNAP_status <> "PEND" then 
-		'Checking for ACTIVE MFIP
-	 	MAXIS_row = 6
-	 		Do 
-	 			EMReadScreen cash_status, 2, MAXIS_row, 67
-	 			If cash_status = "MF" then 
-	 				EMReadScreen program_status, 4, MAXIS_row, 74
+		
+	'Checking for PRIV cases
+	EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
+	IF priv_check = "PRIVIL" THEN 				'Delete priv cases from excel sheet, save to a list for later
+		EMWriteScreen "________", 18, 43		'clears the case number
+		transmit
+		PF3
+		appears_exp = True
+	ELse
+		'checking for ACTIVE SNAP 
+		Call navigate_to_MAXIS_screen("STAT", "PROG")
+		EMReadScreen SNAP_status, 4, 10, 74
+		If SNAP_status = "ACTV" then 
+			appears_exp = false
+		Elseif SNAP_status <> "PEND" then 
+			'Checking for ACTIVE MFIP
+			MAXIS_row = 6
+			Do 
+				EMReadScreen cash_status, 2, MAXIS_row, 67
+				If cash_status = "MF" then 
+					EMReadScreen program_status, 4, MAXIS_row, 74
 					If program_status <> "PEND" then 
 						appears_exp = false
+					elseif cash_status = "  " then 
+						appears_exp = true
 					END IF 
 				END IF 
 				MAXIS_row = MAXIS_row + 1
 			LOOP until MAXIS_row = 	8
-	END IF 
-	
-	'Because some cases don't have HCRE dates listed, so when you try to go past PROG the script gets caught up. Do...loop handles this instance.
-	PF3		'exits PROG to prompt HCRE if HCRE isn't complete
-	Do
-		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
-			PF10	'exists edit mode in cases where HCRE isn't complete for a member
-			PF3
-		END IF
-	Loop until HCRE_panel_check <> "HCRE"		'repeats until case is not in the HCRE panel
-	
-	'Checking the CASE NOTE for the EXP screening case note
-	Call navigate_to_MAXIS_screen("CASE", "NOTE")
-	'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text
-	MAXIS_row = 5
-	Do 
-		EMReadScreen case_note_date, 8, MAXIS_row, 6
-		If case_note_date = "        " then 
-			appears_exp = True
-			exit do
 		END IF 
-		If case_note_date => appl_date then 
-			EMReadScreen case_note_header, 55, MAXIS_row, 25
-			case_note_header = trim(case_note_header)	
-			IF instr(case_note_header, "client appears expedited") then
-				appears_exp = True 
-			Elseif instr(case_note_header, "client does not appear expedited") then
-				appears_exp = FALSE
-			Else 
+	
+		'Because some cases don't have HCRE dates listed, so when you try to go past PROG the script gets caught up. Do...loop handles this instance.
+		PF3		'exits PROG to prompt HCRE if HCRE isn't complete
+		Do
+			EMReadscreen HCRE_panel_check, 4, 2, 50
+			If HCRE_panel_check = "HCRE" then
+				PF10	'exists edit mode in cases where HCRE isn't complete for a member
+				PF3
+			END IF
+		Loop until HCRE_panel_check <> "HCRE"		'repeats until case is not in the HCRE panel
+		'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text	
+		MAXIS_row = 5
+		Do 
+			EMReadScreen case_note_date, 8, MAXIS_row, 6
+			If case_note_date = "        " then 
 				appears_exp = True
+				exit do
+			End if 
+			
+			If case_note_date => appl_date then 
+				EMReadScreen case_note_header, 55, MAXIS_row, 25
+				case_note_header = trim(case_note_header)	
+				IF instr(case_note_header, "client appears expedited") then				
+					appears_exp = True 
+					exit do
+				Elseif instr(case_note_header, "client does not appear expedited") then
+					appears_exp = FALSE
+					exit do
+				Else 
+					appears_exp = True			'defaults all other cases to true, to be addded to the list 
+				END IF
 			END IF
 			MAXIS_row = MAXIS_row + 1
-		END IF
-	LOOP until case_note_date < appl_date
-	
+		LOOP until case_note_date < appl_date
+	END if	
+			
 	'if cases are pending for MFIP or SNAP and appear to be EXP based on not having a EXP screening, or EXP screening shows they appear exp, then the cases will be added to Excel.
 	If appears_exp = True then 
 		add_to_excel = True
-	ELSE 
+	ELSEif appears_exp = False then
 		add_to_excel = False
-	END IF 
-NEXT		
+	END IF  
+NEXT	
 
 'Adding another sheet 
 ObjExcel.Worksheets.Add().Name = "PND2 cases"
@@ -402,8 +412,9 @@ ObjExcel.Cells(1, 3).Value = "Client name"
 ObjExcel.Cells(1, 4).Value = "APPL date"
 objExcel.Columns(4).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
 ObjExcel.Cells(1, 5).Value = "# day pending"
+ObjExcel.Cells(1, 6).Value = "NOTES"
 
-FOR i = 1 to 5		'formatting the cells
+FOR i = 1 to 6		'formatting the cells
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
@@ -422,28 +433,12 @@ For item = 0 to UBound(PND2_array, 2)
 	End If
 Next
 
-FOR i = 1 to 5		'formatting the cells
+FOR i = 1 to 6		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT	
 
-'Adding another sheet for report runtime information 
-ObjExcel.Worksheets.Add().Name = "PRIV cases-runtime info"
-'adding information to the Excel list from PRIV array/runtime info
-ObjExcel.Cells(1, 1).Value = "PRIV cases"
-objExcel.Cells(1, 1).Font.Bold = TRUE
-objExcel.Columns(i).AutoFit()
-
-'Creating the list of privileged cases and adding to the spreadsheet
-prived_case_array = split(priv_case_list, "|")
-excel_row = 2
-
-FOR EACH MAXIS_case_number in prived_case_array
-	objExcel.cells(excel_row, privileged_case_col).value = MAXIS_case_number
-	excel_row = excel_row + 1
-NEXT
-
 'setting col to use to start writing run time information into to Excel
-col_to_use = 4
+col_to_use = 8
 
 'Query date/time/runtime info
 objExcel.Cells(1, col_to_use - 1).Font.Bold = TRUE
