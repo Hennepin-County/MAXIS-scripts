@@ -219,8 +219,14 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
   IF WREG_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " has not used 3 ABAWD months in the past 3 years."
 	row = current_yr_row
 	col = current_month_col
-	EMSearch "M", row, col 'This looks to make sure there is an initial banked month coded on WREG on or after the initial month
-	IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+	EMReadScreen tracking_record_coding, 1, row, col
+	If tracking_record_coding <> "M" then
+	 	if tracking_record_coding <> "X" then 
+			err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+		End if
+	End if
+	'EMSearch "M", row, col 'This looks to make sure there is an initial banked month coded on WREG on or after the initial month
+	'IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
 	PF3
 Next
 
