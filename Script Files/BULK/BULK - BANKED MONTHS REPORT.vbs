@@ -378,7 +378,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					Case "3"
 						prosp_hrs = (2.15 * prosp_hrs)	
 					Case "4"
-						prosp_hrs = (2.15 * prosp_hrs)	
+						prosp_hrs = (4.3 * prosp_hrs)	
 					End Select
 					prospective_hours = prospective_hours + prosp_hrs
 				ELSE
