@@ -215,12 +215,15 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
         		bene_yr_row = bene_yr_row + 1
    	     		bene_mo_col = 19
    	END IF
-  LOOP until bene_yr_row = current_yr_row AND bene_mo_col = current_month_col'Stops when it reaches current year & month.
+  LOOP until bene_yr_row = current_yr_row AND bene_mo_col = current_month_col			'Stops when it reaches current year & month.
   IF WREG_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " has not used 3 ABAWD months in the past 3 years."
 	row = current_yr_row
 	col = current_month_col
-	EMSearch "M", row, col 'This looks to make sure there is an initial banked month coded on WREG on or after the initial month
-	IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+	EMSearch "M", row, col			'This looks to make sure there is an initial banked month coded on WREG on or after the initial month as an "M"
+	IF row < current_yr_row OR row > current_yr_row + 1 THEN 
+		EMSearch "X", row, col 		'This looks to make sure there is an initial banked month coded on WREG on or after the initial month as an "X"
+		IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+	End if
 	PF3
 Next
 
