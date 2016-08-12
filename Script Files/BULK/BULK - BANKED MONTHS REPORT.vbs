@@ -350,7 +350,8 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		'JOBS'
 		prosp_inc = 0		'Variables are reset for each run of the loop'
 		prosp_hrs = 0
-
+		prospective_hours = 0
+		
 		CALL navigate_to_MAXIS_screen("STAT", "JOBS")		'Checking JOBS for income and hours'
 		EmWriteScreen Banked_Month_Client_Array(memb_num, item), 20, 76
 		EmWriteScreen "01", 20, 79
