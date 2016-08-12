@@ -39,12 +39,8 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-
-MAXIS_footer_month = datepart("m", next_month)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = datepart("yyyy", next_month)
-MAXIS_footer_year = "" & MAXIS_footer_year - 2000
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 171, 220, "Case number dialog"
@@ -177,12 +173,9 @@ Dim row
 Dim col
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to MAXIS
+'Connecting to MAXIS & grabbing the case number
 EMConnect ""
-'Searching for the MAXIS_case_number variable
-call MAXIS_case_number_finder(MAXIS_case_number)
-'Searching for the footer month and footer year
-call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Showing the case number dialog
 Do
@@ -206,6 +199,9 @@ If paperless_checkbox = 1 then
 	call script_end_procedure("")
 End if
 
+'confirms that footer month/year from dialog matches footer month/year on MAXIS
+Call MAXIS_footer_month_confirmation
+
 'Navigating to STAT/REVW, checking for error prone cases
 call navigate_to_MAXIS_screen("stat", "revw")
 'Creating a custom dialog for determining who the HH members are
@@ -227,17 +223,11 @@ call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
-
-'Autofill DCEX/COEX
 call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
-
-'Autofill EI
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-
-'Autofill datestamp and UI
 call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CSR_datestamp)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
