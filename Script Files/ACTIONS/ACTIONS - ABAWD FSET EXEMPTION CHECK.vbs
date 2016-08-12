@@ -74,18 +74,21 @@ End if
 
 cstr(MAXIS_footer_month)
 
-DO
-	err_msg = ""
-	DIALOG  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+Do 
+	DO
+		err_msg = ""
+		DIALOG  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "* Please enter a case number."
 		IF MAXIS_footer_month = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."
 		IF MAXIS_footer_year = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit year."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
+					
 MAXIS_case_number = MAXIS_case_number
-CALL check_for_MAXIS(False)
-
+			
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -98,7 +101,6 @@ row = 1
 col = 1 
 EMSearch "PRIVILEGED", row, col
 IF row <> 0 THEN script_end_procedure("This case appears to be privileged. The script cannot access it.")
-
 
 DO
 	CALL HH_member_custom_dialog(HH_member_array)
@@ -159,8 +161,7 @@ FOR EACH person IN HH_member_array
 		END IF
 	END IF
 NEXT
-		
-		
+			
 '>>>>>>>>>>>> EATS GROUP
 FOR EACH person IN HH_member_array
 	CALL navigate_to_MAXIS_screen("STAT", "EATS")
@@ -264,13 +265,16 @@ FOR EACH person IN HH_member_array
 	IF person <> "" THEN 
 		prosp_inc = 0
 		prosp_hrs = 0
+		prospective_hours = 0
 				
 		CALL navigate_to_MAXIS_screen("STAT", "JOBS")
-		CALL write_value_and_transmit(person, 20, 76)
+		EMWritescreen person, 20, 76
+		EMWritescreen "01", 20, 79				'ensures that we start at 1st job
+		transmit
 		EMReadScreen num_of_JOBS, 1, 2, 78
 		IF num_of_JOBS <> "0" THEN 
 			DO
-				EMReadScreen jobs_end_dt, 8, 9, 49
+			 	EMReadScreen jobs_end_dt, 8, 9, 49
 				EMReadScreen cont_end_dt, 8, 9, 73
 				IF jobs_end_dt = "__ __ __" THEN 
 					CALL write_value_and_transmit("X", 19, 38)
@@ -280,17 +284,17 @@ FOR EACH person IN HH_member_array
 					prosp_inc = prosp_inc + prosp_monthly
 					EMReadScreen prosp_hrs, 8, 16, 50
 					IF prosp_hrs = "        " THEN prosp_hrs = 0
-					pp_hrs = pp_hrs * 1
 					EMReadScreen pay_freq, 1, 5, 64
 					IF pay_freq = "1" THEN 
-						prosp_hrs = prosp_hrs + pp_hrs
+						prosp_hrs = prosp_hrs
 					ELSEIF pay_freq = "2" THEN 
-						prosp_hrs = prosp_hrs + (2 * pp_hrs)
+						prosp_hrs = (2 * prosp_hrs)
 					ELSEIF pay_freq = "3" THEN 
-						prosp_hrs = prosp_hrs + (2.15 * pp_hrs)			
+						prosp_hrs = (2.15 * prosp_hrs)		
 					ELSEIF pay_freq = "4" THEN 
-						prosp_hrs = prosh_hrs + (4.3 * pp_hrs)
+						prosp_hrs = (4.3 * prosp_hrs)
 					END IF
+					prospective_hours = prospective_hours + prosp_hrs
 				ELSE
 					jobs_end_dt = replace(jobs_end_dt, " ", "/")
 					IF DateDiff("D", date, jobs_end_dt) > 0 THEN 
@@ -302,23 +306,25 @@ FOR EACH person IN HH_member_array
 						prosp_inc = prosp_inc + prosp_monthly
 						EMReadScreen prosp_hrs, 8, 16, 50
 						IF prosp_hrs = "        " THEN prosp_hrs = 0
-						pp_hrs = pp_hrs * 1
 						EMReadScreen pay_freq, 1, 5, 64
 						IF pay_freq = "1" THEN 
-							prosp_hrs = prosp_hrs + pp_hrs
+							prosp_hrs = prosp_hrs
 						ELSEIF pay_freq = "2" THEN 
-							prosp_hrs = prosp_hrs + (2 * pp_hrs)
+							prosp_hrs = (2 * prosp_hrs)
 						ELSEIF pay_freq = "3" THEN 
-							prosp_hrs = prosp_hrs + (2.15 * pp_hrs)			
+							prosp_hrs = (2.15 * prosp_hrs)			
 						ELSEIF pay_freq = "4" THEN 
-							prosp_hrs = prosp_hrs + (4.3 * pp_hrs)
+							prosp_hrs = (4.3 * prosp_hrs)
 						END IF
+						'added seperate incremental variable to account for multiple jobs
+						prospective_hours = prospective_hours + prosp_hrs
 					END IF
 				END IF
-				transmit
-				transmit
-				EMReadScreen enter_a_valid_command, 13, 24, 2
-			LOOP UNTIL enter_a_valid_command = "ENTER A VALID"
+				transmit		'to exit PIC			
+				EMReadScreen JOBS_panel_current, 1, 2, 73
+				'looping until all the jobs panels are calculated
+				If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
+			Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
 		END IF	
 		
 		EMWriteScreen "BUSI", 20, 71
@@ -337,6 +343,7 @@ FOR EACH person IN HH_member_array
 						IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
 						prosp_inc = prosp_inc + busi_inc
 						prosp_hrs = prosp_hrs + busi_hrs
+						prospective_hours = prospective_hours + busi_hrs
 					END IF
 				ELSE
 					IF busi_end_dt = "__/__/__" THEN 
@@ -347,6 +354,7 @@ FOR EACH person IN HH_member_array
 						IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
 						prosp_inc = prosp_inc + busi_inc
 						prosp_hrs = prosp_hrs + busi_hrs
+						prospective_hours = prospective_hours + busi_hrs
 					END IF
 				END IF
 				transmit
@@ -358,10 +366,9 @@ FOR EACH person IN HH_member_array
 		CALL write_value_and_transmit(person, 20, 76)
 		EMReadScreen num_of_RBIC, 1, 2, 78
 		IF num_of_RBIC <> "0" THEN closing_message = closing_message & vbCr & "* Household member " & person & " has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
-	
-		IF prosp_inc >= 935.25 OR prosp_hrs >= 129 THEN 
+		IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN 
 			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working 30 hours/wk (regardless of wage level) or earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
-		ELSEIF prosp_hrs >= 80 AND prosp_hrs < 129 THEN 
+		ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN 
 			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
 		END IF
 	END IF
@@ -441,8 +448,7 @@ CALL navigate_to_MAXIS_screen("STAT", "PROG")
 EMReadScreen cash1_status, 4, 6, 74
 EMReadScreen cash2_status, 4, 7, 74
 IF cash1_status = "ACTV" OR cash2_status = "ACTV" THEN closing_message = closing_message & vbCr & "* Case is active on CASH programs. Please review for ABAWD and SNAP E&T exemption."
-			
-			
+				
 '>>>>>>>>>SCHL/STIN/STEC
 CALL navigate_to_MAXIS_screen("STAT", "SCHL")
 FOR EACH person IN HH_member_array
