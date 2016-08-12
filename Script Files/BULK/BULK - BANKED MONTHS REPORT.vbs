@@ -369,7 +369,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					prosp_inc = prosp_inc + prosp_monthly			'All budgeted income will be added together'
 					EMReadScreen prosp_hrs, 8, 16, 50					'Looking for reported hours'
 					IF prosp_hrs = "        " THEN prosp_hrs = 0
-										EMReadScreen pay_freq, 1, 5, 64					'Finding the pay frequency'
+					EMReadScreen pay_freq, 1, 5, 64					'Finding the pay frequency'
 					Select Case pay_freq							'Total monthly hours are determined by pay frequency specific multipliers'
 					Case "1"										'Hours are added together as all earned income panels are checked'
 						prosp_hrs = prosp_hrs
@@ -448,7 +448,6 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 				EMReadScreen enter_a_valid, 13, 24, 2
 			LOOP UNTIL enter_a_valid = "ENTER A VALID"
 		END IF		'All of the budgteted earned income has been gathered and added'
-		msgbox prosp_inc & vbcr & prospective_hours
 		IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN		'Clients working the equivalent of 30 hours/wk by hours or income are FSET exempt'
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
 			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to be earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions. | "
