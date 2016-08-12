@@ -247,6 +247,7 @@ FOR EACH person IN HH_member_array
 					prosp_inc = prosp_inc + prosp_monthly
 					EMReadScreen prosp_hrs, 8, 16, 50
 					IF prosp_hrs = "        " THEN prosp_hrs = 0
+					prosp_hrs = prosp_hrs * 1						'Added multiplier to ensure that prosp_hrs is a numeric					
 					EMReadScreen pay_freq, 1, 5, 64
 					IF pay_freq = "1" THEN 
 						prosp_hrs = prosp_hrs
@@ -269,6 +270,7 @@ FOR EACH person IN HH_member_array
 						prosp_inc = prosp_inc + prosp_monthly
 						EMReadScreen prosp_hrs, 8, 16, 50
 						IF prosp_hrs = "        " THEN prosp_hrs = 0
+						prosp_hrs = prosp_hrs * 1						'Added multiplier to ensure that prosp_hrs is a numeric
 						EMReadScreen pay_freq, 1, 5, 64
 						IF pay_freq = "1" THEN 
 							prosp_hrs = prosp_hrs
