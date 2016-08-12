@@ -55,24 +55,11 @@ BeginDialog , 0, 0, 166, 70, "Case number dialog"
   Text 100, 30, 25, 10, "Year:"
 EndDialog
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = datepart("m", date)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = Cstr(right(DatePart("YYYY", date), 2))
-cstr(MAXIS_footer_month)
-
+'The script----------------------------------------------------------------------------------------------------
+'Connecting to MAXIS, and grabbing the case number and current footer month/year
 EMConnect ""
-CALL check_for_MAXIS(False)
-
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
-  MAXIS_footer_month = MAXIS_footer_month
-  call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
-End if
-
-cstr(MAXIS_footer_month)
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Do 
 	DO
@@ -87,14 +74,9 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
 					
-MAXIS_case_number = MAXIS_case_number
+'Confirming that the footer month from the dialog matches the footer month in MAXIS
+Call MAXIS_footer_month_confirmation
 			
-back_to_SELF
-EMWriteScreen "________", 18, 43
-EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen MAXIS_footer_month, 20, 43
-EMWriteScreen MAXIS_footer_year, 20, 46
-
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 '>>>>>Checking for privileged<<<<<
 row = 1 
