@@ -47,24 +47,25 @@ MAXIS_footer_year = datepart("yyyy", next_month)
 MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 166, 265, "Case number dialog"
-  EditBox 75, 5, 70, 15, MAXIS_case_number
-  EditBox 80, 25, 30, 15, MAXIS_footer_month
-  EditBox 115, 25, 30, 15, MAXIS_footer_year
-  CheckBox 10, 60, 35, 10, "SNAP", SNAP_checkbox
-  CheckBox 95, 60, 30, 10, "HC", HC_checkbox
-  CheckBox 10, 80, 100, 10, "Is this an exempt (*) IR?", paperless_checkbox
-  EditBox 70, 100, 75, 15, Worker_signature
+BeginDialog case_number_dialog, 0, 0, 171, 220, "Case number dialog"
+  EditBox 100, 5, 65, 15, MAXIS_case_number
+  EditBox 100, 25, 30, 15, MAXIS_footer_month
+  EditBox 135, 25, 30, 15, MAXIS_footer_year
+  CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
+  CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
+  CheckBox 130, 60, 25, 10, "HC", HC_checkbox
+  CheckBox 75, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
+  EditBox 70, 95, 95, 15, Worker_signature
   ButtonGroup ButtonPressed
-    OkButton 35, 135, 50, 15
-    CancelButton 95, 135, 50, 15
-  Text 10, 10, 50, 10, "Case number:"
-  Text 10, 30, 65, 10, "Footer month/year:"
-  GroupBox 5, 45, 140, 30, "Programs recertifying"
-  Text 10, 105, 60, 10, "Worker Signature"
-  GroupBox 10, 165, 155, 75, "Exempt IR checkbox warning:"
-  Text 15, 180, 145, 25, "If you select ''Is this an exempt IR'', the case note will only read that the paperless IR was cleared (no case information listed)."
-  Text 15, 215, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+    OkButton 60, 115, 50, 15
+    CancelButton 115, 115, 50, 15
+  Text 35, 30, 65, 10, "Footer month/year:"
+  GroupBox 10, 45, 155, 30, "Programs recertifying"
+  Text 10, 100, 60, 10, "Worker Signature"
+  GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
+  Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only read that the paperless IR was cleared (no case information listed)."
+  Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+  Text 45, 10, 45, 10, "Case number:"
 EndDialog
 
 BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
@@ -79,13 +80,14 @@ BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
   EditBox 60, 155, 95, 15, SHEL_HEST
   EditBox 225, 155, 95, 15, COEX_DCEX
   ButtonGroup ButtonPressed
-    Pushbutton 340, 205, 50, 15, "Next", next_button
+    PushButton 340, 205, 50, 15, "Next", next_button
     CancelButton 395, 205, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
     PushButton 5, 160, 25, 10, "SHEL/", SHEL_button
     PushButton 30, 160, 25, 10, "HEST:", HEST_button
@@ -93,18 +95,17 @@ BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
     PushButton 190, 160, 30, 10, "DCEX:", DCEX_button
     PushButton 10, 190, 25, 10, "BUSI", BUSI_button
     PushButton 35, 190, 25, 10, "JOBS", JOBS_button
-    PushButton 35, 200, 25, 10, "UNEA", UNEA_button
     PushButton 75, 190, 25, 10, "ACCT", ACCT_button
     PushButton 100, 190, 25, 10, "CARS", CARS_button
     PushButton 125, 190, 25, 10, "CASH", CASH_button
     PushButton 150, 190, 25, 10, "OTHR", OTHR_button
-    PushButton 75, 200, 25, 10, "REST", REST_button
-    PushButton 100, 200, 25, 10, "SECU", SECU_button
-    PushButton 125, 200, 25, 10, "TRAN", TRAN_button
     PushButton 190, 190, 25, 10, "MEMB", MEMB_button
     PushButton 215, 190, 25, 10, "MEMI", MEMI_button
     PushButton 240, 190, 25, 10, "REVW", REVW_button
-  GroupBox 255, 5, 50, 25, "ELIG panels:"
+    PushButton 35, 200, 25, 10, "UNEA", UNEA_button
+    PushButton 75, 200, 25, 10, "REST", REST_button
+    PushButton 100, 200, 25, 10, "SECU", SECU_button
+    PushButton 125, 200, 25, 10, "TRAN", TRAN_button
   GroupBox 330, 5, 115, 35, "STAT-based navigation:"
   Text 5, 20, 55, 10, "CSR datestamp:"
   Text 125, 20, 40, 10, "CSR status:"
@@ -116,9 +117,10 @@ BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
   Text 5, 140, 30, 10, "Assets:"
   GroupBox 5, 180, 175, 35, "Income and asset panels"
   GroupBox 185, 180, 85, 25, "other STAT panels:"
+  GroupBox 255, 5, 75, 25, "ELIG panels:"
 EndDialog
 
-BeginDialog CSR_dialog02, 0, 0, 451, 260, "CSR dialog"
+BeginDialog CSR_dialog02, 0, 0, 451, 240, "CSR dialog"
   EditBox 100, 25, 150, 15, FIAT_reasons
   EditBox 50, 45, 395, 15, other_notes
   EditBox 45, 65, 400, 15, changes
@@ -134,6 +136,7 @@ BeginDialog CSR_dialog02, 0, 0, 451, 260, "CSR dialog"
     CancelButton 395, 220, 50, 15
     PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
@@ -152,7 +155,6 @@ BeginDialog CSR_dialog02, 0, 0, 451, 260, "CSR dialog"
     PushButton 100, 150, 25, 10, "SECU", SECU_button
     PushButton 125, 150, 25, 10, "TRAN", TRAN_button
   EditBox 60, 180, 90, 15, MAEPD_premium
-  CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
   ButtonGroup ButtonPressed
     PushButton 80, 200, 65, 10, "SIR mail", SIR_mail_button
   Text 5, 30, 95, 10, "FIAT reasons (if applicable):"
@@ -164,8 +166,9 @@ BeginDialog CSR_dialog02, 0, 0, 451, 260, "CSR dialog"
   GroupBox 185, 130, 85, 25, "other STAT panels:"
   GroupBox 5, 170, 150, 45, "If MA-EPD..."
   Text 10, 185, 50, 10, "New premium:"
-  GroupBox 255, 5, 50, 25, "ELIG panels:"
+  GroupBox 255, 5, 75, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation:"
+  CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -182,17 +185,17 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
-DO
-	err_msg = ""
-	Dialog case_number_dialog
+Do
+	DO
+		err_msg = ""
+		Dialog case_number_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
-
-'Checking for an active MAXIS session
-Call check_for_MAXIS(False)
+	LOOP UNTIL err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'If "paperless" was checked, the script will put a simple case note in and end.
 If paperless_checkbox = 1 then
@@ -205,7 +208,6 @@ End if
 
 'Navigating to STAT/REVW, checking for error prone cases
 call navigate_to_MAXIS_screen("stat", "revw")
-
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
@@ -213,10 +215,8 @@ call HH_member_custom_dialog(HH_member_array)
 call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
 'If SHEL_HEST <> "" then SHEL_HEST = SHEL_HEST & "; "		'this is a temporary fix to resolve issues where a variable is "autofilled" by multiple functions in the same script
 call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
-
 'Autofilling HH comp
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
-
 'Autofilling WREG status
 call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
 
@@ -243,7 +243,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 '-----------------Creating text for case note
 'Programs recertifying case noting info into variable
-If cash_checkbox = 1 then programs_recertifying = programs_recertifying & "cash, "
+If GRH_checkbox = 1 then programs_recertifying = programs_recertifying & "GRH, "
 If HC_checkbox = 1 then programs_recertifying = programs_recertifying & "HC, "
 If SNAP_checkbox = 1 then programs_recertifying = programs_recertifying & "SNAP, "
 programs_recertifying = trim(programs_recertifying)
