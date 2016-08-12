@@ -369,6 +369,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					prosp_inc = prosp_inc + prosp_monthly			'All budgeted income will be added together'
 					EMReadScreen prosp_hrs, 8, 16, 50					'Looking for reported hours'
 					IF prosp_hrs = "        " THEN prosp_hrs = 0
+					prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
 					EMReadScreen pay_freq, 1, 5, 64					'Finding the pay frequency'
 					Select Case pay_freq							'Total monthly hours are determined by pay frequency specific multipliers'
 					Case "1"										'Hours are added together as all earned income panels are checked'
@@ -392,6 +393,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 						prosp_inc = prosp_inc + prosp_monthly
 						EMReadScreen prosp_hrs, 8, 16, 50
 						IF prosp_hrs = "        " THEN prosp_hrs = 0
+						prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
 						EMReadScreen pay_freq, 1, 5, 64
 						Select Case pay_freq
 						Case "1"
