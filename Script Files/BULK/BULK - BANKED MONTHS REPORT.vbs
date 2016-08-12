@@ -350,9 +350,12 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		'JOBS'
 		prosp_inc = 0		'Variables are reset for each run of the loop'
 		prosp_hrs = 0
-
+		prospective_hours = 0
+		
 		CALL navigate_to_MAXIS_screen("STAT", "JOBS")		'Checking JOBS for income and hours'
-		CALL write_value_and_transmit(Banked_Month_Client_Array(memb_num, item), 20, 76)
+		EmWriteScreen Banked_Month_Client_Array(memb_num, item), 20, 76
+		EmWriteScreen "01", 20, 79
+		transmit
 		EMReadScreen num_of_JOBS, 1, 2, 78
 		IF num_of_JOBS <> "0" THEN
 			DO
@@ -364,20 +367,21 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					prosp_monthly = trim(prosp_monthly)
 					IF prosp_monthly = "" THEN prosp_monthly = 0	'Finds budeted income'
 					prosp_inc = prosp_inc + prosp_monthly			'All budgeted income will be added together'
-					EMReadScreen pp_hrs, 8, 16, 50					'Looking for reported hours'
-					IF pp_hrs = "        " THEN pp_hrs = 0
-					pp_hrs = abs(pp_hrs)
+					EMReadScreen prosp_hrs, 8, 16, 50					'Looking for reported hours'
+					IF prosp_hrs = "        " THEN prosp_hrs = 0
+					prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
 					EMReadScreen pay_freq, 1, 5, 64					'Finding the pay frequency'
 					Select Case pay_freq							'Total monthly hours are determined by pay frequency specific multipliers'
 					Case "1"										'Hours are added together as all earned income panels are checked'
-						prosp_hrs = prosp_hrs + pp_hrs
+						prosp_hrs = prosp_hrs
 					Case "2"
-						prosp_hrs = prosp_hrs + pp_hrs * 2
+						prosp_hrs = (2 * prosp_hrs)
 					Case "3"
-						prosp_hrs = prosp_hrs + pp_hrs * 2.15
+						prosp_hrs = (2.15 * prosp_hrs)	
 					Case "4"
-						prosp_hrs = prosp_hrs + pp_hrs * 4.3
+						prosp_hrs = (4.3 * prosp_hrs)	
 					End Select
+					prospective_hours = prospective_hours + prosp_hrs
 				ELSE
 					jobs_end_dt = replace(jobs_end_dt, " ", "/")	'Also considers jobs with a future end date'
 					IF DateDiff("D", date, jobs_end_dt) > 0 THEN
@@ -387,25 +391,29 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 						prosp_monthly = trim(prosp_monthly)
 						IF prosp_monthly = "" THEN prosp_monthly = 0
 						prosp_inc = prosp_inc + prosp_monthly
-						EMReadScreen pp_hrs, 8, 16, 50
-						IF pp_hrs = "        " THEN pp_hrs = 0
+						EMReadScreen prosp_hrs, 8, 16, 50
+						IF prosp_hrs = "        " THEN prosp_hrs = 0
+						prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
 						EMReadScreen pay_freq, 1, 5, 64
 						Select Case pay_freq
 						Case "1"
-							prosp_hrs = prosp_hrs + pp_hrs
+							prosp_hrs = prosp_hrs
 						Case "2"
-							prosp_hrs = prosp_hrs + pp_hrs * 2
+							prosp_hrs = (2 * prosp_hrs)
 						Case "3"
-							prosp_hrs = prosp_hrs + pp_hrs * 2.15
+							prosp_hrs = (2.15 * prosp_hrs)
 						Case "4"
-							prosp_hrs = prosp_hrs + pp_hrs * 4.3
+							prosp_hrs = (4.3 * prosp_hrs)
 						End Select
+						'added seperate incremental variable to account for multiple jobs
+						prospective_hours = prospective_hours + prosp_hrs
 					END IF
 				END IF
 				transmit
-				transmit
-				EMReadScreen enter_a_valid_command, 13, 24, 2
-			LOOP UNTIL enter_a_valid_command = "ENTER A VALID"
+				EMReadScreen JOBS_panel_current, 1, 2, 73
+				'looping until all the jobs panels are calculated
+				If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
+			Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
 		End If
 		'BUSI'
 		EMWriteScreen "BUSI", 20, 71			'Checkin BUSI for earned income in self employment'
@@ -424,6 +432,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 						IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0	'Adding hours and income to any others found'
 						prosp_inc = prosp_inc + busi_inc
 						prosp_hrs = prosp_hrs + busi_hrs
+						prospective_hours = prospective_hours + busi_hrs
 					END IF
 				ELSE
 					IF busi_end_dt = "__/__/__" THEN
@@ -434,16 +443,17 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 						IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
 						prosp_inc = prosp_inc + busi_inc
 						prosp_hrs = prosp_hrs + busi_hrs
+						prospective_hours = prospective_hours + busi_hrs
 					END IF
 				END IF
 				transmit
 				EMReadScreen enter_a_valid, 13, 24, 2
 			LOOP UNTIL enter_a_valid = "ENTER A VALID"
 		END IF		'All of the budgteted earned income has been gathered and added'
-		IF prosp_inc >= 935.25 OR prosp_hrs >= 129 THEN		'Clients working the equivalent of 30 hours/wk by hours or income are FSET exempt'
+		IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN		'Clients working the equivalent of 30 hours/wk by hours or income are FSET exempt'
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
 			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to be earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions. | "
-		ELSEIF prosp_hrs >= 80 AND prosp_hrs < 129 THEN		'Clients working at least 80 hours in 1 month are ABAWD exempt'
+		ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN		'Clients working at least 80 hours in 1 month are ABAWD exempt'
 			Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
 			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption. | "
 		END IF
