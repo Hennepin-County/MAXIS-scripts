@@ -44,24 +44,24 @@ MAXIS_footer_year = CM_plus_1_yr
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 171, 220, "Case number dialog"
-  EditBox 100, 5, 65, 15, MAXIS_case_number
-  EditBox 100, 25, 30, 15, MAXIS_footer_month
-  EditBox 135, 25, 30, 15, MAXIS_footer_year
+  EditBox 70, 5, 65, 15, MAXIS_case_number
+  EditBox 70, 25, 30, 15, MAXIS_footer_month
+  EditBox 105, 25, 30, 15, MAXIS_footer_year
   CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
   CheckBox 130, 60, 25, 10, "HC", HC_checkbox
-  CheckBox 75, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
+  CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
   EditBox 70, 95, 95, 15, Worker_signature
   ButtonGroup ButtonPressed
     OkButton 60, 115, 50, 15
     CancelButton 115, 115, 50, 15
-  Text 35, 30, 65, 10, "Footer month/year:"
+  Text 5, 30, 65, 10, "Footer month/year:"
   GroupBox 10, 45, 155, 30, "Programs recertifying"
   Text 10, 100, 60, 10, "Worker Signature"
   GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
   Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only read that the paperless IR was cleared (no case information listed)."
   Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
-  Text 45, 10, 45, 10, "Case number:"
+  Text 20, 10, 45, 10, "Case number:"
 EndDialog
 
 BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
