@@ -171,6 +171,13 @@ script_array_NOTICES_main(script_num).description			= "Sends a MEMO informing cl
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_main(script_num).script_name			= "Out Of State"
+script_array_NOTICES_main(script_num).file_name				= "NOTICES - NOTICES - OUT OF STATE.vbs"
+script_array_NOTICES_main(script_num).description			= "Generates out of state inquiry-Microsoft word document notice that can be use to fax."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "SNAP E and T Letter"
 script_array_NOTICES_main(script_num).file_name				= "NOTICES - SNAP E AND T LETTER.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
@@ -180,7 +187,7 @@ ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add o
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "Verifications Still Needed"
 script_array_NOTICES_main(script_num).file_name				= "NOTICES - VERIFICATIONS STILL NEEDED.vbs"
-script_array_NOTICES_main(script_num).description			= "NEW 04/2016!!! -- Creates a Word document informing client of a list of verifications that are still required."
+script_array_NOTICES_main(script_num).description			= "Creates a Word document informing client of a list of verifications that are still required."
 
 
 
