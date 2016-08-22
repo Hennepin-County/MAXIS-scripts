@@ -194,7 +194,8 @@ DO
 		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
 		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
-		IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
+		If father_in_household = "Yes" and fathers_name = "" then err_msg = err_msg & vbNewLine &  "You must enter Father's name, since he is listed in household."
+		'IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
 		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
 		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
 		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
@@ -214,7 +215,7 @@ DO
 		DIALOG HHLD_Comp_Change_Dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
-		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member" 
+		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
 		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
 		IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
 		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
@@ -241,14 +242,15 @@ IF List1 = "Baby Born" THEN
 
 	CALL write_variable_in_Case_Note("--Client reports birth of baby--")
 	CALL write_bullet_and_variable_in_Case_Note("Baby's name", babys_name)
-	If baby_gender <> "Select One" then									'gender will be listed as unknown if not updated'
+	If baby_gender = "Select One" then									'gender will be listed as unknown if not updated'
 		CALL write_bullet_and_variable_in_Case_Note("Gender", "unknown")
 	Else
 		CALL write_bullet_and_variable_in_Case_Note("Gender", baby_gender)
 	End If
 	CALL write_bullet_and_variable_in_Case_Note("Date of birth", date_of_birth)
 	father_HH = ""
-	If father_in_household = "Yes" Then father_HH = ", father is also in the house hold."	'added this since there was never a condition to prev dialog/script version'
+	If father_in_household = "Yes" Then father_HH = ", listed in same house hold."	'added this since there was never a condition to prev dialog/script version'
+	If fathers_name = "" then fathers_name = "unknown"
 	CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name & father_HH)
 	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
 	CALL write_bullet_and_variable_in_Case_Note("Mother's name", mothers_name)
@@ -281,4 +283,3 @@ CALL write_variable_in_Case_Note("----")
 CALL write_variable_in_Case_Note(worker_signature)
 
 script_end_procedure ("")
-
