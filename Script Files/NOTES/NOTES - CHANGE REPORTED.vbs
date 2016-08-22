@@ -194,6 +194,7 @@ DO
 		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
 		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
+		If father_in_household = "Select One" then err_msg = err_msg & vbNewLine &  "You must answer 'Yes' or 'No' if father is listed in the household."
 		If father_in_household = "Yes" and fathers_name = "" then err_msg = err_msg & vbNewLine &  "You must enter Father's name, since he is listed in household."
 		'IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
 		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
@@ -248,8 +249,8 @@ IF List1 = "Baby Born" THEN
 		CALL write_bullet_and_variable_in_Case_Note("Gender", baby_gender)
 	End If
 	CALL write_bullet_and_variable_in_Case_Note("Date of birth", date_of_birth)
-	father_HH = ""
-	If father_in_household = "Yes" Then father_HH = ", listed in same house hold."	'added this since there was never a condition to prev dialog/script version'
+	father_HH = " - not reported in the same household"
+	If father_in_household = "Yes" Then father_HH = " - reported in the same household."
 	If fathers_name = "" then fathers_name = "unknown"
 	CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name & father_HH)
 	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
