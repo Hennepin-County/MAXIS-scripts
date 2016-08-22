@@ -40,6 +40,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
 'Initial Dialog Box
 BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
   ButtonGroup ButtonPressed
@@ -53,39 +54,6 @@ BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
   Text 15, 30, 65, 10, "Footer month/year: "
   Text 25, 50, 130, 10, "Please select the nature of the change."
 EndDialog
-
-BeginDialog baby_born_dialog, 0, 0, 211, 310, "BABY BORN"
-  EditBox 55, 5, 95, 15, MAXIS_case_number
-  EditBox 55, 25, 95, 15, babys_name
-  EditBox 55, 45, 95, 15, date_of_birth
-  DropListBox 85, 70, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", father_in_household
-  EditBox 70, 90, 85, 15, fathers_name
-  EditBox 70, 115, 85, 15, fathers_employer
-  EditBox 70, 140, 85, 15, mothers_employer
-  DropListBox 80, 165, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", other_health_insurance
-  EditBox 115, 190, 80, 15, OHI_source
-  EditBox 60, 215, 105, 15, other_notes
-  EditBox 60, 235, 105, 15, actions_taken
-  CheckBox 20, 255, 165, 10, "Newborns MHC plan updated to mothers carrier.", MHC_plan_checkbox
-  EditBox 155, 270, 40, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 5, 290, 50, 15
-    CancelButton 155, 290, 50, 15
-  Text 5, 70, 75, 15, "Father In Household?"
-  Text 5, 115, 65, 15, "Father's Employer:"
-  Text 5, 140, 65, 10, "Mother's Employer: "
-  Text 55, 165, 20, 10, "OHI?"
-  Text 5, 195, 110, 15, "If yes to OHI, source of the OHI:"
-  Text 10, 220, 45, 15, "Other Notes:"
-  Text 5, 240, 50, 15, "Actions Taken:"
-  Text 90, 275, 65, 15, "Worker Signature:"
-  Text 5, 45, 45, 15, "Date of Birth:"
-  Text 20, 90, 50, 10, "Fathers Name:"
-  Text 5, 5, 50, 15, "Case Number: "
-  Text 5, 25, 50, 15, "Baby's Name:"
-EndDialog
-
-
 
 BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
   Text 5, 15, 50, 10, "Case Number"
@@ -128,7 +96,6 @@ END IF
 'Info to the user of what this script currently covers
 MsgBox "This script currently only covers if there is a HHLD Comp Change or a Baby Born. Other reported changes will be covered here in the future."
 
-
 check_for_maxis(False)
 
 DO
@@ -137,11 +104,85 @@ DO
 		IF ButtonPressed = 0 THEN stopscript
 		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		IF List1 = "Select One" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
+'this creates the client array for baby_born_dialog dropdown list
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen ref_nbr, 2, 4, 33
+	EMReadscreen last_name_array, 25, 6, 30								'took out clients last name apparently may be too much characters within the form restrictions.
+	EMReadscreen first_name_array, 12, 6, 63
+	last_name_array = replace(last_name_array, "_", "")
+	last_name_array = Lcase(last_name_array)
+	last_name_array = UCase(Left(last_name_array, 1)) &  Mid(last_name_array, 2)     	'took out clients last name apparently may be too much characters within the form restrictions.
+	first_name_array = replace(first_name_array, "_", "") '& " "
+	first_name_array = Lcase(first_name_array)
+	first_name_array = UCase(Left(first_name_array, 1)) &  Mid(first_name_array, 2)
+	client_string =  "MEMB " & ref_nbr & " - " & first_name_array & " " & last_name_array
+	client_array = client_array & client_string & "|"
+	transmit
+	Emreadscreen edit_check, 7, 24, 2
+LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+client_array = TRIM(client_array)
+test_array = split(client_array, "|")
+total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+DIM all_client_array()
+ReDim all_clients_array(total_clients, 1)
+FOR clt_x = 0 to total_clients				'using a dummy array to build list into the array used for the dialog.
+	Interim_array = split(client_array, "|")
+	all_clients_array(clt_x, 0) = Interim_array(clt_x)
+	all_clients_array(clt_x, 1) = 1
+NEXT
+HH_member_array = ""
+FOR i = 0 to total_clients
+	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+			HH_member_array = chr(9) & HH_member_array & chr(9) & all_clients_array(i, 0)
+		END IF
+	END IF
+NEXT
+'removes all of the first 'chr(9)'
+HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
 
-IF List1 = "Baby Born" THEN 
+'Baby_born Dialog needs to begin here to accept 'HH_member_array_dialog into dropdown list: mothers_name
+BeginDialog baby_born_dialog, 0, 0, 221, 350, "BABY BORN"
+  EditBox 55, 5, 100, 15, MAXIS_case_number
+  EditBox 55, 25, 100, 15, babys_name
+  EditBox 55, 45, 100, 15, date_of_birth
+  DropListBox 55, 65, 100, 15, "Select One"+chr(9)+"Male"+chr(9)+"Female", baby_gender
+  DropListBox 85, 85, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", father_in_household
+  EditBox 70, 105, 85, 15, fathers_name
+  EditBox 70, 130, 85, 15, fathers_employer
+  DropListBox 70, 155, 130, 15, "Select One" & (HH_member_array_dialog), mothers_name
+  EditBox 70, 180, 85, 15, mothers_employer
+  DropListBox 80, 205, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", other_health_insurance
+  EditBox 115, 230, 80, 15, OHI_source
+  EditBox 60, 255, 105, 15, other_notes
+  EditBox 60, 275, 105, 15, actions_taken
+  CheckBox 20, 295, 165, 10, "Newborns MHC plan updated to mothers carrier.", MHC_plan_checkbox
+  EditBox 155, 310, 60, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 5, 330, 50, 15
+    CancelButton 165, 330, 50, 15
+  Text 5, 235, 110, 15, "If yes to OHI, source of the OHI:"
+  Text 10, 260, 45, 15, "Other Notes:"
+  Text 5, 280, 50, 15, "Actions Taken:"
+  Text 90, 315, 65, 15, "Worker Signature:"
+  Text 5, 45, 45, 15, "Date of Birth:"
+  Text 20, 105, 50, 10, "Fathers Name:"
+  Text 5, 5, 50, 15, "Case Number: "
+  Text 5, 25, 50, 15, "Baby's Name:"
+  Text 5, 130, 65, 15, "Father's Employer:"
+  Text 5, 85, 75, 15, "Father In Household?"
+  Text 20, 65, 25, 10, "Gender:"
+  Text 55, 205, 20, 10, "OHI?"
+  Text 5, 155, 65, 10, "Mother of Newborn: "
+  Text 5, 180, 65, 10, "Mother's Employer: "
+EndDialog
+
+
+IF List1 = "Baby Born" THEN
 
 'Do loop for Baby Born Dialogbox
 DO
@@ -149,6 +190,7 @@ DO
 		err_msg = ""
 		DIALOG Baby_Born_Dialog
 		cancel_confirmation
+		IF mothers_name = "Select One" THEN err_msg = err_msg & vbNewLine & "You must choose newborn's mother"
 		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
 		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
@@ -156,7 +198,8 @@ DO
 		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
 		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
 		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
-	LOOP UNTIL err_msg = ""
+	Loop Until err_msg = ""
+
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
@@ -171,7 +214,7 @@ DO
 		DIALOG HHLD_Comp_Change_Dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
-		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
+		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member" 
 		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
 		IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
 		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
@@ -180,8 +223,6 @@ DO
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
-
-	
 END IF
 
 
@@ -199,12 +240,20 @@ PF9
 IF List1 = "Baby Born" THEN
 
 	CALL write_variable_in_Case_Note("--Client reports birth of baby--")
-	CALL write_bullet_and_variable_in_Case_Note("Baby's name", babys_name)	
+	CALL write_bullet_and_variable_in_Case_Note("Baby's name", babys_name)
+	If baby_gender <> "Select One" then									'gender will be listed as unknown if not updated'
+		CALL write_bullet_and_variable_in_Case_Note("Gender", "unknown")
+	Else
+		CALL write_bullet_and_variable_in_Case_Note("Gender", baby_gender)
+	End If
 	CALL write_bullet_and_variable_in_Case_Note("Date of birth", date_of_birth)
-	CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name)
+	father_HH = ""
+	If father_in_household = "Yes" Then father_HH = ", father is also in the house hold."	'added this since there was never a condition to prev dialog/script version'
+	CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name & father_HH)
 	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
+	CALL write_bullet_and_variable_in_Case_Note("Mother's name", mothers_name)
 	CALL write_bullet_and_variable_in_Case_Note("Mother's employer", mothers_employer)
-	IF OHI_Checkbox = 1 THEN CALL write_bullet_and_variable_in_Case_Note("OHI", OHI_Source)
+	IF other_health_insurance = "Yes" THEN CALL write_bullet_and_variable_in_Case_Note("OHI", OHI_Source)
 	IF MHC_plan_checkbox = 1 THEN CALL write_variable_in_CASE_NOTE("* Newborns MHC plan updated to match the mothers.")
 	CALL write_bullet_and_variable_in_Case_Note("Other Notes", other_notes)
 	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
@@ -232,3 +281,4 @@ CALL write_variable_in_Case_Note("----")
 CALL write_variable_in_Case_Note(worker_signature)
 
 script_end_procedure ("")
+
