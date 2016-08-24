@@ -87,6 +87,7 @@ BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 250, "SNAP sanction resolv
   EditBox 145, 170, 55, 15, FSET_orientation_date
   CheckBox 210, 175, 125, 10, "SNAP E and T orientation letter sent", orientation_letter_check
   DropListBox 145, 190, 190, 15, "Select one..."+chr(9)+"04 Permanent Ill Or Incap"+chr(9)+"05 Temporary Ill Or Incap"+chr(9)+"06 Care Of Ill Or Incap Mbr"+chr(9)+"07 Resident Of Facility"+chr(9)+"08 Family Violence Indc"+chr(9)+"09 Mntl Ill Or Dev Disabled"+chr(9)+"10 SSI/RSDI Pend "+chr(9)+"11 Appealing SSI/RSDI Denial"+chr(9)+"12 Advanced Age"+chr(9)+"13 Learning Disability"+chr(9)+"15 Pregnant, 3rd Trimester"+chr(9)+"17 Protect/Court Ordered"+chr(9)+"20 Age 16 Or 17 SS Approval"+chr(9)+"25 Emancipated Minor"+chr(9)+"28 Unemployable"+chr(9)+"29 Displaced Hmkr (Ft Student)"+chr(9)+"30 Minor W/ Adult Unrelated"+chr(9)+"32 ESL, Adult/HS At Least Half Time, Adult"+chr(9)+"99 No Elig Basis", GA_basis_droplist
+  CheckBox 5, 215, 335, 10, "Sanction resolved prior to being imposed. This deletes the 'number of sanctions' field on STAT/WREG.", resolved_before_sanction_period_checbox
   EditBox 165, 230, 60, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 230, 230, 50, 15
@@ -107,11 +108,9 @@ BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 250, "SNAP sanction resolv
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to MAXIS
+'Connecting to MAXIS & grabbing case number and footer month/year
 EMConnect ""
-'Grabbing the case number
 Call MAXIS_case_number_finder(MAXIS_case_number)
-'Grabbing the footer month and footer year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
@@ -172,13 +171,14 @@ ELSEIf sanction_type_droplist = "Resolving sanction" THEN
 	LOOP until (Exempt_FSET_WREG_droplist = "Select one..." AND mandatory_WREG_exempt_FSET_droplist <> "Select one...") OR (Exempt_FSET_WREG_droplist <> "Select one..." AND mandatory_WREG_exempt_FSET_droplist = "Select one...")
 END If
 
+'Confirming that we're in the correct footer month
+MAXIS_footer_month_confirmation	
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Logic to have full policy verbiage in the case note (droplist could not support full policy verbiage)
 IF sanction_resolved_reason_droplist = "Member served minimum sanction & verbally agrees to comply" THEN sanction_resolution_droplist = "Member served the minimum sanction period, and verbally agrees to comply with SNAP E&T during the SNAP application process." 
 
-Call start_a_blank_CASE_NOTE
-'Next 2 lines create custom headers based on the type of sanction chosen 
+start_a_blank_CASE_NOTE
 'Case note if imposing sanction
 If sanction_type_droplist = "Imposing sanction" THEN 
 	Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & HH_Member_Number & ", eff: " & sanction_begin_date & "--")
@@ -188,7 +188,7 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("Date agency was notified of sanction", agency_informed_sanction)
 	Call write_bullet_and_variable_in_CASE_NOTE("Number/occurrence of sanction", number_of_sanction_droplist)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for sanction", sanction_reason_droplist)
-	IF other_sanction_notes <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_sanction_notes)
+	Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_sanction_notes)
 	Call write_variable_in_CASE_NOTE("* Sanction WREG status: 02 Fail To Cooperate With FSET")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -199,13 +199,14 @@ ELSEIF sanction_type_droplist = "Resolving sanction" THEN
 	If resolved_PWE_check = 1 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is the PWE. Entire household's sanction is resolved.")
 	IF resolved_PWE_check = 0 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is NOT the PWE. Only this HH MEMB's sanction is resolved.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Sanction resolution reason", sanction_resolved_reason_droplist)
-	If other_resolved_sanction_notes <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_resolved_sanction_notes)
+	If resolved_before_sanction_period_checbox = 1 then call write_variable_in_CASE_NOTE("* No sanction recorded as client resolved prior to sanction imposed date.")
+    Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_resolved_sanction_notes)
 	Call write_variable_in_CASE_NOTE("=======WORK REGISTRATION INFO=======")
 	IF Exempt_FSET_WREG_droplist <> "Select one..." THEN Call write_bullet_and_variable_in_CASE_NOTE("New FSET Work Reg Status", Exempt_FSET_WREG_droplist)
 	IF mandatory_WREG_exempt_FSET_droplist <> "Select one..." THEN Call write_bullet_and_variable_in_CASE_NOTE("New FSET Work Reg Status", mandatory_WREG_exempt_FSET_droplist)
 	Call write_bullet_and_variable_in_CASE_NOTE("New ABAWD status", ABAWD_status_droplist)
 	IF GA_basis_droplist <> "Select one..." THEN Call write_bullet_and_variable_in_CASE_NOTE("New GA basis", GA_basis_droplist)
-	IF FSET_orientation_date <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("New FSET orientation date", FSET_orientation_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("New FSET orientation date", FSET_orientation_date)
 	IF orientation_letter_check = 1 THEN Call write_variable_in_CASE_NOTE("* SNAP E&T orientation letter was sent to the client.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)	
@@ -221,7 +222,6 @@ IF number_of_sanction_droplist = "3rd (6 months or until compliance, whichever i
 'Logic to change the GA_basis_droplist into correct coding for the WREG panel
 GA_basis_droplist = Left(GA_basis_droplist, 2)
 
-CAll MAXIS_background_check
 'Updates WREG if sanction is imposed
 If sanction_type_droplist = "Imposing sanction" THEN 
 	Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -252,6 +252,8 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	EMWriteScreen "______", 10, 50 'deletes out the sanction date
 	EMWriteScreen "______", 10, 53
 	EMWriteScreen "______", 10, 56
+	If resolved_before_sanction_period_checbox = 1 then EMWriteScreen"__", 11, 50			'removes the 'number of sanctions' field
+	
 	EMWriteScreen ABAWD_status_droplist, 13, 50 ' updates the ABAWD status 
 	'updating the Defer FSET/No Funds (Y/N) field on WREG
 	EMReadScreen ABAWD_status_check, 2, 13, 50	'checking for the coding on ABAWD status field
