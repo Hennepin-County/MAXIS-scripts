@@ -115,62 +115,55 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
 Do	
-	Do	
-		Do
-			dialog SNAP_sanction_type_dialog
-			cancel_confirmation
-			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-		Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-		IF MAXIS_footer_month = "" OR MAXIS_footer_year = "" THEN MsgBox "You must enter both the footer month & footer year."
-	LOOP until (MAXIS_footer_month <> "" AND MAXIS_footer_year <> "")
-	IF sanction_type_droplist = "Select one..." THEN MsgBox "You must select either ""imposing sanction"" or ""resolving sanction""."
-LOOP until sanction_type_droplist <> "Select one..."
+	Do
+		err_msg = ""
+		dialog SNAP_sanction_type_dialog
+		cancel_confirmation
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
+		IF len(MAXIS_footer_month) > 2 or isnumeric(NAXIS_footer_month) = FALSE then err_msg = err_msg & vbnewline & "* You must enter a valid 2 digit footer month."	'mandatory field
+		IF len(MAXIS_footer_year) > 2 or isnumeric(MAXIS_footer_year) = FALSE then err_msg = err_msg & vbnewline & "* You must enter a valid 2 digit footer year."		'mandatory field
+		IF sanction_type_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must select either ""imposing sanction"" or ""resolving sanction""."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 'If worker selects to impose a sanction, they will get this dialog 
 If sanction_type_droplist = "Imposing sanction" THEN
-DO					
-	DO				
-		DO 			
-			DO
-				DO
-					Do
-						dialog SNAP_sanction_imposed_dialog
-						cancel_confirmation
-						If sanction_begin_date = "" THEN MsgBox "You must enter the date the sanction begins."
-					LOOP until sanction_begin_date <> ""
-					If HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
-				LOOP until HH_Member_Number <> ""
-				If number_of_sanction_droplist = "Select one..." THEN MsgBox "You must choose the number of sanctions."
-			LOOP until number_of_sanction_droplist <> "Select one..."
-			If sanction_reason_droplist = "Select one..." THEN MsgBox "You must choose the reason for the sanction."
-		LOOP until sanction_reason_droplist <> "Select one..."
-		If agency_informed_sanction = "" THEN MsgBox "You must enter the date the agency was informed of the sanction."
-	LOOP until agency_informed_sanction <> ""
-	If worker_signature = "" THEN MsgBox "You must sign your case note."
-LOOP until worker_signature <> ""
+	DO
+		Do
+			err_msg = ""
+			dialog SNAP_sanction_imposed_dialog
+			cancel_confirmation
+			If isdate(sanction_begin_date) = false then err_msg = err_msg & vbnewline & "* You must enter the date the sanction begins."
+			If isnumeric(HH_Member_Number) = False or len(HH_Member_Number) > 2 then err_msg = err_msg & vbnewline & "* You must enter the client's member number"
+			If number_of_sanction_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must choose the number of sanctions."
+			If sanction_reason_droplist = "Select one..." THEN MsgBox "* You must choose the reason for the sanction."
+			If isdate(agency_informed_sanction) = False THEN MsgBox "* You must enter the date the agency was informed of the sanction."
+			If worker_signature = "" THEN MsgBox "* You must sign your case note."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+	
 'If worker selects to resolve a sanction, they will get this dialog
 ELSEIf sanction_type_droplist = "Resolving sanction" THEN	
 	DO
-		Do
-			DO
-				DO	
-					DO
-						DO
-							dialog SNAP_sanction_resolved_dialog
-							cancel_confirmation
-							If sanction_end_date = "" THEN MsgBox "You must enter the date the sanction ends."
-						LOOP until sanction_end_date <> ""
-						If resolved_HH_Member_Number = "" THEN MsgBox "You must enter the client's member number"
-					LOOP until resolved_HH_Member_Number <> ""
-					If sanction_resolved_reason_droplist = "Select one..." THEN MsgBox "You must choose the reason the sanction has been resolved."
-				LOOP until sanction_resolved_reason_droplist <> "Select one..."
-				If ABAWD_status_droplist = "Select one..." THEN MsgBox "You must enter the ABAWD status."
-			LOOP until ABAWD_status_droplist <> "Select one..."
-			If worker_signature = "" THEN MsgBox "You must sign your case note."
-		LOOP until worker_signature <> ""
-		If(Exempt_FSET_WREG_droplist <> "Select one..." AND mandatory_WREG_exempt_FSET_droplist <> "Select one...") OR (Exempt_FSET_WREG_droplist = "Select one..." AND mandatory_WREG_exempt_FSET_droplist = "Select one...") THEN MsgBox "You must select only one of the options for the new FSET/WREG status."
-	LOOP until (Exempt_FSET_WREG_droplist = "Select one..." AND mandatory_WREG_exempt_FSET_droplist <> "Select one...") OR (Exempt_FSET_WREG_droplist <> "Select one..." AND mandatory_WREG_exempt_FSET_droplist = "Select one...")
-END If
-
+		DO
+			err_msg = ""
+			dialog SNAP_sanction_resolved_dialog
+			cancel_confirmation
+			If isdate(sanction_end_date) = False then err_msg = err_msg & vbnewline & "* You must enter the date the sanction ends."
+			If isnumeric(resolved_HH_Member_Number) = false or len(resolved_HH_Member_Number) <> 2 then err_msg = err_msg & vbnewline & "* You must enter the client's two-digit member number."
+			If sanction_resolved_reason_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must choose the reason the sanction has been resolved."
+			If ABAWD_status_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must enter the ABAWD status."
+			If worker_signature = "" then err_msg = err_msg & vbnewline & "* You must sign your case note."
+			If(Exempt_FSET_WREG_droplist <> "Select one..." AND mandatory_WREG_exempt_FSET_droplist <> "Select one...") OR (Exempt_FSET_WREG_droplist = "Select one..." AND mandatory_WREG_exempt_FSET_droplist = "Select one...") then err_msg = err_msg & vbnewline & "* You must select only one of the options for the new FSET/WREG status."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+END IF
 'Confirming that we're in the correct footer month
 MAXIS_footer_month_confirmation	
 
