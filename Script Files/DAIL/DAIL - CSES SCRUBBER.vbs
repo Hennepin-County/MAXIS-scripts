@@ -1,6 +1,3 @@
-excel_visible_checkbox = 1		'<<<<<<<<<<<<<<<<<<<THIS IS TEMPORARY, JUST FOR TESTING
-run_locally = true				'<<<<<<<<<<<<<<<<<<<THIS IS TEMPORARY, JUST FOR TESTING
-
 'Required for statistical purposes=========================================================================================
 name_of_script = "DAIL - CSES SCRUBBER.vbs"
 start_time = timer
@@ -110,10 +107,6 @@ end class
 'Connects to MAXIS
 EMConnect ""
 
-'Displays initial dialog (script assumes you're on a CSES message by virtue of the DAIL scrubber). Dialog has no mandatory fields, so there's no loop.
-'Dialog CSES_initial_dialog			'<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
-'If ButtonPressed = cancel then stopscript	<<<<RESET THIS PLEEEEEEEEEEEEEEEEEEEEEEEEEEEASE
-
 'If the worker signature is the Konami code (UUDDLRLRBA), developer mode will be triggered
 If worker_signature = "UUDDLRLRBA" then
     MsgBox "Developer mode: ACTIVATED!"
@@ -166,8 +159,6 @@ message_number = 1	'We want to count how many messages we process in here
 
 
 
-
-
 '===================================================================================================================================READS EACH MESSAGE!
 For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	EMReadScreen message_type_check, 4, MAXIS_row, 6				'Makes sure it's the right type of message
@@ -210,13 +201,7 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
     	ObjExcel.Cells(excel_row, col_msg_number).Value 	= message_number					'Each message is numbered in sequence
     	ObjExcel.Cells(excel_row, col_PMI_number).Value 	= PMI_number						'We want this PMI for obvious reasons
     	ObjExcel.Cells(excel_row, col_amt_alloted).Value 	= COEX_amt / COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
-		'<<<<<<<<<<<<<<<<<<<<PROBABLY WHERE PENNY ISSUE SHOULD GO, MAYBE JUST ADD PARTIALS TO THE FIRST MEMB????????
-		
-		'Needs to resolve the so-called "penny issue", or the issue where an odd numbered amount of cents received causes the evaluation to tack on a
-		'	"partial penny" to each recipient. I.e.: $1.01 split amongst two children would net each $0.505. That doesn't work with MAXIS, so we need
-		'	"lop off" the partial pennies, and tack them onto the first household member. This part gets the total partial pennies, then adds the new 
-		'	amount to the worksheet.
-		
+
 		penny_issue_total_cell_amt_times_100 = (ObjExcel.Cells(excel_row, col_amt_alloted).Value) * 100 											'Grabs the amount to be evaluated multiplies by 100 to get rid of the first two digits of the decimal
 		penny_issue_partial_pennies_from_cell = (penny_issue_total_cell_amt_times_100 - int(penny_issue_total_cell_amt_times_100) ) / 100			'Grabs the actual partial pennies by eliminating the integer from the previous value, then dividing by 100 to return it to the proper place in the decimal
 		penny_issue_partial_pennies_total = penny_issue_partial_pennies_total + penny_issue_partial_pennies_from_cell 								'Adds the partial pennies to a new variable to be tacked on at the end
@@ -259,7 +244,12 @@ If row <> 0 then script_end_procedure("This case is inactive in MAXIS. The scrip
 row = 1
 col = 1
 EMSearch "HC:", row, col
-If row <> 0 then MsgBox "As of March 2016 the health care sections have been removed from the CSES Scrubber. Evaluate any health care ramifications manually."		'<<<<<<<RESET THIS PLEASE, OR PUT IT IN THE DIALOG
+'If row <> 0 then MsgBox "As of March 2016 the health care sections have been removed from the CSES Scrubber. Evaluate any health care ramifications manually."		'<<<<<<<RESET THIS PLEASE, OR PUT IT IN THE DIALOG
+If row <> 0 then
+	HC_active = True
+Else
+	HC_active = False
+End if
 
 'Then it checks for MFIP status
 row = 1
@@ -483,8 +473,472 @@ UNEA_panel_array = left(UNEA_panel_array, len(UNEA_panel_array) - 1 )
 'Splits into an array
 UNEA_panel_array = split(UNEA_panel_array, "|")
 
+'~~~~~~~~~~~~~~~~~~~~~~~~~~Script check for HRF or REVW due for case noting purposes
+'Go to STAT REVW
+Call navigate_to_MAXIS_screen ("STAT", "REVW")
+
+'Reads if there is a review that is not received or incomplete - for case noting
+EMReadScreen cash_revw_status, 1, 11, 43
+EMReadScreen snap_revw_status, 1, 11, 53
+EMReadScreen hc_revw_status,   1, 11, 63
+
+If cash_revw_status = "I" or cash_revw_status = "N" Then REVW_due = TRUE
+If snap_revw_status = "I" or snap_revw_status = "N" Then REVW_due = TRUE
+If hc_revw_status = "I" or hc_revw_status = "N" Then REVW_due = TRUE
+
+'Go to STAT MONT
+Call navigate_to_MAXIS_screen ("STAT", "MONT")
+
+'Reads if there is a review that is not received or incomplete - for case noting
+EMReadScreen cash_mont_status, 1, 11, 43
+EMReadScreen snap_mont_status, 1, 11, 53
+EMReadScreen hc_mont_status,   1, 11, 63
+
+If cash_mont_status = "I" or cash_mont_status = "N" Then HRF_Due = TRUE
+If snap_mont_status = "I" or snap_mont_status = "N" Then HRF_Due = TRUE
+If hc_mont_status = "I" or hc_mont_status = "N" Then HRF_Due = TRUE
+
+'Go back to DAIL'
+PF3
+
+'~~~~~~~~~~~~~~~~~~~~~~~Script to determine reporting threshhold
+'Navigates to ELIG directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
+If SNAP_active = TRUE Then 
+	EMWriteScreen "e", 6, 3
+	transmit
+	EMWriteScreen "fs", 20, 71
+	transmit
+	EMWriteScreen "99", 19, 78
+	transmit
+	row = 17
+	Do 
+		EMReadScreen app_status, 8, row, 50
+
+		If app_status = "APPROVED" Then 
+			EMReadScreen approval_version, 1, row, 23
+			Exit Do
+		End If 
+		row = row - 1
+	Loop Until row = 6
+	EMWriteScreen approval_version, 18, 54
+	transmit
+	EMWriteScreen "FSB1", 19, 70
+	transmit
+	EMReadScreen BUDG_JOBS,	8, 5 , 33 
+	EMReadScreen BUDG_BUSI,	8, 6 , 33
+	EMReadScreen BUDG_PA,   8, 10, 33
+	EMReadScreen BUDG_RSDI, 8, 11, 33
+	EMReadScreen BUDG_SSI,  8, 12, 33
+	EMReadScreen BUDG_VA,   8, 13, 33
+	EMReadScreen BUDG_UCWC, 8, 14, 33
+	EMReadScreen BUDG_CSES, 8, 15, 33
+	EMReadScreen BUDG_OTHR, 8, 16, 33
+
+	If BUDG_JOBS = "        " Then BUDG_JOBS = 0
+	If BUDG_BUSI = "        " Then BUDG_BUSI = 0
+	If BUDG_PA   = "        " Then BUDG_PA   = 0
+	If BUDG_RSDI = "        " Then BUDG_RSDI = 0
+	If BUDG_SSI  = "        " Then BUDG_SSI  = 0
+	If BUDG_VA   = "        " Then BUDG_VA   = 0
+	If BUDG_UCWC = "        " Then BUDG_UCWC = 0
+	If BUDG_CSES = "        " Then BUDG_CSES = 0
+	If BUDG_OTHR = "        " Then BUDG_OTHR = 0
+
+	EMWriteScreen "FSB2", 19, 70
+	transmit
+
+	EMReadScreen FPG_130, 8, 8, 73
+	transmit
+	EMReadScreen REPT_status, 9, 8, 31
+	amount_CS_reported = 0
+	CS_Change = FALSE
+	Exceed_130 = FALSE 
+
+	For i = 0 to ubound(message_array)
+		amount_CS_reported = amount_CS_reported + message_array(i).AmtAlloted
+	Next
+
+	New_BUDG = abs(BUDG_JOBS) + abs(BUDG_BUSI) + abs(BUDG_PA) + abs(BUDG_RSDI) + abs(BUDG_SSI) + abs(BUDG_VA) + abs(BUDG_UCWC) + abs(BUDG_OTHR) + amount_CS_reported
+
+	If abs(BUDG_CSES) <> amount_CS_reported Then CS_Change = TRUE
+	IF New_BUDG >= abs(FPG_130) Then Exceed_130 = TRUE 
+
+	'MsgBox ("New budget is: " & New_BUDG & vbNewLine & "CS Reported is: " & amount_CS_reported & vbNewLine & "CS Change: " & CS_Change &vbNewLine & "Exceed 130%: " & Exceed_130)
+	PF3 
+End If  
+
+'~~~~~~~~~~~~~~~~~~~~Decision: Is SNAP open? IF YES...
+If SNAP_active = true then
+
+	EMWriteScreen "s", 6, 3
+	transmit
+	
+	'We're going to start by creating a new "MFIP budget" sheet
+	ObjExcel.Sheets.Add.Name = "SNAP Budget"
+	
+	'Resetting excel_row for this loop
+	excel_row = 1
+
+	'This will add info about each UNEA-panel-to-be-changed using a loop
+	For each UNEA_panel in UNEA_panel_array
+	
+		'If the UNEA_panel isn't "NONE" then it'll add info about the budgets-to-be
+		If UNEA_panel <> "NONE" then
+			'We'll start with headers consisting of the panel and assorted MFIP details
+			ObjExcel.Cells(excel_row + 1, 1).Value = "From the PIC"
+			ObjExcel.Cells(excel_row + 2, 1).Value = "Date"
+			ObjExcel.Cells(excel_row + 2, 2).Value = "Amt"
+			ObjExcel.Cells(excel_row + 2, 4).Value = "Amt"
+			
+			'Looking at the new reported Income
+			ObjExcel.Cells(excel_row + 1, 6).Value = "CS DAILS Info"
+			ObjExcel.Cells(excel_row + 2, 6).Value = "Date"
+			ObjExcel.Cells(excel_row + 2, 7).Value = "Amt"
+			
+			'Now lets make the fonts bold, because it looks nicer
+			ObjExcel.Cells(excel_row	, 1).Font.Bold = True
+			ObjExcel.Cells(excel_row + 1, 1).Font.Bold = True
+			ObjExcel.Cells(excel_row + 1, 3).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 1).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 2).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 4).Font.Bold = True
+			ObjExcel.Cells(excel_row + 1, 6).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 6).Font.Bold = True
+			ObjExcel.Cells(excel_row + 2, 7).Font.Bold = True
+			
+			'Now we'll merge cells for the panel, retro, and pro headers
+			ObjExcel.Range("A" & excel_row 		& ":G" & excel_row).Merge
+			ObjExcel.Range("A" & excel_row + 1 	& ":D" & excel_row + 1).Merge
+			ObjExcel.Range("F" & excel_row + 1 	& ":G" & excel_row + 1).Merge
+			
+			'Creates a temporary header_row so that the next loop adds the TYPE info to the correct row
+			header_row = excel_row
+			
+			'Raises excel_row + 3, so we can start adding messages
+			excel_row = excel_row + 3
+			
+			'Goes to the correct UNEA panel
+			panel_name = left(UNEA_panel, 4)
+			person_ref = left(right(UNEA_panel, 5), 2)
+			person_ref = right("00" & person_ref, 2)
+			version_num = right("00" & right(UNEA_panel, 2), 2)
+			EMWriteScreen panel_name, 20, 71
+			EMWriteScreen person_ref, 20, 76
+			EMWriteScreen version_num, 20, 79
+			transmit 
+			
+			EMReadScreen income_type, 2, 5, 37						'Confirming the type for the spreadshee
+			EMWriteScreen "X", 10, 26								'Opens the PIC
+			transmit
+			EMReadScreen antic_amt, 8, 8, 66						'Gets any amount listed in the right side of the PIC and adds to Excel
+			ObjExcel.Cells(excel_row, 4).Value = antic_amt
+			ObjExcel.Cells(excel_row, 4).NumberFormat = "$#,##0.00"
+			pic_row = 9
+			Do 														'Reads all income listed on the left side of PIC
+				EMReadScreen date_recvd, 8, pic_row, 13				'Lists it on Excel
+				If date_recvd = "__ __ __" Then 
+					ObjExcel.Cells(excel_row, 1).Value = "-"
+					ObjExcel.Cells(excel_row, 2).Value = "-"
+					excel_row = excel_row + 1
+					Exit Do 
+				Else 
+					date_recvd = replace(date_recvd, " ", "/")
+					EMReadScreen amt_recvd, 8, pic_row, 25 
+					ObjExcel.Cells(excel_row, 1).Value = date_recvd
+					ObjExcel.Cells(excel_row, 2).Value = amt_recvd
+					ObjExcel.Cells(excel_row, 2).NumberFormat = "$#,##0.00"
+					excel_row = excel_row + 1 
+				End If 
+				pic_row = pic_row + 1
+			Loop until pic_row = 14
+			
+			EMReadScreen prosp_mo_amt, 8, 18, 56							'Adding what is on the bottom of the PIC
+			ObjExcel.Cells(excel_row, 1).Value = "Prosp Monthly Income:"
+			ObjExcel.Cells(excel_row	, 1).Font.Bold = True
+			ObjExcel.Range("A" & excel_row 		& ":C" & excel_row).Merge
+			
+			ObjExcel.Cells(excel_row, 4).Value = prosp_mo_amt
+			ObjExcel.Cells(excel_row, 4).NumberFormat = "$#,##0.00"
+			
+			'Looks through each message in the array, and if it's for this UNEA panel, it will add it to the Excel sheet
+			row_over = header_row + 3 
+			total_reported = 0
+			For i = 0 to ubound(message_array)
+				If message_array(i).UNEAPanel <> "NONE" then
+					If UNEA_panel = message_array(i).UNEAPanel then 
+						ObjExcel.Cells(row_over, 6).Value = message_array(i).IssueDate
+						ObjExcel.Cells(row_over, 7).Value = message_array(i).AmtAlloted
+						
+						ObjExcel.Cells(excel_row, 7).NumberFormat = "$#,##0.00"
+						
+						total_reported = total_reported + message_array(i).AmtAlloted
+						row_over = row_over + 1
+						
+					End if
+					
+				End if
+			Next
+			
+			'Excel headers and formatting
+			ObjExcel.Cells(excel_row, 6).Value = "Total:"
+			ObjExcel.Cells(excel_row	, 6).Font.Bold = True
+			
+			ObjExcel.Cells(excel_row, 7).Value = total_reported
+			ObjExcel.Cells(excel_row, 7).NumberFormat = "$#,##0.00"
+			
+			ObjExcel.Cells(header_row, 1).Value = UNEA_panel & " | " & "TYPE: " & income_type
+			
+			PF3
+		
+			excel_row = excel_row + 2		'The next message should start with a row in-between
+			
+		Else		'This means all UNEA_panels set to "NONE"
+			
+			'If there's a NONE as a UNEA_panel, it'll set this variable to "true", which will force the user to process manually.
+			process_manually = true
+			
+			'Creates a new excel_row, starting at 3, for messages without panels
+			excel_row_no_panel_found = 3
+				
+			'Now, if there was no match ("NONE" was listed on the first sheet), it will dump info about those 
+			For i = 0 to ubound(message_array)
+				
+				If message_array(i).UNEAPanel = "NONE" then
+				
+					ObjExcel.Cells(1, 6 ).Value = "MESSAGES WITHOUT UNEA PANELS (SPLIT BY HH MEMB)"
+				
+					ObjExcel.Cells(2, 6 ).Value = "HH member #"
+					ObjExcel.Cells(2, 7 ).Value = "CS type"
+					ObjExcel.Cells(2, 8 ).Value = "Amount alloted"
+					ObjExcel.Cells(2, 9 ).Value = "Issue date"
+					ObjExcel.Cells(2, 10).Value = "Message #"
+					
+					ObjExcel.Cells(2, 6 ).Font.Bold	= True
+					ObjExcel.Cells(2, 7 ).Font.Bold	= True
+					ObjExcel.Cells(2, 8 ).Font.Bold	= True
+					ObjExcel.Cells(2, 9 ).Font.Bold	= True
+					ObjExcel.Cells(2, 10).Font.Bold	= True
+					
+				
+				
+					ObjExcel.Cells(excel_row_no_panel_found, 6 ).Value = "'0" & message_array(i).MEMBNum
+					ObjExcel.Cells(excel_row_no_panel_found, 7 ).Value = message_array(i).CSType
+					ObjExcel.Cells(excel_row_no_panel_found, 8 ).Value = message_array(i).AmtAlloted
+					ObjExcel.Cells(excel_row_no_panel_found, 9 ).Value = message_array(i).IssueDate
+					ObjExcel.Cells(excel_row_no_panel_found, 10).Value = message_array(i).MsgNum
+					
+					ObjExcel.Cells(excel_row_no_panel_found, 8).NumberFormat = "$#,##0.00"
+					
+					excel_row_no_panel_found = excel_row_no_panel_found + 1
+					
+				End if
+			Next
+			
+			
+			ObjExcel.Range("F1:J1").Merge
+			
+			ObjExcel.Cells(1, 6).Font.Bold			 = True
+			
+		End if
+		
+	Next
+	
+	'Centering contents
+	ObjExcel.Range("A:J").HorizontalAlignment = excel_center
+	
+	'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
+	For col_to_autofit = 1 to 10
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+	
+	If process_manually = true then 
+		script_end_procedure("This case appears to be missing a UNEA panel based on the messages received. Evaluate the ''MESSAGES WITHOUT UNEA PANELS'' section of the Excel sheet, add the appropriate panels, and try again or process manually.")
+	End If 
+	PF3
+	
+End If 
+
+    '~~~~~~~~~~~~~~~~~~~~Displays total and current PIC, user decides if it’s within the realm for each message
+close_excel_checkbox = checked 		'Defaulting to have the spreadsheet close after script end
+
+IF SNAP_active = TRUE AND MFIP_active = FALSE THen 	'IF SNAP - NO MFIP
+
+	If Exceed_130 = True OR CS_Change = TRUE Then UNEA_review_checkbox = checked 	'Defaults to have the worker review each panel if income exceeds 130% OR if CS amount is different
+	
+	'Dialog defined for if it is a SNAP case.
+	BeginDialog CSES_initial_dialog, 0, 0, 296, 140, "CSES Dialog"
+	  CheckBox 20, 60, 265, 10, "Check here to review CS UNEA panels for possible adjustments to the budget.", UNEA_review_checkbox
+	  EditBox 40, 80, 245, 15, other_notes
+	  CheckBox 5, 105, 290, 10, "Check here to have the Excel sheet close at the end of the script run.", close_excel_checkbox
+	  EditBox 70, 120, 90, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 185, 120, 50, 15
+	    CancelButton 240, 120, 50, 15
+	  GroupBox 5, 5, 290, 95, "SNAP Case"
+	  Text 190, 15, 95, 10, "SNAP is active on this case"
+	  If Exceed_130 = True Then Text 10, 25, 205, 10, "It appears that the income for this case may exceed 130% FPG."
+	  IF CS_Change = TRUE Then Text 10, 35, 275, 10, "It appears there is a difference between the budgeted CS Income and DAIL Message Income."
+	  If REVW_due = TRUE Then Text 10, 45, 200, 10, "There is a review due that has not been recevied/processed."
+	  Text 10, 85, 25, 10, "Notes"
+	  Text 5, 125, 65, 10, "Worker signature:"
+	EndDialog
+
+ElseIf MFIP_active = TRUE Then 
+
+	'Dialog specific to MFIP cases
+	BeginDialog CSES_initial_dialog, 0, 0, 296, 120, "CSES Dialog"
+	  EditBox 40, 60, 245, 15, other_notes
+	  CheckBox 5, 85, 290, 10, "Check here to have the Excel sheet close at the end of the script run.", close_excel_checkbox
+	  EditBox 70, 100, 90, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 185, 100, 50, 15
+	    CancelButton 240, 100, 50, 15
+	  GroupBox 5, 5, 285, 75, "MFIP Case"
+	  Text 190, 15, 95, 10, "MFIP is active on this case."
+	  If HRF_due = TRUE Then Text 10, 25, 195, 10, "Case has a HRF Due that has not been received/processed."
+	  If REVW_due = TRUE Then Text 10, 35, 205, 10, "Case has a Review due that has not been received/processed."
+	  Text 10, 45, 220, 10, "Script will review case for UNEA to be update with CS Income from DAILs."
+	  Text 10, 65, 25, 10, "Notes"
+	  Text 5, 105, 65, 10, "Worker signature:"
+	EndDialog
+
+End IF 
+
+'Runs the dialog from above
+Do 
+	err_msg = ""
+	Dialog CSES_initial_dialog
+	cancel_confirmation
+	If worker_signature = "" Then err_msg = err_msg & "Please sign your case note"
+	If err_msg <> "" Then MsgBox (err_msg)
+Loop until err_msg = ""
+
+'If the worker signature is the Konami code (UUDDLRLRBA), developer mode will be triggered
+If worker_signature = "UUDDLRLRBA" then
+    MsgBox "Developer mode: ACTIVATED!"
+    developer_mode = true           'This will be helpful later
+    collecting_statistics = false   'Lets not collect this, shall we?		'<<<<CHECK THIS, I THINK THE VARIABLE IS CALLED SOMETHING DIFFERENT IN THE FUNCTION
+End if
+
+'Each UNEA panel will be reviewed individually for cases that may need adjustment
+If SNAP_active = true AND UNEA_review_checkbox = checked then
+	Dim PIC_Payment_array()
+	ReDim PIC_Payment_array(5)
+	EMWriteScreen "s", 6, 3
+	transmit
+	counter = 0
+	
+	'This will add info about each UNEA-panel-to-be-changed using a loop
+	For each UNEA_panel in UNEA_panel_array
+		'Go to the correct panel
+		panel_name = left(UNEA_panel, 4)
+		person_ref = left(right(UNEA_panel, 5), 2)
+		person_ref = right("00" & person_ref, 2)
+		version_num = right("00" & right(UNEA_panel, 2), 2)
+		EMWriteScreen panel_name, 20, 71
+		EMWriteScreen person_ref, 20, 76
+		EMWriteScreen version_num, 20, 79
+		transmit 
+		
+		'Gather all the data for the dialog display
+		EMReadScreen income_type, 2, 5, 37
+		EMWriteScreen "X", 10, 26
+		transmit
+		EMReadScreen date_of_calc, 8, 5, 34
+		date_of_calc = replace(date_of_calc, " ", "/")
+		EMReadScreen antic_amt, 8, 8, 66
+		EMReadScreen pay_freq, 1, 5, 64
+		If pay_freq = "1" Then pay_freq = "1 - MONTHLY"
+		If pay_freq = "2" Then pay_freq = "2 - 2X/MONTH"
+		If pay_freq = "3" Then pay_freq = "3 - BIWEEKLY"
+		If pay_freq = "4" Then pay_freq = "4 - WEEKLY"
+		EMReadScreen reg_non_mo, 8, 12, 66
+		EMReadScreen num_of_mo, 2, 13, 64
+		EMReadScreen average_income, 8, 17, 56
+		EMReadScreen prosp_mo_amt, 8, 18, 56
+		EMReadScreen total_recvd, 8, 14, 25
+		
+		ReDim PIC_Payment_array(5)
+		total_to_count = 0
+		
+		For payment = 0 to 4 
+			EMReadScreen date_recvd, 8, payment + 9, 13
+			If date_recvd = "__ __ __" Then 
+				PIC_Payment_array(payment) = "__ __ __    ________"
+			Else 
+				date_recvd = replace(date_recvd, " ", "/")
+				EMReadScreen amt_recvd, 8, payment + 9, 25 
+				PIC_Payment_array(payment) = date_recvd & "   $" & amt_recvd
+			End If 
+		Next
+		x = 0
+		
+		'Dynamic Dialog that will mimmick the PIC and ask for worker Input
+		BeginDialog pic_review_dialog, 0, 0, 346, 170, "REVIEW THE PIC"
+		  Text 170, 5, 50, 10, UNEA_panel
+		  GroupBox 5, 15, 225, 130, "PIC"
+		  Text 10, 25, 65, 10, "Date of Calculation:"
+		  Text 80, 25, 30, 10, date_of_calc
+		  Text 130, 25, 35, 10, "Pay Freq."
+		  Text 170, 25, 55, 10, pay_freq
+		  Text 20, 35, 60, 10, "Income Received"
+		  For line = 0 to 4		  
+		  	Text 15, 45 + line * 10, 75, 10, PIC_Payment_array(line)
+		  Next
+		  Text 25, 100, 20, 10, "Total:"
+		  Text 55, 100, 35, 10, "$" & total_recvd
+		  Text 130, 40, 65, 10, "Anticipated Income:"
+		  Text 165, 50, 15, 10, "Amt:"
+		  Text 190, 50, 30, 10, "$" & antic_amt
+		  Text 130, 70, 75, 10, "Regular Non-Monthly:"
+		  Text 165, 85, 15, 10, "Amt:"
+		  Text 190, 85, 35, 10, "$" & reg_non_mo
+		  Text 130, 95, 65, 10, "Number of Months"
+		  Text 200, 95, 5, 10, num_of_mo
+		  Text 145, 120, 50, 10, "$" & average_income
+		  Text 145, 130, 50, 10, "$" & prosp_mo_amt
+		  Text 65, 130, 75, 10, "Prosp Monthly Income:"
+		  GroupBox 240, 15, 95, 130, "CS Messages Recevied"
+		  Text 75, 120, 65, 10, "Average /Pay Date:"
+		  For i = 0 to ubound(message_array)
+			  If message_array(i).UNEAPanel <> "NONE" then
+				  If UNEA_panel = message_array(i).UNEAPanel then 
+					  Text 250, 30 + 10 * x, 45, 10, message_array(i).IssueDate
+					  Text 290, 30 + 10 * x, 50, 10, "$" & message_array(i).AmtAlloted
+					  total_to_count = total_to_count + message_array(i).AmtAlloted
+					  x = x + 1
+				  End if
+			  End if
+		  Next
+		  Text 245, 130, 25, 10, "Total:"
+		  Text 280, 130, 50, 10, "$" & total_to_count
+		  Text 30, 155, 205, 10, "Does this income require rebudgeting and a new approval?"
+		  ButtonGroup ButtonPressed
+		    PushButton 245, 150, 25, 15, "YES", yes_button
+		    PushButton 275, 150, 25, 15, "NO", No_button
+		EndDialog
+		
+		'The only options on this dialog are Yes or No
+		Dialog pic_review_dialog
+		If ButtonPressed = yes_button Then 			'If worker clicks 'yes' then the income needs to be rebudgeted and is 'out of the realm'
+			UNEA_panel_array(counter) = UNEA_panel_array(counter) & " YES"
+			Outside_the_realm = TRUE 
+		End If 										'If worker clicks'no' they are confirming that the income is within acceptable range
+		If ButtonPressed = no_button  Then UNEA_panel_array(counter) = UNEA_panel_array(counter) & "  NO"
+
+		counter = counter + 1		'This is to add detail to the array information so that in future enhancements we can update the UNEA panels
+		EMReadScreen PIC_check, 35, 3, 28
+		If PIC_check = "SNAP Prospective Income Calculation" Then PF3
+	Next
+
+End If 
+
 '~~~~~~~~~~~~~~~~~~~~Decision: Is MFIP/DWP open? IF YES...
 If MFIP_active = true then
+	
+	'Navigates to STAT directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
+	EMWriteScreen "s", 6, 3
+	transmit
 
 	'We're going to start by creating a new "MFIP budget" sheet
 	ObjExcel.Sheets.Add.Name = "MFIP Budget"
@@ -526,8 +980,6 @@ If MFIP_active = true then
 			
 			'Raises excel_row + 3, so we can start adding messages
 			excel_row = excel_row + 3
-			
-
 			
 			'Looks through each message in the array, and if it's for this UNEA panel, it will add it to the Excel sheet
 			For i = 0 to ubound(message_array)
@@ -592,26 +1044,16 @@ If MFIP_active = true then
 					excel_row_no_panel_found = excel_row_no_panel_found + 1
 					
 				End if
-			Next
+			Next		
 			
-			
+			'Excel Formatting
 			ObjExcel.Range("F1:J1").Merge
-			
 			ObjExcel.Cells(1, 6).Font.Bold			 = True
-			
 		End if
-		
-
-		
-	
-
-	
 	Next
 	
 	'Centering contents
 	ObjExcel.Range("A:J").HorizontalAlignment = excel_center
-	
-
 	
 	'Now, it makes Excel look prettier (because we all want prettier Excel) by auto-fitting the column width
 	For col_to_autofit = 1 to 10
@@ -623,7 +1065,7 @@ If MFIP_active = true then
 	Else
 		MFIP_evaluation_popup = MsgBox("The planned budget is indicated on the Excel spreadsheet. Evaluate the budget as indicated. If the budget appears correct for each UNEA panel indicated, press OK to update MAXIS and case note. Otherwise, press cancel and process manually.", vbOKCancel)
 		If MFIP_evaluation_popup = vbCancel then script_end_procedure("Script ended due to MFIP budget being marked as incorrect. The script will now close.")
-		'<<<<<<<<<<<<<<THIS IS WHERE THE MFIP BUDGET UPDATE WILL GO
+		'The script will now update the MFIP budget if NOT developer mode
 		If developer_mode <> TRUE Then
 			Call navigate_to_MAXIS_screen ("STAT", "UNEA")
 			'ObjExcel.Sheets("Message and Disb info").Activate
@@ -631,6 +1073,7 @@ If MFIP_active = true then
 
 			Do 
 				If left(ObjExcel.Cells(row, 1).Value, 4) = "UNEA" Then
+					'Navigates to the correct UNEA panel
 					panel_to_update = left(ObjExcel.Cells(row, 1).Value, 10)
 					memb_to_update = right(left(panel_to_update, 7), 2)
 					panel_numb_to_update = right(panel_to_update, 2)
@@ -678,22 +1121,79 @@ If MFIP_active = true then
 	
 End if
 
-
-'~~~~~~~~~~~~~~~~~~~~~~~~~~Script check for HRF or REVW due for case noting purposes
-
-        '~~~~~~~~~~~~~~~~~~~~Script updates UNEA for all messages with prospective amounts and actual amounts for retrospective budgeting
-
-'~~~~~~~~~~~~~~~~~~~~Decision: Is SNAP open? IF YES...
-
-    '~~~~~~~~~~~~~~~~~~~~Displays total and current PIC, user decides if it’s within the realm for each message
-
-'~~~~~~~~~~~~~~~~~~~~Decision: Any panels updated/checked for either SNAP or MFIP? IF YES...
+'Alert to worker that additional action is required.
+If Outside_the_realm = TRUE Then MsgBox "This is a SNAP case and you have indicated at least one of the UNEA panels needs to be reviewed for possible budget adjustment." & vbNewLine & vbNewLine & "At this time, this script does NOT update UNEA for SNAP cases. Case note will indicate that worker followup is needed."
 
     '~~~~~~~~~~~~~~~~~~~~Case note details from Excel sheet, and all panels updated
+'Navigates to CASE/NOTE directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
+If developer_mode <> TRUE Then 
+	EMWriteScreen "n", 6, 3
+	transmit
 
-'~~~~~~~~~~~~~~~~~~~~Decision: Does user want Excel breakdown of info? IF YES...
+	PF9
+	EMReadScreen case_note_mode_check, 7, 20, 3
+	If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production."
+	If case_note_mode_check <> "Mode: A" then end_excel_and_script
 
-    '~~~~~~~~~~~~~~~~~~~~Make Excel visible
+	If REVW_due = TRUE Then
+		Call Write_Variable_in_CASE_NOTE (":::CSES Messages Reviewed:::: REVIEW DUE")
+	ElseIf HRF_Due = TRUE Then 
+		Call Write_Variable_in_CASE_NOTE (":::CSES Messages Reviewed:::: HRF DUE")
+	Else 
+		Call Write_Variable_in_CASE_NOTE (":::CSES Messages Reviewed::::")
+	End If 
+	Call Write_Variable_in_CASE_NOTE ("* Income reported from PRISM Interface - details are listed in previous case notes.")
+	If MFIP_active = TRUE Then Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
+	If Exceed_130 = TRUE Then Call Write_Variable_in_CASE_NOTE ("* With this CS Income, it appears case income may exceed 130% FPG.")
+	If CS_Change = TRUE Then 
+		Call Write_Variable_in_CASE_NOTE ("* CS Income listed in DAILs is different from the amount of CS Income Budgeted.")
+		Call Write_Bullet_and_Varriable_in_Case_Note ("CS Income Budgeted", BUDG_CSES)
+		Call Write_Bullet_and_Varriable_in_Case_Note ("CS Income From DAIL", amount_CS_reported)
+	End If 
+	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
+	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Call Write_Variable_in_CASE_NOTE ("* FS Budget reviewed, adjustments to budget not needed.")
+	If Outside_the_realm = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC Reviewed, update needed - worker to process manually.")
+	IF MFIP_active = TRUE  AND FS_active = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC not evaluated, as case also has MFIP.")
+	Call Write_Bullet_and_Varriable_in_Case_Note ("Notes", other_notes)
 
+	Call Write_Variable_in_CASE_NOTE("---")
+	Call Write_Variable_in_CASE_NOTE(worker_signature & ", using automated script")
+Else
+'Developer mode shows a message box of the case note
+	Case_Note_Message = ""
+	If REVW_due = TRUE Then
+		Case_Note_Message = Case_Note_Message & vbNewLine & ":::CSES Messages Reviewed:::: REVIEW DUE"
+	ElseIf HRF_Due = TRUE Then 
+		Case_Note_Message = Case_Note_Message & vbNewLine & ":::CSES Messages Reviewed:::: HRF DUE"
+	Else 
+		Case_Note_Message = Case_Note_Message & vbNewLine & ":::CSES Messages Reviewed::::"
+	End If 
+	Case_Note_Message = Case_Note_Message & vbNewLine & "* Income reported from PRISM Interface - details are listed in previous case notes."
+	If MFIP_active = TRUE Then Case_Note_Message = Case_Note_Message & vbNewLine & "* Updated retro/prospective income amounts."
+	If Exceed_130 = TRUE Then Case_Note_Message = Case_Note_Message & vbNewLine & "* With this CS Income, it appears case income may exceed 130% FPG."
+	If CS_Change = TRUE Then 
+		Case_Note_Message = Case_Note_Message & vbNewLine & "* CS Income listed in DAILs is different from the amount of CS Income Budgeted."
+		Case_Note_Message = Case_Note_Message & vbNewLine & "CS Income Budgeted: " &  BUDG_CSES
+		Case_Note_Message = Case_Note_Message & vbNewLine & "CS Income From DAIL:" & amount_CS_reported
+	End If 
+	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Case_Note_Message = Case_Note_Message & vbNewLine &"* FS PIC reviewed, adjustments to budget not needed."
+	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Case_Note_Message = Case_Note_Message & vbNewLine &"* FS Budget reviewed, adjustments to budget not needed."
+	If Outside_the_realm = TRUE Then Case_Note_Message = Case_Note_Message & vbNewLine & "* FS PIC Reviewed, update needed - worker to process manually."
+	IF MFIP_active = TRUE  AND FS_active = TRUE Then Case_Note_Message = Case_Note_Message & vbNewLine & "* FS PIC not evaluated, as case also has MFIP."
+	Case_Note_Message = Case_Note_Message & vbNewLine & "Notes:" & other_notes
+
+	Case_Note_Message = Case_Note_Message & vbNewLine & "---"
+	Case_Note_Message = Case_Note_Message & vbNewLine & worker_signature & ", using automated script"
+
+	MsgBox Case_Note_Message
+End If 
+
+If close_excel_checkbox = checked Then 
+	'Manually closing workbooks so that the stats script can finish up
+	objExcel.DisplayAlerts = False
+	objExcel.Workbooks.Close
+	objExcel.quit
+	objExcel.DisplayAlerts = True
+End If 
 
 script_end_procedure("")
