@@ -521,7 +521,11 @@ Do
 	If pay_frequency = "Every Week" then EMWriteScreen cint((average_hours_per_paystub + .0000000000001) * total_prospective_dates), 18, 72
 
 	'Puts pay verification type in
-	EMWriteScreen left(JOBS_verif_code, 1), 6, 38
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
+		EMWriteScreen left(JOBS_verif_code, 1), 6, 34
+	ELSE
+		EMWriteScreen left(JOBS_verif_code, 1), 6, 38
+	END IF
 
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
 	If update_HC_popup_check = 1 and datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then
