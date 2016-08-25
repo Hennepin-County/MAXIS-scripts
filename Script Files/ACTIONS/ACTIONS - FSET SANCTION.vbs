@@ -235,8 +235,8 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	'checking to make sure HH MEMB is valid
 	EMWriteScreen resolved_HH_Member_Number, 20, 76
 	transmit
-	EMReadScreen WREG_MEMB_check, 7, 12, 2
-	IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER " THEN script_end_procedure ("The member number that you entered is not valid.  Please check the member number, and start the script again.") 
+	EMReadScreen WREG_MEMB_check, 6, 12, 2
+	IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_procedure ("The member number that you entered is not valid.  Please check the member number, and start the script again.") 
 	'if MEMB number is correct the WREG is updated
 	PF9
 	IF Exempt_FSET_WREG_droplist <> "Select one..." THEN EMWriteScreen Exempt_FSET_WREG_droplist, 8, 50
