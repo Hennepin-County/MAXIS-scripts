@@ -1,3 +1,5 @@
+'Hard coding that needs to be updated each year: MAXIS_footer_year, counted_date_year 
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - BANKED MONTHS REPORT.vbs"
 start_time = timer
@@ -299,13 +301,14 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
 					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 				Else
+					'This section checks for cases that were not approved as PRORATED, but are prorated for the report date on the PROG panel
 					Call navigate_to_MAXIS_screen("STAT", "PROG")
 					EMReadScreen elig_month, 2, 10, 44
 					EMReadScreen elig_date, 2, 10, 47
 					EMReadScreen elig_year, 2, 10, 50
 					prorated_date = elig_month & "/" & elig_year		'creating date variables to measure against report month
 					If prorated_date = report_date then 
-						If elig_date <> "01" then 
+						If elig_date <> "01" then 	
 							Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
 							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
 						END if
@@ -582,7 +585,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		IF wreg_total <> "0" THEN
 			EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 			transmit
-			EMREADScreen tracking_record_check, 15, 4, 40  
+			EMREADScreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
 			If tracking_record_check <> "Tracking Record" then 
 				Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
 				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Unable to access the ABAWD tracking record. Review manually. | "
@@ -606,7 +609,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					If bene_mo_col = "55" then counted_date_month = "10"
 					If bene_mo_col = "59" then counted_date_month = "11"
 					If bene_mo_col = "63" then counted_date_month = "12"
-					'counted date year
+					'counted date year: this is found on rows 7-11. Row 11 is current year plus one, so this will be exclude this list.
 					If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", date), 2)
 					If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
 					If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
@@ -666,7 +669,7 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		
 		'Reading the person notes regarding which months are counted as banked months
 		PF5			'navigates to Person note from WREG PANEL
-		'adds case to the rejected list if cannot person note
+		'adds case to the rejected list if cannot access the person notes screen. This is usually for INACTIVE cases or out-of-county cases. 
 		EMReadScreen person_note_confirmation, 12, 2, 31
 		If person_note_confirmation <> "Person Notes" then 
 			Banked_Month_Client_Array(send_to_DHS, item) = False	'Removing this client from DHS report - reason on next line'
