@@ -182,7 +182,9 @@ If job_known_checkbox = checked then script_end_procedure("The script will stop 
 'Now it will create a new JOBS panel for this case.
 If create_JOBS_checkbox = checked then
 	EMWriteScreen "nn", 20, 79				'Creates new panel
-	transmit								'Transmits
+	transmit	'Transmits
+	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
+	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
 	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
 		EMWriteScreen "w", 5, 34				'Wage income is the type
 		EMWriteScreen "n", 6, 34				'No proof has been provided	
@@ -194,8 +196,6 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
 	EMWriteScreen day_hired, 9, 38			'Adds day hired
 	EMWriteScreen year_hired, 9, 41			'Adds year hired
-	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
-	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
 	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
 	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date. 
 		EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
