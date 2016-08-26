@@ -183,8 +183,13 @@ If job_known_checkbox = checked then script_end_procedure("The script will stop 
 If create_JOBS_checkbox = checked then
 	EMWriteScreen "nn", 20, 79				'Creates new panel
 	transmit								'Transmits
-	EMWriteScreen "w", 5, 38				'Wage income is the type
-	EMWriteScreen "n", 6, 38				'No proof has been provided
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMWriteScreen "w", 5, 34				'Wage income is the type
+		EMWriteScreen "n", 6, 34				'No proof has been provided	
+	ELSE
+		EMWriteScreen "w", 5, 38				'Wage income is the type
+		EMWriteScreen "n", 6, 38				'No proof has been provided
+	END IF
 	EMWriteScreen employer, 7, 42			'Adds employer info
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
 	EMWriteScreen day_hired, 9, 38			'Adds day hired
