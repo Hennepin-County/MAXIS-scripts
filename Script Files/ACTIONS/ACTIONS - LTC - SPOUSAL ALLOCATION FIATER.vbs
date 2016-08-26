@@ -215,26 +215,34 @@ If spousal_reference_number <> "" then
   transmit
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "1" then
-    earned_income_number = 1
-    EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38	
+	earned_income_number = 1
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38	
+	END IF
 	If gross_spousal_earned_income_type_01 = "J" THEN gross_spousal_earned_income_type_01 = "01"
-    If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
+	If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
 	If gross_spousal_earned_income_type_01 = "E" THEN gross_spousal_earned_income_type_01 = "03"
-    If gross_spousal_earned_income_type_01 = "G" then gross_spousal_earned_income_type_01 = "04"
-	If gross_spousal_earned_income_type_01 = "F" THEN gross_spousal_earned_income_type_01 = "05"
-    If gross_spousal_earned_income_type_01 = "S" then gross_spousal_earned_income_type_01 = "06"
+	If gross_spousal_earned_income_type_01 = "G" then gross_spousal_earned_income_type_01 = "04"
+	If gross_spousal_earned_income_type_01 = "F" THEN gross_spousal_earned_income_type_01 = "05"	
+	If gross_spousal_earned_income_type_01 = "S" then gross_spousal_earned_income_type_01 = "06"
 	If gross_spousal_earned_income_type_01 = "O" THEN gross_spousal_earned_income_type_01 = "07"
-    If gross_spousal_earned_income_type_01 = "I" then gross_spousal_earned_income_type_01 = "08"
+	If gross_spousal_earned_income_type_01 = "I" then gross_spousal_earned_income_type_01 = "08"
 	If gross_spousal_earned_income_type_01 = "M" THEN gross_spousal_earned_income_type_01 = "09"
-    If gross_spousal_earned_income_type_01 = "C" then gross_spousal_earned_income_type_01 = "10"
-    EMReadScreen gross_spousal_earned_income_01, 8, 17, 67
-    transmit
+	If gross_spousal_earned_income_type_01 = "C" then gross_spousal_earned_income_type_01 = "10"
+	EMReadScreen gross_spousal_earned_income_01, 8, 17, 67
+ 	transmit
   End if
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "2" then
     earned_income_number = earned_income_number + 1
-    EMReadScreen gross_spousal_earned_income_type_02, 2, 5, 37
-    If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 38	
+	END IF
+	If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
 	If gross_spousal_earned_income_type_02 = "W" then gross_spousal_earned_income_type_02 = "02"
 	If gross_spousal_earned_income_type_02 = "E" THEN gross_spousal_earned_income_type_02 = "03"
 	If gross_spousal_earned_income_type_02 = "G" then gross_spousal_earned_income_type_02 = "04"
@@ -250,8 +258,12 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "3" then
     earned_income_number = earned_income_number + 1
-    EMReadScreen gross_spousal_earned_income_type_03, 2, 5, 37
-    If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 38	
+	END IF
+	If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
 	If gross_spousal_earned_income_type_03 = "W" then gross_spousal_earned_income_type_03 = "02"
 	If gross_spousal_earned_income_type_03 = "E" THEN gross_spousal_earned_income_type_03 = "03"
 	If gross_spousal_earned_income_type_03 = "G" then gross_spousal_earned_income_type_03 = "04"
@@ -267,7 +279,11 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "4" then
     earned_income_number = earned_income_number + 1
-    EMReadScreen gross_spousal_earned_income_type_04, 2, 5, 37
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 38	
+	END IF
 	If gross_spousal_earned_income_type_04 = "J" THEN gross_spousal_earned_income_type_04 = "01"
 	If gross_spousal_earned_income_type_04 = "W" then gross_spousal_earned_income_type_04 = "02"
 	If gross_spousal_earned_income_type_04 = "E" THEN gross_spousal_earned_income_type_04 = "03"
