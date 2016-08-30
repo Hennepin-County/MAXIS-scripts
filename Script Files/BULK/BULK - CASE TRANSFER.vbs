@@ -374,19 +374,19 @@ m = 0
 
 'Script starts by collecting a list of all the cases and the programs as listed on REPT/ACTV 
 'This information is added to the first array called - Full_case_list_array. The values of this array are as follows:
-Const case_num 		= 0		'(0,#) - Case Number 
-Const clt_name 		= 1		'(1,#) - Client Name 
-Const revw_date 	= 2		'(2,#) = Review Date
-Const cash_1_type 	= 3		'(3,#) = Cash 1 Type
-Const cash_1_stat 	= 4		'(4,#) = Cash 1 Status
-Const cash_2_type 	= 5		'(5,#) = Cash 2 Type 
-Const cash_2_stat 	= 6		'(6,#) = Cash 2 Status
-Const snap_stat 	= 7		'(7,#) = SNAP Status
-Const hc_stat 		= 8		'(8,#) = HC Status
-Const ea_stat 		= 9		'(9,#) = EA Status
-Const grh_stat 		= 10	'(10,#) = GRH Status
-Const worker_x_num 	= 11	'(11,#) = Worker's X Number
-Const ccap_stat 	= 12	'(12,#) = CCAP Status
+'(0,#) - Case Number 
+'(1,#) - Client Name 
+'(2,#) = Review Date
+'(3,#) = Cash 1 Type
+'(4,#) = Cash 1 Status
+'(5,#) = Cash 2 Type 
+'(6,#) = Cash 2 Status
+'(7,#) = SNAP Status
+'(8,#) = HC Status
+'(9,#) = EA Status
+'(10,#) = GRH Status
+'(11,#) = Worker's X Number
+'(12,#) = CCAP Status
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
