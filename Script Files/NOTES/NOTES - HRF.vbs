@@ -38,12 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-MAXIS_footer_month = datepart("m", next_month)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = datepart("yyyy", next_month)
-MAXIS_footer_year = "" & MAXIS_footer_year - 2000
+'defaulting the MAXIS footer month/year to current month plus one
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
@@ -124,7 +121,6 @@ BeginDialog HRF_dialog, 0, 0, 451, 250, "HRF dialog"
   Text 130, 95, 35, 10, "Changes?:"
 EndDialog
 
-
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
     PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
@@ -145,11 +141,14 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Showing case number dialog
-Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+do 
+	Do
+  		Dialog case_number_dialog
+  		cancel_confirmation
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'Checking for an active MAXIS seesion
 Call check_for_MAXIS(False)
@@ -233,8 +232,6 @@ If grab_GA_info_check = 1 Then
 		END If
 END IF
 
-
-
 'Creating program list---------------------------------------------------------------------------------------------
 If MFIP_check = 1 Then programs_list = "MFIP "
 If SNAP_check = 1 Then programs_list = programs_list & "SNAP "
@@ -274,4 +271,4 @@ If GAPR_check = "GAPR" Then
 End If
 call write_variable_in_CASE_NOTE(worker_signature)
 
-call script_end_procedure("")
+script_end_procedure("")
