@@ -76,7 +76,6 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 290, "CAF dialog part 1"
   EditBox 35, 180, 410, 15, ABPS
   EditBox 35, 200, 410, 15, EMPS
   If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 35, 220, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-  'If worker_county_code = "x162" then CheckBox 35, 220, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
   EditBox 55, 235, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
     PushButton 340, 270, 50, 15, "NEXT", next_to_page_02_button
@@ -263,12 +262,15 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'initial dialog
 Do
 	DO
+		err_msg = ""
 		Dialog case_number_dialog
 		cancel_confirmation
-		If CAF_type = "Select one..." Then MsgBox "You must select the CAF type."
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-	Loop until CAF_type <> "Select one..."	
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+		If CAF_type = "Select one..." then err_msg = err_msg & vbnewline & "* You must select the CAF type."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect						
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
