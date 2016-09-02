@@ -38,12 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-MAXIS_footer_month = datepart("m", next_month)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = datepart("yyyy", next_month)
-MAXIS_footer_year = "" & MAXIS_footer_year - 2000
+'defaulting the MAXIS footer month/year to current month plus one
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
@@ -63,27 +60,28 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
-BeginDialog HRF_dialog, 0, 0, 451, 250, "HRF dialog"
+BeginDialog HRF_dialog, 0, 0, 451, 270, "HRF dialog"
   EditBox 65, 30, 50, 15, HRF_datestamp
-  DropListBox 170, 30, 75, 15, " " +chr(9)+"complete"+chr(9)+"incomplete", HRF_status
+  DropListBox 170, 30, 75, 15, " "+chr(9)+"complete"+chr(9)+"incomplete", HRF_status
   EditBox 65, 50, 380, 15, earned_income
   EditBox 70, 70, 375, 15, unearned_income
   EditBox 30, 90, 90, 15, YTD
   EditBox 170, 90, 275, 15, changes
-  EditBox 100, 110, 345, 15, FIAT_reasons
-  EditBox 50, 130, 395, 15, other_notes
-  CheckBox 190, 150, 60, 10, "10% sanction?", ten_percent_sanction_check
-  CheckBox 265, 150, 60, 10, "30% sanction?", thirty_percent_sanction_check
-  CheckBox 330, 150, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
-  EditBox 240, 165, 205, 15, verifs_needed
-  EditBox 235, 185, 210, 15, actions_taken
-  CheckBox 125, 205, 180, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
-  CheckBox 125, 220, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_FS_info_check
-  CheckBox 125, 235, 170, 10, "Check here to case note grant info from ELIG/GA.", grab_GA_info_check
-  EditBox 380, 205, 65, 15, worker_signature
+  EditBox 30, 110, 415, 15, EMPS
+  EditBox 100, 130, 345, 15, FIAT_reasons
+  EditBox 50, 150, 395, 15, other_notes
+  CheckBox 190, 170, 60, 10, "10% sanction?", ten_percent_sanction_check
+  CheckBox 265, 170, 60, 10, "30% sanction?", thirty_percent_sanction_check
+  CheckBox 330, 170, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+  EditBox 235, 185, 210, 15, verifs_needed
+  EditBox 235, 205, 210, 15, actions_taken
+  CheckBox 100, 225, 175, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
+  CheckBox 100, 240, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_FS_info_check
+  CheckBox 100, 255, 170, 10, "Check here to case note grant info from ELIG/GA.", grab_GA_info_check
+  EditBox 340, 225, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 225, 50, 15
-    CancelButton 395, 225, 50, 15
+    OkButton 340, 245, 50, 15
+    CancelButton 395, 245, 50, 15
     PushButton 260, 20, 20, 10, "FS", ELIG_FS_button
     PushButton 280, 20, 20, 10, "HC", ELIG_HC_button
     PushButton 300, 20, 20, 10, "MFIP", ELIG_MFIP_button
@@ -92,38 +90,41 @@ BeginDialog HRF_dialog, 0, 0, 451, 250, "HRF dialog"
     PushButton 395, 20, 45, 10, "prev. memb", prev_memb_button
     PushButton 335, 30, 45, 10, "next panel", next_panel_button
     PushButton 395, 30, 45, 10, "next memb", next_memb_button
-    PushButton 10, 165, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 165, 25, 10, "JOBS", JOBS_button
-    PushButton 75, 165, 25, 10, "ACCT", ACCT_button
-    PushButton 100, 165, 25, 10, "CARS", CARS_button
-    PushButton 125, 165, 25, 10, "CASH", CASH_button
-    PushButton 150, 165, 25, 10, "OTHR", OTHR_button
-    PushButton 10, 175, 25, 10, "RBIC", RBIC_button
-    PushButton 35, 175, 25, 10, "UNEA", UNEA_button
-    PushButton 75, 175, 25, 10, "REST", REST_button
-    PushButton 100, 175, 25, 10, "SECU", SECU_button
-    PushButton 125, 175, 25, 10, "TRAN", TRAN_button
-    PushButton 10, 210, 25, 10, "MEMB", MEMB_button
-    PushButton 35, 210, 25, 10, "MEMI", MEMI_button
-    PushButton 60, 210, 25, 10, "MONT", MONT_button
-  GroupBox 255, 5, 70, 40, "ELIG panels:"
+    PushButton 5, 115, 25, 10, "EMPS", EMPS_button
+    PushButton 10, 185, 25, 10, "BUSI", BUSI_button
+    PushButton 35, 185, 25, 10, "JOBS", JOBS_button
+    PushButton 10, 195, 25, 10, "RBIC", RBIC_button
+    PushButton 35, 195, 25, 10, "UNEA", UNEA_button
+    PushButton 75, 185, 25, 10, "ACCT", ACCT_button
+    PushButton 100, 185, 25, 10, "CARS", CARS_button
+    PushButton 125, 185, 25, 10, "CASH", CASH_button
+    PushButton 150, 185, 25, 10, "OTHR", OTHR_button
+    PushButton 75, 195, 25, 10, "REST", REST_button
+    PushButton 100, 195, 25, 10, "SECU", SECU_button
+    PushButton 125, 195, 25, 10, "TRAN", TRAN_button
+    PushButton 10, 230, 25, 10, "MEMB", MEMB_button
+    PushButton 35, 230, 25, 10, "MEMI", MEMI_button
+    PushButton 60, 230, 25, 10, "MONT", MONT_button
+    PushButton 10, 240, 25, 10, "PARE", PARE_button
+    PushButton 35, 240, 25, 10, "SANC", SANC_button
+    PushButton 60, 240, 25, 10, "TIME", TIME_button
+  Text 5, 95, 20, 10, "YTD:"
+  Text 5, 135, 95, 10, "FIAT reasons (if applicable):"
+  Text 5, 155, 45, 10, "Other notes:"
+  GroupBox 5, 170, 60, 40, "Income panels"
+  GroupBox 70, 170, 110, 40, "Asset panels"
+  Text 280, 230, 60, 10, "Worker signature:"
+  Text 185, 210, 50, 10, "Actions taken:"
+  GroupBox 5, 215, 85, 40, "other STAT panels:"
+  Text 185, 190, 50, 10, "Verifs needed:"
+  Text 125, 35, 40, 10, "HRF status:"
+  Text 130, 95, 35, 10, "Changes?:"
   GroupBox 330, 5, 115, 40, "STAT-based navigation"
   Text 5, 35, 55, 10, "HRF datestamp:"
   Text 5, 55, 55, 10, "Earned income:"
   Text 5, 75, 60, 10, "Unearned income:"
-  Text 5, 95, 20, 10, "YTD:"
-  Text 5, 115, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 135, 45, 10, "Other notes:"
-  GroupBox 5, 150, 60, 40, "Income panels"
-  GroupBox 70, 150, 110, 40, "Asset panels"
-  Text 315, 210, 65, 10, "Worker signature:"
-  Text 185, 190, 50, 10, "Actions taken:"
-  GroupBox 5, 195, 85, 30, "other STAT panels:"
-  Text 185, 170, 50, 10, "Verifs needed:"
-  Text 125, 35, 40, 10, "HRF status:"
-  Text 130, 95, 35, 10, "Changes?:"
+  GroupBox 255, 5, 70, 40, "ELIG panels:"
 EndDialog
-
 
 BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
   ButtonGroup ButtonPressed
@@ -145,11 +146,14 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Showing case number dialog
-Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+do 
+	Do
+  		Dialog case_number_dialog
+  		cancel_confirmation
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'Checking for an active MAXIS seesion
 Call check_for_MAXIS(False)
@@ -162,6 +166,7 @@ call HH_member_custom_dialog(HH_member_array)
 
 'Autofilling info for case note
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
+call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "MONT", HRF_datestamp)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
@@ -233,8 +238,6 @@ If grab_GA_info_check = 1 Then
 		END If
 END IF
 
-
-
 'Creating program list---------------------------------------------------------------------------------------------
 If MFIP_check = 1 Then programs_list = "MFIP "
 If SNAP_check = 1 Then programs_list = programs_list & "SNAP "
@@ -249,6 +252,7 @@ call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 call write_bullet_and_variable_in_case_note("YTD", YTD)
 call write_bullet_and_variable_in_case_note("Changes", changes)
+call write_bullet_and_variable_in_case_note("EMPS", EMPS)
 call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 If ten_percent_sanction_check = 1 then call write_variable_in_CASE_NOTE("* 10% sanction.")
@@ -274,4 +278,4 @@ If GAPR_check = "GAPR" Then
 End If
 call write_variable_in_CASE_NOTE(worker_signature)
 
-call script_end_procedure("")
+script_end_procedure("")
