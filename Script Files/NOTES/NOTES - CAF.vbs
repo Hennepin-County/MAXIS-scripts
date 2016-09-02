@@ -103,23 +103,25 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 290, "CAF dialog part 1"
     PushButton 60, 270, 15, 10, "HC", ELIG_HC_button
     PushButton 75, 270, 20, 10, "MFIP", ELIG_MFIP_button
     PushButton 95, 270, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 150, 270, 25, 10, "ADDR", ADDR_button
-    PushButton 175, 270, 25, 10, "MEMB", MEMB_button
-    PushButton 200, 270, 25, 10, "MEMI", MEMI_button
-    PushButton 225, 270, 25, 10, "PROG", PROG_button
-    PushButton 250, 270, 25, 10, "REVW", REVW_button
-    PushButton 275, 270, 25, 10, "TYPE", TYPE_button
-  Text 120, 30, 110, 10, "How was application received?:"
-  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+    PushButton 130, 270, 25, 10, "ADDR", ADDR_button
+    PushButton 155, 270, 25, 10, "MEMB", MEMB_button
+    PushButton 180, 270, 25, 10, "MEMI", MEMI_button
+    PushButton 205, 270, 25, 10, "PROG", PROG_button
+    PushButton 230, 270, 25, 10, "REVW", REVW_button
+    PushButton 255, 270, 25, 10, "SANC", SANC_button
+    PushButton 280, 270, 25, 10, "TIME", TIME_button
+    PushButton 305, 270, 25, 10, "TYPE", TYPE_button
   Text 335, 50, 55, 10, "HC datestamp:"
   Text 5, 95, 25, 10, "CIT/ID:"
   Text 5, 240, 50, 10, "Verifs needed:"
   GroupBox 5, 260, 115, 25, "ELIG panels:"
-  GroupBox 145, 260, 160, 25, "other STAT panels:"
+  GroupBox 125, 260, 210, 25, "other STAT panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 10, 55, 10, "CAF datestamp:"
   Text 5, 30, 55, 10, "Interview date:"
   Text 120, 10, 50, 10, "Interview type:"
+  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+  Text 120, 30, 110, 10, "How was application received?:"
 EndDialog
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
