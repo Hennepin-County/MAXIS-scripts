@@ -180,6 +180,10 @@ Call write_variable_in_CASE_NOTE("Members updated: " & membs_to_case_note)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
-
+'Offers worker option to navigate back to DAIL message-----------------------------------------------------------------------------------------------------------
+If Navigate_Choice = vbYes then 
+	PF3 'to save casenote'
+	Call navigate_to_MAXIS_screen("DAIL", "DAIL")
+End if	
 
 script_end_procedure("")
