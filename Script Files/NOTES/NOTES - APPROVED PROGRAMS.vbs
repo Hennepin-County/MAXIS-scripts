@@ -53,7 +53,7 @@ STATS_denomination = "C"       			'C is for each Case
 'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog benefits_approved, 0, 0, 271, 245, "Benefits Approved"
+BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
   CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
   CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
   CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
@@ -68,23 +68,23 @@ BeginDialog benefits_approved, 0, 0, 271, 245, "Benefits Approved"
   EditBox 75, 120, 190, 15, programs_pending
   EditBox 55, 140, 210, 15, docs_needed
   CheckBox 10, 165, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
-  CheckBox 10, 180, 235, 10, "Check here if child support disregard was applied to MFIP/DWP case", CASH_WCOM_checkbox
-  CheckBox 10, 195, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
-  CheckBox 10, 210, 190, 10, "Check here if SNAP BANKED MONTHS were approved.", SNAP_banked_mo_check
-  EditBox 75, 225, 80, 15, worker_signature
+  CheckBox 10, 180, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
+  CheckBox 10, 195, 190, 10, "Check here if SNAP BANKED MONTHS were approved.", SNAP_banked_mo_check
+  EditBox 75, 210, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 160, 225, 50, 15
-    CancelButton 215, 225, 50, 15
+    OkButton 160, 210, 50, 15
+    CancelButton 215, 210, 50, 15
   Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
   Text 10, 85, 160, 10, "Select the first month of approval (MM YY)..."
   Text 5, 105, 45, 10, "Other Notes:"
   Text 5, 125, 70, 10, "Pending Program(s):"
   Text 5, 145, 50, 10, "Verifs Needed:"
-  Text 10, 230, 60, 10, "Worker Signature: "
+  Text 10, 215, 60, 10, "Worker Signature: "
   Text 120, 25, 60, 10, "Type of Approval:"
   Text 5, 5, 70, 10, "Approved Programs:"
   Text 5, 25, 50, 10, "Case Number:"
 EndDialog
+
 
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -126,19 +126,22 @@ start_yr = bene_year
 
 'Displays the dialog and navigates to case note
 Do
-	'Adding err_msg handling
-	err_msg = ""
-	Dialog benefits_approved
-	cancel_confirmation
-		'Enforcing mandatory fields
-		If case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
-		IF autofill_check = checked THEN 
-			IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _ 
-			 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
-		End If 
-		IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-Loop until err_msg = ""
+	Do
+		'Adding err_msg handling
+		err_msg = ""
+		Dialog benefits_approved
+		cancel_confirmation
+			'Enforcing mandatory fields
+			If case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
+			IF autofill_check = checked THEN
+				IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _
+				 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
+			End If
+			IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	Loop until err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+Loop until are_we_passworded_out = false
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(FALSE)  
@@ -682,47 +685,7 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 	END IF 
 Next 
 
-'updates WCOM with notice requirements if MFIP or DWP child support income disregarded in the budget
-If CASH_WCOM_checkbox = checked THEN 
-	Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-	read_row = 7
-	WCOM_to_notice = false
-	WCOM_error_message = ""
-	DO
-		EMReadscreen CASH_check, 2, read_row, 26  'checking to make sure that notice is for MFIP or DWP
-		EMReadScreen Print_status_check, 7, read_row, 71 'checking to see if notice is in 'waiting status'
-		'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
-		If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
-			EMSetcursor read_row, 13
-			EMSendKey "x"
-			Transmit
-			PF9
-			EMSetCursor 03, 15
-			'WCOM required by workers upon approval of MFIP and DWP cases with child support FIAT'd out of the budget
-			Call write_variable_in_SPEC_MEMO("************************************************************")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("Starting October 1, 2015 a new law begins that allows us to not count some of the child support you get when determining your monthly MFIP/DWP benefit amount:")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("* $100 for an assistance unit with one child")
-			Call write_variable_in_SPEC_MEMO("* $200 for an assistance unit with two or more children")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("Because of this change, you may see an increase in your benefit amount.")
-			Call write_variable_in_SPEC_MEMO("************************************************************")
-			WCOM_to_notice = true
-			PF4
-			PF3
-		ELSEIF ((CASH_check = "MF" OR CASH_check = "DW") AND print_status_check <> "Waiting") OR (CASH_check <> "MF" AND CASH_check <> "DW") THEN
-			read_row = read_row + 1
-			IF read_row = 18 THEN 
-				read_row = 7
-				PF8
-			END IF
-		ELSEIF CASH_check = "  " THEN 
-			IF read_row <> 18 THEN EXIT DO
-		END IF
-	LOOP UNTIL WCOM_to_notice = True OR (CASH_check = "  " AND read_row <> 18)
-	IF WCOM_to_notice = False THEN Msgbox "There is not a pending notice for this cash case. The script was unable to update your notice."
-END If
+
 
 'Case notes----------------------------------------------------------------------------------------------------
 IF clt_banked_mo_apprvd <> 0 THEN 	'BANKED MONTH Case Note - each client gets a seperate case note 
@@ -801,10 +764,6 @@ IF autofill_check = checked THEN
 			End If
 		End If
 	Next 
-END IF
-IF CASH_WCOM_checkbox = checked THEN 
-	CALL write_variable_in_CASE_NOTE("* CS Disregard applied.")
-	IF WCOM_to_notice = TRUE THEN call write_variable_in_CASE_NOTE("* A WCOM for the CS disregard FIAT has been entered.")
 END IF
 IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* This case has been FIATed.")
 IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)

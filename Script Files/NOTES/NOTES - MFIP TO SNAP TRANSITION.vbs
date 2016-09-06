@@ -188,15 +188,18 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'Calling the main dialog
 DO
-	err_msg = ""
-	Dialog snap_transition_dialog
-	cancel_confirmation
-	IF actions_taken = "" THEN err_msg = err_msg & vbCr & "You must complete the actions taken field."
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."
-	IF verifs_check = unchecked THEN err_msg = err_msg & vbCr & "All needed verifications for MFIP must be on file before approving SNAP. Please update the checkbox."
-	IF MFIP_closure_reason = "" THEN err_msg = err_msg & vbCr & "You must explain the MFIP closure reason."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
-LOOP UNTIL err_msg = ""
+	DO
+		err_msg = ""
+		Dialog snap_transition_dialog
+		cancel_confirmation
+		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "You must complete the actions taken field."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."
+		IF verifs_check = unchecked THEN err_msg = err_msg & vbCr & "All needed verifications for MFIP must be on file before approving SNAP. Please update the checkbox."
+		IF MFIP_closure_reason = "" THEN err_msg = err_msg & vbCr & "You must explain the MFIP closure reason."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Editing the notice if requested
 IF WCOM_check = checked THEN

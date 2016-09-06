@@ -90,12 +90,12 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 50, 275, 385, 15, other_notes
   CheckBox 5, 300, 65, 10, "R/R explained?", R_R_explained
   CheckBox 80, 300, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 80, 315, 60, 10, "eDRS checked", eDRS_checked
   DropListBox 230, 295, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete"+chr(9)+"closed", review_status
   EditBox 370, 295, 65, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 330, 315, 50, 15
     CancelButton 385, 315, 50, 15
-    PushButton 20, 15, 25, 10, "HCRE", HCRE_button
     PushButton 45, 15, 25, 10, "MEMB", MEMB_button
     PushButton 70, 15, 25, 10, "MEMI", MEMI_button
     PushButton 95, 15, 25, 10, "REVW", REVW_button
@@ -139,6 +139,8 @@ BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   GroupBox 15, 5, 110, 25, "STAT panels:"
   GroupBox 330, 5, 110, 35, "STAT-based navigation"
   Text 5, 60, 55, 10, "Interview Date:"
+  ButtonGroup ButtonPressed
+    PushButton 20, 15, 25, 10, "HCRE", HCRE_button
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -195,14 +197,17 @@ recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 recert_month = cstr(recert_month)
 
 'Showing the case note dialog
-Do
-	DO
-		Dialog combined_AR_dialog
-		cancel_confirmation
-		MAXIS_dialog_navigation
-	Loop until ButtonPressed = -1
-	If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
-Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""			
+DO
+	Do
+		DO
+			Dialog combined_AR_dialog
+			cancel_confirmation
+			MAXIS_dialog_navigation
+		Loop until ButtonPressed = -1
+		If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
+	Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false			
 
 'The case note----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
@@ -220,8 +225,10 @@ CALL write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 IF R_R_explained = checked THEN CALL write_variable_in_case_note("* R/R explained.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+IF eDRS_checked = checked THEN CALL write_variable_in_CASE_NOTE("* eDRS sent.")
 CALL write_bullet_and_variable_in_case_note("Notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
+

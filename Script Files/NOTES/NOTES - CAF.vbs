@@ -72,6 +72,7 @@ EndDialog
 BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
   ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
+  CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
   EditBox 60, 25, 50, 15, interview_date
   ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed"+chr(9)+"emailed", how_app_was_received
   ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
@@ -120,7 +121,6 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
     PushButton 275, 240, 25, 10, "TYPE", TYPE_button
   Text 5, 10, 55, 10, "CAF datestamp:"
   Text 120, 10, 50, 10, "Interview type:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 5, 30, 55, 10, "Interview date:"
   Text 120, 30, 110, 10, "How was application received?:"
   Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
@@ -129,7 +129,9 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   Text 5, 215, 50, 10, "Verifs needed:"
   GroupBox 5, 230, 130, 25, "ELIG panels:"
   GroupBox 145, 230, 160, 25, "other STAT panels:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
 EndDialog
+
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -418,34 +420,38 @@ If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 	End if
 End if
 
-'Going to TIKL, there's a custom function for this. Evaluate using it.
+'Going to TIKL. Now using the write TIKL function
 If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
-		EMSetCursor 9, 3
-		If cash_checkbox = checked then EMSendKey "cash/"
-		If SNAP_checkbox = checked then EMSendKey "SNAP/"
-		If EMER_checkbox = checked then EMSendKey "EMER/"
-		EMSendKey "<backspace>" & " pending 30 days. Evaluate for possible denial."
-		transmit	
-		PF3
+		If DateDiff ("d", CAF_datestamp, date) > 30 Then 'Error handling to prevent script from attempting to write a TIKL in the past
+			MsgBox "Cannot set TIKL as CAF Date is over 30 days old and TIKL would be in the past. You must manually track."
+		Else 
+			call navigate_to_MAXIS_screen("dail", "writ")
+			call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
+			If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
+			If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
+			If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
+			TIKL_msg_one = Left(TIKL_msg_one, (len(TIKL_msg_one) - 1))
+			TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
+			Call write_variable_in_TIKL (TIKL_msg_one)
+			PF3
+		End If 
 	End if
 	If HC_checkbox = checked then
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
-		EMSetCursor 9, 3
-		EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-		transmit
-		PF3
+		If DateDiff ("d", CAF_datestamp, date) > 45 Then 'Error handling to prevent script from attempting to write a TIKL in the past
+			MsgBox "Cannot set TIKL as CAF Date is over 45 days old and TIKL would be in the past. You must manually track."
+		Else
+			call navigate_to_MAXIS_screen("dail", "writ")
+			call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
+			Call write_variable_in_TIKL ("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
+			PF3
+		End If 
 	End if
 End if
 If client_delay_TIKL_checkbox = checked then
 	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 10, 5, 18) 
-	EMSetCursor 9, 3
-	EMSendKey ">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<"
-	transmit
+	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
 	PF3
 End if
 '----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
@@ -478,7 +484,11 @@ If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & CAF_status & "***")
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF datestamp", CAF_datestamp)
-CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)											
+If Used_Interpreter_checkbox = checked then 
+	CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " w/ interpreter")	
+Else 
+	CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)	
+End if 											
 CALL write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("HC document received", HC_document_received)								
 CALL write_bullet_and_variable_in_CASE_NOTE("HC datestamp", HC_datestamp)
