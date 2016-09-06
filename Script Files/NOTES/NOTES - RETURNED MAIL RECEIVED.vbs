@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - RETURNED MAIL RECEIVED.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 360          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -45,7 +39,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 BeginDialog case_number_dlg, 0, 0, 150, 80, "CASE NUMBER DIALOG"
-  EditBox 75, 10, 70, 15, case_number
+  EditBox 75, 10, 70, 15, MAXIS_case_number
   EditBox 75, 30, 40, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 10, 55, 50, 15
@@ -67,10 +61,10 @@ BeginDialog RETURNED_MAIL, 0, 0, 185, 335, "RETURNED MAIL DIALOG"
   EditBox 135, 145, 40, 15, new_ZIP
   DropListBox 110, 165, 35, 15, "No"+chr(9)+"Yes", updated_ADDR
   EditBox 110, 180, 65, 15, new_COUNTY
-  CheckBox 50, 200, 70, 10, "Sent DHS-2919A", Check1
-  CheckBox 50, 210, 65, 10, "Sent DHX-2952", Check2
-  CheckBox 50, 220, 65, 10, "Sent DHS-2402", Check3
-  DropListBox 120, 230, 30, 15, "No"+chr(9)+"Yes", List6
+  CheckBox 50, 200, 70, 10, "Sent DHS-2919A", verifA_sent_checkbox
+  CheckBox 50, 210, 65, 10, "Sent DHS-2952", SHEL_form_sent_checkbox
+  CheckBox 50, 220, 65, 10, "Sent DHS-2402", CRF_sent_checkbox
+  DropListBox 120, 230, 30, 15, "No"+chr(9)+"Yes", returned_mail_resent_list
   DropListBox 105, 245, 45, 15, "Select"+chr(9)+"Yes"+chr(9)+"No", MNsure_active
   EditBox 100, 260, 75, 15, MNsure_number
   DropListBox 100, 278, 40, 10, "N/A"+chr(9)+"Yes"+chr(9)+"No", MNsure_ADDR
@@ -106,16 +100,16 @@ EMFocus
 Call check_for_MAXIS(false)
 
 'Finds the case number
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
 IF on_SELF = "SELF" THEN
-	CALL find_variable("Benefit Period (MM YY): ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Benefit Period (MM YY): ", MAXIS_footer_month, 2)
+	IF MAXIS_footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 ELSE
-	CALL find_variable("Month: ", footer_month, 2)
-	IF footer_month <> "" THEN CALL find_variable("Month: " & footer_month & " ", footer_year, 2)
+	CALL find_variable("Month: ", MAXIS_footer_month, 2)
+	IF MAXIS_footer_month <> "" THEN CALL find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 END IF
 
 ' >>>>> GATHERING & CONFIRMING THE MAXIS CASE NUMBER <<<<<
@@ -124,7 +118,7 @@ DO
 	err_msg = ""	
 	DIALOG case_number_dlg
 		IF ButtonPressed = 0 THEN stopscript
-		IF case_number = "" OR (case_number <> "" AND len(case_number) > 8) OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		'checks that the case note was signed
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!" 
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
@@ -202,12 +196,12 @@ call write_variable_in_CASE_NOTE("             " & from_CITY & ", " & from_STATE
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* Address updated to: " & new_ADDR)
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("                      " & new_CITY & ", " & new_STATE & " " & new_Zip)
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
-If Check1 = 1 then call write_variable_in_CASE_NOTE("* Verification Request Form A sent. **Auto TIKL set**")
-If Check2 = 1 then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
-If Check3 = 1 then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
+If verifA_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Verification Request Form A sent. **Auto TIKL set**")
+If SHEL_form_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
+If CRF_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
 call write_bullet_and_variable_in_CASE_NOTE("Returned Mail resent", mail_resent)
-If List6 = "Yes" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
-If List6 = "No" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
+If returned_mail_resent_list = "Yes" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
+If returned_mail_resent_list = "No" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
 call write_variable_in_CASE_NOTE("* " & MNsure & " " & MNsure_number)
 call write_bullet_and_variable_in_CASE_NOTE("Misc notes/Actions Taken", misc_notes)
 call write_variable_in_CASE_NOTE ("---")
@@ -217,10 +211,10 @@ call write_variable_in_CASE_NOTE(worker_signature)
 IF MNsure_active = "Yes" and MNsure_ADDR = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. HPU Case Manitenance - Action Needed Log)"
 
 'creates a message box reminding the worker to review their case note prior to Auto-TIKLing. 
-IF Check1 = 1 THEN MsgBox "Please review your case note for accuracy. When you click OK or press enter the script will enter an Auto-TIKL for you."
+IF verifA_sent_checkbox = 1 THEN MsgBox "Please review your case note for accuracy. When you click OK or press enter the script will enter an Auto-TIKL for you."
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF Check1 = 1 THEN 
+IF verifA_sent_checkbox = 1 THEN 
 	call navigate_to_MAXIS_screen("dail", "writ")
 
 	'The following will generate a TIKL formatted date for 10 days from now.

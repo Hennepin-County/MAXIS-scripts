@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - INTERVIEW NO SHOW.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 300          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 300          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
-
 BeginDialog same_day_dialog, 0, 0, 191, 278, "Enter No Show Information"
-  EditBox 80, 20, 95, 15, case_number
+  EditBox 80, 20, 95, 15, MAXIS_case_number
   EditBox 70, 55, 90, 15, interview_date
   EditBox 70, 70, 90, 15, first_page
   EditBox 70, 90, 90, 15, second_page
@@ -79,7 +66,7 @@ BeginDialog same_day_dialog, 0, 0, 191, 278, "Enter No Show Information"
 EndDialog
 
 BeginDialog Scheduled_interview_dialog, 0, 0, 231, 280, "Scheduled_interview_dialog"
-  EditBox 65, 5, 60, 15, Case_number
+  EditBox 65, 5, 60, 15, MAXIS_case_number
   EditBox 65, 25, 60, 15, application_date
   DropListBox 65, 45, 165, 15, "Select one..."+chr(9)+"Recertification"+chr(9)+"New Application"+chr(9)+"Recert and Add a program", Type_of_interview_droplist
   CheckBox 5, 85, 30, 10, "Cash", Cash_pend
@@ -118,7 +105,7 @@ EndDialog
 
 BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 211, 102, "SNAP ER NOMI Dialog"
   Text 5, 5, 50, 10, "Case number:"
-  EditBox 60, 0, 65, 15, case_number
+  EditBox 60, 0, 65, 15, MAXIS_case_number
   Text 5, 25, 85, 10, "Date of missed interview:"
   EditBox 95, 20, 50, 15, Interview_date
   Text 5, 45, 85, 10, "Time of missed interview:"
@@ -133,7 +120,7 @@ BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 211, 102, "SNAP ER NOMI Dialog"
 EndDialog
 
 BeginDialog NOMI_dialog, 0, 0, 151, 155, "NOMI Dialog"
-  EditBox 70, 5, 65, 15, case_number
+  EditBox 70, 5, 65, 15, MAXIS_case_number
   EditBox 95, 25, 50, 15, Interview_date
   EditBox 95, 45, 50, 15, Interview_time
   EditBox 80, 65, 50, 15, application_date
@@ -162,7 +149,7 @@ EMConnect ""
 EMFocus														
 
 'Pulls case number from MAXIS if worker has already selected a case														
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Defaults the Interview Date to today's date
 interview_date = date & ""
@@ -233,7 +220,7 @@ If same_day_interview = vbYes THEN
 				err_msg = ""
 				Dialog same_day_dialog
 				cancel_confirmation
-				IF case_number = "" THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
+				IF MAXIS_case_number = "" THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
 				IF interview_date = "" THEN err_msg = err_msg & vbNewLine & "*Please enter an Interview Date"
 				IF IsDate (interview_date) = False THEN err_msg = err_msg & vbNewLine & "*Please enter a valid Interview Date"
 				IF first_page = "" THEN err_msg = err_msg & vbNewLine & "*Please enter the time of the 1st page in the lobby"
@@ -257,7 +244,7 @@ If same_day_interview = vbYes THEN
 			If second_page < TimeValue("7:00") THEN second_page = DateAdd("h", 12, second_page)
 			'This tests to ensure the page times are at least 15 minutes apart
 			IF abs(DateDiff("n", first_page, second_page))<15 THEN MsgBox "You must page client at least 15 minutes apart"
-		Loop until abs(DateDiff("n", first_page, second_page))>=15 'and case_number <> "" and interview_date <> "" and IsDate(interview_date) = True and first_page <> "" and second_page <> "" and worker_signature <> ""
+		Loop until abs(DateDiff("n", first_page, second_page))>=15 'and MAXIS_case_number <> "" and interview_date <> "" and IsDate(interview_date) = True and first_page <> "" and second_page <> "" and worker_signature <> ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = false
 	
@@ -267,7 +254,7 @@ ELSEIF same_day_interview = vbNo THEN 'Begins dialog if client was no show for s
 			err_msg = ""
 			Dialog Scheduled_interview_dialog
 			cancel_confirmation
-			IF case_number = "" OR (case_number <> "" AND IsNumeric(case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
+			IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
 			If phone_int_checkbox = 0 and In_person_checkbox = 0 then err_msg = err_msg & vbNewLine & "*Please check either Attempted phone interview or No Show for In Person interview"
 			If interview_date = "" Then err_msg = err_msg & vbNewLine & "*Please enter an interview date"
 			If Interview_time = "" then err_msg = err_msg & vbNewLine & "*Please enter an interview time"
@@ -294,7 +281,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 				err_msg = ""
 				Dialog SNAP_ER_NOMI_dialog
 				If ButtonPressed = 0 then stopscript
-				If case_number = "" then err_msg = err_msg & vbNewLine & "*You did not enter a case number. Please try again."
+				If MAXIS_case_number = "" then err_msg = err_msg & vbNewLine & "*You did not enter a case number. Please try again."
 				If interview_date = "" then err_msg = err_msg & vbNewLine & "*You did not enter a date of missed interview. Please try again."
 				If interview_time = "" then err_msg = err_msg & vbNewLine & "*You did not enter a time of missed interview. Please try again."
 				If last_day_for_recert = "" then err_msg = err_msg & vbNewLine & "*You did not enter a date the recert must be completed by. Please try again."
@@ -305,7 +292,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 		Loop until are_we_passworded_out = false
    
 		'Navigates into SPEC/MEMO
-		call navigate_to_screen("SPEC", "MEMO")
+		call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 		'Checks to make sure we're past the SELF menu
 		EMReadScreen still_self, 27, 2, 28 
@@ -334,7 +321,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 				err_msg = ""
 				Dialog NOMI_dialog
 				If ButtonPressed = 0 then stopscript
-				If case_number = "" then err_msg = err_msg & vbNewLine & "*You did not enter a case number. Please try again."
+				If MAXIS_case_number = "" then err_msg = err_msg & vbNewLine & "*You did not enter a case number. Please try again."
 				If isdate(interview_date) = False then err_msg = err_msg & vbNewLine & "*You did not enter a valid interview date."
 				If interview_time = "" then err_msg = err_msg & vbNewLine & "*You did not enter interview time."
 				If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "*You did not enter a valid application date. Please try again."
@@ -345,7 +332,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 		Loop until are_we_passworded_out = false
 	
 		'Navigates into SPEC/LETR
-		call navigate_to_screen("SPEC", "LETR")
+		call navigate_to_MAXIS_screen("SPEC", "LETR")
 	
 		'Checks to make sure we're past the SELF menu
 		EMReadScreen still_self, 27, 2, 28 
@@ -366,7 +353,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 
 		'Navigates to REPT/PND2 and updates for client delay if applicable.
 		If client_delay_check = checked then
-			call navigate_to_screen("rept", "pnd2")
+			call navigate_to_MAXIS_screen("rept", "pnd2")
 			EMGetCursor PND2_row, PND2_col
 			for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
 				EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62

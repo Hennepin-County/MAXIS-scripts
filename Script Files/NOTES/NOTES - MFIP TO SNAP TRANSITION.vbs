@@ -1,16 +1,17 @@
-'OPTION EXPLICIT
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - MFIP TO SNAP TRANSITION.vbs"
 start_time = timer
-
-'DIM name_of_script, start_time, FuncLib_URL, run_locally, default_directory, beta_agency, req, fso
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 420          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -19,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -47,18 +38,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 420          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'Dialogs
 BeginDialog case_number_dialog, 0, 0, 151, 75, "MFIP To SNAP Transition Note"
   ButtonGroup ButtonPressed
     OkButton 40, 50, 50, 15
     CancelButton 95, 50, 50, 15
-  EditBox 70, 5, 75, 15, case_number
+  EditBox 70, 5, 75, 15, MAXIS_case_number
   EditBox 70, 25, 75, 15, closure_date
   Text 5, 10, 60, 10, "Case Number:"
   Text 5, 30, 55, 20, "Date MFIP closes:"
@@ -113,7 +98,7 @@ EndDialog
 '================END DIALOG SECTION
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 WCOM_check = checked 'setting checkbox default
 
@@ -121,7 +106,7 @@ WCOM_check = checked 'setting checkbox default
 DO
 	err_msg = ""
 	Dialog case_number_dialog
-	IF case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number"
+	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number"
 	IF isdate(closure_date) = false THEN err_msg = err_msg & vbCr & "You must enter a valid MFIP closure date."
 	IF isdate(closure_date) = true THEN
 		IF datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbCr & "The MFIP closure date should equal the last day of the month."
@@ -130,9 +115,10 @@ DO
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
 LOOP Until err_msg = ""
 
-'Setting the correct footer month (for snap budget noting)
-footer_month = datepart("m", dateadd("d", 1, closure_date))
-if len(footer_month) = 1 THEN footer_month = "0" & footer_month
+'Setting the correct footer month and year (so snap budget is pulled from month snap is approved in)
+MAXIS_footer_month = datepart("m", dateadd("d", 1, closure_date))
+if len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = right(datepart("YYYY", dateadd("d", 1, closure_date)), 2)
 
 Call check_for_maxis(true)
 call HH_member_custom_dialog(HH_member_array)
@@ -204,7 +190,7 @@ LOOP UNTIL are_we_passworded_out = false
 'Editing the notice if requested
 IF WCOM_check = checked THEN
 	'navigating to WCOM and finding the pending SNAP notice
-	call navigate_to_screen("SPEC", "WCOM")
+	call navigate_to_MAXIS_screen("SPEC", "WCOM")
 	notice_month = DatePart("m", date) 'Entering the benefit month to find notices
 	IF len(notice_month) = 1 THEN notice_month = "0" & notice_month
 	EMWritescreen notice_month, 3, 46

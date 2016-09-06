@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - REPT-REVS LIST.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 13                      'manual run time in seconds
+STATS_denomination = "C"       							'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,11 +38,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 13                      'manual run time in seconds
-STATS_denomination = "C"       							'C is for each CASE
-'END OF stats block==============================================================================================
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'DIALOGS-----------------------------------------------------------
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 175, "Pull REPT data into Excel dialog"
@@ -86,15 +77,19 @@ future_footer_year = right(datepart("yyyy", dateadd("m", 2, date)), 2)
 'Connects to BlueZone
 EMConnect ""
 
-'Shows dialog
-Dialog pull_rept_data_into_Excel_dialog
-If buttonpressed = cancel then stopscript
+Do 
+	Do
+		err_msg = ""
+		Dialog pull_rept_data_into_Excel_dialog
+		If buttonpressed = cancel then stopscript
+		If SNAP_check = 0 and cash_check = 0 and HC_check = 0 then err_msg = err_msg & vbNewLine & "* You must select at least one program."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect					
+	LOOP until err_msg = ""	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in	
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-
-'Checking for MAXIS
-Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -199,8 +194,8 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	footer_month = "" 'clearing variable to prevent breaking when in Cm+2
-	footer_year = ""
+	MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
+	MAXIS_footer_year = ""
 	temp_footer_month = "0" & datepart("m", date)
 	temp_footer_year = datepart("yyyy", date)
 	EMWriteScreen right(temp_footer_month, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
@@ -217,22 +212,22 @@ For each worker in worker_array
 		EMWriteScreen future_footer_year, 20, 58
 		transmit
 	End if
-	EMReadScreen footer_month, 2, 20, 55
-	EMReadScreen footer_year, 2, 20, 58
-	review_date = footer_month & "/01/" & footer_year
+	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	EMReadScreen MAXIS_footer_year, 2, 20, 58
+	review_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
 	'Skips workers with no info
-	EMReadScreen has_content_check, 1, 7, 8
-	If has_content_check <> " " then
+	EMReadScreen has_content_check, 8, 7, 6
+	If has_content_check <> "        " then
 
 		'Grabbing each case number on screen
 		Do
 			'Set variable for next do...loop
 			MAXIS_row = 7
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 6			'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
-				EMReadScreen cash_status, 2, MAXIS_row, 34		'Reading cash status
+				EMReadScreen cash_status, 2, MAXIS_row, 39		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 45		'Reading SNAP status
 				EMReadScreen HC_status, 1, MAXIS_row, 49			'Reading HC status
 				EMReadScreen exempt_IR_status, 1, MAXIS_row, 51		'Reading exempt IR status
@@ -244,10 +239,10 @@ For each worker in worker_array
 				cash_status = trim(replace(cash_status, " ", ""))
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 
 				'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
 				If cash_status = "-" then cash_status = ""
@@ -275,7 +270,7 @@ For each worker in worker_array
 				'Adding the case to Excel
 				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
-					ObjExcel.Cells(excel_row, 2).Value = case_number
+					ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
 					If current_month_plus_2 = False then
 						ObjExcel.Cells(excel_row, revw_recd_date_col).Value = replace(revw_recd_date, " ", "/")
@@ -292,7 +287,7 @@ For each worker in worker_array
 				End if
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
-				case_number = ""			'Blanking out variable
+				MAXIS_case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
@@ -306,8 +301,8 @@ row_to_use = 2
 'if notice_audit_check = checked THEN col_to_use = col_to_use + 1
 IF notice_audit_check = checked OR error_check = checked THEN
 	DO
-		case_number = objExcel.Cells(row_to_use, 2).Value
-		IF case_number <> "" THEN
+		MAXIS_case_number = objExcel.Cells(row_to_use, 2).Value
+		IF MAXIS_case_number <> "" THEN
 			IF SNAP_check = checked THEN 'Checking SNAP notices only
 				IF notice_audit_check = checked THEN 'THE FOLLOWING CHECKS THE CONTENTS OF AUTOCLOSE NOTICES
 					IF objExcel.Cells(row_to_use, snap_actv_col).Value = "T"  OR objExcel.Cells(row_to_use, snap_actv_col).Value = "N" THEN 'Only concerned with notices for incomplete or terminated cases.
@@ -395,7 +390,7 @@ IF notice_audit_check = checked OR error_check = checked THEN
 			END IF
 		row_to_use = row_to_use + 1
 		END IF
-	Loop Until case_number = ""
+	Loop Until MAXIS_case_number = ""
 END IF
 
 'IF error_check = checked THEN col_to_use = col_to_use + 1 'need to add the extra column for this outside the DO...LOOP
@@ -481,4 +476,4 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("")
+script_end_procedure("Success! Your list has been created.")

@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - LTC - ASSET ASSESSMENT.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 960           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 960           'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
 
 'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT----------------------------------------------------------------------------------------------------
 Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
@@ -121,7 +109,7 @@ BeginDialog asset_assessment_dialog, 0, 0, 266, 280, "Asset assessment dialog"
   CheckBox 145, 205, 110, 10, "Sent 5181 to Case Manager?", sent_5181_check
   EditBox 195, 220, 65, 15, worker_signature
   CheckBox 5, 245, 175, 10, "Write MAXIS case note? If so, write case number:", write_MAXIS_case_note_check
-  EditBox 185, 240, 75, 15, case_number
+  EditBox 185, 240, 75, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 150, 260, 50, 15
     CancelButton 210, 260, 50, 15
@@ -145,7 +133,7 @@ EndDialog
 BeginDialog case_and_PMI_number_dialog, 0, 0, 196, 101, "Case and PMI number dialog"
   EditBox 80, 5, 70, 15, LTC_spouse_PMI
   EditBox 105, 25, 70, 15, community_spouse_PMI
-  EditBox 100, 45, 70, 15, case_number
+  EditBox 100, 45, 70, 15, MAXIS_case_number
   CheckBox 5, 65, 190, 10, "Check here to enter ASET under the community spouse.", community_spouse_check
   ButtonGroup ButtonPressed
     OkButton 45, 80, 50, 15
@@ -163,7 +151,7 @@ If ButtonPressed = 0 then stopscript
 EMConnect ""
 Call check_for_MAXIS(False)
 back_to_self
-call navigate_to_screen("aset", "____")
+call navigate_to_MAXIS_screen("aset", "____")
 
 EMWriteScreen "________", 13, 62
 If community_spouse_check = 1 then 
@@ -280,7 +268,7 @@ ELSE
 			'4th page of the total marital asset list
 			EMReadScreen total_marital_asset_list_line_40, 53, 6, 25
 			EMReadScreen total_marital_asset_list_line_41, 53, 7, 25
-			EMReadScreacen total_marital_asset_list_line_42, 53, 8, 25
+			EMReadScreen total_marital_asset_list_line_42, 53, 8, 25
 			EMReadScreen total_marital_asset_list_line_43, 53, 9, 25
 			EMReadScreen total_marital_asset_list_line_44, 53, 10, 25
 			EMReadScreen total_marital_asset_list_line_45, 53, 11, 25
@@ -427,7 +415,7 @@ call write_bullet_and_variable_in_CASE_NOTE("Asset calculation", asset_calculati
 call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 If sent_5181_check = 1 then call write_variable_in_CASE_NOTE("* DHS-5181 sent to Case Manager.")
 call write_variable_in_CASE_NOTE("---")
-If worker_signature <> "" then call write_new_line_in_case_note(worker_signature)
+If worker_signature <> "" then call write_variable_in_case_note(worker_signature)
 Do
   EMGetCursor row, col
   If row < 17 then 

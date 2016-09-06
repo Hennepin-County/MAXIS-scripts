@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - CAF.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 720                     'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,17 +38,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 720                     'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block==============================================================================================
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 60, 15, case_number
-  EditBox 80, 25, 30, 15, footer_month
-  EditBox 110, 25, 30, 15, footer_year
+  EditBox 80, 5, 60, 15, MAXIS_case_number
+  EditBox 80, 25, 30, 15, MAXIS_footer_month
+  EditBox 110, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
@@ -69,7 +57,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
 
-BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
+BeginDialog CAF_dialog_01, 0, 0, 451, 290, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
   ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
   CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
@@ -86,13 +74,15 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 310, 130, 135, 15, FACI
   EditBox 35, 160, 410, 15, PREG
   EditBox 35, 180, 410, 15, ABPS
-  EditBox 55, 210, 390, 15, verifs_needed
+  EditBox 35, 200, 410, 15, EMPS
+  If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 35, 220, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
+  EditBox 55, 235, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-    PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
-    CancelButton 395, 240, 50, 15
+    PushButton 340, 270, 50, 15, "NEXT", next_to_page_02_button
+    CancelButton 395, 270, 50, 15
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
     PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
     PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
@@ -106,32 +96,33 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
     PushButton 280, 135, 25, 10, "FACI:", FACI_button
     PushButton 5, 165, 25, 10, "PREG:", PREG_button
     PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
-    PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
-    PushButton 150, 240, 25, 10, "ADDR", ADDR_button
-    PushButton 175, 240, 25, 10, "MEMB", MEMB_button
-    PushButton 200, 240, 25, 10, "MEMI", MEMI_button
-    PushButton 225, 240, 25, 10, "PROG", PROG_button
-    PushButton 250, 240, 25, 10, "REVW", REVW_button
-    PushButton 275, 240, 25, 10, "TYPE", TYPE_button
-  Text 5, 10, 55, 10, "CAF datestamp:"
-  Text 120, 10, 50, 10, "Interview type:"
-  Text 5, 30, 55, 10, "Interview date:"
-  Text 120, 30, 110, 10, "How was application received?:"
-  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+    PushButton 5, 205, 25, 10, "EMPS", EMPS_button
+    PushButton 10, 270, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 270, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 270, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 270, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 270, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 270, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 130, 270, 25, 10, "ADDR", ADDR_button
+    PushButton 155, 270, 25, 10, "MEMB", MEMB_button
+    PushButton 180, 270, 25, 10, "MEMI", MEMI_button
+    PushButton 205, 270, 25, 10, "PROG", PROG_button
+    PushButton 230, 270, 25, 10, "REVW", REVW_button
+    PushButton 255, 270, 25, 10, "SANC", SANC_button
+    PushButton 280, 270, 25, 10, "TIME", TIME_button
+    PushButton 305, 270, 25, 10, "TYPE", TYPE_button
   Text 335, 50, 55, 10, "HC datestamp:"
   Text 5, 95, 25, 10, "CIT/ID:"
-  Text 5, 215, 50, 10, "Verifs needed:"
-  GroupBox 5, 230, 130, 25, "ELIG panels:"
-  GroupBox 145, 230, 160, 25, "other STAT panels:"
+  Text 5, 240, 50, 10, "Verifs needed:"
+  GroupBox 5, 260, 115, 25, "ELIG panels:"
+  GroupBox 125, 260, 210, 25, "other STAT panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
+  Text 5, 10, 55, 10, "CAF datestamp:"
+  Text 5, 30, 55, 10, "Interview date:"
+  Text 120, 10, 50, 10, "Interview type:"
+  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+  Text 120, 30, 110, 10, "How was application received?:"
 EndDialog
-
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -266,18 +257,22 @@ application_signed_checkbox = checked 'The script should default to having the a
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
-Call MAXIS_footer_finder(footer_month, footer_year)
+get_county_code				'since there is a county specific checkbox, this makes the the county clear
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'initial dialog
 Do
 	DO
+		err_msg = ""
 		Dialog case_number_dialog
 		cancel_confirmation
-		If CAF_type = "Select one..." Then MsgBox "You must select the CAF type."
-		If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-	Loop until CAF_type <> "Select one..."	
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+		If CAF_type = "Select one..." then err_msg = err_msg & vbnewline & "* You must select the CAF type."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect						
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
@@ -319,6 +314,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DIET", DIET)
 call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
+call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
 call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
 call autofill_editbox_from_MAXIS(HH_member_array, "FMED", FMED)
 call autofill_editbox_from_MAXIS(HH_member_array, "IMIG", IMIG)
@@ -455,11 +451,11 @@ If client_delay_TIKL_checkbox = checked then
 	PF3
 End if
 '----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
-'----IF the DatePart("M", CAF_datestamp) = footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then 
+'----IF the DatePart("M", CAF_datestamp) = MAXIS_footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then 
 '---------the script generates a TIKL.
 footer_comparison_month = DatePart("M", CAF_datestamp)
 IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
-IF CAF_type = "Recertification" AND footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
+IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
 	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
@@ -478,7 +474,7 @@ Call start_a_blank_CASE_NOTE
 If CAF_status <> "" then CAF_status = ": " & CAF_status
 
 'Adding footer month to the recertification case notes
-If CAF_type = "Recertification" then CAF_type = footer_month & "/" & footer_year & " recert"
+If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " recert"
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & CAF_status & "***")
@@ -502,6 +498,8 @@ CALL write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
 CALL write_bullet_and_variable_in_CASE_NOTE("SCHL/STIN/STEC", SCHL)
 CALL write_bullet_and_variable_in_CASE_NOTE("DISA", DISA)
 CALL write_bullet_and_variable_in_CASE_NOTE("PREG", PREG)
+Call write_bullet_and_variable_in_CASE_NOTE("EMPS", EMPS)
+If MFIP_DVD_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MFIP financial orientation DVD sent to participant(s).")
 CALL write_bullet_and_variable_in_CASE_NOTE("ABPS", ABPS)
 CALL write_bullet_and_variable_in_CASE_NOTE("Earned inc.", earned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("UNEA", unearned_income)

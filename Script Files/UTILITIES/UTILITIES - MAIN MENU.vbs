@@ -4,10 +4,10 @@ start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +16,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,43 +33,180 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog UTILITIES_scripts_main_menu_dialog, 0, 0, 461, 110, "Utilities scripts main menu dialog"
-  ButtonGroup ButtonPressed
-    CancelButton 405, 90, 50, 15
-    PushButton 5, 20, 95, 10, "Banked Month DB Updater", banked_month_database_updater_button
-    PushButton 60, 35, 40, 10, "INFO", INFO_button
-    PushButton 35, 50, 65, 10, "POLI TEMP List", POLI_TEMP_LIST_button
-    PushButton 20, 65, 80, 10, "Training Case Creator", TRAINING_CASE_CREATOR_button
-    PushButton 5, 80, 95, 10, "Update Worker Signature", UPDATE_WORKER_SIGNATURE_button
-    PushButton 385, 5, 70, 10, "SIR instructions", SIR_instructions_button
-  Text 5, 5, 250, 10, "Utilities scripts main menu: select the script to run from the choices below."
-  Text 105, 20, 305, 10, "-- NEW 02/2016!!! Updates cases in the banked month database with actual MAXIS status."
-  Text 105, 35, 265, 10, "-- Displays information about your BlueZone Scripts installation."
-  Text 105, 50, 315, 10, "-- NEW 03/2016!!! Creates a list of current POLI/TEMP topics, TEMP reference and revised date."
-  Text 105, 65, 300, 10, "-- NEW 03/2016!!! Creates training case scenarios en masse and XFERs them to workers."
-  Text 105, 80, 195, 10, "-- Sets or updates the default worker signature for this user."
-EndDialog
+'LOADING LIST OF SCRIPTS FROM GITHUB REPOSITORY===========================================================================
+IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+	IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+		script_list_URL = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
+	Else											'Everyone else should use the release branch.
+		script_list_URL = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
+	End if
+	
+	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_list_URL
+	req.open "GET", script_list_URL, FALSE							'Attempts to open the script_list_URL
+	req.send													'Sends request
+	IF req.Status = 200 THEN									'200 means great success
+		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+		Execute req.responseText								'Executes the script code
+	ELSE														'Error message
+		critical_error_msgbox = MsgBox ("Something has gone wrong. The script list code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                        "Script list URL: " & script_list_URL & vbNewLine & vbNewLine &_
+                                        "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                        vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+        StopScript
+	END IF
+ELSE
+	script_list_URL = "C:\DHS-MAXIS-Scripts\COMPLETE LIST OF SCRIPTS.vbs"
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+	Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Variables to declare
-IF script_repository = "" THEN script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files"		'If it's blank, we're assuming the user is a scriptwriter, ergo, master branch.
+Function declare_main_menu_dialog(script_category)
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Shows dialog, which asks user which script to run.
+	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
+	For current_script = 0 to ubound(script_array)
+		'Subcategory handling (creating a second list as a string which gets converted later to an array)
+		If ucase(script_array(current_script).category) = ucase(script_category) then																								'If the script in the array is of the correct category (ACTIONS/NOTES/ETC)...
+			For each listed_subcategory in script_array(current_script).subcategory																									'...then iterate through each listed subcategory, and...
+				If listed_subcategory <> "" and InStr(subcategory_list, ucase(listed_subcategory)) = 0 then subcategory_list = subcategory_list & "|" & ucase(listed_subcategory)	'...if the listed subcategory isn't blank and isn't already in the list, then add it to our handy-dandy list.	
+			Next
+		End if
+		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
+		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then 
+			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+		End if
+		
+	Next
+	
+	subcategory_list = split(subcategory_list, "|")
+	total_number_of_subcategories = ubound(subcategory_list)
+	ReDim subcategory_array(total_number_of_subcategories, 1)
+	
+	For i = 0 to ubound(subcategory_list)
+		
+		'set subcategory_array(i) = new subcat
+		If subcategory_list(i) = "" then subcategory_list(i) = "MAIN"
+		subcategory_array(i, 0) = subcategory_list(i)
+	Next
+	
+	BeginDialog dialog1, 0, 0, 600, 400, script_category & " scripts main menu dialog"
+	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
+	  	ButtonGroup ButtonPressed
+			
+		'SUBCATEGORY HANDLING--------------------------------------------
+		subcat_button_position = 5
+		
+		For i = 0 to ubound(subcategory_array)
+		
+			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
+			PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i, 0), 	subcat_button_placeholder
+			
+			subcategory_array(i, 1) = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+			subcat_button_position = subcat_button_position + 50
+			subcat_button_placeholder = subcat_button_placeholder + 1
+		Next
+				
+		
+		'SCRIPT LIST HANDLING--------------------------------------------
+		
+		
+		'' 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
+		'This starts here, but it shouldn't end here :)
+		vert_button_position = 50
+		
+
+		For current_script = 0 to ubound(script_array)
+			If ucase(script_array(current_script).category) = ucase(script_category) then
+			
+				'Joins all subcategories together
+				subcategory_string = ucase(join(script_array(current_script).subcategory))
+				
+				'Accounts for scripts without subcategories
+				If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
+				
+				'If the selected subcategory is in the subcategory string, it will display those scripts
+				If InStr(subcategory_string, subcategory_selected) <> 0 then 
+			
+					SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
+				
+					'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+					'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+					PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+					PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
+					Text 			120 + 23, 				vert_button_position, 	500, 		10, 			"--- " & script_array(current_script).description
+					'----------
+					vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+					'----------
+					script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+					script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+					button_placeholder = button_placeholder + 2
+				End if
+			End if
+		next
+		CancelButton 540, 380, 50, 15
+	EndDialog
+End function
+
+'Starting these with a very high number, higher than the normal possible amount of buttons.
+'	We're doing this because we want to assign a value to each button pressed, and we want
+'	that value to change with each button. The button_placeholder will be placed in the .button
+'	property for each script item. This allows it to both escape the Function and resize
+'	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
+'	to force the value of ButtonPressed to hold in near infinite iterations.
+button_placeholder 			= 24601
+subcat_button_placeholder 	= 1701
+
+'Other pre-loop and pre-function declarations
+Dim subcategory_array : subcategory_array = Array()
+subcategory_string = ""
+subcategory_selected = "MAIN"
+
+'Defining dialog1 as 1000. Assigning a numeric value seems to work to preserve a high amount of buttons for our scripts.
+dialog1 = 1000
+
+'Displays the dialog
 Do
-	dialog UTILITIES_scripts_main_menu_dialog
-	If buttonpressed = cancel then stopscript
-	If buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Utilities%20scripts.aspx")
-Loop until buttonpressed <> SIR_instructions_button
 
-'Connecting to BlueZone
-EMConnect ""
+	'Creates the dialog
+	call declare_main_menu_dialog("Utilities")
+	
+	'At the beginning of the loop, we are not ready to exit it. Conditions later on will impact this.
+	ready_to_exit_loop = false
 
-IF buttonpressed = banked_month_database_updater_button 		then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - BANKED MONTH DATABASE UPDATER.vbs")
-IF buttonpressed = INFO_button 									then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - INFO.vbs")
-IF buttonpressed = POLI_TEMP_LIST_button						then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - POLI TEMP LIST.vbs")
-IF buttonpressed = TRAINING_CASE_CREATOR_button 				then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - TRAINING CASE CREATOR.vbs")
-IF buttonpressed = UPDATE_WORKER_SIGNATURE_button				then call run_from_GitHub(script_repository & "/UTILITIES/UTILITIES - UPDATE WORKER SIGNATURE.vbs")
+	'Displays dialog, if cancel is pressed then stopscript
+	dialog
+	If ButtonPressed = 0 then stopscript
+	
+	'Determines the subcategory if a subcategory button was selected.
+	For i = 0 to ubound(subcategory_array)
+		If ButtonPressed = subcategory_array(i, 1) then subcategory_selected = subcategory_array(i, 0)
+	Next
 
-'Logging usage stats
-script_end_procedure("If you see this, it's because you clicked a button that, for some reason, does not have an outcome in the script. Contact your alpha user to report this bug. Thank you!")
+	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).SIR_instructions_button then call open_URL_in_browser(script_array(i).SIR_instructions_URL)
+	Next    
+
+	'Runs through each script in the array... if the user selected the actual script (via ButtonPressed), it'll run_from_GitHub
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).button then 
+			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
+			script_to_run = script_array(i).script_URL
+			Exit for
+		End if
+	Next    
+	
+
+Loop until ready_to_exit_loop = true
+
+'Updating dialog1 to be a separate numeric value. This might not be necessary but it's currently working so I am not changing it.
+dialog1 = dialog1 + 1
+
+call run_from_GitHub(script_to_run)
+
+stopscript

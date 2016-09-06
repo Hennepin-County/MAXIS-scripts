@@ -1,15 +1,19 @@
-'STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - GRH - HRF.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 480           'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'BY USING THIS SCRIPT, WE ARE ASSUMING THE USER IS RUNNING IT ON POST PAY CASES ONLY'-----------------------------------------
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -18,22 +22,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -46,23 +40,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 480           'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 prev_month = dateadd("m", -1, date)
-footer_month = datepart("m", prev_month)
-If len(footer_month) = 1 then footer_month = "0" & footer_month
-footer_year = right(datepart("yyyy", prev_month), 2)
+MAXIS_footer_month = datepart("m", prev_month)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = right(datepart("yyyy", prev_month), 2)
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
-  EditBox 80, 5, 70, 15, case_number
-  EditBox 65, 25, 30, 15, footer_month
-  EditBox 140, 25, 30, 15, footer_year
+  EditBox 80, 5, 70, 15, MAXIS_case_number
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 140, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "GRH", GRH_check
   CheckBox 50, 60, 30, 10, "HC", HC_check
   ButtonGroup ButtonPressed
@@ -155,7 +143,7 @@ Dim col
 EMConnect ""
 
 'Grabbing case number and footer year/month
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
@@ -163,8 +151,8 @@ call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Do
 	Dialog case_number_dialog
 	cancel_confirmation
-	If case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until case_number <> "" and IsNumeric(case_number) = True and len(case_number) <= 8
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 
 'Checking for MAXIS
 call check_for_MAXIS(False)
@@ -234,7 +222,7 @@ Next
 faci = variable_written_to
 
 'Cleaning up info for case note
-HRF_computer_friendly_month = footer_month & "/01/" & footer_year
+HRF_computer_friendly_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 retro_month_name = monthname(datepart("m", (dateadd("m", -2, HRF_computer_friendly_month))))
 pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = pro_month_name 'retro_month_name & "/" & pro_month_name
@@ -271,7 +259,7 @@ If grab_GRH_info_check = 1 then
 				EMReadScreen GRSM_line_04, 69, 13, 3
 				EMReadScreen GRSM_Obligation, 9, 18, 31
 			ELSE
-				MsgBox "The most recent results in ELIG/GRH for " & footer_month & " have not been approved. It will now jump to case note."
+				MsgBox "The most recent results in ELIG/GRH for " & MAXIS_footer_month & " have not been approved. It will now jump to case note."
 			END IF
 		End if	
 	End if

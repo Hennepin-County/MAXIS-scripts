@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - LTC - SPOUSAL ALLOCATION FIATER.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 336                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 336                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
-'END OF stats block=========================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog spousal_maintenance_dialog, 0, 0, 256, 185, "Spousal Maintenance Dialog"
@@ -97,7 +85,7 @@ EndDialog
 
 
 BeginDialog case_number_dialog, 0, 0, 211, 140, "Case number"
-  EditBox 100, 5, 75, 15, case_number
+  EditBox 100, 5, 75, 15, MAXIS_case_number
   EditBox 100, 25, 25, 15, MAXIS_footer_month
   EditBox 150, 25, 25, 15, MAXIS_footer_year
   EditBox 100, 45, 25, 15, spousal_allocation_footer_month
@@ -118,7 +106,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to MAXIS, grabs case number and footer month/year
 EMConnect ""
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
@@ -227,26 +215,34 @@ If spousal_reference_number <> "" then
   transmit
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "1" then
-    earned_income_number = 1
-    EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38	
+	earned_income_number = 1
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38	
+	END IF
 	If gross_spousal_earned_income_type_01 = "J" THEN gross_spousal_earned_income_type_01 = "01"
-    If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
+	If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
 	If gross_spousal_earned_income_type_01 = "E" THEN gross_spousal_earned_income_type_01 = "03"
-    If gross_spousal_earned_income_type_01 = "G" then gross_spousal_earned_income_type_01 = "04"
-	If gross_spousal_earned_income_type_01 = "F" THEN gross_spousal_earned_income_type_01 = "05"
-    If gross_spousal_earned_income_type_01 = "S" then gross_spousal_earned_income_type_01 = "06"
+	If gross_spousal_earned_income_type_01 = "G" then gross_spousal_earned_income_type_01 = "04"
+	If gross_spousal_earned_income_type_01 = "F" THEN gross_spousal_earned_income_type_01 = "05"	
+	If gross_spousal_earned_income_type_01 = "S" then gross_spousal_earned_income_type_01 = "06"
 	If gross_spousal_earned_income_type_01 = "O" THEN gross_spousal_earned_income_type_01 = "07"
-    If gross_spousal_earned_income_type_01 = "I" then gross_spousal_earned_income_type_01 = "08"
+	If gross_spousal_earned_income_type_01 = "I" then gross_spousal_earned_income_type_01 = "08"
 	If gross_spousal_earned_income_type_01 = "M" THEN gross_spousal_earned_income_type_01 = "09"
-    If gross_spousal_earned_income_type_01 = "C" then gross_spousal_earned_income_type_01 = "10"
-    EMReadScreen gross_spousal_earned_income_01, 8, 17, 67
-    transmit
+	If gross_spousal_earned_income_type_01 = "C" then gross_spousal_earned_income_type_01 = "10"
+	EMReadScreen gross_spousal_earned_income_01, 8, 17, 67
+ 	transmit
   End if
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "2" then
     earned_income_number = earned_income_number + 1
-    EMReadScreen gross_spousal_earned_income_type_02, 2, 5, 37
-    If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 38	
+	END IF
+	If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
 	If gross_spousal_earned_income_type_02 = "W" then gross_spousal_earned_income_type_02 = "02"
 	If gross_spousal_earned_income_type_02 = "E" THEN gross_spousal_earned_income_type_02 = "03"
 	If gross_spousal_earned_income_type_02 = "G" then gross_spousal_earned_income_type_02 = "04"
@@ -262,8 +258,12 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "3" then
     earned_income_number = earned_income_number + 1
-    EMReadScreen gross_spousal_earned_income_type_03, 2, 5, 37
-    If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 38	
+	END IF
+	If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
 	If gross_spousal_earned_income_type_03 = "W" then gross_spousal_earned_income_type_03 = "02"
 	If gross_spousal_earned_income_type_03 = "E" THEN gross_spousal_earned_income_type_03 = "03"
 	If gross_spousal_earned_income_type_03 = "G" then gross_spousal_earned_income_type_03 = "04"
@@ -279,7 +279,11 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "4" then
     earned_income_number = earned_income_number + 1
-    EMReadScreen gross_spousal_earned_income_type_04, 2, 5, 37
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 34	
+	ELSE
+		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 38	
+	END IF
 	If gross_spousal_earned_income_type_04 = "J" THEN gross_spousal_earned_income_type_04 = "01"
 	If gross_spousal_earned_income_type_04 = "W" then gross_spousal_earned_income_type_04 = "02"
 	If gross_spousal_earned_income_type_04 = "E" THEN gross_spousal_earned_income_type_04 = "03"

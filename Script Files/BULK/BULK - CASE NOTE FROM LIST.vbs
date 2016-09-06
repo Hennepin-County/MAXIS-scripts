@@ -1,13 +1,17 @@
-'Gathering stats==============================================================================
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - CASE NOTE FROM LIST.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 180                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each Case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 180                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each Case
-'END OF stats block==============================================================================================
 
 'Dialogs
 '>>>>>Main dlg<<<<<
@@ -164,21 +152,50 @@ FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	END IF
 END FUNCTION
 
-'-------THIS FUNCTION ALLOWS THE USER TO PICK AN EXCEL FILE---------
-Function BrowseForFile()
-    Dim shell : Set shell = CreateObject("Shell.Application")
-    Dim file : Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "Computer")
-	IF file is Nothing THEN 
-		script_end_procedure("The script will end.")
-	ELSE
-		BrowseForFile = file.self.Path
-	END IF
-End Function
-
 'The script===========================
 EMConnect ""
 
 CALL check_for_MAXIS(true)
+copy_case_note = FALSE 
+
+'Checking to see if script is being started on an already created case note
+EMReadScreen case_note_check, 10, 2, 33
+EMReadScreen case_note_list, 10, 2, 2
+EMReadScreen mode_check, 1, 20, 9
+
+'If the script is started from a case note the script will ask if this is the note the worker wants to copy
+If case_note_check = "Case Notes" AND case_note_list = "          " Then 
+	If mode_check = "D" or mode_check = "E" Then 
+		use_existing_note = MsgBox("It appears that you are currently in a case note that has already been written." & vbNewLine & "Would you like to copy this case note into other cases?", vbYesNo + vbQuestion, "Is this the case note?")
+	End If 
+End If 
+
+'If it is the note the worker wants to copy, the script will create the message array from reading the case note lines'\
+If use_existing_note = vbYes Then 
+	copy_case_note = TRUE 	'Creating a boolean variable for future use if needed
+	note_row = 4			'Beginning of the case notes
+	Do 						'Read each line
+		EMReadScreen note_line, 77, note_row, 3
+		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+		message_array = message_array & note_line & "~%~"		'putting the lines together
+		note_row = note_row + 1
+		If note_row = 18 then 									'End of a single page of the case note
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 						'This indicates there is another page of the case note
+				PF8												'goes to the next line and resets the row to read'\
+				note_row = 4
+			End If 
+		End If 
+	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+	message_array = message_array & "**Processed in bulk script**"	'Adding the last line of the case note, indicating the note was bulk entered
+	message_array = split(message_array, "~%~")					'Creates the array
+	case_note_header = message_array (0)						'This defines the variables for the dialog boxes to come
+	For message_line = 1 to (UBound(message_array) - 2)
+		case_note_body = case_note_body & ", " & trim(message_array(message_line))
+	Next 
+	case_note_body = right(case_note_body, (len(case_note_body) - 2))
+	worker_signature = message_array (UBound(message_array) - 1)
+End If 
 
 '>>>>> loading the main dialog <<<<<
 DIALOG main_menu
@@ -203,10 +220,10 @@ DIALOG main_menu
 		CALL check_for_MAXIS(false)
 		
 		'Checking that case number is blank so as to get a full REPT/ACTV
-		CALL find_variable("Case Nbr: ", case_number, 8)
-		case_number = replace(case_number, "_", " ")
-		case_number = trim(case_number)
-		IF case_number <> "" THEN 
+		CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
+		MAXIS_case_number = replace(MAXIS_case_number, "_", " ")
+		MAXIS_case_number = trim(MAXIS_case_number)
+		IF MAXIS_case_number <> "" THEN 
 			back_to_SELF
 			EMWriteScreen "________", 18, 43
 		END IF	
@@ -225,30 +242,31 @@ DIALOG main_menu
 		
 		rept_row = 7
 		DO
-			EMReadScreen case_number, 8, rept_row, 12
-			case_number = trim(case_number)
-			IF case_number <> "" THEN 
-				case_number_array = case_number_array & case_number & "~~~"
+			EMReadScreen MAXIS_case_number, 8, rept_row, 12
+			MAXIS_case_number = trim(MAXIS_case_number)
+			IF MAXIS_case_number <> "" THEN 
+				case_number_array = case_number_array & MAXIS_case_number & "~~~"
 				rept_row = rept_row + 1
 				IF rept_row = 19 THEN 
-					rept_row = 7 
-					PF8
-					EMReadScreen last_page_check, 4, 24, 14			'this prevents the script from erroring out if the worker only has one completely full page of cases. 
-					If last_page_check = "LAST" THEN EXIT DO
+					EMReadScreen next_page_check, 7, 19, 3			'this prevents the script from erroring out if the worker only has one completely full page of cases. 
+					If next_page_check = "More: +" Then 
+						rept_row = 7 
+						PF8
+					Else 
+						Exit Do 
+					End If 
 				END IF
-			ELSE
-				EXIT DO
 			END IF
-		LOOP 
+		LOOP until MAXIS_case_number = ""
 
 	ELSEIF run_mode = "Excel File" THEN 
 		'Opening the Excel file
 		
 		DO
-			'file_location = InputBox("Please enter the file location.")
+			call file_selection_system_dialog(excel_file_path, ".xlsx")
 			
 			Set objExcel = CreateObject("Excel.Application")
-			Set objWorkbook = objExcel.Workbooks.Open(BrowseForFile)
+			Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
 			objExcel.Visible = True
 			objExcel.DisplayAlerts = True
 			
@@ -298,18 +316,20 @@ case_number_array = trim(case_number_array)
 case_number_array = split(case_number_array, "~~~")
 
 'Formatting case note
-message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_signature & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
-message_array = split(message_array, "~%~")
+If copy_case_note = FALSE Then 
+	message_array = case_note_header & "~%~" & case_note_body & "~%~" & "---" & "~%~" & worker_signature & "~%~" & "---" & "~%~" & "**Processed in bulk script**"
+	message_array = split(message_array, "~%~")
+End If 
 
 privileged_array = ""
 
-FOR EACH case_number IN case_number_array
-	IF case_number <> "" THEN 
+FOR EACH MAXIS_case_number IN case_number_array
+	IF MAXIS_case_number <> "" THEN 
 		CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 		'Checking for privileged
 		EMReadScreen privileged_case, 40, 24, 2
 		IF InStr(privileged_case, "PRIVILEGED") <> 0 THEN 
-			privileged_array = privileged_array & case_number & "~~~"
+			privileged_array = privileged_array & MAXIS_case_number & "~~~"
 		ELSE
 			PF9
 			'-----Added because the script was only case noting the header, footer and worker_signature on the first case.

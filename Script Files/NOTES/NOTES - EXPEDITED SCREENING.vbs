@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - EXPEDITED SCREENING.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 180          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,15 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 180          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog exp_screening_dialog, 0, 0, 181, 210, "Expedited Screening Dialog"
-  EditBox 55, 5, 95, 15, case_number
+  EditBox 55, 5, 95, 15, MAXIS_case_number
   EditBox 100, 25, 50, 15, income
   EditBox 100, 45, 50, 15, assets
   EditBox 100, 65, 50, 15, rent
@@ -76,13 +64,13 @@ BeginDialog exp_screening_dialog, 0, 0, 181, 210, "Expedited Screening Dialog"
 EndDialog
 
 'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-If date >= cdate("10/01/2015") then			'these variables need to change in October 2014, and subsequently every October
-	heat_AC_amt = 454
+If date >= cdate("10/01/2016") then			'these variables need to change in October 2014, and subsequently every October
+	heat_AC_amt = 517
 	electric_amt = 141
 	phone_amt = 38
 Else
-	heat_AC_amt = 450
-	electric_amt = 150
+	heat_AC_amt = 454
+	electric_amt = 141
 	phone_amt = 38
 End if
 
@@ -90,7 +78,7 @@ End if
 'Connecting to BlueZone
 EMConnect ""
 'It will search for a case number.
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows the dialog
 Do
@@ -98,8 +86,8 @@ Do
 		Do
 			Dialog exp_screening_dialog
 			cancel_confirmation
-			If isnumeric(case_number) = False then MsgBox "You must enter a valid case number."
-		Loop until isnumeric(case_number) = True
+			If isnumeric(MAXIS_case_number) = False then MsgBox "You must enter a valid case number."
+		Loop until isnumeric(MAXIS_case_number) = True
 		If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) then MsgBox "The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
 	Loop until (income = "" or isnumeric(income) = True) and (assets = "" or isnumeric(assets) = True) and(rent = "" or isnumeric(rent) = True)
 	If worker_signature = "" then MsgBox "You must sign your case note."
@@ -153,7 +141,7 @@ IF expedited_status = "client appears expedited" THEN
 END IF 
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-	call navigate_to_screen("case", "note")
+	call navigate_to_MAXIS_screen("case", "note")
 	PF9
 	
 	EMReadScreen case_note_check, 17, 2, 33

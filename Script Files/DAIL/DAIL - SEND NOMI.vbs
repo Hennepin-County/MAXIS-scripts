@@ -1,13 +1,17 @@
-'STATS gathering
+'Required for statistical purposes===============================================================================
 name_of_script = "DAIL - SEND NOMI.vbs"
 start_time = timer
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 276         'manual run time in seconds
+STATS_denomination = "C"       'C is for case
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,11 +38,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 276         'manual run time in seconds
-STATS_denomination = "C"       'C is for case
-'END OF stats block==============================================================================================
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog Hennepin_worker_signature, 0, 0, 186, 100, "Hennepin County worker signature and client region"
@@ -66,7 +57,7 @@ EndDialog
 BeginDialog worker_signature_dialog, 0, 0, 191, 80, "Worker signature"
   EditBox 80, 10, 55, 15, last_day_for_recert
   EditBox 80, 30, 105, 15, worker_signature
-  ButtonGroup ButtonPressed_worker_signature_dialog
+  ButtonGroup ButtonPressed
     OkButton 80, 50, 50, 15
     CancelButton 135, 50, 50, 15
   Text 5, 35, 70, 10, "Sign your case note:"
@@ -89,8 +80,8 @@ row  = 1
 col = 1
 EMSearch "Case Number: ", row, col
 If row =- 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-EMReadScreen case_number, 8, row, col + 12
-case_number = trim(case_number)
+EMReadScreen MAXIS_case_number, 8, row, col + 12
+MAXIS_case_number = trim(MAXIS_case_number)
 PF3 			'removes the TIKL window
 'navigates to CASE/NOTE to user can see if interview has been completed or not
 EMSendKey "n"
@@ -98,44 +89,38 @@ transmit
 
 'Msgbox asking the user misssed their interview
 interview_confirm = MsgBox("Was an interview completed for this case's recertification?", vbYesNoCancel, "Interview confirmation")
-	If interview_confirm = vbCancel then stopscript
-	If interview_confirm = vbYes then interview_confirm = TRUE 
-	If interview_confirm = vbNo then interview_confirm = FALSE
-
-If interview_confirm = TRUE then 
-	PF3 	'returns user back to DAIL/DAIL and stops the script since no further action is required
+If interview_confirm = vbCancel then stopscript
+If interview_confirm = vbYes then  			'returns user back to DAIL/DAIL and stops the script since no further action is required
+	PF3 	
 	script_end_procedure("Success! A NOMI is not required if the recertification interview is complete." & vbNewLine & "Please review the case for completion if necessary.")
-ELSE
-	'Msgbox asking the user to confirm if the client has sent a CAF or if no contact has been made by the client
-	recert_forms_confirm = MsgBox("A NOMI is needed when a SNAP recipient has not made contact with the agency about their recertification, AND the CAF has not been received." & vbNewLine & vbNewLine & "Press Yes to send the NOMI." & _
-	vbNewLine & "Press No if client contact has not been made with the agency." & vbNewLine & "Press Cancel to end the script.", vbYesNoCancel, "Client contact confirmation")
-		If recert_forms_confirm = vbCancel then stopscript
-		If recert_forms_confirm = vbYes then result_of_msgbox = TRUE
-		If recert_forms_confirm = vbNo then result_of_msgbox = FALSE
-END IF
-
-If result_of_msgbox = FALSE then		'if false a case note will be made, but a NOMI will not be sent as this is not necessary. 
-	dialog worker_signature_dialog
-	If ButtonPressed_worker_signature_dialog = 0 then stopscript
-	PF9	'goes directly into edit mode
-	Call write_variable_in_CASE_NOTE ("**Client missed SNAP recertification interview**")
-	Call write_variable_in_CASE_NOTE("* Interview appointment was scheduled for: " & interview_date_time)
-	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO has not been sent.")
-	Call write_variable_in_CASE_NOTE ("---")
-	Call write_variable_in_CASE_NOTE (worker_signature & ", using automated script.")
-	PF3	'saves the case note'
-	Call navigate_to_MAXIS_screen("DAIL", "DAIL")	'brings user back to DAIL'
-	script_end_procedure("A SNAP NOMI for recertification case note has been made, but a SPEC/MEMO has NOT been sent." & vbNewLine & vbNewLine & _
-	"Per POLI/TEMP TE02.05.15: When there is no request for further assistance the client will receive the proper closing (the autoclose notice).")
-END IF
-
-IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sent
+ELSEIF interview_confirm = vbNo then 		'interview was not completed 
 	If worker_county_code = "x127" then
-		dialog Hennepin_worker_signature		'dialog for Hennepin users with county office selection options
-		Else
-		dialog worker_signature_dialog			'dialog for everyone else...because elitism:) 
-		End if
-	If ButtonPressed_worker_signature_dialog = 0 then stopscript
+		DO
+			DO
+				err_msg = ""
+				dialog Hennepin_worker_signature		'dialog for Hennepin users with county office selection options
+				cancel_confirmation 
+				If region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the client's region of residence."
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+		Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	Else
+		Do
+			Do
+				err_msg = ""
+				dialog worker_signature_dialog			'dialog for everyone else...because elitism:) 
+				cancel_confirmation
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+		Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	End if
+	
 	PF3							'exits case note, back to DAIL
 	EMSendKey "p"				'navigates to SPEC
 	transmit
@@ -184,7 +169,7 @@ IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sen
 		ELSEIF region_residence = "North" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the North Minneapolis office to complete an interview. The office is located at: 1001 Plymouth Ave. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 	  ELSEIF region_residence = "Northwest" Then
-			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 7:30 a.m. to 4:30 p.m.")
+			Call write_variable_in_SPEC_MEMO("You may also come into the Brooklyn Center to complete an interview. The office is located at: 7051 Brooklyn Blvd. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "South MPLS" Then
 			Call write_variable_in_SPEC_MEMO("You may also come to the Century Plaza office to complete an interview. The office is located at: 330 S. 12th Street in Minneapolis. Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		ELSEIF region_residence = "S. Suburban" Then

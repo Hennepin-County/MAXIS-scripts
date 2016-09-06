@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - OVERPAYMENT.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 120          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,55 +38,57 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 120          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
 'SECTION 02: DIALOGS
-BeginDialog overpayment_dialog, 0, 0, 266, 260, "Overpayment dialog"
-  EditBox 60, 5, 70, 15, case_number
+BeginDialog overpayment_dialog, 0, 0, 266, 305, "Overpayment dialog"
+  EditBox 60, 5, 70, 15, MAXIS_case_number
   EditBox 120, 25, 140, 15, programs_cited
   EditBox 100, 45, 160, 15, Claim_number
   EditBox 120, 65, 140, 15, months_of_overpayment
   EditBox 65, 85, 60, 15, discovery_date
   EditBox 200, 85, 60, 15, established_date
   EditBox 100, 105, 160, 15, reason_for_OP
-  EditBox 150, 125, 110, 15, reason_to_be_reported
-  EditBox 85, 145, 175, 15, supporting_docs
-  EditBox 125, 165, 135, 15, responsible_parties
-  EditBox 60, 185, 200, 15, total_amt_of_OP
-  EditBox 70, 205, 50, 15, worker_signature
+  ComboBox 70, 125, 60, 15, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", collectible_status_dropdown
+  EditBox 170, 140, 90, 15, explaination_if_collectible
+  EditBox 150, 160, 110, 15, reason_to_be_reported
+  EditBox 85, 180, 175, 15, supporting_docs
+  EditBox 125, 200, 135, 15, responsible_parties
+  EditBox 60, 220, 200, 15, total_amt_of_OP
+  EditBox 70, 240, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 80, 240, 50, 15
-    CancelButton 135, 240, 50, 15
+    OkButton 80, 275, 50, 15
+    CancelButton 135, 275, 50, 15
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 115, 10, "Program(s) overpayment cited for:"
   Text 5, 70, 110, 10, "Month(s)/Year(s) of overpayment:"
   Text 5, 90, 55, 10, "Discovery date:"
   Text 135, 90, 60, 10, "Established date:"
   Text 5, 110, 95, 10, "Reason for OP (Be Specific):"
-  Text 5, 150, 80, 10, "Supporting docs/verifs:"
-  Text 5, 170, 120, 10, "Responsible parties listed by name:"
-  Text 5, 190, 55, 10, "Total amt of OP:"
-  Text 5, 210, 65, 10, "Sign the case note:"
+  Text 5, 185, 80, 10, "Supporting docs/verifs:"
+  Text 5, 205, 120, 10, "Responsible parties listed by name:"
+  Text 5, 225, 55, 10, "Total amt of OP:"
+  Text 5, 245, 65, 10, "Sign the case note:"
   Text 5, 50, 95, 10, "Claim Number(s) if available: "
-  Text 5, 130, 140, 10, "When/why should this have been reported: "
+  Text 5, 165, 140, 10, "When/why should this have been reported: "
+  Text 5, 130, 60, 10, "Claim Collectible?"
+  Text 5, 145, 165, 10, "Explaination/calculation to determine if collectible:"
 EndDialog
 
 'SECTION 03: THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
 EMConnect ""
 'grabbing case number
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 DO
 	Do
+		err_msg = ""
 		Dialog overpayment_dialog
 		cancel_confirmation
-		If case_number = "" then MsgBox "You must have a case number to continue!"
-	Loop until case_number <> ""
+		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & "Please enter a valid case number." & vbCr
+		IF collectible_status_dropdown = "Select One..." THEN err_msg = err_msg & "Please select if this claim is collectible." & vbCr
+		IF explaination_if_collectible = "" THEN err_msg = err_msg & "Please enter how you determined if this is collectible or not." & vbCr
+		If err_msg <> "" THEN msgbox err_msg
+	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
@@ -113,6 +109,8 @@ call write_bullet_and_variable_in_case_note("Month(s) of overpayment", months_of
 call write_bullet_and_variable_in_case_note("Discovery date", discovery_date) 
 call write_bullet_and_variable_in_case_note("Established date", established_date) 
 call write_bullet_and_variable_in_case_note("Reason for overpayment", reason_for_OP) 
+call write_bullet_and_variable_in_case_note("Collectible?", collectible_status_dropdown) 
+call write_bullet_and_variable_in_case_note("Explanation for if claim can be collected", explaination_if_collectible) 
 call write_bullet_and_variable_in_case_note("When/Why should this have been reported", reason_to_be_reported) 
 call write_bullet_and_variable_in_case_note("Supporting documents/verifications", supporting_docs) 
 call write_bullet_and_variable_in_case_note("Responsible parties", responsible_parties) 

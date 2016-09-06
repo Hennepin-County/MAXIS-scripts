@@ -1,13 +1,17 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTICES - APPOINTMENT LETTER.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 195                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 195                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
 
 'CLASSES----------------------------------------------------------------------------------------------------------------------
 'IF THIS WORKS, CONSIDER INCORPORATING INTO FUNCTIONS LIBRARY
@@ -75,7 +63,7 @@ end class
 'Declaring variables needed by the script
 'First, determining the county code. If it isn't declared, it will ask (proxy)
 
-call worker_county_code_determination(worker_county_code, two_digit_county_code_variable)
+get_county_code
 
 
 if worker_county_code = "x101" then
@@ -97,7 +85,7 @@ elseif worker_county_code = "x108" then
 elseif worker_county_code = "x109" then
     agency_office_array = array("Cloquet", "Moose Lake")
 elseif worker_county_code = "x110" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
+    agency_office_array = array("Carver") 
 elseif worker_county_code = "x111" then
     agency_office_array = array("Cass")
 elseif worker_county_code = "x112" then
@@ -117,8 +105,8 @@ elseif worker_county_code = "x118" then
 elseif worker_county_code = "x119" then
     agency_office_array = array("Dakota")
 elseif worker_county_code = "x120" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
-elseif worker_county_code = "x121" then
+    agency_office_array = array("Dodge") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties	
+    elseif worker_county_code = "x121" then
     agency_office_array = array("Douglas")
 elseif worker_county_code = "x122" then
     agency_office_array = array("Faribault")
@@ -157,7 +145,7 @@ elseif worker_county_code = "x138" then
 elseif worker_county_code = "x139" then
     agency_office_array = array("Lake of the Woods")
 elseif worker_county_code = "x140" then
-    agency_office_array = array("LeSueur")
+    agency_office_array = array("Le Sueur")
 elseif worker_county_code = "x141" then
     agency_office_array = array("Lincoln")
 elseif worker_county_code = "x142" then
@@ -181,7 +169,7 @@ elseif worker_county_code = "x150" then
 elseif worker_county_code = "x151" then
     agency_office_array = array("Murray")
 elseif worker_county_code = "x152" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
+    agency_office_array = array("St. Peter", "North Mankato")
 elseif worker_county_code = "x153" then
     agency_office_array = array("Nobles")
 elseif worker_county_code = "x154" then
@@ -225,7 +213,7 @@ elseif worker_county_code = "x172" then
 elseif worker_county_code = "x173" then
     agency_office_array = array("St. Cloud", "Melrose")
 elseif worker_county_code = "x174" then
-    agency_office_array = array("Dodge", "Steele", "Waseca")
+    agency_office_array = array("Owatonna", "Waseca", "Mantorville") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties
 elseif worker_county_code = "x175" then
     agency_office_array = array("Stevens")
 elseif worker_county_code = "x176" then
@@ -239,8 +227,8 @@ elseif worker_county_code = "x179" then
 elseif worker_county_code = "x180" then
     agency_office_array = array("Wadena")
 elseif worker_county_code = "x181" then
-    script_end_procedure("You have NOT defined an intake address with Veronica Cary. Have an alpha user email Veronica Cary and provide your in-person intake address. The script will now stop.")
-elseif worker_county_code = "x182" then
+    agency_office_array = array("Waseca") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties
+   elseif worker_county_code = "x182" then
     agency_office_array = array("Cottage Grove", "Forest Lake", "Stillwater", "Woodbury")
 elseif worker_county_code = "x183" then
     agency_office_array = array("Watonwan")
@@ -268,7 +256,7 @@ call convert_array_to_droplist_items(agency_office_array, county_office_list)
 'NOTE: this dialog contains a special modification to allow dynamic creation of the county office list. You cannot edit it in
 '   Dialog Editor without modifying the commented line.
 BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
-  EditBox 75, 5, 50, 15, case_number
+  EditBox 75, 5, 50, 15, MAXIS_case_number
   DropListBox 50, 25, 95, 15, "new application"+chr(9)+"recertification", app_type
   CheckBox 10, 43, 150, 10, "Check here if this is a reschedule.", reschedule_check
   EditBox 50, 55, 95, 15, CAF_date
@@ -305,7 +293,7 @@ EndDialog
 EMConnect ""
 
 'Searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 'restricting the usage for Hennepin County users
 If worker_county_code = "x127" then script_end_procedure ("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user, or your supervisor if you have questions. Thank you.")
 
@@ -322,8 +310,8 @@ DO
 	                            Do
 	                                Dialog appointment_letter_dialog
 	                                If ButtonPressed = cancel then stopscript
-	                                If isnumeric(case_number) = False or len(case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-	                            Loop until isnumeric(case_number) = True and len(case_number) <= 8
+	                                If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
+	                            Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 	                            CAF_date = replace(CAF_date, ".", "/")
 	                            If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
 	                            If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
@@ -414,6 +402,10 @@ ELSEIF worker_county_code = "x109" THEN
         agency_address.city = "Moose Lake"
         agency_address.zip = "55767"
     END IF
+ELSEIF worker_county_code = "x110" THEN 'added Carver County interview address
+    agency_address.street = "602 E 4th St"
+    agency_address.city = "Chaska"
+    agency_address.zip = "55318"
 ELSEIF worker_county_code = "x111" THEN
     agency_address.street = "400 Michigan Ave"
     agency_address.city = "Walker"
@@ -456,6 +448,10 @@ ELSEIF worker_county_code = "x119" THEN
     agency_address.street = "1 Mendota Rd W Ste 100"
     agency_address.city = "West St Paul"
     agency_address.zip = "55118"
+ELSEIF worker_county_code = "x120" THEN
+    agency_address.street = "22 6TH ST E Dept 401"
+    agency_address.city = "Mantorville"
+    agency_address.zip = "55955"
 ELSEIF worker_county_code = "x121" THEN
     agency_address.street = "809  Elm Street, Ste 1186"
     agency_address.city = "Alexandria"
@@ -598,6 +594,16 @@ ELSEIF worker_county_code = "x151" THEN
     agency_address.street = "3001 Maple Road, Suite 100"
     agency_address.city = "Slayton"
     agency_address.zip = "56172"
+ELSEIF worker_county_code = "x152" THEN
+    IF interview_location = "St. Peter" THEN
+        agency_address.street = "622 South Front St"
+        agency_address.city = "St. Peter"
+        agency_address.zip = "56082"
+    ELSEIF interview_location = "North Mankato" THEN
+        agency_address.street = "2070 Howard Dr"
+        agency_address.city = "North Mankato"
+        agency_address.zip = "56003"
+    END IF
 ELSEIF worker_county_code = "x153" THEN
     agency_address.street = "318 9th St."
     agency_address.city = "Worthington"
@@ -737,19 +743,19 @@ ELSEIF worker_county_code = "x173" THEN
         agency_address.zip = "56352"
     END IF
 ELSEIF worker_county_code = "x174" THEN
-    IF interview_location = "Dodge" THEN
-        agency_address.street = "22 6TH ST East Dept 401"
+        IF interview_location = "Mantorville" THEN
+        agency_address.street = "22 6th St E Dept 401"
         agency_address.city = "Mantorville"
         agency_address.zip = "55955"
-    ELSEIF interview_location = "Steele" THEN
-        agency_address.street = "630 FLORENCE AVE"
+	ELSEIF interview_location= "Owatonna" THEN
+	 agency_address.street = "630 Florence Ave"
         agency_address.city = "Owatonna"
         agency_address.zip = "55060"
-    ELSEIF interview_location = "Waseca" THEN
-        agency_address.street = "299 JOHNSON SW STE 160"
+    	ELSEIF interview_location = "Waseca" THEN
+        agency_address.street = "299 Johnson Ave SW Ste 160"
         agency_address.city = "Waseca"
         agency_address.zip = "56093"
-    END IF
+	END IF
 ELSEIF worker_county_code = "x175" THEN
     agency_address.street = "400 Colorado Ave., Suite 104"
     agency_address.city = "Morris"
@@ -780,6 +786,10 @@ ELSEIF worker_county_code = "x180" THEN
     agency_address.street = "124 First Street SE"
     agency_address.city = "Wadena"
     agency_address.zip = "56482"
+ELSEIF worker_county_code = "x181" THEN   
+    agency_address.street = "299 JOHNSON SW STE 160"
+    agency_address.city = "Waseca"
+    agency_address.zip = "56093"
 ELSEIF worker_county_code = "x182" THEN
     IF interview_location = "Cottage Grove" THEN
         agency_address.street = "13000 Ravine Parkway S"
@@ -861,7 +871,7 @@ If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = i
 
 'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
 Do
-	call navigate_to_screen("STAT", "SUMM")
+	call navigate_to_MAXIS_screen("STAT", "SUMM")
 	EMReadScreen month_check, 11, 24, 56 'checking for the error message when PND1 cases are not in APPL month
 	IF left(month_check, 5) = "CASES" THEN 'this means the case can't get into stat in current month
 		EMWriteScreen mid(month_check, 7, 2), 20, 43 'writing the correct footer month (taken from the error message)

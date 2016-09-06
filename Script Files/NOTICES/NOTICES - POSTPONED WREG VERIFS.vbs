@@ -1,15 +1,18 @@
 'This script was developed by Charles Potter from Anoka County
-
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTICES - POSTPONED WREG VERIFS.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 90                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -18,22 +21,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -46,15 +39,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
-
 '--- DIALOGS-----------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dlg, 0, 0, 196, 85, "Postponed WREG WCOM"
-  EditBox 70, 15, 60, 15, case_number
+  EditBox 70, 15, 60, 15, MAXIS_case_number
   EditBox 70, 35, 30, 15, approval_month
   EditBox 160, 35, 30, 15, approval_year
   ButtonGroup ButtonPressed
@@ -66,7 +53,7 @@ BeginDialog case_number_dlg, 0, 0, 196, 85, "Postponed WREG WCOM"
 EndDialog
 
 BeginDialog WCOM_dlg, 0, 0, 196, 115, "Postponed WREG WCOM"
-  EditBox 55, 10, 60, 15, verif_due_date
+  EditBox 75, 10, 60, 15, ten_day_cutoff
   EditBox 55, 30, 60, 15, closure_date
   EditBox 70, 50, 115, 15, verifications_needed
   EditBox 75, 70, 60, 15, worker_signature
@@ -76,7 +63,7 @@ BeginDialog WCOM_dlg, 0, 0, 196, 115, "Postponed WREG WCOM"
   Text 5, 75, 70, 10, "Worker signature: "
   Text 5, 35, 45, 10, "Closure Date: "
   Text 5, 55, 60, 10, "Verifs Postponed: "
-  Text 5, 15, 50, 10, "Verif Due date: "
+  Text 5, 15, 65, 10, "Next 10 day cutoff: "
 EndDialog
 '--------------------------------------------------------------------------------------------------------------------------------
 
@@ -84,14 +71,14 @@ EndDialog
 
 EMConnect ""
 
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 '1st Dialog ---------------------------------------------------------------------------------------------------------------------
 DO
 	err_msg = ""
 	dialog case_number_dlg
 	cancel_confirmation
-	IF case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
+	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
 	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
 	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
 	IF err_msg <> "" THEN msgbox err_msg
@@ -123,20 +110,31 @@ EMReadScreen First_name, 12, 6, 63
 EMReadScreen Last_name, 25, 6, 30
 EMReadScreen Middle_initial, 1, 6, 79
 client_name = replace(First_name, "_", "") & " " & replace(Middle_initial, "_", "") & " " & replace(Last_name, "_", "")
-verif_due_date = dateadd("D", 10, date)  'adding standard 10 day verif request due date
 mid_month = left(app_date, 2) & "/15/" & right(app_date, 2)  'determining if the application date is before or after the 15th this affects when case must close by.
 mid_month_check = datediff("D", mid_month, app_date)		'subtracting the day part of the app_date against the 15th
-IF mid_month_check <= 0 THEN closure_date = dateadd("D", -1, (dateadd("M", 1, left(app_date, 2) & "/01/" & right(app_date, 2)))) ' 0 and below are before the 15th and close last day of the 1st month after application
-IF mid_month_check > 0 THEN closure_date = dateadd("D", -1, (dateadd("M", 2, left(app_date, 2) & "/01/" & right(app_date, 2))))	' anything above 0 is after the 15th and closes the last day of the 2nd month after application
-verif_due_date = cstr(verif_due_date)
-closure_date = cstr(closure_date)
+IF mid_month_check <= 0 THEN 
+	closure_date = dateadd("D", -1, (dateadd("M", 1, left(app_date, 2) & "/01/" & right(app_date, 2)))) ' 0 and below are before the 15th and close last day of the 1st month after application
+	closure_date = cstr(closure_date)
+	closure_month = right("00" & DatePart("M",closure_date), 2)				'defining the month to have 2 digits
+	closure_year = right(closure_date, 2)									'creating a year variable to make the function parameters easier to read
+	call ten_day_cutoff_check(closure_month, closure_year, ten_day_cutoff)
+	ten_day_cutoff = cstr(ten_day_cutoff)
+END IF
+IF mid_month_check > 0 THEN 
+	closure_date = dateadd("D", -1, (dateadd("M", 2, left(app_date, 2) & "/01/" & right(app_date, 2))))	' anything above 0 is after the 15th and closes the last day of the 2nd month after application
+	closure_date = cstr(closure_date)
+	closure_month = right("00" & DatePart("M",closure_date), 2)				'defining the month to have 2 digits
+	closure_year = right(closure_date, 2)									'creating a year variable to make the function parameters easier to read
+	call ten_day_cutoff_check(closure_month, closure_year, ten_day_cutoff)
+	ten_day_cutoff = cstr(ten_day_cutoff)
+END IF
 
 '2nd Dialog---------------------------------------------------------------------------------------------------------------------------------------------
 DO
 	err_msg = ""
 	dialog WCOM_dlg
 	cancel_confirmation
-	IF verif_due_date = "" THEN err_msg = err_msg & "Please enter your verif due date." & vbNewLine
+	IF ten_day_cutoff = "" THEN err_msg = err_msg & "Please enter your verif due date." & vbNewLine
 	IF closure_date = "" THEN err_msg = err_msg & "Please enter your closure date." & vbNewLine
 	IF verifications_needed = "" THEN err_msg = err_msg & "Please enter postponed verifications." & vbNewLine
 	IF worker_signature = "" THEN err_msg = err_msg & "Please sign your NOTE" & vbNewLine
@@ -172,7 +170,7 @@ DO
 		pf9
 	    EMSetCursor 03, 15
     	CALL write_variable_in_SPEC_MEMO(client_name & " has used their 3 entitled months of SNAP benefits as an Able Bodied Adult Without Dependents. ")
-		CALL write_variable_in_SPEC_MEMO("Verification of " & verifications_needed & " has been postponed. You must turn in verification of " & verifications_needed & " by " & verif_due_date & " to continue to be eligible for SNAP benefits. ")
+		CALL write_variable_in_SPEC_MEMO("Verification of " & verifications_needed & " has been postponed. You must turn in verification of " & verifications_needed & " by " & closure_date & " to continue to be eligible for SNAP benefits. ")
 		CALL write_variable_in_SPEC_MEMO("If you do not turn in the required verifications, your case will close on " & closure_date & ".")
 	    PF4
 		PF3
@@ -196,15 +194,16 @@ ELSE 					'If a waiting FS notice is found
 	start_a_blank_case_note
 	call write_variable_in_CASE_NOTE("---WCOM regarding Postponed WREG verifs added---")
 	call write_variable_in_CASE_NOTE("Client has had verification of " & verifications_needed & " postponed.")
-	call write_bullet_and_variable_in_CASE_note("Verif Due Date", verif_due_date)
+	call write_bullet_and_variable_in_CASE_note("Next Cutoff Date", ten_day_cutoff)
 	call write_bullet_and_variable_in_CASE_note("Closure Date", closure_date)
+	call write_variable_in_CASE_NOTE("* TIKLed for next cutoff date. If verifs not received by cutoff date take appropriate action..")
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 
 	'Navigating to DAIL/WRIT
 	call navigate_to_MAXIS_screen("dail", "writ")
 	'The following will generate a TIKL formatted date for 10 days from now.
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
+	call create_MAXIS_friendly_date(ten_day_cutoff, 0, 5, 18)
 	'Writing in the rest of the TIKL.
 	call write_variable_in_TIKL("Verification of postponed WREG verification(s) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 	transmit

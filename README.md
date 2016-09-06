@@ -10,6 +10,7 @@ Table of contents for this README
   * [Issue guidelines/best practices](#issue-guidelinesbest-practices)
   * [Critical issues](#critical-issues)
   * [Script freezes](#script-freezes)
+  * [When to remove a script from the project] (#when-to-remove-a-script-from-the-project)
 * **[Pull Requests](#pull-requests)**
   * [Anatomy of a pull request](#anatomy-of-a-pull-request)
     * [Title](#title)
@@ -35,7 +36,7 @@ _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
 State Administrators
 ---
 As of June 2014, there is only one state administrator for the BlueZone Scripts project: 
-* **[Veronica Cary](mailto:veronica.cary@state.mn.us)**: Project Manager and SNAP Data Analyst
+* **[Charles Potter](mailto:Charles.D.Potter@state.mn.us)**: ME Reviewer/Script writer
 
 In addition to our state administrators, numerous county/tribal agency personnel are involved in much of the writing and testing of BlueZone Scripts. Their contribution is appreciated!
 
@@ -97,6 +98,13 @@ Script freezes are needed for making sure each new script, bug fix, and enhancem
 
 When there are over 40 issues, no new scripts or enhancements will be allowed on the GitHub issue list, unless they are critical from a policy standpoint (bug fixes are always welcome). Administrators may institute script freezes at other times dependent on need, and in these cases an email will be sent to scriptwriters.
 
+#### When to remove a script from the project
+Some scripts will be very popular in some agencies, and not-so-popular in others; such is the nature of a large collaborative project. It may be tempting to advocate for the removal of a script based on preferences in your agency, or even preferences among scriptwriter agencies as a whole. However, each script represents someone's hard work, and should be treated with respect. Generally speaking, this project will strive to improve existing scripts, and not to remove scripts from the project. Even so, there are going to be circumstances in which removing a script could become necessary:
+
+* An older script is completely superseded by another, newer script. For example, a NOTES script becoming an ACTIONS script.
+* A policy change (or clarification) has made the script completely unnecessary, or even incorrect.
+
+In all other instances, the work should be toward the improvement and augmentation of our scripts. Discussions about removing a script must remain respectful of the work other scriptwriters have done, and the script must meet either of the criteria above in order to be considered for removal.
 
 _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
 
@@ -180,13 +188,13 @@ About the Functions Library (FuncLib)
 The BlueZone Scripts "Functions Library" (or "FuncLib") is a centrally located repository for the common "shared functions" associated with MAXIS scripts. We use a separate repository for it, as it does not always follow the same release cycle as other scripts, and we want to keep the highly-technical conversation (and associated notifications) to a minimum for non-technical followers of our work. The FuncLib repository can be [found here](https://github.com/MN-Script-Team/BZS-FuncLib).
 
 The "FuncLib block" is a block of code used within scripts that incorporates the shared Functions Library- this allows scriptwriters to take advantage of the dozens of functions used for navigation, case noting, autofill, and more. To use this library, simply add this block of code to the top of your script:
-```
+``` vbnet
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -195,22 +203,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -222,7 +220,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
 ```
 
 

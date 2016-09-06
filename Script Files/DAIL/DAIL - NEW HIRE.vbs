@@ -1,16 +1,20 @@
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "DAIL - NEW HIRE.vbs"
 start_time = timer
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 345         'manual run time in seconds
+STATS_denomination = "C"       'C is for each MEMBER
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -19,22 +23,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -46,13 +40,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 345         'manual run time in seconds
-STATS_denomination = "C"       'C is for each MEMBER
-'END OF stats block==============================================================================================
-
 
 'DIALOGS----------------------------------------------------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
@@ -104,6 +91,10 @@ EMReadScreen new_hire_first_line, 61, row, col 'Reads each line for the case not
 EMReadScreen new_hire_second_line, 61, row + 1, col
 EMReadScreen new_hire_third_line, 61, row + 2, col
 EMReadScreen new_hire_fourth_line, 61, row + 3, col
+IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
+	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
+	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
+END IF
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
 EMSearch "DATE HIRED:", row, col
@@ -191,18 +182,23 @@ If job_known_checkbox = checked then script_end_procedure("The script will stop 
 'Now it will create a new JOBS panel for this case.
 If create_JOBS_checkbox = checked then
 	EMWriteScreen "nn", 20, 79				'Creates new panel
-	transmit								'Transmits
-	EMWriteScreen "w", 5, 38				'Wage income is the type
-	EMWriteScreen "n", 6, 38				'No proof has been provided
+	transmit	'Transmits
+	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
+	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMWriteScreen "w", 5, 34				'Wage income is the type
+		EMWriteScreen "n", 6, 34				'No proof has been provided	
+	ELSE
+		EMWriteScreen "w", 5, 38				'Wage income is the type
+		EMWriteScreen "n", 6, 38				'No proof has been provided
+	END IF
 	EMWriteScreen employer, 7, 42			'Adds employer info
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
 	EMWriteScreen day_hired, 9, 38			'Adds day hired
 	EMWriteScreen year_hired, 9, 41			'Adds year hired
-	EMReadScreen footer_month, 2, 20, 55	'Reads footer month for updating the panel
-	EMReadScreen footer_year, 2, 20, 58		'Reads footer year
-	EMWriteScreen footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
+	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
 	EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
-	EMWriteScreen footer_year, 12, 60		'Puts footer year in on prospective side
+	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
 	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
 	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
 	If FS_case = True then 					'If case is SNAP, it creates a PIC

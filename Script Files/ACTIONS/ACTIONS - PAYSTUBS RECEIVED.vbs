@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - PAYSTUBS RECEIVED.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 458                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -43,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 458                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
-'END OF stats block=========================================================================================================
 
 'CUSTOM FUNCTIONS
 Function prospective_averager(pay_date, gross_amt, hours, paystubs_received, total_prospective_pay, total_prospective_hours) 'Creates variables for total_prospective_pay and total_prospective_hours
@@ -170,7 +158,7 @@ BeginDialog number_of_paystubs_dlg, 0, 0, 211, 65, "Number of Pay Dates"
 EndDialog
 
 BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
-  EditBox 100, 5, 60, 15, case_number
+  EditBox 100, 5, 60, 15, MAXIS_case_number
   EditBox 70, 25, 25, 15, MAXIS_footer_month
   EditBox 125, 25, 25, 15, MAXIS_footer_year
   EditBox 110, 45, 25, 15, HH_member
@@ -196,7 +184,7 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Default member is member 01
@@ -533,11 +521,20 @@ Do
 	If pay_frequency = "Every Week" then EMWriteScreen cint((average_hours_per_paystub + .0000000000001) * total_prospective_dates), 18, 72
 
 	'Puts pay verification type in
-	EMWriteScreen left(JOBS_verif_code, 1), 6, 38
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
+		EMWriteScreen left(JOBS_verif_code, 1), 6, 34
+	ELSE
+		EMWriteScreen left(JOBS_verif_code, 1), 6, 38
+	END IF
 
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
 	If update_HC_popup_check = 1 and datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then
-		EMWriteScreen "x", 19, 54
+		EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+		IF HC_income_est_check = "Est" Then 'this is the old position
+			EMWriteScreen "x", 19, 54
+		ELSE								'this is the new position
+			EMWriteScreen "x", 19, 48
+		END IF
 		transmit
 		EMWriteScreen "________", 11, 63
 		EMWriteScreen average_pay_per_paystub, 11, 63

@@ -1,15 +1,19 @@
-'Rewrite by Casey Love from Ramsey County. Based on the original script by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County.
+'Rewrite by Casey Love from Ramsey County. Based on the original script by Robert Kalb and Charles Potter from Anoka County and and Ilse Ferris from Hennepin County. Veronica from DHS helped.
 
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - APPROVED PROGRAMS.vbs"
 start_time = timer
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 150                	'manual run time in seconds
+STATS_denomination = "C"       			'C is for each Case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -18,22 +22,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -46,11 +40,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 150                	'manual run time in seconds
-STATS_denomination = "C"       			'C is for each Case
-'END OF stats block=========================================================================================================
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
@@ -58,7 +49,7 @@ BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
   CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
   CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
   CheckBox 210, 5, 50, 10, "Emergency", emer_approved_check
-  EditBox 60, 20, 55, 15, case_number
+  EditBox 60, 20, 55, 15, MAXIS_case_number
   ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
   EditBox 115, 45, 150, 15, benefit_breakdown
   CheckBox 5, 65, 255, 10, "Check here to have the script autofill the approval amounts.", autofill_check
@@ -85,13 +76,11 @@ BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
   Text 5, 25, 50, 10, "Case Number:"
 EndDialog
 
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
 EMConnect ""
 'Finds the case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
@@ -132,7 +121,7 @@ Do
 		Dialog benefits_approved
 		cancel_confirmation
 			'Enforcing mandatory fields
-			If case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
+			If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
 			IF autofill_check = checked THEN
 				IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _
 				 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
@@ -142,9 +131,6 @@ Do
 	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 Loop until are_we_passworded_out = false
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(FALSE)  
 
 Call date_array_generator (start_mo, start_yr, date_array)
 
@@ -201,7 +187,7 @@ IF SNAP_banked_mo_check = checked THEN
 		Emreadscreen edit_check, 7, 24, 2 
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row. 
 
-	wreg_check = 0 		'c
+	wreg_check = 0 		'zero-ing out the value of wreg_check variable
 
 	DO 		'Gets information from WREG for each client 
 		navigate_to_MAXIS_screen "STAT", "WREG"
@@ -253,6 +239,8 @@ IF SNAP_banked_mo_check = checked THEN
 				clients_with_banked_mo = clients_with_banked_mo + 1
 				IF All_SNAP_Clients_Array (6, clt_err_check)  = "" AND All_SNAP_Clients_Array(7, clt_err_check) = "" THEN _
 				err_msg = err_msg & vbCr & "You must indicate an initial banked month and year for " & All_SNAP_Clients_Array (1, clt_err_check) 
+				IF  All_SNAP_Clients_Array (8, clt_err_check)  = "" THEN _
+				err_msg = err_msg & vbCr & "You must indicate the number of banked months approved for " & All_SNAP_Clients_Array (1, clt_err_check)
 			End If
 		Next 
 		IF clients_with_banked_mo = 0 THEN err_msg = err_msg & vbCr & "You have not indicated any clients using banked months." & _ 
@@ -315,63 +303,68 @@ IF SNAP_banked_mo_check = checked THEN
 					banked_month_3 = left(Used_ABAWD_Months_Array(2), slash_loc - 1)
 					END IF
 
-					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
+					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
 					'These lines format the SQL string based on the number of months to update'
 					IF ubound(Used_ABAWD_Months_Array) = 2 THEN
-					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-					 insert_string = banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1', '-1')"
+					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+					 insert_string = banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1', '-1')"
 					ELSEIF ubound(Used_ABAWD_Months_Array) = 1 THEN
-					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1 WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-					 insert_string = banked_month & ", " & banked_month_2 & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1')"
+					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+					 insert_string = banked_month & ", " & banked_month_2 & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1')"
 					ELSEIF ubound(Used_ABAWD_Months_Array) = 0 THEN
-						update_string = banked_month & " = -1 WHERE case_number = " & case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-						insert_string = banked_month & ") VALUES ('" & case_number & "', '" & BM_Clients_Array(0,i) & "', '-1')"
+						update_string = banked_month & " = -1 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
+						insert_string = banked_month & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1')"
 					END IF
 
 					IF NOT(abawdrs.EOF) THEN 'There is an existing case, we need to update
 						objConnection.Execute "UPDATE banked_month_log SET " & update_string 'Here we are actually writing to the database
 					ELSE 'There is no existing case, add a new one using the info pulled from the script
-						objConnection.Execute "INSERT INTO banked_month_log (case_number, member_number, " & insert_string
+						objConnection.Execute "INSERT INTO banked_month_log (MAXIS_case_number, member_number, " & insert_string
 					END IF
 					set abawdrs = nothing
 				NEXT
 				objConnection.close
-			Else
-
-				'For counties with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
-				'Opening the Excel file
-				Set objExcel = CreateObject("Excel.Application")
-				objExcel.Visible = True
-				Set objWorkbook = objExcel.Workbooks.Add() 
-				objExcel.DisplayAlerts = True
-				
-				'Setting the first 4 col as worker, case number, name, and APPL date
-				ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
-				objExcel.Cells(1, 1).Font.Bold = TRUE
-				ObjExcel.Cells(excel_row, 1).Value = case_number
-				ObjExcel.Cells(1, 2).Value = "CLT REF #"
-				objExcel.Cells(1, 2).Font.Bold = TRUE
-				ObjExcel.Cells(excel_row, 2).Value = BM_Clients_Array(0, clt_banked_mo_apprvd)
-				ObjExcel.Cells(1, 3).Value = "CLT NAME"
-				objExcel.Cells(1, 3).Font.Bold = TRUE
-				ObjExcel.Cells(excel_row, 3).Value = BM_Clients_Array(1, clt_banked_mo_apprvd)
-				ObjExcel.Cells(1, 4).Value = "1st Banked Month"
-				objExcel.Cells(1, 4).Font.Bold = TRUE
-				ObjExcel.Cells(1, 5).Value = "2nd Banked Month"
-				objExcel.Cells(1, 5).Font.Bold = TRUE
-				ObjExcel.Cells(1, 6).Value = "3rd Banked Month"
-				objExcel.Cells(1, 6).Font.Bold = TRUE
-				
-				month_col = 4 
-				For v = 0 to UBound(Used_ABAWD_Months_Array)
-					ObjExcel.Cells(excel_row, month_col).Value = Used_ABAWD_Months_Array(v)
-					month_col = month_col + 1 
-				Next 
-				
-				'Autofitting columns
-				For col_to_autofit = 1 to 6
-					ObjExcel.columns(col_to_autofit).AutoFit()
-				Next
+			END IF
+			
+			IF banked_months_db_tracking = False Then	
+				If worker_county_code <> "x127" then
+					If worker_county_code <> "x162" then 					
+						'For counties (who are not Hennepin and Ramsey) with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
+						'Opening the Excel file
+						Set objExcel = CreateObject("Excel.Application")
+						objExcel.Visible = True
+						Set objWorkbook = objExcel.Workbooks.Add() 
+						objExcel.DisplayAlerts = True
+						
+						'Setting the first 4 col as worker, case number, name, and APPL date
+						ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
+						objExcel.Cells(1, 1).Font.Bold = TRUE
+						ObjExcel.Cells(excel_row, 1).Value = MAXIS_case_number
+						ObjExcel.Cells(1, 2).Value = "CLT REF #"
+						objExcel.Cells(1, 2).Font.Bold = TRUE
+						ObjExcel.Cells(excel_row, 2).Value = BM_Clients_Array(0, clt_banked_mo_apprvd)
+						ObjExcel.Cells(1, 3).Value = "CLT NAME"
+						objExcel.Cells(1, 3).Font.Bold = TRUE
+						ObjExcel.Cells(excel_row, 3).Value = BM_Clients_Array(1, clt_banked_mo_apprvd)
+						ObjExcel.Cells(1, 4).Value = "1st Banked Month"
+						objExcel.Cells(1, 4).Font.Bold = TRUE
+						ObjExcel.Cells(1, 5).Value = "2nd Banked Month"
+						objExcel.Cells(1, 5).Font.Bold = TRUE
+						ObjExcel.Cells(1, 6).Value = "3rd Banked Month"
+						objExcel.Cells(1, 6).Font.Bold = TRUE
+						
+						month_col = 4 
+						For v = 0 to UBound(Used_ABAWD_Months_Array)
+							ObjExcel.Cells(excel_row, month_col).Value = Used_ABAWD_Months_Array(v)
+							month_col = month_col + 1 
+						Next 
+							
+							'Autofitting columns
+						For col_to_autofit = 1 to 6
+							ObjExcel.columns(col_to_autofit).AutoFit()
+						Next
+					END IF
+				End if
 			End If
 			
 			'Writing a TIKL to close SNAP once Banked Months are done for this person
@@ -441,6 +434,8 @@ For each item in date_array
 	Next
 Next
 
+infant_on_case = "Unknown"
+
 'Here the script will use the program listed in the array to determine where to go to find the amounts - then add them to the array
 For all_elig_results = 0 to UBound (bene_amount_array,2)
 	If bene_amount_array(0, all_elig_results) = "Food" AND snap_approved_check = checked Then
@@ -489,6 +484,28 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 			End If 
 		End If 
 	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" AND cash_approved_check = checked Then 
+		If infant_on_case = "Unknown" Then 
+			Call navigate_to_MAXIS_screen ("STAT", "PNLP")
+			pnlp_row = 3
+			Do 
+				EMReadScreen panel_name, 4, pnlp_row, 5
+				If panel_name = "MEMB" Then 
+					EMReadScreen clt_age, 2, pnlp_row, 71
+					If clt_age = " 0" Then 
+						infant_on_case = TRUE
+						Exit Do 
+					End If 
+				ElseIf panel_name = "MEMI" Then 
+					infant_on_case = FALSE 
+					Exit Do 
+				End IF 
+				pnlp_row = pnlp_row + 1 
+				If pnlp_row = 20 Then 
+					transmit
+					pnlp_row = 3
+				End If 
+			Loop Until panel_name = "REVW"
+		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
 		row = 1
@@ -550,6 +567,28 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 			End If
 		End If
 	ElseIf bene_amount_array(0, all_elig_results) = "DWP" AND cash_approved_check = checked THEN
+		If infant_on_case = "Unknown" Then 
+			Call navigate_to_MAXIS_screen ("STAT", "PNLP")
+			pnlp_row = 3
+			Do 
+				EMReadScreen panel_name, 4, pnlp_row, 5
+				If panel_name = "MEMB" Then 
+					EMReadScreen clt_age, 2, pnlp_row, 71
+					If clt_age = " 0" Then 
+						infant_on_case = TRUE
+						Exit Do 
+					End If 
+				ElseIf panel_name = "MEMI" Then 
+					infant_on_case = FALSE 
+					Exit Do 
+				End IF 
+				pnlp_row = pnlp_row + 1 
+				If pnlp_row = 20 Then 
+					transmit
+					pnlp_row = 3
+				End If 
+			Loop Until panel_name = "REVW"
+		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "DWP")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
 		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
@@ -685,22 +724,21 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 	END IF 
 Next 
 
-
-
 'Case notes----------------------------------------------------------------------------------------------------
 IF clt_banked_mo_apprvd <> 0 THEN 	'BANKED MONTH Case Note - each client gets a seperate case note 
 	For clt_banked_mo_apprvd = 0 to UBound (BM_Clients_Array,2)
 		Call start_a_blank_CASE_NOTE
 		Call write_variable_in_CASE_NOTE ("!~!~! Memb " & BM_Clients_Array(0,clt_banked_mo_apprvd) & "used BANKED MONTHS in " & BM_Clients_Array (2, clt_banked_mo_apprvd) & " !~!~!")	'Months used moved to header
-		IF worker_county_code = "x169" THEN 
-			Call write_variable_in_CASE_NOTE ("BANKED MONTH Information added to Database for reporting")
-		Else 
-			Call write_variable_in_CASE_NOTE ("Excel Sheet created for manual tracking of BANKED MONTHS")
-		End IF 
+		IF worker_county_code = "x169" THEN Call write_variable_in_CASE_NOTE ("BANKED MONTH Information added to Database for reporting")
 		IF tikl_set = TRUE Then Call write_variable_in_CASE_NOTE ("TIKL Created to close SNAP for " & cls_date)
 		Call write_variable_in_CASE_NOTE ("---")
 		Call write_variable_in_CASE_NOTE (worker_signature)
 	Next 
+End If 
+
+IF infant_on_case = TRUE Then 
+	Call navigate_to_MAXIS_screen ("STAT", "EMPS")
+	baby_warning = MsgBox ("This is a family cash (MFIP or DWP) case with a child under 1 year old on it." & vbNewLine & vbNewLine & "These cases are error prone particularly at intake. Please review the EMPS panel to be sure the coding matches the client request.", vbSystemModal, "Child Under 1 Year Cash Case Warning")
 End If 
 
 call start_a_blank_CASE_NOTE	'Case note for the general approval
@@ -773,4 +811,4 @@ IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("BANKED
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
+script_end_procedure("Success! Please remember to check the generated notice to make sure it is correct. If not, please add WCOMs to make notice read correctly.")

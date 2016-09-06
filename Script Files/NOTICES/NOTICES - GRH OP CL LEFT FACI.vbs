@@ -1,22 +1,17 @@
-'OPTION EXPLICIT
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTICES - GRH OP CL LEFT FACI.vbs"
 start_time = timer
-
-'DIM name_of_script
-'DIM start_time
-'DIM FuncLib_URL
-'DIM run_locally
-'DIM default_directory
-'DIM beta_agency
-'DIM req
-'DIM fso
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 150                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -25,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -53,52 +38,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 150                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
-
-'DECLARING VARIABLES----------------------------------------------------------------------------------------------------
-'DIM ButtonPressed
-'DIM GRH_OP_LEAVING_FACI_dialog
-'DIM case_number
-'DIM client_amt
-'DIM facility_name
-'DIM facility_address_line_01
-'DIM facility_address_line_02
-'DIM facility_city
-'DIM facility_state
-'DIM facility_zip
-'OP_total_button
-'DIM OP_reason
-'DIM discovery_date
-'DIM established_date
-'DIM OP_date_01
-'DIM OP_date_02
-'DIM OP_date_03
-'DIM OP_date_04
-'DIM OP_date_05
-'DIM OP_date_06
-'DIM OP_amt_01
-'DIM OP_amt_02
-'DIM OP_amt_03
-'DIM OP_amt_04
-'DIM OP_amt_05
-'DIM OP_amt_06
-'DIM county_name_dept
-'DIM county_address_line_01
-'DIM county_address_line_02
-'DIM county_address_city
-'DIM county_address_state
-'DIM county_address_zip
-'DIM send_OP_to_DHS_check
-'DIM set_TIKL_check
-'DIM worker_signature
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog GRH_OP_LEAVING_FACI_dialog, 0, 0, 326, 190, "GRH overpayment due to leaving facility dialog"
-  EditBox 50, 5, 55, 15, case_number
+  EditBox 50, 5, 55, 15, MAXIS_case_number
   EditBox 165, 5, 45, 15, discovery_date
   EditBox 275, 5, 45, 15, established_date
   EditBox 90, 30, 230, 15, OP_reason
@@ -177,7 +122,7 @@ EndDialog
 'Connects to MAXIS
 EMConnect ""
 'searches for a case number
-call MAXIS_case_number_finder(case_number)
+call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Dialog completed by worker.  Worker must enter several mandatory fields, and will loop until worker presses cancel or completes fields.
 DO
@@ -190,14 +135,14 @@ DO
 							DO
 								Dialog GRH_OP_LEAVING_FACI_dialog
 								cancel_confirmation
-								If case_number = "" or isnumeric(case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
+								If MAXIS_case_number = "" or isnumeric(MAXIS_case_number) = false THEN MsgBox "You did not enter a valid case number. Please try again."
 								If worker_signature = "" THEN MsgBox "You did not sign your case note. Please try again."
 								If discovery_date = "" THEN MsgBox "You must enter the discovery date"
 								If established_date = "" THEN MsgBox "You must enter the established date"
 								If OP_date_01 = "" THEN MsgBox "You must enter at least 1 overpayment date"
 								If OP_amt_01 = "" THEN MsgBox "You must enter at least 1 overpayment amount"
 								If OP_reason = "" THEN MsgBox "You must enter the reason for the overpayment."
-							Loop until case_number <> "" and isnumeric(case_number) = true and worker_signature <> "" and discovery_date <> "" and established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> "" and OP_reason <> ""
+							Loop until MAXIS_case_number <> "" and isnumeric(MAXIS_case_number) = true and worker_signature <> "" and discovery_date <> "" and established_date <> "" and OP_date_01 <> "" and OP_amt_01 <> "" and OP_reason <> ""
 							If (OP_date_01 = "" AND OP_amt_01 <> "") OR (OP_date_01 <> "" AND OP_amt_01 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."
 						LOOP UNTIL(OP_date_01 = "" AND OP_amt_01 = "") OR (OP_date_01 <> "" AND OP_amt_01 <> "")
 						If (OP_date_02 = "" AND OP_amt_02 <> "") OR (OP_date_02 <> "" AND OP_amt_02 = "") THEN MsgBox "You have must complete both an overpayment date AND an overpayment amount."

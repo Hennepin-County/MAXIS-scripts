@@ -1,13 +1,17 @@
-'Gathering stats
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - CHECK SNAP FOR GA RCA.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 69                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,11 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 69                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
-'END OF stats block==============================================================================================
 
 BeginDialog check_snap_dlg, 0, 0, 166, 100, "Check SNAP for GA/RCA"
   EditBox 100, 10, 55, 15, worker_number
@@ -78,7 +67,7 @@ DO
 LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
 
 IF all_worker_check = 1 THEN
-	CALL navigate_to_screen("REPT", "USER")
+	CALL navigate_to_MAXIS_screen("REPT", "USER")
 	PF5
 
 	rept_user_row = 7
@@ -110,12 +99,20 @@ objExcel.DisplayAlerts = True
 ObjExcel.Cells(1, 1).Value = "X Number"
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
-ObjExcel.Cells(1, 4).Value = "Error on SNAP?"
+ObjExcel.Cells(1, 4).Value = "RCA Discrepancy?"
+ObjExcel.Cells(1, 5).Value = "GA Discrepancy?"
+objExcel.Cells(1, 6).Value = "GA in SNAP Budget"
+objExcel.Cells(1, 7).Value = "GA Monthly Grant"
+objExcel.Cells(1, 8).Value = "GA Issuance Amt"
+
+FOR i = 1 TO 8
+	objExcel.Cells(1, i).Font.Bold = TRUE
+NEXT
 
 excel_row = 2
 FOR EACH worker IN worker_array
 	IF worker = "" THEN EXIT FOR
-	CALL navigate_to_screen("REPT", "ACTV")
+	CALL navigate_to_MAXIS_screen("REPT", "ACTV")
 	EMWriteScreen worker, 21, 13
 	transmit
 
@@ -126,16 +123,16 @@ FOR EACH worker IN worker_array
 	DO
 		DO
 			EMReadScreen last_page, 21, 24, 2
-			EMReadScreen case_number, 8, rept_actv_row, 12
-			case_number = trim(case_number)
+			EMReadScreen MAXIS_case_number, 8, rept_actv_row, 12
+			MAXIS_case_number = trim(MAXIS_case_number)
 			EMReadScreen snap_status, 1, rept_actv_row, 61
 			EMReadScreen cash_status, 1, rept_actv_row, 54
 			EMReadScreen cash_prog, 2, rept_actv_row, 51
 			EMReadScreen client_name, 20, rept_actv_row, 21
 			IF snap_status = "A" AND cash_status = "A" AND (cash_prog = "RC" OR cash_prog = "GA") THEN
-				case_array = case_array & case_number & " "
+				case_array = case_array & MAXIS_case_number & " "
 				objExcel.Cells(excel_row, 1).Value = worker
-				objExcel.Cells(excel_row, 2).Value = case_number
+				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 				objExcel.Cells(excel_row, 3).Value = client_name
 				excel_row = excel_row + 1
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
@@ -144,7 +141,7 @@ FOR EACH worker IN worker_array
 		LOOP UNTIL rept_actv_row = 19
 			PF8
 			rept_actv_row = 7
-	LOOP UNTIL case_number = "" OR last_page = "THIS IS THE LAST PAGE"
+	LOOP UNTIL MAXIS_case_number = "" OR last_page = "THIS IS THE LAST PAGE"
 NEXT
 
 case_array = trim(case_array)
@@ -152,14 +149,14 @@ case_array = split(case_array)
 
 excel_row = 2
 'navigates to ELIG to determine if RCA or GA has been correctly fiated into SNAP budget.
-FOR EACH case_number IN case_array
+FOR EACH MAXIS_case_number IN case_array
 	ga_status = ""
 	ga_amount = ""
 	rca_status = ""
 	rca_amount = ""
 	cash_prog = ""
 	pa_amount = ""
-	CALL navigate_to_screen("ELIG", "FS")
+	CALL navigate_to_MAXIS_screen("ELIG", "FS")
 	EMReadScreen approved, 8, 3, 3
 	EMReadScreen version, 2, 2, 12
 	version = trim(version)
@@ -177,7 +174,7 @@ FOR EACH case_number IN case_array
 	pa_amount = replace(pa_amount, "_", "")
 	pa_amount = trim(pa_amount)
 	IF pa_amount = "" THEN pa_amount = "0.00"
-	CALL navigate_to_screen("CASE", "CURR")
+	CALL navigate_to_MAXIS_screen("CASE", "CURR")
 	CALL find_variable("GA: ", ga_status, 6)
 	IF ga_status = "ACTIVE" OR ga_status = "APP CL" THEN
 		cash_prog = "GA"
@@ -186,7 +183,7 @@ FOR EACH case_number IN case_array
 		IF rca_status = "ACTIVE" OR rca_status = "APP CL" THEN cash_prog = "RCA"
 	END IF
 	IF cash_prog = "GA" THEN
-		CALL navigate_to_screen("ELIG", "GA")
+		CALL navigate_to_MAXIS_screen("ELIG", "GA")
 		EMReadScreen approved, 8, 3, 3
 		EMReadScreen version, 2, 2, 12
 		version = trim(version)
@@ -199,25 +196,32 @@ FOR EACH case_number IN case_array
 		EMWriteScreen "GASM", 20, 70
 		transmit
 			CALL find_variable("Monthly Grant............$", ga_amount, 9)
+			CALL find_variable("Amount To Be Paid........$", ga_to_be_paid, 9)
 		ga_amount = trim(ga_amount)
-		IF pa_amount <> ga_amount THEN
-			CALL navigate_to_screen("STAT", "REVW")
-			ERRR_screen_check
+		ga_to_be_paid = trim(ga_to_be_paid)
+		IF pa_amount <> ga_amount OR pa_amount <> ga_to_be_paid THEN
+			CALL navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
 			bene_date = benefit_month & "/" & benefit_year
 			cash_revw_date = replace(cash_revw_date, " 01 ", "/")
 			snap_revw_date = replace(snap_revw_date, " 01 ", "/")
 			IF bene_date = cash_revw_date OR bene_date = snap_revw_date THEN
-				objExcel.Cells(excel_row, 4).Value = "REVW MONTH"
+				objExcel.Cells(excel_row, 5).Value = "REVW MONTH"
 			ELSEIF bene_date <> cash_revw_date AND bene_date <> snap_revw_date THEN
-				objExcel.Cells(excel_row, 4).Value = ("Yes, GA. SNAP Budg = " & pa_amount & "; GA Amount = " & ga_amount)
+				objExcel.Cells(excel_row, 5).Value = ("Yes")
+				objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
+				objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
+				objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
 			END IF
-		ELSEIF pa_amount = ga_amount THEN
-			objExcel.Cells(excel_row, 4).Value = ("Budgetted for SNAP: " & pa_amount & "; GA Amount: " & ga_amount)
+		ELSEIF pa_amount = ga_amount AND pa_amount = ga_to_be_paid THEN
+			objExcel.Cells(excel_row, 5).Value = ("No")
+			objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
+			objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
+			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
 		END IF
 	ELSEIF cash_prog = "RCA" THEN
-		CALL navigate_to_screen("ELIG", "RCA")
+		CALL navigate_to_MAXIS_screen("ELIG", "RCA")
 		EMReadScreen approved, 8, 3, 3
 		EMReadScreen version, 2, 2, 12
 		version = trim(version)
@@ -233,8 +237,7 @@ FOR EACH case_number IN case_array
 		CALL find_variable("Grant Amount..............$", rca_amount, 10)
 		rca_amount = trim(rca_amount)
 		IF pa_amount <> rca_amount THEN
-			CALL navigate_to_screen("STAT", "REVW")
-			ERRR_screen_check
+			CALL navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
 			bene_date = benefit_month & "/" & benefit_year
@@ -256,7 +259,7 @@ FOR EACH case_number IN case_array
 
 NEXT
 
-FOR i = 1 to 4
+FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
 NEXT
 

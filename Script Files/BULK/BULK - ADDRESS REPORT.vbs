@@ -1,13 +1,17 @@
-'GATHERING STATS----------------------------------------------------------------------------------------------------
+'Required for statistical purposes===============================================================================
 name_of_script = "BULK - ADDRESS REPORT.vbs"
 start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 36                               'manual run time in seconds
+STATS_denomination = "I"       'I is for each Item
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -16,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -44,11 +38,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 36                               'manual run time in seconds
-STATS_denomination = "I"       'I is for each Item
-'END OF stats block==============================================================================================
+'Checks for county info from global variables, or asks if it is not already defined.
+get_county_code
 
 'Dialog
 BeginDialog x_dlg, 0, 0, 176, 140, "x1 Number"
@@ -148,7 +139,7 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_screen("rept", "actv")
+	Call navigate_to_MAXIS_screen("rept", "actv")
 	EMWriteScreen worker, 21, 13
 	transmit
 	EMReadScreen user_worker, 7, 21, 71		'
@@ -167,22 +158,22 @@ For each worker in worker_array
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 			Do
-				EMReadScreen case_number, 8, MAXIS_row, 12		'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				'If trim(case_number) <> "" and instr(all_case_numbers_array, case_number) <> 0 then exit do
-				'all_case_numbers_array = trim(all_case_numbers_array & " " & case_number)
+				'If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				'all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 
-				If case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 
 				ObjExcel.Cells(excel_row, 1).Value = worker
-				ObjExcel.Cells(excel_row, 2).Value = case_number
+				ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 				ObjExcel.Cells(excel_row, 3).Value = client_name
 				excel_row = excel_row + 1
 
 				MAXIS_row = MAXIS_row + 1
-				case_number = ""			'Blanking out variable
+				MAXIS_case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 			PF8
 
@@ -193,10 +184,10 @@ next
 excel_row = 2
 Do
 	'Assign case number from Excel
-	case_number = ObjExcel.Cells(excel_row, 2)
+	MAXIS_case_number = ObjExcel.Cells(excel_row, 2)
 
 	'Exiting if the case number is blank
-	If case_number = "" then exit do
+	If MAXIS_case_number = "" then exit do
 
 	'Navigate to stat/addr to grab address
 	call navigate_to_MAXIS_screen("STAT", "ADDR")
@@ -253,7 +244,7 @@ Do
 
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-Loop until case_number = ""
+Loop until MAXIS_case_number = ""
 
 'formatting excel columns to fit
 FOR i = 1 to 13
