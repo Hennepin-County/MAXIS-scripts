@@ -136,24 +136,20 @@ ESProvider = ES_Provider
 
 'variable for case note header based on the appt type selected
 If appt_type = "Select one..." then case_note_header = "**ES REFERRAL SENT**"
-If appt_type = "Scheduled" then case_note_header = "**ES Appointment scheduled**"
-If appt_type = "Rescheduled" then case_note_header = "**ES Appointment Rescheduled**"
+If appt_type = "Scheduled" then case_note_header = "**ES Appointment Scheduled for " & appt_date & "**"
+If appt_type = "Rescheduled" then case_note_header = "**ES Appointment Rescheduled for " & appt_date & "**"
 
 'The case note --------- -------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE(case_note_header)
-If appt_type = "Select one..." then 
-    call write_variable_in_CASE_NOTE("*" & program & " referral sent to " & ES_provider & " on " & referral_date & ".")
-ELSE
-    Call write_variable_in_CASE_NOTE("*" & program & " ES appoinment " & appt_type & " for " & appt_date & ".")
-END IF
+If appt_type = "Select one..." then call write_variable_in_CASE_NOTE("*" & program & " referral sent to " & ES_provider & " on " & referral_date & ".")
 call write_bullet_and_variable_in_CASE_NOTE("Members referred", hh_member_list)
 IF program = "DWP" THEN call write_bullet_and_variable_in_CASE_NOTE("Employment plan due back on", plan_deadline)
 IF dwp_referral_check = 1 THEN CALL write_variable_in_CASE_NOTE("* DHS 4161 sent to client.")
 IF TIKL_check = 1 THEN CALL write_variable_in_CASE_NOTE("* TIKL to deny DWP this date if employment plan has not been completed.")
 IF es_referral_check = 1 THEN CALL write_variable_in_CASE_NOTE("* Paper referral sent to ES provider.")
 Call write_bullet_and_variable_in_CASE_NOTE("Vendor #(s)", vendor_num)
-call write_bullet_and_variable_in_CASE_NOTE("Other Notes:", other_notes)
+call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
