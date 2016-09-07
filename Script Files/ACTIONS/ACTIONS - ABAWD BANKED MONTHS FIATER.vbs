@@ -447,7 +447,7 @@ For i = 0 to ubound(footer_month_array)
 					IF cs_amount = "        " THEN cs_amount = 0
 					gross_CS = abs(gross_CS) + abs(cs_amount)
 					transmit
-					ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" then 	'<<<<<< Other UNEA
+					ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" OR unea_type = "47" OR unea_type = "48" OR unea_type = "49" then 	'<<<<<< Other UNEA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen other_unea_amount, 8, 18, 56
@@ -482,7 +482,7 @@ For i = 0 to ubound(footer_month_array)
 					IF datediff("d", MAXIS_footer_month & "/01/" & MAXIS_footer_year, replace(job_end_date, " ", "/")) < 0 THEN income_counted = false
 				END IF
 				IF jobs_verified = "?" or jobs_verified = "_?" THEN income_counted = false 'this will set to not counted if the user selected no on the verif_confirm popup'
-				If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
+				If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_type = "T" OR jobs_type = "P" OR jobs_type = "R" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
 					'certain rare income types can not be automatically determined, this prompts the user to confirm yes/no to reduce errors.
 					income_counted = MsgBox("This script does not support this type of Job" & vbCr & "Please select whether this income should be included in the FIAT budget for SNAP.", vbYesNo)
 				END IF
