@@ -94,7 +94,7 @@ HH_memb_row = 5 'This helps the navigation buttons work!
 'Shows and defines the main dialog.
 BeginDialog , 0, 0, 286, 280, "New job reported dialog"
   EditBox 80, 5, 25, 15, HH_memb
-  DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIA (JTPA)"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income", income_type_dropdown
+  DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIOA"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income"+chr(9)+"T Training Program"+chr(9)+"P Service Program"+chr(9)+"R Rehab Program", income_type_dropdown
   DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
   EditBox 45, 65, 195, 15, employer
   EditBox 100, 85, 55, 15, income_start_date
@@ -180,9 +180,16 @@ If create_JOBS_checkbox = checked then
 	transmit
 	EMReadScreen edit_mode_check, 1, 20, 8
 	If edit_mode_check = "D" then script_end_procedure("Unable to create a new JOBS panel. Check which member number you provided. Otherwise you may be in inquiry mode. If so shut down inquiry and try again. Or try closing BlueZone.")
-	EMWriteScreen left(income_type_dropdown, 1), 5, 38
-	If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 71
-	EMWriteScreen "n", 6, 38
+	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+		EMWriteScreen left(income_type_dropdown, 1), 5, 34
+		If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 74
+		EMWriteScreen "n", 6, 34
+	ELSE
+		EMWriteScreen left(income_type_dropdown, 1), 5, 38
+		IF left(income_type_dropdown, 1) = "J" OR left(income_type_dropdown, 1) = "G" OR left(income_type_dropdown, 1) = "T" OR left(income_type_dropdown, 1) = "P" OR left(income_type_dropdown, 1) = "R" THEN EMWriteScreen "0", 6, 75 'Adding in a temporary hourly wage for special income types which require it. 
+		If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 71
+		EMWriteScreen "n", 6, 38
+	END IF
 	EMWriteScreen employer, 7, 42
 	If income_start_date <> "" then call create_MAXIS_friendly_date(income_start_date, 0, 9, 35)
 	If contract_through_date <> "" then call create_MAXIS_friendly_date(contract_through_date, 0, 9, 73)

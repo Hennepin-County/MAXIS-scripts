@@ -181,6 +181,13 @@ IF XFERRadioGroup = 0 THEN
 
 	EMReadScreen worker_agency_name, 43, 8, 27
 		worker_agency_name = trim(worker_agency_name)
+	IF worker_agency_name = "" THEN 						'If we are unable to find the alias for the worker we will just use the worker name as it is what is used on notices anyway
+		EMReadScreen worker_agency_name, 43, 7, 27			
+		worker_agency_name = trim(worker_agency_name)
+		name_length = len(worker_agency_name)
+		comma_location = InStr(worker_agency_name, ",")
+		worker_agency_name = right(worker_agency_name, (name_length - comma_location)) & " " & left(worker_agency_name, (comma_location - 1)) 'this section will reorder the name of the worker since it is stored here as last, first. the comma_location - 1 removes the comma from the "last,"
+	END IF
 	EMReadScreen mail_addr_line_one, 43, 9, 27
 		mail_addr_line_one = trim(mail_addr_line_one)
 	EMReadScreen mail_addr_line_two, 43, 10, 27

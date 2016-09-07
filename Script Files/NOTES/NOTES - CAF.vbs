@@ -57,7 +57,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
 
-BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
+BeginDialog CAF_dialog_01, 0, 0, 451, 290, "CAF dialog part 1"
   EditBox 60, 5, 50, 15, CAF_datestamp
   ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
   CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
@@ -74,13 +74,15 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
   EditBox 310, 130, 135, 15, FACI
   EditBox 35, 160, 410, 15, PREG
   EditBox 35, 180, 410, 15, ABPS
-  EditBox 55, 210, 390, 15, verifs_needed
+  EditBox 35, 200, 410, 15, EMPS
+  If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 35, 220, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
+  EditBox 55, 235, 390, 15, verifs_needed
   ButtonGroup ButtonPressed
-    PushButton 340, 240, 50, 15, "NEXT", next_to_page_02_button
-    CancelButton 395, 240, 50, 15
+    PushButton 340, 270, 50, 15, "NEXT", next_to_page_02_button
+    CancelButton 395, 270, 50, 15
     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
     PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
     PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
@@ -94,32 +96,33 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 260, "CAF dialog part 1"
     PushButton 280, 135, 25, 10, "FACI:", FACI_button
     PushButton 5, 165, 25, 10, "PREG:", PREG_button
     PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
-    PushButton 10, 240, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 240, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 240, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 240, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 240, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 240, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 240, 15, 10, "WB", ELIG_WB_button
-    PushButton 150, 240, 25, 10, "ADDR", ADDR_button
-    PushButton 175, 240, 25, 10, "MEMB", MEMB_button
-    PushButton 200, 240, 25, 10, "MEMI", MEMI_button
-    PushButton 225, 240, 25, 10, "PROG", PROG_button
-    PushButton 250, 240, 25, 10, "REVW", REVW_button
-    PushButton 275, 240, 25, 10, "TYPE", TYPE_button
-  Text 5, 10, 55, 10, "CAF datestamp:"
-  Text 120, 10, 50, 10, "Interview type:"
-  Text 5, 30, 55, 10, "Interview date:"
-  Text 120, 30, 110, 10, "How was application received?:"
-  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+    PushButton 5, 205, 25, 10, "EMPS", EMPS_button
+    PushButton 10, 270, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 270, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 270, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 270, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 270, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 270, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 130, 270, 25, 10, "ADDR", ADDR_button
+    PushButton 155, 270, 25, 10, "MEMB", MEMB_button
+    PushButton 180, 270, 25, 10, "MEMI", MEMI_button
+    PushButton 205, 270, 25, 10, "PROG", PROG_button
+    PushButton 230, 270, 25, 10, "REVW", REVW_button
+    PushButton 255, 270, 25, 10, "SANC", SANC_button
+    PushButton 280, 270, 25, 10, "TIME", TIME_button
+    PushButton 305, 270, 25, 10, "TYPE", TYPE_button
   Text 335, 50, 55, 10, "HC datestamp:"
   Text 5, 95, 25, 10, "CIT/ID:"
-  Text 5, 215, 50, 10, "Verifs needed:"
-  GroupBox 5, 230, 130, 25, "ELIG panels:"
-  GroupBox 145, 230, 160, 25, "other STAT panels:"
+  Text 5, 240, 50, 10, "Verifs needed:"
+  GroupBox 5, 260, 115, 25, "ELIG panels:"
+  GroupBox 125, 260, 210, 25, "other STAT panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
+  Text 5, 10, 55, 10, "CAF datestamp:"
+  Text 5, 30, 55, 10, "Interview date:"
+  Text 120, 10, 50, 10, "Interview type:"
+  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+  Text 120, 30, 110, 10, "How was application received?:"
 EndDialog
-
 
 BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
   EditBox 60, 45, 385, 15, earned_income
@@ -254,18 +257,22 @@ application_signed_checkbox = checked 'The script should default to having the a
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
+get_county_code				'since there is a county specific checkbox, this makes the the county clear
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'initial dialog
 Do
 	DO
+		err_msg = ""
 		Dialog case_number_dialog
 		cancel_confirmation
-		If CAF_type = "Select one..." Then MsgBox "You must select the CAF type."
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-	Loop until CAF_type <> "Select one..."	
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+		If CAF_type = "Select one..." then err_msg = err_msg & vbnewline & "* You must select the CAF type."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect						
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
@@ -307,6 +314,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DIET", DIET)
 call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
+call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
 call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
 call autofill_editbox_from_MAXIS(HH_member_array, "FMED", FMED)
 call autofill_editbox_from_MAXIS(HH_member_array, "IMIG", IMIG)
@@ -490,6 +498,8 @@ CALL write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
 CALL write_bullet_and_variable_in_CASE_NOTE("SCHL/STIN/STEC", SCHL)
 CALL write_bullet_and_variable_in_CASE_NOTE("DISA", DISA)
 CALL write_bullet_and_variable_in_CASE_NOTE("PREG", PREG)
+Call write_bullet_and_variable_in_CASE_NOTE("EMPS", EMPS)
+If MFIP_DVD_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MFIP financial orientation DVD sent to participant(s).")
 CALL write_bullet_and_variable_in_CASE_NOTE("ABPS", ABPS)
 CALL write_bullet_and_variable_in_CASE_NOTE("Earned inc.", earned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("UNEA", unearned_income)
