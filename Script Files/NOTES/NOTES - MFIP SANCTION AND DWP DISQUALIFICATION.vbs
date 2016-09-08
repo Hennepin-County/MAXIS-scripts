@@ -2,7 +2,7 @@
 name_of_script = "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 90           'manual run time in seconds
+STATS_manualtime = 90           'manual run time in seconds: added one count to the stats counter for sanction imposed option since the manual time for this option is 180 seconds, 90 seconds for the sanction cured option
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
