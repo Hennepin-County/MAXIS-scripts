@@ -103,6 +103,14 @@ End if
 EMReadScreen DISA_check, 58, 6, 20
 If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then call run_from_GitHub(script_repository & "DAIL/DAIL - DISA MESSAGE.vbs")
 
+'EMPS - ES Referral missing
+EMReadScreen EMPS_ES_check, 52, 6, 20
+If EMPS_ES_check = "EMPS:ES REFERRAL DATE IS BLANK FOR NON-EXEMPT PERSON" then call run_from_GitHub(script_repository & "DAIL/DAIL - ES REFERRAL MISSING.vbs")
+
+'EMPS - Financial Orientation date needed
+EMReadScreen EMPS_Fin_Ori_check, 57, 6, 20
+If EMPS_Fin_Ori_check = "REVIEW EMPS PANEL FOR FINANCIAL ORIENT DATE OR GOOD CAUSE" then call run_from_GitHub(script_repository & "DAIL/DAIL - FIN ORIENT MISSING.vbs")
+
 'Client can receive an FMED deduction for SNAP (loads FMED DEDUCTION)
 EMReadScreen FMED_check, 59, 6, 20
 If FMED_check = "MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION" then call run_from_GitHub(script_repository & "DAIL/DAIL - FMED DEDUCTION.vbs")
