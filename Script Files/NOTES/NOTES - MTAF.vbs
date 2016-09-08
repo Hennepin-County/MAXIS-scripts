@@ -102,7 +102,6 @@ BeginDialog MTAF_dialog, 0, 0, 506, 345, "MTAF dialog"
   Text 5, 10, 40, 10, "MTAF date:"
 EndDialog
 
-
 'SCRIPT STUFF=================================================================================================================
 EMConnect ""
 'Grabs case number from the screen.
@@ -154,7 +153,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Referred to apply for OMB/PBEN", r
 CALL write_bullet_and_variable_in_CASE_NOTE ("ELIG results fiated", elig_results_fiated)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other notes", other_notes)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", verifications_needed)
-IF MFIP_DVD_checkbox = checked THEN CALL write_bullet_and_variable_in_CASE_NOTE("* Sent MFIP orientation DVD to participant(s).")
+IF MFIP_DVD_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent MFIP orientation DVD to participant(s).")
 If RR_explained_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Rights & responsibilities explained.")
 If mtaf_signed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MTAF was signed.")
 If mfip_financial_orientation_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MFIP orientation information reviewed/completed.")
