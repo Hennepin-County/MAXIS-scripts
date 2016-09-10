@@ -53,10 +53,47 @@ BeginDialog EXP_SNAP_review_dialog, 0, 0, 286, 185, "EXP SNAP review "
   Text 10, 145, 270, 25, "*The REPT/PND2 list of cases will identify ALL cases that are pending for SNAP (or MFIP if SNAP isn't active) that do not have a case note that identifies the case as not expedited."
 EndDialog
 
+'Custom function for this script only: navigates to and checks case note for EXP screening case note
+FUNCTION EXP_case_note_determination(appears_exp, pending_array)
+	Call navigate_to_MAXIS_screen("CASE", "NOTE")
+
+	'Checking for PRIV cases
+	EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
+	IF priv_check = "PRIVIL" THEN 				'Delete priv cases from excel sheet, save to a list for later
+		EMWriteScreen "________", 18, 43		'clears the case number
+		transmit
+		PF3
+		pending_array(appears_exp, item) = true
+	ELse
+		'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text	
+		MAXIS_row = 5
+		Do 
+			EMReadScreen case_note_date, 8, MAXIS_row, 6
+			If case_note_date = "        " then 
+				pending_array(appears_exp, item) = true
+				exit do
+			End if 
+			If case_note_date => appl_date then 
+				EMReadScreen case_note_header, 55, MAXIS_row, 25
+				case_note_header = trim(case_note_header)	
+				IF instr(case_note_header, "client appears expedited") then				
+					pending_array(appears_exp, item) = true
+					exit do
+				Elseif instr(case_note_header, "client does not appear expedited") then
+                    pending_array(appears_exp, item) = false
+					exit do
+				Else 
+					pending_array(appears_exp, item) = true			'defaults all other cases to true, to be addded to the list 
+				END IF
+			END IF 
+			MAXIS_row = MAXIS_row + 1
+		LOOP until case_note_date < appl_date
+	END If 
+END FUNCTION
+
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
-'Determining specific county for multicounty agencies & connects to BlueZone
-get_county_code
 EMConnect ""
+worker_number = "x127EL9"
 
 'Shows dialog
 DO 
@@ -93,14 +130,10 @@ Else
 	worker_array = split(worker_array, ", ")
 End if
 
-'sets up PRIV case array
-Dim PRIV_case_array()
-Redim PRIV_case_array(5, 0)
-
 '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>PND1 information
 'Sets up the array to store all the information for each client'
 Dim PND1_array ()
-ReDim PND1_array (5, 0)
+ReDim PND1_array (6, 0)
 entry_record = 0
 
 'Sets constants for the array to make the script easier to read (and easier to code)
@@ -109,6 +142,7 @@ Const case_num     = 2		'Each of the case numbers will be stored at this positio
 Const clt_name     = 3
 Const app_date     = 4
 Const days_pending = 5
+Const appears_exp  = 6
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
@@ -125,7 +159,7 @@ For each worker in worker_array
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3		 'Reading case number
 				MAXIS_case_number = trim(MAXIS_case_number)
-				EMReadScreen worker_basket, 7, 21, 13
+                EMReadScreen worker_basket, 7, 21, 13
 				EMReadScreen client_name, 25, MAXIS_row, 13			 'Reading client name
 				client_name = trim(client_name)
 				EMReadScreen appl_date, 8, MAXIS_row, 41		     'Reading application date
@@ -133,18 +167,19 @@ For each worker in worker_array
 				EMReadScreen nbr_days_pending, 4, MAXIS_row, 54		 'Reading nbr days pending
 					
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
+				If MAXIS_case_number <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
 				If MAXIS_case_number = "" and client_name = "" then exit do			'Exits do if we reach the end
 				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 				
 				'Adding client information to the array'
-				ReDim Preserve PND1_array(5, entry_record)	'This resizes the array based on the number of rows in the Excel File
+				ReDim Preserve PND1_array(6, entry_record)	'This resizes the array based on the number of rows in the Excel File
 				'The client information is added to the array
-				PND1_array (work_num,     entry_record) = worker_basket
-				PND1_array (case_num,	  entry_record) = MAXIS_case_number		
-				PND1_array (clt_name,  	  entry_record) = client_name
-				PND1_array (app_date, 	  entry_record) = appl_date
-				PND1_array (days_pending, entry_record) = nbr_days_pending
+				PND1_array (work_num,      entry_record) = worker_basket
+				PND1_array (case_num,	   entry_record) = MAXIS_case_number		
+				PND1_array (clt_name,  	   entry_record) = client_name
+				PND1_array (app_date, 	   entry_record) = appl_date
+				PND1_array (days_pending,  entry_record) = nbr_days_pending
+				PND1_array (appears_exp,    entry_record) = true
 					
 				entry_record = entry_record + 1			'This increments to the next entry in the array
 				MAXIS_row = MAXIS_row + 1	
@@ -164,47 +199,9 @@ For item = 0 to UBound(PND1_array, 2)
 	back_to_self
 	EMWriteScreen "________", 18, 43
 	EMWriteScreen MAXIS_case_number, 18, 43
-	Call navigate_to_MAXIS_screen("CASE", "NOTE")
 	
-	'Checking for PRIV cases
-	EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
-	IF priv_check = "PRIVIL" THEN 				'Delete priv cases from excel sheet, save to a list for later
-		EMWriteScreen "________", 18, 43		'clears the case number
-		transmit
-		PF3
-		appears_exp = True
-	ELse
-		'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text	
-		MAXIS_row = 5
-		Do 
-			EMReadScreen case_note_date, 8, MAXIS_row, 6
-			If case_note_date = "        " then 
-				appears_exp = True
-				exit do
-			End if 
-			If case_note_date => appl_date then 
-				EMReadScreen case_note_header, 55, MAXIS_row, 25
-				case_note_header = trim(case_note_header)	
-				IF instr(case_note_header, "client appears expedited") then				
-					appears_exp = True 
-					exit do
-				Elseif instr(case_note_header, "client does not appear expedited") then
-					appears_exp = FALSE
-					exit do
-				Else 
-					appears_exp = True			'defaults all other cases to true, to be addded to the list 
-				END IF
-			END IF 
-			MAXIS_row = MAXIS_row + 1
-		LOOP until case_note_date < appl_date
-	END If 
-				
-	'if cases are pending for MFIP or SNAP and appear to be EXP based on not having a EXP screening, or EXP screening shows they appear exp, then the cases will be added to Excel.
-	If appears_exp = True then 
-		add_to_excel = True
-	ELSEif appears_exp = False then 
-		add_to_excel = False
-	END IF 
+	'if cases are pending for MFIP or SNAP and appear to be EXP based on not having a EXP screening, or EXP screening shows they appear exp, then the cases will be added to Excel. 
+	Call EXP_case_note_determination(appears_exp, PND1_array)
 NEXT		
 
 'Opening the Excel file
@@ -235,7 +232,7 @@ NEXT
 excel_row = 2
 
 For item = 0 to UBound(PND1_array, 2)
-	If add_to_excel = True then 
+	If PND1_array(appears_exp, item) = true then
 		objExcel.Cells(excel_row, 1).Value = PND1_array (work_num,   	item)	'Adding worker number
 		objExcel.Cells(excel_row, 2).Value = PND1_array (case_num,	 	item)	'Adding case number
 		objExcel.Cells(excel_row, 3).Value = PND1_array (clt_name, 	   	item)	'Addubg client name
@@ -249,10 +246,16 @@ FOR i = 1 to 6		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 	
-'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>PND2 information 
+Erase PND1_array		'clears values from PND1_array
+MAXIS_case_number = ""	'clears out MAXIS_case_number variable
+
+''PND2 cases>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>PND2 information 
+'Adding another sheet 
+ObjExcel.Worksheets.Add().Name = "PND2 cases"
+
 'Sets up the array to store all the information for each client'
 Dim PND2_array ()
-ReDim PND2_array (5, 0)
+ReDim PND2_array (6, 0)
 entry_record = 0
 
 For each worker in worker_array
@@ -270,27 +273,33 @@ For each worker in worker_array
 			MAXIS_row = 7
 			Do
 				EMReadScreen SNAP_pending_status, 1, MAXIS_row, 62
-				IF SNAP_pending_status = "P" then add_to_PND2_array = True
-				If SNAP_pending_status <> "P" then 
+				IF SNAP_pending_status <> "_" then add_to_PND2_array = true
+				If SNAP_pending_status = "_" then 
 					EMReadScreen CASH_pending_status, 1, MAXIS_row, 54
-					If CASH_pending_status = "P" then 
-						add_to_PND2_array = True
-					Else
-						add_to_PND2_array = FALSE
+					If CASH_pending_status <> "_" then 
+						EMReadScreen CASH_program, 2, MAXIS_row, 56
+                        If CASH_program = "MF" or CASH_program = "CA" then  
+						    add_to_PND2_array = true
+					    Else
+						    add_to_PND2_array = false
+                        End if
+                    Else
+                        add_to_PND2_array = false
 					End if 
 				END IF 
 					
 				EMReadScreen worker_basket, 7, 21, 13				
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5		 'Reading case number
-				EMReadScreen appl_date, 8, MAXIS_row, 38		     'Reading application date
+				MAXIS_case_number = trim(MAXIS_case_number)
+                EMReadScreen appl_date, 8, MAXIS_row, 38		     'Reading application date
 				appl_date = replace(appl_date, " ", "/")
 				EMReadScreen nbr_days_pending, 4, MAXIS_row, 49		 'Reading nbr days pending
 				EMReadScreen client_name, 22, MAXIS_row, 16			 'Reading client name
-				
+						
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(MAXIS_case_number) <> "" and (instr(all_case_numbers_array, MAXIS_case_number) <> 0 and client_name <> " ADDITIONAL APP       ") then exit do
+				If MAXIS_case_number <> "" and (instr(all_case_numbers_array, MAXIS_case_number) <> 0 and client_name <> " ADDITIONAL APP       ") then exit do
 				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
-				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "" then exit do			'Exits do if we reach the end
 				
 				'If additional application is rec'd then the excel output is the client's name, not ADDITIONAL APP
 				if trim(client_name) = "ADDITIONAL APP" then
@@ -299,15 +308,15 @@ For each worker in worker_array
 				END IF
 				
 				'Adding client information to the array'
-				If add_to_PND2_array = True and MAXIS_case_number <> "" then 
-					ReDim Preserve PND2_array(5, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+				If add_to_PND2_array = true and MAXIS_case_number <> "" then 
+					ReDim Preserve PND2_array(6, entry_record)	'This resizes the array based on the number of rows in the Excel File'
 					'The client information is added to the array'
 					PND2_array (work_num,     entry_record) = worker_basket
 					PND2_array (case_num,	  entry_record) = MAXIS_case_number		
 					PND2_array (clt_name,  	  entry_record) = client_name
 					PND2_array (app_date, 	  entry_record) = appl_date
 					PND2_array (days_pending, entry_record) = nbr_days_pending
-					
+					PND2_array (appears_exp,  entry_record) = true
 					entry_record = entry_record + 1			'This increments to the next entry in the array'
 					STATS_counter = STATS_counter + 1
 				END IF
@@ -323,42 +332,46 @@ next
 For item = 0 to UBound(PND2_array, 2)
 	MAXIS_case_number = PND2_array(case_num, item)	'Case number for each loop from the array
 	appl_date = PND2_array(app_date, item)			'appl date for each loop from the array
-	
-	appears_exp = True
+    
 	back_to_self
 	EMWriteScreen "________", 18, 43
 	EMWriteScreen MAXIS_case_number, 18, 43
-		
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+
 	'Checking for PRIV cases
 	EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
 	IF priv_check = "PRIVIL" THEN 				'Delete priv cases from excel sheet, save to a list for later
+		PND2_array(appears_exp, item) = true
 		EMWriteScreen "________", 18, 43		'clears the case number
 		transmit
-		PF3
-		appears_exp = True
+		PF3	
 	ELse
 		'checking for ACTIVE SNAP 
-		Call navigate_to_MAXIS_screen("STAT", "PROG")
 		EMReadScreen SNAP_status, 4, 10, 74
 		If SNAP_status = "ACTV" then 
-			appears_exp = false
-		Elseif SNAP_status <> "PEND" then 
+			check_case_note = false
+			PND2_array(appears_exp, item) = false
+        elseIF SNAP_status = "PEND" then 
+			check_case_note = true
+		Else
 			'Checking for ACTIVE MFIP
 			MAXIS_row = 6
 			Do 
 				EMReadScreen cash_status, 2, MAXIS_row, 67
-				If cash_status = "MF" then 
-					EMReadScreen program_status, 4, MAXIS_row, 74
-					If program_status <> "PEND" then 
-						appears_exp = false
-					elseif cash_status = "  " then 
-						appears_exp = true
-					END IF 
+				EMReadScreen program_status, 4, MAXIS_row, 74
+				If (cash_status = "MF" and program_status = "PEND") then 
+						check_case_note = true
+						exit do 	
+				Elseif (cash_status = "  " and program_status = "PEND") then  
+					check_case_note = true
+					exit do
+				ELSE 
+                    check_case_note = false 
+					PND2_array(appears_exp, item) = false
 				END IF 
 				MAXIS_row = MAXIS_row + 1
 			LOOP until MAXIS_row = 	8
 		END IF 
-	
 		'Because some cases don't have HCRE dates listed, so when you try to go past PROG the script gets caught up. Do...loop handles this instance.
 		PF3		'exits PROG to prompt HCRE if HCRE isn't complete
 		Do
@@ -367,43 +380,12 @@ For item = 0 to UBound(PND2_array, 2)
 				PF10	'exists edit mode in cases where HCRE isn't complete for a member
 				PF3
 			END IF
-		Loop until HCRE_panel_check <> "HCRE"		'repeats until case is not in the HCRE panel
-		'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text	
-		MAXIS_row = 5
-		Do 
-			EMReadScreen case_note_date, 8, MAXIS_row, 6
-			If case_note_date = "        " then 
-				appears_exp = True
-				exit do
-			End if 
-			
-			If case_note_date => appl_date then 
-				EMReadScreen case_note_header, 55, MAXIS_row, 25
-				case_note_header = trim(case_note_header)	
-				IF instr(case_note_header, "client appears expedited") then				
-					appears_exp = True 
-					exit do
-				Elseif instr(case_note_header, "client does not appear expedited") then
-					appears_exp = FALSE
-					exit do
-				Else 
-					appears_exp = True			'defaults all other cases to true, to be addded to the list 
-				END IF
-			END IF
-			MAXIS_row = MAXIS_row + 1
-		LOOP until case_note_date < appl_date
-	END if	
-			
-	'if cases are pending for MFIP or SNAP and appear to be EXP based on not having a EXP screening, or EXP screening shows they appear exp, then the cases will be added to Excel.
-	If appears_exp = True then 
-		add_to_excel = True
-	ELSEif appears_exp = False then
-		add_to_excel = False
-	END IF  
+		Loop until HCRE_panel_check <> "HCRE"		'repeats until case is not in the HCRE panel	
+        
+        'If the case note needs to be reviewd for the NOTES - EXPEDITED SCREENING case note, then the 
+		If check_case_note = true then Call EXP_case_note_determination(appears_exp, PND2_array)
+    END IF 
 NEXT	
-
-'Adding another sheet 
-ObjExcel.Worksheets.Add().Name = "PND2 cases"
 
 'adding information to the Excel list from PND2
 ObjExcel.Cells(1, 1).Value = "Worker"
@@ -419,11 +401,11 @@ FOR i = 1 to 6		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
-'Addded the potentially EXP SNAP cases to 
+'Addded the potentially EXP SNAP cases to the PND2 worksheet
 excel_row = 2		'Setting the excel_row to start writing data on
 
 For item = 0 to UBound(PND2_array, 2)
-	If add_to_excel = True then 
+	If PND2_array(appears_exp, item) = true then 
 		objExcel.Cells(excel_row, 1).Value = PND2_array (work_num,   	item)	'Adding worker number
 		objExcel.Cells(excel_row, 2).Value = PND2_array (case_num,	 	item)	'Adding case number
 		objExcel.Cells(excel_row, 3).Value = PND2_array (clt_name, 	   	item)	'Addubg client name
