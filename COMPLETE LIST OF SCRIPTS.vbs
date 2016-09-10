@@ -351,6 +351,16 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "EXP SNAP Review"
+script_array(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
+script_array(script_num).category               = "BULK"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #09/26/2016#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Find MAEPD MEDI CEI"
 script_array(script_num).description 			= "Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
 script_array(script_num).category               = "BULK"
