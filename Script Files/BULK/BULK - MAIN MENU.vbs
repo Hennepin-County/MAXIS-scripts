@@ -36,7 +36,7 @@ END IF
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_BULK_menu_dialog(script_array)
-	BeginDialog BULK_dialog, 0, 0, 516, 440, "BULK Scripts"
+	BeginDialog BULK_dialog, 0, 0, 516, 450, "BULK Scripts"
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "BULK", 				BULK_main_button
@@ -218,6 +218,13 @@ Set script_array_BULK_list(script_num) = new script		'Set this array element to 
 script_array_BULK_list(script_num).script_name 			= " EOMC "													'needs spaces to generate button width properly.
 script_array_BULK_list(script_num).file_name			= "BULK - REPT-EOMC LIST.vbs"
 script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/EOMC into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_list(script_num).script_name 			= " EXP SNAP Review "													'needs spaces to generate button width properly.
+script_array_BULK_list(script_num).file_name			= "BULK - EXP SNAP REVIEW.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
