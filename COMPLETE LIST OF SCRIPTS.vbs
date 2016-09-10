@@ -142,7 +142,7 @@ script_array(script_num).script_name			= "FSET Sanction"
 script_array(script_num).description			= "Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
@@ -1662,16 +1662,6 @@ ReDim Preserve script_array(script_num)
 Set script_array(script_num) = new script_bowie
 script_array(script_num).script_name 			= "Medical Opinion Form Received"
 script_array(script_num).description				= "Template for case noting information about a Medical Opinion Form."
-script_array(script_num).category               = "NOTES"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("M-Z")
-script_array(script_num).release_date           = #10/01/2000#
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "MFIP Sanction Cured"
-script_array(script_num).description				= "Template for noting the curing of an MFIP sanction."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("M-Z")

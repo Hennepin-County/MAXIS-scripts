@@ -215,12 +215,15 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
         		bene_yr_row = bene_yr_row + 1
    	     		bene_mo_col = 19
    	END IF
-  LOOP until bene_yr_row = current_yr_row AND bene_mo_col = current_month_col'Stops when it reaches current year & month.
+  LOOP until bene_yr_row = current_yr_row AND bene_mo_col = current_month_col			'Stops when it reaches current year & month.
   IF WREG_months < 3 THEN err_msg = err_msg & vbCr & "Member " & member & " has not used 3 ABAWD months in the past 3 years."
 	row = current_yr_row
 	col = current_month_col
-	EMSearch "M", row, col 'This looks to make sure there is an initial banked month coded on WREG on or after the initial month
-	IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+	EMSearch "M", row, col			'This looks to make sure there is an initial banked month coded on WREG on or after the initial month as an "M"
+	IF row < current_yr_row OR row > current_yr_row + 1 THEN 
+		EMSearch "X", row, col 		'This looks to make sure there is an initial banked month coded on WREG on or after the initial month as an "X"
+		IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
+	End if
 	PF3
 Next
 
@@ -444,7 +447,7 @@ For i = 0 to ubound(footer_month_array)
 					IF cs_amount = "        " THEN cs_amount = 0
 					gross_CS = abs(gross_CS) + abs(cs_amount)
 					transmit
-					ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" then 	'<<<<<< Other UNEA
+					ElseIf unea_type = "06" OR unea_type = "15" OR unea_type = "16" OR unea_type = "17" OR unea_type = "18" OR unea_type = "23" OR unea_type = "24" OR unea_type = "25" OR unea_type = "26" OR unea_type = "27" OR unea_type = "28" OR unea_type = "29" OR unea_type = "31" OR unea_type = "35" OR unea_type = "37" OR unea_type = "40" OR unea_type = "47" OR unea_type = "48" OR unea_type = "49" then 	'<<<<<< Other UNEA
 					EMWriteScreen "x", 10, 26
 					transmit
 					EMReadScreen other_unea_amount, 8, 18, 56
@@ -463,9 +466,15 @@ For i = 0 to ubound(footer_month_array)
 			For m = 1 to number_of_jobs_panels					'<<<<<< Starting at 1 because this is a panel count and it makes sense to use this as a standard count
 				EMWriteScreen "0" & m, 20, 79
 				transmit
-				EMReadScreen jobs_type, 1, 5, 38
-				EMReadScreen jobs_subsidy, 2, 5, 71
-				EMReadScreen jobs_verified, 1, 6, 38
+				IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
+					EMReadScreen jobs_type, 1, 5, 34
+					EMReadScreen jobs_subsidy, 2, 5, 74
+					EMReadScreen jobs_verified, 1, 6, 34				
+				ELSE
+					EMReadScreen jobs_type, 1, 5, 38
+					EMReadScreen jobs_subsidy, 2, 5, 71
+					EMReadScreen jobs_verified, 1, 6, 38
+				END IF
 				EMReadScreen job_end_date, 8, 9, 49
 				call verif_confirm_message(jobs_verified, "job")
 				income_counted = vbYes 'defaults to counted, the next statement will confirm certain income types'
@@ -473,7 +482,7 @@ For i = 0 to ubound(footer_month_array)
 					IF datediff("d", MAXIS_footer_month & "/01/" & MAXIS_footer_year, replace(job_end_date, " ", "/")) < 0 THEN income_counted = false
 				END IF
 				IF jobs_verified = "?" or jobs_verified = "_?" THEN income_counted = false 'this will set to not counted if the user selected no on the verif_confirm popup'
-				If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
+				If jobs_type = "J" OR jobs_type = "E" OR jobs_type = "O" OR jobs_type = "I" OR jobs_type = "M" OR jobs_type = "C" OR jobs_type = "T" OR jobs_type = "P" OR jobs_type = "R" OR jobs_subsidy = "01" OR jobs_subsidy = "02" OR jobs_subsidy = "03" OR jobs_verified = "N" OR jobs_verified = "_" then
 					'certain rare income types can not be automatically determined, this prompts the user to confirm yes/no to reduce errors.
 					income_counted = MsgBox("This script does not support this type of Job" & vbCr & "Please select whether this income should be included in the FIAT budget for SNAP.", vbYesNo)
 				END IF
