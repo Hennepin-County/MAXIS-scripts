@@ -36,11 +36,12 @@ END IF
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_BULK_menu_dialog(script_array)
-	BeginDialog BULK_dialog, 0, 0, 516, 440, "BULK Scripts"
+	BeginDialog BULK_dialog, 0, 0, 545, 360, "BULK Scripts"
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "BULK", 				BULK_main_button
-		 	PushButton 045, 35, 50, 15, "BULK LISTS", 				BULK_lists_button
+		 	PushButton 045, 35, 50, 15, "BULK LISTS", 			BULK_lists_button
+			PushButton 095, 35, 50, 15, "STAT LISTS",			BULK_stat_lists_button
 		 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
 
 		'This starts here, but it shouldn't end here :)
@@ -58,7 +59,7 @@ Function declare_BULK_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 410, 50, 15
+		CancelButton 460, 340, 50, 15
 		GroupBox 5, 20, 205, 35, "BULK Sub-Menus"
 	EndDialog
 End function
@@ -73,6 +74,7 @@ dim BULK_dialog
 
 script_array_BULK_main = array()
 script_array_BULK_list = array()
+script_array_BULK_stat_list = array()
 
 
 'END VARIABLES TO DECLARE===================================================================================================
@@ -82,7 +84,6 @@ script_array_BULK_list = array()
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
 
 '-------------------------------------------------------------------------------------------------------------------------BULK MAIN MENU
-
 'Resetting the variable
 script_num = 0
 ReDim Preserve script_array_BULK_main(script_num)
@@ -178,27 +179,6 @@ script_array_BULK_main(script_num).description				= "Updates a saved REPT/EOMC e
 '-------------------------------------------------------------------------------------------------------------------------BULK LISTS
 'Resetting the variable
 script_num = 0
-ReDim Preserve script_array_BULK_list(script_num)
-Set script_array_BULK_list(script_num) = new script
-script_array_BULK_list(script_num).script_name 			= "ADDR"																		'Script name
-script_array_BULK_list(script_num).file_name			= "BULK - ADDRESS REPORT.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list of all addresses from a caseload(or entire county)."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "ACTV"
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-ACTV LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/ACTV into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "ARST"
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-ARST LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/ARST into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_list(script_num).script_name 			= " Check SNAP for GA/RCA "													'needs spaces to generate button width properly.
@@ -208,16 +188,9 @@ script_array_BULK_list(script_num).description 			= "Compares the amount of GA a
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "DAIL"
-script_array_BULK_list(script_num).file_name			= "BULK - DAIL REPORT.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of DAILS in DAIL/DAIL into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " EOMC "													'needs spaces to generate button width properly.
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-EOMC LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/EOMC into an Excel spreadsheet."
+script_array_BULK_list(script_num).script_name 			= " EXP SNAP Review "
+script_array_BULK_list(script_num).file_name			= "BULK - EXP SNAP REVIEW.vbs"
+script_array_BULK_list(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
@@ -229,37 +202,9 @@ script_array_BULK_list(script_num).description 			= "Creates a list of cases fro
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " GRMR "
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-GRMR LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/GRMR into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_list(script_num).script_name 			= "Housing Grant Exemption Finder"
 script_array_BULK_list(script_num).file_name			= "BULK - HOUSING GRANT EXEMPTION FINDER.vbs"
 script_array_BULK_list(script_num).description 			= "Creates a list the rolling 12 months of housing grant issuances for MFIP recipients who've met an exemption."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "IEVC"
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-IEVC LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "INAC"
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-INAC LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "LTC-GRH List Gen"
-script_array_BULK_list(script_num).file_name			= "BULK - LTC-GRH LIST GENERATOR.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload(s)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
@@ -268,84 +213,141 @@ script_array_BULK_list(script_num).script_name 			= "MA-EPD/Medi Pt B CEI"
 script_array_BULK_list(script_num).file_name			= "BULK - FIND MAEPD MEDI CEI.vbs"
 script_array_BULK_list(script_num).description 			= "Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
 
-'script_num = script_num + 1								'Increment by one
-'ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-'Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_BULK_list(script_num).script_name 			= "MAGI/Non-MAGI Report"
-'script_array_BULK_list(script_num).file_name			= "BULK - MAGI NON MAGI REPORT.vbs"
-'script_array_BULK_list(script_num).description 			= "NEW 06/2016!! Creates a list of cases and clients active on health care in MAXIS by MAGI/Non-MAGI."
+'-------------------------------------------------------------------------------------------------------------------------BULK STAT list
+'Resetting the variable
+script_num = 0
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "ADDR"																		'Script name
+script_array_BULK_stat_list(script_num).file_name			= "BULK - ADDRESS REPORT.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Creates a list of all addresses from a caseload(or entire county)."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " MAMS "													'needs spaces to generate button width properly.
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-MAMS LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MAMS into an Excel spreadsheet."
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "ACTV"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-ACTV LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/ACTV into an Excel spreadsheet."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " MFCM "													'needs spaces to generate button width properly.
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-MFCM LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MFCM into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " MONT "													'needs spaces to generate button width properly.
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-MONT LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MONT into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " MRSR "													'needs spaces to generate button width properly.
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-MRSR LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/MRSR into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "Non-MAGI HC Info"
-script_array_BULK_list(script_num).file_name			= "BULK - NON-MAGI HC INFO.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list of cases with non-MAGI HC/PDED information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "PND1"
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-PND1 LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/PND1 into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "PND2"
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-PND2 LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/PND2 into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " REVS "													'needs spaces to generate button width properly.							
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-REVS LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/REVS into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " REVW "													'needs spaces to generate button width properly.
-script_array_BULK_list(script_num).file_name			= "BULK - REPT-REVW LIST.vbs"
-script_array_BULK_list(script_num).description 			= "Pulls a list of cases in REPT/REVW into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "SWKR List Gen"
-script_array_BULK_list(script_num).file_name			= "BULK - SWKR LIST GENERATOR.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list of SWKRs assigned to the various cases in a caseload(s)."
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "ARST"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-ARST LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/ARST into an Excel spreadsheet."
 
 
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "DAIL"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - DAIL REPORT.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of DAILS in DAIL/DAIL into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " EOMC "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-EOMC LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/EOMC into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " GRMR "
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-GRMR LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/GRMR into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "IEVC"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-IEVC LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "INAC"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-INAC LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "LTC-GRH List Gen"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - LTC-GRH LIST GENERATOR.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Creates a list of FACIs, AREPs, and waiver types assigned to the various cases in a caseload(s)."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " MAMS "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-MAMS LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/MAMS into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " MFCM "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-MFCM LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/MFCM into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " MONT "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-MONT LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/MONT into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " MRSR "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-MRSR LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/MRSR into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "Non-MAGI HC Info"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - NON-MAGI HC INFO.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Creates a list of cases with non-MAGI HC/PDED information."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "PND1"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-PND1 LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/PND1 into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "PND2"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-PND2 LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/PND2 into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name			= " REVS "													'needs spaces to generate button width properly.							
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-REVS LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/REVS into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " REVW "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-REVW LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/REVW into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "SWKR List Gen"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - SWKR LIST GENERATOR.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Creates a list of SWKRs assigned to the various cases in a caseload(s)."
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -356,7 +358,7 @@ script_array_BULK_list(script_num).description 			= "Creates a list of SWKRs ass
 button_placeholder 	= 24601
 BULK_main_button		= 1000
 BULK_lists_button		= 2000
-
+BULK_stat_lists_button = 3000
 
 'Displays the dialog
 Do
@@ -364,6 +366,8 @@ Do
 		declare_BULK_menu_dialog(script_array_BULK_main)
 	ElseIf ButtonPressed = BULK_lists_button then
 		declare_BULK_menu_dialog(script_array_BULK_list)
+	ELSEif ButtonPressed = BULK_stat_lists_button then 
+		declare_BULK_menu_dialog(script_array_BULK_stat_list)
 	End if
 
 	dialog BULK_dialog
@@ -373,7 +377,8 @@ Do
 	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
 Loop until 	ButtonPressed <> SIR_instructions_button and _
 			ButtonPressed <> BULK_main_button and _
-			ButtonPressed <> BULK_lists_button 
+			ButtonPressed <> BULK_lists_button and _
+			ButtonPressed <> BULK_stat_lists_button
 
 'MsgBox buttonpressed = script_array_BULK_main(0).button
 
@@ -386,4 +391,7 @@ For i = 0 to ubound(script_array_BULK_list)
 	If ButtonPressed = script_array_BULK_list(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_list(i).file_name)
 Next
 
+For i = 0 to ubound(script_array_BULK_stat_list)
+	If ButtonPressed = script_array_BULK_stat_list(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_stat_list(i).file_name)
+Next
 stopscript
