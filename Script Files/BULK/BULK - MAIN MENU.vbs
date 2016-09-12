@@ -40,8 +40,8 @@ Function declare_BULK_menu_dialog(script_array)
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 60, 15, "BULK ACTIONS", 		BULK_main_button
-		 	PushButton 075, 35, 80, 15, "ENHANCED LISTS", 		BULK_enhanced_lists_button
-			PushButton 155, 35, 50, 15, "BULK LISTS",			BULK_lists_button
+		 	PushButton 075, 35, 50, 15, "BULK LISTS",			BULK_lists_button
+			PushButton 125, 35, 80, 15, "ENHANCED LISTS", 		BULK_enhanced_lists_button
 		 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
 
 		'This starts here, but it shouldn't end here :)
