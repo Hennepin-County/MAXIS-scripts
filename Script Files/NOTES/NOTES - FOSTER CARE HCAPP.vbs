@@ -39,7 +39,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog Foster_Care_HCAPP, 0, 0, 271, 245, "Foster Care HCAPP "
+BeginDialog Foster_Care_HCAPP, 0, 0, 276, 270, "Foster Care HCAPP "
   EditBox 60, 5, 65, 15, MAXIS_case_number
   EditBox 190, 5, 75, 15, Completed_By
   EditBox 100, 25, 60, 15, Date_Received_By_Agency
@@ -49,29 +49,34 @@ BeginDialog Foster_Care_HCAPP, 0, 0, 271, 245, "Foster Care HCAPP "
   EditBox 35, 105, 125, 15, AREP
   EditBox 40, 125, 225, 15, Income
   EditBox 70, 145, 195, 15, Retro_Requested
-  EditBox 30, 165, 235, 15, OHC
-  EditBox 90, 185, 175, 15, Verifications_Requested
-  EditBox 60, 205, 205, 15, Actions_Taken
-  EditBox 70, 225, 90, 15, Worker_Signature
+  EditBox 45, 170, 65, 15, HHcomp
+  EditBox 155, 170, 115, 15, Assets
+  EditBox 35, 190, 235, 15, OHC
+  EditBox 95, 210, 175, 15, Verifications_Requested
+  EditBox 65, 230, 205, 15, Actions_Taken
+  EditBox 75, 250, 90, 15, Worker_Signature
   ButtonGroup ButtonPressed
-    OkButton 165, 225, 50, 15
-    CancelButton 215, 225, 50, 15
+    OkButton 170, 250, 50, 15
+    CancelButton 220, 250, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 30, 90, 10, "Date Received By Agency: "
   Text 135, 10, 50, 10, "Completed By: "
+  Text 5, 30, 90, 10, "Date Received By Agency: "
+  GroupBox 165, 20, 100, 75, ""
+  Text 170, 30, 90, 60, "RESOURCES: For more helpful information use the combined manual (footer month of 07/96) in MAXIS. Search for 'Foster Care', 'AFDC Assistance Standards', and/or 'IV-E'."
   Text 5, 50, 100, 10, "Date of Agency Responsiblity: "
   Text 5, 70, 20, 10, "IV E:"
   Text 5, 90, 45, 10, "SWKR or PO:"
   Text 5, 110, 25, 10, "AREP: "
   Text 5, 130, 30, 10, "Income: "
   Text 5, 150, 60, 10, "Retro Requested: "
-  Text 5, 170, 20, 10, "OHC:"
-  Text 5, 190, 80, 10, "Verifications Requested: "
-  Text 5, 210, 50, 10, "Actions Taken:"
-  Text 5, 230, 60, 10, "Worker Signature: "
-  GroupBox 165, 20, 100, 75, ""
-  Text 170, 30, 90, 60, "RESOURCES: For more helpful information use the combined manual (footer month of 07/96) in MAXIS. Search for 'Foster Care', 'AFDC Assistance Standards', and/or 'IV-E'."
+  Text 5, 175, 30, 10, "HHcomp:"
+  Text 10, 195, 20, 10, "OHC:"
+  Text 5, 215, 80, 10, "Verifications Requested: "
+  Text 10, 235, 50, 10, "Actions Taken:"
+  Text 10, 255, 60, 10, "Worker Signature: "
+  Text 125, 175, 30, 10, "Assets:"
 EndDialog
+
 
 
 
@@ -102,6 +107,8 @@ CALL write_bullet_and_variable_in_CASE_NOTE("SWKR or PO", SWKR_or_PO)
 CALL write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
 CALL write_bullet_and_variable_in_CASE_NOTE("Income", Income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Retro Requested", Retro_Requested)
+CALL write_bullet_and_variable_in_CASE_NOTE("HHcomp", HHComp)
+CALL write_bullet_and_variable_in_CASE_NOTE("Assets", Assets)
 CALL write_bullet_and_variable_in_CASE_NOTE("OHC", OHC)
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Requested", Verifications_Requested)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)

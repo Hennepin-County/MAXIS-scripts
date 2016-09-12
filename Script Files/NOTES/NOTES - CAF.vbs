@@ -358,10 +358,13 @@ Do
 			Loop until ButtonPressed = next_to_page_02_button and err_msg = ""
 			Do
 				Do
+					err_msg = ""
 					Dialog CAF_dialog_02			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button		'If you press either the next or previous button, this loop ends
+					IF (earned_income <> "" AND notes_on_income = "") OR (unearned_income <> "" AND notes_on_income = "") THEN err_msg = "Income information was read from STAT panels. Please provide an explaination for this income and how it was used/not used to determine the budget."
+					If err_msg <> "" THEN Msgbox err_msg
+				Loop until ButtonPressed = (next_to_page_03_button AND err_msg = "") or (ButtonPressed = previous_to_page_01_button AND err_msg = "")		'If you press either the next or previous button, this loop ends
 				If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
 				Do
 					err_msg = ""
