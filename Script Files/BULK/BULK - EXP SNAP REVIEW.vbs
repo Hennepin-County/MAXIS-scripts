@@ -65,7 +65,7 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 		PF3
 		pending_array(appears_exp, item) = true   'If the case is PRIV, then case is added to the excel spreadsheet to reviewed manually for EXP SNAP processing standards. 
 	ELse
-		'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text	
+		'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text or the NOTES - EXPEDITED DETERMINATION text
 		MAXIS_row = 5
 		Do 
 			EMReadScreen case_note_date, 8, MAXIS_row, 6
@@ -79,10 +79,16 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 				IF instr(case_note_header, "client appears expedited") then				
 					pending_array(appears_exp, item) = true            'if client appears exp is found, then case added to the Excel list
 					exit do
+				Elseif instr(case_note_header, "Expedited Determination: SNAP appears expedited") then	
+					pending_array(appears_exp, item) = true            'if client appears exp is found, then case added to the Excel list
+					exit do
 				Elseif instr(case_note_header, "client does not appear expedited") then
                     pending_array(appears_exp, item) = false            'if client does not appear exp is found, then case will not be added to the Excel list
 					exit do
-				Else 
+				Elseif instr(case_note_header, "Expedited Determination: SNAP does not appear expedited") then	
+					pending_array(appears_exp, item) = false            'if client does not appear exp is found, then case will not be added to the Excel list
+					exit do	
+				Else
 					pending_array(appears_exp, item) = true			'defaults all other cases to true, to be addded to the Excel list 
 				END IF
 			END IF 
