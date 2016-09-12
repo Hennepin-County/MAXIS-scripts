@@ -78,9 +78,11 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 				case_note_header = trim(case_note_header)	
 				IF instr(case_note_header, "client appears expedited") then				
 					pending_array(appears_exp, item) = true            'if client appears exp is found, then case added to the Excel list
+					pending_array(case_notes, item) = "EXP screening ran, SNAP appears expedited"		'adds case notes to Excel re: screening was completed
 					exit do
 				Elseif instr(case_note_header, "Expedited Determination: SNAP appears expedited") then	
 					pending_array(appears_exp, item) = true            'if client appears exp is found, then case added to the Excel list
+					pending_array(case_notes, item) = "EXP determination made, SNAP appears expedited"		'adds case notes to Excel re: determination has been made
 					exit do
 				Elseif instr(case_note_header, "client does not appear expedited") then
                     pending_array(appears_exp, item) = false            'if client does not appear exp is found, then case will not be added to the Excel list
@@ -90,6 +92,7 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 					exit do	
 				Else
 					pending_array(appears_exp, item) = true			'defaults all other cases to true, to be addded to the Excel list 
+					pending_array(case_notes, item) = "An expedited SNAP determination has not been made."		'adds case notes to Excel re: screening is needed
 				END IF
 			END IF 
 			MAXIS_row = MAXIS_row + 1
@@ -138,7 +141,7 @@ End if
 '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>PND1 information
 'Sets up the array to store all the information for each client'
 Dim PND1_array ()
-ReDim PND1_array (6, 0)
+ReDim PND1_array (7, 0)
 entry_record = 0
 
 'Sets constants for the array to make the script easier to read (and easier to code)
@@ -148,6 +151,7 @@ Const clt_name     = 3
 Const app_date     = 4
 Const days_pending = 5
 Const appears_exp  = 6      'appears_exp will be carried through to determine if the cases make it to the Excel list or not
+Const case_notes   = 7
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
@@ -177,14 +181,15 @@ For each worker in worker_array
 				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
 				
 				'Adding client information to the array'
-				ReDim Preserve PND1_array(6, entry_record)	'This resizes the array to include the each case number on PND1 to the PND1_array
+				ReDim Preserve PND1_array(7, entry_record)	'This resizes the array to include the each case number on PND1 to the PND1_array
 				'The client information is added to the array
 				PND1_array (work_num,      entry_record) = worker_basket
 				PND1_array (case_num,	   entry_record) = MAXIS_case_number		
 				PND1_array (clt_name,  	   entry_record) = client_name
 				PND1_array (app_date, 	   entry_record) = appl_date
 				PND1_array (days_pending,  entry_record) = nbr_days_pending
-				PND1_array (appears_exp,    entry_record) = true            'defaults appears_exp as true 
+				PND1_array (appears_exp,   entry_record) = true            'defaults appears_exp as true 
+				PND1_array (case_notes,    entry_record) = ""
 					
 				entry_record = entry_record + 1			'This increments to the next entry in the array
 				MAXIS_row = MAXIS_row + 1	
@@ -228,7 +233,7 @@ ObjExcel.Cells(1, 5).Value = "# day pending"
 ObjExcel.Cells(1, 6).Value = "NOTES"
 
 'formatting the cells 
-FOR i = 1 to 6		
+FOR i = 1 to 7		
 	objExcel.Cells(1, i).Font.Bold = True		'bold font
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT	
@@ -243,6 +248,7 @@ For item = 0 to UBound(PND1_array, 2)
 		objExcel.Cells(excel_row, 3).Value = PND1_array (clt_name, 	   	item)	'Addubg client name
 		objExcel.Cells(excel_row, 4).Value = PND1_array (app_date, 	   	item)	'Adding application date
 		objExcel.Cells(excel_row, 5).Value = PND1_array (days_pending, 	item)	'Adding number of days pending
+		objExcel.Cells(excel_row, 6).Value = PND1_array (case_notes, 	item)	'Adding notes re: what was found/not found in case notes 
 		excel_row = excel_row + 1
 	End If
 Next
@@ -260,7 +266,7 @@ ObjExcel.Worksheets.Add().Name = "PND2 cases"
 
 'Sets up the array to store all the information for each client'
 Dim PND2_array ()
-ReDim PND2_array (6, 0)
+ReDim PND2_array (7, 0)
 entry_record = 0
 
 For each worker in worker_array
@@ -314,7 +320,7 @@ For each worker in worker_array
 				
 				'Adding client information to the array'
 				If add_to_PND2_array = true and MAXIS_case_number <> "" then 
-					ReDim Preserve PND2_array(6, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+					ReDim Preserve PND2_array(7, entry_record)	'This resizes the array based on the number of rows in the Excel File'
 					'The client information is added to the array'
 					PND2_array (work_num,     entry_record) = worker_basket
 					PND2_array (case_num,	  entry_record) = MAXIS_case_number		
@@ -322,6 +328,8 @@ For each worker in worker_array
 					PND2_array (app_date, 	  entry_record) = appl_date
 					PND2_array (days_pending, entry_record) = nbr_days_pending
 					PND2_array (appears_exp,  entry_record) = true             'defaults appears_exp as true
+					PND2_array (case_notes,   entry_record) = ""
+					
 					entry_record = entry_record + 1			'This increments to the next entry in the array
 					STATS_counter = STATS_counter + 1
 				END IF
@@ -415,7 +423,8 @@ For item = 0 to UBound(PND2_array, 2)
 		objExcel.Cells(excel_row, 2).Value = PND2_array (case_num,	 	item)	'Adding case number
 		objExcel.Cells(excel_row, 3).Value = PND2_array (clt_name, 	   	item)	'Addubg client name
 		objExcel.Cells(excel_row, 4).Value = PND2_array (app_date, 	   	item)	'Adding application date
-		objExcel.Cells(excel_row, 5).Value = PND2_array (days_pending, 	item)	'Adding number of days pending
+		objExcel.Cells(excel_row, 5).Value = PND2_array (days_pending, 	item)	'Adding number of days 
+		objExcel.Cells(excel_row, 6).Value = PND2_array (case_notes, 	item)	'Adding notes re: what was found/not found in case notes 
 		excel_row = excel_row + 1
 	End If
 Next
