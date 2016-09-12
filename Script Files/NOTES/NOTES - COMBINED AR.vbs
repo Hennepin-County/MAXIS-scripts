@@ -50,10 +50,10 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, MAXIS_footer_month
   EditBox 120, 25, 30, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "GRH", GRH_check
-  CheckBox 50, 60, 30, 10, "MSA", cash_check
-  CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
-  CheckBox 145, 60, 30, 10, "HC", HC_check
+  CheckBox 10, 60, 30, 10, "GRH", GRH_checkbox
+  CheckBox 50, 60, 30, 10, "MSA", cash_checkbox
+  CheckBox 95, 60, 35, 10, "SNAP", SNAP_checkbox
+  CheckBox 145, 60, 30, 10, "HC", HC_checkbox
   ButtonGroup ButtonPressed
     OkButton 35, 80, 50, 15
     CancelButton 95, 80, 50, 15
@@ -61,6 +61,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   Text 10, 30, 65, 10, "Footer month/year:"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
+
 
 BeginDialog Combined_AR_dialog, 0, 0, 441, 335, "Combined AR dialog"
   EditBox 70, 35, 50, 15, recert_datestamp
@@ -179,6 +180,17 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 CALL autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL)
 CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL)
 
+'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
+If GRH_checkbox = checked then programs_recertifying = programs_recertifying & "GRH, "
+If cash_checkbox = checked then programs_recertifying = programs_recertifying & "cash, "
+If SNAP_checkbox = checked then programs_recertifying = programs_recertifying & "SNAP, "
+If HC_checkbox = checked then programs_recertifying = programs_recertifying & "HC, "
+
+
+programs_recertifying = trim(programs_recertifying)
+if right(programs_recertifying, 1) = "," then programs_recertifying = left(programs_recertifying, len(programs_recertifying) - 1)
+
+
 'Determines recert month
 recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
@@ -202,6 +214,7 @@ start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***Combined AR received " & recert_datestamp & " for " & recert_month & ": " & review_status & "***")
 CALL write_bullet_and_variable_in_case_note("Interview Date", interview_date)
 CALL write_bullet_and_variable_in_case_note("HH comp", HH_comp)
+CALL write_bullet_and_variable_in_case_note("Programs recertifying", programs_recertifying)
 CALL write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
 CALL write_bullet_and_variable_in_case_note("AREP", AREP)
 CALL write_bullet_and_variable_in_case_note("FACI", FACI)
