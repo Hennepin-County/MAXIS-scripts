@@ -1,7 +1,10 @@
 'This Script generates a OUT OF STATE INQUIRY form in use to fax to the out of state agency.
-'STATS GATHERING=============================================================================================================
-name_of_script = "NOTICES - OUT OF STATE.vbs"       'Replace TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
+name_of_script = "NOTICES - OUT OF STATE.vbs"
 start_time = timer
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 0         'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -34,12 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'Required for statistical purposes===========================================================================================
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 1            'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block==========================================================================================================
 
 'DIALOGS FOR THE SCRIPT======================================================================================================
 
@@ -83,10 +80,11 @@ Do
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 		If case_note_checkbox = 1 and worker_signature = "" then MsgBox "You need to add a signature since you are adding a casenote"
-    Call check_for_MAXIS(False)
-    call navigate_to_MAXIS_screen("stat","memb")
-    EMReadScreen invalid_MAXIS_case_number, 7, 24, 2
-    If invalid_MAXIS_case_number = "INVALID" then MsgBox "This is an invalid case number"
+    		Call check_for_MAXIS(False)
+    		call check_for_password (are_we_passworded_out) 'adding functionality for MAXIS v.6 Password Out issue'
+    		call navigate_to_MAXIS_screen("stat","memb")
+    		EMReadScreen invalid_MAXIS_case_number, 7, 24, 2
+    		If invalid_MAXIS_case_number = "INVALID" then MsgBox "This is an invalid case number"
 	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8 and invalid_MAXIS_case_number <> "INVALID" and case_note_checkbox = 0 or case_note_checkbox = 1 and worker_signature <> ""
 Loop until ButtonPressed = -1
 
