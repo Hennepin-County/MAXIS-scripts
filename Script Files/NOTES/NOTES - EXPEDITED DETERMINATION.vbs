@@ -357,10 +357,17 @@ IF is_elig_XFS = TRUE Then
 	Loop until are_we_passworded_out = false					'loops until user passwords back in	
 End If
 
+'creating a custom header: this is read by BULK - EXP SNAP REVIEW script so don't mess this please :)
+IF is_elig_XFS = true then 
+	case_note_header_text = "Expedited Determination: SNAP appears expedited"
+ELSEIF is_elig_XFS = False then 
+	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
+END IF 
+
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------
 navigate_to_MAXIS_screen "CASE", "NOTE"
 Call start_a_blank_case_note
-Call write_variable_in_case_note ("Expedited Determination Completed")
+Call write_variable_in_case_note (case_note_header_text)
 IF XFS_Screening_CNote = TRUE Then 
 	Call write_bullet_and_variable_in_case_note ("Expedited Screening found", xfs_screening)
 	Call write_variable_in_case_note ("*   Based on: Income: " & caf_one_income & ",   Assets: " & caf_one_assets & ",  Totaling: " & caf_one_resources)
