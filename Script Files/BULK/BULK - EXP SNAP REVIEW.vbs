@@ -92,7 +92,7 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 					exit do	
 				Else
 					pending_array(appears_exp, item) = true			'defaults all other cases to true, to be addded to the Excel list 
-					pending_array(case_notes, item) = "An expedited SNAP determination has not been made."		'adds case notes to Excel re: screening is needed
+					pending_array(case_notes, item) = "EXPEDITED SNAP SCREENING NEEDED!"		'adds case notes to Excel re: screening is needed
 				END IF
 			END IF 
 			MAXIS_row = MAXIS_row + 1
