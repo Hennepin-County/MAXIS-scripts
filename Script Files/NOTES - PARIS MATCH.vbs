@@ -1,6 +1,10 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - PARIS MATCH.vbs"
 start_time = timer
+STATS_counter = 1              'sets the stats counter at one
+STATS_manualtime = 90          'manual run time in seconds
+'STATS_denomination = "C"      'C is for each case
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -34,11 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Required for statistical purposes==========================================================================================
-'STATS_counter = 1               'sets the stats counter at one
-'STATS_manualtime = 195          'manual run time in seconds
-'STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
 
 'DIALOGS-------------------------------------------------------------
 BeginDialog Paris_dialog, 0, 0, 236, 160, "Paris Dialog"
