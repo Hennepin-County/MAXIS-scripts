@@ -231,7 +231,6 @@ call HH_member_custom_dialog(HH_member_array)
 'Autofilling case info
 call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)
 call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", HCAPP_datestamp)
-call autofill_editbox_from_MAXIS(HH_member_array, "HCAPP-Type", HCAPP_type)
 call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCI", ACCI)
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
