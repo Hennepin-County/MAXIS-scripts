@@ -39,9 +39,9 @@ Function declare_BULK_menu_dialog(script_array)
 	BeginDialog BULK_dialog, 0, 0, 545, 360, "BULK Scripts"
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
-		 	PushButton 015, 35, 30, 15, "BULK", 				BULK_main_button
-		 	PushButton 045, 35, 50, 15, "BULK LISTS", 			BULK_lists_button
-			PushButton 095, 35, 50, 15, "STAT LISTS",			BULK_stat_lists_button
+		 	PushButton 015, 35, 60, 15, "BULK ACTIONS", 		BULK_main_button
+		 	PushButton 075, 35, 80, 15, "ENHANCED LISTS", 		BULK_enhanced_lists_button
+			PushButton 155, 35, 50, 15, "BULK LISTS",			BULK_lists_button
 		 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
 
 		'This starts here, but it shouldn't end here :)
@@ -73,9 +73,8 @@ DIM SIR_instructions_button
 dim BULK_dialog
 
 script_array_BULK_main = array()
-script_array_BULK_list = array()
+script_array_BULK_enhanced_list = array()
 script_array_BULK_stat_list = array()
-
 
 'END VARIABLES TO DECLARE===================================================================================================
 
@@ -176,42 +175,42 @@ script_array_BULK_main(script_num).script_name				= "Update EOMC List"
 script_array_BULK_main(script_num).file_name				= "BULK - UPDATE EOMC LIST.vbs"
 script_array_BULK_main(script_num).description				= "Updates a saved REPT/EOMC excel file from previous month with current case status."
 
-'-------------------------------------------------------------------------------------------------------------------------BULK LISTS
+'-------------------------------------------------------------------------------------------------------------------------ENHANCED LISTS
 'Resetting the variable
 script_num = 0
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " Check SNAP for GA/RCA "													'needs spaces to generate button width properly.
-script_array_BULK_list(script_num).file_name			= "BULK - CHECK SNAP FOR GA RCA.vbs"
-script_array_BULK_list(script_num).description 			= "Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
+ReDim Preserve script_array_BULK_enhanced_list(script_num)		'Resets the array to add one more element to t
+Set script_array_BULK_enhanced_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_enhanced_list(script_num).script_name 			= " Check SNAP for GA/RCA "													'needs spaces to generate button width properly.
+script_array_BULK_enhanced_list(script_num).file_name			= "BULK - CHECK SNAP FOR GA RCA.vbs"
+script_array_BULK_enhanced_list(script_num).description 			= "Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
 
 script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= " EXP SNAP Review "
-script_array_BULK_list(script_num).file_name			= "BULK - EXP SNAP REVIEW.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
+ReDim Preserve script_array_BULK_enhanced_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_enhanced_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_enhanced_list(script_num).script_name 			= " EXP SNAP Review "
+script_array_BULK_enhanced_list(script_num).file_name			= "BULK - EXP SNAP REVIEW.vbs"
+script_array_BULK_enhanced_list(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
 
 script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "Find Updated Panels"
-script_array_BULK_list(script_num).file_name			= "BULK - FIND PANEL UPDATE DATE.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list of cases from a caseload(s) showing when selected panels have been updated."
+ReDim Preserve script_array_BULK_enhanced_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_enhanced_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_enhanced_list(script_num).script_name 			= "Find Updated Panels"
+script_array_BULK_enhanced_list(script_num).file_name			= "BULK - FIND PANEL UPDATE DATE.vbs"
+script_array_BULK_enhanced_list(script_num).description 			= "Creates a list of cases from a caseload(s) showing when selected panels have been updated."
 
 script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "Housing Grant Exemption Finder"
-script_array_BULK_list(script_num).file_name			= "BULK - HOUSING GRANT EXEMPTION FINDER.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list the rolling 12 months of housing grant issuances for MFIP recipients who've met an exemption."
+ReDim Preserve script_array_BULK_enhanced_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_enhanced_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_enhanced_list(script_num).script_name 			= "Housing Grant Exemption Finder"
+script_array_BULK_enhanced_list(script_num).file_name			= "BULK - HOUSING GRANT EXEMPTION FINDER.vbs"
+script_array_BULK_enhanced_list(script_num).description 			= "Creates a list the rolling 12 months of housing grant issuances for MFIP recipients who've met an exemption."
 
 script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_list(script_num).script_name 			= "MA-EPD/Medi Pt B CEI"
-script_array_BULK_list(script_num).file_name			= "BULK - FIND MAEPD MEDI CEI.vbs"
-script_array_BULK_list(script_num).description 			= "Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
+ReDim Preserve script_array_BULK_enhanced_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_enhanced_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_enhanced_list(script_num).script_name 			= "MA-EPD/Medi Pt B CEI"
+script_array_BULK_enhanced_list(script_num).file_name			= "BULK - FIND MAEPD MEDI CEI.vbs"
+script_array_BULK_enhanced_list(script_num).description 			= "Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
 
 '-------------------------------------------------------------------------------------------------------------------------BULK STAT list
 'Resetting the variable
@@ -355,18 +354,18 @@ script_array_BULK_stat_list(script_num).description 		= "Creates a list of SWKRs
 '	property for each script item. This allows it to both escape the Function and resize
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
-button_placeholder 	= 24601
-BULK_main_button		= 1000
-BULK_lists_button		= 2000
-BULK_stat_lists_button = 3000
+button_placeholder 			= 24601
+BULK_main_button			= 1000
+BULK_enhanced_lists_button  = 2000
+BULK_lists_button			= 3000
 
 'Displays the dialog
 Do
 	If ButtonPressed = "" or ButtonPressed = BULK_main_button then
 		declare_BULK_menu_dialog(script_array_BULK_main)
+	ELSEif ButtonPressed = BULK_enhanced_lists_button then 
+		declare_BULK_menu_dialog(script_array_BULK_enhanced_list)	
 	ElseIf ButtonPressed = BULK_lists_button then
-		declare_BULK_menu_dialog(script_array_BULK_list)
-	ELSEif ButtonPressed = BULK_stat_lists_button then 
 		declare_BULK_menu_dialog(script_array_BULK_stat_list)
 	End if
 
@@ -377,8 +376,8 @@ Do
 	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
 Loop until 	ButtonPressed <> SIR_instructions_button and _
 			ButtonPressed <> BULK_main_button and _
-			ButtonPressed <> BULK_lists_button and _
-			ButtonPressed <> BULK_stat_lists_button
+			ButtonPressed <> BULK_enhanced_lists_button and _
+			ButtonPressed <> BULK_lists_button
 
 'MsgBox buttonpressed = script_array_BULK_main(0).button
 
@@ -387,8 +386,8 @@ For i = 0 to ubound(script_array_BULK_main)
 	If ButtonPressed = script_array_BULK_main(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_main(i).file_name)
 Next
 
-For i = 0 to ubound(script_array_BULK_list)
-	If ButtonPressed = script_array_BULK_list(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_list(i).file_name)
+For i = 0 to ubound(script_array_BULK_enhanced_list)
+	If ButtonPressed = script_array_BULK_enhanced_list(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_enhanced_list(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_BULK_stat_list)
