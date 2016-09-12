@@ -478,11 +478,11 @@ script_array_M_to_Q(script_num).file_name				= "NOTES - OVERPAYMENT.vbs"
 script_array_M_to_Q(script_num).description				= "Template for noting basic information about overpayments."
 
 script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
-Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name 			= "PARIS Match"																		'Script name
-script_array_0_to_C(script_num).file_name 				= "NOTES - PARIS MATCH.vbs"															'Script URL
-script_array_0_to_C(script_num).description 			= "Template for case noting a PARIS Match action."
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "PARIS Match"																		'Script name
+script_array_M_to_Q(script_num).file_name 				= "NOTES - PARIS MATCH.vbs"															'Script URL
+script_array_M_to_Q(script_num).description 			= "NEW 9/16!!! Template for case noting a PARIS Match action."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
