@@ -182,7 +182,7 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL)
 
 'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
 If GRH_checkbox = checked then programs_recertifying = programs_recertifying & "GRH, "
-If cash_checkbox = checked then programs_recertifying = programs_recertifying & "cash, "
+If cash_checkbox = checked then programs_recertifying = programs_recertifying & "MSA, "
 If SNAP_checkbox = checked then programs_recertifying = programs_recertifying & "SNAP, "
 If HC_checkbox = checked then programs_recertifying = programs_recertifying & "HC, "
 
