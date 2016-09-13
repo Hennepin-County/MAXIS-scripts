@@ -41,13 +41,32 @@ END IF
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
+BeginDialog ES_ref_dialog, 0, 0, 301, 100, "ES Referral Date"
+  EditBox 65, 5, 120, 15, client_name
+  EditBox 265, 5, 25, 15, ref_numb
+  EditBox 65, 25, 80, 15, ES_ref_date
+  CheckBox 5, 45, 205, 10, "Check here to have the script fill this referral date  on EMPS", update_emps_checkbox
+  EditBox 50, 60, 240, 15, other_notes
+  EditBox 70, 80, 100, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 185, 80, 50, 15
+    CancelButton 240, 80, 50, 15
+  Text 5, 10, 60, 10, "Name from DAIL:"
+  Text 195, 10, 70, 10, "HH member number:"
+  Text 5, 30, 60, 10, "ES Referral Date:"
+  Text 155, 30, 140, 10, "If filled, date was gathered on INFC/WORK"
+  Text 5, 65, 40, 10, "Other notes:"
+  Text 5, 85, 60, 10, "Worker signature:"
+EndDialog
 
 
 EMConnect ""
+EMReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
 
 EMReadScreen name_for_dail, 57, 5, 5
 other_person = InStr(name_for_dail, "--(")
-MsgBox other_person
+'MsgBox other_person
 If other_person = 0 Then 
 	comma_loc = InStr(name_for_dail, ",")
 	dash_loc = InStr(name_for_dail, "-")
@@ -71,7 +90,7 @@ Else
 End If 
 client_name = last_name & ", " & first_name
 
-msgbox client_name
+'msgbox client_name
 
 EMSendKey "i"
 transmit
@@ -79,85 +98,99 @@ transmit
 EMSendKey "work"
 transmit
 
-row = 7
+EMReadScreen work_panel_check, 4, 2, 51
+If work_panel_check = "WORK" Then 
+work_maxis_row = 7
+	DO
+		EMReadScreen work_name, 26, work_maxis_row, 7			'Reads the client name from INFC/WORK'
+		work_name = trim(work_name)
+		IF client_name = work_name then 
+			memb_check = vbYes		'If the name on INFC/WORK exactly matches the name from the initial excel list, the script does not need user input and will gather the PMI and Reference Number'
+			EMReadScreen ref_numb, 2, work_maxis_row, 3
+		ElseIf client_name <> work_name then 	'if name doesn't match the referral name the confirmation is required by the user
+			memb_check = MsgBox ("DAIL Message is for - " & client_name & vbNewLine & "Name on INFC/WORK - " & work_name & _ 
+			  vbNewLine & vbNewLine & "Is this the client you need ES Referral Information about?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
+			If memb_check = vbYes Then		'If the user confirms that this is the correct client, the PMI and Ref number are gathered'
+				EMReadScreen ref_numb, 2, work_maxis_row, 3
+			ElseIf memb_check = vbNo Then	'If the user says NO the script will see if there are other clients listed on INFC/WORK and start back at the beginning of the loop to try to match'
+				EMReadScreen next_clt, 1, (work_maxis_row + 1), 7
+			END IF
+		End If 
+		work_maxis_row = work_maxis_row + 1		'Increments to read the next row for a new client'
+		STATS_counter = STATS_counter + 1
+	Loop until next_clt = " " OR memb_check = vbYes	
+	
+	If memb_check = vbYes Then EMReadScreen es_ref_date, 8, 7, 72
+	If es_ref_date = "__ __ __" Then es_ref_date = ""
+	es_ref_date = replace(es_ref_date, " ", "/")
+End If 
+
+PF3 	'Back to DAIL
+EMWriteScreen "s", 6, 3
+transmit
+EMWriteScreen "emps", 20, 71
+transmit
+
+If ref_numb <> "" Then 
+	EMWriteScreen ref_numb, 20, 76
+	transmit
+End If 
+
+update_emps_checkbox = checked 
+
 Do 
-	EMReadScreen work_name, 26, row, 7
-	work_name = trim(work_name)
-	MsgBox work_name
-	If work_name = client_name Then 
-		EMReadScreen ref_numb, 2, row, 3
-		Exit Do
-	End If 
-	row = row + 1
-Loop until row = 15
+	err_msg = ""
+	Dialog ES_ref_dialog
+	cancel_confirmation
+	If worker_signature = "" Then err_msg = err_msg & vbNewLine & "Sign your case note."
+	If isdate(es_ref_date) = FALSE Then err_msg = err_msg & vbNewLine & "You must enter a valid date for the ES Referral Date."
+	If update_emps_checkbox = checked AND es_ref_date = "" Then err_msg = err_msg & vbNewLine & "You must have a date entered for the script to update EMPS"
+	If update_emps_checkbox = checked AND ref_numb = "" Then err_msg = err_msg & vbNewLine & "You must enter the client's reference number in order for the EMPS panel to be correctly updated."
+	If err_msg <> "" Then MsgBox "Please resolve before you continue." & vbNewLine & err_msg
+Loop until err_msg = ""
 
-MsgBox ref_numb
+If update_emps_checkbox = checked Then 
+	Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
+	EMWriteScreen ref_numb, 20, 76
+	transmit
+	PF9
+	ref_month = right("00" & DatePart("m", es_ref_date), 2)
+	ref_date  = right("00" & DatePart("d", es_ref_date), 2)
+	ref_year  = right(DatePart("yyyy", es_ref_date), 2)
+	EMWriteScreen ref_month, 16, 40
+	EMWriteScreen ref_date,  16, 43
+	EMWriteScreen ref_year,  16, 46
+	transmit
+	PF3
+	
+ 	'Check to make sure we are back to our dail 
+ 	EMReadScreen DAIL_check, 4, 2, 48 
+ 	IF DAIL_check <> "DAIL" THEN 
+ 		PF3 'This should bring us back from UNEA or other screens 
+ 		EMReadScreen DAIL_check, 4, 2, 48 
+ 		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%) 
+ 			call navigate_to_MAXIS_screen("DAIL", "DAIL") 
+ 		END IF 
+ 	END IF 
+ 	EMWriteScreen "n", 6, 3 
+ 	transmit 
+ 
+ 	PF9 
+ 	EMReadScreen case_note_mode_check, 7, 20, 3 
+ 	If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production." 
+ 	If case_note_mode_check <> "Mode: A" then stopscript
 
-'DONE TO HERE - STAT HERE - GET CASE NUMBER AT BEGINNING
+	Call Write_Variable_in_CASE_NOTE ("DAIL Processed - ES Referal Date Updated for Memb " & ref_numb)
+	Call Write_Variable_in_CASE_NOTE ("* PEPR message rec'vd indicating that EMPS panel was missing ES Referral Date")
+	If memb_check = vbYes Then Call Write_Variable_in_CASE_NOTE ("* ES Referral Date found on INFC/WORK and added to EMPS")
+	Call Write_Bullet_and_Variable_in_Case_Note ("Date Entered", es_ref_date)
+	Call Write_Bullet_and_Variable_in_Case_Note ("Notes", other_notes)
+	Call Write_Variable_in_CASE_NOTE ("---")
+	Call Write_Variable_in_CASE_NOTE (worker_signature) 
+	end_msg = "Success! EMPS has been updated and Case Note Written"
+Else 
+	end_msg = "You have selected to not have the EMPS panel updated by the script." & vbNewLine & "You will need to process this DAIL manually."
 
-'HH member dialog to select who's job this is.
-BeginDialog HH_memb_dialog, 0, 0, 191, 52, "HH member"
-  EditBox 50, 25, 25, 15, HH_memb
-  ButtonGroup ButtonPressed
-    OkButton 135, 10, 50, 15
-    CancelButton 135, 30, 50, 15
-  Text 5, 10, 125, 15, "Which HH member is this for? (ex: 01)"
-EndDialog
-HH_memb = "01"
-dialog HH_memb_dialog
-If ButtonPressed = 0 then stopscript
+End If 
 
-EMWriteScreen HH_memb, 20, 76
-transmit
-
-EMReadScreen cash_disa_status, 1, 11, 69
-If cash_disa_status <> "1" then
-  MsgBox "This type of DISA status is not yet supported. It could be a SMRT or some other type of verif needed. Process manually at this time."
-  stopscript
-End if
-
-PF4
-
-PF9
-
-EMSendKey "<home>" + "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" + "<newline>"
-If cash_disa_status = 1 then EMSendKey "* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client. TIKLed for 30-day return." & "<newline>"
-EMSendKey "---" + "<newline>"
-
-BeginDialog worker_sig_dialog, 0, 0, 191, 57, "Worker signature"
-  EditBox 35, 25, 50, 15, worker_sig
-  ButtonGroup ButtonPressed_worker_sig_dialog
-    OkButton 135, 10, 50, 15
-    CancelButton 135, 30, 50, 15
-  Text 25, 10, 75, 10, "Sign your case note."
-EndDialog
-
-dialog worker_sig_dialog
-If ButtonPressed_worker_sig_dialog = 0 then stopscript
-
-EMSendKey worker_sig
-PF3
-PF3
-PF3
-
-EMSendKey "w"
-transmit
-
-'The following will generate a TIKL formatted date for 30 days from now.
-TIKL_month = datepart("m", dateadd("d", 30, date))
-If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
-TIKL_day = datepart("d", dateadd("d", 30, date))
-If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
-TIKL_year = datepart("yyyy", dateadd("d", 30, date))
-TIKL_year = TIKL_year - 2000
-
-EMSetCursor 5, 18
-EMSendKey TIKL_month & TIKL_day & TIKL_year
-EMSetCursor 9, 3
-EMSendKey "Medical Opinion Form sent 30 days ago. If not responded to, send another, and TIKL to close in 30 additional days."
-transmit
-PF3
-
-
-MsgBox "Case note and TIKL made. Send a Medical Opinion Form using " & EDMS_choice & "."
-script_end_procedure("")
+script_end_procedure(end_msg)
