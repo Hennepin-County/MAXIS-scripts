@@ -71,6 +71,7 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 			EMReadScreen case_note_date, 8, MAXIS_row, 6
 			If case_note_date = "        " then 
 				pending_array(appears_exp, item) = true 'if no case note exists, the case is added to the Excel list
+				pending_array(case_notes, item) = "EXPEDITED SNAP SCREENING NEEDED!"		'adds case notes to Excel re: screening is needed
 				exit do
 			End if 
 			If case_note_date => appl_date then          'if the case note date is equal to or greater than the application date then the case note header is read
