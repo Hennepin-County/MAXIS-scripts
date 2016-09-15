@@ -160,6 +160,9 @@ For each worker in worker_array
 	EMWriteScreen worker, 21, 13
 	transmit
 	
+	CALL find_variable("User: ", current_user, 7)
+	IF ucase(worker) = ucase(current_user) THEN PF7
+	
 	'Skips workers with no info
 	EMReadScreen has_content_check, 8, 7, 3
 	If has_content_check <> "        " then
@@ -275,6 +278,9 @@ For each worker in worker_array
 	Call navigate_to_MAXIS_screen("REPT", "PND2")
 	EMWriteScreen worker, 21, 13
 	transmit
+	
+	CALL find_variable("User: ", current_user, 7)
+	IF ucase(worker) = ucase(current_user) THEN PF7
 	
 	'For PND2 cases, we can find SNAP pending cases and CASH pending case specifically. Adding SNAP and CASH pending cases to PND2 array.
 	EMReadScreen has_content_check, 8, 7, 3  'Skips workers with no info
