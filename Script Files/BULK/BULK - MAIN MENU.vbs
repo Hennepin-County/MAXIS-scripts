@@ -212,6 +212,13 @@ script_array_BULK_enhanced_list(script_num).script_name 			= "MA-EPD/Medi Pt B C
 script_array_BULK_enhanced_list(script_num).file_name			= "BULK - FIND MAEPD MEDI CEI.vbs"
 script_array_BULK_enhanced_list(script_num).description 			= "Creates a list of cases and clients active on MA-EPD and Medicare Part B that are eligible for Part B reimbursement."
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_enhanced_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_enhanced_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_enhanced_list(script_num).script_name 			= "Spenddown Report"
+script_array_BULK_enhanced_list(script_num).file_name				= "BULK - SPENDDOWN REPORT.vbs"
+script_array_BULK_enhanced_list(script_num).description 			= "Creates a list of HC Cases from a caseload(s) with a Spenddown indicated on MOBL."
+
 '-------------------------------------------------------------------------------------------------------------------------BULK STAT list
 'Resetting the variable
 script_num = 0
