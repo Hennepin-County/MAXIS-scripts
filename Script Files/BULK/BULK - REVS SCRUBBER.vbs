@@ -443,11 +443,11 @@ next
 excel_row = 2		'Resets the variable to 2, as it needs to look through all of the cases on the Excel sheet!
 
 DO 'Loops until there are no more cases in the Excel list
-    recert_status = ""
+    recert_status = "NO"	'Defaulting this to no because if SNAP or MFIP are not active - no recert will be scheduled
 	'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, case_number_col).value
-	'Goes to STAT/REVW
-	CALL navigate_to_MAXIS_screen("STAT", "REVW")
+	'Goes to STAT/PROG
+	CALL navigate_to_MAXIS_screen("STAT", "PROG")
 
 	'Checking for PRIV cases.
 	EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
@@ -457,70 +457,68 @@ DO 'Loops until there are no more cases in the Excel list
 		objRange.Delete
 		excel_row = excel_row - 1
 	ELSE		'For all of the cases that aren't privileged...
-        'Looks at review details
-        EMReadScreen SNAP_review_check, 8, 9, 57
-        IF SNAP_review_check = "__ 01 __" then 
-            SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-            objRange.Delete				'all other cases that are not due for a recert will be deleted
-            excel_row = excel_row - 1
-        ELSE
-		    'Looks at review details
-		    EMwritescreen "x", 5, 58
-		    Transmit
-		    DO
-			    EMReadScreen SNAP_popup_check, 7, 5, 43
-		    LOOP until SNAP_popup_check = "Reports"
-
-		    'The script will now read the CSR MO/YR and the Recert MO/YR
-		    EMReadScreen CSR_mo, 2, 9, 26
-		    EMReadScreen CSR_yr, 2, 9, 32
-		    EMReadScreen recert_mo, 2, 9, 64
-		    EMReadScreen recert_yr, 2, 9, 70
-
-            'It then compares what it read to the previously established current month plus 2 and determines if it is a recert or not. If it is a recert we need an interview
-		    IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN recert_status = "NO"
-            If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
-			IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
+		MFIP_ACTIVE = FALSE		'Setting some variables for the loop
+		SNAP_ACTIVE = False
 		
-            'If it's not a recert that requires an interview, delete it from the excel list and move on with our lives
-    		'this section ensure that only ACTIVE SNAP and MFIP cases have a review scheduled
-    		Call navigate_to_MAXIS_screen("STAT", "PROG")
-    		IF recert_status = "YES" then
-    		 	SNAP_status_check = ""
-    			EMReadScreen SNAP_status_check, 4, 10, 74
-    			If SNAP_status_check <> "ACTV" then 
-    				SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-    				objRange.Delete				'all other cases that are not due for a recert will be deleted
-					excel_row = excel_row - 1
-                END IF 
-    		ELSEIF recert_status = "NO" then 
-    			MFIP_prog_check = ""
-    			MFIP_status_check = ""
-    			EMReadScreen MFIP_prog_check, 2, 6, 67		'checking for an active MFIP case
-    			EMReadScreen MFIP_status_check, 4, 6, 74
-				If MFIP_prog_check = "MF" THEN
-    				IF MFIP_status_check <> "ACTV" THEN				'if MFIP is active, then case will not be deleted.
-    					SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-    					objRange.Delete				'all other cases that are not due for a recert will be deleted
-    					excel_row = excel_row - 1
-    				END IF
-				ELSE 
-    				SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-    				objRange.Delete				'all other cases that are not due for a recert will be deleted
-    				excel_row = excel_row - 1
-    			END If
-    		END IF
-            
-    		'handling for cases that do not have a completed HCRE panel
-    		PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-    		Do
-    			EMReadscreen HCRE_panel_check, 4, 2, 50
-				If HCRE_panel_check = "HCRE" then 
-                    PF10	'exists edit mode in cases where HCRE isn't complete for a member
-    				PF3
-    			END IF
-    		Loop until HCRE_panel_check <> "HCRE"
-    	END IF
+		SNAP_status_check = ""
+		MFIP_prog_1_check = ""
+		MFIP_status_1_check = ""
+		MFIP_prog_2_check = ""
+		MFIP_status_2_check = ""
+		
+		'Reading the status and program
+		EMReadScreen SNAP_status_check, 4, 10, 74
+
+		EMReadScreen MFIP_prog_1_check, 2, 6, 67		'checking for an active MFIP case
+		EMReadScreen MFIP_status_1_check, 4, 6, 74
+		EMReadScreen MFIP_prog_2_check, 2, 6, 67		'checking for an active MFIP case
+		EMReadScreen MFIP_status_2_check, 4, 6, 74
+
+		'Logic to determine if MFIP is active
+		If MFIP_prog_1_check = "MF" Then 
+			If MFIP_status_1_check = "ACTV" Then MFIP_ACTIVE = TRUE 
+		ElseIf MFIP_prog_2_check = "MF" Then 
+			If MFIP_status_2_check = "ACTV" Then MFIP_ACTIVE = TRUE 
+		End If 
+
+		'Only looks for SNAP if MFIP is not active
+		If MFIP_ACTIVE = FALSE Then 
+			IF SNAP_status_check = "ACTV" Then SNAP_ACTIVE = TRUE
+		End If 
+		
+		'Going to STAT/REVW to to check for ER vs CSR for SNAP cases 
+		CALL navigate_to_MAXIS_screen("STAT", "REVW")
+		If MFIP_ACTIVE = TRUE Then recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
+		If SNAP_ACTIVE = TRUE Then 
+			EMReadScreen SNAP_review_check, 8, 9, 57
+			If SNAP_review_check = "__ 01 __" then 		'If this is blank there are big issues
+				recert_status = "NO"
+			Else 
+				EMwritescreen "x", 5, 58		'Opening the SNAP popup
+				Transmit
+				DO
+				    EMReadScreen SNAP_popup_check, 7, 5, 43
+				LOOP until SNAP_popup_check = "Reports"
+
+				'The script will now read the CSR MO/YR and the Recert MO/YR
+				EMReadScreen CSR_mo, 2, 9, 26
+				EMReadScreen CSR_yr, 2, 9, 32
+				EMReadScreen recert_mo, 2, 9, 64
+				EMReadScreen recert_yr, 2, 9, 70
+				
+				'Comparing CSR and ER daates to the month of REVS review
+				IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN recert_status = "NO"
+				If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
+				IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
+			End If 
+		End If 
+		
+		'Removing the case from the spreadsheet if not a recert
+		If recert_status = "NO" Then 
+			SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+			objRange.Delete				'all other cases that are not due for a recert will be deleted
+			excel_row = excel_row - 1
+		End If 
 	END IF 	
     STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
     excel_row = excel_row + 1
