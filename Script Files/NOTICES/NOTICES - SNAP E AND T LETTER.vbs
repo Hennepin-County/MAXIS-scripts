@@ -1050,7 +1050,11 @@ Call navigate_to_MAXIS_screen("STAT", "WREG")
 EMWriteScreen member_number, 20, 76
 transmit
 EMReadScreen WREG_status, 2, 8, 50
-If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+If manual_referral = "Student" then 
+    if WREG_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
+Else 
+    If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+End if 
 EMReadScreen orientation_date, 8, 9, 50
 orientation_date = replace(orientation_date, " ", "/")
 If appointment_date <> orientation_date then 
