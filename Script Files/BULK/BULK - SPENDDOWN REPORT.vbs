@@ -302,7 +302,20 @@ For hc_case = 0 to UBound(clts_with_spdwn_array, 2)
 	If row <> 20 Then 						'Once in the span, opens MOBL
 		EMWriteScreen "X", 18, 3
 		transmit
-		
+		Do 
+			EMReadScreen MOBL_check, 4, 3, 49
+			If MOBL_check <> "MOBL" Then 
+				row = row + 1
+				PF3 
+				EMReadScreen prog, 2, row, 28
+				If prog = "MA" Then 
+					EMWriteScreen "X", row, 26		'Goes into it
+					transmit
+					EMWriteScreen "X", 18, 3
+					transmit
+				End if 
+			End If 
+		Loop until row = 20 OR MOBL_check = "MOBL"
 		row = 6
 		Do									'reads each line on MOBL and saves the clt information for any client that has a spenddown indicated on MOBL
 			EMReadScreen spd_type, 20, row, 39
@@ -377,7 +390,21 @@ For spd_case = 0 to UBound(spenddown_error_array, 2)
 								Exit Do 
 							End If 
 							EMReadScreen this_version, 2, row, 58
-							If this_version <> "01" Then 					'Checking to see if there is a pervious version listed in this month
+							If this_version = "00" Then 
+								EMReadScreen elig_month, 2, 20, 56			'If the earliest version in this month was not approved then it goes to the previous month
+								If elig_month <> "01" Then
+									last_month = right("00" & (abs(elig_month)-1), 2)
+									EMWriteScreen last_month, 20, 56
+									transmit
+								Else
+									last_month = "12"
+									EMReadScreen elig_year, 2, 20, 59
+									last_year = right("00" & (abs(elig_year)-1), 2)
+									EMWriteScreen last_month, 20, 56
+									EMWriteScreen last_year, 20, 59
+								End If
+								counter = counter + 1
+							ElseIf this_version <> "01" Then 					'Checking to see if there is a pervious version listed in this month
 								prev_verision = right("00" & (abs(this_version)-1), 2)	'If so, it will go to the previous version
 								EMWriteScreen prev_verision, row, 58 
 								transmit
@@ -634,4 +661,4 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! All cases for selected workers that appear to have a Spenddown indicated in MAXIS have been added to the Excell Spreadsheet.")
+script_end_procedure("Success! All cases for selected workers that appear to have a Spenddown indicated in MAXIS have been added to the Excel Spreadsheet.")
