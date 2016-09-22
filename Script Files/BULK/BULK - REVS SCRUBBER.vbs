@@ -802,6 +802,7 @@ objExcel.Columns(3).autofit()
 objExcel.Columns(4).autofit()
 
 'Creating the list of privileged cases and adding to the spreadsheet
+priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
 prived_case_array = split(priv_case_list, "|")
 excel_row = 2
 
