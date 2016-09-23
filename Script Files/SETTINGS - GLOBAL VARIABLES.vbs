@@ -65,6 +65,9 @@ users_using_select_a_user = array()
 'This is used for determining whether script_end_procedure will also log usage info in an Access table.
 collecting_statistics = False
 
+'This is a variable used to determine if the agency is using a SQL database or not. Set to true if you're using SQL. Otherwise, set to false.
+using_SQL_database = False
+
 'This is the file path for the statistics Access database.
 stats_database_path = "C:\DHS-MAXIS-Scripts\Databases for script usage\usage statistics.accdb"
 
