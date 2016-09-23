@@ -113,7 +113,6 @@ call check_for_maxis(false)
 call maxis_case_number_finder(MAXIS_case_number)
 
 If worker_county_code = "x101" OR _
-		worker_county_code = "x101" OR _
 		worker_county_code = "x111" OR _
 		worker_county_code = "x115" OR _
 		worker_county_code = "x129" OR _
