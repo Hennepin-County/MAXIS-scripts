@@ -113,12 +113,18 @@ call check_for_maxis(false)
 call maxis_case_number_finder(MAXIS_case_number)
 
 If worker_county_code = "x101" OR _
+		worker_county_code = "x111" OR _
 		worker_county_code = "x115" OR _
 		worker_county_code = "x129" OR _
+		worker_county_code = "x131" OR _
 		worker_county_code = "x133" OR _
 		worker_county_code = "x136" OR _
 		worker_county_code = "x139" OR _
-		worker_county_code = "x144" THEN
+		worker_county_code = "x144" OR_
+		worker_county_code = "x145" OR _
+		worker_county_code = "x148" OR _
+		worker_county_code = "x154" OR _
+		worker_county_code = "x180" THEN
 		script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
 END IF
 
