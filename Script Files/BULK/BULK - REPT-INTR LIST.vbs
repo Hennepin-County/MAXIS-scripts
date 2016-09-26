@@ -163,26 +163,28 @@ For each x_number in x_number_array
 	End If 
 	transmit										'and GO	
 	
-	EMReadScreen intr_exists, 8, 11, 5				'Looking if '
+	EMReadScreen intr_exists, 8, 11, 5				'Looking if there are any matches listed under this worker
 	intr_exists = trim(intr_exists)
 	row = 11
-	If intr_exists <> "" Then 
+	If intr_exists <> "" Then 	'If there are any matches the script will pull detail
 		Do 
-			EMReadScreen maxis_case_number, 8, row, 5
+			EMReadScreen maxis_case_number, 8, row, 5			'Reading the case number
+			maxis_case_number = trim(maxis_case_number)			'removing the spaces
 			If maxis_case_number = "        " then exit Do 		'Once the script reaches the last line in the list, it will go to the next worker
 			
-			EMReadScreen match_x_number, 7, row, 14
-			EMReadScreen supervisor_id, 7, 6, 15
-			EMReadScreen client_name, 20, row, 31
+			EMReadScreen match_x_number, 7, row, 14				'Reading the worker x-number listed on the match - necessary if the number in the array is a supervisor number
+			EMReadScreen supervisor_id, 7, 6, 15				'Reading the x-number of the supervisor for that case
+			EMReadScreen client_name, 20, row, 31				'Reading the client name and removing the blanks
 			client_name = trim(client_name)
-			EMReadScreen match_month, 5, row, 53
-			match_month = replace(match_month, " ", "/01/")
-			EMReadScreen res_status, 2, row, 64
-			EMReadScreen notice_date, 8, row, 71
-			if notice_date = "        " then notice_date = ""
-			notice_date = replace(notice_date, " ", "/")
+			EMReadScreen match_month, 5, row, 53				'Reading the month the match was issued
+			match_month = replace(match_month, " ", "/01/")		'Formatting the date as a date for entry into Excel
+			EMReadScreen res_status, 2, row, 64					'Reading the resolution status
+			EMReadScreen notice_date, 8, row, 71				'Reading the notice date field
+			if notice_date = "        " then notice_date = ""	'blanking out if there is no date
+			notice_date = replace(notice_date, " ", "/")		'Formatting the date
 			
-			objExcel.Cells(excel_row, 1).Value = supervisor_id
+			'Adding all the information to Excel
+			objExcel.Cells(excel_row, 1).Value = supervisor_id	
 			objExcel.Cells(excel_row, 2).Value = match_x_number
 			If supervisor_number = FALSE Then objExcel.Cells(excel_row, 3).Value = worker_name
 			objExcel.Cells(excel_row, 4).Value = maxis_case_number
@@ -191,7 +193,7 @@ For each x_number in x_number_array
 			objExcel.Cells(excel_row, 7).Value = res_status
 			objExcel.Cells(excel_row, 8).Value = notice_date
 			
-			row = row + 1
+			row = row + 1		'Go to the next excel row
 			
 			If row = 19 Then 		'If we have reached the end of the page, it will go to the next page
 				PF8
@@ -241,54 +243,56 @@ objExcel.Cells(3, 12).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ",
 ObjExcel.Cells(4, 11).Value = "Number of total UNRESOLVED IEVS:"
 objExcel.Cells(4, 12).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
 
+'Need a new array for the x-numbers of all the matches because if supervisor numbers are used all the numbers are not in the original array
 Dim worker_number_array
 ReDim worker_number_array (0) 
 array_counter = 0
 
+'Going to REPT USER to get the worker's name
 CALL navigate_to_MAXIS_screen ("REPT", "USER")
 excel_row = 2
 Do 
-	If objExcel.Cells(excel_row, 3).Value = "" Then 
-		worker_number = objExcel.Cells(excel_row, 2).Value
-		in_array = FALSE 
-		For each worker in worker_number_array
+	If objExcel.Cells(excel_row, 3).Value = "" Then 			'If the worker's name was not in the excel sheet - the script will look for it
+		worker_number = objExcel.Cells(excel_row, 2).Value		'Gets the worker number from the spreadsheet
+		in_array = FALSE 										'Setting the variable
+		For each worker in worker_number_array					'Looping through the new array to compare it to the current worker number
 			if worker_number = worker then 
 				in_array = TRUE
 				Exit For 
 			End if
 		Next
-		If in_array = FALSE Then 
+		If in_array = FALSE Then 	'If the x-number was not found already in the array the number will be added to the array
 			ReDim Preserve worker_number_array(array_counter)
 			worker_number_array(array_counter) = worker_number
 			array_counter = array_counter + 1
 		End If 
-		EMWriteScreen worker_number, 21, 12
+		EMWriteScreen worker_number, 21, 12			'Entering the worker number and opening detail about the worker
 		transmit 
 		EMWriteScreen "X", 7, 3
 		transmit
-		EMReadScreen worker_name, 40, 7, 27
+		EMReadScreen worker_name, 40, 7, 27			'Reading the worker number
 		PF3
-		objExcel.Cells(excel_row, 3).Value = worker_name
 		worker_name = trim(worker_name)
-		excel_row = excel_row + 1 
+		objExcel.Cells(excel_row, 3).Value = worker_name	'Adding the number to Excel
+		excel_row = excel_row + 1 					'Go to the next row
 		Do 
-			If objExcel.Cells(excel_row, 2).Value = worker_number Then 
+			If objExcel.Cells(excel_row, 2).Value = worker_number Then 	'If the next row has the same number - add the same name
 				objExcel.Cells(excel_row, 3).Value = worker_name
 				excel_row = excel_row + 1
 			Else 
 				Exit Do 
 			End If 
 		loop until objExcel.Cells(excel_row, 3).Value <> worker_number
-	Else 
-		worker_number = objExcel.Cells(excel_row, 2).Value
-		in_array = FALSE 
-		For each worker in worker_number_array
+	Else 																'If the name is already in Excel the number will be reviewed for adding to the array
+		worker_number = objExcel.Cells(excel_row, 2).Value		'Gets the worker number from the spreadsheet
+		in_array = FALSE 										'Setting the variable
+		For each worker in worker_number_array					'Looping through the new array to compare it to the current worker number
 			if worker_number = worker then 
 				in_array = TRUE
 				Exit For 
 			End if
 		Next
-		If in_array = FALSE Then 
+		If in_array = FALSE Then 			'If the x-number was not found already in the array the number will be added to the array
 			ReDim Preserve worker_number_array(array_counter)
 			worker_number_array(array_counter) = worker_number
 			array_counter = array_counter + 1
@@ -296,10 +300,6 @@ Do
 		excel_row = excel_row + 1
 	End If 
 Loop until excel_row = last_excel_row + 1
-
-'For each worker in worker_number_array
-''	MsgBox worker
-'Next
 
 'Formatting the column width.
 FOR i = 1 to 12
@@ -341,7 +341,7 @@ For each x_number in worker_number_array
 	'Adding all the information to Excel
 	ObjExcel.Cells(worker_row, 1).Value = x_number
 	ObjExcel.Cells(worker_row, 2).Value = worker_name
-	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
+	'Writing a formula to excel - Count each row in which Column G on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row and the match is unresolved
 	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!G:G, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ", 'Case information'!G:G," & Chr(34) & "UR" & Chr(34) & ")"
 
 	worker_row = worker_row + 1
