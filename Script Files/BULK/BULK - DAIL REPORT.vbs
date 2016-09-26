@@ -88,6 +88,9 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
+'Changes name of Excel sheet to "DAIL List"
+ObjExcel.ActiveSheet.Name = "DAIL List"
+
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X1 NUMBER"
 objExcel.Cells(1, 1).Font.Bold = True
@@ -243,6 +246,54 @@ objExcel.Cells(6, 9).Value = ((STATS_counter * STATS_manualtime) - (timer - star
 FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
+
+'Going to another sheet, to enter worker-specific statistics
+ObjExcel.Worksheets.Add().Name = "DAIL stats by worker"
+
+'Headers
+ObjExcel.Cells(1, 2).Value = "DAIL STATS BY WORKER"
+ObjExcel.Cells(1, 2).Font.Bold = TRUE
+ObjExcel.Cells(2, 1).Value = "WORKER"
+objExcel.Cells(2, 1).Font.Bold = TRUE
+ObjExcel.Cells(2, 2).Value = "TOTAL"
+objExcel.Cells(2, 2).Font.Bold = TRUE
+ObjExcel.Cells(2, 3).Value = "INFO"
+objExcel.Cells(2, 3).Font.Bold = TRUE
+ObjExcel.Cells(2, 4).Value = "TIKL"
+objExcel.Cells(2, 4).Font.Bold = TRUE
+ObjExcel.Cells(2, 5).Value = "IEVS"
+objExcel.Cells(2, 5).Font.Bold = TRUE
+ObjExcel.Cells(2, 6).Value = "PEPR"
+objExcel.Cells(2, 6).Font.Bold = TRUE
+ObjExcel.Cells(2, 7).Value = "CSES"
+objExcel.Cells(2, 7).Font.Bold = TRUE
+ObjExcel.Cells(2, 4).Value = "PARIS"
+objExcel.Cells(2, 4).Font.Bold = TRUE
+ObjExcel.Cells(2, 5).Value = "REIN"
+objExcel.Cells(2, 5).Font.Bold = TRUE
+
+
+'Writes each worker from the worker_array in the Excel spreadsheet
+For x = 0 to ubound(x_number_array)
+	ObjExcel.Cells(x + 3, 1) = worker_array(x)
+	ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+	ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+	ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+	ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+	ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+	ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+Next
+
+'Merging header cell.
+ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+
+'Centering the cell
+objExcel.Cells(1, 2).HorizontalAlignment = -4108
+
+'Autofitting columns
+For col_to_autofit = 1 to 20
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The workers' DAILs are now entered.")
