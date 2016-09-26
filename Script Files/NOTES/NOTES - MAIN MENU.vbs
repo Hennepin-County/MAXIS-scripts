@@ -335,6 +335,13 @@ script_array_G_to_L(script_num).description				= "Template for GRH HRFs. Case mu
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_G_to_L(script_num).script_name 			= "GRH - NON-HRF-POSTPAY"
+script_array_G_to_L(script_num).file_name				= "NOTES - GRH - NON-HRF-POSTPAY.vbs"
+script_array_G_to_L(script_num).description				= "Template for GRH NON-HRFs. Case must be post-pay."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "HC ICAMA"
 script_array_G_to_L(script_num).file_name				= "NOTES - HC ICAMA.vbs"
 script_array_G_to_L(script_num).description				= "Template for HC Interstate Compact on Adoption and Medical Assistance (HC ICAMA)."
