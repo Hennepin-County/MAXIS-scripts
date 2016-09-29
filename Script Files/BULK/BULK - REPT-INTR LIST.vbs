@@ -170,7 +170,7 @@ For each x_number in x_number_array
 		Do 
 			EMReadScreen maxis_case_number, 8, row, 5			'Reading the case number
 			maxis_case_number = trim(maxis_case_number)			'removing the spaces
-			If maxis_case_number = "        " then exit Do 		'Once the script reaches the last line in the list, it will go to the next worker
+			If maxis_case_number = "" then exit Do 		'Once the script reaches the last line in the list, it will go to the next worker
 			
 			EMReadScreen match_x_number, 7, row, 14				'Reading the worker x-number listed on the match - necessary if the number in the array is a supervisor number
 			EMReadScreen supervisor_id, 7, 6, 15				'Reading the x-number of the supervisor for that case
