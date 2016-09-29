@@ -388,13 +388,14 @@ If previous_xfs_explanation <> "" Then
 	Call write_variable_in_case_note ("* Expedited SNAP was the last approval and delayed verifs were not received")
 	Call write_variable_in_case_note ("*    " & previous_xfs_explanation)
 End If 
+Call write_bullet_and_variable_in_case_note("ABAWD info/explanation", abawd_explanation)
 Call write_bullet_and_variable_in_case_note ("Other Notes", other_explanation)
 Call write_variable_in_case_note ("---")
 IF is_elig_XFS = TRUE Then 
 	Call write_bullet_and_variable_in_case_note ("Date of Application", date_of_application)
 	Call write_bullet_and_variable_in_case_note ("Date of Interview", interview_date)
 	Call write_bullet_and_variable_in_case_note ("Date of Approval", approval_date)
-	IF days_delayed > 7 Then Call write_bullet_and_variable_in_case_note ("Reason for Delay", delay_explanation)
+	Call write_bullet_and_variable_in_case_note ("Reason for Delay", delay_explanation)
 	Call write_variable_in_case_note ("---")
 End If 
 Call write_variable_in_case_note(worker_signature)
