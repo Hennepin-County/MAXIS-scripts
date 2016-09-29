@@ -250,6 +250,8 @@ NEXT
 'Going to another sheet, to enter worker-specific statistics
 ObjExcel.Worksheets.Add().Name = "DAIL stats by worker"
 
+col_to_use = 3
+
 'Headers
 ObjExcel.Cells(1, 2).Value = "DAIL STATS BY WORKER"
 ObjExcel.Cells(1, 2).Font.Bold = TRUE
@@ -257,41 +259,147 @@ ObjExcel.Cells(2, 1).Value = "WORKER"
 objExcel.Cells(2, 1).Font.Bold = TRUE
 ObjExcel.Cells(2, 2).Value = "TOTAL"
 objExcel.Cells(2, 2).Font.Bold = TRUE
-ObjExcel.Cells(2, 3).Value = "INFO"
-objExcel.Cells(2, 3).Font.Bold = TRUE
-ObjExcel.Cells(2, 4).Value = "TIKL"
-objExcel.Cells(2, 4).Font.Bold = TRUE
-ObjExcel.Cells(2, 5).Value = "IEVS"
-objExcel.Cells(2, 5).Font.Bold = TRUE
-ObjExcel.Cells(2, 6).Value = "PEPR"
-objExcel.Cells(2, 6).Font.Bold = TRUE
-ObjExcel.Cells(2, 7).Value = "CSES"
-objExcel.Cells(2, 7).Font.Bold = TRUE
-ObjExcel.Cells(2, 4).Value = "PARIS"
-objExcel.Cells(2, 4).Font.Bold = TRUE
-ObjExcel.Cells(2, 5).Value = "REIN"
-objExcel.Cells(2, 5).Font.Bold = TRUE
+
+IF all_check = checked OR cola_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "COLA"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	COLA_col = col_to_use
+	col_to_use = col_to_use + 1 
+	COLA_letter_col = convert_digit_to_excel_column(COLA_col)
+END IF
+	
+IF all_check = checked OR clms_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "CLMS"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	CLMS_col = col_to_use
+	col_to_use = col_to_use + 1 
+	CLMS_letter_col = convert_digit_to_excel_column(CLMS_col)
+END IF
+
+IF all_check = checked OR cses_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "CSES"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	CSES_col = col_to_use
+	col_to_use = col_to_use + 1 
+	CSES_letter_col = convert_digit_to_excel_column(CSES_col)
+END IF
+	
+IF all_check = checked OR elig_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "ELIG"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	ELIG_col = col_to_use
+	col_to_use = col_to_use + 1 
+	ELIG_letter_col = convert_digit_to_excel_column(ELIG_col)
+END IF
+	
+IF all_check = checked OR ievs_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "IEVS"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	IEVS_col = col_to_use
+	col_to_use = col_to_use + 1 
+	IEVS_letter_col = convert_digit_to_excel_column(IEVS_col)
+END IF
+	
+IF all_check = checked OR info_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "INFO"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	INFO_col = col_to_use
+	col_to_use = col_to_use + 1 
+	INFO_letter_col = convert_digit_to_excel_column(INFO_col)
+END IF
+	
+IF all_check = checked OR iv3_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "IV-E"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	IV3_col = col_to_use
+	col_to_use = col_to_use + 1 
+	IV3_letter_col = convert_digit_to_excel_column(IV3_col)
+END IF
+	
+IF all_check = checked OR ma_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "MA"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	MA_col = col_to_use
+	col_to_use = col_to_use + 1 
+	MA_letter_col = convert_digit_to_excel_column(MA_col)
+END IF
+	
+IF all_check = checked OR mec2_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "MEC2"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	MEC2_col = col_to_use
+	col_to_use = col_to_use + 1 
+	MEC2_letter_col = convert_digit_to_excel_column(MEC2_col)
+END IF
+	
+IF all_check = checked OR pari_chck = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "PARI"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	PARI_col = col_to_use
+	col_to_use = col_to_use + 1 
+	PARI_letter_col = convert_digit_to_excel_column(PARI_col)
+END IF
+	
+IF all_check = checked OR pepr_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "PEPR"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	PEPR_col = col_to_use
+	col_to_use = col_to_use + 1 
+	PEPR_letter_col = convert_digit_to_excel_column(PEPR_col)
+END IF
+	
+IF all_check = checked OR tikl_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "TIKL"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	TIKL_col = col_to_use
+	col_to_use = col_to_use + 1 
+	TIKL_letter_col = convert_digit_to_excel_column(TIKL_col)
+END IF
+	
+IF all_check = checked OR wf1_check = checked THEN
+	ObjExcel.Cells(2, col_to_use).Value = "WF1"
+	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
+	WF1_col = col_to_use
+	col_to_use = col_to_use + 1 
+	WF1_letter_col = convert_digit_to_excel_column(WF1_col)
+END IF 
 
 
 'Writes each worker from the worker_array in the Excel spreadsheet
 For x = 0 to ubound(x_number_array)
-	ObjExcel.Cells(x + 3, 1) = worker_array(x)
-	ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-	ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
-	ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
-	ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
-	ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
-	ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	ObjExcel.Cells(x + 3, 1) = trim(x_number_array(x))
+	ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ")"
+	
+	IF all_check = checked OR cola_check = checked THEN ObjExcel.Cells(x + 3, COLA_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "COLA" & Chr(34) & ")"	
+	IF all_check = checked OR clms_check = checked THEN ObjExcel.Cells(x + 3, CLMS_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "DMND" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CRAA" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "BILL" & Chr(34) & ")"	
+	IF all_check = checked OR cses_check = checked THEN ObjExcel.Cells(x + 3, CSES_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CSES" & Chr(34) & ")"	
+	IF all_check = checked OR elig_check = checked THEN ObjExcel.Cells(x + 3, ELIG_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "REIN" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "STAT" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "DWP " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "FS  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CASH" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HC  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CCOL" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "GA  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "GRH " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MSA " & Chr(34) & ")"	
+	IF all_check = checked OR ievs_check = checked THEN ObjExcel.Cells(x + 3, IEVS_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "WAGE" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "UNVI" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "BEER" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "UBEN" & Chr(34) & ")"	
+	IF all_check = checked OR info_check = checked THEN ObjExcel.Cells(x + 3, INFO_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "INFO" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "ISPI" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HIRE" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "SSN " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HC" & Chr(34) & ")"	
+	IF all_check = checked OR iv3_check  = checked THEN ObjExcel.Cells(x + 3, IV3_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "IV-E" & Chr(34) & ")"	
+	IF all_check = checked OR ma_check   = checked THEN ObjExcel.Cells(x + 3, MA_col)   = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MA  " & Chr(34) & ")"	
+	IF all_check = checked OR mec2_check = checked THEN ObjExcel.Cells(x + 3, MEC2_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MEC2" & Chr(34) & ")"	
+	IF all_check = checked OR pari_chck  = checked THEN ObjExcel.Cells(x + 3, PARI_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "PARI" & Chr(34) & ")"	
+	IF all_check = checked OR pepr_check = checked THEN ObjExcel.Cells(x + 3, PEPR_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "PEPR" & Chr(34) & ")"	
+	IF all_check = checked OR tikl_check = checked THEN ObjExcel.Cells(x + 3, TIKL_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "TIKL" & Chr(34) & ")"	
+	IF all_check = checked OR wf1_check  = checked THEN ObjExcel.Cells(x + 3, WF1_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "WF1 " & Chr(34) & ")"	
+	
+	
+''	ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+''	ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+''	ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+''	ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+''	ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 Next
 
 'Merging header cell.
-ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, col_to_use - 1)).Merge
 
 'Centering the cell
 objExcel.Cells(1, 2).HorizontalAlignment = -4108
 
 'Autofitting columns
-For col_to_autofit = 1 to 20
+For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
