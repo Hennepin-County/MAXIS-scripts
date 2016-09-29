@@ -433,6 +433,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		End if
 	End if
 	
+	'First NOMI TIKL
 	If NOMI_selection = "First NOMI" then 
 		call navigate_to_MAXIS_screen("dail", "writ")
 		call create_MAXIS_friendly_date(date, 11, 5, 18) 
@@ -441,21 +442,32 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		PF3
 	End if
 	
+	'date variables for the Second NOMI TIKL
 	check_date = dateadd("d", 21, application_date)
+	pending_sixty_days_date = dateadd("d", 60, application_date)
+	ten_day_date = dateadd("d", 10, date)
+	
+	'Second NOMI TIKL
 	If NOMI_selection = "Second NOMI" then  
 		call navigate_to_MAXIS_screen("DAIL", "WRIT")
-		IF date =< check_date then 
-			days_pending = "30"
-			call create_MAXIS_friendly_date(application_date, 31, 5, 18)
-		ELSEif date > check_date then  
-			days_pending = "60"
-			call create_MAXIS_friendly_date(application_date, 61, 5, 18)
+		IF date =< check_date then
+			days_pending = "a full 30 days"
+			call create_MAXIS_friendly_date(application_date, 31, 5, 18)		'sets a 30 day pending TIKL if the date at least 10 days exist between the NOMI sent and day 30
+		ELSEif pending_sixty_days_date =< date then
+			call create_MAXIS_friendly_date(date, 10, 5, 18)	'sets a 10 day TIKL if the current date is less than the over
+			days_pending = "another 10 days"
+		ELSEif pending_sixty_days_date < ten_day_date then
+			call create_MAXIS_friendly_date(date, 10, 5, 18)	'sets a 10 day TIKL if the current date is less than the over
+			days_pending = "60 days allowing for 10 day notice"
+		else 
+			call create_MAXIS_friendly_date(application_date, 61, 5, 18)		'otherwise a 60 day TIKL is set
+			days_pending = "60 days from the application date"
 		END IF
-		Call write_variable_in_TIKL(NOMI_selection & " was sent & case has been pending for a full " & days_pending & " days. Check case notes to see if interview has been conducted. Deny the case if the client has not completed the interview to date.")
-		transmit	
+		Call write_variable_in_TIKL(NOMI_selection & " was sent & case has been pending for " & days_pending & ". Check case notes to see if interview has been conducted. Deny the case if the client has not completed the interview.")
+		transmit
 		PF3
 	END IF
- 
+ 	
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
@@ -478,7 +490,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 	END IF
 	If NOMI_selection = "Second NOMI" then 
 		Call write_variable_in_CASE_NOTE("* Second NOMI has been sent")
-		call write_variable_in_CASE_NOTE("* A TIKL has been made for " & days_pending & " days from application date to follow-up on application progress.")
+		call write_variable_in_CASE_NOTE("* A TIKL has been made for " & days_pending & " to follow-up on application progress.")
 	END IF 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
