@@ -38,7 +38,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ If create_JOBS_checkbox = checked then
 		EMWriteScreen "n", 6, 34
 	ELSE
 		EMWriteScreen left(income_type_dropdown, 1), 5, 38
-		IF left(income_type_dropdown, 1) = "J" OR left(income_type_dropdown, 1) = "G" OR left(income_type_dropdown, 1) = "T" OR left(income_type_dropdown, 1) = "P" OR left(income_type_dropdown, 1) = "R" THEN EMWriteScreen "0", 6, 75 'Adding in a temporary hourly wage for special income types which require it. 
+		IF left(income_type_dropdown, 1) = "J" OR left(income_type_dropdown, 1) = "G" OR left(income_type_dropdown, 1) = "T" OR left(income_type_dropdown, 1) = "P" OR left(income_type_dropdown, 1) = "R" THEN EMWriteScreen "0", 6, 75 'Adding in a temporary hourly wage for special income types which require it.
 		If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 71
 		EMWriteScreen "n", 6, 38
 	END IF
