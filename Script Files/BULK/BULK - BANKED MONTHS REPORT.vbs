@@ -1,3 +1,5 @@
+'Hard coding that needs to be updated each year: MAXIS_footer_year, counted_date_year 
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - BANKED MONTHS REPORT.vbs"
 start_time = timer
@@ -41,6 +43,8 @@ END IF
 EMConnect ""		'connecting to MAXIS
 Call get_county_code	'gets county name to input into the 1st col of the spreadsheet
 developer_mode_checkbox = checked 	'defauting the person note option to NOT person note
+
+report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
 
 'Runs the dialog'
 Do
@@ -296,7 +300,29 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 				IF fs_prorated = "Prorated" Then
 					Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
 					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
-				End If
+				Else
+					'This section checks for cases that were not approved as PRORATED, but are prorated for the report date on the PROG panel
+					Call navigate_to_MAXIS_screen("STAT", "PROG")
+					EMReadScreen elig_month, 2, 10, 44
+					EMReadScreen elig_date, 2, 10, 47
+					EMReadScreen elig_year, 2, 10, 50
+					prorated_date = elig_month & "/" & elig_year		'creating date variables to measure against report month
+					If prorated_date = report_date then 
+						If elig_date <> "01" then 	
+							Banked_Month_Client_Array(send_to_DHS, item) = FALSE	'Removing this client from DHS report - reason on next line'
+							Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded,item) & "SNAP is prorated in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
+						END if
+					END IF 
+					'handling for cases that do not have a completed HCRE panel
+	    			PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+	    			Do
+	    				EMReadscreen HCRE_panel_check, 4, 2, 50
+						If HCRE_panel_check = "HCRE" then 
+	                    	PF10	'exists edit mode in cases where HCRE isn't complete for a member
+	    					PF3
+	    				END IF
+	    			Loop until HCRE_panel_check <> "HCRE"
+				END IF
 			END If
 		'///////SCRIPT WILL NOW CHECK FOR POSSIBLE EXPEMTIONS FOR CLIENT'
 		'Age exemption'
@@ -539,26 +565,36 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 
 		'//////////WREG PORTION//////////////////////////////////////////////
 		'This is intense, the script is going to check every line on the WREG tracker to list all of the counted ABAWD months for the report'
-		report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
-
+		
 		Call navigate_to_MAXIS_screen("stat","wreg")		'navigates to stat/wreg
 		EMWriteScreen Banked_Month_Client_Array(memb_num, item), 20, 76
 		transmit
 		EMReadScreen wreg_code,  2, 8,  50
 		EMReadScreen abawd_code, 2, 13, 50
-		IF wreg_code <> "30" AND abawd_code <> "10" Then	'ALL Banked Month clients should have WREG coded 30-10'
+		IF wreg_code <> "30" Then	'ALL Banked Month clients should have WREG coded 30-10'
 			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "WREG is not coded 30-10. Review. | "
-		End If
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "WREG code is not a 30 (Mandatory FSET participant). Review. | "
+		Elseif abawd_code <> "10" then 			'this is to make sure that 30/11 (second set cases) are removed from the report for the report month
+			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD code is not a 10 (ABAWD counted month). Review. | "
+		END if
+		
+		report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
+		 	
 		EMReadScreen wreg_total, 1, 2, 78
 		IF wreg_total <> "0" THEN
 			EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 			transmit
-			bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
-			bene_yr_row = 10
+			EMREADScreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
+			If tracking_record_check <> "Tracking Record" then 
+				Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Unable to access the ABAWD tracking record. Review manually. | "
+			ELSE 
+				bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+				bene_yr_row = 10
 				abawd_counted_months = 0					'delclares the variables values at 0
 				second_abawd_period = 0
-			month_count = 0
+				month_count = 0
 				DO
 					'establishing variables for specific ABAWD counted month dates
 					If bene_mo_col = "19" then counted_date_month = "01"
@@ -573,129 +609,160 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					If bene_mo_col = "55" then counted_date_month = "10"
 					If bene_mo_col = "59" then counted_date_month = "11"
 					If bene_mo_col = "63" then counted_date_month = "12"
+					'counted date year: this is found on rows 7-11. Row 11 is current year plus one, so this will be exclude this list.
+					If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", date), 2)
+					If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
+					If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
+					If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
+					abawd_counted_months_string = counted_date_month & "/" & counted_date_year
+					
 					'reading to see if a month is counted month or not
 					EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
-					'counting and checking for counted ABAWD months
+					
+					'rejects cases that do not have the report month coded as a counted month
+					If report_date = abawd_counted_months_string then 
+						if is_counted_month <> "X" then 
+							if is_counted_month <> "M" then 
+								Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
+								Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD tracking record not coded a counted ABAWD month (codes X or M) for " & report_date & ". Review manually. | "
+							END IF 
+						END IF 
+					END IF 	
+				
+					'counting and checking for counted ABAWD months	
 					IF is_counted_month = "X" or is_counted_month = "M" THEN
-						EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
-						abawd_counted_months_string = counted_date_month & "/" & counted_date_year
 						If abawd_counted_months_string <> report_date then
-							If counted_date_year < MAXIS_footer_year then 			'does not add dates that are report month or later to the array
-								abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
-								abawd_counted_months = abawd_counted_months + 1				'adding counted months
-							Elseif abawd_counted_months_string < report_date then
-								abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
-								abawd_counted_months = abawd_counted_months + 1				'adding counted months
-							END IF
+							EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+							abawd_counted_months_string = counted_date_month & "/" & counted_date_year
+							abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
+							abawd_counted_months = abawd_counted_months + 1				'adding counted months
 						END IF
 					END IF
-
+			
 					'declaring & splitting the abawd months array
 					If left(abawd_info_list, 1) = "," then abawd_info_list = right(abawd_info_list, len(abawd_info_list) - 1)
 					abawd_months_array = Split(abawd_info_list, ",")
-
+					
 					'counting and checking for second set of ABAWD months
 					IF is_counted_month = "Y" or is_counted_month = "N" THEN
 						EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
 						second_abawd_period = second_abawd_period + 1				'adding counted months
 						second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
-						second_set_info_list = second_set_info_list & "," & second_counted_months_string	'adding variable to list to add to array
+						second_set_info_list = second_set_info_list & ", " & second_counted_months_string	'adding variable to list to add to array
 					END IF
 
 					'declaring & splitting the second set of abawd months array
 					If left(second_set_info_list, 1) = "," then second_set_info_list = right(second_set_info_list, len(second_set_info_list) - 1)
 					second_months_array = Split(second_set_info_list,",")
-
+					 
 					bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
-		    		    IF bene_mo_col = 15 THEN
-							bene_yr_row = bene_yr_row - 1
-							bene_mo_col = 63
-						END IF
+					IF bene_mo_col = 15 THEN
+						bene_yr_row = bene_yr_row - 1
+						bene_mo_col = 63
+					END IF
 					month_count = month_count + 1
 				LOOP until month_count = 36
 			PF3
+			End if
 		END If
 		'END OF ABAWD MONTHS AND SECOND ABAWD MONTHS----------------------------------------------------------------------------------------------------
-
+		
 		'Reading the person notes regarding which months are counted as banked months
 		PF5			'navigates to Person note from WREG PANEL
-
-		DO
-			PNOTE_row = 5		'establishes the row to start searching the Person notes from
-			Do
-				EMReadScreen counted_banked_month, 12, PNOTE_row, 31
-				If counted_banked_month = "            " then exit do 'if blank then stops checking
-				If counted_banked_month = "Banked Month" then
-					EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
-					If abawd_counted_months_string < report_date then banked_months_list = banked_months_list & abawd_counted_months_string & ", "  'does not add dates that are report month or later to the array
-				END IF
-				PNOTE_row = PNOTE_row + 1
-			LOOP until PNOTE_row = 18
-			PF8
-			EMReadScreen notes_exist, 1, 5, 3
-			EMReadScreen last_page_check, 21, 24, 2	'Checking for the last page of cases.
-		Loop until last_page_check = "THIS IS THE LAST PAGE" OR notes_exist <> "_"
-
-		Dim PNOTE_array
-		Dim Filter_array
-
-		'declaring & splitting for the person note cases
-		banked_months_list = trim(banked_months_list)
-		if right(banked_months_list, 1) = "," then banked_months_list = left(banked_months_list, len(banked_months_list) - 1)
-		'created new array of the banked months list cases
-		PNOTE_array = Split(banked_months_list, ",")
-
-		For each PNOTE in PNOTE_array	'This will remove any counted month that was actually a banked month'
-			Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
-			abawd_counted_months = abawd_counted_months - 1				'subtracts counted months
-			abawd_months_array = Filter_array						'establishing the values of both arrays are the same so that the PNOTE month that was removed stays removed from array
-		NEXT
-
-		'Now all the information about the counted months will be added to the array'
-		Banked_Month_Client_Array(abawd_count,       item) = abawd_counted_months 
-		Banked_Month_Client_Array(second_count,      item) = second_abawd_period  
-		Banked_Month_Client_Array(abawd_used,        item) = Join(abawd_months_array, ", ")
-		Banked_Month_Client_Array(second_abawd_used, item) = Join(second_months_array, ", ")
-		If Banked_Month_Client_Array(second_abawd_used, item) = "" Then Banked_Month_Client_Array(second_abawd_used, item) = "None"	'If this array is blank - added none so there is no blank on the DHS report'
-
-		IF Banked_Month_Client_Array(abawd_count, item) < 3 Then
+		'adds case to the rejected list if cannot access the person notes screen. This is usually for INACTIVE cases or out-of-county cases. 
+		EMReadScreen person_note_confirmation, 12, 2, 31
+		If person_note_confirmation <> "Person Notes" then 
 			Banked_Month_Client_Array(send_to_DHS, item) = False	'Removing this client from DHS report - reason on next line'
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client has a WREG panel coded with fewer than 3 counted regular ABAWD months. | "
-		End If
-
-		'Write a new person note only for cases that are being sent to DHS on the 'true' list 
-		If (developer_mode_checkbox = unchecked AND Banked_Month_Client_Array(send_to_DHS, item) = True) then 
-			PF5
-			EMreadscreen edit_mode_required_check, 6, 5, 3		'if not person not exists, person note goes directly into edit mode
-			If edit_mode_required_check = "      " then 
-				EMWriteScreen "Banked Month Used " & report_date, 5, 3
-				EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
-			ElseIF edit_mode_required_check <> "      " then 	
-				'creating a Do loop to ensure that duplicate person notes are not being made
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Unable to determine counted banked months, no access to person notes. Review manually. | "
+		ELSE 
+			DO
 				PNOTE_row = 5		'establishes the row to start searching the Person notes from
 				Do
 					EMReadScreen counted_banked_month, 12, PNOTE_row, 31
-					If counted_banked_month = "Banked Month" then EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
-					If abawd_counted_months_string = report_date then exit do	'if person note has already been made for the report date, then does not person note
-					PNOTE_row = PNOTE_row + 1	'adds incremental to row to search
+					If counted_banked_month = "            " then exit do 'if blank then stops checking
+					If counted_banked_month = "Banked Month" then
+						EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
+						If abawd_counted_months_string < report_date then banked_months_list = banked_months_list & abawd_counted_months_string & ", "  'does not add dates that are report month or later to the array
+					END IF
+					PNOTE_row = PNOTE_row + 1
 				LOOP until PNOTE_row = 18
-				If PNOTE_row = 18 then 
-					PF9
-					EMWriteScreen "Banked Month Used " & report_date, 5, 3
-					EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
-				END IF
-			END IF 
-		END IF
-		PF3 'exits person note'
-		
-		'clears values of the following variables 
-		abawd_counted_months_string = ""
-		abawd_info_list = ""
-		second_counted_months_string = ""
-		second_set_info_list = ""
-		banked_months_list = ""
-	End If
+				PF8
+				EMReadScreen notes_exist, 1, 5, 3
+				EMReadScreen last_page_check, 21, 24, 2	'Checking for the last page of cases.
+			Loop until last_page_check = "THIS IS THE LAST PAGE" OR notes_exist <> "_"
+
+			Dim PNOTE_array
+			Dim Filter_array
+
+			'declaring & splitting for the person note cases
+			banked_months_list = trim(banked_months_list)
+			if right(banked_months_list, 1) = "," then banked_months_list = left(banked_months_list, len(banked_months_list) - 1)
+			'created new array of the banked months list cases
+			PNOTE_array = Split(banked_months_list, ",")
+
+			For each PNOTE in PNOTE_array	'This will remove any counted month that was actually a banked month'
+				Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
+				abawd_counted_months = abawd_counted_months - 1				'subtracts counted months
+				abawd_months_array = Filter_array						'establishing the values of both arrays are the same so that the PNOTE month that was removed stays removed from array
+			NEXT
+
+			'Now all the information about the counted months will be added to the array'
+			Banked_Month_Client_Array(abawd_count,       item) = abawd_counted_months 
+			Banked_Month_Client_Array(second_count,      item) = second_abawd_period  
+			Banked_Month_Client_Array(abawd_used,        item) = Join(abawd_months_array, ", ")
+			Banked_Month_Client_Array(second_abawd_used, item) = Join(second_months_array, ", ")
+			If Banked_Month_Client_Array(second_abawd_used, item) = "" Then Banked_Month_Client_Array(second_abawd_used, item) = "None"	'If this array is blank - added none so there is no blank on the DHS report'
+
+			IF Banked_Month_Client_Array(abawd_count, item) < 3 Then
+				Banked_Month_Client_Array(send_to_DHS, item) = False	'Removing this client from DHS report - reason on next line'
+				Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Client has a WREG panel coded with fewer than 3 counted regular ABAWD months. | "
+			End If
+
+			'Write a new person note only for cases that are being sent to DHS on the 'true' list 
+			If (developer_mode_checkbox = unchecked AND Banked_Month_Client_Array(send_to_DHS, item) = True) then 
+				PF5		'enters person note screen
+				'adds case to the rejected list if cannot person note
+				EMReadScreen person_note_confirmation, 12, 2, 31
+				If person_note_confirmation <> "Person Notes" then 
+					Banked_Month_Client_Array(send_to_DHS, item) = False	'Removing this client from DHS report - reason on next line'
+					Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "Unable to person note this case. Case may be in another county. | "
+				ELSE 
+					'if not person not exists, person note goes directly into edit mode
+					EMreadscreen edit_mode_required_check, 6, 5, 3		
+					If edit_mode_required_check = "      " then 
+						EMWriteScreen "Banked Month Used " & report_date, 5, 3
+						EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
+					ElseIF edit_mode_required_check <> "      " then 	
+						'creating a Do loop to ensure that duplicate person notes are not being made
+						PNOTE_row = 5		'establishes the row to start searching the Person notes from
+						Do
+							EMReadScreen counted_banked_month, 12, PNOTE_row, 31
+							If counted_banked_month = "Banked Month" then EMReadScreen abawd_counted_months_string, 5, PNOTE_row, 49
+							If abawd_counted_months_string = report_date then exit do	'if person note has already been made for the report date, then does not person note
+							PNOTE_row = PNOTE_row + 1	'adds incremental to row to search
+						LOOP until PNOTE_row = 18
+						If PNOTE_row = 18 then 
+							PF9
+							EMWriteScreen "Banked Month Used " & report_date, 5, 3
+							EMWriteScreen "Case has been counted and reported to DHS.", 6, 3 
+						END IF
+					END IF 
+				END IF			
+			END If
+			PF3 'exits person note'
+			
+			'clears values of the following variables 
+			abawd_counted_months_string = ""
+			abawd_info_list = ""
+			second_counted_months_string = ""
+			second_set_info_list = ""
+			banked_months_list = ""
+			abawd_counted_months = ""
+			second_abawd_period = ""
+		End If
+	END If
 Next	
+
 '-----------------------------------END OF WREG PIECE---------------------------------------------------------------
 'Dialog to select the file that users will send to DHS 
 BeginDialog DHS_Report_Dialog, 0, 0, 226, 65, "DHS Banked Months"

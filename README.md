@@ -36,7 +36,7 @@ _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
 State Administrators
 ---
 As of June 2014, there is only one state administrator for the BlueZone Scripts project: 
-* **[Veronica Cary](mailto:veronica.cary@state.mn.us)**: Project Manager and SNAP Data Analyst
+* **[Charles Potter](mailto:Charles.D.Potter@state.mn.us)**: ME Reviewer/Script writer
 
 In addition to our state administrators, numerous county/tribal agency personnel are involved in much of the writing and testing of BlueZone Scripts. Their contribution is appreciated!
 

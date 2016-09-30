@@ -252,12 +252,18 @@ DO
 		err_msg = ""
 		'these counties are exempt from participation per the FNS'
 		If worker_county_code = "x101" OR _
+			worker_county_code = "x111" OR _
 			worker_county_code = "x115" OR _
 			worker_county_code = "x129" OR _
+			worker_county_code = "x131" OR _
 			worker_county_code = "x133" OR _
 			worker_county_code = "x136" OR _
 			worker_county_code = "x139" OR _
-			worker_county_code = "x144" THEN
+			worker_county_code = "x144" OR_
+			worker_county_code = "x145" OR _
+			worker_county_code = "x148" OR _
+			worker_county_code = "x154" OR _
+			worker_county_code = "x180" THEN
 			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
 		ElseIF worker_county_code = "x127" THEN
 			Dialog SNAPET_Hennepin_dialog
@@ -1050,7 +1056,11 @@ Call navigate_to_MAXIS_screen("STAT", "WREG")
 EMWriteScreen member_number, 20, 76
 transmit
 EMReadScreen WREG_status, 2, 8, 50
-If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+If manual_referral = "Student" then 
+    if WREG_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
+Else 
+    If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+End if 
 EMReadScreen orientation_date, 8, 9, 50
 orientation_date = replace(orientation_date, " ", "/")
 If appointment_date <> orientation_date then 
