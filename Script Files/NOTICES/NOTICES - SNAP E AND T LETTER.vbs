@@ -77,7 +77,7 @@ IF worker_county_code = "x126" THEN county_FSET_offices = array("Grant County So
 IF worker_county_code = "x128" THEN county_FSET_offices = array("Workforce Development Inc.")
 'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x130" THEN county_FSET_offices = array("Cambridge MN Workforce Center")
-IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
+'IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
 'IF worker_county_code = "x132" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x133" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x134" THEN county_FSET_offices = array("Select one...",
@@ -85,13 +85,13 @@ IF worker_county_code = "x135" THEN county_FSET_offices = array("Kittson County 
 'IF worker_county_code = "x136" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x137" THEN county_FSET_offices = array("Lace qui Parle Co. Family Services")
 IF worker_county_code = "x138" THEN county_FSET_offices = array("AEOA")
-IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
+'IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
 IF worker_county_code = "x140" THEN county_FSET_offices = array("MVAC")
 IF worker_county_code = "x141" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x142" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x143" THEN county_FSET_offices = array("Mahnomen County Human Services")
 'IF worker_county_code = "x144" THEN county_FSET_offices = array("Marshall County Social Services")
-IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
+'IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
 IF worker_county_code = "x146" THEN county_FSET_offices = array("Central MN Jobs and Training Services Hutchinson")
 IF worker_county_code = "x147" THEN county_FSET_offices = array("Central MN Jobs and Training Services Litchfield")
 'IF worker_county_code = "x148" THEN county_FSET_offices = array("Select one...",
@@ -126,7 +126,7 @@ IF worker_county_code = "x176" THEN county_FSET_offices = array("SW MN Private I
 IF worker_county_code = "x177" THEN county_FSET_offices = array("Select one...", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples")
 IF worker_county_code = "x178" THEN county_FSET_offices = array("Rural MN CEP Wadena")
 IF worker_county_code = "x179" THEN county_FSET_offices = array("Workforce Development Inc.")
-IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
+'IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
 IF worker_county_code = "x181" THEN county_FSET_offices = array("Minnesota Valley Action Council Waseca")
 IF worker_county_code = "x182" THEN county_FSET_offices = array("Select one...", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury")
 'IF worker_county_code = "x183" THEN county_FSET_offices = array("Select one...",
@@ -251,7 +251,7 @@ DO
 		'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 		err_msg = ""
 		'these counties are exempt from participation per the FNS'
-		If worker_county_code = "x101" OR _
+		If  worker_county_code = "x101" OR _
 			worker_county_code = "x111" OR _
 			worker_county_code = "x115" OR _
 			worker_county_code = "x129" OR _
@@ -259,12 +259,12 @@ DO
 			worker_county_code = "x133" OR _
 			worker_county_code = "x136" OR _
 			worker_county_code = "x139" OR _
-			worker_county_code = "x144" OR_
+			worker_county_code = "x144" OR _
 			worker_county_code = "x145" OR _
 			worker_county_code = "x148" OR _
 			worker_county_code = "x154" OR _
 			worker_county_code = "x180" THEN
-			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
+			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/17." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
 		ElseIF worker_county_code = "x127" THEN
 			Dialog SNAPET_Hennepin_dialog
 			'Hennepin specific information===================================================================================================
@@ -355,7 +355,6 @@ DO
 		ELSEIF worker_county_code = "x105" OR _
 			worker_county_code = "x106" OR _
 			worker_county_code = "x110" OR _
-			worker_county_code = "x111" OR _
 			worker_county_code = "x113" OR _
 			worker_county_code = "x114" OR _
 			worker_county_code = "x116" OR _
@@ -363,11 +362,9 @@ DO
 			worker_county_code = "x124" OR _
 			worker_county_code = "x132" OR _
 			worker_county_code = "x134" OR _
-			worker_county_code = "x148" OR _
 			worker_county_code = "x149" OR _
 			worker_county_code = "x152" OR _
 			worker_county_code = "x153" OR _
-			worker_county_code = "x154" OR _
 			worker_county_code = "x162" OR _
 			worker_county_code = "x170" OR _
 			worker_county_code = "x172" OR _

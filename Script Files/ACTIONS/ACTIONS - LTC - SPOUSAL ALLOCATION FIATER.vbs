@@ -214,19 +214,19 @@ If spousal_reference_number <> "" then
   EMWriteScreen spousal_reference_number, 20, 76
   transmit
   EMReadScreen current_panel_number, 1, 2, 73
-'changes unearned income coding types as coding from JOBS panel and spousal allocation screen are not the same 
+'changes unearned income coding types as coding from JOBS panel and spousal allocation screen are not the same
   If current_panel_number = "1" then
 	earned_income_number = 1
 	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34	
+		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34
 	ELSE
-		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38	
+		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38
 	END IF
 	If gross_spousal_earned_income_type_01 = "J" THEN gross_spousal_earned_income_type_01 = "01"
 	If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
 	If gross_spousal_earned_income_type_01 = "E" THEN gross_spousal_earned_income_type_01 = "03"
 	If gross_spousal_earned_income_type_01 = "G" then gross_spousal_earned_income_type_01 = "04"
-	If gross_spousal_earned_income_type_01 = "F" THEN gross_spousal_earned_income_type_01 = "05"	
+	If gross_spousal_earned_income_type_01 = "F" THEN gross_spousal_earned_income_type_01 = "05"
 	If gross_spousal_earned_income_type_01 = "S" then gross_spousal_earned_income_type_01 = "06"
 	If gross_spousal_earned_income_type_01 = "O" THEN gross_spousal_earned_income_type_01 = "07"
 	If gross_spousal_earned_income_type_01 = "I" then gross_spousal_earned_income_type_01 = "08"
@@ -242,9 +242,9 @@ If spousal_reference_number <> "" then
   If current_panel_number = "2" then
     earned_income_number = earned_income_number + 1
 	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 34	
+		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 34
 	ELSE
-		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 38	
+		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 38
 	END IF
 	If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
 	If gross_spousal_earned_income_type_02 = "W" then gross_spousal_earned_income_type_02 = "02"
@@ -266,9 +266,9 @@ If spousal_reference_number <> "" then
   If current_panel_number = "3" then
     earned_income_number = earned_income_number + 1
 	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 34	
+		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 34
 	ELSE
-		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 38	
+		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 38
 	END IF
 	If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
 	If gross_spousal_earned_income_type_03 = "W" then gross_spousal_earned_income_type_03 = "02"
@@ -290,9 +290,9 @@ If spousal_reference_number <> "" then
   If current_panel_number = "4" then
     earned_income_number = earned_income_number + 1
 	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 34	
+		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 34
 	ELSE
-		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 38	
+		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 38
 	END IF
 	If gross_spousal_earned_income_type_04 = "J" THEN gross_spousal_earned_income_type_04 = "01"
 	If gross_spousal_earned_income_type_04 = "W" then gross_spousal_earned_income_type_04 = "02"
@@ -314,7 +314,7 @@ If spousal_reference_number <> "" then
   EMWriteScreen spousal_reference_number, 20, 76
   transmit
   EMReadScreen current_panel_number, 1, 2, 73
-  If current_panel_number <> "0" then 
+  If current_panel_number <> "0" then
     MsgBox "There is self-employment for the spouse. Add this manually to the calculation. The dialog will pop-up after it checks for RBIC."
     has_self_employment = True
   End if
@@ -353,7 +353,7 @@ cancel_confirmation
 Call check_for_MAXIS(False)
 
 
-'changes unearned income coding types as coding from UNEA panel and spousal allocation screen are not the same 
+'changes unearned income coding types as coding from UNEA panel and spousal allocation screen are not the same
 'unearned income 01
 IF gross_spousal_unearned_income_type_01 = "11" THEN gross_spousal_unearned_income_type_01 = "09"
 IF gross_spousal_unearned_income_type_01 = "12" THEN gross_spousal_unearned_income_type_01 = "10"
@@ -495,7 +495,7 @@ IF gross_spousal_unearned_income_type_04 = "49" THEN gross_spousal_unearned_inco
 Call navigate_to_MAXIS_screen("ELIG", "HC")
 
 
-'Checks to see if MEMB 01 has HC, and puts an "x" there. If not it'll try MEMB 02. 
+'Checks to see if MEMB 01 has HC, and puts an "x" there. If not it'll try MEMB 02.
 EMReadScreen person_check, 1, 8, 26
 If person_check <> "_" then
   MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
@@ -523,12 +523,12 @@ If ELIG_HC_col = 0 then script_end_procedure("Requested footer month not found. 
 col = ELIG_HC_col + 1
 
 'setting the variable for the next do...loop
-budget_months = 0 
+budget_months = 0
 
 'Fills all budget months with "x's", so that the script will go into each one in succession.
 Do
   EMReadScreen budget_check, 1, 12, col
-  If budget_check = "/" then 
+  If budget_check = "/" then
     budget_months = budget_months + 1
     EMWriteScreen "x", 9, col + 1
   End if
@@ -652,7 +652,7 @@ For amt_of_months_to_do = 1 to budget_months
   EMWriteScreen coop_condo_maint_fees, 11, 33
   EMWriteScreen "__________", 12, 33
   EMWriteScreen utility_allowance, 12, 33
-  
+
   'Transmits to get past the spousal allocation screen
   transmit
 
@@ -664,7 +664,7 @@ For amt_of_months_to_do = 1 to budget_months
   'For an unknown (as of 06/24/2013) reason, some cases seem to stay in the first budget month and not move on. This is a fix for that.
   EMReadScreen ending_bdgt_month, 5, 6, 14
   If starting_bdgt_month = ending_bdgt_month then transmit
- 
+
   'Resets the variables to check on the next month.
   LBUD_check = ""
   SBUD_check = ""
