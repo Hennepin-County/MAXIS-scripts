@@ -1,5 +1,5 @@
 'Stats========================
-name_of_script = "DAIL - IEVS SCRUBBER.vbs"
+name_of_script = "DAIL - WAGE MATCH SCRUBBER.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 120
