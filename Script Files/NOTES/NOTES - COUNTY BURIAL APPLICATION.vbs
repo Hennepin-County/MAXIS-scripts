@@ -55,7 +55,7 @@ BeginDialog County_Burial_Application_Received, 0, 0, 266, 325, "County Burial A
   EditBox 45, 50, 215, 15, CASH_ACCTs
   EditBox 55, 70, 205, 15, other_assets
   EditBox 80, 90, 180, 15, Total_Counted_Assets
-  ComboBox 80, 115, 180, 45, "Creamation"+chr(9)+"Burial", services_requested
+  ComboBox 80, 115, 180, 45, ""+chr(9)+"Creamation"+chr(9)+"Burial", services_requested
   EditBox 60, 135, 200, 15, funeral_home
   EditBox 60, 155, 75, 15, funeral_home_phone
   EditBox 225, 155, 35, 15, funeral_home_amount
@@ -99,8 +99,8 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------
 'connecting to BlueZone, and grabbing the case number
 EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-get_county_code	
+Call MAXIS_case_number_finder(MAXIS_case_number)	'Finds the case number
+get_county_code										'Sets the county of financial resp. as current county by default
 CFR_resp = right(worker_county_code, 2)
 
 If MAXIS_case_number = "" Then
@@ -111,6 +111,7 @@ End If
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
+'Reads the date of death if it has been entered in MAXIS
 Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 EMReadScreen date_of_death, 10, 19, 42
 If date_of_death = "__ __ ____" Then
@@ -118,6 +119,7 @@ If date_of_death = "__ __ ____" Then
 Else 
 	date_of_death = replace(date_of_death, " ", "/")
 End If 
+'Pulls some asset information
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", CASH_ACCTs)
 call autofill_editbox_from_MAXIS(HH_member_array, "CASH", CASH_ACCTs)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
@@ -133,7 +135,6 @@ Do
 		If date_received = "" Then err_msg = err_msg & vbNewLine & "Enter the date the application was recieved." 
 		If date_of_death = "" Then err_msg = err_msg & vbNewLine & "Enter the date of death." 
 		If CFR_resp = "" Then err_msg = err_msg & vbNewLine & "List the County of Financial Responsibility." 
-		If services_requested = "" Then err_msg = err_msg & vbNewLine& "Enter what services are being applied for." 
 		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "Sign your case note." 
 		If err_msg <> "" Then MsgBox ("The following must be resolved before continuing." & vbNewLine & err_msg)
 	LOOP until err_msg = ""
@@ -147,6 +148,18 @@ If contact_name <> "" Then contact_info = contact_name
 If contact_phone <> "" Then contact_info = contact_info & " - Phone: " & contact_phone
 If contact_fax <> "" THen contact_info = contact_info & " - Fax: " & contact_fax
 
+If funeral_home_amount <> "" Then funeral_home_amount = FormatCurrency(funeral_home_amount)
+If cemetary_amount <> "" Then cemetary_amount = FormatCurrency(cemetary_amount)
+
+'Format funeral home and cemetary like above'
+If funeral_home <> "" Then funeral_info = "Services at " & funeral_home & ". "
+If funeral_home_amount <> "" THen funeral_info = funeral_info & "Ammount requested: " & funeral_home_amount
+If funeral_home_phone <> "" Then funeral_info = funeral_info & " Phone Number: " & funeral_home_phone
+
+If cemetary <> "" Then cemetary_info = "Services at " & cemetary & ". "
+If cemetary_amount <> "" THen cemetary_info = cemetary_info & "Ammount requested: " & cemetary_amount
+If cemetary_phone <> "" Then cemetary_info = cemetary_info & " Phone Number: " & cemetary_phone
+
 'The case note---------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("***County Burial Application Received")
@@ -158,7 +171,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Assets", other_assets)
 CALL write_bullet_and_variable_in_CASE_NOTE("Total Counted Assets", Total_Counted_Assets)
 Call write_bullet_and_variable_in_CASE_NOTE("Services Requested", services_requested)
 If funeral_home <> "" Then Call write_variable_in_CASE_NOTE("* Requesting " & funeral_home_amount & " for services at " & funeral_home & ". Contact: " & funeral_home_phone)
-If cemetary <> "" Then Call write_variable_in_CASE_NOTE("* Requesting " & cemetary_amount & " for services at " & cemetary_amount & ". Contact: " & cemetary_phone)
+If cemetary <> "" Then Call write_variable_in_CASE_NOTE("* Requesting " & cemetary_amount & " for services at " & cemetary & ". Contact: " & cemetary_phone)
 Call write_bullet_and_variable_in_CASE_NOTE("Contact", contact_info)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 CALL write_bullet_and_variable_in_CASE_NOTE("Action taken", action_taken)
