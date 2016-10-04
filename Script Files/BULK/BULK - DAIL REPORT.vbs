@@ -2,7 +2,7 @@
 name_of_script = "BULK - DAIL REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 25                               'manual run time, per line, in seconds
+STATS_manualtime = 30                               'manual run time, per line, in seconds
 STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
@@ -370,6 +370,7 @@ For x = 0 to ubound(x_number_array)
 	ObjExcel.Cells(x + 3, 1) = trim(x_number_array(x))
 	ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ")"
 	
+	'Counts the number of DAILs for each worker based on type and enters it into the correct cell
 	IF all_check = checked OR cola_check = checked THEN ObjExcel.Cells(x + 3, COLA_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "COLA" & Chr(34) & ")"	
 	IF all_check = checked OR clms_check = checked THEN ObjExcel.Cells(x + 3, CLMS_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "DMND" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CRAA" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "BILL" & Chr(34) & ")"	
 	IF all_check = checked OR cses_check = checked THEN ObjExcel.Cells(x + 3, CSES_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CSES" & Chr(34) & ")"	
@@ -383,13 +384,6 @@ For x = 0 to ubound(x_number_array)
 	IF all_check = checked OR pepr_check = checked THEN ObjExcel.Cells(x + 3, PEPR_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "PEPR" & Chr(34) & ")"	
 	IF all_check = checked OR tikl_check = checked THEN ObjExcel.Cells(x + 3, TIKL_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "TIKL" & Chr(34) & ")"	
 	IF all_check = checked OR wf1_check  = checked THEN ObjExcel.Cells(x + 3, WF1_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "WF1 " & Chr(34) & ")"	
-	
-	
-''	ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
-''	ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
-''	ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
-''	ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
-''	ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
 Next
 
 'Merging header cell.
