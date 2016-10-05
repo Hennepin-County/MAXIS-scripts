@@ -1,4 +1,3 @@
-
 'Required for statistical purposes===============================================================================
 name_of_script = "BULK - REVW-MONT CLOSURES.vbs"
 start_time = timer
@@ -245,9 +244,18 @@ If revw_check = checked then
 				call write_bullet_and_variable_in_case_note("Cash", cash_review_status)
 				call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
 				call write_bullet_and_variable_in_case_note("HC", HC_review_status)
-				call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
-				call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
-				call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs.")
+				'trimming last_day_to_turn_in_cash_docs
+				last_day_to_turn_in_cash_docs = trim(last_day_to_turn_in_cash_docs)
+				'if the variable is not blank, writing to case note
+				IF last_day_to_turn_in_cash_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
+				'trimming last_day_to_turn_in_SNAP_docs
+				last_day_to_turn_in_SNAP_docs = trim(last_day_to_turn_in_SNAP_docs)
+				'if the variable is not blank, writing to case note
+				IF last_day_to_turn_in_SNAP_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
+				'trimming last_day_to_turn_in_HC_docs
+				last_day_to_turn_in_HC_docs = trim(last_day_to_turn_in_HC_docs)
+				'if the variable is not blank, writing to case note
+				IF last_day_to_turn_in_HC_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs.")
 				If cash_review_status <> "" and cash_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for cash on " & cash_intake_date & ".")
 				If FS_review_status <> "" and SNAP_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for SNAP on " & SNAP_intake_date & ".")
 				call write_variable_in_case_note("* Client needs to turn in new application for HC after " & HC_intake_date & ".")
