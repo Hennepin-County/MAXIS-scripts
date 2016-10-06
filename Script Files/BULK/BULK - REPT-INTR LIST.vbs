@@ -69,8 +69,16 @@ CALL find_variable("User: ", x_number_editbox, 7)
 
 'Shows the dialog. 
 DO
-	dialog bulk_paris_report_dialog
-	cancel_confirmation
+	Do
+		err_msg = ""
+		dialog bulk_paris_report_dialog
+		cancel_confirmation
+		If start_month <> "" AND isnumeric(start_month) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the start month field."
+		If start_year <> "" AND isnumeric(start_year) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the start year field."
+		If end_month <> "" AND isnumeric(end_month) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the end month field."
+		If end_year <> "" AND isnumeric(end_year) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the year year field."
+		If err_msg <> "" Then MsgBox "Please resolve:" & vbNewLine & err_msg
+	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
@@ -156,9 +164,19 @@ For each x_number in x_number_array
 	End If 
 	EMWriteScreen resolution_code, 5, 67			'Entering the resolution code selected in dialog
 	If start_month <> "" Then 
+		start_month = right("00" & start_month, 2)
 		EMWriteScreen start_month, 6, 67			'Entering the date range if selected
+	End If 
+	If start_year <> "" Then 
+		start_year = right("00" & start_year, 2)	
 		EMWriteScreen start_year, 6, 70
+	End If 
+	If end_month <> "" Then 
+		end_month = right("00" & end_month, 2)	
 		EMWriteScreen end_month, 7, 67
+	End If 
+	If end_year <> "" Then 
+		end_year = right("00" & end_year, 2)	
 		EMWriteScreen end_year, 7, 70
 	End If 
 	transmit										'and GO	
