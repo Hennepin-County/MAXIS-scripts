@@ -89,14 +89,7 @@ If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then call run_from_GitHub(scri
 EMReadScreen CSES_check, 4, 6, 6
 If CSES_check = "CSES" or CSES_check = "TIKL" then		'TIKLs are used for fake cases and testing
 	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
-	If CSES_DISB_check = "DISB" then 					'If it's a disbursement message...
-		If use_master_branch = true then temp_CSES_msgbox = MsgBox ("You have selected a CSES message. Would you like to try the new CSES scrubber?", vbYesNo)
-		If temp_CSES_msgbox = vbYes then
-			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs")
-		Else
-			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES PROCESSING.vbs")
-		End if
-	End if
+	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs") 'If it's a disbursement message...
 End if
 
 'Disability certification ends in 60 days (loads DISA MESSAGE)
