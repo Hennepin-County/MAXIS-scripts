@@ -351,6 +351,8 @@ For hc_case = 0 to UBound(clts_with_spdwn_array, 2)
 	End If 	
 Next
 
+'This bit will look to see if there are any cases that have a possible spenddown.
+'Occasionally the criteria selected produce no cases and this explains this to the user.
 If UBound(spenddown_error_array, 2) = 0 AND spenddown_error_array(case_num, 0) = "" Then 
 	all_workers = Join(worker_array, ", ")
 	If one_month_only = True Then 
