@@ -57,29 +57,26 @@ ELSEIF row = 0 THEN
 	application_note = FALSE
 END IF 
 
-'Script is gathering the income/asset/expense information from the XFS Screening note
+'Script is gathering the service information from the application case note
 IF application_note = TRUE THEN
-	xfs_screening = UCase(xfs_screening)
-	xfs_screening_display = xfs_screening & ""
-	
 	row = 1
 	col = 1 
-	EMSearch "Services Requested:", row, col 
+	EMSearch "Services Requested:", row, col 		'Looking for what type of service requested (burial or cremation)
 	If row <> 0 Then 
-		EMReadScreen service_in_note, 55, row, 25
+		EMReadScreen service_in_note, 55, row, 25	'Reading the service requested from the case note
 		service_in_note = trim(service_in_note)
 		
-		services_dropdown = service_in_note+chr(9)+"Creamation"+chr(9)+"Burial"
+		services_dropdown = service_in_note+chr(9)+"Creamation"+chr(9)+"Burial"	'Formatting the dropdown for the next dialog
 	End If 
 	
 	row = 1
 	col = 1 
-	EMSearch "Amount requested:", row, col 
+	EMSearch "Amount requested:", row, col 			'getting the information from the case note with the amount requested
 	EMReadScreen service_cost, 7, row, col+18
 	service_cost = trim(service_cost)
 End IF 
 
-If services_dropdown = "" Then services_dropdown = ""+chr(9)+"Creamation"+chr(9)+"Burial"
+If services_dropdown = "" Then services_dropdown = ""+chr(9)+"Cremation"+chr(9)+"Burial"	'If a note was not found - creating the dropdown
 
 'Dialog-----------------Defined here so dropdown can be dynamic-----------------------------------------
 BeginDialog county_burial_determination_dialog, 0, 0, 281, 130, "County Burial Determination"
@@ -102,6 +99,7 @@ BeginDialog county_burial_determination_dialog, 0, 0, 281, 130, "County Burial D
   Text 10, 115, 60, 10, "Worker Signature"
 EndDialog
 
+'Running the dialog
 Do
 	Do 
 		err_msg = ""
