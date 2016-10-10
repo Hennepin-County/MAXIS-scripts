@@ -38,12 +38,55 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Dialog---------------------------------------------------------------------------------------------------------------------------
+
+
+'Script---------------------------------------------------------------------------------------------------------------------------
+'connecting to BlueZone, and grabbing the case number
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+
+Call navigate_to_MAXIS_screen ("CASE", "NOTE")
+row = 1
+col = 1
+EMSearch "County Burial Application", row, col 
+IF row <> 0 THEN 
+	application_note = TRUE 
+	EMWriteScreen "x", row, 3
+	transmit
+ELSEIF row = 0 THEN 
+	application_note = FALSE
+END IF 
+
+'Script is gathering the income/asset/expense information from the XFS Screening note
+IF application_note = TRUE THEN
+	xfs_screening = UCase(xfs_screening)
+	xfs_screening_display = xfs_screening & ""
+	
+	row = 1
+	col = 1 
+	EMSearch "Services Requested:", row, col 
+	If row <> 0 Then 
+		EMReadScreen service_in_note, 55, row, 25
+		service_in_note = trim(service_in_note)
+		
+		services_dropdown = service_in_note+chr(9)+"Creamation"+chr(9)+"Burial"
+	End If 
+	
+	row = 1
+	col = 1 
+	EMSearch "Amount requested:", row, col 
+	EMReadScreen service_cost, 7, row, col+18
+	service_cost = trim(service_cost)
+End IF 
+
+If services_dropdown = "" Then services_dropdown = ""+chr(9)+"Creamation"+chr(9)+"Burial"
+
+'Dialog-----------------Defined here so dropdown can be dynamic-----------------------------------------
 BeginDialog county_burial_determination_dialog, 0, 0, 281, 130, "County Burial Determination"
   EditBox 55, 5, 50, 15, MAXIS_case_number
   ComboBox 185, 5, 90, 45, ""+chr(9)+"Approved"+chr(9)+"Denied", burial_request_status
   EditBox 65, 25, 40, 15, service_cost
-  ComboBox 185, 25, 90, 45, ""+chr(9)+"Creamation"+chr(9)+"Burial", requested_services
+  ComboBox 185, 25, 90, 45, services_dropdown, requested_services
   EditBox 5, 55, 270, 15, denial_reason
   EditBox 5, 85, 270, 15, other_notes
   EditBox 70, 110, 85, 15, worker_signature
@@ -59,42 +102,6 @@ BeginDialog county_burial_determination_dialog, 0, 0, 281, 130, "County Burial D
   Text 10, 115, 60, 10, "Worker Signature"
 EndDialog
 
-'Script---------------------------------------------------------------------------------------------------------------------------
-'connecting to BlueZone, and grabbing the case number
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-Call navigate_to_MAXIS_screen ("CASE", "NOTE")
-row = 1
-col = 1
-EMSearch "County Burial Application", row, col 
-IF row <> 0 THEN 
-	application_note = TRUE 
-	EMWriteScreen "x", row, 3
-ELSEIF row = 0 THEN 
-	application_note = FALSE
-END IF 
-
-'Script is gathering the income/asset/expense information from the XFS Screening note
-IF application_note = TRUE THEN
-	xfs_screening = UCase(xfs_screening)
-	xfs_screening_display = xfs_screening & ""
-	
-	row = 1
-	col = 1 
-	EMSearch "Services Requested", row, col 
-	If row <> 0 Then 
-		EMReadScreen requested_services, 55, row, 25
-		requested_services = trim(requested_services)
-	End If 
-	
-	row = 1
-	col = 1 
-	EMSearch "$", row, col 
-	EMReadScreen service_cost, 7, row, col
-	service_cost = trim(service_cost)
-End IF 
-
 Do
 	Do 
 		err_msg = ""
@@ -109,8 +116,14 @@ Do
 	call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-Call navigate_to_MAXIS_screen ("CASE", "NOTE")
-Call start_a_blank_CASE_NOTE
+'The case note---------------------------------------------------------------------------------------------------------------------
+start_a_blank_CASE_NOTE
+CALL write_variable_in_CASE_NOTE("***County Burial " & burial_request_status)
+CALL write_bullet_and_variable_in_CASE_NOTE("Service requested", requested_services)
+CALL write_bullet_and_variable_in_CASE_NOTE("Amount", service_cost)
+CALL write_bullet_and_variable_in_CASE_NOTE("Denied due to", denial_reason)
+CALL write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 
-
-
+script_end_procedure("Success! Case note completed.")
