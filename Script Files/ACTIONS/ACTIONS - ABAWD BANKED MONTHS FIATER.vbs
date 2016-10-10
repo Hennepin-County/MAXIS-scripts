@@ -402,6 +402,39 @@ For i = 0 to ubound(footer_month_array)
 		ABAWD_months_array(i).deduction_FMED = ABAWD_months_array(i).deduction_FMED	= fmed_total_amt 'creates the total to FIAT into elig for FMED
 	Next
 
+	case_resources = 0
+
+	For each HH_member in HH_member_array
+		Call navigate_to_MAXIS_screen("STAT", "ACCT")		'<<<<< Goes to ACCT for this person
+		EMWriteScreen HH_member, 20, 76
+		Transmit
+		EMReadScreen number_of_acct_panels, 1, 2, 78
+		IF number_of_acct_panels <> "0" THEN
+			For m = 1 to number_of_acct_panels					'<<<<<< Starting at 1 because this is a panel count and it makes sense to use this as a standard count
+				EMWriteScreen "0" & m, 20, 79
+				transmit
+				EMReadScreen count_for_snap, 1, 14, 57
+				If count_for_snap = "Y" Then 
+					EMReadScreen acct_balance, 8, 10, 46
+					EMReadScreen withdraw_penalty, 8, 12, 46
+					If withdraw_penalty = "________" Then withdraw_penalty = 0
+					acct_amount = abs(acct_balance) - abs(withdraw_penalty)
+					EMReadScreen share_ratio, 1, 15, 80
+					acct_amount = acct_amount / abs(share_ratio)
+				End If 
+				case_resources = case_resources + acct_amount
+			Next
+		End If 
+		
+		Call navigate_to_MAXIS_screen("STAT", "CASH")		'<<<<< Goes to CASH for this person
+		EMWriteScreen HH_member, 20, 76
+		Transmit
+		EMReadScreen cash_amount, 8, 8, 39
+		If cash_amount = "________" Then cash_amount = 0
+		case_resources = case_resources + cash_amount
+		
+	Next 
+
 '//////////// Going to pull UNEA information
 	For each HH_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "UNEA")	'<<<<< Goes to UNEA for this person
@@ -463,7 +496,7 @@ For i = 0 to ubound(footer_month_array)
 					End If
 				END IF
 		Next
-
+				
 		Call navigate_to_MAXIS_screen("STAT", "JOBS")		'<<<<< Goes to JOBS for this person
 		EMWriteScreen HH_member, 20, 76
 		Transmit
