@@ -116,7 +116,7 @@ Loop until are_we_passworded_out = false
 
 'The case note---------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-CALL write_variable_in_CASE_NOTE("***County Burial " & burial_request_status)
+CALL write_variable_in_CASE_NOTE("***County Burial " & burial_request_status & "***")
 CALL write_bullet_and_variable_in_CASE_NOTE("Service requested", requested_services)
 CALL write_bullet_and_variable_in_CASE_NOTE("Amount", service_cost)
 CALL write_bullet_and_variable_in_CASE_NOTE("Denied due to", denial_reason)
