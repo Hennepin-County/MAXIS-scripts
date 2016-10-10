@@ -233,8 +233,8 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter
   Text 5, 85, 100, 15, "Other manual referral reason:"
   Text 170, 15, 45, 10, "HH Memb #:"
   Text 40, 110, 60, 10, "Worker Signature:"
-  Text 320, 25, 130, 25, "If your client is requsting a Somali-language orientation, then select the check box to the left."
-  Text 320, 60, 130, 60, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
+  Text 320, 25, 130, 35, "If your client is requsting a Somali-language orientation, select this option in the 'client's region of residence' field."
+  Text 320, 65, 130, 55, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -397,7 +397,6 @@ DO
 		IF SNAPET_contact = "" then err_msg = err_msg & vbNewLine & "* Enter a contact name."
 		IF SNAPET_phone = "" then err_msg = err_msg & vbNewLine & "* Enter a phone number."
 		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location." 
-		If (worker_county_code = "x127" and interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" AND date < "7/05/2016") then err_msg = err_msg & vbNewLine & "* Somali-language orientation is not available until 07/12/16."
 		IF (manual_referral = "Other manual referral" and other_referral_notes = "") then err_msg = err_msg & vbNewLine & "* Enter other manual referral notes."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
