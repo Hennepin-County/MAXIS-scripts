@@ -113,18 +113,47 @@ Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, eme
 		EMReadScreen SNAP_pnd2_code, 1, row, 62
 		IF SNAP_pnd2_code = "R" THEN coded_denial = coded_denial & " SNAP withdrawn on PND2."
 		IF SNAP_pnd2_code = "I" THEN coded_denial = coded_denial & " SNAP application incomplete, denied on PND2."
+		IF SNAP_pnd2_code = "_" THEN 
+			'If SNAP is selected by the user but the SNAP column is empty on PND2, the script is going to look on the next row for ADDITIONAL APP...
+			EMReadScreen additional_maxis_application, 20, row + 1, 16
+			additional_maxis_application = trim(additional_maxis_application)
+			IF InStr(additional_maxis_application, "ADDITIONAL") <> 0 THEN
+				EMReadScreen SNAP_pnd2_code, 1, row + 1, 62
+				IF SNAP_pnd2_code = "R" THEN coded_denial = coded_denial & " SNAP withdrawn on PND2."
+				IF SNAP_pnd2_code = "I" THEN coded_denial = coded_denial & " SNAP application incomplete, denied on PND2."
+			END IF
+		END IF
 	END IF
 	IF cash_check = checked Then
 		EMReadScreen cash_pnd2_code, 1, row, 54
 		IF cash_pnd2_code = "R" THEN coded_denial = coded_denial & " CASH withdrawn on PND2."
 		IF cash_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH application incomplete, denied on PND2."
+		IF cash_pnd2_code = "_" THEN 
+			'If CASH is selected by the user but the CASH column is empty on PND2, the script is going to look on the next row for ADDITIONAL APP...
+			EMReadScreen additional_maxis_application, 20, row + 1, 16
+			additional_maxis_application = trim(additional_maxis_application)
+			IF InStr(additional_maxis_application, "ADDITIONAL") <> 0 THEN
+				EMReadScreen cash_pnd2_code, 1, row + 1, 54
+				IF cash_pnd2_code = "R" THEN coded_denial = coded_denial & " CASH withdrawn on PND2."
+				IF cash_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH application incomplete, denied on PND2."
+			END IF
+		END IF
 	END IF
 	IF emer_check = checked Then
 		EMReadScreen emer_pnd2_code, 1, row, 68
 		IF emer_pnd2_code = "R" THEN coded_denial = coded_denial & " EMER withdrawn on PND2."
 		IF emer_pnd2_code = "I" THEN coded_denial = coded_denial & " EMER application incomplete, denied on PND2."
+		IF emer_pnd2_code = "_" THEN 
+			'If EMER is selected by the user but the EMER column is empty on PND2, the script is going to look on the next row for ADDITIONAL APP...
+			EMReadScreen additional_maxis_application, 20, row + 1, 16
+			additional_maxis_application = trim(additional_maxis_application)
+			IF InStr(additional_maxis_application, "ADDITIONAL") <> 0 THEN
+				EMReadScreen emer_pnd2_code, 1, row + 1, 68
+				IF emer_pnd2_code = "R" THEN coded_denial = coded_denial & " EMER withdrawn on PND2."
+				IF emer_pnd2_code = "I" THEN coded_denial = coded_denial & " EMER application incomplete, denied on PND2."
+			END IF
+		END IF
 	END IF
-	
 End function
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
