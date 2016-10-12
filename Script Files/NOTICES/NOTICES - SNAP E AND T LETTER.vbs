@@ -77,7 +77,7 @@ IF worker_county_code = "x126" THEN county_FSET_offices = array("Grant County So
 IF worker_county_code = "x128" THEN county_FSET_offices = array("Workforce Development Inc.")
 'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x130" THEN county_FSET_offices = array("Cambridge MN Workforce Center")
-IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
+'IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
 'IF worker_county_code = "x132" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x133" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x134" THEN county_FSET_offices = array("Select one...",
@@ -85,13 +85,13 @@ IF worker_county_code = "x135" THEN county_FSET_offices = array("Kittson County 
 'IF worker_county_code = "x136" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x137" THEN county_FSET_offices = array("Lace qui Parle Co. Family Services")
 IF worker_county_code = "x138" THEN county_FSET_offices = array("AEOA")
-IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
+'IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
 IF worker_county_code = "x140" THEN county_FSET_offices = array("MVAC")
 IF worker_county_code = "x141" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x142" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x143" THEN county_FSET_offices = array("Mahnomen County Human Services")
 'IF worker_county_code = "x144" THEN county_FSET_offices = array("Marshall County Social Services")
-IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
+'IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
 IF worker_county_code = "x146" THEN county_FSET_offices = array("Central MN Jobs and Training Services Hutchinson")
 IF worker_county_code = "x147" THEN county_FSET_offices = array("Central MN Jobs and Training Services Litchfield")
 'IF worker_county_code = "x148" THEN county_FSET_offices = array("Select one...",
@@ -126,7 +126,7 @@ IF worker_county_code = "x176" THEN county_FSET_offices = array("SW MN Private I
 IF worker_county_code = "x177" THEN county_FSET_offices = array("Select one...", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples")
 IF worker_county_code = "x178" THEN county_FSET_offices = array("Rural MN CEP Wadena")
 IF worker_county_code = "x179" THEN county_FSET_offices = array("Workforce Development Inc.")
-IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
+'IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
 IF worker_county_code = "x181" THEN county_FSET_offices = array("Minnesota Valley Action Council Waseca")
 IF worker_county_code = "x182" THEN county_FSET_offices = array("Select one...", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury")
 'IF worker_county_code = "x183" THEN county_FSET_offices = array("Select one...",
@@ -233,8 +233,8 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter
   Text 5, 85, 100, 15, "Other manual referral reason:"
   Text 170, 15, 45, 10, "HH Memb #:"
   Text 40, 110, 60, 10, "Worker Signature:"
-  Text 320, 25, 130, 25, "If your client is requsting a Somali-language orientation, then select the check box to the left."
-  Text 320, 60, 130, 60, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
+  Text 320, 25, 130, 35, "If your client is requsting a Somali-language orientation, select this option in the 'client's region of residence' field."
+  Text 320, 65, 130, 55, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -251,14 +251,20 @@ DO
 		'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 		err_msg = ""
 		'these counties are exempt from participation per the FNS'
-		If worker_county_code = "x101" OR _
+		If  worker_county_code = "x101" OR _
+			worker_county_code = "x111" OR _
 			worker_county_code = "x115" OR _
 			worker_county_code = "x129" OR _
+			worker_county_code = "x131" OR _
 			worker_county_code = "x133" OR _
 			worker_county_code = "x136" OR _
 			worker_county_code = "x139" OR _
-			worker_county_code = "x144" THEN
-			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
+			worker_county_code = "x144" OR _
+			worker_county_code = "x145" OR _
+			worker_county_code = "x148" OR _
+			worker_county_code = "x154" OR _
+			worker_county_code = "x180" THEN
+			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/17." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
 		ElseIF worker_county_code = "x127" THEN
 			Dialog SNAPET_Hennepin_dialog
 			'Hennepin specific information===================================================================================================
@@ -349,7 +355,6 @@ DO
 		ELSEIF worker_county_code = "x105" OR _
 			worker_county_code = "x106" OR _
 			worker_county_code = "x110" OR _
-			worker_county_code = "x111" OR _
 			worker_county_code = "x113" OR _
 			worker_county_code = "x114" OR _
 			worker_county_code = "x116" OR _
@@ -357,11 +362,9 @@ DO
 			worker_county_code = "x124" OR _
 			worker_county_code = "x132" OR _
 			worker_county_code = "x134" OR _
-			worker_county_code = "x148" OR _
 			worker_county_code = "x149" OR _
 			worker_county_code = "x152" OR _
 			worker_county_code = "x153" OR _
-			worker_county_code = "x154" OR _
 			worker_county_code = "x162" OR _
 			worker_county_code = "x170" OR _
 			worker_county_code = "x172" OR _
@@ -394,7 +397,6 @@ DO
 		IF SNAPET_contact = "" then err_msg = err_msg & vbNewLine & "* Enter a contact name."
 		IF SNAPET_phone = "" then err_msg = err_msg & vbNewLine & "* Enter a phone number."
 		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location." 
-		If (worker_county_code = "x127" and interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" AND date < "7/05/2016") then err_msg = err_msg & vbNewLine & "* Somali-language orientation is not available until 07/12/16."
 		IF (manual_referral = "Other manual referral" and other_referral_notes = "") then err_msg = err_msg & vbNewLine & "* Enter other manual referral notes."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -1050,7 +1052,11 @@ Call navigate_to_MAXIS_screen("STAT", "WREG")
 EMWriteScreen member_number, 20, 76
 transmit
 EMReadScreen WREG_status, 2, 8, 50
-If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+If manual_referral = "Student" then 
+    if WREG_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
+Else 
+    If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+End if 
 EMReadScreen orientation_date, 8, 9, 50
 orientation_date = replace(orientation_date, " ", "/")
 If appointment_date <> orientation_date then 

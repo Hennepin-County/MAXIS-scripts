@@ -142,7 +142,7 @@ script_array(script_num).script_name			= "FSET Sanction"
 script_array(script_num).description			= "Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
@@ -347,6 +347,16 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
 script_array(script_num).release_date           = #10/01/2000#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "EXP SNAP Review"
+script_array(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
+script_array(script_num).category               = "BULK"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).release_date           = #09/26/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -599,6 +609,16 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name				= "Spenddown Report"
+script_array(script_num).description				= "Creates a list of HC Cases from a caseload(s) with a Spenddown indicated on MOBL."
+script_array(script_num).category               = "BULK"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #09/26/2016#
+
+script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "SWKR List Generator"
@@ -811,6 +831,15 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
 
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "WAGE MATCH SCRUBBER"																		'Script name
+script_array(script_num).description 			= ""
+script_array(script_num).category               = "DAIL"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/04/2016#
 
 
 
@@ -1670,16 +1699,6 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "MFIP Sanction Cured"
-script_array(script_num).description				= "Template for noting the curing of an MFIP sanction."
-script_array(script_num).category               = "NOTES"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("M-Z")
-script_array(script_num).release_date           = #10/01/2000#
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "MFIP Sanction And DWP Disqualification"
 script_array(script_num).description				= "Template for MFIP sanctions and DWP disqualifications, both CS and ES."
 script_array(script_num).category               = "NOTES"
@@ -2182,7 +2201,18 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "Copy CASE NOTE Elsewhere"
+script_array(script_num).script_name 			= "Copy Case Data for Training"
+script_array(script_num).description 			= "Copies data from a case to a spreadsheet to be run on the Training Case Generator."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/03/2016#
+
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Copy Case Data"
 script_array(script_num).description 			= "Copies a CASE/NOTE to either a claims note or a SPEC/MEMO."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""

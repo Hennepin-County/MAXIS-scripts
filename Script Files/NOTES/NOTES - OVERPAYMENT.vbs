@@ -39,7 +39,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'SECTION 02: DIALOGS
-BeginDialog overpayment_dialog, 0, 0, 266, 260, "Overpayment dialog"
+BeginDialog overpayment_dialog, 0, 0, 266, 305, "Overpayment dialog"
   EditBox 60, 5, 70, 15, MAXIS_case_number
   EditBox 120, 25, 140, 15, programs_cited
   EditBox 100, 45, 160, 15, Claim_number
@@ -47,26 +47,30 @@ BeginDialog overpayment_dialog, 0, 0, 266, 260, "Overpayment dialog"
   EditBox 65, 85, 60, 15, discovery_date
   EditBox 200, 85, 60, 15, established_date
   EditBox 100, 105, 160, 15, reason_for_OP
-  EditBox 150, 125, 110, 15, reason_to_be_reported
-  EditBox 85, 145, 175, 15, supporting_docs
-  EditBox 125, 165, 135, 15, responsible_parties
-  EditBox 60, 185, 200, 15, total_amt_of_OP
-  EditBox 70, 205, 50, 15, worker_signature
+  ComboBox 70, 125, 60, 15, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", collectible_status_dropdown
+  EditBox 170, 140, 90, 15, explaination_if_collectible
+  EditBox 150, 160, 110, 15, reason_to_be_reported
+  EditBox 85, 180, 175, 15, supporting_docs
+  EditBox 125, 200, 135, 15, responsible_parties
+  EditBox 60, 220, 200, 15, total_amt_of_OP
+  EditBox 70, 240, 50, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 80, 240, 50, 15
-    CancelButton 135, 240, 50, 15
+    OkButton 80, 275, 50, 15
+    CancelButton 135, 275, 50, 15
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 115, 10, "Program(s) overpayment cited for:"
   Text 5, 70, 110, 10, "Month(s)/Year(s) of overpayment:"
   Text 5, 90, 55, 10, "Discovery date:"
   Text 135, 90, 60, 10, "Established date:"
   Text 5, 110, 95, 10, "Reason for OP (Be Specific):"
-  Text 5, 150, 80, 10, "Supporting docs/verifs:"
-  Text 5, 170, 120, 10, "Responsible parties listed by name:"
-  Text 5, 190, 55, 10, "Total amt of OP:"
-  Text 5, 210, 65, 10, "Sign the case note:"
+  Text 5, 185, 80, 10, "Supporting docs/verifs:"
+  Text 5, 205, 120, 10, "Responsible parties listed by name:"
+  Text 5, 225, 55, 10, "Total amt of OP:"
+  Text 5, 245, 65, 10, "Sign the case note:"
   Text 5, 50, 95, 10, "Claim Number(s) if available: "
-  Text 5, 130, 140, 10, "When/why should this have been reported: "
+  Text 5, 165, 140, 10, "When/why should this have been reported: "
+  Text 5, 130, 60, 10, "Claim Collectible?"
+  Text 5, 145, 165, 10, "Explaination/calculation to determine if collectible:"
 EndDialog
 
 'SECTION 03: THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -77,10 +81,14 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 DO
 	Do
+		err_msg = ""
 		Dialog overpayment_dialog
 		cancel_confirmation
-		If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"
-	Loop until MAXIS_case_number <> ""
+		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & "Please enter a valid case number." & vbCr
+		IF collectible_status_dropdown = "Select One..." THEN err_msg = err_msg & "Please select if this claim is collectible." & vbCr
+		IF explaination_if_collectible = "" THEN err_msg = err_msg & "Please enter how you determined if this is collectible or not." & vbCr
+		If err_msg <> "" THEN msgbox err_msg
+	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
@@ -101,6 +109,8 @@ call write_bullet_and_variable_in_case_note("Month(s) of overpayment", months_of
 call write_bullet_and_variable_in_case_note("Discovery date", discovery_date) 
 call write_bullet_and_variable_in_case_note("Established date", established_date) 
 call write_bullet_and_variable_in_case_note("Reason for overpayment", reason_for_OP) 
+call write_bullet_and_variable_in_case_note("Collectible?", collectible_status_dropdown) 
+call write_bullet_and_variable_in_case_note("Explanation for if claim can be collected", explaination_if_collectible) 
 call write_bullet_and_variable_in_case_note("When/Why should this have been reported", reason_to_be_reported) 
 call write_bullet_and_variable_in_case_note("Supporting documents/verifications", supporting_docs) 
 call write_bullet_and_variable_in_case_note("Responsible parties", responsible_parties) 

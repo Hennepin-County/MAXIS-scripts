@@ -110,7 +110,7 @@ ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one mo
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "AREP Form Received"
 script_array_0_to_C(script_num).file_name				= "NOTES - AREP FORM RECEIVED.vbs"
-script_array_0_to_C(script_num).description				= "NEW 02/2016!!! Template for when you receive an Authorized Representative (AREP) form."
+script_array_0_to_C(script_num).description				= "Template for when you receive an Authorized Representative (AREP) form."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
@@ -166,7 +166,7 @@ ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one mo
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "Client Transportation Costs"
 script_array_0_to_C(script_num).file_name				= "NOTES - CLIENT TRANSPORTATION COSTS.vbs"
-script_array_0_to_C(script_num).description				= "NEW 02/2016!!! Template for documenting client transportation costs."
+script_array_0_to_C(script_num).description				= "Template for documenting client transportation costs."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
@@ -192,6 +192,13 @@ script_array_0_to_C(script_num).description				= "Template for the County Burial
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name				= "County Burial Determination"
+script_array_0_to_C(script_num).file_name				= "NOTES - COUNTY BURIAL DETERMINATION.vbs"
+script_array_0_to_C(script_num).description				= "Template for case noting a determination made on a request for county burial funds.*"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "CSR"
 script_array_0_to_C(script_num).file_name				= "NOTES - CSR.vbs"
 script_array_0_to_C(script_num).description				= "Template for the Combined Six-month Report (CSR).*"
@@ -206,7 +213,7 @@ ReDim Preserve script_array_D_to_F(script_num)
 Set script_array_D_to_F(script_num) = new script
 script_array_D_to_F(script_num).script_name 			= "Deceased Client Summary"																		'Script name
 script_array_D_to_F(script_num).file_name				= "NOTES - DECEASED CLIENT SUMMARY.vbs"
-script_array_D_to_F(script_num).description 			= "NEW 04/2016!!! -- Adds details about a deceased client to a CASE/NOTE."
+script_array_D_to_F(script_num).description 			= "Template that adds details about a deceased client to a CASE/NOTE."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
@@ -241,7 +248,7 @@ ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one mo
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "EDRS DISQ match found"
 script_array_D_to_F(script_num).file_name				= "NOTES - EDRS DISQ MATCH FOUND.vbs"
-script_array_D_to_F(script_num).description 			= "NEW 02/2016!!! Template for noting the action steps when a SNAP recipient has an eDRS DISQ per TE02.08.127."
+script_array_D_to_F(script_num).description 			= "Template for noting the action steps when a SNAP recipient has an eDRS DISQ per TE02.08.127."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
@@ -290,21 +297,21 @@ ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one mo
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Explanation of Income Budgeted"
 script_array_D_to_F(script_num).file_name				= "NOTES - EXPLANATION OF INCOME BUDGETED.vbs"
-script_array_D_to_F(script_num).description 			= "NEW 01/2016!!! Template for explaining the income budgeted for a case."
+script_array_D_to_F(script_num).description 			= "Template for explaining the income budgeted for a case."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Foster Care HCAPP"
 script_array_D_to_F(script_num).file_name				= "NOTES - FOSTER CARE HCAPP.vbs"
-script_array_D_to_F(script_num).description 			= "NEW 02/2016!!! Template for noting foster care HCAPP info."
+script_array_D_to_F(script_num).description 			= "Template for noting foster care HCAPP info."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Foster Care Review"
 script_array_D_to_F(script_num).file_name				= "NOTES - FOSTER CARE REVIEW.vbs"
-script_array_D_to_F(script_num).description 			= "NEW 02/2016!!! Template for noting foster care review info."
+script_array_D_to_F(script_num).description 			= "Template for noting foster care review info."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
@@ -335,16 +342,16 @@ script_array_G_to_L(script_num).description				= "Template for Good Cause result
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "GRH - HRF"
-script_array_G_to_L(script_num).file_name				= "NOTES - GRH - HRF.vbs"
-script_array_G_to_L(script_num).description				= "Template for GRH HRFs. Case must be post-pay.*"
+script_array_G_to_L(script_num).script_name 			= "   GRH - NON-HRF-POSTPAY    "
+script_array_G_to_L(script_num).file_name				= "NOTES - GRH - NON-HRF-POSTPAY.vbs"
+script_array_G_to_L(script_num).description				= "Template for GRH NON-HRFs. Case must be post-pay."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "HC ICAMA"
 script_array_G_to_L(script_num).file_name				= "NOTES - HC ICAMA.vbs"
-script_array_G_to_L(script_num).description				= "NEW 02/2016!!! Template for HC Interstate Compact on Adoption and Medical Assistance (HC ICAMA)."
+script_array_G_to_L(script_num).description				= "Template for HC Interstate Compact on Adoption and Medical Assistance (HC ICAMA)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
@@ -393,7 +400,7 @@ ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one mo
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "Interview No Show"
 script_array_G_to_L(script_num).file_name				= "NOTES - INTERVIEW NO SHOW.vbs"
-script_array_G_to_L(script_num).description				= "NEW 01/2016!!! Template for case noting a client's no-showing their in-office or phone appointment."
+script_array_G_to_L(script_num).description				= "Template for case noting a client's no-showing their in-office or phone appointment."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
@@ -431,13 +438,6 @@ script_array_M_to_Q(script_num).description				= "Template for case noting infor
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_M_to_Q(script_num).script_name 			= "MFIP Sanction Cured"
-script_array_M_to_Q(script_num).file_name				= "NOTES - MFIP SANCTION CURED.vbs"
-script_array_M_to_Q(script_num).description				= "Template for noting the curing of an MFIP sanction."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
-Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MFIP Sanction/DWP Disqualification"
 script_array_M_to_Q(script_num).file_name				= "NOTES - MFIP SANCTION AND DWP DISQUALIFICATION.vbs"
 script_array_M_to_Q(script_num).description				= "Template for MFIP sanctions and DWP disqualifications, both CS and ES."
@@ -468,7 +468,7 @@ ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one mo
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MSQ"
 script_array_M_to_Q(script_num).file_name				= "NOTES - MSQ.vbs"
-script_array_M_to_Q(script_num).description				= "NEW 02/2016!!! Template for noting Medical Service Questionaires (MSQ)."
+script_array_M_to_Q(script_num).description				= "Template for noting Medical Service Questionaires (MSQ)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
@@ -482,7 +482,7 @@ ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one mo
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "OHP Received"
 script_array_M_to_Q(script_num).file_name				= "NOTES - OHP RECEIVED.vbs"
-script_array_M_to_Q(script_num).description				= "NEW 02/2016!!! Template for noting Out of Home Placement (OHP)."
+script_array_M_to_Q(script_num).description				= "Template for noting Out of Home Placement (OHP)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
@@ -490,6 +490,13 @@ Set script_array_M_to_Q(script_num) = new script		'Set this array element to be 
 script_array_M_to_Q(script_num).script_name 			= "Overpayment"
 script_array_M_to_Q(script_num).file_name				= "NOTES - OVERPAYMENT.vbs"
 script_array_M_to_Q(script_num).description				= "Template for noting basic information about overpayments."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "PARIS Match"																		'Script name
+script_array_M_to_Q(script_num).file_name 				= "NOTES - PARIS MATCH.vbs"															'Script URL
+script_array_M_to_Q(script_num).description 			= "NEW 9/16!!! Template for case noting a PARIS Match action."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it

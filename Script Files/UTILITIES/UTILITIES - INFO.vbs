@@ -52,13 +52,23 @@ end class
 scriptwriter_counter = 0
 
 'Setting each scriptwriter in alphabetical order by last name, with DHS staff at the top and county staff following
+
 'Veronica Cary, DHS
 set scriptwriter_array(scriptwriter_counter) = new scriptwriter
 scriptwriter_array(scriptwriter_counter).name			= 	"Veronica Cary"
 scriptwriter_array(scriptwriter_counter).agency			= 	"DHS"
-scriptwriter_array(scriptwriter_counter).role			= 	"Project Manager"
-scriptwriter_array(scriptwriter_counter).formerrole		= 	"Financial Worker"
+scriptwriter_array(scriptwriter_counter).role			= 	"PRISM Project Manager"
+scriptwriter_array(scriptwriter_counter).formerrole		= 	"MAXIS Project Manager"
 scriptwriter_array(scriptwriter_counter).email			= 	"Veronica.Cary@state.mn.us"
+scriptwriter_counter = scriptwriter_counter + 1
+
+'Charles Potter, DHS
+set scriptwriter_array(scriptwriter_counter) = new scriptwriter
+scriptwriter_array(scriptwriter_counter).name			=	"Charles Potter"
+scriptwriter_array(scriptwriter_counter).agency			= 	"DHS"
+scriptwriter_array(scriptwriter_counter).role			= 	"MAXIS Project Manager"
+scriptwriter_array(scriptwriter_counter).formerrole		= 	"Finanacial Worker/Mentor"
+scriptwriter_array(scriptwriter_counter).email			= 	"Charles.D.Potter@state.mn.us"
 scriptwriter_counter = scriptwriter_counter + 1
 
 'David Courtright, St. Louis
@@ -178,15 +188,6 @@ scriptwriter_array(scriptwriter_counter).formerrole		= 	"-"
 scriptwriter_array(scriptwriter_counter).email			= 	"casey.love@co.ramsey.mn.us"
 scriptwriter_counter = scriptwriter_counter + 1
 
-'Charles Potter, Anoka
-set scriptwriter_array(scriptwriter_counter) = new scriptwriter
-scriptwriter_array(scriptwriter_counter).name			=	"Charles Potter"
-scriptwriter_array(scriptwriter_counter).agency			= 	"Anoka County"
-scriptwriter_array(scriptwriter_counter).role			= 	"Financial Worker Mentor"
-scriptwriter_array(scriptwriter_counter).formerrole		= 	"-"
-scriptwriter_array(scriptwriter_counter).email			= 	"Charles.Potter@co.anoka.mn.us"
-scriptwriter_counter = scriptwriter_counter + 1
-
 'Lucas Shanley, St. Louis
 set scriptwriter_array(scriptwriter_counter) = new scriptwriter
 scriptwriter_array(scriptwriter_counter).name			=	"Lucas Shanley"
@@ -269,7 +270,7 @@ BeginDialog Dialog1, 0, 0, 375, 450, "DHS BlueZone Scripts Info dialog"
 
 	'Here's some logic to create a list of scriptwriters based on the above info--------------
 	'First some headers
-	Text 5, 200, 370, 10, 	"========================= LIST OF SCRIPTWRITERS AS OF 12/02/2015 ========================="
+	Text 5, 200, 370, 10, 	"========================= LIST OF SCRIPTWRITERS AS OF 08/01/2016 ========================="
   	Text 5, 210, 70, 10, "---NAME---"
   	Text 75, 210, 40, 10, "---AGENCY---"
   	Text 155, 210, 90, 10, "---CURRENT ROLE---"

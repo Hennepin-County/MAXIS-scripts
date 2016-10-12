@@ -328,9 +328,7 @@ IF SNAP_banked_mo_check = checked THEN
 			
 			IF banked_months_db_tracking = False Then	
 				If worker_county_code <> "x127" then
-					If worker_county_code <> "x162" then 
-						msgbox "The Excel spreadsheet function will be depreciated effective August 22, 2016. If are an agency who uses this functionality exclusively to track banked months, please submit a comment on GitHub (Issue #2373). Thank you."
-					
+					If worker_county_code <> "x162" then 					
 						'For counties (who are not Hennepin and Ramsey) with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
 						'Opening the Excel file
 						Set objExcel = CreateObject("Excel.Application")

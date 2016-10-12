@@ -79,16 +79,16 @@ BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameter
   CheckBox 90, 360, 45, 10, "Family MA", family_hc_check
   CheckBox 15, 375, 40, 10, "LTC HC", ltc_HC_check
   CheckBox 90, 375, 50, 10, "Waiver HC", waiver_HC_check
+  EditBox 345, 345, 25, 15, case_found_limit
   ButtonGroup ButtonPressed
     OkButton 270, 370, 50, 15
     CancelButton 325, 370, 50, 15
-  GroupBox 10, 150, 190, 30, "SNAP Details"
   GroupBox 10, 230, 190, 45, "MFIP Details"
   GroupBox 10, 335, 190, 55, "HC Details"
   Text 215, 10, 155, 40, "Select the criteria you want the script to sort by. The script will then generate an Excel Spreadsheet of all the cases in the indicated worker number(s) that meet your selected criteria."
   Text 260, 55, 100, 35, "Another Pop Up will allow you select your transfer options before actually transferring cases."
   Text 130, 245, 65, 10, "TANF Months used."
-  GroupBox 275, 105, 95, 255, "Hints"
+  GroupBox 275, 105, 95, 230, "Hints"
   Text 280, 120, 85, 25, "Use 'Tab' to move between check boxes without your mouse."
   Text 280, 150, 85, 25, "Use the Spacebar to check and uncheck boxes without your mouse"
   Text 5, 25, 65, 10, "Worker(s) to check:"
@@ -96,7 +96,10 @@ BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameter
   Text 5, 40, 210, 20, "Note: please enter the entire 7-digit number x1 number (x100abc), separated by a comma."
   Text 5, 95, 235, 10, "Check all that apply - What type of cases do you want to transfer?"
   Text 65, 5, 100, 10, "***Case Parameters to Pull***"
+  Text 210, 350, 130, 10, "Limit the number of cases available to:"
+  GroupBox 10, 150, 190, 30, "SNAP Details"
 EndDialog
+
 
 'THE SCRIPT-------------------------------------------------------------------------
 
@@ -162,6 +165,8 @@ IF query_all_check = checked THEN
 	exclude_paris_check = checked
 	ccap_check = checked 
 End IF
+
+If case_found_limit <> "" Then case_found_limit = abs(case_found_limit)
 
 MsgBox "The script will now create an Excel Spreadsheet to display case information" & _ 
    vbCr & "Please do not alter this spreadsheet until after the script has completed." & _ 
@@ -369,19 +374,19 @@ m = 0
 
 'Script starts by collecting a list of all the cases and the programs as listed on REPT/ACTV 
 'This information is added to the first array called - Full_case_list_array. The values of this array are as follows:
-	'(0,#) - Case Number 
-	'(1,#) - Client Name 
-	'(2,#) = Review Date
-	'(3,#) = Cash 1 Type
-	'(4,#) = Cash 1 Status
-	'(5,#) = Cash 2 Type 
-	'(6,#) = Cash 2 Status
-	'(7,#) = SNAP Status
-	'(8,#) = HC Status
-	'(9,#) = EA Status
-	'(10,#) = GRH Status
-	'(11,#) = Worker's X Number
-	'(12,#) = CCAP Status
+'(0,#) - Case Number 
+'(1,#) - Client Name 
+'(2,#) = Review Date
+'(3,#) = Cash 1 Type
+'(4,#) = Cash 1 Status
+'(5,#) = Cash 2 Type 
+'(6,#) = Cash 2 Status
+'(7,#) = SNAP Status
+'(8,#) = HC Status
+'(9,#) = EA Status
+'(10,#) = GRH Status
+'(11,#) = Worker's X Number
+'(12,#) = CCAP Status
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
@@ -993,6 +998,9 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 	Waiver_MA = ""
 	IEVS_DAIL = ""
 	PARIS_DAIL = ""
+	If case_found_limit <> "" Then 
+		If k = case_found_limit Then Exit For
+	End If 
 Next 
 
 col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
