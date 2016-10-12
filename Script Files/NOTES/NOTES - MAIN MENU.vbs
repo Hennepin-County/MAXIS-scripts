@@ -185,6 +185,13 @@ script_array_0_to_C(script_num).description				= "Template for the County Burial
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name				= "County Burial Determination"
+script_array_0_to_C(script_num).file_name				= "NOTES - COUNTY BURIAL DETERMINATION.vbs"
+script_array_0_to_C(script_num).description				= "Template for case noting a determination made on a request for county burial funds.*"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "CSR"
 script_array_0_to_C(script_num).file_name				= "NOTES - CSR.vbs"
 script_array_0_to_C(script_num).description				= "Template for the Combined Six-month Report (CSR).*"

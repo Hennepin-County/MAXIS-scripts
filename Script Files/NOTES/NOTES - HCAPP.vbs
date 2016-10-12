@@ -330,6 +330,7 @@ End if
 'SECTION 08: THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***HCAPP received " & HCAPP_datestamp & ": " & HCAPP_status & "***")
+IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 CALL write_bullet_and_variable_in_CASE_NOTE("HCAPP type", HCAPP_type)
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
@@ -359,7 +360,7 @@ IF client_delay_check = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 up
 IF sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
 CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
+IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 IF MMIS_updated_check = checked then call write_variable_in_case_note("* MMIS updated.")
 CALL write_variable_in_case_note("---")
