@@ -534,13 +534,6 @@ script_array_R_to_Z(script_num).description				= "Template for noting Significan
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
 Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_R_to_Z(script_num).script_name 			= "Submit case for SNAP review"
-script_array_R_to_Z(script_num).file_name				= "NOTES - SUBMIT CASE FOR SNAP REVIEW.vbs"
-script_array_R_to_Z(script_num).description				= "Template for when a worker sends a case to be reviewed by a supervisor or coworker."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
-Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_R_to_Z(script_num).script_name 			= "Verifications needed"
 script_array_R_to_Z(script_num).file_name				= "NOTES - VERIFICATIONS NEEDED.vbs"
 script_array_R_to_Z(script_num).description				= "Template for when verifications are needed (enters each verification clearly)."
