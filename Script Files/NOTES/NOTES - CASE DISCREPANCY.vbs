@@ -126,9 +126,6 @@ if TIKL_checkbox = 1 then
 	Call write_variable_in_TIKL("The following verifications were requested 10 days ago for a case discrepancy: " & verifs_needed)
 	transmit	
 	PF3
-	script_end_procedure("Success, your TIKL has been created. Please send a verification request to the client(s).")
-Else 
-	script_end_procedure("")
 End if 
 
 'The case notes----------------------------------------------------------------------------------------------------
