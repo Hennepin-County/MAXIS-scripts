@@ -1067,6 +1067,10 @@ If MFIP_active = true then
 		If MFIP_evaluation_popup = vbCancel then script_end_procedure("Script ended due to MFIP budget being marked as incorrect. The script will now close.")
 		'The script will now update the MFIP budget if NOT developer mode
 		If developer_mode <> TRUE Then
+			'First, make sure we are in correct month to update the panel (issue month + 2)
+			UNEA_month = dateadd("M", 2, issue_date)
+			IF len(UNEA_month) = 1 THEN UNEA_month = "0" & UNEA_month
+			MAXIS_footer_month = UNEA_month
 			Call navigate_to_MAXIS_screen ("STAT", "UNEA")
 			'ObjExcel.Sheets("Message and Disb info").Activate
 			row = 1
