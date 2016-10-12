@@ -129,6 +129,13 @@ script_array_0_to_C(script_num).description				= "Template for when you're proce
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name				= "Case Discrepancy"
+script_array_0_to_C(script_num).file_name				= "NOTES - CASE DISCREPANCY.vbs"
+script_array_0_to_C(script_num).description				= "Template for case noting information about a case discrepancy."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "Change Report Form Received"
 script_array_0_to_C(script_num).file_name				= "NOTES - CHANGE REPORT FORM RECEIVED.vbs"
 script_array_0_to_C(script_num).description				= "Template for case noting information reported from a Change Report Form."
