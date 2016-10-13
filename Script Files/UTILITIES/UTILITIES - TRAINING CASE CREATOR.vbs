@@ -8,10 +8,10 @@ STATS_denomination = "C"       'I is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN		'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else																		'Everyone else should use the release branch.
+		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
@@ -20,22 +20,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		IF req.Status = 200 THEN									'200 means great success
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
-		ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-			MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-					vbCr & _
-					"Before contacting Veronica Cary, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-					vbCr & _
-					"If you can reach GitHub.com, but this script still does not work, ask an alpha user to contact Veronica Cary and provide the following information:" & vbCr &_
-					vbTab & "- The name of the script you are running." & vbCr &_
-					vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-					vbTab & "- The name and email for an employee from your IT department," & vbCr & _
-					vbTab & vbTab & "responsible for network issues." & vbCr &_
-					vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-					vbCr & _
-					"Veronica will work with your IT department to try and solve this issue, if needed." & vbCr &_
-					vbCr &_
-					"URL: " & FuncLib_URL
-					script_end_procedure("Script ended due to error connecting to GitHub.")
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -173,11 +163,11 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	Next
 End function
 
-'This is the custom function to load the dialotg. It needs to be in a custom function because the user can change the excel file
+'This is the custom function to load the dialog. It needs to be in a custom function because the user can change the excel file
 FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)
 	'DIALOGS-----------------------------------------------------------------------------------------------------------
 	'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
-	BeginDialog training_case_creator_dialog, 0, 0, 446, 125, "Training case creator dialog"
+	BeginDialog Dialog1, 0, 0, 446, 125, "Training case creator dialog"
 	EditBox 85, 5, 295, 15, training_case_creator_excel_file_path
 	DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
 	DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
@@ -197,12 +187,12 @@ FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, sce
 	Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
 	EndDialog
 
-	DIALOG training_case_creator_dialog
+	DIALOG
 END FUNCTION
 
 
 'DIALOGS------------------------------------------------------------------------------------------------------------------
-BeginDialog training_case_creator_01, 0, 0, 381, 265, "Training case creator"
+BeginDialog Dialog1, 0, 0, 381, 265, "Training case creator"
   Text 10, 10, 170, 10, "Hello! Thanks for clicking the training case creator!"
   Text 10, 25, 365, 20, "This script is very new, and was put together with a lot of hard work from seven scriptwriters, using bits and pieces from various scripts written over the last few years."
   Text 10, 50, 365, 20, "We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!"
@@ -233,7 +223,7 @@ how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
 'Show initial dialog
 Do
-	Dialog training_case_creator_01
+	Dialog
 	If ButtonPressed = cancel then stopscript
 	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
 Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
@@ -370,6 +360,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 	call navigate_to_MAXIS_screen("APPL", "____")
 
 	'Enters info in APPL and transmits
+	date_of_app = APPL_date 			'Sets a variable with the correct date format for calculation for determining client age
 	call create_MAXIS_friendly_date(APPL_date, 0, 4, 63)
 	EMWriteScreen APPL_last_name, 7, 30
 	EMWriteScreen APPL_first_name, 7, 63
@@ -438,14 +429,13 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen "P", 7, 68			'All SSNs should pend in the training region
 			If Blank_IMIG = TRUE Then EMWriteScreen "N", 7, 68		'If client is listed as undocumneted, no verif of a blank SSN
 			'Generating the DOB
-				year_of_birth = datepart("yyyy", date) - abs(MEMB_age)
+				year_of_birth = datepart("yyyy", date_of_app) - abs(MEMB_age)		'using date of application as the age listed should be age at appl
 				IF MEMB_dob_mm_dd = "" THEN
 					client_dob = "01/01/" & year_of_birth
 				ELSE
 					client_dob = DatePart("M", MEMB_dob_mm_dd) & "/" & DatePart("D", MEMB_dob_mm_dd) & "/" & year_of_birth
 				END IF
 				client_dob = DateAdd("D", 0, client_dob)
-				IF DateDiff("D", date, client_dob) =< (365 * (abs(MEMB_age) + 1)) THEN client_dob = DateAdd("YYYY", -1, client_dob)
 				CALL create_MAXIS_friendly_date_with_YYYY(client_dob, 0, 8, 42)
 			'Continuing as normal
 			EMWriteScreen MEMB_DOB_verif, 8, 68

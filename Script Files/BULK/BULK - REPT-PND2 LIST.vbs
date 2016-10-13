@@ -141,7 +141,7 @@ excel_row = 2
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
-	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+	call create_array_of_all_active_x_numbers_in_county(worker_array, right(worker_county_code, 2))
 Else
 	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 

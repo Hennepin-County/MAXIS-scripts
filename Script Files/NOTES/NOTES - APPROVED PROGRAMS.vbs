@@ -76,8 +76,6 @@ BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
   Text 5, 25, 50, 10, "Case Number:"
 EndDialog
 
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
 EMConnect ""
@@ -134,9 +132,6 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 Loop until are_we_passworded_out = false
 
-'checking for an active MAXIS session
-Call check_for_MAXIS(FALSE)  
-
 Call date_array_generator (start_mo, start_yr, date_array)
 
 Dim bene_amount_array ()	'Array to store all the different elig amounts
@@ -192,7 +187,7 @@ IF SNAP_banked_mo_check = checked THEN
 		Emreadscreen edit_check, 7, 24, 2 
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row. 
 
-	wreg_check = 0 		'c
+	wreg_check = 0 		'zero-ing out the value of wreg_check variable
 
 	DO 		'Gets information from WREG for each client 
 		navigate_to_MAXIS_screen "STAT", "WREG"
@@ -329,42 +324,47 @@ IF SNAP_banked_mo_check = checked THEN
 					set abawdrs = nothing
 				NEXT
 				objConnection.close
-			Else
-
-				'For counties with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
-				'Opening the Excel file
-				Set objExcel = CreateObject("Excel.Application")
-				objExcel.Visible = True
-				Set objWorkbook = objExcel.Workbooks.Add() 
-				objExcel.DisplayAlerts = True
-				
-				'Setting the first 4 col as worker, case number, name, and APPL date
-				ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
-				objExcel.Cells(1, 1).Font.Bold = TRUE
-				ObjExcel.Cells(excel_row, 1).Value = MAXIS_case_number
-				ObjExcel.Cells(1, 2).Value = "CLT REF #"
-				objExcel.Cells(1, 2).Font.Bold = TRUE
-				ObjExcel.Cells(excel_row, 2).Value = BM_Clients_Array(0, clt_banked_mo_apprvd)
-				ObjExcel.Cells(1, 3).Value = "CLT NAME"
-				objExcel.Cells(1, 3).Font.Bold = TRUE
-				ObjExcel.Cells(excel_row, 3).Value = BM_Clients_Array(1, clt_banked_mo_apprvd)
-				ObjExcel.Cells(1, 4).Value = "1st Banked Month"
-				objExcel.Cells(1, 4).Font.Bold = TRUE
-				ObjExcel.Cells(1, 5).Value = "2nd Banked Month"
-				objExcel.Cells(1, 5).Font.Bold = TRUE
-				ObjExcel.Cells(1, 6).Value = "3rd Banked Month"
-				objExcel.Cells(1, 6).Font.Bold = TRUE
-				
-				month_col = 4 
-				For v = 0 to UBound(Used_ABAWD_Months_Array)
-					ObjExcel.Cells(excel_row, month_col).Value = Used_ABAWD_Months_Array(v)
-					month_col = month_col + 1 
-				Next 
-				
-				'Autofitting columns
-				For col_to_autofit = 1 to 6
-					ObjExcel.columns(col_to_autofit).AutoFit()
-				Next
+			END IF
+			
+			IF banked_months_db_tracking = False Then	
+				If worker_county_code <> "x127" then
+					If worker_county_code <> "x162" then 					
+						'For counties (who are not Hennepin and Ramsey) with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
+						'Opening the Excel file
+						Set objExcel = CreateObject("Excel.Application")
+						objExcel.Visible = True
+						Set objWorkbook = objExcel.Workbooks.Add() 
+						objExcel.DisplayAlerts = True
+						
+						'Setting the first 4 col as worker, case number, name, and APPL date
+						ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
+						objExcel.Cells(1, 1).Font.Bold = TRUE
+						ObjExcel.Cells(excel_row, 1).Value = MAXIS_case_number
+						ObjExcel.Cells(1, 2).Value = "CLT REF #"
+						objExcel.Cells(1, 2).Font.Bold = TRUE
+						ObjExcel.Cells(excel_row, 2).Value = BM_Clients_Array(0, clt_banked_mo_apprvd)
+						ObjExcel.Cells(1, 3).Value = "CLT NAME"
+						objExcel.Cells(1, 3).Font.Bold = TRUE
+						ObjExcel.Cells(excel_row, 3).Value = BM_Clients_Array(1, clt_banked_mo_apprvd)
+						ObjExcel.Cells(1, 4).Value = "1st Banked Month"
+						objExcel.Cells(1, 4).Font.Bold = TRUE
+						ObjExcel.Cells(1, 5).Value = "2nd Banked Month"
+						objExcel.Cells(1, 5).Font.Bold = TRUE
+						ObjExcel.Cells(1, 6).Value = "3rd Banked Month"
+						objExcel.Cells(1, 6).Font.Bold = TRUE
+						
+						month_col = 4 
+						For v = 0 to UBound(Used_ABAWD_Months_Array)
+							ObjExcel.Cells(excel_row, month_col).Value = Used_ABAWD_Months_Array(v)
+							month_col = month_col + 1 
+						Next 
+							
+							'Autofitting columns
+						For col_to_autofit = 1 to 6
+							ObjExcel.columns(col_to_autofit).AutoFit()
+						Next
+					END IF
+				End if
 			End If
 			
 			'Writing a TIKL to close SNAP once Banked Months are done for this person
@@ -434,6 +434,8 @@ For each item in date_array
 	Next
 Next
 
+infant_on_case = "Unknown"
+
 'Here the script will use the program listed in the array to determine where to go to find the amounts - then add them to the array
 For all_elig_results = 0 to UBound (bene_amount_array,2)
 	If bene_amount_array(0, all_elig_results) = "Food" AND snap_approved_check = checked Then
@@ -482,6 +484,28 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 			End If 
 		End If 
 	ElseIf bene_amount_array(0, all_elig_results) = "MFIP" AND cash_approved_check = checked Then 
+		If infant_on_case = "Unknown" Then 
+			Call navigate_to_MAXIS_screen ("STAT", "PNLP")
+			pnlp_row = 3
+			Do 
+				EMReadScreen panel_name, 4, pnlp_row, 5
+				If panel_name = "MEMB" Then 
+					EMReadScreen clt_age, 2, pnlp_row, 71
+					If clt_age = " 0" Then 
+						infant_on_case = TRUE
+						Exit Do 
+					End If 
+				ElseIf panel_name = "MEMI" Then 
+					infant_on_case = FALSE 
+					Exit Do 
+				End IF 
+				pnlp_row = pnlp_row + 1 
+				If pnlp_row = 20 Then 
+					transmit
+					pnlp_row = 3
+				End If 
+			Loop Until panel_name = "REVW"
+		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		'Checking that the MFIP case does not have a significant change determination page (ELIG/MFSC). We need to transmit through that page to get to ELIG/MFPR.
 		row = 1
@@ -543,6 +567,28 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 			End If
 		End If
 	ElseIf bene_amount_array(0, all_elig_results) = "DWP" AND cash_approved_check = checked THEN
+		If infant_on_case = "Unknown" Then 
+			Call navigate_to_MAXIS_screen ("STAT", "PNLP")
+			pnlp_row = 3
+			Do 
+				EMReadScreen panel_name, 4, pnlp_row, 5
+				If panel_name = "MEMB" Then 
+					EMReadScreen clt_age, 2, pnlp_row, 71
+					If clt_age = " 0" Then 
+						infant_on_case = TRUE
+						Exit Do 
+					End If 
+				ElseIf panel_name = "MEMI" Then 
+					infant_on_case = FALSE 
+					Exit Do 
+				End IF 
+				pnlp_row = pnlp_row + 1 
+				If pnlp_row = 20 Then 
+					transmit
+					pnlp_row = 3
+				End If 
+			Loop Until panel_name = "REVW"
+		End If 
 		Call navigate_to_MAXIS_screen("ELIG", "DWP")
 		EMWriteScreen bene_amount_array(1, all_elig_results), 20, 56 
 		EMWriteScreen bene_amount_array(2, all_elig_results), 20, 59
@@ -678,22 +724,21 @@ For all_elig_results = 0 to UBound (bene_amount_array,2)
 	END IF 
 Next 
 
-
-
 'Case notes----------------------------------------------------------------------------------------------------
 IF clt_banked_mo_apprvd <> 0 THEN 	'BANKED MONTH Case Note - each client gets a seperate case note 
 	For clt_banked_mo_apprvd = 0 to UBound (BM_Clients_Array,2)
 		Call start_a_blank_CASE_NOTE
 		Call write_variable_in_CASE_NOTE ("!~!~! Memb " & BM_Clients_Array(0,clt_banked_mo_apprvd) & "used BANKED MONTHS in " & BM_Clients_Array (2, clt_banked_mo_apprvd) & " !~!~!")	'Months used moved to header
-		IF worker_county_code = "x169" THEN 
-			Call write_variable_in_CASE_NOTE ("BANKED MONTH Information added to Database for reporting")
-		Else 
-			Call write_variable_in_CASE_NOTE ("Excel Sheet created for manual tracking of BANKED MONTHS")
-		End IF 
+		IF worker_county_code = "x169" THEN Call write_variable_in_CASE_NOTE ("BANKED MONTH Information added to Database for reporting")
 		IF tikl_set = TRUE Then Call write_variable_in_CASE_NOTE ("TIKL Created to close SNAP for " & cls_date)
 		Call write_variable_in_CASE_NOTE ("---")
 		Call write_variable_in_CASE_NOTE (worker_signature)
 	Next 
+End If 
+
+IF infant_on_case = TRUE Then 
+	Call navigate_to_MAXIS_screen ("STAT", "EMPS")
+	baby_warning = MsgBox ("This is a family cash (MFIP or DWP) case with a child under 1 year old on it." & vbNewLine & vbNewLine & "These cases are error prone particularly at intake. Please review the EMPS panel to be sure the coding matches the client request.", vbSystemModal, "Child Under 1 Year Cash Case Warning")
 End If 
 
 call start_a_blank_CASE_NOTE	'Case note for the general approval
@@ -766,7 +811,4 @@ IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("BANKED
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-'Navigates to WCOM so the user can check the notice.
-call navigate_to_MAXIS_screen("SPEC", "WCOM")
-
-script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly. The script has navigated to SPEC/WCOM for your convenience.")
+script_end_procedure("Success! Please remember to check the generated notice to make sure it is correct. If not, please add WCOMs to make notice read correctly.")

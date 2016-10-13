@@ -41,17 +41,16 @@ END IF
 'DIALOGS--------------------------------------------------------------------------------------------------------------------
 
 BeginDialog Case_Number_Dialog, 0, 0, 171, 85, "Case Information"
-  EditBox 70, 5, 80, 15, MAXIS_case_number
-  EditBox 55, 25, 15, 15, elig_month
-  EditBox 120, 25, 15, 15, elig_year
+  EditBox 80, 5, 60, 15, MAXIS_case_number
+  EditBox 80, 25, 25, 15, elig_month
+  EditBox 115, 25, 25, 15, elig_year
   EditBox 80, 45, 85, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 60, 65, 50, 15
     CancelButton 115, 65, 50, 15
-  Text 80, 30, 35, 10, "Year (YY)"
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 5, 50, 70, 10, "Sign your case note"
-  Text 10, 30, 40, 10, "Month (MM)"
+  Text 25, 10, 50, 10, "Case Number:"
+  Text 5, 50, 70, 10, "Sign your case note:"
+  Text 20, 30, 55, 10, "Elig month/year:"
 EndDialog
 
 BeginDialog timeliness_dialog, 0, 0, 196, 120, "Expedited Timeliness"
@@ -69,23 +68,22 @@ BeginDialog timeliness_dialog, 0, 0, 196, 120, "Expedited Timeliness"
 EndDialog
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
-
-'connecting to MAXIS
+'connecting to MAXIS & searches for the case number 
 EMConnect ""
-'Finds the case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 'dialog to gather the Case Number and such
 Do
-	Dialog Case_Number_Dialog
-	cancel_confirmation
-	err_msg = ""
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your worker signature"
-	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
-	IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
-Loop until err_msg = ""
-
-Call check_for_MAXIS(False)
+	Do
+		Dialog Case_Number_Dialog
+		cancel_confirmation
+		err_msg = ""
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your worker signature"
+		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
+		IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
+	Loop until err_msg = ""
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false				'loops until user passwords back in	
 
 'Script is going to find information that was writen in an Expedited Screening case note using scripts
 navigate_to_MAXIS_screen "CASE", "NOTE"
@@ -169,7 +167,6 @@ IF XFS_Screening_CNote = TRUE THEN
 	caf_one_utilities = FormatCurrency(caf_one_utilities)
 	caf_one_resources = FormatCurrency(caf_one_resources)
 	caf_one_expenses = FormatCurrency(caf_one_expenses)
-	
 	PF3 
 End IF 
 
@@ -341,26 +338,36 @@ IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
 
 'Dialog about timeliness will run if case is determined to be expedited
 IF is_elig_XFS = TRUE Then
-	Do 
-		Do
-			Dialog timeliness_dialog
-			cancel_confirmation
-			err_msg = ""
-			IF date_of_application = "" OR IsDate(date_of_application) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid date of application."
-			IF interview_date = "" OR IsDate(interview_date) = FALSE Then err_msg = err_msg & vbCr & "Pleaes enter a valid Interview Date."
-			IF approval_date = "" OR IsDate(approval_date) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid Date of Approval."
-			IF err_msg <> "" Then MsgBox err_msg
+	Do
+		Do 
+			Do
+				Dialog timeliness_dialog
+				cancel_confirmation
+				err_msg = ""
+				IF date_of_application = "" OR IsDate(date_of_application) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid date of application."
+				IF interview_date = "" OR IsDate(interview_date) = FALSE Then err_msg = err_msg & vbCr & "Pleaes enter a valid Interview Date."
+				IF approval_date = "" OR IsDate(approval_date) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid Date of Approval."
+				IF err_msg <> "" Then MsgBox err_msg
+			Loop until err_msg = ""
+			days_delayed = DateDiff ("d", date_of_application, approval_date)
+			IF days_delayed > 7 AND delay_explanation = "" Then err_msg = err_msg & vbCr & "Your approval is more than 7 days from the date of application." & vbCr & "Please provide an explanation for the delay."
+			If err_msg <> "" Then MsgBox err_msg
 		Loop until err_msg = ""
-		days_delayed = DateDiff ("d", date_of_application, approval_date)
-		IF days_delayed > 7 AND delay_explanation = "" Then err_msg = err_msg & vbCr & "Your approval is more than 7 days from the date of application." & vbCr & "Please provide an explanation for the delay."
-		If err_msg <> "" Then MsgBox err_msg
-	Loop until err_msg = ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+	Loop until are_we_passworded_out = false					'loops until user passwords back in	
 End If
+
+'creating a custom header: this is read by BULK - EXP SNAP REVIEW script so don't mess this please :)
+IF is_elig_XFS = true then 
+	case_note_header_text = "Expedited Determination: SNAP appears expedited"
+ELSEIF is_elig_XFS = False then 
+	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
+END IF 
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------
 navigate_to_MAXIS_screen "CASE", "NOTE"
 Call start_a_blank_case_note
-Call write_variable_in_case_note ("Expedited Determination Completed")
+Call write_variable_in_case_note (case_note_header_text)
 IF XFS_Screening_CNote = TRUE Then 
 	Call write_bullet_and_variable_in_case_note ("Expedited Screening found", xfs_screening)
 	Call write_variable_in_case_note ("*   Based on: Income: " & caf_one_income & ",   Assets: " & caf_one_assets & ",  Totaling: " & caf_one_resources)
@@ -381,13 +388,14 @@ If previous_xfs_explanation <> "" Then
 	Call write_variable_in_case_note ("* Expedited SNAP was the last approval and delayed verifs were not received")
 	Call write_variable_in_case_note ("*    " & previous_xfs_explanation)
 End If 
+Call write_bullet_and_variable_in_case_note("ABAWD info/explanation", abawd_explanation)
 Call write_bullet_and_variable_in_case_note ("Other Notes", other_explanation)
 Call write_variable_in_case_note ("---")
 IF is_elig_XFS = TRUE Then 
 	Call write_bullet_and_variable_in_case_note ("Date of Application", date_of_application)
 	Call write_bullet_and_variable_in_case_note ("Date of Interview", interview_date)
 	Call write_bullet_and_variable_in_case_note ("Date of Approval", approval_date)
-	IF days_delayed > 7 Then Call write_bullet_and_variable_in_case_note ("Reason for Delay", delay_explanation)
+	Call write_bullet_and_variable_in_case_note ("Reason for Delay", delay_explanation)
 	Call write_variable_in_case_note ("---")
 End If 
 Call write_variable_in_case_note(worker_signature)

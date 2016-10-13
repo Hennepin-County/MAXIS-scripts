@@ -60,9 +60,18 @@ EMReadScreen full_message, 58, 6, 20
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
-'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP)
+'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONTED XFS VERIFICATIONS)
+'Both of these messages start with 'FS' on the DAIL, so they need to be nested, or it never gets passed the affilated case look up
 EMReadScreen stat_check, 4, 6, 6
-If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then call run_from_GitHub(script_repository & "DAIL/DAIL - AFFILIATED CASE LOOKUP.vbs")
+If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then 
+	'now it checks if you are acctually running from a XFS Autoclosed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
+	EMReadScreen xfs_check, 49, 6, 20
+	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then 
+		call run_from_GitHub(script_repository & "DAIL/DAIL - POSTPONED XFS VERIFICATIONS.vbs")
+	Else 
+		call run_from_GitHub(script_repository & "DAIL/DAIL - AFFILIATED CASE LOOKUP.vbs")
+	End If 
+End If 
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
@@ -76,16 +85,24 @@ If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then call run_fr
 EMReadScreen CS_new_emp_check, 25, 6, 20
 If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then call run_from_GitHub(script_repository & "DAIL/DAIL - CS REPORTED NEW EMPLOYER.vbs")
 
-'Child support messages (loads CSES PROCESSING)
+'Child support messages (loads CSES PROCESSING)			<<<<<<REMOVE AFTER TESTING, REPLACE WITH FIXED LINK TO NEW CSES SCRUBBER, REMOVE TEMP MSGBOX
 EMReadScreen CSES_check, 4, 6, 6
-If CSES_check = "CSES" then
-  EMReadScreen CSES_DISB_check, 4, 6, 20
-  If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "DAIL/DAIL - CSES PROCESSING.vbs")
+If CSES_check = "CSES" or CSES_check = "TIKL" then		'TIKLs are used for fake cases and testing
+	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
+	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs") 'If it's a disbursement message...
 End if
 
 'Disability certification ends in 60 days (loads DISA MESSAGE)
 EMReadScreen DISA_check, 58, 6, 20
 If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then call run_from_GitHub(script_repository & "DAIL/DAIL - DISA MESSAGE.vbs")
+
+'EMPS - ES Referral missing
+EMReadScreen EMPS_ES_check, 52, 6, 20
+If EMPS_ES_check = "EMPS:ES REFERRAL DATE IS BLANK FOR NON-EXEMPT PERSON" then call run_from_GitHub(script_repository & "DAIL/DAIL - ES REFERRAL MISSING.vbs")
+
+'EMPS - Financial Orientation date needed
+EMReadScreen EMPS_Fin_Ori_check, 57, 6, 20
+If EMPS_Fin_Ori_check = "REVIEW EMPS PANEL FOR FINANCIAL ORIENT DATE OR GOOD CAUSE" then call run_from_GitHub(script_repository & "DAIL/DAIL - FIN ORIENT MISSING.vbs")
 
 'Client can receive an FMED deduction for SNAP (loads FMED DEDUCTION)
 EMReadScreen FMED_check, 59, 6, 20
@@ -130,6 +147,10 @@ IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN call run_from_GitHub(script_repos
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
 IF ABAWD_elig_end = "FS ABAWD ELIGIBILITY HAS EXPIRED" THEN CALL run_from_GitHub(script_repository & "DAIL/DAIL - ABAWD FSET EXEMPTION CHECK.vbs")
+
+'WAGE MATCH Scrubber
+EMReadScreen wage_match, 4, 6, 6
+IF wage_match = "WAGE" THEN CALL run_from_GitHub(script_repository & "DAIL/DAIL - WAGE MATCH SCRUBBER.vbs")
 
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
 script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message)

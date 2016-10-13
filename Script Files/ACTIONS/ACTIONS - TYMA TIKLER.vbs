@@ -181,7 +181,7 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 	call write_variable_in_CASE_NOTE("The following TIKLs were created by an automated script. When processing these TIKLs follow current procedures.")
 	call write_variable_in_CASE_NOTE("---")
 	call write_bullet_and_variable_in_case_note("Send 1st Quarter Form", first_quart_send)
-	call write_bullet_and_variable_in_case_note("Send 1st Quarter Form", second_quart_send)
+	call write_bullet_and_variable_in_case_note("Send 2nd Quarter Form", second_quart_send)
 	call write_bullet_and_variable_in_case_note("2nd Quarter Form due", second_quart_due)
 	call write_bullet_and_variable_in_case_note("Send 3rd Quarter Form", third_quart_send)
 	call write_bullet_and_variable_in_case_note("3rd Quarter Form due", third_quart_due)

@@ -57,7 +57,7 @@ EndDialog
 BeginDialog worker_signature_dialog, 0, 0, 191, 80, "Worker signature"
   EditBox 80, 10, 55, 15, last_day_for_recert
   EditBox 80, 30, 105, 15, worker_signature
-  ButtonGroup ButtonPressed_worker_signature_dialog
+  ButtonGroup ButtonPressed
     OkButton 80, 50, 50, 15
     CancelButton 135, 50, 50, 15
   Text 5, 35, 70, 10, "Sign your case note:"
@@ -89,44 +89,38 @@ transmit
 
 'Msgbox asking the user misssed their interview
 interview_confirm = MsgBox("Was an interview completed for this case's recertification?", vbYesNoCancel, "Interview confirmation")
-	If interview_confirm = vbCancel then stopscript
-	If interview_confirm = vbYes then interview_confirm = TRUE 
-	If interview_confirm = vbNo then interview_confirm = FALSE
-
-If interview_confirm = TRUE then 
-	PF3 	'returns user back to DAIL/DAIL and stops the script since no further action is required
+If interview_confirm = vbCancel then stopscript
+If interview_confirm = vbYes then  			'returns user back to DAIL/DAIL and stops the script since no further action is required
+	PF3 	
 	script_end_procedure("Success! A NOMI is not required if the recertification interview is complete." & vbNewLine & "Please review the case for completion if necessary.")
-ELSE
-	'Msgbox asking the user to confirm if the client has sent a CAF or if no contact has been made by the client
-	recert_forms_confirm = MsgBox("A NOMI is NOT needed when a SNAP recipient has not made contact with the agency about their recertification, AND the CAF has not been received." & vbNewLine & "See TE.02.05.15" & vbNewLine & vbNewLine & "Press Yes to send the NOMI." & _
-	vbNewLine & "Press No if client contact has not been made with the agency." & vbNewLine & "Press Cancel to end the script.", vbYesNoCancel, "Client contact confirmation")
-		If recert_forms_confirm = vbCancel then stopscript
-		If recert_forms_confirm = vbYes then result_of_msgbox = TRUE
-		If recert_forms_confirm = vbNo then result_of_msgbox = FALSE
-END IF
-
-If result_of_msgbox = FALSE then		'if false a case note will be made, but a NOMI will not be sent as this is not necessary. 
-	dialog worker_signature_dialog
-	If ButtonPressed_worker_signature_dialog = 0 then stopscript
-	Call start_a_blank_case_note 'Navigates to a blank case note & writes the case note
-	Call write_variable_in_CASE_NOTE ("**Client missed SNAP recertification interview**")
-	Call write_variable_in_CASE_NOTE("* Interview appointment was scheduled for: " & interview_date_time)
-	Call write_variable_in_CASE_NOTE ("* A SNAP NOMI for recertification SPEC/MEMO has not been sent.")
-	Call write_variable_in_CASE_NOTE ("---")
-	Call write_variable_in_CASE_NOTE (worker_signature & ", using automated script.")
-	PF3	'saves the case note'
-	Call navigate_to_MAXIS_screen("DAIL", "DAIL")	'brings user back to DAIL'
-	script_end_procedure("A SNAP NOMI for recertification case note has been made, but a SPEC/MEMO has NOT been sent." & vbNewLine & vbNewLine & _
-	"Per POLI/TEMP TE02.05.15: When there is no request for further assistance the client will receive the proper closing (the autoclose notice).")
-END IF
-
-IF result_of_msgbox = TRUE then		'user pressed YES button, SPEC/MEMO will be sent
+ELSEIF interview_confirm = vbNo then 		'interview was not completed 
 	If worker_county_code = "x127" then
-		dialog Hennepin_worker_signature		'dialog for Hennepin users with county office selection options
-		Else
-		dialog worker_signature_dialog			'dialog for everyone else...because elitism:) 
-		End if
-	If ButtonPressed_worker_signature_dialog = 0 then stopscript
+		DO
+			DO
+				err_msg = ""
+				dialog Hennepin_worker_signature		'dialog for Hennepin users with county office selection options
+				cancel_confirmation 
+				If region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the client's region of residence."
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+		Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	Else
+		Do
+			Do
+				err_msg = ""
+				dialog worker_signature_dialog			'dialog for everyone else...because elitism:) 
+				cancel_confirmation
+				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
+				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+		Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	End if
+	
 	PF3							'exits case note, back to DAIL
 	EMSendKey "p"				'navigates to SPEC
 	transmit

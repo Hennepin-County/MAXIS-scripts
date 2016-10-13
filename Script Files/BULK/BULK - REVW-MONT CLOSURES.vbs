@@ -1,4 +1,3 @@
-
 'Required for statistical purposes===============================================================================
 name_of_script = "BULK - REVW-MONT CLOSURES.vbs"
 start_time = timer
@@ -45,7 +44,7 @@ Set objNet = CreateObject("WScript.NetWork")
 
 'Determines user to enable debugging features. Add individuals to this if...then to include them with developer mode.
 If ucase(objNet.UserName) = "PWVKC45" or _
-  ucase(objNet.UserName) = "VKCARY" or _
+  ucase(objNet.UserName) = "ILFE001" or _
   ucase(objNet.UserName) = "RAKALB" or _
   ucase(objNet.UserName) = "CDPOTTER" or _
   ucase(objNet.UserName) = "COURTRIGHTD" or _
@@ -209,22 +208,9 @@ If revw_check = checked then
 				EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
 				first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
 
-			MAGI_HC_extension = "" 'This clears out the MAGI extension variable before each run through for each case.
 			If HC_review_status <> "" then	'Added additional logic as currently MAGI clients get an additonal 4 months to turn in renewal paperwork.
-				IF MAGI_code = "NONE" THEN
-					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-					HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
-				END IF
-				IF MAGI_code = "ALL " THEN
-					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
-					HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
-				END IF
-				IF MAGI_code = "MIXE" THEN 'MIXED HHs also get same extension for the MAGI client only, though if MAGI is reinstated they can add a person but it is technically not a reinstate.
-					last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
-					MAGI_HC_extension = "HH member may be eligible for MAGI renewal extension. Please refer to worker to see what documents are needed."
-					HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
-				END IF
-				IF HC_intake_date = "" THEN HC_intake_date = dateadd("m", 1, first_of_working_month)
+				last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
+				HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
 			End If
 				If FS_review_status <> "" then
 					If FS_review_code = "I" or FS_review_document = "CSR" then
@@ -255,15 +241,24 @@ If revw_check = checked then
 				Else
 					call write_variable_in_case_note("---Programs closing for no review---")
 				End if
-				If cash_review_status <> "" then call write_bullet_and_variable_in_case_note("Cash", cash_review_status)
-				If FS_review_status <> "" then call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
-				If HC_review_status <> "" then call write_bullet_and_variable_in_case_note("HC", HC_review_status)
-				If last_day_to_turn_in_cash_docs <> "" then call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
-				If last_day_to_turn_in_SNAP_docs <> "" then call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
-				If last_day_to_turn_in_HC_docs <> "" then call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs." & MAGI_HC_extension)
+				call write_bullet_and_variable_in_case_note("Cash", cash_review_status)
+				call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
+				call write_bullet_and_variable_in_case_note("HC", HC_review_status)
+				'trimming last_day_to_turn_in_cash_docs
+				last_day_to_turn_in_cash_docs = trim(last_day_to_turn_in_cash_docs)
+				'if the variable is not blank, writing to case note
+				IF last_day_to_turn_in_cash_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
+				'trimming last_day_to_turn_in_SNAP_docs
+				last_day_to_turn_in_SNAP_docs = trim(last_day_to_turn_in_SNAP_docs)
+				'if the variable is not blank, writing to case note
+				IF last_day_to_turn_in_SNAP_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
+				'trimming last_day_to_turn_in_HC_docs
+				last_day_to_turn_in_HC_docs = trim(last_day_to_turn_in_HC_docs)
+				'if the variable is not blank, writing to case note
+				IF last_day_to_turn_in_HC_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs.")
 				If cash_review_status <> "" and cash_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for cash on " & cash_intake_date & ".")
 				If FS_review_status <> "" and SNAP_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for SNAP on " & SNAP_intake_date & ".")
-				If HC_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for HC after " & HC_intake_date & ".")
+				call write_variable_in_case_note("* Client needs to turn in new application for HC after " & HC_intake_date & ".")
 
 				call write_variable_in_case_note("---")
 				call write_variable_in_case_note(worker_signature & ", via automated script.")
@@ -276,7 +271,7 @@ If revw_check = checked then
 										"CASH intake date: " & cash_intake_date & chr(10) & _
 										"Last SNAP doc date: " & last_day_to_turn_in_SNAP_docs & chr(10) & _
 										"SNAP intake date: " & SNAP_intake_date & chr(10) & _
-										"Last HC doc date: " & last_day_to_turn_in_HC_docs & chr(10) & MAGI_HC_extension & _
+										"Last HC doc date: " & last_day_to_turn_in_HC_docs & chr(10) & _
 										"HC intake date: " & HC_intake_date
 				debugging_MsgBox = MsgBox(string_for_msgbox, vbOKCancel)
 				If debugging_MsgBox = vbCancel then stopscript

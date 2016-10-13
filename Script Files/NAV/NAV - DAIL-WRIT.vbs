@@ -49,7 +49,6 @@ EndDialog
 
 'THE SCRIPT
 EMConnect ""																	'Connects to MAXIS
-call check_for_MAXIS(True)														'Checks for MAXIS, exits if MAXIS isn't found (True parameter)
 call MAXIS_case_number_finder(MAXIS_case_number)										'Grabs the case number
 IF MAXIS_case_number = "" THEN 														'If there's no case number it asks for one
 	Do
@@ -58,7 +57,9 @@ IF MAXIS_case_number = "" THEN 														'If there's no case number it asks 
 		If MAXIS_case_number = "" then MsgBox "You must type a case number."			'Lets the worker know if a case number wasn't entered
 	Loop until MAXIS_case_number <> ""												'Loops until a case number is entered
 END IF
+call check_for_MAXIS(True)														'Checks for MAXIS, exits if MAXIS isn't found (True parameter)
 
 call navigate_to_MAXIS_screen("DAIL", "WRIT")									'Goes to the screen
+
 
 script_end_procedure("")														'Script ends

@@ -56,8 +56,47 @@ End function
 all_possible_panels = "MEMB MEMI ADDR AREP ALTP ALIA TYPE PROG HCRE PARE SIBL EATS IMIG SPON FACI FCFC FCPL ADME REMO DISA ABPS PREG STRK STWK SCHL WREG EMPS CASH ACCT SECU CARS REST OTHR TRAN STIN STEC PBEN UNEA LUMP RBIC BUSI JOBS TRAC DSTT DCEX WKEX COEX SHEL HEST ACUT PDED PACT FMED ACCI MEDI INSA DIET DISQ SWKR REVW MISC RESI TIME EMMA BILS HCMI BUDG SANC MMSA DFLN MSUR WBSN"
 
 
+
+
+
+
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+
+'Connects to BlueZone
+EMConnect ""
+
+Call check_for_MAXIS(False)
+
+'Finds MAXIS case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+'Finds MAXIS footer month
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+BeginDialog dialog1, 0, 0, 161, 65, "Case number and footer month"
+  Text 5, 10, 85, 10, "Enter your case number:"
+  EditBox 95, 5, 60, 15, MAXIS_case_number
+  Text 15, 30, 50, 10, "Footer month:"
+  EditBox 65, 25, 25, 15, MAXIS_footer_month
+  Text 95, 30, 20, 10, "Year:"
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
+  ButtonGroup ButtonPressed
+    OkButton 25, 45, 50, 15
+    CancelButton 85, 45, 50, 15
+EndDialog
+
+'Shows case number dialog
+Do
+	Dialog 
+	If buttonpressed = 0 then stopscript
+	If isnumeric(MAXIS_case_number) = False then MsgBox "You must type a valid case number."
+Loop until isnumeric(MAXIS_case_number) = True
+
+'Shows the MAXIS panel selection dialog
+back_to_SELF
+
 'DIALOG IS TOO LARGE FOR DIALOG EDITOR, CREATED MANUALLY
-BeginDialog all_MAXIS_panels_dialog, 0, 0, 371, 190, "All MAXIS panels dialog"
+BeginDialog dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
   Checkbox 10, 10, 35, 10, "MEMB", MEMB_check
   Checkbox 60, 10, 35, 10, "MEMI", MEMI_check
   Checkbox 110, 10, 35, 10, "ADDR", ADDR_check
@@ -137,43 +176,8 @@ BeginDialog all_MAXIS_panels_dialog, 0, 0, 371, 190, "All MAXIS panels dialog"
     CancelButton 310, 25, 50, 15
 EndDialog
 
-BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
-  Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, MAXIS_case_number
-  Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
-  Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
-  ButtonGroup ButtonPressed
-    OkButton 25, 45, 50, 15
-    CancelButton 85, 45, 50, 15
-EndDialog
+Dialog
 
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone
-EMConnect ""
-
-Call check_for_MAXIS(False)
-
-'Finds MAXIS case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-'Finds MAXIS footer month
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'Shows case number dialog
-Do
-	Dialog case_number_and_footer_month_dialog
-	If buttonpressed = 0 then stopscript
-	If isnumeric(MAXIS_case_number) = False then MsgBox "You must type a valid case number."
-Loop until isnumeric(MAXIS_case_number) = True
-
-'Shows the MAXIS panel selection dialog
-back_to_SELF
-
-Dialog all_MAXIS_panels_dialog
 Cancel_confirmation
 
 call navigate_to_MAXIS_screen("STAT", "MEMI")

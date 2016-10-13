@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTE - LTC - TRANSFER PENALTY.vbs"
+name_of_script = "NOTES - LTC - TRANSFER PENALTY.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 480          'manual run time in seconds
@@ -52,7 +52,6 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
   Text 10, 10, 45, 10, "Case number: "
 EndDialog
 
-
 BeginDialog LTC_transfer_penalty_dialog, 0, 0, 316, 295, "Dialog"
   EditBox 60, 5, 60, 15, baseline_date
   DropListBox 190, 5, 120, 15, "Select one..."+chr(9)+"Annuity"+chr(9)+"Life Estate"+chr(9)+"Uncompensated Transfer"+chr(9)+"Other", type_of_transfer_list
@@ -91,7 +90,6 @@ BeginDialog LTC_transfer_penalty_dialog, 0, 0, 316, 295, "Dialog"
   Text 130, 10, 55, 10, "Type of transfer: "
 EndDialog
 
-
 'SCRIPT BODY----------------------------------------------------------------------------------------------------
 EMConnect ""														'Connecting to Bluezone
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'function autofills the footer month and footer year
@@ -99,14 +97,12 @@ call MAXIS_case_number_finder(MAXIS_case_number)							'function autofills case 
 'checking for an active MAXIS session
 Call check_for_MAXIS(True) 
 
-
 'calls up dialog for worker to enter case number and applicable month and year.
 DO
 	Dialog case_number_dialog									
 	IF buttonPressed = 0 then StopScript									
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must enter a valid case number."
 LOOP UNTIL MAXIS_case_number <> "" OR IsNumeric(MAXIS_case_number) = True	
-
 
 'information gathering to auto-populate LTC_transfer_penalty_dialog
 'grabbing app date from STAT/PROG
@@ -204,7 +200,6 @@ DO
 	If case_action = "" then MsgBox "You must case note the case action."
 LOOP Until case_action <> ""
 
-
 'ensures that worker has not "passworded" out of MAXIS
 Call check_for_MAXIS(false)	
 
@@ -214,7 +209,6 @@ If baseline_date <> "" then lookback_period = dateadd("m", -60, cdate(baseline_d
 
 'Lookback period end date
 If baseline_date <> "" then end_of_lookback = dateadd ("d", -1, cdate (baseline_date))
-
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE												'navigates to CASE/NOTE and put case into edit mode

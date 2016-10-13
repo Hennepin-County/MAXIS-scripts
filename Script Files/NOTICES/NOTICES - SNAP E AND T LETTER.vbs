@@ -77,7 +77,7 @@ IF worker_county_code = "x126" THEN county_FSET_offices = array("Grant County So
 IF worker_county_code = "x128" THEN county_FSET_offices = array("Workforce Development Inc.")
 'IF worker_county_code = "x129" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x130" THEN county_FSET_offices = array("Cambridge MN Workforce Center")
-IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
+'IF worker_county_code = "x131" THEN county_FSET_offices = array("AEOA – GR Workforce Center")
 'IF worker_county_code = "x132" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x133" THEN county_FSET_offices = array("Select one...",
 'IF worker_county_code = "x134" THEN county_FSET_offices = array("Select one...",
@@ -85,13 +85,13 @@ IF worker_county_code = "x135" THEN county_FSET_offices = array("Kittson County 
 'IF worker_county_code = "x136" THEN county_FSET_offices = array("Select one...",
 IF worker_county_code = "x137" THEN county_FSET_offices = array("Lace qui Parle Co. Family Services")
 IF worker_county_code = "x138" THEN county_FSET_offices = array("AEOA")
-IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
+'IF worker_county_code = "x139" THEN county_FSET_offices = array("Rural MN CEP Lake of the Woods")
 IF worker_county_code = "x140" THEN county_FSET_offices = array("MVAC")
 IF worker_county_code = "x141" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x142" THEN county_FSET_offices = array("Marshall WorkForce Center")
 IF worker_county_code = "x143" THEN county_FSET_offices = array("Mahnomen County Human Services")
 'IF worker_county_code = "x144" THEN county_FSET_offices = array("Marshall County Social Services")
-IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
+'IF worker_county_code = "x145" THEN county_FSET_offices = array("Fairmont Workforce Center Martin County")
 IF worker_county_code = "x146" THEN county_FSET_offices = array("Central MN Jobs and Training Services Hutchinson")
 IF worker_county_code = "x147" THEN county_FSET_offices = array("Central MN Jobs and Training Services Litchfield")
 'IF worker_county_code = "x148" THEN county_FSET_offices = array("Select one...",
@@ -126,7 +126,7 @@ IF worker_county_code = "x176" THEN county_FSET_offices = array("SW MN Private I
 IF worker_county_code = "x177" THEN county_FSET_offices = array("Select one...", "Todd County Health & Human Services: Long Prairie", "Todd County Health & Human Services: Staples")
 IF worker_county_code = "x178" THEN county_FSET_offices = array("Rural MN CEP Wadena")
 IF worker_county_code = "x179" THEN county_FSET_offices = array("Workforce Development Inc.")
-IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
+'IF worker_county_code = "x180" THEN county_FSET_offices = array("Rural MN CEP/MN workforce Center")
 IF worker_county_code = "x181" THEN county_FSET_offices = array("Minnesota Valley Action Council Waseca")
 IF worker_county_code = "x182" THEN county_FSET_offices = array("Select one...", "Washington County Community Services: Stillwater", "Washington County Community Services: Forest Lake", "Washington County Community Services: Cottage Grove", "Washington County Community Services: Woodbury")
 'IF worker_county_code = "x183" THEN county_FSET_offices = array("Select one...",
@@ -141,7 +141,7 @@ IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (count
 'DIALOGS----------------------------------------------------------------------------------------------------
 ' *********FSET_list is a variable not a standard drop down list.  When you copy into dialog editor, it will not work***********
 ' This dialog is for counties that HAVE provided FSET office addresses
-BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 275, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 240, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, MAXIS_case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
@@ -163,20 +163,18 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 275, "SNAP E&T Appointmen
   Text 5, 30, 60, 10, "Appointment Date:"
   Text 180, 75, 50, 10, "Contact phone:"
   Text 5, 50, 105, 10, "Location (select from dropdown):"
-  GroupBox 5, 165, 295, 95, "When is a manual referral needed"
+  GroupBox 5, 165, 295, 70, "When is a manual referral needed"
   Text 15, 180, 275, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
   Text 10, 10, 50, 10, "Case Number:"
   Text 5, 100, 80, 10, "Manual referral needed:"
   Text 15, 205, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 235, 280, 15, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
   Text 40, 145, 60, 10, "Worker Signature:"
   Text 5, 120, 95, 10, "Other manual referral notes:"
   Text 5, 130, 60, 10, " (for the referral)"
 EndDialog
 
-
 'This dialog is for counties that have not provided FSET office address(s)
-BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 305, "SNAP E&T Appointment Letter"
+BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 275, "SNAP E&T Appointment Letter"
   EditBox 65, 5, 55, 15, MAXIS_case_number
   EditBox 215, 5, 20, 15, member_number
   EditBox 65, 25, 55, 15, appointment_date
@@ -204,41 +202,39 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 305, "SNAP E&T Appointment 
   Text 10, 90, 55, 10, "City/State/Zip:"
   Text 130, 10, 70, 10, "HH Member Number:"
   Text 5, 30, 60, 10, "Appointment Date:"
-  GroupBox 5, 195, 290, 100, "When is a manual referral needed"
+  GroupBox 5, 195, 290, 75, "When is a manual referral needed"
   Text 15, 210, 275, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
   Text 15, 235, 275, 25, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
   Text 130, 30, 60, 15, "Appointment Time:"
   Text 10, 130, 80, 10, "Manual referral needed:"
-  Text 15, 270, 275, 15, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
   Text 5, 50, 55, 10, "Provider Name:"
   Text 10, 150, 95, 10, "Other manual referral notes:"
   Text 10, 160, 55, 10, " (for the referral)"
 EndDialog
 
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
-BeginDialog SNAPET_Hennepin_dialog, 0, 0, 431, 235, "SNAP E&T Appointment Letter"
-  EditBox 90, 10, 60, 15, MAXIS_case_number
-  EditBox 245, 10, 25, 15, member_number
-  DropListBox 90, 35, 180, 15, "Select one..."+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  DropListBox 90, 55, 90, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
-  EditBox 90, 75, 180, 15, other_referral_notes
-  EditBox 70, 100, 90, 15, worker_signature
+BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter"
+  EditBox 105, 10, 55, 15, MAXIS_case_number
+  EditBox 220, 10, 25, 15, member_number
+  DropListBox 105, 35, 195, 15, "Select one..."+chr(9)+"Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)"+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
+  DropListBox 105, 60, 110, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
+  EditBox 105, 80, 195, 15, other_referral_notes
+  EditBox 105, 105, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 165, 100, 50, 15
-    CancelButton 220, 100, 50, 15
-  Text 290, 30, 130, 70, "HSRs: Do not use this script. Contact Mark Scherer at 612-596-7411 (if not available send email) and request language-specific SNAP E and T Orientation/intake. Provide ABAWD with Mark’s contact information, and instruct to contact him to schedule orientation within one week."
-  Text 5, 40, 70, 10, "Region of residence: "
-  GroupBox 5, 130, 420, 80, "When is a manual referral needed"
-  Text 5, 60, 80, 10, "Manual referral needed:"
-  Text 15, 145, 390, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
-  GroupBox 280, 15, 145, 90, "For non-English speaking ABAWD's:"
-  Text 15, 170, 390, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
-  Text 15, 195, 360, 10, "A verification request for proof of contact with E and T within 30 days will also need to be sent to the recipient."
-  Text 20, 15, 50, 10, "Case Number:"
-  Text 5, 80, 80, 10, "Manual referral needed:"
-  Text 190, 15, 50, 10, "HH Member #:"
-  Text 5, 105, 60, 10, "Worker Signature:"
-  Text 10, 90, 60, 10, "(for the referral):"
+    OkButton 195, 105, 50, 15
+    CancelButton 250, 105, 50, 15
+  Text 10, 40, 95, 10, "Client's region of residence: "
+  GroupBox 5, 130, 450, 65, "When is a manual referral needed"
+  Text 20, 65, 80, 10, "Manual referral needed:"
+  Text 15, 145, 435, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
+  GroupBox 310, 10, 145, 115, "For non-English speaking ABAWD's:"
+  Text 15, 170, 435, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
+  Text 50, 15, 50, 10, "Case Number:"
+  Text 5, 85, 100, 15, "Other manual referral reason:"
+  Text 170, 15, 45, 10, "HH Memb #:"
+  Text 40, 110, 60, 10, "Worker Signature:"
+  Text 320, 25, 130, 35, "If your client is requsting a Somali-language orientation, select this option in the 'client's region of residence' field."
+  Text 320, 65, 130, 55, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -255,14 +251,20 @@ DO
 		'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 		err_msg = ""
 		'these counties are exempt from participation per the FNS'
-		If worker_county_code = "x101" OR _
+		If  worker_county_code = "x101" OR _
+			worker_county_code = "x111" OR _
 			worker_county_code = "x115" OR _
 			worker_county_code = "x129" OR _
+			worker_county_code = "x131" OR _
 			worker_county_code = "x133" OR _
 			worker_county_code = "x136" OR _
 			worker_county_code = "x139" OR _
-			worker_county_code = "x144" THEN
-			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/16." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
+			worker_county_code = "x144" OR _
+			worker_county_code = "x145" OR _
+			worker_county_code = "x148" OR _
+			worker_county_code = "x154" OR _
+			worker_county_code = "x180" THEN
+			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/17." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
 		ElseIF worker_county_code = "x127" THEN
 			Dialog SNAPET_Hennepin_dialog
 			'Hennepin specific information===================================================================================================
@@ -271,8 +273,19 @@ DO
 				SNAPET_phone = "612-596-7411"
 			END IF
 			'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
+			'Somali-language orientation
+			IF interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" then 
+				SNAPET_name = "Sabathani Community Center"
+				SNAPET_address_01 = "310 East 38th Street #120"
+				SNAPET_city = "Minneapolis"
+				SNAPET_ST = "MN"
+				SNAPET_zip = "55409"
+				appointment_time_prefix_editbox = "02"
+				appointment_time_post_editbox = "00"
+				AM_PM = "PM"
+				appointment_date = Date + 8 - Weekday(Date, vbTuesday)
 			'Central NE
-			IF interview_location = "Central NE (HSB, next Wednesday @ 2:00 p.m.)" THEN
+			Elseif interview_location = "Central NE (HSB, next Wednesday @ 2:00 p.m.)" THEN
 				SNAPET_name = "Health Services Building"
 				SNAPET_address_01 = "525 Portland Ave, 5th floor"
 				SNAPET_city = "Minneapolis"
@@ -342,7 +355,6 @@ DO
 		ELSEIF worker_county_code = "x105" OR _
 			worker_county_code = "x106" OR _
 			worker_county_code = "x110" OR _
-			worker_county_code = "x111" OR _
 			worker_county_code = "x113" OR _
 			worker_county_code = "x114" OR _
 			worker_county_code = "x116" OR _
@@ -350,11 +362,9 @@ DO
 			worker_county_code = "x124" OR _
 			worker_county_code = "x132" OR _
 			worker_county_code = "x134" OR _
-			worker_county_code = "x148" OR _
 			worker_county_code = "x149" OR _
 			worker_county_code = "x152" OR _
 			worker_county_code = "x153" OR _
-			worker_county_code = "x154" OR _
 			worker_county_code = "x162" OR _
 			worker_county_code = "x170" OR _
 			worker_county_code = "x172" OR _
@@ -386,7 +396,7 @@ DO
 		If AM_PM = "Select one..." then err_msg = err_msg & vbNewLine & "* Select either AM or PM for your appointment time."
 		IF SNAPET_contact = "" then err_msg = err_msg & vbNewLine & "* Enter a contact name."
 		IF SNAPET_phone = "" then err_msg = err_msg & vbNewLine & "* Enter a phone number."
-		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location."
+		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location." 
 		IF (manual_referral = "Other manual referral" and other_referral_notes = "") then err_msg = err_msg & vbNewLine & "* Enter other manual referral notes."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -1042,7 +1052,11 @@ Call navigate_to_MAXIS_screen("STAT", "WREG")
 EMWriteScreen member_number, 20, 76
 transmit
 EMReadScreen WREG_status, 2, 8, 50
-If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+If manual_referral = "Student" then 
+    if WREG_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
+Else 
+    If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+End if 
 EMReadScreen orientation_date, 8, 9, 50
 orientation_date = replace(orientation_date, " ", "/")
 If appointment_date <> orientation_date then 

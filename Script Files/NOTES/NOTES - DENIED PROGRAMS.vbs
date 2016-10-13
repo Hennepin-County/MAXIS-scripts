@@ -113,18 +113,47 @@ Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, eme
 		EMReadScreen SNAP_pnd2_code, 1, row, 62
 		IF SNAP_pnd2_code = "R" THEN coded_denial = coded_denial & " SNAP withdrawn on PND2."
 		IF SNAP_pnd2_code = "I" THEN coded_denial = coded_denial & " SNAP application incomplete, denied on PND2."
+		IF SNAP_pnd2_code = "_" THEN 
+			'If SNAP is selected by the user but the SNAP column is empty on PND2, the script is going to look on the next row for ADDITIONAL APP...
+			EMReadScreen additional_maxis_application, 20, row + 1, 16
+			additional_maxis_application = trim(additional_maxis_application)
+			IF InStr(additional_maxis_application, "ADDITIONAL") <> 0 THEN
+				EMReadScreen SNAP_pnd2_code, 1, row + 1, 62
+				IF SNAP_pnd2_code = "R" THEN coded_denial = coded_denial & " SNAP withdrawn on PND2."
+				IF SNAP_pnd2_code = "I" THEN coded_denial = coded_denial & " SNAP application incomplete, denied on PND2."
+			END IF
+		END IF
 	END IF
 	IF cash_check = checked Then
 		EMReadScreen cash_pnd2_code, 1, row, 54
 		IF cash_pnd2_code = "R" THEN coded_denial = coded_denial & " CASH withdrawn on PND2."
 		IF cash_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH application incomplete, denied on PND2."
+		IF cash_pnd2_code = "_" THEN 
+			'If CASH is selected by the user but the CASH column is empty on PND2, the script is going to look on the next row for ADDITIONAL APP...
+			EMReadScreen additional_maxis_application, 20, row + 1, 16
+			additional_maxis_application = trim(additional_maxis_application)
+			IF InStr(additional_maxis_application, "ADDITIONAL") <> 0 THEN
+				EMReadScreen cash_pnd2_code, 1, row + 1, 54
+				IF cash_pnd2_code = "R" THEN coded_denial = coded_denial & " CASH withdrawn on PND2."
+				IF cash_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH application incomplete, denied on PND2."
+			END IF
+		END IF
 	END IF
 	IF emer_check = checked Then
 		EMReadScreen emer_pnd2_code, 1, row, 68
 		IF emer_pnd2_code = "R" THEN coded_denial = coded_denial & " EMER withdrawn on PND2."
 		IF emer_pnd2_code = "I" THEN coded_denial = coded_denial & " EMER application incomplete, denied on PND2."
+		IF emer_pnd2_code = "_" THEN 
+			'If EMER is selected by the user but the EMER column is empty on PND2, the script is going to look on the next row for ADDITIONAL APP...
+			EMReadScreen additional_maxis_application, 20, row + 1, 16
+			additional_maxis_application = trim(additional_maxis_application)
+			IF InStr(additional_maxis_application, "ADDITIONAL") <> 0 THEN
+				EMReadScreen emer_pnd2_code, 1, row + 1, 68
+				IF emer_pnd2_code = "R" THEN coded_denial = coded_denial & " EMER withdrawn on PND2."
+				IF emer_pnd2_code = "I" THEN coded_denial = coded_denial & " EMER application incomplete, denied on PND2."
+			END IF
+		END IF
 	END IF
-	
 End function
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
@@ -421,6 +450,20 @@ IF edit_notice_check = 1 THEN
 	LOOP UNTIL row = 18 or last_month_check = "NOT"
 END IF
 
+If self_declaration_of_income_over_165_FPG = 1 THEN	
+	call navigate_to_MAXIS_screen("STAT", "PROG")
+	EMReadScreen int_date, 8, 10, 55
+          	int_date = replace(int_date, " ", "/")
+	call navigate_to_MAXIS_screen("ELIG", "FS")
+	transmit
+	EMWriteScreen "x", 15, 4
+	transmit
+	EMReadScreen reported_income, 10, 9, 30
+	reported_income = trim(reported_income)
+	EMReadScreen max_gross_income, 10, 15, 67
+	max_gross_income = trim(max_gross_income)	
+End if
+
 'NOW IT CASE NOTES THE DATA.
 call start_a_blank_case_note
 Call write_variable_in_case_note("----Denied " & progs_denied & "----")
@@ -432,6 +475,15 @@ call write_bullet_and_variable_in_case_note("Application date", application_date
 call write_bullet_and_variable_in_case_note("Reason for denial", reason_for_denial)
 call write_bullet_and_variable_in_case_note("Coding for denial", coded_denial)
 call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+	'adding case note portion to cover Self Declaration of Over Income Policy
+	If self_declaration_of_income_over_165_FPG = 1 THEN
+		call write_variable_in_case_note("---")
+		call write_variable_in_case_note("   ***Self Declaration of Over Income Policy for SNAP***")	
+		call write_variable_in_case_note("* Date of Interview: " & int_date)
+		call write_variable_in_case_note("* Client's Stated Total Income: $" & reported_income)
+		call write_variable_in_case_note("* Max Gross Income 165% of FPG: $" & max_gross_income)
+		call write_variable_in_case_note("* Denial Reason: Client stated their income is greater than 165% of FPG")
+	End If
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If disabled_client_check = 1 then call write_variable_in_case_note("* Client is disabled.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
@@ -455,6 +507,9 @@ End if
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
+
+'defining ending message without te TIKLS
+ending_message = "Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly."
 
 'TIKL PORTION -------------------------------------------------------------------------------------------------------------
 If TIKL_check = 1 THEN
@@ -483,9 +538,10 @@ If TIKL_check = 1 THEN
 	EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
 	'SAVES THE TIKL
 	PF3
+	ending_message = "Success! Case noted and TIKL sent. Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly."
 END IF
 
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
 
-script_end_procedure("Success! Case noted and TIKL sent. Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
+script_end_procedure(ending_message) 'the ending message is determined earlier based on if a TIKL was created or not. This makes sure to include the "Success!" which is how we gather stats for scripts that ran to the end. 

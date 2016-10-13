@@ -115,13 +115,17 @@ mid_month_check = datediff("D", mid_month, app_date)		'subtracting the day part 
 IF mid_month_check <= 0 THEN 
 	closure_date = dateadd("D", -1, (dateadd("M", 1, left(app_date, 2) & "/01/" & right(app_date, 2)))) ' 0 and below are before the 15th and close last day of the 1st month after application
 	closure_date = cstr(closure_date)
-	call ten_day_cutoff_check(left(closure_date, 2), right(closure_date, 2), ten_day_cutoff)
+	closure_month = right("00" & DatePart("M",closure_date), 2)				'defining the month to have 2 digits
+	closure_year = right(closure_date, 2)									'creating a year variable to make the function parameters easier to read
+	call ten_day_cutoff_check(closure_month, closure_year, ten_day_cutoff)
 	ten_day_cutoff = cstr(ten_day_cutoff)
 END IF
 IF mid_month_check > 0 THEN 
 	closure_date = dateadd("D", -1, (dateadd("M", 2, left(app_date, 2) & "/01/" & right(app_date, 2))))	' anything above 0 is after the 15th and closes the last day of the 2nd month after application
 	closure_date = cstr(closure_date)
-	call ten_day_cutoff_check(left(closure_date, 2), right(closure_date, 2), ten_day_cutoff)
+	closure_month = right("00" & DatePart("M",closure_date), 2)				'defining the month to have 2 digits
+	closure_year = right(closure_date, 2)									'creating a year variable to make the function parameters easier to read
+	call ten_day_cutoff_check(closure_month, closure_year, ten_day_cutoff)
 	ten_day_cutoff = cstr(ten_day_cutoff)
 END IF
 
