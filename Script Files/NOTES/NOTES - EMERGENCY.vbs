@@ -1,5 +1,3 @@
-worker_county_code = "x162"
-
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - EMERGENCY.vbs"
 start_time = timer
@@ -55,6 +53,7 @@ If len(begin_search_month) = 1 then begin_search_month = "0" & begin_search_mont
 'End of date calculations----------------------------------------------------------------------------------------------
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'EGA screening dialog for x162 and x127 users only
 BeginDialog emergency_screening_dialog, 0, 0, 286, 170, "Emergency Screening dialog"
   EditBox 60, 5, 55, 15, MAXIS_case_number
   ComboBox 255, 5, 25, 15, "1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", HH_members
@@ -344,9 +343,7 @@ If EGA_screening_check = 1 then
 	Else  		
     	screening_determination = "NOT be eligible for emergency programs because: "
     END IF
-	
-	msgbox "shelter costs: " & shelter_costs & vbcr & "70% income: " & seventy_percent_income
-    
+	    
     'if client is not elig, reason(s) for not being elig will be listed in the msgbox
     If crisis = "no crisis given" then screening_determination = screening_determination & vbNewLine & "* No crisis meeting program requirements."
     If worker_county_code = "x127" and abs(seventy_percent_income) < abs(shelter_costs) then screening_determination = screening_determination & vbNewLine & "* The HH's shelter costs are more than 70% of the HH's net income."
