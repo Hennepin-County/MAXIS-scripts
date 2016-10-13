@@ -1316,6 +1316,16 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Case Discrepancy"
+script_array(script_num).description			= "Template for case noting information about a case discrepancy."
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #10/24/2016#
+
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
