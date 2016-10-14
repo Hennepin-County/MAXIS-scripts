@@ -89,14 +89,7 @@ If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then call run_from_GitHub(scri
 EMReadScreen CSES_check, 4, 6, 6
 If CSES_check = "CSES" or CSES_check = "TIKL" then		'TIKLs are used for fake cases and testing
 	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
-	If CSES_DISB_check = "DISB" then 					'If it's a disbursement message...
-		If use_master_branch = true then temp_CSES_msgbox = MsgBox ("You have selected a CSES message. Would you like to try the new CSES scrubber?", vbYesNo)
-		If temp_CSES_msgbox = vbYes then
-			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs")
-		Else
-			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES PROCESSING.vbs")
-		End if
-	End if
+	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs") 'If it's a disbursement message...
 End if
 
 'Disability certification ends in 60 days (loads DISA MESSAGE)
@@ -154,6 +147,10 @@ IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN call run_from_GitHub(script_repos
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
 IF ABAWD_elig_end = "FS ABAWD ELIGIBILITY HAS EXPIRED" THEN CALL run_from_GitHub(script_repository & "DAIL/DAIL - ABAWD FSET EXEMPTION CHECK.vbs")
+
+'WAGE MATCH Scrubber
+EMReadScreen wage_match, 4, 6, 6
+IF wage_match = "WAGE" THEN CALL run_from_GitHub(script_repository & "DAIL/DAIL - WAGE MATCH SCRUBBER.vbs")
 
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
 script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message)

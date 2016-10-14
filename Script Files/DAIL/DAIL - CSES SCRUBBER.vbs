@@ -1067,6 +1067,10 @@ If MFIP_active = true then
 		If MFIP_evaluation_popup = vbCancel then script_end_procedure("Script ended due to MFIP budget being marked as incorrect. The script will now close.")
 		'The script will now update the MFIP budget if NOT developer mode
 		If developer_mode <> TRUE Then
+			'First, make sure we are in correct month to update the panel (issue month + 2)
+			UNEA_month = dateadd("M", 2, issue_date)
+			IF len(UNEA_month) = 1 THEN UNEA_month = "0" & UNEA_month
+			MAXIS_footer_month = UNEA_month
 			Call navigate_to_MAXIS_screen ("STAT", "UNEA")
 			'ObjExcel.Sheets("Message and Disb info").Activate
 			row = 1
@@ -1120,6 +1124,7 @@ If MFIP_active = true then
 	End if
 
 End if
+	
 
 'Alert to worker that additional action is required.
 If Outside_the_realm = TRUE Then MsgBox "This is a SNAP case and you have indicated at least one of the UNEA panels needs to be reviewed for possible budget adjustment." & vbNewLine & vbNewLine & "At this time, this script does NOT update UNEA for SNAP cases. Case note will indicate that worker followup is needed."
@@ -1159,6 +1164,27 @@ If developer_mode <> TRUE Then
 		Call Write_Bullet_and_Variable_in_Case_Note ("CS Income Budgeted", BUDG_CSES)
 		Call Write_Bullet_and_Variable_in_Case_Note ("CS Income From DAIL", amount_CS_reported)
 	End If
+
+'reading from excel sheet
+IF SNAP_active = TRUE Then
+	Dim xlApp 
+	Dim xlBook 
+	Dim xlSheet 
+	RowCN = 1
+	Set objSheet = objExcel.ActiveWorkbook.Worksheets(1) 
+	Do
+		MEMBandTYPE = Trim(objSheet.Cells(RowCN, 1).Value)
+		Do
+			RowCN = RowCN + 1
+			rowCHECK = Trim(objSheet.Cells(RowCN, 1).Value)	
+			IF rowCHECK = "Prosp Monthly Income:" then amount = Trim(objSheet.Cells(RowCN, 7).Value)
+		Loop until rowCHECK = "Prosp Monthly Income:"
+		RowCN = RowCN + 2
+		Call Write_Variable_in_Case_Note ("     " & MEMBandTYPE & " - $" & amount)
+		blankCHECK = Trim(objSheet.Cells(RowCN, 1).Value)	
+	Loop Until blankCHECK = ""
+End IF
+
 	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
 	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Call Write_Variable_in_CASE_NOTE ("* FS Budget reviewed, adjustments to budget not needed.")
 	If Outside_the_realm = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC Reviewed, update needed - worker to process manually.")

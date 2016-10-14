@@ -256,10 +256,10 @@ DO
 				Loop until ButtonPressed <> no_cancel_button
 				MAXIS_dialog_navigation
 			LOOP until ButtonPressed = next_button
-			IF CSR_datestamp = "" THEN 														err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
-			IF CSR_status = "select one..." THEN 											err_msg = err_msg & vbCr & "* Please select the status of the CSR."
-			IF HH_comp = "" THEN 															err_msg = err_msg & vbCr & "* Please enter household composition information."
-			IF earned_income = "" AND unearned_income = "" AND notes_on_income = "" THEN 	err_msg = err_msg & vbCr & "* You must provide some information about income."
+			IF CSR_datestamp = "" THEN 					err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
+			IF CSR_status = "select one..." THEN 				err_msg = err_msg & vbCr & "* Please select the status of the CSR."
+			IF HH_comp = "" THEN 						err_msg = err_msg & vbCr & "* Please enter household composition information."
+			IF (earned_income <> "" AND notes_on_income = "") OR (unearned_income <> "" AND notes_on_income = "") THEN 					err_msg = err_msg & vbCr & "* You must provide some information about income. Please complete the 'Notes on Income' field."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		Loop until err_msg = ""
 		DO

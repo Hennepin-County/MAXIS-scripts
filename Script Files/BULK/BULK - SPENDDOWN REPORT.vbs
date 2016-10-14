@@ -258,13 +258,17 @@ For each worker in worker_array
 				'Using if...thens to decide if a case should be added (status isn't blank or inactive and respective box is checked)
 				If HC_status = "A" then 
 					If one_month_only = TRUE Then 						'If user has selected to only get cases with a certain reveiw month
-						revw_month = abs(left(next_revw_date, 2))		
-						If revw_month = month_selected Then 			'Compares the review month to the variable defined above in the Select Case
-							ReDim Preserve clts_with_spdwn_array (3, hc_clt)		'Adds information about case with active HC to an array
-							clts_with_spdwn_array(wrk_num, hc_clt)   = worker
-							clts_with_spdwn_array(case_num, hc_clt)  = MAXIS_case_number
-							clts_with_spdwn_array(next_revw, hc_clt) = next_revw_date
-							hc_clt = hc_clt + 1
+						If trim(next_revw_date) = "" Then 
+							case_error = MsgBox ("Case " & MAXIS_case_number & " does not have a review listed, please check that STAT is coded correctly for this case." & vbNewLine & vbNewLine & "This case will not be added to the report, you should check for a spenddown manually.", vbAlert, "No Review Date")
+						Else
+							revw_month = abs(left(next_revw_date, 2))		
+							If revw_month = month_selected Then 			'Compares the review month to the variable defined above in the Select Case
+								ReDim Preserve clts_with_spdwn_array (3, hc_clt)		'Adds information about case with active HC to an array
+								clts_with_spdwn_array(wrk_num, hc_clt)   = worker
+								clts_with_spdwn_array(case_num, hc_clt)  = MAXIS_case_number
+								clts_with_spdwn_array(next_revw, hc_clt) = next_revw_date
+								hc_clt = hc_clt + 1
+							End If 
 						End If 
 					Else 
 						ReDim Preserve clts_with_spdwn_array (3, hc_clt)			'Adds information about case with active HC to an array
@@ -346,6 +350,22 @@ For hc_case = 0 to UBound(clts_with_spdwn_array, 2)
 		Loop until row = 19
 	End If 	
 Next
+
+'This bit will look to see if there are any cases that have a possible spenddown.
+'Occasionally the criteria selected produce no cases and this explains this to the user.
+If UBound(spenddown_error_array, 2) = 0 AND spenddown_error_array(case_num, 0) = "" Then 
+	all_workers = Join(worker_array, ", ")
+	If one_month_only = True Then 
+		selected_time = " for the month of " & revw_month_list & "."
+	Else 
+		selected_time = "."
+	End If 
+	end_msg = "Success! The script has completed!" & vbNewLine & "NO SPENDDOWNS FOUND!" & vbNewLine & vbNewLine &_
+	          "The script has checked REPT/ACTV for the case loads under worker number(s) " & all_workers & selected_time & vbNewLine &_
+			  "None of the active HC cases have a spenddown indicated on MOBL." & vbNewLine & vbNewLine &_
+			  "No report will be generated, the script has completed."
+	script_end_procedure(end_msg)
+End If 
 
 'Gathering additional information about each client with a spenddown indicated
 For spd_case = 0 to UBound(spenddown_error_array, 2)
