@@ -65,16 +65,18 @@ END FUNCTION
 '-------------------------------END FUNCTIONS
 
 'Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 251, 230, "ABAWD minor child exemption FIATer"
-  EditBox 105, 10, 60, 15, MAXIS_case_number
-  EditBox 105, 30, 25, 15, initial_month
-  EditBox 140, 30, 25, 15, initial_year
+BeginDialog case_number_dialog, 0, 0, 251, 140, "ABAWD minor child exemption FIATer"
+  EditBox 120, 10, 60, 15, MAXIS_case_number
+  EditBox 120, 30, 25, 15, initial_month
+  EditBox 155, 30, 25, 15, initial_year
   ButtonGroup ButtonPressed
-    OkButton 75, 50, 50, 15
-    CancelButton 130, 50, 50, 15
-  Text 50, 15, 50, 10, "Case Number:"
-  Text 5, 35, 100, 10, "Initial month/year of package:"
-  GroupBox 20, 75, 215, 70, "Per Bulletin #15-01-01 SNAP banked month policy/procedures:"
+    OkButton 90, 50, 50, 15
+    CancelButton 145, 50, 50, 15
+  Text 65, 15, 50, 10, "Case Number:"
+  Text 20, 35, 100, 10, "Initial month/year of package:"
+  GroupBox 5, 75, 240, 60, "ABAWD STAT/WREG CODING - CHILD UNDER 18"
+  Text 10, 90, 230, 25, "This FIATer is to be used when there are more than 2 adults in the SNAP unit with a child under the age of 6, and only 1 adult is the parent of the child. FSET/ABAWD coding for the non-parent will be 21/04."
+  Text 10, 120, 225, 10, " See POLI/TEMP TE02.05.70.03 for detailed information."
 EndDialog
 
 '----------------------DEFINING CLASSES WE'LL NEED FOR THIS SCRIPT
