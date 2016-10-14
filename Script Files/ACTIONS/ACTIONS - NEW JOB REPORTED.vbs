@@ -42,16 +42,12 @@ END IF
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = datepart("m", dateadd("m", 1, date))
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = "" & datepart("yyyy", dateadd("m", 1, date)) - 2000
-MAXIS_footer_month = CStr(MAXIS_footer_month)
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year =  CM_plus_1_yr
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS
+'connecting to MAXIS & grabbing the case number
 EMConnect ""
-
-'Finds a case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows and defines the case number dialog
@@ -67,21 +63,14 @@ BeginDialog , 0, 0, 161, 65, "Case number and footer month"
     CancelButton 85, 45, 50, 15
 EndDialog
 
-Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-cancel_confirmation
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
+Do 
+	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Checks footer month and year. If footer month and year do not match the worker entry, it'll back out and get there manually.
-EMReadScreen footer_month_year_check, 5, 20, 55
-If left(footer_month_year_check, 2) <> MAXIS_footer_month or right(footer_month_year_check, 2) <> MAXIS_footer_year then
-	back_to_self
-	EMWriteScreen "________", 18, 43
-	EMWriteScreen MAXIS_footer_month, 20, 43
-	EMWriteScreen MAXIS_footer_year, 20, 46
-	transmit
-End if
+Call MAXIS_footer_month_confirmation
 
 'NAV to stat/jobs
 call navigate_to_MAXIS_screen("stat", "jobs")
@@ -92,41 +81,46 @@ HH_memb = "01"
 HH_memb_row = 5 'This helps the navigation buttons work!
 
 'Shows and defines the main dialog.
-BeginDialog , 0, 0, 286, 280, "New job reported dialog"
+BeginDialog , 0, 0, 291, 300, "New job reported dialog"
   EditBox 80, 5, 25, 15, HH_memb
   DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIOA"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income"+chr(9)+"T Training Program"+chr(9)+"P Service Program"+chr(9)+"R Rehab Program", income_type_dropdown
   DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
-  EditBox 45, 65, 195, 15, employer
-  EditBox 100, 85, 55, 15, income_start_date
+  EditBox 45, 65, 240, 15, employer
+  EditBox 125, 85, 55, 15, income_start_date
   EditBox 125, 105, 55, 15, contract_through_date
-  EditBox 90, 125, 100, 15, who_reported_job
-  ComboBox 100, 145, 90, 15, "phone call"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
-  EditBox 30, 165, 210, 15, notes
+  EditBox 100, 125, 100, 15, who_reported_job
+  ComboBox 100, 145, 100, 15, "phone call"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
+  EditBox 30, 165, 255, 15, notes
   CheckBox 5, 185, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_checkbox
   CheckBox 5, 200, 190, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
   CheckBox 5, 215, 190, 10, "Check here if you sent a status update to ES.", ES_checkbox
   CheckBox 5, 230, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
   CheckBox 5, 245, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  EditBox 70, 260, 80, 15, worker_signature
+  CheckBox 5, 260, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_checkbox 
+  EditBox 65, 275, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 175, 260, 50, 15
-	CancelButton 230, 260, 50, 15
-	PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-	PushButton 175, 25, 45, 10, "next panel", next_panel_button
-	PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
-	PushButton 235, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 10, 70, 10, "HH member number:"
+    OkButton 180, 275, 50, 15
+    CancelButton 235, 275, 50, 15
+    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 175, 25, 45, 10, "next panel", next_panel_button
+    PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 235, 25, 45, 10, "next memb", next_memb_button
   GroupBox 170, 5, 115, 35, "STAT-based navigation"
   Text 5, 30, 45, 10, "Income Type: "
   Text 5, 50, 130, 10, "Subsidized Income Type (if applicable):"
   Text 5, 70, 40, 10, "Employer:"
-  Text 5, 90, 95, 10, "Income start date (if known):"
+  Text 30, 90, 95, 10, "Income start date (if known):"
   Text 5, 110, 120, 10, "Contract through date (if applicable):"
   Text 5, 130, 80, 10, "Who reported the job?:"
   Text 5, 150, 90, 10, "How was the job reported?:"
   Text 5, 170, 25, 10, "Notes:"
-  Text 5, 265, 60, 10, "Worker signature:"
+  Text 5, 280, 60, 10, "Worker signature:"
+  Text 5, 10, 70, 10, "HH member number:"
 EndDialog
+
+'Defaulting the "set TIKL" variable to checked
+TIKL_checkbox = checked
+
 DO
 	Do
 		Do
@@ -212,31 +206,37 @@ If create_JOBS_checkbox = checked then
 	Loop until edit_mode_check = "D"
 End if
 
+If TIKL_checkbox = 1 then 
+	call navigate_to_MAXIS_screen("dail", "writ")
+	'The following will generate a TIKL formatted date for 10 days from now.
+	call create_MAXIS_friendly_date(date, 10, 5, 18)
+	'Writing in the rest of the TIKL.
+	call write_variable_in_TIKL("Verification of " & employer & " job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
+	transmit
+	PF3
+End if 
+
 'Now the script will case note what's happened.
 start_a_blank_CASE_NOTE
 EMSendKey ">>>New job for MEMB " & HH_memb & " reported by " & who_reported_job & " via " & job_report_type & "<<<" & "<newline>"
 call write_bullet_and_variable_in_case_note("Employer", employer)
 call write_bullet_and_variable_in_case_note("Income type", income_type_dropdown)
 If subsidized_income_type_dropdown <> "not applicable" then call write_bullet_and_variable_in_case_note("Subsidized income type", subsidized_income_type_dropdown)
-if income_start_date <> "" then call write_bullet_and_variable_in_case_note("Income start date", income_start_date)
+call write_bullet_and_variable_in_case_note("Income start date", income_start_date)
 if contract_through_date <> "" then call write_bullet_and_variable_in_case_note("Contract through date", contract_through_date)
 if CCA_checkbox = 1 then call write_variable_in_case_note("* Sent status update to CCA.")
 if ES_checkbox = 1 then call write_variable_in_case_note("* Sent status update to ES.")
 if work_number_checkbox = 1 then call write_variable_in_case_note("* Sent Work Number request.")
 If requested_CEI_OHI_docs_checkbox = checked then call write_variable_in_case_note("* Requested CEI/OHI docs.")
-if notes <> "" then call write_bullet_and_variable_in_case_note("Notes", notes)
+If TIKL_checkbox = checked then call write_variable_in_case_note("* TIKLed for 10-day return.")
+call write_bullet_and_variable_in_case_note("Notes", notes)
 call write_variable_in_case_note("* Sending employment verification. TIKLed for 10-day return.")
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
-call navigate_to_MAXIS_screen("dail", "writ")
-'The following will generate a TIKL formatted date for 10 days from now.
-call create_MAXIS_friendly_date(date, 10, 5, 18)
-'Writing in the rest of the TIKL.
-call write_variable_in_TIKL("Verification of " & employer & " job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
-transmit
-PF3
-MsgBox "Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."
-
-script_end_procedure("")
+If TIKL_checkbox = 1 then 
+	script_end_procedure("Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & ".")
+Else 
+	script_end_procedure("")
+END IF 
