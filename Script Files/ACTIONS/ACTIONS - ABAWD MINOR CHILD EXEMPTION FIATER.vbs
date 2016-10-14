@@ -126,25 +126,33 @@ MAXIS_case_number = replace(MAXIS_case_number, "UUDDLRLRBA", "") 'removing it so
 call date_array_generator(initial_month, initial_year, footer_month_array)
 
 'Create an array of all the counted months
-DIM ABAWD_months_array()	'Minus one because arrays
-REDIM ABAWD_months_array(ubound(footer_month_array))	'Minus one because arrays
+DIM ABAWD_months_array()	'establishing array
+REDIM ABAWD_months_array(ubound(footer_month_array))	'resizing the array
+redim ABAWD_member_array(0)		'sizing the abawd member array
 
-'Need to make sure we start in the correct year for maxis'
+'Need to make sure we start in the correct year for maxis
 MAXIS_footer_month = initial_month
 MAXIS_footer_year = initial_year
 
 'Create hh_member_array
 call HH_member_custom_dialog(HH_member_array)
-
+'ensures that case is out of background
 maxis_background_check
 
 'Needs the elig begin date for proration reasons, collect it from PROG
 call navigate_to_maxis_screen("STAT", "PROG")
 EMReadscreen proration_date, 8, 10, 44
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''PUT SOME COMMENTS IN HERE!'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-redim ABAWD_member_array(0)
-loop_count = ""
+
+'Goes to STAT/REVW to check for a SNAP review date. If nissing this will cause an error in the FIAT
+Call navigate_to_maxis_screen("STAT", "REVW")
+EMReadscreen REVW_date, 8, 9, 57
+If REVW_date = "__ 01 __" then script_end_procedure("A SNAP review date is required. Please update STAT/REVW, then run the script again.")
+
+'establishing blank variables
+loop_count = ""					
 err_msg = ""
+
+'The section will establish which household member(s) are non-parents and check for any other inhibiting errors. 
 call navigate_to_maxis_screen("STAT", "SUMM")
 MAXIS_row = 5
 Do 
@@ -161,7 +169,6 @@ Do
 					ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1)
 					ABAWD_member_array(UBound(ABAWD_member_array)) = ABAWD_memb_number
 				END IF
-				msgbox "SUMM: " & ABAWD_memb_number
 			Else 
 				err_msg = err_msg & vbcr & "* Case has inhibiting errors that need to be resolved before case can be FIATed."	
 			END IF 
@@ -181,7 +188,6 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
 	call navigate_to_maxis_screen("STAT", "WREG")
 	EMWritescreen ABAWD_memb_number, 20, 76
 	Transmit
-	msgbox "ABAWD member #: " & ABAWD_memb_number
 	EMReadscreen wreg_status, 2, 8, 50
 	IF wreg_status <> "21" THEN err_msg = err_msg & vbCr & "Member " & member & " does not have FSET code 21."
 	EMReadscreen abawd_status, 2, 13, 50
@@ -630,12 +636,18 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen "x", 16, 5
 		EMWritescreen "x", 17, 5
 		Transmit
-		msgbox "in case test"
+		
 		'Passing all case tests
 		EMWritescreen "PASSED", 13, 7
 		EMWritescreen "PASSED", 14, 7
 		PF3
-		Msgbox "leaving person test"
+		'checkking for case is catergorically eligible error
+		EMReadScreen cat_elig_check, 7, 24, 2
+		If cat_elig_check = "CASE IS" then 
+			EMWritescreen "N/A", 13, 7
+			EMWritescreen "N/A", 14, 7
+			PF3
+		END IF
 		
 		'Now the BUDGET (FFB1) NO
 		'First, blank out existing values to avoid an error from existing info
@@ -688,7 +700,6 @@ For i = 0 to ubound(footer_month_array)
 			EMWriteScreen mid(proration_date, 4, 2), 11, 59
 			EMWriteScreen right(proration_date, 2), 11, 62
 		END IF
-		msgbox "what's happening?"
 		transmit
 		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
@@ -698,7 +709,7 @@ For i = 0 to ubound(footer_month_array)
 		'Now on SUMM screen, which shouldn't matter
 		PF3 'back to FFSL
 		PF3 'This should bring up the "do you want to retain" popup
-		msgbox "second PF3"
+	
 		EMReadScreen income_cap_check, 11, 24, 2
 		If income_cap_check = "PROSP GROSS" then script_end_procedure("Prospective gross income is over the income standard. THE FIAT cannot be saved. Please review case and budget for potential errors.")
 		EMWritescreen "Y", 13, 41
