@@ -1172,7 +1172,7 @@ IF SNAP_active = TRUE Then
 	Dim xlBook 
 	Dim xlSheet 
 	RowCN = 1
-	Set objSheet = objExcel.ActiveWorkbook.Worksheets(1) 
+	Set objSheet = objExcel.ActiveWorkbook.Worksheets("SNAP Budget") 
 	Do
 		MEMBandTYPE = Trim(objSheet.Cells(RowCN, 1).Value)
 		Do
