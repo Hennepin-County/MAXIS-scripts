@@ -123,7 +123,9 @@ If worker_county_code = "x101" OR _
 		worker_county_code = "x144" OR _
 		worker_county_code = "x145" OR _
 		worker_county_code = "x148" OR _
+		worker_county_code = "x149" OR _
 		worker_county_code = "x154" OR _
+		worker_county_code = "x158" OR _
 		worker_county_code = "x180" THEN
 		script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
 END IF
