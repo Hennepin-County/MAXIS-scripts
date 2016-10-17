@@ -262,7 +262,9 @@ DO
 			worker_county_code = "x144" OR _
 			worker_county_code = "x145" OR _
 			worker_county_code = "x148" OR _
+			worker_county_code = "x149" OR _
 			worker_county_code = "x154" OR _
+			worker_county_code = "x158" OR _
 			worker_county_code = "x180" THEN
 			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/17." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
 		ElseIF worker_county_code = "x127" THEN
