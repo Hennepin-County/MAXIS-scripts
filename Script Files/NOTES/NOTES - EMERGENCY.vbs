@@ -96,7 +96,7 @@ BeginDialog case_number_dialog, 0, 0, 141, 115, "Case number dialog"
   CheckBox 10, 60, 30, 10, "cash", cash_check
   CheckBox 55, 60, 30, 10, "HC", HC_check
   CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
-  IF worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 10, 80, 120, 10, "Check here is program is EGA?", EGA_screening_check
+  IF worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 10, 80, 120, 10, "Check here if program is EGA?", EGA_screening_check
   ButtonGroup ButtonPressed
     OkButton 15, 95, 50, 15
     CancelButton 75, 95, 50, 15
