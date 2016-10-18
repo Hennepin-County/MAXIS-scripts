@@ -166,6 +166,11 @@ maxis_background_check
 call navigate_to_maxis_screen("STAT", "PROG")
 EMReadscreen proration_date, 8, 10, 44
 
+'Checks to make sure a review date has been entered otherwise FIATing goes horribly wrong
+call navigate_to_maxis_screen("STAT", "REVW")
+EMReadscreen revw_month, 2, 9, 57
+IF revw_month = "__" Then script_end_procedure("ERROR: This case has no review date listed on REVW. FIATing will fail. Update STAT/REVW and run the script again. The script will now stop.")
+
 'The following performs case accuracy checks.
 call navigate_to_maxis_screen("ELIG", "FS")
 redim ABAWD_member_array(0)
