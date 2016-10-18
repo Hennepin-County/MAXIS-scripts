@@ -802,13 +802,15 @@ objExcel.Columns(3).autofit()
 objExcel.Columns(4).autofit()
 
 'Creating the list of privileged cases and adding to the spreadsheet
-priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
-prived_case_array = split(priv_case_list, "|")
-excel_row = 2
+If priv_case_list <> "" Then 
+	priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
+	prived_case_array = split(priv_case_list, "|")
+	excel_row = 2
 
-FOR EACH MAXIS_case_number in prived_case_array
-	objExcel.cells(excel_row, privileged_case_col).value = MAXIS_case_number
-	excel_row = excel_row + 1
-NEXT
 
+	FOR EACH MAXIS_case_number in prived_case_array
+		objExcel.cells(excel_row, privileged_case_col).value = MAXIS_case_number
+		excel_row = excel_row + 1
+	NEXT
+End If 
 script_end_procedure("Success! The Excel file now has all of the cases that have had interviews scheduled.  Please manually review the list of privileged cases.")
