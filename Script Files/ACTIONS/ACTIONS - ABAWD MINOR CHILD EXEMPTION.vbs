@@ -151,17 +151,16 @@ EMReadscreen REVW_date, 8, 9, 57
 If REVW_date = "__ 01 __" then script_end_procedure("A SNAP review date is required. Please update STAT/REVW, then run the script again.")
 
 'establishing blank variables
-loop_count = ""					
 err_msg = ""
 
 'The section will establish which household member(s) are non-parents and check for any other inhibiting errors. 
 call navigate_to_maxis_screen("STAT", "SUMM")
 MAXIS_row = 5
 Do 
-	EMReadscreen message_header, 4, MAXIS_row, 3
-	If message_header = "BKED" then 
+	EMReadscreen message_header, 38, MAXIS_row, 3									'reading the worker instructional messages in STAT/SUMM
+	If message_header = "BKED        BKFS FS HAS BEEN INHIBITED" then 				'This is the last of the applicable error messages for SNAP. Will exit do if reached.
 		exit do
-	Elseif message_header <> "    " then 
+	Else
 		EMReadscreen warning_error_check, 7, MAXIS_row, 20
 		If warning_error_check <> "WARNING" then 
 			EMReadscreen inhibiting_ABAWD_error, 60, MAXIS_row, 15
@@ -180,11 +179,9 @@ Do
 	If MAXIS_row = 19 then
 		PF8
 		MAXIS_row = 5
-		loop_count = loop_count + 1
-		If loop_count = 5 then exit do
 	End if 
-LOOP until error_ending = "BKED"
-'If ABAWD_member_array(0) = "" THEN err_msg = err_msg & vbCr & "No members have appear to meet the criteria of to FIAT the case. Please review the case for accuracy."
+LOOP until error_ending = "BKED        BKFS FS HAS BEEN INHIBITED" or trim(error_ending) = ""
+
 	
 For each member in ABAWD_member_array 'This loop will check that WREG is coded correctly
 	call navigate_to_maxis_screen("STAT", "WREG")
@@ -200,8 +197,7 @@ IF err_msg <> "" THEN 'This means the WREG panel(s) are coded incorrectly.
 	IF developer_mode = true THEN
 		msgbox "The following errors were found on the WREG panel. In production mode the script would stop." & vBcr & err_msg
 	ELSE
-		msgbox "Please resolve the following errors before continuing. The script will now stop." & vBcr & err_msg
-		script_end_procedure("")
+		script_end_procedure("Please resolve the following errors before continuing. The script will now stop.") 
 	END IF
 END IF
 
