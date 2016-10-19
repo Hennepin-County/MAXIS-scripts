@@ -230,13 +230,12 @@ if work_number_checkbox = 1 then call write_variable_in_case_note("* Sent Work N
 If requested_CEI_OHI_docs_checkbox = checked then call write_variable_in_case_note("* Requested CEI/OHI docs.")
 If TIKL_checkbox = checked then call write_variable_in_case_note("* TIKLed for 10-day return.")
 call write_bullet_and_variable_in_case_note("Notes", notes)
-call write_variable_in_case_note("* Sending employment verification. TIKLed for 10-day return.")
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
 If TIKL_checkbox = 1 then 
-	script_end_procedure("Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & ".")
+	script_end_procedure("Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at: " & employer & ".")
 Else 
-	script_end_procedure("")
+	script_end_procedure("Success! MAXIS updated for job change, and a case note has been made. An EV should now be sent. The job is at: " & employer & ".")
 END IF 
