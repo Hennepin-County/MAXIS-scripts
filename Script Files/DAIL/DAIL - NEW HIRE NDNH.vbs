@@ -43,29 +43,31 @@ END IF
 
 'DIALOGS----------------------------------------------------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 301, 150, "New HIRE dialog"
+BeginDialog new_HIRE_dialog, 0, 0, 291, 195, "New HIRE dialog"
   EditBox 80, 10, 25, 15, HH_memb
   CheckBox 5, 30, 160, 10, "Check here if this job is known to the agency.", job_known_checkbox
   EditBox 95, 45, 190, 15, employer
   CheckBox 5, 65, 190, 10, "Check here to have the script make a new JOBS panel.", create_JOBS_checkbox
-  CheckBox 5, 80, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_checkbox
-  CheckBox 5, 95, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  EditBox 50, 110, 230, 15, other_notes
-  EditBox 70, 130, 80, 15, worker_signature
+  CheckBox 5, 80, 190, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
+  CheckBox 5, 95, 160, 10, "Check here is you sent a status update to ES. ", ES_checkbox
+  CheckBox 5, 110, 165, 10, "Check here if you send a Work Number request. ", work_number_checkbox
+  CheckBox 5, 125, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  CheckBox 5, 140, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_checkbox
+  EditBox 50, 155, 235, 15, other_notes
+  EditBox 65, 175, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 130, 50, 15
-    CancelButton 235, 130, 50, 15
+    OkButton 180, 175, 50, 15
+    CancelButton 235, 175, 50, 15
     PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 175, 25, 45, 10, "next panel", next_panel_button
+    PushButton 235, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 235, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 15, 70, 10, "HH member number:"
-  Text 5, 50, 85, 10, "Job on DAIL is listed as:"
-  Text 5, 110, 40, 15, "Other notes:"
-  Text 5, 135, 60, 10, "Worker signature:"
+  Text 5, 180, 60, 10, "Worker signature:"
   GroupBox 170, 5, 115, 35, "STAT-based navigation"
+  Text 5, 50, 85, 10, "Job on DAIL is listed as:"
+  Text 5, 160, 40, 10, "Other notes:"
+  Text 5, 15, 70, 10, "HH member number:"
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
 
@@ -166,11 +168,14 @@ TIKL_checkbox = checked
 HH_memb_row = 5 
 
 'Show dialog
-Do
-	Dialog new_HIRE_dialog
-	cancel_confirmation
-	MAXIS_dialog_navigation
-Loop until ButtonPressed = -1
+Do	
+	Do
+		Dialog new_HIRE_dialog
+		cancel_confirmation
+		MAXIS_dialog_navigation
+	Loop until ButtonPressed = -1
+call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first. 
 EMReadScreen jobs_total_panel_count, 1, 2, 78
@@ -251,8 +256,11 @@ EMSendKey replace(new_hire_first_line, new_HIRE_SSN, "XXX-XX-XXXX") & "<newline>
 call write_variable_in_case_note("* Job unreported to the agency.")
 call write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verification Request Form - B).")
 If create_JOBS_checkbox = checked then call write_variable_in_case_note("* JOBS updated with new hire info from DAIL.")
-If TIKL_checkbox = checked then call write_variable_in_case_note("* TIKLed for 10-day return.")
+if CCA_checkbox = 1 then call write_variable_in_case_note("* Sent status update to CCA.")
+if ES_checkbox = 1 then call write_variable_in_case_note("* Sent status update to ES.")
+if work_number_checkbox = 1 then call write_variable_in_case_note("* Sent Work Number request.")
 If requested_CEI_OHI_docs_checkbox = checked then call write_variable_in_case_note("* Requested CEI/OHI docs.")
+If TIKL_checkbox = checked then call write_variable_in_case_note("* TIKLed for 10-day return.")
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature & ", using automated script.")
@@ -260,10 +268,7 @@ PF3
 PF3
 
 'If TIKL_checkbox is unchecked, it needs to end here.
-If TIKL_checkbox = unchecked then
-	MsgBox "Success! MAXIS updated for new HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & "."
-	script_end_procedure("")
-End if
+If TIKL_checkbox = unchecked then script_end_procedure("Success! MAXIS updated for new HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
 
 'Navigates to TIKL
 EMSendKey "w"
@@ -280,12 +285,8 @@ call write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE sh
 
 'Submits TIKL
 transmit
-
 'Exits TIKL
 PF3
 
-'Success message
-MsgBox "Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & "."
-
 'Exits script and logs stats if appropriate
-script_end_procedure("")
+script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
