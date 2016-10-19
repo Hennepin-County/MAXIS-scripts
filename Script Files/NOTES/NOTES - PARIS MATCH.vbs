@@ -38,43 +38,35 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
 'DIALOGS-------------------------------------------------------------
-BeginDialog Paris_dialog, 0, 0, 236, 160, "Paris Dialog"
+BeginDialog Paris_dialog, 0, 0, 231, 145, "Paris Dialog"
   EditBox 60, 5, 55, 15, Maxis_Case_number
-  EditBox 175, 5, 25, 15, month_month
+  EditBox 170, 5, 25, 15, month_month
   EditBox 200, 5, 25, 15, year_year
   EditBox 60, 25, 55, 15, hhld_member_number
-  EditBox 175, 25, 50, 15, state_state
-  EditBox 60, 45, 55, 15, Programs_programs
-  DropListBox 175, 45, 50, 45, "Select One..."+chr(9)+"UR"+chr(9)+"RV"+chr(9)+"FR"+chr(9)+"PR"+chr(9)+"HM"+chr(9)+"PC", code_used_dropdown
+  EditBox 165, 25, 60, 15, state_state
+  EditBox 50, 45, 65, 15, Programs_programs
+  DropListBox 165, 45, 60, 15, "Select One..."+chr(9)+"UR"+chr(9)+"RV"+chr(9)+"FR"+chr(9)+"PR"+chr(9)+"HM"+chr(9)+"PC", code_used_dropdown
   OptionGroup RadioGroup1
     RadioButton 5, 70, 65, 10, "Match Resolved", match_resolved_radio
     RadioButton 95, 70, 85, 10, "Notice sent to client", notice_sent_radio
-  EditBox 35, 90, 185, 15, other_notes
-  EditBox 155, 110, 65, 15, worker_signature
+  EditBox 50, 85, 175, 15, other_notes
+  EditBox 105, 105, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 115, 135, 50, 15
-    CancelButton 175, 135, 50, 15
-  Text 5, 10, 45, 10, "Case number"
-  Text 125, 10, 40, 10, "Month/Year"
-  Text 5, 30, 50, 10, "HHLD Member"
-  Text 125, 30, 25, 10, "State"
-  Text 5, 50, 35, 10, "Programs"
-  Text 125, 50, 40, 10, "Code Used"
+    OkButton 120, 125, 50, 15
+    CancelButton 175, 125, 50, 15
+  Text 5, 10, 45, 10, "Case number:"
+  Text 125, 10, 40, 10, "Month/Year:"
+  Text 5, 30, 50, 10, "HHLD Member:"
+  Text 125, 30, 25, 10, "State:"
+  Text 10, 50, 35, 10, "Programs:"
+  Text 125, 50, 40, 10, "Code Used:"
   Text 75, 70, 15, 10, "-or-"
-  Text 5, 95, 25, 10, "Notes"
-  Text 85, 115, 60, 10, "Worker Signature"
+  Text 5, 90, 40, 10, "Other notes: "
+  Text 40, 110, 60, 10, "Worker Signature:"
 EndDialog
 
-
-
-
-
-
 '--THE SCRIPT----------------------------------------------------
-Dim MAXIS_case_number
-
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
@@ -100,8 +92,7 @@ Dim Paris_match_header
 If match_resolved_radio = checked THEN Paris_match_header = Paris_match_header & "- Resolved"
 If notice_sent_radio = checked THEN Paris_match_header = Paris_match_header & "- Notice sent to client"
 
-'-------------------------------
-call check_for_MAXIS(False)	'checking for an active MAXIS session
+call check_for_MAXIS(True)	'checking for an active MAXIS session
 
 'Writing the case note to MAXIS---
 call start_a_blank_CASE_NOTE
@@ -116,12 +107,3 @@ CALL write_variable_in_CASE_NOTE ("---")
 call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("")
-
-
-
-
-
-
-
-
-
