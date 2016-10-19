@@ -124,59 +124,60 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 290, "CAF dialog part 1"
   Text 120, 30, 110, 10, "How was application received?:"
 EndDialog
 
-BeginDialog CAF_dialog_02, 0, 0, 451, 315, "CAF dialog part 2"
-  EditBox 60, 45, 385, 15, earned_income
-  EditBox 70, 65, 375, 15, unearned_income
-  EditBox 85, 85, 360, 15, income_changes
-  EditBox 65, 105, 380, 15, notes_on_abawd
-  EditBox 105, 125, 340, 15, notes_on_income
-  EditBox 155, 145, 290, 15, is_any_work_temporary
-  EditBox 60, 175, 385, 15, SHEL_HEST
-  EditBox 60, 195, 250, 15, COEX_DCEX
-  EditBox 65, 225, 380, 15, CASH_ACCTs
-  EditBox 155, 245, 290, 15, other_assets
-  EditBox 55, 275, 390, 15, verifs_needed
+BeginDialog CAF_dialog_02, 0, 0, 451, 305, "CAF dialog part 2"
+  EditBox 70, 55, 370, 15, earned_income
+  EditBox 80, 75, 360, 15, unearned_income
+  EditBox 110, 95, 330, 15, notes_on_income
+  EditBox 85, 115, 355, 15, income_changes
+  EditBox 160, 135, 280, 15, is_any_work_temporary
+  EditBox 65, 160, 375, 15, notes_on_abawd
+  EditBox 65, 180, 375, 15, SHEL_HEST
+  EditBox 65, 200, 250, 15, COEX_DCEX
+  EditBox 65, 220, 375, 15, CASH_ACCTs
+  EditBox 155, 240, 285, 15, other_assets
+  EditBox 55, 265, 385, 15, verifs_needed
   ButtonGroup ButtonPressed
-	PushButton 340, 295, 50, 15, "NEXT", next_to_page_03_button
-	CancelButton 395, 295, 50, 15
-	PushButton 275, 300, 60, 10, "previous page", previous_to_page_01_button
-	PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-	PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-	PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-	PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-	PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-	PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-	PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-	PushButton 150, 15, 25, 10, "BUSI", BUSI_button
-	PushButton 175, 15, 25, 10, "JOBS", JOBS_button
-	PushButton 200, 15, 25, 10, "PBEN", PBEN_button
-	PushButton 225, 15, 25, 10, "RBIC", RBIC_button
-	PushButton 250, 15, 25, 10, "UNEA", UNEA_button
-	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-	PushButton 335, 25, 45, 10, "next panel", next_panel_button
-	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-	PushButton 395, 25, 45, 10, "next memb", next_memb_button
-	PushButton 5, 90, 75, 10, "STWK/inc. changes:", STWK_button
-	PushButton 5, 180, 25, 10, "SHEL/", SHEL_button
-	PushButton 30, 180, 25, 10, "HEST:", HEST_button
-	PushButton 5, 200, 25, 10, "COEX/", COEX_button
-	PushButton 30, 200, 25, 10, "DCEX:", DCEX_button
-	PushButton 5, 230, 25, 10, "CASH/", CASH_button
-	PushButton 30, 230, 30, 10, "ACCTs:", ACCT_button
-	PushButton 5, 250, 25, 10, "CARS/", CARS_button
-	PushButton 30, 250, 25, 10, "REST/", REST_button
-	PushButton 55, 250, 25, 10, "SECU/", SECU_button
-	PushButton 80, 250, 25, 10, "TRAN/", TRAN_button
-	PushButton 105, 250, 45, 10, "other assets:", OTHR_button
-  GroupBox 5, 5, 130, 25, "ELIG panels:"
+    PushButton 270, 290, 60, 10, "previous page", previous_to_page_01_button
+    PushButton 335, 285, 50, 15, "NEXT", next_to_page_03_button
+    CancelButton 390, 285, 50, 15
+    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+    PushButton 150, 15, 25, 10, "BUSI", BUSI_button
+    PushButton 175, 15, 25, 10, "JOBS", JOBS_button
+    PushButton 200, 15, 25, 10, "PBEN", PBEN_button
+    PushButton 225, 15, 25, 10, "RBIC", RBIC_button
+    PushButton 250, 15, 25, 10, "UNEA", UNEA_button
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 10, 120, 70, 10, "STWK/inc. changes:", STWK_button
+    PushButton 5, 165, 60, 10, "ABAWD/WREG:", WREG_button
+    PushButton 5, 185, 25, 10, "SHEL/", SHEL_button
+    PushButton 30, 185, 25, 10, "HEST:", HEST_button
+    PushButton 5, 205, 25, 10, "COEX/", COEX_button
+    PushButton 30, 205, 25, 10, "DCEX:", DCEX_button
+    PushButton 5, 225, 25, 10, "CASH/", CASH_button
+    PushButton 30, 225, 30, 10, "ACCTs:", ACCT_button
+    PushButton 5, 245, 25, 10, "CARS/", CARS_button
+    PushButton 30, 245, 25, 10, "REST/", REST_button
+    PushButton 55, 245, 25, 10, "SECU/", SECU_button
+    PushButton 80, 245, 25, 10, "TRAN/", TRAN_button
+    PushButton 105, 245, 45, 10, "other assets:", OTHR_button
   GroupBox 145, 5, 135, 25, "Income panels"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  Text 5, 50, 55, 10, "Earned income:"
-  Text 5, 70, 65, 10, "Unearned income:"
-  Text 5, 110, 50, 10, "ABAWD notes:"
-  Text 5, 130, 100, 10, "Notes on income and budget:"
-  Text 5, 150, 150, 10, "Is any work temporary? If so, explain details:"
-  Text 5, 280, 50, 10, "Verifs needed:"
+  Text 15, 60, 55, 10, "Earned income:"
+  Text 15, 80, 60, 10, "Unearned income:"
+  Text 10, 100, 100, 10, "Notes on income and budget:"
+  Text 10, 140, 150, 10, "Is any work temporary? If so, explain details:"
+  Text 5, 270, 50, 10, "Verifs needed:"
+  GroupBox 5, 5, 130, 25, "ELIG panels:"
+  GroupBox 5, 40, 440, 115, "Income info: Please explain budged/excluded income for the case. If income has ended, case note the info and remove old panel(s)."
 EndDialog
 
 'CAF_status needs to have the " "+chr(9)+ manually added each time.
@@ -362,7 +363,7 @@ Do
 					Dialog CAF_dialog_02			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-					IF (earned_income <> "" AND notes_on_income = "") OR (unearned_income <> "" AND notes_on_income = "") THEN err_msg = "Income information was read from STAT panels. Please provide an explaination for this income and how it was used/not used to determine the budget."
+					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN err_msg = "Income for this case was found in MAXIS. Please complete the 'notes on income and budget' field."
 					If err_msg <> "" THEN Msgbox err_msg
 				Loop until ButtonPressed = (next_to_page_03_button AND err_msg = "") or (ButtonPressed = previous_to_page_01_button AND err_msg = "")		'If you press either the next or previous button, this loop ends
 				If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
@@ -506,9 +507,9 @@ If MFIP_DVD_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MFIP financial
 CALL write_bullet_and_variable_in_CASE_NOTE("ABPS", ABPS)
 CALL write_bullet_and_variable_in_CASE_NOTE("Earned inc.", earned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("UNEA", unearned_income)
-CALL write_bullet_and_variable_in_CASE_NOTE("STWK/inc. changes", income_changes)
-CALL write_bullet_and_variable_in_CASE_NOTE("ABAWD Notes", notes_on_abawd)
 CALL write_bullet_and_variable_in_CASE_NOTE("Notes on income and budget", notes_on_income)
+CALL write_bullet_and_variable_in_CASE_NOTE("STWK/inc. changes", income_changes)
+CALL write_bullet_and_variable_in_CASE_NOTE("ABAWD Notes/WREG", notes_on_abawd)
 CALL write_bullet_and_variable_in_CASE_NOTE("Is any work temporary", is_any_work_temporary)
 CALL write_bullet_and_variable_in_CASE_NOTE("SHEL/HEST", SHEL_HEST)
 CALL write_bullet_and_variable_in_CASE_NOTE("COEX/DCEX", COEX_DCEX)

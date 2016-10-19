@@ -1071,6 +1071,7 @@ If MFIP_active = true then
 			UNEA_month = dateadd("M", 2, issue_date)
 			IF len(UNEA_month) = 1 THEN UNEA_month = "0" & UNEA_month
 			MAXIS_footer_month = UNEA_month
+			back_to_self 'We go back to the self menu, because navigate_to_maxis_screen doesn't update footer month when already in STAT
 			Call navigate_to_MAXIS_screen ("STAT", "UNEA")
 			'ObjExcel.Sheets("Message and Disb info").Activate
 			row = 1
@@ -1171,7 +1172,7 @@ IF SNAP_active = TRUE Then
 	Dim xlBook 
 	Dim xlSheet 
 	RowCN = 1
-	Set objSheet = objExcel.ActiveWorkbook.Worksheets(1) 
+	Set objSheet = objExcel.ActiveWorkbook.Worksheets("SNAP Budget") 
 	Do
 		MEMBandTYPE = Trim(objSheet.Cells(RowCN, 1).Value)
 		Do

@@ -104,6 +104,7 @@ class ABAWD_month_data
 	public HEST_elect
 	public HEST_heat
 	public HEST_phone
+	public case_resources
 end class
 '-------------------------END CLASSES
 
@@ -123,7 +124,9 @@ If worker_county_code = "x101" OR _
 		worker_county_code = "x144" OR _
 		worker_county_code = "x145" OR _
 		worker_county_code = "x148" OR _
+		worker_county_code = "x149" OR _
 		worker_county_code = "x154" OR _
+		worker_county_code = "x158" OR _
 		worker_county_code = "x180" THEN
 		script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
 END IF
@@ -164,6 +167,11 @@ maxis_background_check
 'Needs the elig begin date for proration reasons, collect it from PROG
 call navigate_to_maxis_screen("STAT", "PROG")
 EMReadscreen proration_date, 8, 10, 44
+
+'Checks to make sure a review date has been entered otherwise FIATing goes horribly wrong
+call navigate_to_maxis_screen("STAT", "REVW")
+EMReadscreen revw_month, 2, 9, 57
+IF revw_month = "__" Then script_end_procedure("ERROR: This case has no review date listed on REVW. FIATing will fail. Update STAT/REVW and run the script again. The script will now stop.")
 
 'The following performs case accuracy checks.
 call navigate_to_maxis_screen("ELIG", "FS")
@@ -267,6 +275,30 @@ For i = 0 to ubound(footer_month_array)
 		EMReadScreen HEST_elect, 6, 14, 75				'<<<<< Pulls information from prospective side of Electric standard if HEAT/AC is not used
 		EMReadScreen HEST_phone, 6, 15, 75				'<<<<< Pulls information from prospective side of Phone standard if HEAT/AC is not used
 	End If
+	
+	Call navigate_to_MAXIS_screen("STAT", "PROG")		'Navicates to STAT/PROG
+	EMReadScreen appl_mo, 2, 10, 33						'Gets date of application information
+	EMReadScreen appl_da, 2, 10, 36
+	EMReadScreen appl_yr, 2, 10, 39
+	
+	'This bit will identify new cases which are cases that were appled in the current month OR
+	'Cases that were appled last month after the 15th
+	'These are cases that need to be reviewed for XFS
+	IF appl_mo = MAXIS_footer_month AND appl_yr = MAXIS_footer_year Then 		'Same month and year
+		new_case = TRUE 
+	'Last month, same year, after the 15th
+	ELSEIF abs(appl_mo) = abs(MAXIS_footer_month) - 1 AND appl_yr = MAXIS_footer_year AND abs(appl_da) > 15 Then
+		new_case = TRUE
+	'When in January, last month, is also last year and after the 15th
+	ELSEIF MAXIS_footer_month = "01" Then 
+		If appl_mo = "12" AND abs(appl_yr) = abs(MAXIS_footer_year) - 1 AND abs(appl_da) > 15 Then 
+			new_case = TRUE 
+		Else 
+			new_case = FALSE 
+		End If 
+	ELSE 
+		new_case = FALSE 	'Not reviewed for XFS
+	END IF 
 
 	For each hh_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
@@ -402,6 +434,39 @@ For i = 0 to ubound(footer_month_array)
 		ABAWD_months_array(i).deduction_FMED = ABAWD_months_array(i).deduction_FMED	= fmed_total_amt 'creates the total to FIAT into elig for FMED
 	Next
 
+	case_resources = 0		'Resets the variable for each month's run.
+
+	For each HH_member in HH_member_array
+		Call navigate_to_MAXIS_screen("STAT", "ACCT")		'<<<<< Goes to ACCT for this person
+		EMWriteScreen HH_member, 20, 76
+		Transmit
+		EMReadScreen number_of_acct_panels, 1, 2, 78
+		IF number_of_acct_panels <> "0" THEN
+			For m = 1 to number_of_acct_panels					'<<<<<< Starting at 1 because this is a panel count and it makes sense to use this as a standard count
+				EMWriteScreen "0" & m, 20, 79
+				transmit
+				EMReadScreen count_for_snap, 1, 14, 57
+				If count_for_snap = "Y" Then 					'If this is a type of account that is counted for SNAP
+					EMReadScreen acct_balance, 8, 10, 46
+					EMReadScreen withdraw_penalty, 8, 12, 46
+					If withdraw_penalty = "________" Then withdraw_penalty = 0	'Setting so there is no string error
+					acct_amount = abs(acct_balance) - abs(withdraw_penalty)		'Removing any withdraw penalty
+					EMReadScreen share_ratio, 1, 15, 80							'Splitting by the amount to attribute
+					acct_amount = acct_amount / abs(share_ratio)
+				End If 
+				case_resources = case_resources + acct_amount					'Combining all assets together
+			Next
+		End If 
+		
+		Call navigate_to_MAXIS_screen("STAT", "CASH")		'<<<<< Goes to CASH for this person
+		EMWriteScreen HH_member, 20, 76
+		Transmit
+		EMReadScreen cash_amount, 8, 8, 39
+		If cash_amount = "________" Then cash_amount = 0
+		case_resources = case_resources + abs(cash_amount)	'Adding cash to asset count	
+		
+	Next 
+
 '//////////// Going to pull UNEA information
 	For each HH_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "UNEA")	'<<<<< Goes to UNEA for this person
@@ -463,7 +528,7 @@ For i = 0 to ubound(footer_month_array)
 					End If
 				END IF
 		Next
-
+				
 		Call navigate_to_MAXIS_screen("STAT", "JOBS")		'<<<<< Goes to JOBS for this person
 		EMWriteScreen HH_member, 20, 76
 		Transmit
@@ -524,7 +589,7 @@ For i = 0 to ubound(footer_month_array)
 			gross_BUSI = abs(gross_BUSI) + abs(busi_amount)		'<<<<<< Combining all busi income together
 		Next
 	Next
-
+	
 	'ABAWD_months_array(i).gross_wages = cstr(jobs_income)
 	'storing all total amounts / adding trims so they read correctly in dialog
 	jobs_income = trim(jobs_income)
@@ -541,68 +606,72 @@ For i = 0 to ubound(footer_month_array)
 	gross_BUSI = trim(gross_BUSI)
 	total_COEX_deduction = trim(total_COEX_deduction)
 	fmed_total_amt = trim(fmed_total_amt)
+	case_resources = trim(case_resources)
 
  '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
-		BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD banked months income and deductions dialog"
-	  ButtonGroup ButtonPressed
-	    OkButton 260, 155, 50, 15
-	    CancelButton 260, 175, 50, 15
-	  EditBox 55, 45, 50, 15, jobs_income
-	  EditBox 55, 65, 50, 15, gross_BUSI
-	  EditBox 55, 85, 50, 15, gross_RSDI
-	  EditBox 55, 105, 50, 15, gross_SSI
-	  EditBox 55, 125, 50, 15, gross_VA
-	  EditBox 55, 145, 50, 15, gross_UC
-	  EditBox 55, 165, 50, 15, gross_CS
-	  EditBox 55, 185, 50, 15, gross_other
-	  EditBox 185, 45, 35, 15, total_rent
-	  EditBox 185, 65, 35, 15, total_taxes
-	  EditBox 185, 85, 35, 15, total_insurance
-	  EditBox 185, 105, 35, 15, shel_other
-	  EditBox 185, 125, 35, 15, fmed_total_amt
-	  EditBox 275, 45, 35, 15, HEST_elect
-	  EditBox 275, 65, 35, 15, HEST_heat
-	  EditBox 275, 85, 35, 15, HEST_phone
-	  EditBox 275, 105, 35, 15, total_COEX_deduction
-	 	ButtonGroup ButtonPressed
-	    PushButton 20, 15, 25, 10, "BUSI",  BUSI_button
-	    PushButton 45, 15, 25, 10, "JOBS", JOBS_button
-	    PushButton 70, 15, 25, 10, "RBIC", RBIC_button
-	    PushButton 95, 15, 25, 10, "SPON", SPON_button
-	    PushButton 120, 15, 25, 10, "UNEA", UNEA_button
-	    PushButton 175, 15, 25, 10, "COEX", COEX_button
-	    PushButton 200, 15, 25, 10, "FMED", FMED_button
-	    PushButton 225, 15, 25, 10, "HEST", HEST_button
-	    PushButton 250, 15, 25, 10, "SHEL", SHEL_button
-	    PushButton 130, 165, 45, 10, "prev. panel", prev_panel_button
-	    PushButton 130, 175, 45, 10, "next panel", next_panel_button
-	    PushButton 185, 165, 45, 10, "prev. memb", prev_memb_button
-	    PushButton 185, 175, 45, 10, "next memb", next_memb_button
-	  Text 35, 150, 15, 10, "UC:"
-	  Text 30, 190, 20, 10, "Other:"
-	  Text 35, 170, 15, 10, "CS:"
-	  Text 155, 130, 25, 10, "FMED:"
-	  Text 240, 50, 30, 10, "Electric:"
-	  Text 245, 110, 25, 10, "COEX:"
-	  Text 35, 110, 15, 10, "SSI:"
-	  Text 230, 70, 40, 10, "Heating/air:"
-	  Text 125, 90, 60, 10, "House insurance:"
-	  Text 230, 90, 40, 10, "Telephone:"
-	  Text 130, 50, 50, 10, "Mortgage/rent:"
-	  Text 160, 110, 20, 10, "Other:"
-	  Text 30, 70, 20, 10, "BUSI:"
-	  Text 135, 70, 45, 10, "Property tax:"
-	  GroupBox 125, 155, 110, 35, "STAT-based navigation"
-	  GroupBox 170, 5, 135, 25, "Deduction based MAXIS panels:"
-	  Text 60, 35, 50, 10, "Gross Amount"
-	  Text 25, 35, 25, 10, "UI type"
-	  GroupBox 15, 5, 135, 25, "Income based MAXIS panels:"
-	  Text 30, 90, 20, 10, "RSDI:"
-	  GroupBox 15, 210, 300, 50, "BEFORE YOU HIT THE OK BUTTON"
-	  Text 20, 220, 285, 35, "The information pulled into the edit boxes above are the amounts that are being FIATed into the SNAP budget in the selected budget month. Please use the navigation buttons on this dialog if you want to check what is listed on your MAXIS panels. If this informaiton is not corret, please press cancel now, and review your case.  "
-	  Text 35, 130, 10, 10, "VA:"
-	  Text 20, 50, 30, 10, "WAGES:"
-	EndDialog
+	 BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD banked months income and deductions dialog"
+	   ButtonGroup ButtonPressed
+	     OkButton 260, 170, 50, 15
+	     CancelButton 260, 190, 50, 15
+	   EditBox 55, 45, 50, 15, jobs_income
+	   EditBox 55, 65, 50, 15, gross_BUSI
+	   EditBox 55, 85, 50, 15, gross_RSDI
+	   EditBox 55, 105, 50, 15, gross_SSI
+	   EditBox 55, 125, 50, 15, gross_VA
+	   EditBox 55, 145, 50, 15, gross_UC
+	   EditBox 55, 165, 50, 15, gross_CS
+	   EditBox 55, 185, 50, 15, gross_other
+	   EditBox 185, 45, 35, 15, total_rent
+	   EditBox 185, 65, 35, 15, total_taxes
+	   EditBox 185, 85, 35, 15, total_insurance
+	   EditBox 185, 105, 35, 15, shel_other
+	   EditBox 185, 125, 35, 15, fmed_total_amt
+	   EditBox 275, 45, 35, 15, HEST_elect
+	   EditBox 275, 65, 35, 15, HEST_heat
+	   EditBox 275, 85, 35, 15, HEST_phone
+	   EditBox 275, 105, 35, 15, total_COEX_deduction
+	   EditBox 275, 145, 35, 15, case_resources
+	   ButtonGroup ButtonPressed
+	     PushButton 20, 15, 25, 10, "BUSI", BUSI_button
+	     PushButton 45, 15, 25, 10, "JOBS", JOBS_button
+	     PushButton 70, 15, 25, 10, "RBIC", RBIC_button
+	     PushButton 95, 15, 25, 10, "SPON", SPON_button
+	     PushButton 120, 15, 25, 10, "UNEA", UNEA_button
+	     PushButton 175, 15, 25, 10, "COEX", COEX_button
+	     PushButton 200, 15, 25, 10, "FMED", FMED_button
+	     PushButton 225, 15, 25, 10, "HEST", HEST_button
+	     PushButton 250, 15, 25, 10, "SHEL", SHEL_button
+	     PushButton 130, 180, 45, 10, "prev. panel", prev_panel_button
+	     PushButton 130, 190, 45, 10, "next panel", next_panel_button
+	     PushButton 185, 180, 45, 10, "prev. memb", prev_memb_button
+	     PushButton 185, 190, 45, 10, "next memb", next_memb_button
+	   Text 35, 150, 15, 10, "UC:"
+	   Text 30, 190, 20, 10, "Other:"
+	   Text 35, 170, 15, 10, "CS:"
+	   Text 155, 130, 25, 10, "FMED:"
+	   Text 240, 50, 30, 10, "Electric:"
+	   Text 245, 110, 25, 10, "COEX:"
+	   Text 35, 110, 15, 10, "SSI:"
+	   Text 230, 70, 40, 10, "Heating/air:"
+	   Text 125, 90, 60, 10, "House insurance:"
+	   Text 230, 90, 40, 10, "Telephone:"
+	   Text 130, 50, 50, 10, "Mortgage/rent:"
+	   Text 160, 110, 20, 10, "Other:"
+	   Text 30, 70, 20, 10, "BUSI:"
+	   Text 135, 70, 45, 10, "Property tax:"
+	   GroupBox 125, 170, 110, 35, "STAT-based navigation"
+	   GroupBox 170, 5, 135, 25, "Deduction based MAXIS panels:"
+	   Text 60, 35, 50, 10, "Gross Amount"
+	   Text 25, 35, 25, 10, "UI type"
+	   GroupBox 15, 5, 135, 25, "Income based MAXIS panels:"
+	   Text 30, 90, 20, 10, "RSDI:"
+	   GroupBox 15, 215, 300, 50, "BEFORE YOU HIT THE OK BUTTON"
+	   Text 20, 225, 285, 35, "The information pulled into the edit boxes above are the amounts that are being FIATed into the SNAP budget in the selected budget month. Please use the navigation buttons on this dialog if you want to check what is listed on your MAXIS panels. If this informaiton is not corret, please press cancel now, and review your case.  "
+	   Text 35, 130, 10, 10, "VA:"
+	   Text 20, 50, 30, 10, "WAGES:"
+	   Text 165, 150, 105, 10, "Total Counted Assets for SNAP:"
+	 EndDialog
+
 
   'This calls the dialog to allow worke r to confirm
 	DO
@@ -627,6 +696,7 @@ For i = 0 to ubound(footer_month_array)
  	ABAWD_months_array(i).HEST_elect = HEST_elect
  	ABAWD_months_array(i).HEST_heat = HEST_heat
  	ABAWD_months_array(i).HEST_phone = HEST_phone
+	ABAWD_months_array(i).case_resources = case_resources
 
 	jobs_income = 0
 	gross_BUSI = 0
@@ -710,7 +780,10 @@ For i = 0 to ubound(footer_month_array)
 		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
 			transmit
+			EMReadScreen all_income, 9, 7, 72
 			transmit
+		ELSE 
+			EMReadScreen all_income, 9, 7, 72
 		END IF
 		EMwritescreen "FFB2", 20, 70 'This is to make sure we end up in the right place'
 		transmit
@@ -738,9 +811,48 @@ For i = 0 to ubound(footer_month_array)
 		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
 			transmit
+			EMReadScreen all_expenses, 8, 14, 29
 			transmit
+		ELSE 
+			EMReadScreen all_expenses, 8, 14, 29
 		END IF
-		'Now on SUMM screen, which shouldn't matter
+		EMwritescreen "FFSM", 20, 70 'This is to make sure we end up in the right place'
+		transmit
+		EMWriteScreen "         ", 5, 72
+		EMWriteScreen ABAWD_months_array(i).case_resources, 5, 72		'Enter assets
+		transmit
+		IF new_case = TRUE Then 		'If the case needs to be assessed for XFS
+			EMWriteScreen "X", 14, 31			'Opening the Expedited Status Window
+			transmit
+			
+			'Making the screen grabs numbers for math to happen
+			all_income = abs(trim(all_income))
+			all_expenses = abs(trim(all_expenses))
+			case_resources = abs(ABAWD_months_array(i).case_resources)
+			
+			'XFS criteria income less than $150 and Assets $100 or less
+			IF all_income < 150 AND case_resources =< 100 Then 
+				EMWriteScreen "X", 16, 5
+				XFS_case = TRUE
+			End If 
+			'XFS Criteria all income plus all asseets are less than expenses
+			IF all_income + case_resources < all_expenses Then 
+				EMWriteScreen "X", 19, 5
+				XFS_case = TRUE
+			End If 
+			
+			'If NOT XFS - blanking out the X's that code for XFS
+			IF XFS_case = FALSE Then 
+				EMWriteScreen " ", 3, 5
+				EMWriteScreen " ", 5, 5
+				EMWriteScreen " ", 9, 5
+				EMWriteScreen " ", 16, 5
+				EMWriteScreen " ", 19, 5
+			END If 
+
+			PF3
+		END IF 
+		
 		PF3 'back to FFSL
 		PF3 'This should bring up the "do you want to retain" popup
 		EMReadScreen income_cap_check, 11, 24, 2
