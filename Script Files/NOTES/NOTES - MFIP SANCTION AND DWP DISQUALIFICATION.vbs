@@ -201,6 +201,11 @@ If action_type = "Apply sanction/disq."	then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 	Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
+    'creating variabels for sanction date month and sanction date year to use in ten_day_cut_off function
+	sanction_month =  right("0" &          	 DatePart("m",           DateAdd("m", -1, Date_Sanction)            ), 2)
+	sanction_year  =  right(                 DatePart("yyyy",        DateAdd("m", -1, Date_Sanction)            ), 2)
+	call ten_day_cutoff_check(sanction_month, sanction_year, ten_day_cutoff)
+	
 	'TIKL to change sanction status (check box selected)
 	If TIKL_next_month = checked THEN 
 	'navigates to DAIL/WRIT 
@@ -223,10 +228,10 @@ If action_type = "Apply sanction/disq."	then
 	'consecutive months between 3 - 6 months, if they are consecutive months, client has up to the last day of the month prior to the effective date to resolve the sanction.
 	IF consecutive_sanction_months = checked then
 		Resolution_date = DateAdd("d", -1, Date_Sanction)
-	ELSEIf (sanction_type_droplist = "ES") or (sanction_type_droplist = "Failed to attend orientation") or (sanction_type_droplist = "Minor mom truancy") then
-		Resolution_date = DateAdd("d", -10, Date_Sanction)
 	ELSEIf (sanction_type_droplist = "CS") then
 		Resolution_date = DateAdd("d", -1, Date_Sanction)
+	ELSE
+		Resolution_date = ten_day_cutoff
 	End If
 	
 	'case noting the droplist and editboxes
