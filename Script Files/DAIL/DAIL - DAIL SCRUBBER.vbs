@@ -63,15 +63,15 @@ EMReadScreen full_message, 58, 6, 20
 'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONTED XFS VERIFICATIONS)
 'Both of these messages start with 'FS' on the DAIL, so they need to be nested, or it never gets passed the affilated case look up
 EMReadScreen stat_check, 4, 6, 6
-If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then 
+If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then
 	'now it checks if you are acctually running from a XFS Autoclosed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
 	EMReadScreen xfs_check, 49, 6, 20
-	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then 
+	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then
 		call run_from_GitHub(script_repository & "DAIL/DAIL - POSTPONED XFS VERIFICATIONS.vbs")
-	Else 
+	Else
 		call run_from_GitHub(script_repository & "DAIL/DAIL - AFFILIATED CASE LOOKUP.vbs")
-	End If 
-End If 
+	End If
+End If
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
@@ -85,7 +85,7 @@ If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then call run_fr
 EMReadScreen CS_new_emp_check, 25, 6, 20
 If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then call run_from_GitHub(script_repository & "DAIL/DAIL - CS REPORTED NEW EMPLOYER.vbs")
 
-'Child support messages (loads CSES PROCESSING)			<<<<<<REMOVE AFTER TESTING, REPLACE WITH FIXED LINK TO NEW CSES SCRUBBER, REMOVE TEMP MSGBOX
+'Child support messages (loads CSES PROCESSING)
 EMReadScreen CSES_check, 4, 6, 6
 If CSES_check = "CSES" or CSES_check = "TIKL" then		'TIKLs are used for fake cases and testing
 	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
