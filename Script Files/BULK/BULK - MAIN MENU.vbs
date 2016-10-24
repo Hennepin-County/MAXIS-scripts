@@ -36,7 +36,7 @@ END IF
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_BULK_menu_dialog(script_array)
-	BeginDialog BULK_dialog, 0, 0, 545, 360, "BULK Scripts"
+	BeginDialog BULK_dialog, 0, 0, 545, 380, "BULK Scripts"
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 60, 15, "BULK ACTIONS", 		BULK_main_button
@@ -59,7 +59,7 @@ Function declare_BULK_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 340, 50, 15
+		CancelButton 480, 360, 50, 15
 		GroupBox 5, 20, 205, 35, "BULK Sub-Menus"
 	EndDialog
 End function
@@ -277,6 +277,13 @@ Set script_array_BULK_stat_list(script_num) = new script	'Set this array element
 script_array_BULK_stat_list(script_num).script_name 		= "INAC"
 script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-INAC LIST.vbs"
 script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= "INTR"
+script_array_BULK_stat_list(script_num).file_name			= "BULK - REPT-INTR LIST.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/INTR into an Excel spreadsheet."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it

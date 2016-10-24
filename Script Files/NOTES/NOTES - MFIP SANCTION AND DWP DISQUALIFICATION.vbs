@@ -102,7 +102,7 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP 
   Text 155, 70, 60, 10, "Pre/Post 60 notes:"
 EndDialog
 
-BeginDialog MFIP_sanction_cured_dialog, 0, 0, 386, 190, "MFIP sanction/DWP disqualification cured"
+BeginDialog MFIP_sanction_cured_dialog, 0, 0, 386, 205, "MFIP sanction/DWP disqualification cured"
   DropListBox 90, 15, 70, 15, "Select One..."+chr(9)+"MFIP"+chr(9)+"DWP", select_program
   EditBox 230, 15, 50, 15, household_member
   EditBox 90, 40, 70, 15, sanction_lifted_month
@@ -112,27 +112,28 @@ BeginDialog MFIP_sanction_cured_dialog, 0, 0, 386, 190, "MFIP sanction/DWP disqu
   EditBox 240, 85, 130, 15, good_cause
   DropListBox 90, 105, 70, 15, "Select one..."+chr(9)+"Letter"+chr(9)+"Phone Call"+chr(9)+"Email"+chr(9)+"Client Not Notified", notified_via
   CheckBox 170, 110, 215, 10, "Set a TIKLto re-evaluate mandatory vendor status in 6 months.", vendor_TIKL_checkbox
-  EditBox 90, 125, 280, 15, other_notes
-  EditBox 90, 145, 280, 15, action_taken
-  EditBox 90, 165, 170, 15, worker_signature
+  CheckBox 15, 125, 370, 10, "Create monthly TIKL for the next 6 months to remind worker to FIAT the mandatory vendor info into ELIG results.", monthly_TIKL_checkbox
+  EditBox 90, 140, 280, 15, other_notes
+  EditBox 90, 160, 280, 15, action_taken
+  EditBox 90, 180, 170, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 265, 165, 50, 15
-    CancelButton 320, 165, 50, 15
+    OkButton 265, 180, 50, 15
+    CancelButton 320, 180, 50, 15
     PushButton 295, 15, 25, 10, "EMPS", EMPS_button
     PushButton 320, 15, 25, 10, "SANC", SANC_button
     PushButton 345, 15, 25, 10, "TIME", TIME_button
-  Text 30, 20, 55, 10, "Select program:"
   Text 10, 45, 75, 10, "Month Sanction Lifted:"
   Text 25, 110, 60, 10, "Notified Client Via:"
   Text 175, 20, 55, 10, "HH member(s) #:"
-  Text 5, 130, 80, 10, "Other Notes/Comments:"
+  Text 5, 145, 80, 10, "Other Notes/Comments:"
   Text 5, 70, 80, 10, "Sanction Cured Reason:"
   Text 185, 45, 115, 10, "Date Client Came into Compliance:"
   GroupBox 290, 5, 85, 25, "MAXIS navigation:"
-  Text 20, 170, 60, 10, "Worker signature:"
-  Text 35, 150, 50, 10, "Actions taken:"
+  Text 20, 185, 60, 10, "Worker signature:"
+  Text 35, 165, 50, 10, "Actions taken:"
   Text 5, 90, 85, 10, "Financial orientation info:"
   Text 185, 90, 55, 10, "Good cause info:"
+  Text 30, 20, 55, 10, "Select program:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -200,6 +201,11 @@ If action_type = "Apply sanction/disq."	then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 	Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
+    'creating variabels for sanction date month and sanction date year to use in ten_day_cut_off function
+	sanction_month =  right("0" &          	 DatePart("m",           DateAdd("m", -1, Date_Sanction)            ), 2)
+	sanction_year  =  right(                 DatePart("yyyy",        DateAdd("m", -1, Date_Sanction)            ), 2)
+	call ten_day_cutoff_check(sanction_month, sanction_year, ten_day_cutoff)
+	
 	'TIKL to change sanction status (check box selected)
 	If TIKL_next_month = checked THEN 
 	'navigates to DAIL/WRIT 
@@ -222,10 +228,10 @@ If action_type = "Apply sanction/disq."	then
 	'consecutive months between 3 - 6 months, if they are consecutive months, client has up to the last day of the month prior to the effective date to resolve the sanction.
 	IF consecutive_sanction_months = checked then
 		Resolution_date = DateAdd("d", -1, Date_Sanction)
-	ELSEIf (sanction_type_droplist = "ES") or (sanction_type_droplist = "Failed to attend orientation") or (sanction_type_droplist = "Minor mom truancy") then
-		Resolution_date = DateAdd("d", -10, Date_Sanction)
 	ELSEIf (sanction_type_droplist = "CS") then
 		Resolution_date = DateAdd("d", -1, Date_Sanction)
+	ELSE
+		Resolution_date = ten_day_cutoff
 	End If
 	
 	'case noting the droplist and editboxes
@@ -330,6 +336,26 @@ If action_type = "Cure santion/disq." then
 		PF3
 	END If
 	
+	'Seeting a monthly TIKL for next 6 months to FIAT mandatory vendor inforamtion into ELIG results
+	If monthly_TIKL_checkbox = 1 then 
+		month_increment = 1	'setting the dateadd variable- will start by adding one month
+		Do 
+			'navigates to DAIL/WRIT 
+			Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
+	
+			TIKL_date = dateadd("m", month_increment, date)		'Creates a TIKL_date variable with the current date + 6 month (to determine what the month will be next month)
+			TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of month.
+		
+			Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
+			'Writes TIKL to worker
+			Call write_variable_in_TIKL("!!Mandatory vendor in place due to sanction. FIAT into new elig results!!")
+			'Saves TIKL and enters out of TIKL function
+			transmit
+			PF3
+			month_increment = month_increment + 1	'adding one to variable to increase the amt to increase the month portion of the dateadd function  
+		Loop until month_increment = 6
+	END If
+		
 	'adding a case note header variable depending on which cash program is selected
 	If select_program = "MFIP" then case_note_header = "~~$~~MFIP SANCTION CURED~~$~~"
 	If select_program = "DWP" then case_note_header = "~~$~~DWP DISQUALIFICATION CURED~~$~~"
@@ -345,6 +371,7 @@ If action_type = "Cure santion/disq." then
 	CALL write_bullet_and_variable_in_case_note("Sanction Cured Reason", cured_reason)                         'Writes the reason why the sanction was cured
 	CALL write_bullet_and_variable_in_case_note("Client was notified Via", notified_via)                       'Writes the way the client was notified that their sanction was lifted
 	If vendor_TIKL_checkbox = 1 then call write_variable_in_case_note("* TIKL'd out for six months to re-evaluate mandatory vendor status.")
+	If monthly_TIKL_checkbox = 1 then call write_variable_in_case_note("* Created TIKL's for each month to FIAT vendor info into new elig results.")
 	CALL write_bullet_and_variable_in_case_note("Other Notes/Comments", other_notes)                           'Writes any other notes/comment
 	CALL write_bullet_and_variable_in_case_note("Actions Taken", action_taken)                                 'Writes any actions taken
 	CALL write_variable_in_case_note ("---")   

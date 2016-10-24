@@ -63,15 +63,15 @@ EMReadScreen full_message, 58, 6, 20
 'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONTED XFS VERIFICATIONS)
 'Both of these messages start with 'FS' on the DAIL, so they need to be nested, or it never gets passed the affilated case look up
 EMReadScreen stat_check, 4, 6, 6
-If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then 
+If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then
 	'now it checks if you are acctually running from a XFS Autoclosed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
 	EMReadScreen xfs_check, 49, 6, 20
-	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then 
+	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then
 		call run_from_GitHub(script_repository & "DAIL/DAIL - POSTPONED XFS VERIFICATIONS.vbs")
-	Else 
+	Else
 		call run_from_GitHub(script_repository & "DAIL/DAIL - AFFILIATED CASE LOOKUP.vbs")
-	End If 
-End If 
+	End If
+End If
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
@@ -85,18 +85,11 @@ If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then call run_fr
 EMReadScreen CS_new_emp_check, 25, 6, 20
 If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then call run_from_GitHub(script_repository & "DAIL/DAIL - CS REPORTED NEW EMPLOYER.vbs")
 
-'Child support messages (loads CSES PROCESSING)			<<<<<<REMOVE AFTER TESTING, REPLACE WITH FIXED LINK TO NEW CSES SCRUBBER, REMOVE TEMP MSGBOX
+'Child support messages (loads CSES PROCESSING)
 EMReadScreen CSES_check, 4, 6, 6
 If CSES_check = "CSES" or CSES_check = "TIKL" then		'TIKLs are used for fake cases and testing
 	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
-	If CSES_DISB_check = "DISB" then 					'If it's a disbursement message...
-		temp_CSES_msgbox = MsgBox ("You have selected a CSES message. Would you like to try the new CSES scrubber?", vbYesNo)
-		If temp_CSES_msgbox = vbYes then
-			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs")
-		Else
-			call run_from_GitHub(script_repository & "DAIL/DAIL - CSES PROCESSING.vbs")
-		End if
-	End if
+	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "DAIL/DAIL - CSES SCRUBBER.vbs") 'If it's a disbursement message...
 End if
 
 'Disability certification ends in 60 days (loads DISA MESSAGE)
@@ -154,6 +147,10 @@ IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN call run_from_GitHub(script_repos
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
 IF ABAWD_elig_end = "FS ABAWD ELIGIBILITY HAS EXPIRED" THEN CALL run_from_GitHub(script_repository & "DAIL/DAIL - ABAWD FSET EXEMPTION CHECK.vbs")
+
+'WAGE MATCH Scrubber
+EMReadScreen wage_match, 4, 6, 6
+IF wage_match = "WAGE" THEN CALL run_from_GitHub(script_repository & "DAIL/DAIL - WAGE MATCH SCRUBBER.vbs")
 
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
 script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message)

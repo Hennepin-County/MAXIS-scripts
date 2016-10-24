@@ -129,6 +129,13 @@ script_array_0_to_C(script_num).description				= "Template for when you're proce
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name				= "Case Discrepancy"
+script_array_0_to_C(script_num).file_name				= "NOTES - CASE DISCREPANCY.vbs"
+script_array_0_to_C(script_num).description				= "Template for case noting information about a case discrepancy."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "Change Report Form Received"
 script_array_0_to_C(script_num).file_name				= "NOTES - CHANGE REPORT FORM RECEIVED.vbs"
 script_array_0_to_C(script_num).description				= "Template for case noting information reported from a Change Report Form."
@@ -181,6 +188,13 @@ Set script_array_0_to_C(script_num) = new script		'Set this array element to be 
 script_array_0_to_C(script_num).script_name				= "County Burial Application"
 script_array_0_to_C(script_num).file_name				= "NOTES - COUNTY BURIAL APPLICATION.vbs"
 script_array_0_to_C(script_num).description				= "Template for the County Burial Application.*"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name				= "County Burial Determination"
+script_array_0_to_C(script_num).file_name				= "NOTES - COUNTY BURIAL DETERMINATION.vbs"
+script_array_0_to_C(script_num).description				= "Template for case noting a determination made on a request for county burial funds.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
@@ -523,20 +537,6 @@ Set script_array_R_to_Z(script_num) = new script		'Set this array element to be 
 script_array_R_to_Z(script_num).script_name 			= "Significant Change"
 script_array_R_to_Z(script_num).file_name				= "NOTES - SIGNIFICANT CHANGE.vbs"
 script_array_R_to_Z(script_num).description				= "Template for noting Significant Change information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
-Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_R_to_Z(script_num).script_name 			= "SNAP case review"
-script_array_R_to_Z(script_num).file_name				= "NOTES - SNAP CASE REVIEW.vbs"
-script_array_R_to_Z(script_num).description				= "Template for SNAP reviewers to use that will case note the status SNAP quality review."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
-Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_R_to_Z(script_num).script_name 			= "Submit case for SNAP review"
-script_array_R_to_Z(script_num).file_name				= "NOTES - SUBMIT CASE FOR SNAP REVIEW.vbs"
-script_array_R_to_Z(script_num).description				= "Template for when a worker sends a case to be reviewed by a supervisor or coworker."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it

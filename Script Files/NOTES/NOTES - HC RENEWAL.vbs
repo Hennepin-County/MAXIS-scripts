@@ -194,6 +194,7 @@ LOOP UNTIL are_we_passworded_out = false
 'The case note----------------------------------------------------------------------------------------------------
 call start_a_blank_case_note
 CALL write_variable_in_case_note("***" & recert_month & " HC ER received " & recert_datestamp & ": " & recert_status & "***")
+IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
@@ -203,7 +204,7 @@ call write_bullet_and_variable_in_case_note("Cost-effective insurance availabili
 call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_bullet_and_variable_in_case_note("Changes", changes)
-call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 If MMIS_updated_checkbox = 1 then Call write_variable_in_case_note("* MMIS updated.")

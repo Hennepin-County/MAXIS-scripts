@@ -529,4 +529,3 @@ call write_variable_in_CASE_NOTE(worker_signature)
 
 'reminding workers to go back to fill in the items that may have left to be fill during the first run.
 call script_end_procedure("Success!!! The script will stop here.  Please remember to review, fill-in, postpay code and approved from ELIG results screen if needed."& VbCrLf & VbCrLf &"Thank you!")
-​
