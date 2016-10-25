@@ -181,7 +181,7 @@ script_num = 0
 ReDim Preserve script_array_BULK_enhanced_list(script_num)		'Resets the array to add one more element to t
 Set script_array_BULK_enhanced_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_enhanced_list(script_num).script_name 			= " Check SNAP for GA/RCA "													'needs spaces to generate button width properly.
-script_array_BULK_enhanced_list(script_num).file_name			= "check-snap-fpr-ga-rca.vbs"
+script_array_BULK_enhanced_list(script_num).file_name			= "check-snap-for-ga-rca.vbs"
 script_array_BULK_enhanced_list(script_num).description 			= "Compares the amount of GA and RCA FIAT'd into SNAP and creates a list of the results."
 
 script_num = script_num + 1								'Increment by one
