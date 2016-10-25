@@ -76,7 +76,7 @@ IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL mess
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
-	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
+	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
 	start_a_blank_CASE_NOTE
@@ -99,7 +99,7 @@ IF full_message = "~*~2ND QUARTERLY REPORT" THEN     'script finds 3rd TIKL mess
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
-	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
+	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	'TIKLS FOR THIRD FORM SEND DATE
 	Call navigate_to_MAXIS_screen("dail", "writ")
@@ -117,7 +117,7 @@ IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL mess
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
-	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
+	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
 	start_a_blank_CASE_NOTE
@@ -140,7 +140,7 @@ IF full_message = "~*~3RD QUARTERLY REPORT" THEN     'script finds 5th TIKL mess
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
-	EMReadScreen TYMA_start_date, 10, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
+	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	'TIKLS FOR SECOND FORM DUE DATE
 	Call navigate_to_MAXIS_screen("dail", "writ")
@@ -155,3 +155,4 @@ END IF
 
 'If the message doesn't match any of the ones above you get this message. 
 script_end_procedure("A Valid TYMA DAIL message was not found. Please place your cursor over one and try again, or navigate away from DAIL and restart script if trying to create first TIKL.")
+

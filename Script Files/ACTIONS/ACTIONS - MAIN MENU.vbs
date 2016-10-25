@@ -1,14 +1,20 @@
 'If date > #10/24/2016# then MsgBox "Note: you appear to be using the old redirect files. You likely need to reinstall your scripts."			'Yells at you if you haven't updated in a while
-IF run_locally = FALSE THEN
+IF run_locally = TRUE THEN
+	script_repository = left(script_repository, len(script_repository) - 13)
+ELSE
 	IF use_master_branch = TRUE THEN
 		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/"									'Resets to release settings
 	ELSE
 		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
 	END IF
-END IF
+End If 
 
 'LOADING SCRIPT
-script_URL = script_repository & "ACTIONS/ACTIONS - MAIN MENU.vbs"
+IF use_master_branch = TRUE THEN
+	script_URL = script_repository & "actions/main-menu.vbs"
+ELSE
+	script_URL = script_repository & "ACTIONS/ACTIONS - MAIN MENU.vbs"
+END IF
 IF run_locally = False THEN
 	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
 	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
