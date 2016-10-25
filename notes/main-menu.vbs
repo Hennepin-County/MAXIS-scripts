@@ -254,7 +254,7 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Emergency"
-script_array_D_to_F(script_num).file_name				= "emergecy.vbs"
+script_array_D_to_F(script_num).file_name				= "emergency.vbs"
 script_array_D_to_F(script_num).description 			= "Template for EA/EGA applications.*"
 
 script_num = script_num + 1								'Increment by one
@@ -528,7 +528,7 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
 Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_R_to_Z(script_num).script_name 			= "Returned Mail"
-script_array_R_to_Z(script_num).file_name				= "returned-mail.vbs"
+script_array_R_to_Z(script_num).file_name				= "returned-mail-received.vbs"
 script_array_R_to_Z(script_num).description				= "Template for noting Returned Mail Received information."
 
 script_num = script_num + 1								'Increment by one
