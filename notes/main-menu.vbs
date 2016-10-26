@@ -660,26 +660,26 @@ Loop until 	ButtonPressed <> SIR_instructions_button and _
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_0_to_C)
-	If ButtonPressed = script_array_0_to_C(i).button then call run_from_GitHub(script_repository & "/NOTES/" & script_array_0_to_C(i).file_name)
+	If ButtonPressed = script_array_0_to_C(i).button then call run_from_GitHub(script_repository & "/notes/" & script_array_0_to_C(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_D_to_F)
-	If ButtonPressed = script_array_D_to_F(i).button then call run_from_GitHub(script_repository & "/NOTES/" & script_array_D_to_F(i).file_name)
+	If ButtonPressed = script_array_D_to_F(i).button then call run_from_GitHub(script_repository & "/notes/" & script_array_D_to_F(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_G_to_L)
-	If ButtonPressed = script_array_G_to_L(i).button then call run_from_GitHub(script_repository & "/NOTES/" & script_array_G_to_L(i).file_name)
+	If ButtonPressed = script_array_G_to_L(i).button then call run_from_GitHub(script_repository & "/notes/" & script_array_G_to_L(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_M_to_Q)
-	If ButtonPressed = script_array_M_to_Q(i).button then call run_from_GitHub(script_repository & "/NOTES/" & script_array_M_to_Q(i).file_name)
+	If ButtonPressed = script_array_M_to_Q(i).button then call run_from_GitHub(script_repository & "/notes/" & script_array_M_to_Q(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_R_to_Z)
-	If ButtonPressed = script_array_R_to_Z(i).button then call run_from_GitHub(script_repository & "/NOTES/" & script_array_R_to_Z(i).file_name)
+	If ButtonPressed = script_array_R_to_Z(i).button then call run_from_GitHub(script_repository & "/notes/" & script_array_R_to_Z(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_LTC)
-	If ButtonPressed = script_array_LTC(i).button 	 then call run_from_GitHub(script_repository & "/NOTES/" & script_array_LTC(i).file_name)
+	If ButtonPressed = script_array_LTC(i).button 	 then call run_from_GitHub(script_repository & "/notes/" & script_array_LTC(i).file_name)
 Next
 stopscript
