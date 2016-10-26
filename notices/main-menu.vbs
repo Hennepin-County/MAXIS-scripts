@@ -256,11 +256,11 @@ Loop until 	ButtonPressed <> SIR_instructions_button and _
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_NOTICES_main)
-	If ButtonPressed = script_array_NOTICES_main(i).button then call run_from_GitHub(script_repository & "/NOTICES/" & script_array_NOTICES_main(i).file_name)
+	If ButtonPressed = script_array_NOTICES_main(i).button then call run_from_GitHub(script_repository & "notices/" & script_array_NOTICES_main(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_NOTICES_list)
-	If ButtonPressed = script_array_NOTICES_list(i).button then call run_from_GitHub(script_repository & "/NOTICES/" & script_array_NOTICES_list(i).file_name)
+	If ButtonPressed = script_array_NOTICES_list(i).button then call run_from_GitHub(script_repository & "notices/" & script_array_NOTICES_list(i).file_name)
 Next
 
 stopscript
