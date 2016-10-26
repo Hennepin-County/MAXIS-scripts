@@ -397,14 +397,14 @@ Loop until 	ButtonPressed <> SIR_instructions_button and _
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_BULK_main)
-	If ButtonPressed = script_array_BULK_main(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_main(i).file_name)
+	If ButtonPressed = script_array_BULK_main(i).button then call run_from_GitHub(script_repository & "bulk/" & script_array_BULK_main(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_BULK_enhanced_list)
-	If ButtonPressed = script_array_BULK_enhanced_list(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_enhanced_list(i).file_name)
+	If ButtonPressed = script_array_BULK_enhanced_list(i).button then call run_from_GitHub(script_repository & "bulk/" & script_array_BULK_enhanced_list(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_BULK_stat_list)
-	If ButtonPressed = script_array_BULK_stat_list(i).button then call run_from_GitHub(script_repository & "/BULK/" & script_array_BULK_stat_list(i).file_name)
+	If ButtonPressed = script_array_BULK_stat_list(i).button then call run_from_GitHub(script_repository & "bulk/" & script_array_BULK_stat_list(i).file_name)
 Next
 stopscript
