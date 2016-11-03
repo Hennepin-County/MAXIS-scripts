@@ -108,6 +108,10 @@ EMwritescreen CM_plus_1_yr, 6, 56
 EMWriteScreen "x", 10, 5		'selecting MFIP
 transmit
 
+'Checking for PRIV cases.
+EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case, script will end. 
+IF priv_check = "PRIVIL" THEN script_end_procedure("This case is a privliged case. You do not have access to this case.")
+
 'checking to see if HG has been issued for the month selected	
 DO
 	row = 6				'establishing the row to start searching for issuance'
