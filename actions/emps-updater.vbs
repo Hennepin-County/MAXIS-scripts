@@ -37,72 +37,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'Base Dialog 
-BeginDialog fss_code_detail, 0, 0, 371, 130, "Update FSS Information from the Status Update"
-  Text 5, 10, 45, 10, "Case Number"
-  EditBox 55, 5, 50, 15, MAXIS_case_number
-  Text 120, 10, 70, 10, "Household member"
-  DropListBox 195, 5, 105, 45, "", List2
-  ButtonGroup ButtonPressed
-    PushButton 315, 5, 50, 10, "Enter", enter_detail_button
-  Text 5, 25, 195, 10, "This script can update EMPS for the following proceedures:"
-  ButtonGroup ButtonPressed
-    PushButton 10, 40, 185, 10, "Code EMPS to get MFIP results instead of DWP", Intake_MFIP_Button
-    PushButton 10, 55, 185, 10, "Code EMPS for Child Under 12 Months Exemption", Child_Under_One_Button
-    PushButton 10, 70, 185, 10, "Code EMPS to remove FSS", Remove_FSS_Button
-  Text 205, 40, 105, 10, "Workaround process for Intake"
-  Text 205, 55, 75, 10, "Adding or removing"
-  Text 205, 70, 125, 10, "Return Caregiver to Regular MFIP-ES"
-  Text 10, 95, 40, 10, "Other Notes"
-  EditBox 55, 90, 310, 15, other_notes
-  Text 10, 115, 60, 10, "Worker Signature"
-  EditBox 80, 110, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 260, 110, 50, 15
-    CancelButton 315, 110, 50, 15
-EndDialog
-
-
-
-'FULLY EXPANDED'
-BeginDialog fss_code_detail, 0, 0, 371, 270, "Update FSS Information from the Status Update"
-  Text 5, 10, 45, 10, "Case Number"
-  EditBox 55, 5, 50, 15, MAXIS_case_number
-  Text 120, 10, 70, 10, "Household member"
-  DropListBox 195, 5, 105, 45, "", List2
-  ButtonGroup ButtonPressed
-    PushButton 315, 5, 50, 10, "Enter", enter_detail_button
-  Text 5, 65, 195, 10, "This script can update EMPS for the following proceedures:"
-  ButtonGroup ButtonPressed
-    PushButton 10, 80, 185, 10, "Code EMPS to get MFIP results instead of DWP", Intake_MFIP_Button
-    PushButton 10, 115, 185, 10, "Code EMPS for Child Under 12 Months Exemption", Child_Under_One_Button
-    PushButton 10, 175, 185, 10, "Code EMPS to remove FSS", Remove_FSS_Button
-  Text 205, 80, 105, 10, "Workaround process for Intake"
-  Text 205, 115, 75, 10, "Adding or removing"
-  Text 205, 175, 125, 10, "Return Caregiver to Regular MFIP-ES"
-  Text 5, 235, 40, 10, "Other Notes"
-  EditBox 50, 230, 310, 15, other_notes
-  Text 5, 255, 60, 10, "Worker Signature"
-  EditBox 75, 250, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 255, 250, 50, 15
-    CancelButton 310, 250, 50, 15
-  Text 10, 100, 65, 10, "Date of Application"
-  EditBox 80, 95, 50, 15, date_of_app
-  Text 10, 135, 205, 10, "It appears you need to ADD/REMOVE the exemption.  Reason:"
-  DropListBox 220, 130, 125, 45, "Select One..."+chr(9)+"Child Age"+chr(9)+"Caregiver request"+chr(9)+"MFIP results approve - complete workaround", List3
-  Text 10, 155, 75, 10, "First month to remove"
-  EditBox 90, 150, 15, 15, end_month
-  EditBox 105, 150, 15, 15, End_Year
-  Text 135, 155, 75, 10, "Date of Client request:"
-  EditBox 220, 150, 50, 15, client_request_date
-  Text 5, 30, 95, 10, "ES Referral Date is Missing:"
-  Text 5, 50, 95, 10, "Fin Orient Date is Missing:"
-  CheckBox 110, 30, 140, 10, "Check Here to have the script update to ", update_ES_ref_checkbox
-  CheckBox 110, 50, 140, 10, "Check Here to have the script update to ", update_fin_orient_checkbox
-  EditBox 255, 25, 50, 15, new_es_referral_dt
-  EditBox 255, 45, 50, 15, new_fin_oreient_dt
-EndDialog
 
 'FUNCTIONS==================================================================================================================
 Function Generate_Client_List(list_for_dropdown)
@@ -152,32 +86,15 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-UniversalParticipant = FALSE 
+UniversalParticipant = FALSE 		'Setting some boolean variables
 ExtensionCase = FALSE 
 FSSCase = FALSE 
 
-If MAXIS_case_number <> "" Then 
-	navigate_to_MAXIS_screen "STAT", "EMPS"
-	EMWriteScreen HH_member, 20, 76
-	transmit
-	EMReadScreen Fin_Orient_Dt, 8, 5, 39
-	EMReadScreen ES_Referral_dt, 8, 16, 40
-	If Fin_Orient_Dt = "__ __ __" then 
-		Fin_Orient_Dt = ""
-		Fin_Orient_Missing = TRUE 
-	Else 
-		Fin_Orient_Dt = replace(Fin_Orient_Dt, " ", "/")
-	End If 
-	If ES_Referral_Dt = "__ __ __" Then 
-		ES_Referral_Dt = ""
-		ES_referral_Missing = TRUE 
-	Else 
-		ES_Referral_Dt = replace(ES_Referral_Dt, " ", "/")
-	End If 
+If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of 
+	Call Generate_Client_List(HH_Memb_DropDown)
 End If 
 
-Call Generate_Client_List(HH_Memb_DropDown)
-
+'Running the dialog for case number and client
 Do
 	err_msg = ""
 	'Dialog defined here so the dropdown can be changed
@@ -208,9 +125,9 @@ Do
 	If err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = "" 
 	
-clt_ref_num = left(clt_to_update, 2)
+clt_ref_num = left(clt_to_update, 2)	'Settin the reference number
 
-Fin_Orient_Missing = FALSE 
+Fin_Orient_Missing = FALSE 		'Setting variables
 ES_referral_Missing = FALSE 
 
 Call navigate_to_MAXIS_screen ("STAT", "EMPS")		'Go to EMPS
@@ -231,7 +148,7 @@ Else
 	ES_Referral_Dt = replace(ES_Referral_Dt, " ", "/")
 End If 
 
-EMReadScreen ES_Status, 2, 15, 40
+EMReadScreen ES_Status, 2, 15, 40					'Determining the ES status
 ES_Status = abs(ES_Status)
 If ES_Status = 20 Then 
 	UniversalParticipant = TRUE 
@@ -241,7 +158,7 @@ Else
 	FSSCase = TRUE 
 End If 
 
-EMReadScreen care_of_baby, 1, 12, 76
+EMReadScreen care_of_baby, 1, 12, 76				'Determining if child under 1 is already being used or not
 If care_of_baby = "N" Then Current_Using_Exemption = FALSE
 If care_of_baby = "Y" Then Current_Using_Exemption = TRUE 
 
@@ -279,11 +196,10 @@ If baby_on_case = TRUE Then 		'If there is no baby on the case the script will n
 	Exemption_End_Year = DatePart("yyyy", Exemption_Unaavailable)
 End If 
 
-'Fin_Orient_Missing = TRUE
-'ES_referral_Missing = TRUE 
 
 Do 
 	err_msg = ""
+	'This is a very dynamic dialog and gets recreated and resized as buttons are pushed
 	dialog_length = 120
 	IF ES_referral_Missing = TRUE Then dialog_length = dialog_length + 15
 	IF Fin_Orient_Missing = TRUE Then dialog_length = dialog_length + 15
@@ -367,12 +283,12 @@ Do
 			MsgBox "There is no Child Under One listed on this case, this is not the correct workaround to generate MFIP results."
 			EMPS_Workaround = FALSE 
 		Else 
-			EMPS_Workaround = NOT(EMPS_Workaround)
+			EMPS_Workaround = NOT(EMPS_Workaround)	'Switching the boolean
 		End If 
 	End If 
 	If ButtonPressed = Child_Under_One_Button Then 
 		err_msg = err_msg & "Start Over"
-		Child_Under_One = NOT(Child_Under_One)
+		Child_Under_One = NOT(Child_Under_One)		'Switching the boolean
 	End If 
 	If ButtonPressed = Remove_FSS_Button Then 
 		err_msg = err_msg & "Start Over"
@@ -380,7 +296,7 @@ Do
 			MsgBox "This client is not coded as using FSS, and so cannot be removed."
 			Remove_FSS = FALSE 
 		Else
-			Remove_FSS = NOT(Remove_FSS)
+			Remove_FSS = NOT(Remove_FSS)			'Switching the boolean
 		End If 
 	End If 
 
@@ -404,6 +320,7 @@ Loop Until err_msg = ""
 
 back_to_self
 
+'Updating ES Referral date
 If update_ES_ref_checkbox = checked Then 
 	Do 
 		Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
@@ -422,6 +339,7 @@ If update_ES_ref_checkbox = checked Then
 	back_to_self
 End If 
 
+'Updating the Financial orientation date
 If update_fin_orient_checkbox = checked Then 
 	Do 
 		Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
@@ -441,9 +359,11 @@ If update_fin_orient_checkbox = checked Then
 	back_to_self
 End If 
 
-'GET MFIP 
+'MFIP workaround for intake
+'The process here is to code a case with a child under 1 to get MFIP results instead of DWP
+'The EMPS panel is changed back after approval unless the client actually requests the exemption
 If EMPS_Workaround = TRUE then 
-	MAXIS_footer_month = right("00" & DatePart("m", date_of_app), 2)
+	MAXIS_footer_month = right("00" & DatePart("m", date_of_app), 2)		'Update in the month of application
 	MAXIS_footer_year = right(DatePart("yyyy", date_of_app), 2)
 	Do 
 		Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
@@ -481,7 +401,7 @@ If EMPS_Workaround = TRUE then
 	   vbNewLine & vbNewLine & "The script will update EMPS so that the client is using months starting in: " &  MAXIS_footer_month & "/" & MAXIS_footer_year, vbOKCancel + vbQuestion, "Child under 1 Months")
 	
 	If confirm_proceed_msg = vbOK Then
-		Call date_array_generator (MAXIS_footer_month, MAXIS_footer_year, workaround_month_array)
+		Call date_array_generator (MAXIS_footer_month, MAXIS_footer_year, workaround_month_array)	'Will update from month of app to CM + 1
 		 
 		emps_row = 7												'setting the first location
 		emps_col = 22
@@ -511,9 +431,10 @@ If EMPS_Workaround = TRUE then
 			PF3
 		End IF 
 		 
-		EMWriteScreen "Y", 12, 76
+		EMWriteScreen "Y", 12, 76		'Coding the EMPS panel with Yes
 		transmit
 		
+		'Going to TIKL
 		Call Navigate_to_MAXIS_screen("DAIL", "WRIT")
 		tikl_date = date
 		EMWriteScreen right("00" & DatePart("m", tikl_date), 2), 5, 18
@@ -532,6 +453,7 @@ If EMPS_Workaround = TRUE then
 	back_to_self
 End if 
 
+'Coding for actual use of the exemption
 If Child_Under_One = TRUE Then 
 	If Current_Using_Exemption = FALSE Then 		'This means that we need to add the exemption
 		Do 
@@ -634,9 +556,10 @@ If Child_Under_One = TRUE Then
 				PF3
 			End IF 
 			 
-			EMWriteScreen "Y", 12, 76
+			EMWriteScreen "Y", 12, 76			'EMPS to yes
 			transmit
 			
+			'Going to TIKL
 			Call Navigate_to_MAXIS_screen("DAIL", "WRIT")
 			EMWriteScreen right("00" & DatePart("m", child_under_one_tikl_date), 2), 5, 18
 			EMWriteScreen right("00" & DatePart("d", child_under_one_tikl_date), 2), 5, 21
@@ -652,8 +575,8 @@ If Child_Under_One = TRUE Then
 			add_child_under_one_aborted = TRUE 
 		End if 
 		back_to_self
-	ElseIf Current_Using_Exemption = TRUE Then 
-		MAXIS_footer_month = right("00" & end_month, 2)
+	ElseIf Current_Using_Exemption = TRUE Then 		'This is for if the exemption needs to be ended
+		MAXIS_footer_month = right("00" & end_month, 2)		'Update in the first month that it will be removed.
 		MAXIS_footer_year = right("00" & End_Year, 2)
 		Do 
 			Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
@@ -669,7 +592,7 @@ If Child_Under_One = TRUE Then
 		emps_row = 7												'setting the first location
 		emps_col = 22
 		Do
-			EMReadScreen month_used, 2, emps_row, emps_col			'finding the first blank month to code
+			EMReadScreen month_used, 2, emps_row, emps_col			'finding where the first month to remove is
 			If month_used = MAXIS_footer_month Then 
 				EMReadScreen year_used, 2, emps_row, emps_col + 7
 				If year_used = MAXIS_footer_year Then 
@@ -690,7 +613,7 @@ If Child_Under_One = TRUE Then
 			PF3
 			PF10
 		Else 
-			del_row = start_row
+			del_row = start_row							'Once found, will blank out that one and all future
 			del_col = start_col
 			Do 
 				EMWriteScreen "  ", del_row, del_col
@@ -706,19 +629,20 @@ If Child_Under_One = TRUE Then
 	End If 
 End If 
 
-If Remove_FSS = TRUE Then 
-	Do 
+'THIS bit JUST does the EMPS portion of ending FSS.
+If Remove_FSS = TRUE Then 	
+	Do 		'Go to EMPS
 		Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
 		EMReadScreen nav_check, 4, 2, 50
 	Loop until nav_check = "EMPS"
 	EMWriteScreen clt_ref_num, 20, 76
 	transmit
 	
-	EMReadScreen child_under_one_code, 1, 12, 76
+	EMReadScreen child_under_one_code, 1, 12, 76				'Handling to force users to use the specific coding for the child under 12 months
 	If child_under_one_code = "Y" Then 
 		MsgBox "Use the Option to remove the Child Under 12 Months Exemption for this case."
 		remove_fss_aborted = TRUE
-	Else 
+	Else 														'Otherwise updating the fields for FSS
 		PF9
 	
 		EMWriteScreen "N", 8, 76
@@ -733,6 +657,7 @@ If Remove_FSS = TRUE Then
 	back_to_self
 End If 
 
+'Message about if a process did not complete and allows worker to avoid the case note for a non completed process
 aborted_msg = ""
 If workaround_aborted = TRUE Then aborted_msg = aborted_msg & vbNewLine & "You chose to stop the update of EMPS for the MFIP Intake workaround."
 If add_child_under_one_aborted = TRUE Then aborted_msg = aborted_msg & vbNewLine & "You chose to stop the update of EMPS to add a Child Under 12 Months Exemption"
