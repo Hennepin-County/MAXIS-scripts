@@ -130,6 +130,22 @@ Function Generate_Client_List(list_for_dropdown)
 
 End Function
 
+FUNCTION date_array_generator(initial_month, initial_year, date_array)
+	'defines an intial date from the initial_month and initial_year parameters
+	initial_date = initial_month & "/1/" & initial_year
+	'defines a date_list, which starts with just the initial date
+	date_list = initial_date
+	'This loop creates a list of dates
+	Do
+		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
+		working_date = dateadd("m", 1, right(date_list, len(date_list) - InStrRev(date_list,"|")))	'the working_date is the last-added date + 1 month. We use dateadd, then grab the rightmost characters after the "|" delimiter, which we determine the location of using InStrRev
+		date_list = date_list & "|" & working_date	'Adds the working_date to the date_list
+	Loop until datediff("m", date, working_date) = 1	'Loops until we're at current month plus one
+
+	'Splits this into an array
+	date_array = split(date_list, "|")
+End function
+
 'THE SCRIPT=================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
@@ -168,7 +184,7 @@ Do
 	BeginDialog select_person_dialog, 0, 0, 191, 65, "Update FSS Information from the Status Update"
 	  EditBox 55, 5, 50, 15, MAXIS_case_number
 	  ButtonGroup ButtonPressed
-	    PushButton 135, 10, 50, 10, "search", search_button
+	    PushButton 135, 5, 50, 15, "search", search_button
 	  DropListBox 80, 25, 105, 45, "Select One..." & HH_Memb_DropDown, clt_to_update
 	  ButtonGroup ButtonPressed
 	    OkButton 115, 45, 35, 15
@@ -192,11 +208,6 @@ Do
 	If err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = "" 
 	
-'FIND Case Number
-
-'Look at EMPS for M01 
-'Find if Fin Orient Date is Missing
-'Find if ES Referral date is Missing
 clt_ref_num = left(clt_to_update, 2)
 
 Fin_Orient_Missing = FALSE 
@@ -394,7 +405,10 @@ Loop Until err_msg = ""
 back_to_self
 
 If update_ES_ref_checkbox = checked Then 
-	Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
+	Do 
+		Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
+		EMReadScreen nav_check, 4, 2, 50
+	Loop until nav_check = "EMPS"
 	EMWriteScreen clt_ref_num, 20, 76
 	transmit
 	PF9													'Edit
@@ -409,7 +423,10 @@ If update_ES_ref_checkbox = checked Then
 End If 
 
 If update_fin_orient_checkbox = checked Then 
-	Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
+	Do 
+		Call Navigate_to_MAXIS_screen ("STAT", "EMPS")
+		EMReadScreen nav_check, 4, 2, 50
+	Loop until nav_check = "EMPS"
 	EMWriteScreen clt_ref_num, 20, 76
 	transmit
 	PF9
@@ -483,8 +500,8 @@ If EMPS_Workaround = TRUE then
 			PF10	
 		Else 
 			For each exempt_month in workaround_month_array				'writing each of the months to be exempt in the array into the popup
-				EMWriteScreen left(exempt_month, 2), emps_row, emps_col
-				EMWriteScreen right(exempt_month, 4), emps_row, emps_col + 5
+				EMWriteScreen right("00" & DatePart("m", exempt_month), 2), emps_row, emps_col
+				EMWriteScreen right(DatePart("yyyy", exempt_month), 4), emps_row, emps_col + 5
 				emps_col = emps_col + 11
 				If emps_col = 66 Then 
 					emps_col = 22
@@ -677,7 +694,7 @@ If Child_Under_One = TRUE Then
 			del_col = start_col
 			Do 
 				EMWriteScreen "  ", del_row, del_col
-				EMWriteScreen "    ", del_row, del_col + 7
+				EMWriteScreen "    ", del_row, del_col + 5
 				del_col = del_col + 11
 				If del_col = 66 Then 
 					del_col = 22
@@ -709,6 +726,7 @@ If Remove_FSS = TRUE Then
 		EMWriteScreen "N", 10, 76
 		EMWriteScreen "NO", 11, 76
 		EMWriteScreen "N", 13, 76
+		EMWriteScreen "Y", 14, 76
 		
 		transmit
 	End If 
@@ -739,7 +757,7 @@ IF Child_Under_One = TRUE Then
 	If Current_Using_Exemption = FALSE AND add_child_under_one_aborted <> TRUE Then 
 		Call Write_Variable_in_CASE_NOTE ("* Added Child under 12 months exemption coding starting " & new_exemption_months_array(0))
 		Call Write_Bullet_and_Variable_in_Case_Note ("Reason for ending", child_under_one_reason)
-		If add_child_under_one_tikl_fail <> TRUE Then Call Write_Variable_in_CASE_NOTE ("* TIKL set for " & new_exemption_months_array(ubound(new_exemption_months_array))" to review exemption.")
+		If add_child_under_one_tikl_fail <> TRUE Then Call Write_Variable_in_CASE_NOTE ("* TIKL set for " & new_exemption_months_array(ubound(new_exemption_months_array)) & " to review exemption.")
 	End if 
 	If Current_Using_Exemption = TRUE Then 
 		Call Write_Variable_in_CASE_NOTE ("* Ended the child under 12 month exemption. Exemption removed eff " & end_month & "/" & End_Year)
@@ -751,4 +769,4 @@ Call Write_Bullet_and_Variable_in_Case_Note ("Notes", other_notes)
 Call Write_Variable_in_CASE_NOTE ("---")
 Call Write_Variable_in_CASE_NOTE (worker_signature)
 
-script_end_procedure("Success! EMPS has been updated and case noted.")
+script_end_procedure("Success! EMPS has been updated and case noted. You may need to approve new MFIP resuls for the changes to take effect.")
