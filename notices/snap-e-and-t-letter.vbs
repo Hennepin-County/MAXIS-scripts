@@ -1053,12 +1053,21 @@ first_name = trim(replace(first_name, "_", ""))
 Call navigate_to_MAXIS_screen("STAT", "WREG")
 EMWriteScreen member_number, 20, 76
 transmit
-EMReadScreen WREG_status, 2, 8, 50
+
+'Ensuring that students have a FSET status of "12" and all others are coded with "30"
+EMReadScreen FSET_status, 2, 8, 50
 If manual_referral = "Student" then 
-    if WREG_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
+    if FSET_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
 Else 
-    If WREG_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+    If FSET_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
 End if 
+'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
+EMReadScreen ABAWD_status, 2, 13, 50
+If manual_referral = "Banked months" then 
+ 	if ABAWD_status <> "13" then script_end_procedure ("Member " & member_number & " is not coded as a banked months recipient. The script will now end.")
+End if 
+
+'Ensuring the orientation date is coding in the with the referral date scheduled
 EMReadScreen orientation_date, 8, 9, 50
 orientation_date = replace(orientation_date, " ", "/")
 If appointment_date <> orientation_date then 
