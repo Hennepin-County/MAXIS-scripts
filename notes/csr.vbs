@@ -70,6 +70,8 @@ BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
   EditBox 40, 35, 280, 15, HH_comp
   EditBox 65, 55, 380, 15, earned_income
   EditBox 70, 75, 375, 15, unearned_income
+  ButtonGroup ButtonPressed
+    PushButton 5, 100, 60, 10, "Notes on Income:", income_notes_button
   EditBox 70, 95, 375, 15, notes_on_income
   EditBox 65, 115, 380, 15, notes_on_abawd
   EditBox 40, 135, 405, 15, assets
@@ -108,7 +110,6 @@ BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
   Text 5, 40, 35, 10, "HH comp:"
   Text 5, 60, 55, 10, "Earned income:"
   Text 5, 80, 60, 10, "Unearned income:"
-  Text 5, 100, 60, 10, "Notes on Income:"
   Text 5, 120, 60, 10, "Notes on WREG:"
   Text 5, 140, 30, 10, "Assets:"
   GroupBox 5, 180, 175, 35, "Income and asset panels"
@@ -165,6 +166,23 @@ BeginDialog CSR_dialog02, 0, 0, 451, 240, "CSR dialog"
   GroupBox 255, 5, 75, 25, "ELIG panels:"
   GroupBox 330, 5, 115, 35, "STAT-based navigation:"
   CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
+EndDialog
+
+BeginDialog income_notes_dialog, 0, 0, 351, 185, "Explanation of Income"
+  CheckBox 10, 30, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
+  CheckBox 10, 45, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
+  CheckBox 10, 70, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
+  CheckBox 10, 85, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
+  CheckBox 10, 100, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
+  CheckBox 10, 115, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
+  CheckBox 10, 130, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
+  CheckBox 45, 140, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
+  CheckBox 10, 155, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
+  ButtonGroup ButtonPressed
+    PushButton 240, 165, 50, 15, "Insert", add_to_notes_button
+    CancelButton 295, 165, 50, 15
+  Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
+  Text 45, 55, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -253,6 +271,21 @@ DO
 					cancel_confirmation
 					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 					'If next_button = pressed THEN msgbox next_button
+					If ButtonPressed = income_notes_button Then 
+						Dialog income_notes_dialog
+						If ButtonPressed = add_to_notes_button Then 
+							If jobs_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from jobs to continue at this amount."
+							If new_jobs_checkbox = checked Then notes_on_income = notes_on_income & "; This is a new job and actual check stubs have not been received, advised client to provide proof once pay is received if the income received differs significantly."
+							If busi_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from self employment to continue at this amount."
+							If busi_method_agree_checkbox = checked Then notes_on_income = notes_on_income & "; Explained to client the self employment budgeting methods and client agreed to the method used."
+							If rbic_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects roomer/boarder income to continue at this amount."
+							If unea_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects unearned income to continue at this amount."
+							If ui_pending_checkbox = checked Then notes_on_income = notes_on_income & "; Client has applied for Unemployment Income recently but request is still pending, will need to be reviewed soon for changes."
+							If tikl_for_ui = checked Then notes_on_income = notes_on_income & " TIKL set to request an update on Unemployment Income."
+							If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; Client has reported they have no income and do not expect any changes to this at this time."
+							If left(notes_on_income, 1) = ";" Then notes_on_income = right(notes_on_income, len(notes_on_income) - 1)
+						End If 
+					End If
 				Loop until ButtonPressed <> no_cancel_button
 				MAXIS_dialog_navigation
 			LOOP until ButtonPressed = next_button
@@ -292,6 +325,14 @@ IF grab_FS_info_checkbox = 1 THEN
 		EMReadScreen FSSM_line_02, 37, 8, 3
 		EMReadScreen FSSM_line_03, 37, 10, 3
 	End if
+END IF
+
+IF tikl_for_ui THEN 
+	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+	two_weeks_from_now = DateAdd("d", 14, date)
+	call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
+	call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
+	PF3 
 END IF
 
 'Writing the case note to MAXIS----------------------------------------------------------------------------------------------------
