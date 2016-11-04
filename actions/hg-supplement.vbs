@@ -171,17 +171,14 @@ If emps_status_error = "EMPS DOES NOT EXIST" then
 	EMWritescreen "_", MAXIS_row, 64
 	EMWritescreen "x", MAXIS_row, 3			'selects the member number to navigate to the MFIP Person Test Results
 	transmit
-	'Checking FAILED reason for newly added population (SSI recipients, undocumented non-citizens with eligible children and DISQ from assistance but still meeting work requirements and time limits)
+	'Checking FAILED reason for newly added population (SSI recipients and undocumented non-citizens with eligible children) 
 	issuance_reason = ""
 	EMReadscreen cit_test_status, 6, 9, 17
 	EMReadscreen SSI_test_status, 6, 9, 52
-	EMReadscreen unit_test_status, 6, 11, 52
 	If cit_test_status = "FAILED" then 
 		issuance_reason = "is an undocumented non-citizen with eligible children"
 	ElseIf SSI_test_status = "FAILED" then 
-		issuance_reason = "receives federal SSI due to disability that prevents work" 
-	ElseIf unit_test_status = "FAILED" then 
-		issuance_reason = "has been disqualified from receiving assistance, and is still meeting work requirements and time limits" 		 
+		issuance_reason = "receives federal SSI due to disability that prevents work" 		 
 	END IF
 	
 	'If no EMPS exclusion exists, or one of the applicable tests are not failed, then case is not elig for HG supplement.
@@ -201,10 +198,12 @@ Call navigate_to_MAXIS_screen("ELIG", "MFBF")
 EMReadScreen MFIP_sanction, 1, MAXIS_row, 68
 If MFIP_sanction = "Y" then	script_end_procedure("A sanction exist for this member. Please check sanction for accuracy, and process manually.")
 
-'checking for FIAT'd version that shows case is elig for the $110 housing grant
-'Call navigate_to_MAXIS_screen("ELIG", "MFSM")
-'EMReadScreen housing_grant_issued, 6, 16, 75
-'IF housing_grant_issued <> "110.00" then script_end_procedure("This case does not have the housing grant issued in the eligibility results. Please review the case for eligibility. You may need to run this case through background. You will need to populate housing grant results prior to issuing the MONY/CHCK.")
+'checking for FIAT'd version that shows case is elig for the $110 housing grant if exmeption is based on eligible emps codes
+If issuance_reason = "" then 
+	Call navigate_to_MAXIS_screen("ELIG", "MFSM")
+	EMReadScreen housing_grant_issued, 6, 16, 75
+	IF housing_grant_issued <> "110.00" then script_end_procedure("This case does not have the housing grant issued in the eligibility results. Please review the case for eligibility. You may need to run this case through background. You will need to populate housing grant results prior to issuing the MONY/CHCK.")
+END IF 
 
 'navigates to MONY/CHCK and inputs codes into 1st screen: MONY/CHCK----------------------------------------------------------------------------------------------------
 back_to_SELF
@@ -247,17 +246,19 @@ If update_TIME_panel_check = "TIME" then
 END IF 
 
 'writes in the manual check reason per the bulletin on the Housing Grant
-EMWriteScreen "You meet one of the exceptions", 13, 18
-EMWriteScreen "listed in CM 13.03.09 for families", 14, 18
-EMWriteScreen "with an adult MFIP unit member(s)", 15, 18
-If emps_status = "02" or emps_status = "07" or emps_status = "12" or emps_status = "23" or emps_status = "27" or emps_status = "15" or emps_status = "18" or emps_status = "30" or emps_status = "33" then
-   	EMWriteScreen "who get Section 8/HUD funded subsidy:", 16, 18
-	EMWriteScreen "Caregivers who are elderly/disabled", 17, 18		'writes in disa/elderly if the codes above are the client's emps_status code
-Else 
-	EMWriteScreen "who get Section 8/HUD funded subsidy:", 16, 18
-	EMWriteScreen "Caregivers caring for a disabled member", 17, 18
-END IF 
-PF4  'sends the restoration letter
+If issuance_reason = "" then 
+	EMWriteScreen "You meet one of the exceptions", 13, 18
+	EMWriteScreen "listed in CM 13.03.09 for families", 14, 18
+	EMWriteScreen "with an adult MFIP unit member(s)", 15, 18
+	If emps_status = "02" or emps_status = "07" or emps_status = "12" or emps_status = "23" or emps_status = "27" or emps_status = "15" or emps_status = "18" or emps_status = "30" or emps_status = "33" then
+   		EMWriteScreen "who get Section 8/HUD funded subsidy:", 16, 18
+		EMWriteScreen "Caregivers who are elderly/disabled", 17, 18		'writes in disa/elderly if the codes above are the client's emps_status code
+	Else 
+		EMWriteScreen "who get Section 8/HUD funded subsidy:", 16, 18
+		EMWriteScreen "Caregivers caring for a disabled member", 17, 18
+	END IF 
+	PF4  'sends the restoration letter
+End if 
 
 'updating emps_status coding for case note
 If emps_status = "02" then 
