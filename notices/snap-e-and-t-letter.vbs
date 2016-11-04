@@ -1149,7 +1149,7 @@ If manual_referral <> "Select one..." then 					'if banked months or student are
 			EMWriteScreen "Y", 11, 64								'Y to confirm save
 			transmit																'confirms saving the referral
 			script_end_procedure("Your orientation letter, manual referral, and a 30 day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
-			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client AND a verification request form.")
+			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client.")
 		Else
 			script_end_procedure("Please select your agency's ES provider, and PF3 to save your referral.")		'if agency is not Hennepin, then user is asked to select the ES provider and save'
 		END IF
