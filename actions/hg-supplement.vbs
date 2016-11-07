@@ -245,7 +245,7 @@ If update_TIME_panel_check = "TIME" then
 	If time_panel_confirmation = vbOK then PF3
 END IF 
 
-'writes in the manual check reason per the bulletin on the Housing Grant
+'writes in the manual check reason per the bulletin on the Housing Grant for emps_exmption reason cases only
 If issuance_reason = "" then 
 	EMWriteScreen "You meet one of the exceptions", 13, 18
 	EMWriteScreen "listed in CM 13.03.09 for families", 14, 18
@@ -258,38 +258,35 @@ If issuance_reason = "" then
 		EMWriteScreen "Caregivers caring for a disabled member", 17, 18
 	END IF 
 	PF4  'sends the restoration letter
-End if 
 
-'updating emps_status coding for case note
-If emps_status = "02" then 
-	emps_status = "Age 60 or older"
-Elseif emps_status = "08" or emps_status = "24" then 
-	emps_status = "Care for Ill/incapacitated family member"
-Elseif emps_status = "07" or emps_status = "23" then 
-	emps_status = "Ill/incapacitated > 30 days" 
-ElseIf emps_status = "12" or emps_status = "27" then 
-	emps_status = "Special medical criteria"
-ElseIf emps_status = "15" or emps_status = "30" then 
-	emps_status = "Mentally Ill"
-ElseIf emps_status = "18" or emps_status = "33" then 
-	emps_status = "SSI/RSDI pending"
-Else 
-	emps_status = "Other reason"
-END IF
-
-'Case noting the MONY/CHCK info
-Call start_a_blank_case_note
-Call write_variable_in_case_note("**MONY/CHCK ISSUED FOR HOUSING GRANT for " & initial_month & "/" & initial_year& "**")
-If issuance_reason <> "" then 
-	Call write_variable_in_case_note("* Member " & member_number & " meets expanded criteria to receive the housing grant as " & issuance_reason & ".")
-Elseif emps_status = "Other reason" then 
-	Call write_variable_in_case_note("* Member " & member_number & " meets criteria to receive the housing grant.")
-Else
-	Call write_variable_in_case_note("* Housing grant issued due to family meeting an exemption per CM.13.03.09.")
-	Call write_variable_in_case_note("* Member " & member_number & " exemption is: " & emps_status & ".")
+    'updating emps_status coding for case note
+    If emps_status = "02" then 
+    	emps_status = "Age 60 or older"
+    Elseif emps_status = "08" or emps_status = "24" then 
+    	emps_status = "Care for Ill/incapacitated family member"
+    Elseif emps_status = "07" or emps_status = "23" then 
+    	emps_status = "Ill/incapacitated > 30 days" 
+    ElseIf emps_status = "12" or emps_status = "27" then 
+    	emps_status = "Special medical criteria"
+    ElseIf emps_status = "15" or emps_status = "30" then 
+    	emps_status = "Mentally Ill"
+    ElseIf emps_status = "18" or emps_status = "33" then 
+    	emps_status = "SSI/RSDI pending"
+    Else 
+    	emps_status = "Other reason"
+    END IF
+    
+    'Case noting the MONY/CHCK info
+    Call start_a_blank_case_note
+    Call write_variable_in_case_note("**MONY/CHCK ISSUED FOR HOUSING GRANT for " & initial_month & "/" & initial_year& "**")
+    if emps_status = "Other reason" then 
+    	Call write_variable_in_case_note("* Member " & member_number & " meets criteria to receive the housing grant.")
+    Else
+    	Call write_variable_in_case_note("* Housing grant issued due to family meeting an exemption per CM.13.03.09.")
+    	Call write_variable_in_case_note("* Member " & member_number & " exemption is: " & emps_status & ".")
+    END IF 
+    Call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+    Call write_variable_in_case_note("--")
+    Call write_variable_in_case_note(worker_signature)
 END IF 
-Call write_bullet_and_variable_in_case_note("Other notes", other_notes)
-Call write_variable_in_case_note("--")
-Call write_variable_in_case_note(worker_signature)
-
 script_end_procedure("Success! A MONY/CHCK has been issued. Please review the case to ensure that all housing grant issuances have been made.")
