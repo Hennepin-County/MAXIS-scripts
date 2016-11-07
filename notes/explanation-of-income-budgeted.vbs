@@ -56,6 +56,8 @@ BeginDialog explanation_of_income_budgeted_dialog, 0, 0, 306, 370, "Explanation 
   EditBox 75, 95, 220, 15, self_employment_income
   EditBox 75, 115, 220, 15, unea_income
   EditBox 120, 140, 175, 15, overtime_explanation
+  ButtonGroup ButtonPressed
+    PushButton 5, 185, 110, 10, "Explanation Of Income Budgeted", income_button
   EditBox 120, 180, 175, 15, explanation_of_income
   EditBox 120, 200, 175, 15, income_not_budgeted_and_why
   DropListBox 120, 220, 175, 15, "Select one..."+chr(9)+"Paystubs"+chr(9)+"Employer's Statement"+chr(9)+"Other (Specified Under 'Other Notes on verifications')", type_of_verification_used
@@ -85,7 +87,7 @@ BeginDialog explanation_of_income_budgeted_dialog, 0, 0, 306, 370, "Explanation 
   Text 15, 330, 65, 10, "certification period."
   Text 10, 80, 55, 10, "Earned income:"
   GroupBox 5, 65, 295, 70, "Income in this section reflects the income in MAXIS for the selected footer month/year."
-  Text 5, 185, 110, 10, "Explanation Of Income Budgeted:"
+  Text 195, 45, 110, 10, "Explanation Of Income Budgeted:"
   Text 5, 245, 105, 10, "Other notes on verfications:"
   Text 10, 100, 60, 10, "Self-Employment:"
   Text 5, 225, 85, 10, "Type Of Verification Used:"
@@ -93,6 +95,23 @@ BeginDialog explanation_of_income_budgeted_dialog, 0, 0, 306, 370, "Explanation 
   Text 5, 145, 110, 10, "Overtime income explanation:"
   GroupBox 5, 5, 110, 30, "Income panel navigation:"
   Text 5, 160, 300, 20, "If Overtime was included on any income verification, detail which job, if it was budgeted or excluded, and why."
+EndDialog
+
+BeginDialog income_notes_dialog, 0, 0, 351, 185, "Explanation of Income"
+  CheckBox 10, 30, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
+  CheckBox 10, 45, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
+  CheckBox 10, 70, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
+  CheckBox 10, 85, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
+  CheckBox 10, 100, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
+  CheckBox 10, 115, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
+  CheckBox 10, 130, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
+  CheckBox 45, 140, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
+  CheckBox 10, 155, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
+  ButtonGroup ButtonPressed
+    PushButton 240, 165, 50, 15, "Insert", add_to_notes_button
+    CancelButton 295, 165, 50, 15
+  Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
+  Text 45, 55, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------
@@ -143,20 +162,35 @@ End IF
 DO
 	Do
 		Do
-		  err_msg = ""
-			  Do
-				  Dialog explanation_of_income_budgeted_dialog
-				  cancel_confirmation
-				  MAXIS_dialog_navigation
-			  Loop until ButtonPressed = -1     'Looping until OK button is pressed
-		  If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		  If IsDate(date_calculated) = FALSE then err_msg = err_msg & vbNewLine & "* Enter the date income was calculated."
-		  If explanation_of_income = "" then err_msg = err_msg & vbNewLine & "* Explain the income that is being budgeted."
-		  If type_of_verification_used = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select the type verification used."
-		  If time_period_used = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select the time period of the income used."
-		  If (type_of_verification_used = "Other (Specified Under 'Other Notes on verifications')" AND other_notes_verifs = "") then err_msg = err_msg & vbNewLine & "* You must explain the type of verification used in the ""other notes on verifications"" field."
-		  If (time_period_used = "Other (Specified Under 'Other Notes on income')" AND other_notes_on_income = "") then err_msg = err_msg & vbNewLine & "* You must explain the time period of income used in the ""other notes on income"" field."
-		  IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			err_msg = ""
+			Do
+				Dialog explanation_of_income_budgeted_dialog
+				cancel_confirmation
+				MAXIS_dialog_navigation
+				If ButtonPressed = income_button Then 
+				  	Dialog income_notes_dialog
+					If ButtonPressed = add_to_notes_button Then 
+						If jobs_anticipated_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client expects all income from jobs to continue at this amount."
+						If new_jobs_checkbox = checked Then explanation_of_income = explanation_of_income & "; This is a new job and actual check stubs have not been received, advised client to provide proof once pay is received if the income received differs significantly."
+						If busi_anticipated_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client expects all income from self employment to continue at this amount."
+						If busi_method_agree_checkbox = checked Then explanation_of_income = explanation_of_income & "; Explained to client the self employment budgeting methods and client agreed to the method used."
+						If rbic_anticipated_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client expects roomer/boarder income to continue at this amount."
+						If unea_anticipated_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client expects unearned income to continue at this amount."
+						If ui_pending_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client has applied for Unemployment Income recently but request is still pending, will need to be reviewed soon for changes."
+						If tikl_for_ui = checked Then explanation_of_income = explanation_of_income & " TIKL set to request an update on Unemployment Income."
+						If no_income_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client has reported they have no income and do not expect any changes to this at this time."
+						If left(explanation_of_income, 1) = ";" Then explanation_of_income = right(explanation_of_income, len(explanation_of_income) - 1)
+					End If 
+				End If
+			Loop until ButtonPressed = -1     'Looping until OK button is pressed
+			If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+			If IsDate(date_calculated) = FALSE then err_msg = err_msg & vbNewLine & "* Enter the date income was calculated."
+			If explanation_of_income = "" then err_msg = err_msg & vbNewLine & "* Explain the income that is being budgeted."
+			If type_of_verification_used = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select the type verification used."
+			If time_period_used = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select the time period of the income used."
+			If (type_of_verification_used = "Other (Specified Under 'Other Notes on verifications')" AND other_notes_verifs = "") then err_msg = err_msg & vbNewLine & "* You must explain the type of verification used in the ""other notes on verifications"" field."
+			If (time_period_used = "Other (Specified Under 'Other Notes on income')" AND other_notes_on_income = "") then err_msg = err_msg & vbNewLine & "* You must explain the time period of income used in the ""other notes on income"" field."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP until err_msg = ""
 		IF self_employment_income <> "" AND Self_employment_message_shown <> TRUE Then  'If self employment information is added to the dialog but was not autofilled from the BUSI panel, the information about Self Employment Policy
 			Self_Emp_Info = MsgBox ("Your case has self employment income on it." & vbNewLine & vbNewLine & "Please be aware of the following:" & vbNewLine & "* Self Employment income can be budgeted using 2 different methods:" & vbNewLine & "     (01) 50% of Gross Income" & vbNewLine & "     (02) Taxable Income - per taxes less than 12 months old" & _
@@ -169,7 +203,13 @@ DO
 	Call check_for_password(are_we_passworded_out) 'Handling for Maxis v6
 LOOP UNTIL are_we_passworded_out = false
 
-
+IF tikl_for_ui THEN 
+	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+	two_weeks_from_now = DateAdd("d", 14, date)
+	call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
+	call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
+	PF3 
+END IF
 
 'cleaning up the variables for the case note
 If type_of_verification_used = "Other (Specified Under 'Other Notes on verifications')" then type_of_verification_used = "Other verification"

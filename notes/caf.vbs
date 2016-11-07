@@ -127,7 +127,7 @@ EndDialog
 BeginDialog CAF_dialog_02, 0, 0, 451, 305, "CAF dialog part 2"
   EditBox 70, 55, 370, 15, earned_income
   EditBox 80, 75, 360, 15, unearned_income
-  EditBox 110, 95, 330, 15, notes_on_income
+  EditBox 115, 95, 325, 15, notes_on_income
   EditBox 85, 115, 355, 15, income_changes
   EditBox 160, 135, 280, 15, is_any_work_temporary
   EditBox 65, 160, 375, 15, notes_on_abawd
@@ -156,6 +156,7 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 305, "CAF dialog part 2"
     PushButton 335, 25, 45, 10, "next panel", next_panel_button
     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 10, 100, 100, 10, "Notes on Income and Budget", income_notes_button
     PushButton 10, 120, 70, 10, "STWK/inc. changes:", STWK_button
     PushButton 5, 165, 60, 10, "ABAWD/WREG:", WREG_button
     PushButton 5, 185, 25, 10, "SHEL/", SHEL_button
@@ -173,7 +174,6 @@ BeginDialog CAF_dialog_02, 0, 0, 451, 305, "CAF dialog part 2"
   GroupBox 330, 5, 115, 35, "STAT-based navigation"
   Text 15, 60, 55, 10, "Earned income:"
   Text 15, 80, 60, 10, "Unearned income:"
-  Text 10, 100, 100, 10, "Notes on income and budget:"
   Text 10, 140, 150, 10, "Is any work temporary? If so, explain details:"
   Text 5, 270, 50, 10, "Verifs needed:"
   GroupBox 5, 5, 130, 25, "ELIG panels:"
@@ -248,6 +248,23 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
   ButtonGroup ButtonPressed
     PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
     PushButton 215, 90, 25, 10, "BILS:", BILS_button
+EndDialog
+
+BeginDialog income_notes_dialog, 0, 0, 351, 185, "Explanation of Income"
+  CheckBox 10, 30, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
+  CheckBox 10, 45, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
+  CheckBox 10, 70, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
+  CheckBox 10, 85, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
+  CheckBox 10, 100, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
+  CheckBox 10, 115, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
+  CheckBox 10, 130, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
+  CheckBox 45, 140, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
+  CheckBox 10, 155, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
+  ButtonGroup ButtonPressed
+    PushButton 240, 165, 50, 15, "Insert", add_to_notes_button
+    CancelButton 295, 165, 50, 15
+  Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
+  Text 45, 55, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -363,6 +380,21 @@ Do
 					Dialog CAF_dialog_02			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+					If ButtonPressed = income_notes_button Then 
+						Dialog income_notes_dialog
+						If ButtonPressed = add_to_notes_button Then 
+							If jobs_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from jobs to continue at this amount."
+							If new_jobs_checkbox = checked Then notes_on_income = notes_on_income & "; This is a new job and actual check stubs have not been received, advised client to provide proof once pay is received if the income received differs significantly."
+							If busi_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from self employment to continue at this amount."
+							If busi_method_agree_checkbox = checked Then notes_on_income = notes_on_income & "; Explained to client the self employment budgeting methods and client agreed to the method used."
+							If rbic_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects roomer/boarder income to continue at this amount."
+							If unea_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects unearned income to continue at this amount."
+							If ui_pending_checkbox = checked Then notes_on_income = notes_on_income & "; Client has applied for Unemployment Income recently but request is still pending, will need to be reviewed soon for changes."
+							If tikl_for_ui = checked Then notes_on_income = notes_on_income & " TIKL set to request an update on Unemployment Income."
+							If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; Client has reported they have no income and do not expect any changes to this at this time."
+							If left(notes_on_income, 1) = ";" Then notes_on_income = right(notes_on_income, len(notes_on_income) - 1)
+						End If 
+					End If
 					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN err_msg = "Income for this case was found in MAXIS. Please complete the 'notes on income and budget' field."
 					If err_msg <> "" THEN Msgbox err_msg
 				Loop until ButtonPressed = (next_to_page_03_button AND err_msg = "") or (ButtonPressed = previous_to_page_01_button AND err_msg = "")		'If you press either the next or previous button, this loop ends
@@ -469,6 +501,14 @@ IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month
 	transmit
 	PF3
 END IF	
+
+IF tikl_for_ui THEN 
+	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+	two_weeks_from_now = DateAdd("d", 14, date)
+	call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
+	call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
+	PF3 
+END IF
 '--------------------END OF TIKL BUSINESS
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
