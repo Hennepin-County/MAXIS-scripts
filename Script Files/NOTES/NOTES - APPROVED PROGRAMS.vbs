@@ -289,10 +289,8 @@ IF SNAP_banked_mo_check = checked THEN
 				tikl_month_mm = left(month_to_tikl,2)
 				tikl_month_yy = right(month_to_tikl,2)
 				tikl_date = tikl_month_mm & "/01/20" & tikl_month_yy
-				IF cdate(tikl_date) > date THEN
+				IF cdate(tikl_date) > date THEN 'We can only enter TIKL's for tomorrow or later
 					navigate_to_MAXIS_screen "DAIL", "WRIT"
-
-					MsgBox tikl_date'We can only enter TIKL's for tomorrow or later
 					EMWriteScreen tikl_month_mm, 5, 18
 					EMWriteScreen "01", 5, 21
 					EMWriteScreen tikl_month_yy, 5, 24
