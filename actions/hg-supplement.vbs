@@ -192,7 +192,7 @@ END IF
 
 'If the error code exist it means that there is no EMPS code, and the recipient needs to be evaluated as meeting 
 If emps_status_error = "EMPS DOES NOT EXIST" then 
-	'msgbox "EMPS does not exist"
+	msgbox "EMPS does not exist"
 	EMWritescreen "_", MAXIS_row, 64
 	EMWritescreen "x", MAXIS_row, 3			'selects the member number to navigate to the MFIP Person Test Results
 	transmit
@@ -206,7 +206,7 @@ If emps_status_error = "EMPS DOES NOT EXIST" then
 		issuance_reason = "receives federal SSI due to disability that prevents work" 		 
 	END IF
 	
-	'msgbox "issuance reason" & issuance_reason
+	msgbox "issuance reason" & issuance_reason
 	
 	'If no EMPS exclusion exists, or one of the applicable tests are not failed, then case is not elig for HG supplement.
 	If issuance_reason = "" then script_end_procedure("Case does not meet criteria for a Housing Grant supplement. Please review the case for accuracy.")
@@ -219,7 +219,7 @@ If emps_status_error = "EMPS DOES NOT EXIST" then
 	Redim MFIP_member_array(3, 0)
 	'constants for array
 	const member_code 		= 0
-	const adult_code		= 1
+	const adult_child_code		= 1
 	const cash_code 		= 2
 	const state_food_code 	= 3 
 	
@@ -236,7 +236,7 @@ If emps_status_error = "EMPS DOES NOT EXIST" then
 		Else
 			add_to_array = False 
 		End if 
-		'msgbox ref_num & vbcr & member_elig_status & vbcr & add_to_array
+		msgbox ref_num & vbcr & member_elig_status & vbcr & add_to_array
 		If add_to_array = True then 	
 			ReDim Preserve MFIP_member_array(3,  entry_record)	'This resizes the array based on the number of members being added to the array
 			MFIP_member_array (member_code,      entry_record) = ref_num			'The client information is added to the array
@@ -250,12 +250,45 @@ If emps_status_error = "EMPS DOES NOT EXIST" then
 		END IF 
 	LOOP until MAXIS_row = 19		
 	
+	'ensures that number_eligible_members is a two-digit number
+	number_eligible_members = "0" & number_eligible_members
+	number_eligible_members = right(number_eligible_members, 2)
+	msgbox "# of eligible members: " & number_eligible_members
+	
+	'goes into CASE/PERS and grabs the adult_child_code to be inputted into the MONY/CHCK
+	Call navigate_to_MAXIS_screen("CASE", "PERS") 	
+	For item = 0 to Ubound(MFIP_member_array, 2)
+		MAXIS_row = 10
+		Do
+			EMReadScreen pers_ref_number, 2, MAXIS_row, 3
+			IF trim(pers_ref_number) = "" then exit do
+			IF MFIP_member_array(member_code, item) = pers_ref_number then
+				EMReadScreen relationship_status, 10, MAXIS_row + 1, 18 
+				IF 	trim(relationship_status) = "Child" or _ 
+					trim(relationship_status) = "Step Child" or _
+					trim(relationship_status) = "Grandchild" or _
+					trim(relationship_status) = "Niece" or _
+					trim(relationship_status) = "Nephew" then 
+					relationship_status = "C"
+				else 
+					relationship_status = "A"
+				END IF 
+				MFIP_member_array (adult_child_code, item) = relationship_status 'The client information is added to the array
+				exit do	
+			Else 
+				MAXIS_row = MAXIS_row + 3
+				If MAXIS_row = 19 then 
+					PF8
+					MAXIS_row = 10
+				END if 
+			END if
+			EMReadScreen last_PERS_page, 21, 24, 2
+		LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
+		msgbox pers_ref_number & " " & relationship_status
+	Next
+	'Cannot navigate directly to ELIG/MFBF, 
+	Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 END IF 	
-
-'ensures that number_eligible_members is a two-digit number
-number_eligible_members = "0" & number_eligible_members
-number_eligible_members = right(number_eligible_members, 2)
-'msgbox "# of eligible members: " & number_eligible_members
 
 Call navigate_to_MAXIS_screen("ELIG", "MFBF")
 If issuance_reason = "" then 
@@ -274,11 +307,9 @@ Else
 			EMReadScreen reference_number, 2, MAXIS_row, 3
 			IF trim(reference_number) = "" then exit do
 			IF MFIP_member_array(member_code, item) = reference_number then 
-				EMReadScreen adult_child, 1, MAXIS_row, 27
 				EMReadScreen cash, 	 1, MAXIS_row, 37
 				EMReadScreen state_food,  1, MAXIS_row, 54
-				msgbox reference_number & vbcr & adult_child & vbcr & cash & vbcr & state_food
-				'ReDim Preserve MFIP_member_array(3,   entry_record)	'This resizes the array based on the number of members being added to the array
+				msgbox reference_number & vbcr & member_code & vbcr & cash & vbcr & state_food
 				MFIP_member_array (cash_code,    	item) = cash
 				MFIP_member_array (state_food_code, item) = state_food
 				exit do
@@ -291,7 +322,6 @@ Else
 			END IF 
 		LOOP until trim(reference_number) = ""
 	NEXT
-
 END IF 
 
 'navigates to MONY/CHCK and inputs codes into 1st screen: MONY/CHCK----------------------------------------------------------------------------------------------------
@@ -319,10 +349,10 @@ If issuance_reason <> "" then
 	MAXIS_row = 10
 	For item = 0 to UBound(MFIP_member_array, 2)
 		'writing in each member's member, adult/child, cash and state food codes from ELIG
-		EMWriteScreen MFIP_member_array(member_code,	item), MAXIS_row, 6
-		EMWriteScreen MFIP_member_array(adult_code, 	item), MAXIS_row, 14
-		EMWriteScreen MFIP_member_array(cash_code, 		item), MAXIS_row, 23
-		EMWriteScreen MFIP_member_array(state_food_code,item), MAXIS_row, 33
+		EMWriteScreen MFIP_member_array(member_code,		item), MAXIS_row, 6
+		EMWriteScreen MFIP_member_array(adult_child_code, 	item), MAXIS_row, 14
+		EMWriteScreen MFIP_member_array(cash_code, 			item), MAXIS_row, 23
+		EMWriteScreen MFIP_member_array(state_food_code,	item), MAXIS_row, 33
 		MAXIS_row = MAXIS_row + 1 
 		msgbox "new member added: " & MAXIS_row
 	NEXT 		
@@ -333,11 +363,11 @@ Else
 	EMWriteScreen state_portion, 10, 33
 END IF 
 EMwritescreen "110.00", 10, 53			'enters the housing grant amount
-transmit
-EMReadScreen extra_error_check, 7, 17, 4			'double-checking that a duplicate issuance has not been made
-
 msgbox "checking MFIP issuance detail with HH members added. Stop script will occur once message box is closed."
 stopscript
+
+transmit
+EMReadScreen extra_error_check, 7, 17, 4			'double-checking that a duplicate issuance has not been made
 
 IF extra_error_check = "HOUSING" then script_end_procedure ("Housing grant may have already been issued. Please recheck your case, and try again.")
 EMWriteScreen "N", 15, 52	'N to REI issuance per instruction from DHS
