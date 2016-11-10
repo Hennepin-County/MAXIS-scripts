@@ -122,6 +122,13 @@ script_array_BULK_main(script_num).description				= "Case notes all cases on DAI
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
 Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name				= "Drug Felon list"
+script_array_BULK_main(script_num).file_name				= "drug-felon-list.vbs"
+script_array_BULK_main(script_num).description				= "Reviews the Drug Felon list from DHS to update these cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)			'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_main(script_num).script_name				= "INAC Scrubber"
 script_array_BULK_main(script_num).file_name				= "inac-scrubber.vbs"
 script_array_BULK_main(script_num).description				= "Checks cases on REPT/INAC (for criteria see SIR) case notes if passes criteria, and transfers if agency uses closed-file worker number. "
