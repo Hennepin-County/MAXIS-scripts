@@ -332,6 +332,10 @@ EMWritescreen initial_month, 20, 43			'enters footer month/year user selected si
 EMWritescreen initial_year, 20, 46
 
 Call navigate_to_MAXIS_screen("MONY", "CHCK")
+'error handling if a worker does not have access to a specific case.
+EMReadscreen auth_error, 8, 24, 2
+If auth_error = "YOUR ARE" then script_end_procedure("You are not authoriszed to issue a MONY/CHCK on this case. The script will now end.")
+ 
 EMWriteScreen "MF", 5, 17		'enters mandatory codes per HG instruction
 EMWriteScreen "MF", 5, 21		'enters mandatory codes per HG instruction
 EMWriteScreen "31", 5, 32		'restored payment code per the HG bulletin
