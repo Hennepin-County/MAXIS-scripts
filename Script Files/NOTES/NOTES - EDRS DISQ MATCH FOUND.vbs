@@ -1,3 +1,5 @@
+msgbox "If you are seeing this we have made a mistake."
+
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - EDRS DISQ MATCH FOUND.vbs"
 start_time = timer
