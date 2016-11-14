@@ -376,8 +376,8 @@ END IF
 EMwritescreen "110.00", 10, 53			'enters the housing grant amount
 
 'This is here temporarily until testing is completed. Testers will need to PF3 to exit the MONY/CHCK function, then MONY/CHCK's will not be sent to recipients.  
-msgbox "All eligible members and MEMB 01 added and Hg issuance ready. Stop script will occur once message box is closed."
-stopscript
+'msgbox "All eligible members and MEMB 01 added and Hg issuance ready. Stop script will occur once message box is closed."
+'stopscript
 
 transmit
 EMReadScreen extra_error_check, 7, 17, 4			'double-checking that a duplicate issuance has not been made
@@ -393,7 +393,7 @@ transmit 'transmits twice to get to the restoration of benefits screen
 EMReadScreen update_TIME_panel_check, 4, 14, 32
 If update_TIME_panel_check = "TIME" then 
 	transmit
-	time_panel_confirmation = MsgBox("You must update the time panel for " & initial_month & "/" & initial_year & ". Please update the TIME panel, or PF10 if it does not need to be updated, and press OK when complete.", vbOk, "Update the TIME panel")
+	time_panel_confirmation = MsgBox("You must update the time panel for " & initial_month & "/" & initial_year & ". Please update the TIME panel if applicable, and press OK when complete.", vbOk, "Update the TIME panel")
 	DO
 		EMReadScreen time_panel_complete_check, 7, 24, 2 
 	LOOP until time_panel_check <> "NO DATA"
