@@ -605,8 +605,6 @@ If update_PIC_check = 1 then
 	If document_datestamp <> "" then call write_bullet_and_variable_in_CASE_NOTE("Paystubs received date", document_datestamp)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
-	PF3
-	PF3
 End if
 
 If case_note_check = 1 then
@@ -625,8 +623,6 @@ If case_note_check = 1 then
 	If document_datestamp <> "" then call write_bullet_and_variable_in_CASE_NOTE("Paystubs received date", document_datestamp)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
-	PF3
-	PF3
 End if
 
 IF number_of_paystubs > 5 THEN
