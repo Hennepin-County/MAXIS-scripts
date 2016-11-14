@@ -1,4 +1,4 @@
-msgbox "If you're seeing this we have made an error"
+msgbox "If you are seeing this message please notify Charles Potter at Charles.D.Potter@state.mn.us"
 
 'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - SEND SVES.vbs"
