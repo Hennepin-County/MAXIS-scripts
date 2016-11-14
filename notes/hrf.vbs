@@ -48,9 +48,10 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   EditBox 65, 25, 30, 15, MAXIS_footer_month
   EditBox 140, 25, 30, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
-  CheckBox 55, 60, 35, 10, "SNAP", SNAP_check
-  CheckBox 100, 60, 30, 10, "HC", HC_check
-  CheckBox 140, 60, 30, 10, "GA", GA_check
+  CheckBox 45, 60, 30, 10, "SNAP", SNAP_check
+  CheckBox 85, 60, 20, 10, "HC", HC_check
+  CheckBox 115, 60, 20, 10, "GA", GA_check
+  CheckBox 145, 60, 50, 10, "MSA", MSA_check
   ButtonGroup ButtonPressed
     OkButton 35, 80, 50, 15
     CancelButton 95, 80, 50, 15
@@ -59,6 +60,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   Text 110, 30, 25, 10, "Year:"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
+
 
 BeginDialog HRF_dialog, 0, 0, 451, 270, "HRF dialog"
   EditBox 65, 30, 50, 15, HRF_datestamp
@@ -243,6 +245,7 @@ If MFIP_check = 1 Then programs_list = "MFIP "
 If SNAP_check = 1 Then programs_list = programs_list & "SNAP "
 If HC_check = 1 Then programs_list = programs_list & "HC "
 If GA_check = 1 Then programs_list = programs_list & "GA "
+If MSA_check = 1 Then programs_list = programs_list & "MSA "
 
 'Enters the case note-----------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
