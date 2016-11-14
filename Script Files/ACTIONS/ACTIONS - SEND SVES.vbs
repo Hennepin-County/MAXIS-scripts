@@ -1,3 +1,5 @@
+msgbox "If you're seeing this we have made an error"
+
 'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - SEND SVES.vbs"
 start_time = timer
