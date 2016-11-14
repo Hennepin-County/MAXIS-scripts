@@ -1,4 +1,4 @@
-msgbox "If you are seeing this we have made a mistake."
+msgbox "If you are seeing this message please notify Charles Potter at Charles.D.Potter@state.mn.us"
 
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - EDRS DISQ MATCH FOUND.vbs"
