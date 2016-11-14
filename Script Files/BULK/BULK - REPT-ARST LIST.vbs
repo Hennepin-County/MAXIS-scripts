@@ -1,3 +1,5 @@
+msgbox "If you are seeing this message please notify Charles Potter at Charles.D.Potter@state.mn.us"
+
 'PLEASE NOTE: this script was designed to run off of the BULK - pull data into Excel script.
 'As such, it might not work if ran separately from that.
 
