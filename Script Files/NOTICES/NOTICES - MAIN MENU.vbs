@@ -10,11 +10,8 @@ ELSE
 End If 
 
 'LOADING SCRIPT
-IF use_master_branch = TRUE THEN
-	script_URL = script_repository & "notices/main-menu.vbs"
-ELSE
-	script_URL = script_repository & "NOTICES/NOTICES - MAIN MENU.vbs"
-END IF
+script_URL = script_repository & "notices/main-menu.vbs"
+
 IF run_locally = False THEN
 	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
 	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
