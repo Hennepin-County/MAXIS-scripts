@@ -5,7 +5,7 @@ ELSE
 	IF use_master_branch = TRUE THEN
 		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/"									'Resets to release settings
 	ELSE
-		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
+		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/"
 	END IF
 End If 
 
