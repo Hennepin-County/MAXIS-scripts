@@ -50,7 +50,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
   CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
   CheckBox 45, 60, 30, 10, "SNAP", SNAP_check
   CheckBox 85, 60, 20, 10, "HC", HC_check
-  CheckBox 115, 60, 20, 10, "GA", GA_check
+  CheckBox 115, 60, 25, 10, "GA", GA_check
   CheckBox 145, 60, 50, 10, "MSA", MSA_check
   ButtonGroup ButtonPressed
     OkButton 35, 80, 50, 15
