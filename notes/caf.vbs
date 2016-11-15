@@ -1,3 +1,4 @@
+
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - CAF.vbs"
 start_time = timer
@@ -377,6 +378,7 @@ Do
 			Do
 				Do
 					err_msg = ""
+					income_note_error_msg = ""
 					Dialog CAF_dialog_02			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
@@ -395,7 +397,7 @@ Do
 							If left(notes_on_income, 1) = ";" Then notes_on_income = right(notes_on_income, len(notes_on_income) - 1)
 						End If 
 					End If
-					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN err_msg = "Income for this case was found in MAXIS. Please complete the 'notes on income and budget' field."
+					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN income_note_error_msg = True 
 					If err_msg <> "" THEN Msgbox err_msg
 				Loop until ButtonPressed = (next_to_page_03_button AND err_msg = "") or (ButtonPressed = previous_to_page_01_button AND err_msg = "")		'If you press either the next or previous button, this loop ends
 				If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
@@ -406,6 +408,7 @@ Do
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 					If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
 					If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
+					If income_note_error_msg = True THEN err_msg = err_msg & VbCr & "Income for this case was found in MAXIS. Please complete the 'notes on income and budget' field."
 					If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
 					If CAF_status = " " THEN err_msg = err_msg & vbCr & "Please select a CAF Status."
 					If err_msg <> "" THEN Msgbox err_msg
@@ -522,7 +525,10 @@ If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & CAF_status & "***")
-IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+IF move_verifs_needed = TRUE THEN 
+	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+	CALL write_variable_in_CASE_NOTE("------------------------------")
+End if 
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF datestamp", CAF_datestamp)
 If Used_Interpreter_checkbox = checked then 
 	CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " w/ interpreter")	
