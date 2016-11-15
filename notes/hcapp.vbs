@@ -331,6 +331,7 @@ End if
 start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***HCAPP received " & HCAPP_datestamp & ": " & HCAPP_status & "***")
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+IF move_verifs_needed = TRUE THEN CALL write_variable_in_case_note("---")                                                       'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll add a line separator.
 CALL write_bullet_and_variable_in_CASE_NOTE("HCAPP type", HCAPP_type)
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
