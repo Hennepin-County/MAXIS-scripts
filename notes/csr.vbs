@@ -338,6 +338,8 @@ END IF
 'Writing the case note to MAXIS----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 call write_variable_in_case_note("***" & CSR_month & " CSR received " & CSR_datestamp & ": " & CSR_status & "***")
+IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+IF move_verifs_needed = TRUE THEN CALL write_variable_in_case_note("---")                               	                'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll add a line separator.
 call write_bullet_and_variable_in_case_note("Programs recertifying", programs_recertifying)
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
@@ -357,7 +359,7 @@ call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
 If MADE_checkbox = checked then call write_variable_in_case_note("* Emailed MADE through DHS-SIR.")
-call write_variable_in_case_note("---")
+IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 If grab_FS_info_checkbox = 1 AND FSPR_check = "FSPR" then
 	call write_variable_in_case_note("   " & FSSM_line_01)
 	call write_variable_in_case_note("   " & FSSM_line_02)
