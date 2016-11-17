@@ -195,6 +195,7 @@ LOOP UNTIL are_we_passworded_out = false
 call start_a_blank_case_note
 CALL write_variable_in_case_note("***" & recert_month & " HC ER received " & recert_datestamp & ": " & recert_status & "***")
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+IF move_verifs_needed = TRUE THEN CALL write_variable_in_case_note("---")                                                       'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll add a line separator.
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
