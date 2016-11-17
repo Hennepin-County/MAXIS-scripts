@@ -194,6 +194,17 @@ END IF
 'If no EMPS exclusion exists, or one of the applicable tests are not failed, then case is not elig for HG supplement.
 If issuance_reason = "" then script_end_procedure("Case does not meet criteria for a Housing Grant supplement. Please review the case for accuracy.")
 
+transmit  'Transmits to exit the MFIP Person Test Results back to MFPR
+Call navigate_to_MAXIS_screen("ELIG", "MFBF")
+'ensures the user is indeed on MFBF otherwise the array will not be filled and the script will suffer from an epic fail
+DO 
+	EMReadScreen MFBF_check, 4, 3, 47
+	If MFBF_check <> "MFBF" then 
+		EMWriteScreen "MFBF", 20, 71
+		transmit
+	END IF 
+LOOP until MFBF_check = "MFBF"
+
 'establishes values for variables and declaring the arrays for newly added population cases
 number_eligible_members = 0
 entry_record = 0
@@ -207,43 +218,49 @@ const adult_child_code	= 1
 const cash_code 		= 2
 const state_food_code 	= 3 
 
-transmit  'Transmits to exit the MFIP Person Test Results back to MFPR
-MAXIS_row = 7	'establishing the row to start searching at MEMB 01
+'Gathers information for the array (member code, adult_child_code, cash_code, state_food_code)
+MAXIS_row = 7	'establishing the row to start searching for members
 DO 
 	add_to_array = ""
-	EMReadscreen ref_num, 2, MAXIS_row, 6		'searching for member number
+	EMReadscreen ref_num, 2, MAXIS_row, 3		'searching for member number
 	If ref_num = "  " then exit do				'exits do if member number matches
-	EMReadScreen member_elig_status, 10, MAXIS_row, 53
+	EMReadScreen member_elig_status, 1, MAXIS_row, 27
 	'Adding members to array to gather information for the MONY/CHCK (member number, adult vs child, cash and state food coding)
-	If ref_num = "01" then 
+	If ref_num = member_number then 
 		add_to_array = True						'MEMB 01 needs to be added to MONY/CHCK weather they are eligible or not
-	Elseif trim(member_elig_status) = "ELIGIBLE" then 
+	Elseif trim(member_elig_status) = "A" then 
 		add_to_array = True						'all eligible HH members need to be added to MONY/CHCK
 	Else
 		add_to_array = False 					'Anyone who is not MEMB 01 or is INELIGIBLE is not added to the array 
 	End if 
 	
-	msgbox ref_num & vbcr & member_elig_status & vbcr & add_to_array
-	
 	If add_to_array = True then 	
-		ReDim Preserve MFIP_member_array(3,  entry_record)	'This resizes the array based on the number of members being added to the array
-		MFIP_member_array (member_code,      entry_record) = ref_num			'The client member # is added to the array
+		EMReadScreen cash, 	 1, MAXIS_row, 37		'reads cash and state_food coding
+		EMReadScreen state_food,  1, MAXIS_row, 54
+		
+		ReDim Preserve MFIP_member_array(3,  entry_record)				'This resizes the array based on the number of members being added to the array
+		MFIP_member_array (member_code,      entry_record) = ref_num	'The client member # is added to the array
+		MFIP_member_array (cash_code,    	 entry_record) = cash		'inputs the cash code into the array
+		MFIP_member_array (state_food_code,  entry_record) = state_food	'inputs the state food code into the array
+			
 		entry_record = entry_record + 1
-		If trim(member_elig_status) = "ELIGIBLE" then number_eligible_members = number_eligible_members + 1	'adds up the total number of eligible members to be inputted into MONY/CHCK
+		If trim(member_elig_status) = "A" then number_eligible_members = number_eligible_members + 1	'adds up the total number of eligible members to be inputted into MONY/CHCK
 	END IF 	
+	
+	msgbox "ref number: " & ref_num & vbcr & "eligible status: " & member_elig_status & vbcr & "add to array: " & add_to_array & vbcr & "cash: " & cash & vbcr & "state food: " & state_food	
+	
 	MAXIS_row = MAXIS_row + 1	'otherwise it searches again on the next row 	
-	If MAXIS_row = 19 then 
+	If MAXIS_row = 16 then 
 		PF8
-		MAXIS_row = 7
 	END IF 
-LOOP until MAXIS_row = 19		
+LOOP until trim(ref_num) = ""	
 
 'ensures that number_eligible_members is a two-digit number to be inputted into MONY/CHCK
 number_eligible_members = "0" & number_eligible_members
 number_eligible_members = right(number_eligible_members, 2)
 
 msgbox "# of eligible members: " & number_eligible_members
-
+ 
 'goes into CASE/PERS and grabs the adult_child_code to be inputted into the MONY/CHCK
 Call navigate_to_MAXIS_screen("CASE", "PERS") 	
 For item = 0 to Ubound(MFIP_member_array, 2)
@@ -275,33 +292,6 @@ For item = 0 to Ubound(MFIP_member_array, 2)
 	LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
 	msgbox pers_ref_number & " " & relationship_status
 Next
-	
-'Cannot navigate directly to ELIG/MFBF, so needs to go back to ELIG/MFIP 1st
-Call navigate_to_MAXIS_screen("ELIG", "MFIP")
-Call navigate_to_MAXIS_screen("ELIG", "MFBF")
-
-'get the hh member information for member 01 and all eligible HH member_elig_status
-For item = 0 to UBound(MFIP_member_array, 2)
-	MAXIS_row = 7
-	DO 
-		EMReadScreen reference_number, 2, MAXIS_row, 3
-		IF trim(reference_number) = "" then exit do
-		IF MFIP_member_array(member_code, item) = reference_number then 	
-			EMReadScreen cash, 	 1, MAXIS_row, 37		'reads cash and state_food coding
-			EMReadScreen state_food,  1, MAXIS_row, 54
-			msgbox reference_number & vbcr & cash & vbcr & state_food
-			MFIP_member_array (cash_code,    	item) = cash		'inputs the cash and state_food codes into the array for each member
-			MFIP_member_array (state_food_code, item) = state_food
-			exit do
-		Else 
- 			MAXIS_row = MAXIS_row + 1
-			If MAXIS_row = 16 then 
-				PF8					'changes MAXIS row if more than one page exists
-				MAXIS_row = 7
-			END IF
-		END IF 
-	LOOP until trim(reference_number) = ""
-NEXT
  
 'MONY/CHCK----------------------------------------------------------------------------------------------------
 'navigates to MONY/CHCK and inputs codes into 1st screen: 
@@ -350,9 +340,14 @@ EMwritescreen "110.00", 10, 53			'enters the housing grant amount
 transmit
 EMReadScreen extra_error_check, 7, 17, 4			'double-checking that a duplicate issuance has not been made
 IF extra_error_check = "HOUSING" then script_end_procedure ("Housing grant may have already been issued. Please recheck your case, and try again.")
-
-EMWriteScreen "N", 15, 52	'N to REI issuance per instruction from DHS
-transmit
+EMReadscreen REI_issue, 3, 15, 6
+msgbox REI_issue
+If REI_issue = "REI" then 
+	EMWriteScreen "N", 15, 52	'N to REI issuance per instruction from DHS
+Else 
+	transmit
+END IF 
+Transmit
 EMWriteScreen "Y", 15, 29	'Y to confirm approval
 transmit
 transmit 'transmits twice to get to the restoration of benefits screen
@@ -361,7 +356,8 @@ transmit 'transmits twice to get to the restoration of benefits screen
 EMReadScreen update_TIME_panel_check, 4, 14, 32
 If update_TIME_panel_check = "TIME" then 
 	transmit
-	IF issuance_reason <> "" then PF3
+	PF10
+	PF3
 END IF  
 PF3
 PF3 	'PF3's twice to NOT send the notice
