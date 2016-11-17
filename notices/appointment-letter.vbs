@@ -287,10 +287,61 @@ BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
   Text 15, 310, 65, 10, "Worker signature:"
 EndDialog
 
+'Case number only dialog for x127 users 
+BeginDialog case_number_dialog, 0, 0, 136, 60, "Case number dialog"
+  EditBox 60, 10, 60, 15, MAXIS_case_number					
+  ButtonGroup ButtonPressed
+    OkButton 15, 35, 50, 15
+    CancelButton 70, 35, 50, 15
+  Text 10, 15, 45, 10, "Case number: "
+EndDialog
+
+'Hennepin County appointment letter
+BeginDialog Hennepin_appt_dialog, 0, 0, 296, 75, "Hennepin County appointment letter"
+  EditBox 205, 25, 55, 15, interview_date
+  EditBox 65, 50, 115, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 185, 50, 50, 15
+    CancelButton 240, 50, 50, 15
+  EditBox 65, 25, 55, 15, CAF_date
+  Text 5, 55, 60, 10, "Worker signature:"
+  Text 140, 30, 60, 10, "Appointment date:"
+  GroupBox 20, 10, 255, 35, "Enter a new appointment date only if it's a date county offiices are not open."
+  Text 30, 30, 35, 10, "CAF date:"
+EndDialog
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone & gathers case number
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
+
+If worker_county_code = "x127" then 
+	Do 
+		Do 
+			err_msg = ""
+			dialog case_number_dialog
+			If ButtonPressed = 0 then stopscript
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		Loop until err_msg = ""
+		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	LOOP UNTIL are_we_passworded_out = false
+	
+	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_date)
+	CAF_date = CAF_date & ""
+	interview_date = dateadd("d", 7, CAF_date) & ""
+	
+	Do
+		Do 
+    		err_msg = ""
+    		dialog Hennepin_appt_dialog
+    		cancel_confirmation
+    		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    	Loop until err_msg = ""
+    	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
+END IF 
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 DO
