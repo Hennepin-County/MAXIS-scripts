@@ -119,7 +119,7 @@ elseif worker_county_code = "x125" then
 elseif worker_county_code = "x126" then
     agency_office_array = array("Grant")
 elseif worker_county_code = "x127" then
-    agency_office_array = array("Century Plaza", "Northwest", "VEAP", "North Hub", "West Suburban Hub")
+    agency_office_array = array("South Minneapolis", "Northwest", "South Suburban", "North Hub", "West", "Central/NE")
 elseif worker_county_code = "x128" then
     agency_office_array = array("Houston")
 elseif worker_county_code = "x129" then
@@ -288,15 +288,9 @@ BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone
+'Connects to BlueZone & gathers case number
 EMConnect ""
-
-'Searches for a case number
 call MAXIS_case_number_finder(MAXIS_case_number)
-'restricting the usage for Hennepin County users
-If worker_county_code = "x127" then script_end_procedure ("The Appointment Letter script is not available to Hennepin users at this time. Contact an alpha user, or your supervisor if you have questions. Thank you.")
-
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 DO
