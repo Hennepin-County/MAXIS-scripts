@@ -165,7 +165,7 @@ BeginDialog paystubs_received_case_number_dialog, 0, 0, 376, 170, "Case number"
   CheckBox 15, 75, 110, 10, "Update and case note the PIC?", update_PIC_check
   CheckBox 15, 90, 75, 10, "Update HC popup?", update_HC_popup_check
   CheckBox 15, 105, 140, 10, "Check here to have the script update all", future_months_check
-  CheckBox 15, 130, 135, 10, "Case note info about paystubs?", case_note_check
+  CheckBox 15, 130, 135, 10, "Case note info about paystubs?", add_case_note_check
   ButtonGroup ButtonPressed
     OkButton 265, 150, 50, 15
     CancelButton 320, 150, 50, 15
@@ -255,12 +255,12 @@ LOOP UNTIL ButtonPressed = -1 AND number_of_paystubs <> "" AND IsNumeric(number_
 
 DO
 	CALL create_paystubs_received_dialog(worker_signature, number_of_paystubs, paystubs_array, explanation_of_income, employer_name, document_datestamp, pay_frequency, JOBS_verif_code)
-	
+
 		'From Robert Fewins-Kalb on 03/31/2016 (because this script is massive and I want to document want what is added, when and why)
 		'Making sure that the script returns to the JOBS panel it is supposed to.
 		'Addition of check_for_password appears to force through a transmit which causes the script to jump ahead 1 JOBS panel
 	CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
-	
+
 	err_msg = ""
 	'Checking dates to make sure all are on the same day of the week, in instances of weekly or biweekly income. This avoids a possible issue
 	'resulting from a paydate being "moved" due to a holiday, and affecting the rest of the calculation for income. If the dates are not all on the
@@ -578,8 +578,7 @@ End if
 
 'Case noting section
 If update_PIC_check = 1 then
-	PF4
-	PF9
+	start_a_blank_CASE_NOTE
 	EMSendKey "~~~SNAP PIC" & HH_memb_for_case_note & ": " & date & "~~~" & "<newline>"
 	EMSendKey PIC_line_02 & "<newline>"
 	EMSendKey PIC_line_03 & "                 " & "<newline>"
@@ -605,13 +604,10 @@ If update_PIC_check = 1 then
 	If document_datestamp <> "" then call write_bullet_and_variable_in_CASE_NOTE("Paystubs received date", document_datestamp)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
-	PF3
-	PF3
 End if
 
-If case_note_check = 1 then
-	PF4
-	PF9
+If add_case_note_check = 1 then
+	start_a_blank_CASE_NOTE
 	EMSendKey "Paystubs Received" & HH_memb_for_case_note & ": updated JOBS w/script" & "<newline>"
 	call write_three_columns_in_case_note(14, "DATE", 29, "AMT", 39, "HOURS")
 	FOR i = 0 TO (number_of_paystubs - 1)
@@ -625,8 +621,6 @@ If case_note_check = 1 then
 	If document_datestamp <> "" then call write_bullet_and_variable_in_CASE_NOTE("Paystubs received date", document_datestamp)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
-	PF3
-	PF3
 End if
 
 IF number_of_paystubs > 5 THEN
