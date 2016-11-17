@@ -347,8 +347,8 @@ Else
 	EMWriteScreen member_number, 7, 27
 End if
 transmit 
-EMReadScreen future_month_check, 7, 24, 2		'ensuring that issuances for current or future months are not being made
-IF future_month_check = "PERIOD" then script_end_procedure("You cannot issue a MONY/CHCK for the current or future month. Approve results in ELIG/MFIP.")	
+EMReadScreen future_month_check, 6, 24, 2		'ensuring that issuances for current or future months are not being made
+IF future_month_check = "REASON" then script_end_procedure("You cannot issue a MONY/CHCK for the current or future month. Approve results in ELIG/MFIP.")	
 
 'now we're on the MFIP issuance detail pop-up screen
 If issuance_reason <> "" then 
@@ -393,11 +393,15 @@ transmit 'transmits twice to get to the restoration of benefits screen
 EMReadScreen update_TIME_panel_check, 4, 14, 32
 If update_TIME_panel_check = "TIME" then 
 	transmit
-	time_panel_confirmation = MsgBox("You must update the time panel for " & initial_month & "/" & initial_year & ". Please update the TIME panel if applicable, and press OK when complete.", vbOk, "Update the TIME panel")
-	DO
-		EMReadScreen time_panel_complete_check, 7, 24, 2 
-	LOOP until time_panel_check <> "NO DATA"
-	If time_panel_confirmation = vbOK then PF3
+	IF issuance_reason <> "" then 
+		PF3
+	Else 
+	    time_panel_confirmation = MsgBox("You must update the time panel for " & initial_month & "/" & initial_year & ". Please update the TIME panel if applicable, and press OK when complete.", vbOk, "Update the TIME panel")
+	    DO
+	    	EMReadScreen time_panel_complete_check, 7, 24, 2 
+	    LOOP until time_panel_check <> "NO DATA"
+	    If time_panel_confirmation = vbOK then PF3
+	END IF 
 END IF 
 
 'writes in the manual check reason per the bulletin on the Housing Grant for emps_exmption reason cases only!
@@ -447,4 +451,19 @@ ELSE
 	PF3 	'PF3's twice to NOT send the notice
 END IF 
 
-script_end_procedure("Success! A MONY/CHCK has been issued. Please review the case to ensure that all housing grant issuances have been made.")
+'Ensuring that issuance made by checking the automated case note 
+back_to_SELF
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+EMWriteScreen "X", 5, 3
+transmit		'Entering the 1st case note which is the case note made by the system automatically after issuance. 
+EMReadScreen payment_month, 2, 5, 28		
+EMReadScreen payment_year, 2, 5, 34
+'Created new variables for confirming issuance 
+payment_date = payment_month & "/" & payment_year
+issuance_month = initial_month & "/" & initial_year
+
+If payment_date <> issuance_month then 
+	script_end_procedure("WARNING!" & vbNewLine & VbnewLine & " Issuance for " & payment_date & " may not have occurred. Please check the case to ensure that issuance has been made.")
+Else 
+	script_end_procedure("Success! A MONY/CHCK has been issued.")
+END IF
