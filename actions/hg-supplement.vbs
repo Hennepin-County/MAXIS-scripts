@@ -442,6 +442,9 @@ If issuance_reason = "" then
     END IF 
     Call write_variable_in_case_note("--")
     Call write_variable_in_case_note(worker_signature)
+ELSE 
+	PF3
+	PF3 	'PF3's twice to NOT send the notice
 END IF 
 
 script_end_procedure("Success! A MONY/CHCK has been issued. Please review the case to ensure that all housing grant issuances have been made.")
