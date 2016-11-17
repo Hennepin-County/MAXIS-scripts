@@ -46,6 +46,9 @@ Call get_county_code	'gets county name to input into the 1st col of the spreadsh
 
 county_name = left(county_name, len(county_name)-7)
 
+
+	
+	
 'Runs the dialog'
 Do
 	Do
@@ -66,6 +69,7 @@ Do
 			Dialog dfln_selection_dialog
 			cancel_confirmation
 			If ButtonPressed = select_a_file_button then 
+				err_msg = err_msg & "REDO"
 				If dfln_list_excel_file_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 					objExcel.Quit 'Closing the Excel file that was opened on the first push'
 					objExcel = "" 	'Blanks out the previous file path'
@@ -74,15 +78,15 @@ Do
 				call file_selection_system_dialog(dfln_list_excel_file_path, ".xlsx") 'allows the user to select the file'
 			End If 
 			If dfln_list_excel_file_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
-			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
+			If err_msg <> "" AND left(err_msg, 4) <> "REDO" Then MsgBox err_msg
+		Loop until err_msg = "" OR left(err_msg, 4) = "REDO"
 		If objExcel = "" Then call excel_open(dfln_list_excel_file_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 		sheet_list = ""
 		For Each objWorkSheet In objWorkbook.Worksheets
 			sheet_list = sheet_list & chr(9) & objWorkSheet.Name
 		Next
-		If worksheet_dropdown = "select one..." then err_msg = err_msg & vbNewLine & "You must select a month that you are running this script for."
-		If err_msg <> "" Then MsgBox err_msg
+		If worksheet_dropdown = "select one..." then err_msg = err_msg & vbNewLine & "Please indicate which worksheet has the DFLN data."
+		If err_msg <> "" AND left(err_msg, 4) <> "REDO" Then MsgBox err_msg
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
@@ -169,9 +173,10 @@ Const worker_nbr = 51
 Const superv_nbr = 52
 
 Const stat_addr = 53
+Const stat_mail = 54
 
 Dim dfln_to_process_array
-ReDim dfln_to_process_array(53, 0)
+ReDim dfln_to_process_array(54, 0)
 
 array_counter = 0
 excel_row = 2
@@ -180,7 +185,7 @@ Do
 	For column = 0 to UBound(col_name_array, 2)
 		If col_name_array(Col_Name, column) = "COUNTIES" Then 
 			If UCase(objExcel.cells(excel_row, col_name_array(Col_Numb, column)).Value) = UCase(county_name) Then
-				ReDim Preserve dfln_to_process_array(53, array_counter)
+				ReDim Preserve dfln_to_process_array(54, array_counter)
 				dfln_to_process_array(row_numb, array_counter) = excel_row
 				array_counter = array_counter + 1
 			End If 
@@ -348,6 +353,20 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 		
 		dfln_to_process_array(stat_addr, person) = stat_addr_1 & "~" & stat_addr_2 & "~" & stat_addr_C & "~" & stat_addr_S & "~" & stat_addr_Z
 		
+		EMReadScreen stat_mail_1, 22, 13, 43
+		stat_mail_1 = replace(stat_mail_1, "_", "")
+		If stat_mail_1 <> "" Then
+			EMReadScreen stat_mail_2, 22, 14, 43
+			EMReadScreen stat_mail_C, 15, 15, 43
+			EMReadScreen stat_mail_S, 2,  16, 43
+			EMReadScreen stat_mail_Z, 7,  16, 52
+			stat_mail_2 = replace(stat_mail_2, "_", "")
+			stat_mail_C = replace(stat_mail_C, "_", "")
+			stat_mail_S = replace(stat_mail_S, "_", "")
+			stat_mail_Z = replace(stat_mail_Z, "_", "")
+			dfln_to_process_array(stat_mail, person) = stat_mail_1 & "~" & stat_mail_2 & "~" & stat_mail_C & "~" & stat_mail_S & "~" & stat_mail_Z
+		End If
+		
 	End If 
 Next
 
@@ -391,85 +410,74 @@ Next
 back_to_self
 
 For person = 0 to Ubound(dfln_to_process_array, 2)
+	MAXIS_case_number = dfln_to_process_array(case_numb, person)
 	Call navigate_to_MAXIS_screen ("STAT", "DFLN")
+	pf9
 	mx_row = 6
 	If dfln_to_process_array(cty_court_01, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_01, person), 6, 41
+		EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
 		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_01, person)), 2)  
 		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_01, person)), 2)
 		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_01, person)), 2)    
-		EMWriteScreen sent_day, 6, 27
-		EMWriteScreen sent_mth, 6, 30
-		EMWriteScreen sent_year, 6, 33
-		EMWriteScreen dfln_to_process_array(state_01, person), 6, 75  
+		EMWriteScreen sent_day, mx_row, 30
+		EMWriteScreen sent_mth, mx_row, 27
+		EMWriteScreen sent_year, mx_row, 33
+		EMWriteScreen dfln_to_process_array(state_01, person), mx_row, 75  
 		mx_row = mx_row + 1
 	End If 	
 	     
 	If dfln_to_process_array(cty_court_02, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_02, person), 6, 41
+		EMWriteScreen dfln_to_process_array(cty_court_02, person), mx_row, 41
 		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_02, person)), 2)  
 		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_02, person)), 2)
 		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_02, person)), 2)    
-		EMWriteScreen sent_day, 6, 27
-		EMWriteScreen sent_mth, 6, 30
-		EMWriteScreen sent_year, 6, 33
+		EMWriteScreen sent_day, mx_row, 30
+		EMWriteScreen sent_mth, mx_row, 27
+		EMWriteScreen sent_year, mx_row, 33
 		EMWriteScreen dfln_to_process_array(state_02, person), 6, 75  
 		mx_row = mx_row + 1
 	End If 	
 	
-	If dfln_to_process_array(cty_court_01, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_01, person), 6, 41
-		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_01, person)), 2)  
-		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_01, person)), 2)
-		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_01, person)), 2)    
-		EMWriteScreen sent_day, 6, 27
-		EMWriteScreen sent_mth, 6, 30
-		EMWriteScreen sent_year, 6, 33
-		EMWriteScreen dfln_to_process_array(state_01, person), 6, 75  
+	If dfln_to_process_array(cty_court_03, person) <> "?" Then 
+		EMWriteScreen dfln_to_process_array(cty_court_03, person), mx_row, 41
+		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_03, person)), 2)  
+		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_03, person)), 2)
+		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_03, person)), 2)    
+		EMWriteScreen sent_day, mx_row, 30
+		EMWriteScreen sent_mth, mx_row, 27
+		EMWriteScreen sent_year, mx_row, 33
+		EMWriteScreen dfln_to_process_array(state_03, person), mx_row, 75  
 		mx_row = mx_row + 1
 	End If 	
-
-	If col_name_array(Col_Name, column) = "COUNTYCOURTDESCRIPTION02" Then dfln_to_process_array(cty_court_02, person) = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "SENTENCEDATE02"           Then dfln_to_process_array(sent_dt_02, person)   = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS1_02"              Then dfln_to_process_array(addr1_02, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS2_02"              Then dfln_to_process_array(addr2_02, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "CITY02"                   Then dfln_to_process_array(city_02, person)      = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "STATE02"                  Then dfln_to_process_array(state_02, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ZIP02"                    Then dfln_to_process_array(zip_02, person)       = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-
-	If col_name_array(Col_Name, column) = "COUNTYCOURTDESCRIPTION03" Then dfln_to_process_array(cty_court_03, person) = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "SENTENCEDATE03"           Then dfln_to_process_array(sent_dt_03, person)   = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS1_03"              Then dfln_to_process_array(addr1_03, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS2_03"              Then dfln_to_process_array(addr2_03, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "CITY03"                   Then dfln_to_process_array(city_03, person)      = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "STATE03"                  Then dfln_to_process_array(state_03, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ZIP03"                    Then dfln_to_process_array(zip_03, person)       = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-
-	If col_name_array(Col_Name, column) = "COUNTYCOURTDESCRIPTION04" Then dfln_to_process_array(cty_court_04, person) = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "SENTENCEDATE04"           Then dfln_to_process_array(sent_dt_04, person)   = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS1_04"              Then dfln_to_process_array(addr1_04, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS2_04"              Then dfln_to_process_array(addr2_04, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "CITY04"                   Then dfln_to_process_array(city_04, person)      = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "STATE04"                  Then dfln_to_process_array(state_04, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ZIP04"                    Then dfln_to_process_array(zip_04, person)       = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-
-	If col_name_array(Col_Name, column) = "COUNTYCOURTDESCRIPTION05" Then dfln_to_process_array(cty_court_05, person) = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "SENTENCEDATE05"           Then dfln_to_process_array(sent_dt_05, person)   = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS1_05"              Then dfln_to_process_array(addr1_05, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS2_05"              Then dfln_to_process_array(addr2_05, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "CITY05"                   Then dfln_to_process_array(city_05, person)      = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "STATE05"                  Then dfln_to_process_array(state_05, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ZIP05"                    Then dfln_to_process_array(zip_05, person)       = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-
-	If col_name_array(Col_Name, column) = "COUNTYCOURTDESCRIPTION06" Then dfln_to_process_array(cty_court_06, person) = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "SENTENCEDATE06"           Then dfln_to_process_array(sent_dt_06, person)   = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS1_06"              Then dfln_to_process_array(addr1_06, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ADDRESS2_06"              Then dfln_to_process_array(addr2_06, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "CITY06"                   Then dfln_to_process_array(city_06, person)      = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "STATE06"                  Then dfln_to_process_array(state_06, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-	If col_name_array(Col_Name, column) = "ZIP06"                    Then dfln_to_process_array(zip_06, person)       = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-
-
+	
+	If dfln_to_process_array(cty_court_04, person) <> "?" Then 
+		EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
+		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_04, person)), 2)  
+		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_04, person)), 2)
+		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_04, person)), 2)    
+		EMWriteScreen sent_day, mx_row, 30
+		EMWriteScreen sent_mth, mx_row, 27
+		EMWriteScreen sent_year, mx_row, 33
+		EMWriteScreen dfln_to_process_array(state_04, person), mx_row, 75  
+		mx_row = mx_row + 1
+	End If 	
+	
+	If dfln_to_process_array(cty_court_05, person) <> "?" Then 
+		EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
+		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_05, person)), 2)  
+		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_05, person)), 2)
+		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_05, person)), 2)    
+		EMWriteScreen sent_day, mx_row, 30
+		EMWriteScreen sent_mth, mx_row, 27
+		EMWriteScreen sent_year, mx_row, 33
+		EMWriteScreen dfln_to_process_array(state_05, person), mx_row, 75  
+		mx_row = mx_row + 1
+	End If 	
+	
+''	MsgBox "Pause"
+	PF10
+''	MsgBox "Undo"
+	back_to_self
 Next
 
 Set objNewExcel = CreateObject("Excel.Application")
@@ -538,6 +546,53 @@ objNewExcel.Cells(1, zip1_col).Font.Bold = True
 stat_addr_col = 19
 objNewExcel.Cells(1, stat_addr_col).Value = "ADDR on STAT"
 objNewExcel.Cells(1, stat_addr_col).Font.Bold = True
+stat_mail_col = 20
+objNewExcel.Cells(1, stat_mail_col).Value = "Mailing ADDR"
+objNewExcel.Cells(1, stat_mail_col).Font.Bold = True
+
+court2_col = 21
+objNewExcel.Cells(1, court2_col).Value = "County Court 2"
+objNewExcel.Cells(1, court2_col).Font.Bold = True
+sntc_dt_2_col = court2_col + 1
+objNewExcel.Cells(1, sntc_dt_2_col).Value = "Sentence Date 2"
+objNewExcel.Cells(1, sntc_dt_2_col).Font.Bold = True
+addr1_02_col = court2_col + 2
+objNewExcel.Cells(1, addr1_02_col).Value = "Address1_02"
+objNewExcel.Cells(1, addr1_02_col).Font.Bold = True
+addr2_02_col = court2_col + 3
+objNewExcel.Cells(1, addr2_02_col).Value = "Address2_02"
+objNewExcel.Cells(1, addr2_02_col).Font.Bold = True
+city2_col = court2_col + 4
+objNewExcel.Cells(1, city2_col).Value = "City 2"
+objNewExcel.Cells(1, city2_col).Font.Bold = True
+state2_col = court2_col + 5
+objNewExcel.Cells(1, state2_col).Value = "State 2"
+objNewExcel.Cells(1, state2_col).Font.Bold = True
+zip2_col = court2_col + 6
+objNewExcel.Cells(1, zip2_col).Value = "Zip 2"
+objNewExcel.Cells(1, zip2_col).Font.Bold = True
+
+court3_col = 28
+objNewExcel.Cells(1, court3_col).Value = "County Court 3"
+objNewExcel.Cells(1, court3_col).Font.Bold = True
+sntc_dt_3_col = court3_col + 1
+objNewExcel.Cells(1, sntc_dt_3_col).Value = "Sentence Date 3"
+objNewExcel.Cells(1, sntc_dt_3_col).Font.Bold = True
+addr1_03_col = court3_col + 2
+objNewExcel.Cells(1, addr1_03_col).Value = "Address1_03"
+objNewExcel.Cells(1, addr1_03_col).Font.Bold = True
+addr2_03_col = court3_col + 3
+objNewExcel.Cells(1, addr2_03_col).Value = "Address2_03"
+objNewExcel.Cells(1, addr2_03_col).Font.Bold = True
+city3_col = court3_col + 4
+objNewExcel.Cells(1, city3_col).Value = "City 3"
+objNewExcel.Cells(1, city3_col).Font.Bold = True
+state3_col = court3_col + 5
+objNewExcel.Cells(1, state3_col).Value = "State 3"
+objNewExcel.Cells(1, state3_col).Font.Bold = True
+zip3_col = court3_col + 6
+objNewExcel.Cells(1, zip3_col).Value = "Zip 3"
+objNewExcel.Cells(1, zip3_col).Font.Bold = True
 
 excel_row = 2
 
@@ -569,9 +624,80 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 		address_entry = stat_addr_array(0) & " " & stat_addr_array(1) & " " & stat_addr_array(2) & ", " & stat_addr_array(3) & " " & stat_addr_array(4)
 		objNewExcel.Cells(excel_row, stat_addr_col).Value = address_entry
 	End If 
+	If dfln_to_process_array(stat_mail, person) <> "" Then 
+		stat_mail_array = split(dfln_to_process_array(stat_mail, person), "~")
+		mailing_entry = stat_mail_array(0) & " " & stat_mail_array(1) & " " & stat_mail_array(2) & ", " & stat_mail_array(3) & " " & stat_mail_array(4)
+		objNewExcel.Cells(excel_row, stat_mail_col).Value = mailing_entry
+	End If 
+	
+	objNewExcel.Cells(excel_row, court2_col).Value = dfln_to_process_array(cty_court_02, person) 
+	objNewExcel.Cells(excel_row, sntc_dt_2_col).Value = dfln_to_process_array(sent_dt_02, person)   
+	objNewExcel.Cells(excel_row, addr1_02_col).Value = dfln_to_process_array(addr1_02, person)  
+	objNewExcel.Cells(excel_row, addr2_02_col).Value = dfln_to_process_array(addr2_02, person)    
+	objNewExcel.Cells(excel_row, city2_col).Value = dfln_to_process_array(city_02, person)   
+	objNewExcel.Cells(excel_row, state2_col).Value = dfln_to_process_array(state_02, person)   
+	objNewExcel.Cells(excel_row, zip2_col).Value = dfln_to_process_array(zip_02, person) 
+	
+	objNewExcel.Cells(excel_row, court3_col).Value = dfln_to_process_array(cty_court_03, person) 
+	objNewExcel.Cells(excel_row, sntc_dt_3_col).Value = dfln_to_process_array(sent_dt_03, person)   
+	objNewExcel.Cells(excel_row, addr1_03_col).Value = dfln_to_process_array(addr1_03, person)  
+	objNewExcel.Cells(excel_row, addr2_03_col).Value = dfln_to_process_array(addr2_03, person)    
+	objNewExcel.Cells(excel_row, city3_col).Value = dfln_to_process_array(city_03, person)   
+	objNewExcel.Cells(excel_row, state3_col).Value = dfln_to_process_array(state_03, person)   
+	objNewExcel.Cells(excel_row, zip3_col).Value = dfln_to_process_array(zip_03, person) 
+	
 	excel_row = excel_row + 1
 Next
-For col_to_autofit = 1 to 19
+For col_to_autofit = 1 to 34
 	ObjNewExcel.columns(col_to_autofit).AutoFit()
 Next
 'objNewExcel.columns(4).columnwidth = 850
+
+Set objWord = CreateObject("Word.Application")
+'Const wdDialogFilePrint = 88
+'Const end_of_doc = 6
+objWord.Caption = "DFLN Mailing Labels"
+objWord.Visible = True
+objWord.Documents.Add
+objWord.MailingLabel.CreateNewDocument "30 Per Page"
+
+'Set oApp = CreateObject("Word.Application")
+'CreateDataDoc oApp
+
+'Set oDoc = oApp.Documents.Add
+'With oDoc.MailMerge
+  ' Add our fields.
+''  .Fields.Add oApp.Selection.Range, "clt_name"
+''  oApp.Selection.TypeText " "
+''  .Fields.Add oApp.Selection.Range, "addr1"
+''  oApp.Selection.TypeParagraph
+''  .Fields.Add oApp.Selection.Range, "addr2"
+''  oApp.Selection.TypeParagraph
+''  .Fields.Add oApp.Selection.Range, "city"
+''  oApp.Selection.TypeText ", "
+''  .Fields.Add oApp.Selection.Range, "state"
+''  oApp.Selection.TypeParagraph
+''  .Fields.Add oApp.Selection.Range, "zip"
+''  oApp.Selection.TypeParagraph'
+		 
+  ' Create an autotext entry.
+''  Dim oAutoText
+''  Set oAutoText = oApp.NormalTemplate.AutoTextEntries.Add _
+ '' ("MyLabelLayout", oDoc.Content)
+ '' oDoc.Content.Delete
+ '' .MainDocumentType = 1  ' 1 = wdMailingLabels
+	   
+  ' Open the saved data source.
+''  .OpenDataSource "C:\data.doc"
+
+  ' Create a new document.
+''  oApp.MailingLabel.CreateNewDocument "5160", "", _
+''	   "MyLabelLayout", , 4  ' 4 = wdPrinterManualFeed
+
+''  .Destination = 0  ' 0 = wdSendToNewDocument
+  ' Execute the mail merge.
+''  .Execute
+
+''  oAutoText.Delete
+'End With
+
