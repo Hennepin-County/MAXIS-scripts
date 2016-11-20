@@ -327,11 +327,14 @@ If worker_county_code = "x127" then
 		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false
 
+	'grabs CAF date, turns CAF date into string for variable
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_date)	
 	CAF_date = CAF_date & ""
 	
+	'creates interview date for 7 calendar days from the CAF date 
 	interview_date = dateadd("d", 7, CAF_date) 
 	If interview_date < date then interview_date = dateadd("d", 7, date)
+	interview_date = interview_date & ""		'turns interview date into string for variable
 
 	'Establishing values for variables that do not appear in the x127 dialog
 	app_type = "new application"
