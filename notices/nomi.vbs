@@ -74,9 +74,9 @@ BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 105, "SNAP ER NOMI dialog"
 EndDialog
 
 BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
-  EditBox 95, 5, 55, 15, application_date
-  EditBox 95, 25, 55, 15, interview_date
-  EditBox 95, 45, 55, 15, interview_time
+  EditBox 95, 5, 70, 15, application_date
+  EditBox 95, 25, 70, 15, interview_date
+  EditBox 95, 45, 70, 15, interview_time
   EditBox 95, 65, 160, 15, contact_attempts
   EditBox 70, 85, 75, 15, worker_signature
   CheckBox 10, 110, 205, 10, "Check here to have the script update PND2 for client delay.", client_delay_check
@@ -158,7 +158,11 @@ If recert_checkbox = 1 then
 
 	'Writes the info into the MEMO.
 	Call write_variable_in_SPEC_MEMO("************************************************************")
-	Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & interview_date & " at " & interview_time & ".")
+	If interview_time = "" Then
+		Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & interview_date & ".")
+	Else 
+		Call write_variable_in_SPEC_MEMO("You have missed your Food Support interview that was scheduled for " & interview_date & " at " & interview_time & ".")
+	End if 
 	Call write_variable_in_SPEC_MEMO(" ")
 	Call write_variable_in_SPEC_MEMO("Please contact your worker at the telephone number listed below to reschedule the required Food Support interview.")
 	Call write_variable_in_SPEC_MEMO(" ")
