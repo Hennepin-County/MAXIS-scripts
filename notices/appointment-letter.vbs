@@ -967,6 +967,9 @@ IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_are
 IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 transmit                                                        'Transmits to start the memo writing process
 
+'Created new variable for MEMO/CASE NOTE/TIKL
+interview_info = interview_date & " " & interview_time
+
 'Writes the MEMO.
 call write_variable_in_SPEC_MEMO("***********************************************************")
 IF app_type = "new application" then
@@ -980,9 +983,9 @@ Elseif app_type = "recertification" then
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then    'Phone interviews have a different verbiage than any other interview type
-    call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & ".")
+    call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_info & ".")
 Else
-    call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
+    call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_info & ".")
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then
@@ -1016,8 +1019,7 @@ PF4
 'TIKLing to remind the worker to send NOMI if appointment is missed
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(interview_date, 0, 5, 18)
-Call write_variable_in_TIKL("~*~*~CLIENT WAS SENT AN APPT LETTER FOR INTERVIEW ON " & interview_date & " AT " & interview_time & ". IF MISSED SEND NOMI.")
-msgbox ""
+Call write_variable_in_TIKL("~*~*~CLIENT WAS SENT AN APPT LETTER FOR INTERVIEW ON " & interview_info & ". IF MISSED SEND NOMI.")
 transmit
 PF3
 
