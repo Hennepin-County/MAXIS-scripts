@@ -47,28 +47,34 @@ last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to m
 get_county_code
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 120, "SNAP ER NOMI dialog"
-  EditBox 85, 5, 55, 15, MAXIS_case_number
-  EditBox 85, 25, 55, 15, interview_date
-  EditBox 225, 25, 55, 15, interview_time
-  EditBox 100, 45, 55, 15, last_day_for_recert
-  EditBox 100, 70, 180, 15, contact_attempts
-  EditBox 70, 95, 100, 15, worker_signature
+BeginDialog case_number_dialog, 0, 0, 206, 65, "Case number dialog"
+  EditBox 100, 10, 55, 15, MAXIS_case_number					
+  CheckBox 5, 30, 195, 10, "Check here if missed interview is for SNAP/MFIP renewal.", recert_checkbox
   ButtonGroup ButtonPressed
-    OkButton 175, 95, 50, 15
-    CancelButton 230, 95, 50, 15
-  Text 5, 75, 85, 10, "Attempts to contact client:"
-  Text 35, 10, 45, 10, "Case number:"
-  Text 160, 50, 115, 10, "(Usually the last day of the month)"
-  Text 145, 30, 75, 10, "Missed interview time:"
-  Text 5, 50, 95, 10, "Recert must be complete by:"
-  Text 10, 30, 75, 10, "Missed interview date:"
-  Text 5, 100, 60, 10, "Worker signature:"
+    OkButton 55, 45, 50, 15
+    CancelButton 110, 45, 50, 15
+  Text 50, 15, 45, 10, "Case number: "
+EndDialog
+
+BeginDialog SNAP_ER_NOMI_dialog, 0, 0, 286, 105, "SNAP ER NOMI dialog"
+  EditBox 85, 10, 55, 15, interview_date
+  EditBox 225, 10, 55, 15, interview_time
+  EditBox 100, 30, 55, 15, last_day_for_recert
+  EditBox 100, 55, 180, 15, contact_attempts
+  EditBox 70, 80, 100, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 175, 80, 50, 15
+    CancelButton 230, 80, 50, 15
+  Text 5, 60, 85, 10, "Attempts to contact client:"
+  Text 160, 35, 115, 10, "(Usually the last day of the month)"
+  Text 145, 15, 75, 10, "Missed interview time:"
+  Text 5, 35, 95, 10, "Recert must be complete by:"
+  Text 10, 15, 75, 10, "Missed interview date:"
+  Text 5, 85, 60, 10, "Worker signature:"
 EndDialog
 
 BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
-  EditBox 55, 5, 55, 15, MAXIS_case_number
-  EditBox 200, 5, 55, 15, application_date
+  EditBox 95, 5, 55, 15, application_date
   EditBox 95, 25, 55, 15, interview_date
   EditBox 95, 45, 55, 15, interview_time
   EditBox 95, 65, 160, 15, contact_attempts
@@ -79,10 +85,9 @@ BeginDialog NOMI_dialog, 0, 0, 261, 125, "NOMI Dialog"
     CancelButton 205, 85, 50, 15
   Text 5, 30, 85, 10, "Date of missed interview:"
   Text 5, 50, 85, 10, "Time of missed interview:"
-  Text 140, 10, 55, 10, "Application date:"
+  Text 35, 10, 55, 10, "Application date:"
   Text 5, 90, 65, 10, "Worker signature:"
   Text 5, 70, 85, 10, "Attempts to contact client:"
-  Text 5, 10, 50, 10, "Case number:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -90,24 +95,25 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-'sets interview time and creates string for variable for Hennepin County recipients
-If worker_county_code = "x127" then 
-	interview_time = "9:00 AM - 1:00 PM"
-	interview_time = interview_time & ""
-END IF
+Do 
+	Do 
+		err_msg = ""
+		dialog case_number_dialog
+		If ButtonPressed = 0 then stopscript
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	Loop until err_msg = ""
+call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
-'Asks if this is a recert (a recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add programs.)
-recert_check = MsgBox("Is this a missed SNAP recertification interview?", vbYesNoCancel, "Recertification for SNAP?")
-If recert_check = vbCancel then stopscript		'This is the cancel button on a MsgBox
-If recert_check = vbYes then 'This is the "yes" button on a MsgBox
-	'Sets appointment time for Hennepin County receipients
+'If user selected the renewal checkbox, then the SPEC/MEMO for renewals will be sent. 
+If recert_checkbox = 1 then 
 	DO 
 		DO								
 			Err_msg = ""
 			Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
 			cancel_confirmation
-			If interview_time = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+			If worker_county_code <> "x127" and interview_time = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
 			If isdate(interview_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
@@ -176,8 +182,18 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
 'If this is not a recert, then APPLICATION verbiage and options are available
-Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
+Else 
 	back_to_self
+	'sets interview time and creates string for variable for Hennepin County recipients
+	If worker_county_code = "x127" then 
+		interview_time = "9:00 AM - 1:00 PM"
+		interview_time = interview_time & ""
+	END IF
+	
+	'grabs CAF date, turns CAF date into string for variable
+	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)	
+	application_date = application_date & ""
+		
 	'Shows dialog, checks for password prompt
 	DO 
 		DO					'dialog for all other users
@@ -185,7 +201,6 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 			Dialog NOMI_dialog
 			cancel_confirmation
 			If interview_time = "" then err_msg = err_msg & vbNewLine & "* Select the time of the missed interview."
-			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 			If isdate(interview_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date of missed interview."
 			If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Enter a date the recert must be completed by."
 			If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* You did not enter a valid application date. Please try again."
