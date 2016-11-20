@@ -1013,6 +1013,14 @@ call write_variable_in_SPEC_MEMO("**********************************************
 'Exits the MEMO
 PF4
 
+'TIKLing to remind the worker to send NOMI if appointment is missed
+CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+CALL create_MAXIS_friendly_date(interview_date, 0, 5, 18)
+Call write_variable_in_TIKL("~*~*~CLIENT WAS SENT AN APPT LETTER FOR INTERVIEW ON " & interview_date & " AT " & interview_time & ". IF MISSED SEND NOMI.")
+msgbox ""
+transmit
+PF3
+
 'Navigates to CASE/NOTE and starts a blank one
 start_a_blank_CASE_NOTE
 
@@ -1046,6 +1054,7 @@ Else
 End if
 call write_bullet_and_variable_in_CASE_NOTE("Client phone", client_phone)
 call write_variable_in_CASE_NOTE("* Client must complete interview by " & last_contact_day & ".")
+call write_variable_in_CASE_NOTE("* A TIKL has been made for the interview date to follow-up on the application's progress.")
 If voicemail_check = checked then call write_variable_in_CASE_NOTE("* Left client a voicemail requesting a call back.")
 If forms_to_arep = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")              'Defined above
 If forms_to_swkr = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")     'Defined above
