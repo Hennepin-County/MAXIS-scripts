@@ -96,7 +96,14 @@ EMSendKey "x"
 transmit
 
 'Reading date and time of recertification appointment from the TIKL--DAIL message that should be read is: "~*~*~CLIENT HAD RECERT INTERVIEW APPT AT..." This is the part that is static in the DAIL message
-EMReadScreen interview_date_time, 19, 9, 46    'reads "MM/DD/YYYY HH:MM PM" (or any combination less) off of dail messate
+EMReadScreen TIKL_content, 16, 9, 17
+If TIKL_content = "WAS SENT AN APPT" then
+	EMReadScreen interview_info, 19, 10, 5
+Else 
+	EMReadScreen interview_info, 19, 9, 46    'reads "MM/DD/YYYY HH:MM PM" (or any combination less) off of dail messate
+End if 
+
+'searching for case number
 row  = 1
 col = 1
 EMSearch "Case Number: ", row, col
@@ -108,6 +115,19 @@ PF3 			'removes the TIKL window
 EMSendKey "n"
 transmit
 
+'Formatting the interview info to autofill into the NOMI
+interview_info = trim(interview_info)                    	'trimming the interview info information
+If instr(interview_info, " ") then    					 	'Most cases have both interview date and interview time. This seperates them.
+	length = len(interview_info)                           	'establishing the length of the variable   
+	position = InStr(interview_info, " ")                  	'sets the position at the deliminator (in this case a space)
+	interview_date = Left(interview_info, position-1)       'establishes the interview date as being before the deliminator
+	If worker_county_code = "x127" then 
+		interview_time = "9:00 AM - 1:00 PM"				'Hennepin county has custom times for interviews 
+	Else 
+		interview_time = Right(interview_info, length-position) 'establishes interview time as after before the deliminator
+	END IF
+End If
+
 'Msgbox asking the user misssed their interview
 interview_confirm = MsgBox("Has an interview been completed for this case?", vbYesNoCancel + vbQuestion, "Interview confirmation")
 If interview_confirm = vbCancel then stopscript
@@ -115,8 +135,7 @@ If interview_confirm = vbYes then  			'returns user back to DAIL/DAIL and stops 
 	PF3 	
 	script_end_procedure("Success! A NOMI is not required if the interview has been completed." & vbNewLine & "Please review the case for completion if necessary.")
 ELSEIF interview_confirm = vbNo then 		'interview was not completed 
-
-    Do 
+	Do 
     	Do 
     		err_msg = ""
     		dialog case_number_dialog
