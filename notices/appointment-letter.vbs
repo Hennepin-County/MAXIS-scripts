@@ -306,7 +306,7 @@ BeginDialog Hennepin_appt_dialog, 0, 0, 296, 75, "Hennepin County appointment le
   EditBox 65, 25, 55, 15, CAF_date
   Text 5, 55, 60, 10, "Worker signature:"
   Text 140, 30, 60, 10, "Appointment date:"
-  GroupBox 20, 10, 255, 35, "Enter a new appointment date only if it's a date county offiices are not open."
+  GroupBox 20, 10, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
   Text 30, 30, 35, 10, "CAF date:"
 EndDialog
 
@@ -326,57 +326,53 @@ If worker_county_code = "x127" then
 		Loop until err_msg = ""
 		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false
-	
-	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_date)
+
+	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_date)	
 	CAF_date = CAF_date & ""
-	interview_date = dateadd("d", 7, CAF_date) & ""
+	
+	interview_date = dateadd("d", 7, CAF_date) 
+	If interview_date < date then interview_date = dateadd("d", 7, date)
+
+	'Establishing values for variables that do not appear in the x127 dialog
+	app_type = "new application"
+	interview_location = "PHONE" 
+	interview_time = "9:00 AM - 1:00 PM"
 	
 	Do
 		Do 
     		err_msg = ""
     		dialog Hennepin_appt_dialog
     		cancel_confirmation
+			If isdate(CAF_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid CAF date."
     		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     	Loop until err_msg = ""
     	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
+Else 
+	'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
+	Do 
+		Do
+			err_msg = ""
+			Dialog appointment_letter_dialog
+			If ButtonPressed = cancel then stopscript
+			If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You must fill in a valid case number. Please try again."
+			CAF_date = replace(CAF_date, ".", "/")
+			If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
+			If no_CAF_check = unchecked and isdate(CAF_date) = False then err_msg = err_msg & vbnewline & "* You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."                    
+	    	If interview_location = "Select one..." then err_msg = err_msg & vbnewline & "* You must select an interview location! Please try again!"
+	    	If interview_location = "PHONE" and client_phone = "" then err_msg = err_msg & vbnewline & "* If this is a phone interview, you must enter a phone number! Please try again."
+	    	interview_date = replace(interview_date, ".", "/")
+	    	If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* You did not enter a valid interview date (MM/DD/YYYY format). Please try again."
+	    	If interview_time = "" then err_msg = err_msg & vbnewline & "* You must type an interview time. Please try again."
+	    	If no_CAF_check = checked then exit do 'If no CAF was turned in, this layer of validation is unnecessary, so the script will skip it.
+	    	If expedited_check = checked and datediff("d", CAF_date, interview_date) > 6 and expedited_explanation = "" then err_msg = err_msg & vbnewline & "* You have indicated that your case is expedited, but scheduled the interview date outside of the six-day window. An explanation of why is required for QC purposes."
+			If worker_signature = "" then err_msg = err_msg & vbnewline & "* You must provide a signature for your case note."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		Loop until err_msg = ""	
+		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	LOOP UNTIL are_we_passworded_out = false
 END IF 
-
-'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
-DO
-	Do
-	    Do
-	        Do
-	            Do
-	                Do
-	                    Do
-	                        Do
-	                            Do
-	                                Dialog appointment_letter_dialog
-	                                If ButtonPressed = cancel then stopscript
-	                                If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must fill in a valid case number. Please try again."
-	                            Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-	                            CAF_date = replace(CAF_date, ".", "/")
-	                            If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
-	                            If no_CAF_check = unchecked and isdate(CAF_date) = False then Msgbox "You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
-	                        Loop until no_CAF_check = checked or isdate(CAF_date) = True
-	                        if interview_location = "Select one..." then MsgBox "You must select an interview location! Please try again!"
-	                    Loop until interview_location <> "Select one..."
-	                    if interview_location = "PHONE" and client_phone = "" then MsgBox "If this is a phone interview, you must enter a phone number! Please try again."
-	                Loop until interview_location <> "PHONE" or (interview_location = "PHONE" and client_phone <> "")
-	                interview_date = replace(interview_date, ".", "/")
-	                If isdate(interview_date) = False then MsgBox "You did not enter a valid interview date (MM/DD/YYYY format). Please try again."
-	            Loop until isdate(interview_date) = True
-	            If interview_time = "" then MsgBox "You must type an interview time. Please try again."
-	        Loop until interview_time <> ""
-	        If no_CAF_check = checked then exit do 'If no CAF was turned in, this layer of validation is unnecessary, so the script will skip it.
-	        If expedited_check = checked and datediff("d", CAF_date, interview_date) > 6 and expedited_explanation = "" then MsgBox "You have indicated that your case is expedited, but scheduled the interview date outside of the six-day window. An explanation of why is required for QC purposes."
-	    Loop until expedited_check = unchecked or (datediff("d", CAF_date, interview_date) <= 6) or (datediff("d", CAF_date, interview_date) > 6 and expedited_explanation <> "")
-	    If worker_signature = "" then MsgBox "You must provide a signature for your case note."
-	Loop until worker_signature <> ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
 
 'Creates a variable to contain the agency addresses. "Address" is a class defined above.
 set agency_address = new address
@@ -987,9 +983,14 @@ Else
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then
-    call write_variable_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".")
-    call write_variable_in_SPEC_MEMO("")
-    call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call your worker.")
+	if worker_county_code = "x127" then 	'This is for Hennepin County only, x127 recipients/applicants will be calling into the agency using the EZ info number
+		Call write_variable_in_SPEC_MEMO("Please call 612-596-1300 to complete your phone interview.")
+		call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call the EZ Info Line.")
+	Else 
+		call write_variable_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".")
+		call write_variable_in_SPEC_MEMO("")
+    	call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call your worker.")
+	END IF 
 Else
     call write_variable_in_SPEC_MEMO("Your interview is at the " & interview_location & " Office, located at:")
     for each line in agency_address.twolines		'"twolines" is an array, so this will write each line in.
@@ -1013,10 +1014,9 @@ PF4
 start_a_blank_CASE_NOTE
 
 'Writes the case note--------------------------------------------
-
 'If it's rescheduled, that header should engage. Otherwise, it uses separate headers for new apps and recerts.
 If reschedule_check = checked then
-    call write_variable_in_CASE_NOTE("**Client requested rescheduled appointment, appt letter sent in MEMO.**")
+    call write_variable_in_CASE_NOTE("**Client requested rescheduled appointment, appt letter sent in MEMO**")
 ElseIf app_type = "new application" then
     call write_variable_in_CASE_NOTE("**New CAF received " & CAF_date & ", appt letter sent in MEMO**")
 ElseIf app_type = "recertification" then
@@ -1033,7 +1033,11 @@ call write_bullet_and_variable_in_CASE_NOTE("Appointment date", interview_date)
 call write_bullet_and_variable_in_CASE_NOTE("Appointment time", interview_time)
 call write_bullet_and_variable_in_CASE_NOTE("Why interview is more than six days from now", expedited_explanation)
 IF interview_location = "PHONE" then
-	call write_variable_in_CASE_NOTE("* Interview will take place by telephone.")
+	If worker_county_code = "x127" then 	'text for case note for x127 users 
+		call write_variable_in_CASE_NOTE("* Client will call the EZ info line to complete interview.")	
+	Else 
+		call write_variable_in_CASE_NOTE("* Interview will take place by telephone.")
+	End if 
 Else
 	call write_bullet_and_variable_in_CASE_NOTE("Appointment location", interview_location)
 End if
