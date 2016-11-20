@@ -241,6 +241,30 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 			client_delay_check = 0
 		End if
 	End if
+	
+    'date variables for the TIKL
+    check_date = dateadd("d", 21, application_date)
+    pending_sixty_days_date = dateadd("d", 60, application_date)
+    ten_day_date = dateadd("d", 10, date)
+    
+	'Sets TIKL 
+    call navigate_to_MAXIS_screen("DAIL", "WRIT")
+    IF date =< check_date then
+    	days_pending = "30 days"
+    	call create_MAXIS_friendly_date(application_date, 31, 5, 18)	'sets a 30 day pending TIKL if the date if at least 10 days exists between the NOMI sent and pending day 30 
+    ELSEif pending_sixty_days_date =< date then
+    	call create_MAXIS_friendly_date(date, 10, 5, 18)				'sets a 10 day TIKL if the current date is over or equal to 60 days 
+    	days_pending = "another 10 days"
+    ELSEif pending_sixty_days_date < ten_day_date then
+    	call create_MAXIS_friendly_date(date, 10, 5, 18)				'sets a 10 day TIKL if the application period is pending between 51-60 days, allowing for 10 day notice to client 
+    	days_pending = "60 days allowing for 10 day notice"
+    else 
+    	call create_MAXIS_friendly_date(application_date, 61, 5, 18)	'otherwise a pending day 60 TIKL is set
+    	days_pending = "60 days"
+    END IF
+    Call write_variable_in_TIKL("A NOMI was sent & case has been pending for " & days_pending & ". Check case notes to see if interview has been completed. Deny the case if the client has not completed the interview.")
+    transmit
+    PF3
 	 	
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
@@ -253,9 +277,10 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 	Call write_bullet_and_variable_in_CASE_NOTE("Attempts to contact the client", contact_attempts)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other information", other_info)
 	CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
+	call write_variable_in_CASE_NOTE("* A TIKL has been made for " & days_pending & " to follow-up on the application's progress.")
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 End if
 
-script_end_procedure("Success! The NOMI has been sent, and a case note has been made.")
+script_end_procedure("Success! The NOMI has been sent, and a case note and TIKL have been made.")
