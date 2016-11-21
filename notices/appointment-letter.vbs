@@ -995,14 +995,18 @@ Elseif app_type = "recertification" then
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then    'Phone interviews have a different verbiage than any other interview type
-    call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & "." )
+	IF worker_county_code = "x127" then 
+		call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " anytime between " & interview_time & "." )
+	Else 	
+    	call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & "." )
+	END IF 
 Else
     call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then
 	if worker_county_code = "x127" then 	'This is for Hennepin County only, x127 recipients/applicants will be calling into the agency using the EZ info number
-		Call write_variable_in_SPEC_MEMO("Please call 612-596-1300 to complete your phone interview.")
+		Call write_variable_in_SPEC_MEMO("Please call the EZ Info Line at 612-596-1300 to complete your phone interview.")
 		call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call the EZ Info Line.")
 	Else 
 		call write_variable_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".")
@@ -1058,20 +1062,21 @@ End if
 'And the rest...
 If same_day_declined_check = checked then write_variable_in_CASE_NOTE("* Same day interview offered and declined.")
 call write_bullet_and_variable_in_CASE_NOTE("Appointment date", interview_date)
-call write_bullet_and_variable_in_CASE_NOTE("Appointment time", interview_time)
-call write_bullet_and_variable_in_CASE_NOTE("Why interview is more than six days from now", expedited_explanation)
 IF interview_location = "PHONE" then
 	If worker_county_code = "x127" then 	'text for case note for x127 users 
-		call write_variable_in_CASE_NOTE("* Client will call the EZ info line to complete interview.")	
+		call write_bullet_and_variable_in_CASE_NOTE("Appointment time frame", interview_time)
+		call write_variable_in_CASE_NOTE("* Client was instructed to call the EZ info line to complete interview.")		
 	Else 
+		call write_bullet_and_variable_in_CASE_NOTE("Appointment time", interview_time)
 		call write_variable_in_CASE_NOTE("* Interview will take place by telephone.")
 	End if 
 Else
 	call write_bullet_and_variable_in_CASE_NOTE("Appointment location", interview_location)
 End if
+call write_bullet_and_variable_in_CASE_NOTE("Why interview is more than six days from now", expedited_explanation)
 call write_bullet_and_variable_in_CASE_NOTE("Client phone", client_phone)
 call write_variable_in_CASE_NOTE("* Client must complete interview by " & last_contact_day & ".")
-call write_variable_in_CASE_NOTE("* A TIKL has been made for the interview date to follow-up on the application's progress.")
+call write_variable_in_CASE_NOTE("* A TIKL has been made for the interview date to send a NOMI if applicable.")
 If voicemail_check = checked then call write_variable_in_CASE_NOTE("* Left client a voicemail requesting a call back.")
 If forms_to_arep = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")              'Defined above
 If forms_to_swkr = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")     'Defined above
