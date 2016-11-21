@@ -246,7 +246,6 @@ elseif worker_county_code = "x192" then
     agency_office_array = array("Detroit Lakes", "Naytahwaush", "Bagley", "Mahnomen")
 end if
 '
-'
 
 county_office_list = ""     'Blanking this out because it may contain old info from the old global variables (from before this was integrated in this script)
 
@@ -293,7 +292,7 @@ BeginDialog case_number_dialog, 0, 0, 136, 60, "Case number dialog"
   ButtonGroup ButtonPressed
     OkButton 15, 35, 50, 15
     CancelButton 70, 35, 50, 15
-  Text 10, 15, 45, 10, "Case number: "
+  Text 10, 15, 45, 10, "Case number:"
 EndDialog
 
 'Hennepin County appointment letter
@@ -521,7 +520,7 @@ ELSEIF worker_county_code = "x126" THEN
     agency_address.city = "Elbow Lake"
     agency_address.zip = "56531"
 ELSEIF worker_county_code = "x127" THEN
-    IF interview_location = "Century Plaza" THEN
+    IF interview_location = "South Minneapolis" THEN 
         agency_address.street = "330 South 12th Street"
         agency_address.city = "Minneapolis"
         agency_address.zip = "55440"
@@ -529,7 +528,7 @@ ELSEIF worker_county_code = "x127" THEN
         agency_address.street = "7051 Brooklyn Blvd"
         agency_address.city = "Brooklyn Center"
         agency_address.zip = "55429"
-    ELSEIF interview_location = "VEAP" THEN
+    ELSEIF interview_location = "South Suburban" THEN
         agency_address.street = "9600 Aldrich Ave"
         agency_address.city = "Bloomington"
         agency_address.zip = "55420"
@@ -537,10 +536,14 @@ ELSEIF worker_county_code = "x127" THEN
         agency_address.street = "1001 Plymouth Ave North"
         agency_address.city = "Minneapolis"
         agency_address.zip = "55411"
-    ELSEIF interview_location = "West Suburban Hub" THEN
+    ELSEIF interview_location = "West" THEN
         agency_address.street = "1011 First Street South, Suite 108"
         agency_address.city = "Hopkins"
         agency_address.zip = "55343"
+	ELSEIF interview_location = "Central/NE" THEN
+        agency_address.street = "525 Portland Avenue South"
+        agency_address.city = "Minneapolis"
+        agency_address.zip = "55415"
     END IF
 ELSEIF worker_county_code = "x128" THEN
     agency_address.street = "304 S Marshall St., Room 104"
@@ -967,9 +970,6 @@ IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_are
 IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 transmit                                                        'Transmits to start the memo writing process
 
-'Created new variable for MEMO/CASE NOTE/TIKL
-interview_info = interview_date & " " & interview_time
-
 'Writes the MEMO.
 call write_variable_in_SPEC_MEMO("***********************************************************")
 IF app_type = "new application" then
@@ -983,9 +983,9 @@ Elseif app_type = "recertification" then
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then    'Phone interviews have a different verbiage than any other interview type
-    call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_info & ".")
+    call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & "." )
 Else
-    call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_info & ".")
+    call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then
@@ -1015,6 +1015,9 @@ call write_variable_in_SPEC_MEMO("**********************************************
 
 'Exits the MEMO
 PF4
+
+'Created new variable for TIKL
+interview_info = interview_date & " " & interview_time
 
 'TIKLing to remind the worker to send NOMI if appointment is missed
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
