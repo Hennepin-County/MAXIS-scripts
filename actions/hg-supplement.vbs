@@ -374,7 +374,7 @@ payment_date = payment_month & "/" & payment_year
 issuance_month = initial_month & "/" & initial_year
 
 If payment_date <> issuance_month then 
-	script_end_procedure("WARNING!" & vbNewLine & VbnewLine & " Issuance for " & payment_date & " may not have occurred. Please check the case to ensure that issuance has been made.")
+	script_end_procedure("WARNING!" & vbNewLine & VbnewLine & " Issuance for " & issuance_month & " may not have occurred. Please check the case to ensure that issuance has been made.")
 Else 
 	script_end_procedure("Success! A MONY/CHCK has been issued.")
 END IF
