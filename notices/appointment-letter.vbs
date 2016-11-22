@@ -1007,7 +1007,7 @@ call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then
 	if worker_county_code = "x127" then 	'This is for Hennepin County only, x127 recipients/applicants will be calling into the agency using the EZ info number
 		Call write_variable_in_SPEC_MEMO("Please call the EZ Info Line at 612-596-1300 to complete your phone interview.")
-		call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call the EZ Info Line.")
+		call write_variable_in_SPEC_MEMO("If this date and/or time frame does not work, or you would prefer an interview in the office, please call the EZ Info Line.")
 	Else 
 		call write_variable_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".")
 		call write_variable_in_SPEC_MEMO("")
