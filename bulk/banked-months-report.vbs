@@ -571,12 +571,12 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 		transmit
 		EMReadScreen wreg_code,  2, 8,  50
 		EMReadScreen abawd_code, 2, 13, 50
-		IF wreg_code <> "30" Then	'ALL Banked Month clients should have WREG coded 30-10'
+		IF wreg_code <> "30" Then	'ALL Banked Month clients should have WREG coded 30-13'
 			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
 			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "WREG code is not a 30 (Mandatory FSET participant). Review. | "
-		Elseif abawd_code <> "10" then 			'this is to make sure that 30/11 (second set cases) are removed from the report for the report month
+		Elseif abawd_code <> "13" then 			'this is to make sure that 30/11 (second set cases) are removed from the report for the report month
 			Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
-			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD code is not a 10 (ABAWD counted month). Review. | "
+			Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD code is not a 13 (ABAWD banked months). Review. | "
 		END if
 		
 		report_date = MAXIS_footer_month & "/" & MAXIS_footer_year			'creating date variables to measure against person note counted dates
@@ -621,10 +621,10 @@ For item = 0 to UBound(Banked_Month_Client_Array, 2)		'Now each entry in the arr
 					
 					'rejects cases that do not have the report month coded as a counted month
 					If report_date = abawd_counted_months_string then 
-						if is_counted_month <> "X" then 
-							if is_counted_month <> "M" then 
+						if is_counted_month = "X" then 
+							if is_counted_month = "M" then 
 								Banked_Month_Client_Array(send_to_DHS,     item) = FALSE	'Removing this client from DHS report - reason on next line'
-								Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD tracking record not coded a counted ABAWD month (codes X or M) for " & report_date & ". Review manually. | "
+								Banked_Month_Client_Array(reason_excluded, item) = Banked_Month_Client_Array(reason_excluded, item) & "ABAWD tracking record is coded as a counted ABAWD month (codes X or M) for " & report_date & ". Review manually. | "
 							END IF 
 						END IF 
 					END IF 	
