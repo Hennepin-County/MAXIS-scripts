@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 MAXIS_footer_month = datepart("m", date)
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
@@ -114,7 +126,7 @@ MAXIS_case_number = replace(MAXIS_case_number, "_", "")
 If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
 
 call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
+If row <> 0 then
   MAXIS_footer_month = MAXIS_footer_month
   call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
   If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
@@ -184,7 +196,7 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
-check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
+check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing.
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 start_a_blank_CASE_NOTE
@@ -197,8 +209,8 @@ CALL write_variable_in_CASE_NOTE("***" & CAF_type & " Interview Completed ***")
 CALL write_variable_in_CASE_NOTE ("** Case note for Interview only - full case note of CAF processing to follow.")
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF Datestamp", CAF_datestamp)
-CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " - Interview date: " & interview_date)											
-CALL write_bullet_and_variable_in_CASE_NOTE("Programs applied for", programs_applied_for)								
+CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " - Interview date: " & interview_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Programs applied for", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp/EATS", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Earned Income", earned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Unearned Income", unearned_income)

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'The DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog SNAP_sanction_type_dialog, 0, 0, 171, 110, "SNAP Sanction type dialog					"
   EditBox 65, 10, 65, 15, MAXIS_case_number
@@ -114,7 +126,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
-Do	
+Do
 	Do
 		err_msg = ""
 		dialog SNAP_sanction_type_dialog
@@ -128,7 +140,7 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'If worker selects to impose a sanction, they will get this dialog 
+'If worker selects to impose a sanction, they will get this dialog
 If sanction_type_droplist = "Imposing sanction" THEN
 	DO
 		Do
@@ -145,9 +157,9 @@ If sanction_type_droplist = "Imposing sanction" THEN
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
-	
+
 'If worker selects to resolve a sanction, they will get this dialog
-ELSEIf sanction_type_droplist = "Resolving sanction" THEN	
+ELSEIf sanction_type_droplist = "Resolving sanction" THEN
 	DO
 		DO
 			err_msg = ""
@@ -165,15 +177,15 @@ ELSEIf sanction_type_droplist = "Resolving sanction" THEN
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
 'Confirming that we're in the correct footer month
-MAXIS_footer_month_confirmation	
+MAXIS_footer_month_confirmation
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Logic to have full policy verbiage in the case note (droplist could not support full policy verbiage)
-IF sanction_resolved_reason_droplist = "Member served minimum sanction & verbally agrees to comply" THEN sanction_resolution_droplist = "Member served the minimum sanction period, and verbally agrees to comply with SNAP E&T during the SNAP application process." 
+IF sanction_resolved_reason_droplist = "Member served minimum sanction & verbally agrees to comply" THEN sanction_resolution_droplist = "Member served the minimum sanction period, and verbally agrees to comply with SNAP E&T during the SNAP application process."
 
 start_a_blank_CASE_NOTE
 'Case note if imposing sanction
-If sanction_type_droplist = "Imposing sanction" THEN 
+If sanction_type_droplist = "Imposing sanction" THEN
 	Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & HH_Member_Number & ", eff: " & sanction_begin_date & "--")
 	Call write_bullet_and_variable_in_CASE_NOTE("HH MEMB #", HH_Member_Number)
 	If PWE_check = 1 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is the PWE. Entire household is sanctioned.")
@@ -202,7 +214,7 @@ ELSEIF sanction_type_droplist = "Resolving sanction" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("New FSET orientation date", FSET_orientation_date)
 	IF orientation_letter_check = 1 THEN Call write_variable_in_CASE_NOTE("* SNAP E&T orientation letter was sent to the client.")
 	Call write_variable_in_CASE_NOTE("---")
-	Call write_variable_in_CASE_NOTE(worker_signature)	
+	Call write_variable_in_CASE_NOTE(worker_signature)
 END IF
 PF3
 PF3
@@ -216,7 +228,7 @@ IF number_of_sanction_droplist = "3rd (6 months or until compliance, whichever i
 GA_basis_droplist = Left(GA_basis_droplist, 2)
 
 'Updates WREG if sanction is imposed
-If sanction_type_droplist = "Imposing sanction" THEN 
+If sanction_type_droplist = "Imposing sanction" THEN
 	Call navigate_to_MAXIS_screen("STAT", "WREG")
 	EMWriteScreen HH_Member_Number, 20, 76
 	transmit
@@ -229,14 +241,14 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	Call create_MAXIS_friendly_date(sanction_begin_date, 0, 10, 50)
 	EMWriteScreen number_of_sanction_droplist, 11, 50
 	EMWriteScreen "_", 8, 80
-	'Updates WREG if sanction is resolved	
+	'Updates WREG if sanction is resolved
 ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	Call navigate_to_MAXIS_screen("STAT", "WREG")
 	'checking to make sure HH MEMB is valid
 	EMWriteScreen resolved_HH_Member_Number, 20, 76
 	transmit
 	EMReadScreen WREG_MEMB_check, 6, 24, 2
-	IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_procedure ("The member number that you entered is not valid.  Please check the member number, and start the script again.") 
+	IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_procedure ("The member number that you entered is not valid.  Please check the member number, and start the script again.")
 	'if MEMB number is correct the WREG is updated
 	PF9
 	IF Exempt_FSET_WREG_droplist <> "Select one..." THEN EMWriteScreen Exempt_FSET_WREG_droplist, 8, 50
@@ -246,21 +258,21 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	EMWriteScreen "______", 10, 53
 	EMWriteScreen "______", 10, 56
 	If resolved_before_sanction_period_checbox = 1 then EMWriteScreen"__", 11, 50			'removes the 'number of sanctions' field
-	
-	EMWriteScreen ABAWD_status_droplist, 13, 50 ' updates the ABAWD status 
+
+	EMWriteScreen ABAWD_status_droplist, 13, 50 ' updates the ABAWD status
 	'updating the Defer FSET/No Funds (Y/N) field on WREG
 	EMReadScreen ABAWD_status_check, 2, 13, 50	'checking for the coding on ABAWD status field
-	IF ABAWD_status_check = "10" THEN 
+	IF ABAWD_status_check = "10" THEN
 		EMWriteScreen "N", 8, 80
-	ELSE 
+	ELSE
 		EMWriteScreen "_", 8, 80
-	END IF  
+	END IF
 	'updates GA basis if GA basis exists
-	If GA_basis_droplist <> "Se" THEN 
-		EMWritescreen GA_basis_droplist, 15, 50	
-	ELSE 
+	If GA_basis_droplist <> "Se" THEN
+		EMWritescreen GA_basis_droplist, 15, 50
+	ELSE
 		EMWriteScreen "__", 15, 50
-	END IF	
+	END IF
 END IF
 
 script_end_procedure("Success, your case note been made and the WREG panel updated. Remember to approve your new results, and check your notice for accuracy.")

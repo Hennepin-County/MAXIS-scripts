@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'FUNCTIONS=================================================================================================================
 FUNCTION create_mainframe_friendly_date(date_variable, screen_row, screen_col, year_type)
 	var_month = datepart("m", date_variable)
@@ -1125,7 +1137,7 @@ If MFIP_active = true then
 	End if
 
 End if
-	
+
 
 'Alert to worker that additional action is required.
 If Outside_the_realm = TRUE Then MsgBox "This is a SNAP case and you have indicated at least one of the UNEA panels needs to be reviewed for possible budget adjustment." & vbNewLine & vbNewLine & "At this time, this script does NOT update UNEA for SNAP cases. Case note will indicate that worker followup is needed."
@@ -1168,21 +1180,21 @@ If developer_mode <> TRUE Then
 
 'reading from excel sheet
 IF SNAP_active = TRUE Then
-	Dim xlApp 
-	Dim xlBook 
-	Dim xlSheet 
+	Dim xlApp
+	Dim xlBook
+	Dim xlSheet
 	RowCN = 1
-	Set objSheet = objExcel.ActiveWorkbook.Worksheets("SNAP Budget") 
+	Set objSheet = objExcel.ActiveWorkbook.Worksheets("SNAP Budget")
 	Do
 		MEMBandTYPE = Trim(objSheet.Cells(RowCN, 1).Value)
 		Do
 			RowCN = RowCN + 1
-			rowCHECK = Trim(objSheet.Cells(RowCN, 1).Value)	
+			rowCHECK = Trim(objSheet.Cells(RowCN, 1).Value)
 			IF rowCHECK = "Prosp Monthly Income:" then amount = Trim(objSheet.Cells(RowCN, 7).Value)
 		Loop until rowCHECK = "Prosp Monthly Income:"
 		RowCN = RowCN + 2
 		Call Write_Variable_in_Case_Note ("     " & MEMBandTYPE & " - $" & amount)
-		blankCHECK = Trim(objSheet.Cells(RowCN, 1).Value)	
+		blankCHECK = Trim(objSheet.Cells(RowCN, 1).Value)
 	Loop Until blankCHECK = ""
 End IF
 

@@ -38,18 +38,30 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 
 EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in DAIL, Please navigate to DAIL and run the script again.")  'if the worker is not on a dail message 
+If dail_check <> "DAIL" then script_end_procedure("You are not in DAIL, Please navigate to DAIL and run the script again.")  'if the worker is not on a dail message
 
 
 'The following reads the message in full for the end part (which tells the script which message was selected)
 EMReadScreen full_message, 23, 6, 20
 IF full_message = "~*~CONSIDER SENDING 1ST" THEN     'script finds 1st TIKL message and moves to take next action
 	call MAXIS_case_number_finder(MAXIS_case_number)
-	call check_for_MAXIS(false)		
+	call check_for_MAXIS(false)
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
@@ -72,7 +84,7 @@ IF full_message = "~*~CONSIDER SENDING 1ST" THEN     'script finds 1st TIKL mess
 END IF
 IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL message and moves to take next action
 	call MAXIS_case_number_finder(MAXIS_case_number)
-	call check_for_MAXIS(false)				
+	call check_for_MAXIS(false)
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
@@ -95,7 +107,7 @@ IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL mess
 END IF
 IF full_message = "~*~2ND QUARTERLY REPORT" THEN     'script finds 3rd TIKL message and moves to take next action
 	call MAXIS_case_number_finder(MAXIS_case_number)
-	call check_for_MAXIS(false)				
+	call check_for_MAXIS(false)
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
@@ -113,7 +125,7 @@ IF full_message = "~*~2ND QUARTERLY REPORT" THEN     'script finds 3rd TIKL mess
 END IF
 IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL message and moves to take next action
 	call MAXIS_case_number_finder(MAXIS_case_number)
-	call check_for_MAXIS(false)				
+	call check_for_MAXIS(false)
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
@@ -136,7 +148,7 @@ IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL mess
 END IF
 IF full_message = "~*~3RD QUARTERLY REPORT" THEN     'script finds 5th TIKL message and moves to take next action
 	call MAXIS_case_number_finder(MAXIS_case_number)
-	call check_for_MAXIS(false)				
+	call check_for_MAXIS(false)
 	EMWritescreen "X", 6, 3
 	Transmit
 	EMReadScreen MAXIS_case_number, 8, 6, 57
@@ -153,6 +165,5 @@ IF full_message = "~*~3RD QUARTERLY REPORT" THEN     'script finds 5th TIKL mess
 	script_end_procedure("Success! Script has case noted to remind of the end of TYMA.")
 END IF
 
-'If the message doesn't match any of the ones above you get this message. 
+'If the message doesn't match any of the ones above you get this message.
 script_end_procedure("A Valid TYMA DAIL message was not found. Please place your cursor over one and try again, or navigate away from DAIL and restart script if trying to create first TIKL.")
-

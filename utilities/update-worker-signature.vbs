@@ -34,6 +34,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Needs to determine MyDocs directory before proceeding.
 Set wshshell = CreateObject("WScript.Shell")
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
@@ -47,11 +59,11 @@ With (CreateObject("Scripting.FileSystemObject"))
 		worker_sig = worker_sig_command.ReadAll
 		IF worker_sig <> "" THEN worker_signature = worker_sig
 		worker_sig_command.Close
-		
+
 		worker_signature_msgbox = MsgBox("A worker signature was found! You are listed as: " & worker_signature & "." & vbNewLine & vbNewLine & _
-			"Your worker signature was found at: " & user_myDocs_folder & "workersig.txt." & vbNewLine & vbNewLine & _ 
+			"Your worker signature was found at: " & user_myDocs_folder & "workersig.txt." & vbNewLine & vbNewLine & _
 			"Would you like to update this signature? Press Yes to continue, or No to cancel.", vbYesNo + vbQuestion, "A worker signature was found!")
-			
+
 		If worker_signature_msgbox = vbNo then StopScript
 	END IF
 END WITH

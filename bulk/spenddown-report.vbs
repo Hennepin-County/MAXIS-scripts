@@ -38,49 +38,61 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'This function is used to grab all active X numbers according to the supervisor X number(s) inputted 
-FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array) 
-	'Getting to REPT/USER 
-	CALL navigate_to_MAXIS_screen("REPT", "USER") 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'This function is used to grab all active X numbers according to the supervisor X number(s) inputted
+FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
+	'Getting to REPT/USER
+	CALL navigate_to_MAXIS_screen("REPT", "USER")
 
 
-	'Sorting by supervisor 
-	PF5 
-	PF5 
+	'Sorting by supervisor
+	PF5
+	PF5
 
 
-	'Reseting array_name 
-	array_name = "" 
+	'Reseting array_name
+	array_name = ""
 
 
-	'Splitting the list of inputted supervisors... 
-	supervisor_array = replace(supervisor_array, " ", "") 
-	supervisor_array = split(supervisor_array, ",") 
-	FOR EACH unit_supervisor IN supervisor_array 
-		IF unit_supervisor <> "" THEN 
-			'Entering the supervisor number and sending a transmit 
-			CALL write_value_and_transmit(unit_supervisor, 21, 12) 
+	'Splitting the list of inputted supervisors...
+	supervisor_array = replace(supervisor_array, " ", "")
+	supervisor_array = split(supervisor_array, ",")
+	FOR EACH unit_supervisor IN supervisor_array
+		IF unit_supervisor <> "" THEN
+			'Entering the supervisor number and sending a transmit
+			CALL write_value_and_transmit(unit_supervisor, 21, 12)
 
 
-			MAXIS_row = 7 
-			DO 
-				EMReadScreen worker_ID, 8, MAXIS_row, 5 
-				worker_ID = trim(worker_ID) 
-				IF worker_ID = "" THEN EXIT DO 
-				array_name = trim(array_name & " " & worker_ID) 
-				MAXIS_row = MAXIS_row + 1 
-				IF MAXIS_row = 19 THEN 
-					PF8 
+			MAXIS_row = 7
+			DO
+				EMReadScreen worker_ID, 8, MAXIS_row, 5
+				worker_ID = trim(worker_ID)
+				IF worker_ID = "" THEN EXIT DO
+				array_name = trim(array_name & " " & worker_ID)
+				MAXIS_row = MAXIS_row + 1
+				IF MAXIS_row = 19 THEN
+					PF8
 					EMReadScreen end_check, 9, 24,14
 					If end_check = "LAST PAGE" Then Exit Do
-					MAXIS_row = 7 
-				END IF 
-			LOOP 
-		END IF 
-	NEXT 
-	'Preparing array_name for use... 
-	array_name = split(array_name) 
-END FUNCTION 
+					MAXIS_row = 7
+				END IF
+			LOOP
+		END IF
+	NEXT
+	'Preparing array_name for use...
+	array_name = split(array_name)
+END FUNCTION
 
 
 
@@ -110,7 +122,7 @@ get_county_code
 EMConnect ""
 
 'Setting this variable to determine a filter later
-one_month_only = FALSE 
+one_month_only = FALSE
 'defining current footer month so the script doesn't go to old things
 MAXIS_footer_month = right("00" & datepart("m", date), 2)
 MAXIS_footer_year = right("00" & datepart("yyyy", date), 2)
@@ -120,7 +132,7 @@ Dialog find_spenddowns_month_spec_dialog
 If buttonpressed = cancel then stopscript
 
 'Sets the script up to only pull cases for certain months if selected from the dialog
-If revw_month_list <> "ALL" AND revw_month_list <> "" Then 
+If revw_month_list <> "ALL" AND revw_month_list <> "" Then
 	one_month_only = TRUE 			'If any month is selected the script needs to filter
 	Select Case revw_month_list
 		Case "January"
@@ -146,8 +158,8 @@ If revw_month_list <> "ALL" AND revw_month_list <> "" Then
 		Case "November"
 			month_selected = 11
 		Case "December"
-			month_selected = 12					
-	End Select 
+			month_selected = 12
+	End Select
 End If
 
 'Starting the query start time (for the query runtime at the end)
@@ -172,14 +184,14 @@ Else		'If worker numbers are litsted - this will create an array of workers to c
 		transmit
 		EMReadScreen sup_id_check, 7, 7, 5					'This is the spot where the first person is listed under this supervisor
 		IF sup_id_check <> "       " Then 					'If this frist one is not blank then this person is a supervisor
-			supervisor_array = trim(supervisor_array & " " & x1_number)		'The script will add this x number to a list of supervisors 
-		Else			
+			supervisor_array = trim(supervisor_array & " " & x1_number)		'The script will add this x number to a list of supervisors
+		Else
 			If worker_array = "" then						'Otherwise this x number is added to a list of workers to run the script on
 				worker_array = trim(x1_number)
 			Else
 				worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 			End if
-		End If 
+		End If
 		PF3
 	Next
 
@@ -187,12 +199,12 @@ Else		'If worker numbers are litsted - this will create an array of workers to c
 		Call create_array_of_all_active_x_numbers_by_supervisor (more_workers_array, supervisor_array)
 		workers_to_add = join(more_workers_array, ", ")
 		If worker_array = "" then				'Adding all x numbers listed under the supervisor to the worker array
-			worker_array = workers_to_add	
+			worker_array = workers_to_add
 		Else
-			worker_array = worker_array & ", " & trim(ucase(workers_to_add)) 
+			worker_array = worker_array & ", " & trim(ucase(workers_to_add))
 		End if
-	End If 
-	
+	End If
+
 	'Split worker_array
 	worker_array = split(worker_array, ", ")
 End if
@@ -256,28 +268,28 @@ For each worker in worker_array
 				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
 
 				'Using if...thens to decide if a case should be added (status isn't blank or inactive and respective box is checked)
-				If HC_status = "A" then 
+				If HC_status = "A" then
 					If one_month_only = TRUE Then 						'If user has selected to only get cases with a certain reveiw month
-						If trim(next_revw_date) = "" Then 
+						If trim(next_revw_date) = "" Then
 							case_error = MsgBox ("Case " & MAXIS_case_number & " does not have a review listed, please check that STAT is coded correctly for this case." & vbNewLine & vbNewLine & "This case will not be added to the report, you should check for a spenddown manually.", vbAlert, "No Review Date")
 						Else
-							revw_month = abs(left(next_revw_date, 2))		
+							revw_month = abs(left(next_revw_date, 2))
 							If revw_month = month_selected Then 			'Compares the review month to the variable defined above in the Select Case
 								ReDim Preserve clts_with_spdwn_array (3, hc_clt)		'Adds information about case with active HC to an array
 								clts_with_spdwn_array(wrk_num, hc_clt)   = worker
 								clts_with_spdwn_array(case_num, hc_clt)  = MAXIS_case_number
 								clts_with_spdwn_array(next_revw, hc_clt) = next_revw_date
 								hc_clt = hc_clt + 1
-							End If 
-						End If 
-					Else 
+							End If
+						End If
+					Else
 						ReDim Preserve clts_with_spdwn_array (3, hc_clt)			'Adds information about case with active HC to an array
 						clts_with_spdwn_array(wrk_num, hc_clt)   = worker
 						clts_with_spdwn_array(case_num, hc_clt)  = MAXIS_case_number
 						clts_with_spdwn_array(next_revw, hc_clt) = next_revw_date
 						hc_clt = hc_clt + 1
-					End If 
-				End If 
+					End If
+				End If
 
 
 				MAXIS_row = MAXIS_row + 1
@@ -296,29 +308,29 @@ For hc_case = 0 to UBound(clts_with_spdwn_array, 2)
 	row = 8
 	Do										'Looks at each row in HC Elig to find the first MA span
 		EMReadScreen prog, 2, row, 28
-		If prog = "MA" Then 
+		If prog = "MA" Then
 			EMWriteScreen "X", row, 26		'Goes into it
 			transmit
 			Exit Do
-		End if 
+		End if
 		row = row + 1
-	Loop until row = 20  
+	Loop until row = 20
 	If row <> 20 Then 						'Once in the span, opens MOBL
 		EMWriteScreen "X", 18, 3
 		transmit
-		Do 
+		Do
 			EMReadScreen MOBL_check, 4, 3, 49
-			If MOBL_check <> "MOBL" Then 
+			If MOBL_check <> "MOBL" Then
 				row = row + 1
-				PF3 
+				PF3
 				EMReadScreen prog, 2, row, 28
-				If prog = "MA" Then 
+				If prog = "MA" Then
 					EMWriteScreen "X", row, 26		'Goes into it
 					transmit
 					EMWriteScreen "X", 18, 3
 					transmit
-				End if 
-			End If 
+				End if
+			End If
 		Loop until row = 20 OR MOBL_check = "MOBL"
 		row = 6
 		Do									'reads each line on MOBL and saves the clt information for any client that has a spenddown indicated on MOBL
@@ -332,85 +344,85 @@ For hc_case = 0 to UBound(clts_with_spdwn_array, 2)
 				cname = trim(cname)
 				If cname = "" Then EMReadScreen cname, 21, row - 1, 10
 				cname = trim(cname)
-				
+
 				ReDim Preserve spenddown_error_array (12, spd_case)			'Adding any client with a spenddown to a new array
-				
+
 				spenddown_error_array (wrk_num,   spd_case) = clts_with_spdwn_array(wrk_num, hc_case)
 				spenddown_error_array (case_num,  spd_case) = MAXIS_case_number
 				spenddown_error_array (next_revw, spd_case) = replace(clts_with_spdwn_array(next_revw, hc_case), " ", "/")
 				spenddown_error_array (clt_name,  spd_case) = cname
 				spenddown_error_array (ref_numb,  spd_case) = reference
 				spenddown_error_array (mobl_spdn, spd_case) = spd_type
-				spenddown_error_array (spd_pd,    spd_case) = period 
-				
+				spenddown_error_array (spd_pd,    spd_case) = period
+
 				spd_case = spd_case + 1
-				
-			End If 
+
+			End If
 			row = row + 1
 		Loop until row = 19
-	End If 	
+	End If
 Next
 
 'This bit will look to see if there are any cases that have a possible spenddown.
 'Occasionally the criteria selected produce no cases and this explains this to the user.
-If UBound(spenddown_error_array, 2) = 0 AND spenddown_error_array(case_num, 0) = "" Then 
+If UBound(spenddown_error_array, 2) = 0 AND spenddown_error_array(case_num, 0) = "" Then
 	all_workers = Join(worker_array, ", ")
-	If one_month_only = True Then 
+	If one_month_only = True Then
 		selected_time = " for the month of " & revw_month_list & "."
-	Else 
+	Else
 		selected_time = "."
-	End If 
+	End If
 	end_msg = "Success! The script has completed!" & vbNewLine & "NO SPENDDOWNS FOUND!" & vbNewLine & vbNewLine &_
 	          "The script has checked REPT/ACTV for the case loads under worker number(s) " & all_workers & selected_time & vbNewLine &_
 			  "None of the active HC cases have a spenddown indicated on MOBL." & vbNewLine & vbNewLine &_
 			  "No report will be generated, the script has completed."
 	script_end_procedure(end_msg)
-End If 
+End If
 
 'Gathering additional information about each client with a spenddown indicated
 For spd_case = 0 to UBound(spenddown_error_array, 2)
 	spd_amt = 0			'Reset the variable for each run
 	MAXIS_case_number = spenddown_error_array(case_num, spd_case)				'Setting the case number for global functions
-	spenddown_error_array(add_xcl, spd_case) = TRUE 
+	spenddown_error_array(add_xcl, spd_case) = TRUE
 	Call navigate_to_MAXIS_screen ("CASE", "PERS")								'Confirming clt is active HC this month
 	row = 9
-	Do 
+	Do
 		EMReadScreen person, 2, row, 3
-		If person = spenddown_error_array(ref_numb, spd_case) Then 
+		If person = spenddown_error_array(ref_numb, spd_case) Then
 			EMReadScreen hc_stat, 1, row, 61
 			If hc_stat = "I" OR hc_stat = "D" Then spenddown_error_array(add_xcl, spd_case) = FALSE 	'If not, case will not be added to report
-			Exit Do 
-		Else 
+			Exit Do
+		Else
 			row = row + 1
-			If row = 18 Then 
+			If row = 18 Then
 				EMReadScreen next_page, 7, row, 3
-				If next_page = "More: +" Then 
+				If next_page = "More: +" Then
 					PF8
 					row = 9
-				End If 
-			End If 
-		End If 
+				End If
+			End If
+		End If
 	Loop until row = 18
 	IF spenddown_error_array(add_xcl, spd_case) = TRUE Then 						'If clt is actve HC
 		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 		Call navigate_to_MAXIS_screen ("ELIG", "HC")								'Need a closer look at HC
 		row = 8
-		Do 
+		Do
 			EMReadScreen person, 2, row, 3									'Finding the correct person on HC ELIG
-			If person = spenddown_error_array(ref_numb, spd_case) Then 
-				Do 
+			If person = spenddown_error_array(ref_numb, spd_case) Then
+				Do
 					EMReadScreen prog, 2, row, 28							'Find the line that has this persons MA listed on it /NOT QMB etc
-					If prog = "MA" Then 
+					If prog = "MA" Then
 						counter = 1
 						Do 													'Here this will find if this version is approved
 							EMReadScreen app_indc, 5, row, 68
 							app_indc = trim(app_indc)
 							If app_indc = "APP" Then						'If approved, open this version
 								Call write_value_and_transmit("x", row, 26)
-								Exit Do 
-							End If 
+								Exit Do
+							End If
 							EMReadScreen this_version, 2, row, 58
-							If this_version = "00" Then 
+							If this_version = "00" Then
 								EMReadScreen elig_month, 2, 20, 56			'If the earliest version in this month was not approved then it goes to the previous month
 								If elig_month <> "01" Then
 									last_month = right("00" & (abs(elig_month)-1), 2)
@@ -426,9 +438,9 @@ For spd_case = 0 to UBound(spenddown_error_array, 2)
 								counter = counter + 1
 							ElseIf this_version <> "01" Then 					'Checking to see if there is a pervious version listed in this month
 								prev_verision = right("00" & (abs(this_version)-1), 2)	'If so, it will go to the previous version
-								EMWriteScreen prev_verision, row, 58 
+								EMWriteScreen prev_verision, row, 58
 								transmit
-							Else 
+							Else
 								EMReadScreen elig_month, 2, 20, 56			'If the earliest version in this month was not approved then it goes to the previous month
 								If elig_month <> "01" Then
 									last_month = right("00" & (abs(elig_month)-1), 2)
@@ -442,33 +454,33 @@ For spd_case = 0 to UBound(spenddown_error_array, 2)
 									EMWriteScreen last_year, 20, 59
 								End If
 								counter = counter + 1
-							End If 
+							End If
 						Loop until counter = 6				'Only looks at 6 months
 					ELSE					'If this person could not be found then the report will list no version was found
 						row = row + 1
 						EMReadScreen person, 2, row, 3
-						If person <> "  "  Then 
+						If person <> "  "  Then
 							spenddown_error_array(hc_type, spd_case) = "NO HC VERSION"
 							Exit Do
-						End If 
-					End If 
+						End If
+					End If
 				Loop Until row = 20
-				Exit Do 
-			Else 
+				Exit Do
+			Else
 				row = row + 1
-			End If 
-		Loop until row = 20 
+			End If
+		Loop until row = 20
 		EMReadScreen bsum_check, 4, 3, 57		'Confirming that HC Elig has been opened for this person
 		If bsum_check = "BSUM" Then
 			col = 19
 			Do									'Finding the current month in elig to get the current elig type
-				EMReadScreen span_month, 2, 6, col 
-				If span_month = MAXIS_footer_month Then		'reading the ELIG TYPE 
+				EMReadScreen span_month, 2, 6, col
+				If span_month = MAXIS_footer_month Then		'reading the ELIG TYPE
 					EMReadScreen pers_type, 2, 12, col - 2
 					EMReadScreen std, 1, 12, col + 3
 					EMReadScreen meth, 1, 13, col + 2
 					Exit Do
-				End If 
+				End If
 				col = col + 11
 				If col = 85 Then 		'If this month was not found then it reads the LAST elig type in elig
 					EMReadScreen pers_type, 2, 12, 72		'ONLY saves this information if an actual elig type was found
@@ -477,21 +489,21 @@ For spd_case = 0 to UBound(spenddown_error_array, 2)
 					Else
 						EMReadScreen std, 1, 12, 77
 						EMReadScreen meth, 1, 13, 76
-					End If 
-				End If 
+					End If
+				End If
 			Loop until col = 85
 			If pers_type = "" Then 				'Setting the elig type to readable format
 				spenddown_error_array(hc_type, spd_case) = "ELIG Type Not Found"
-			Else 
-				spenddown_error_array(hc_type, spd_case) = pers_type & "-" & std & " Method: " & meth 
+			Else
+				spenddown_error_array(hc_type, spd_case) = pers_type & "-" & std & " Method: " & meth
 				pers_type = ""
 				std = ""
 				meth = ""
-			End If 
+			End If
 			spd_amt = 0
 			col = 18
 			Do 				'This will gather the 6 month standard AND the budgeted income to calculate the HC overage
-				EMReadScreen month_net_inc, 8, 15, col 
+				EMReadScreen month_net_inc, 8, 15, col
 				EMReadScreen month_std_inc, 8, 16, col
 				month_net_inc = trim(month_net_inc)
 				If month_net_inc = "" Then month_net_inc = 0
@@ -506,20 +518,20 @@ For spd_case = 0 to UBound(spenddown_error_array, 2)
 			spenddown_error_array(hc_excess, spd_case) = spd_amt
 			'NOTE that Cert Period Amount popup was NOT used as it appears to change what is listed on MOBL if the spenddown was in error
 			'We do not want bulk reports to make alterations to cases without worker review and approval
-		End If 
-		
+		End If
+
 		'Goes to get PMI
 		Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 		EMWriteScreen spenddown_error_array(ref_numb, spd_case), 20, 76
 		transmit
 		EMReadScreen pmi, 8, 4, 46
 		spenddown_error_array(clt_pmi, spd_case) = right("00000000" & replace(pmi, "_", ""), 8)
-	End If 
+	End If
 	back_to_self
 Next
 
-If MMIS_checkbox = checked Then 
-	'Now it will look for MMIS on both screens, and enter into it.. 
+If MMIS_checkbox = checked Then
+	'Now it will look for MMIS on both screens, and enter into it..
 	attn
 	EMReadScreen MMIS_A_check, 7, 15, 15
 	If MMIS_A_check = "RUNNING" then
@@ -530,8 +542,8 @@ If MMIS_checkbox = checked Then
 		EMConnect "B"
 		attn
 		EMReadScreen MMIS_B_check, 7, 15, 15
-		If MMIS_B_check <> "RUNNING" then 
-			MMIS_checkbox = unchecked  
+		If MMIS_B_check <> "RUNNING" then
+			MMIS_checkbox = unchecked
 			script_continue = MsgBox ("MMIS does not appear to be running." & vbNewLine & "Do you wish to have the report without the MMIS Spenddown Indicator checked?", vbYesNo + vbQuestion, "MMIS not running")
 			IF script_continue = vbNo Then script_end_procedure ("Script has ended with no report generated. To have MMIS information gathered, be sure to have MMIS running and not be passworded out.")
 		Else
@@ -539,33 +551,33 @@ If MMIS_checkbox = checked Then
 			transmit
 		End if
 	End if
-End If 
+End If
 
-If MMIS_checkbox = checked Then 
+If MMIS_checkbox = checked Then
 	EMFocus 'Bringing window focus to the second screen if needed.
 
 	'Sending MMIS back to the beginning screen and checking for a password prompt
-	Do 
+	Do
 		PF6
 		EMReadScreen password_prompt, 38, 2, 23
-	  	IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then 
-		  	MMIS_checkbox = unchecked  
+	  	IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then
+		  	MMIS_checkbox = unchecked
 		  	script_continue = MsgBox ("MMIS does not appear to be running." & vbNewLine & "Do you wish to have the report without the MMIS Spenddown Indicator checked?", vbYesNo + vbQuestion, "MMIS not running")
 		  	IF script_continue = vbNo Then script_end_procedure ("Script has ended with no report generated. To have MMIS information gathered, be sure to have MMIS running and not be passworded out.")
-			Exit Do 
-		End If 
+			Exit Do
+		End If
 	  	EMReadScreen session_start, 18, 1, 7
 	Loop until session_start = "SESSION TERMINATED"
-End If 
-	
-If MMIS_checkbox = checked Then 
+End If
+
+If MMIS_checkbox = checked Then
 	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themself into MMIS the first time!)
 	EMWriteScreen "mw00", 1, 2
 	transmit
 	transmit
 
 	'Finding the right MMIS, if needed, by checking the header of the screen to see if it matches the security group selector
-	EMReadScreen MMIS_security_group_check, 21, 1, 35 
+	EMReadScreen MMIS_security_group_check, 21, 1, 35
 	If MMIS_security_group_check = "MMIS MAIN MENU - MAIN" then
 		EMSendKey "x"
 		transmit
@@ -587,35 +599,35 @@ If MMIS_checkbox = checked Then
 		EMReadscreen RKEY_check, 4, 1, 52
 		If RKEY_check = "RKEY" then 		'Confirms that we have moved past RKEY
 			spenddown_error_array (mmis_spdn, spd_case) = "Not Found"
-		Else 
+		Else
 			EMWriteScreen "RELG", 1, 8		'Goes to RELG
 			transmit
 			row = 7
 			Do 				'Finding the openended OR future close MA span
 				EMReadscreen elig_end, 8, row, 36
 				IF elig_end <> "99/99/99" Then after_now = DateDiff("d", date, elig_end)
-				If elig_end = "99/99/99" OR after_now < 0 Then 
+				If elig_end = "99/99/99" OR after_now < 0 Then
 					EMReadscreen prg, 2, row-1, 10
 					IF prg = "MA" Then 			'Reads the spenddown indicator
 						EMReadscreen indicator, 1, row + 1, 62
-						Exit Do 
-					End If 
-				End If 
-				row = row + 4 
+						Exit Do
+					End If
+				End If
+				row = row + 4
 			Loop until row = 23
-			
+
 			PF6
 			EMWriteScreen "        ", 4, 19		'Blanking out the PMI for safety
-			
+
 			If indicator = "" Then 				'Setting the indicator to the array
 				spenddown_error_array (mmis_spdn, spd_case) = "Not Found"
-			Else 
+			Else
 				spenddown_error_array (mmis_spdn, spd_case) = indicator
-			End If 
-		End If 
-		
+			End If
+		End If
+
 	Next
-End If 
+End If
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -642,14 +654,14 @@ ObjExcel.Cells(1, 8).Value = "SPDWN ON MOBL"
 objExcel.Cells(1, 8).Font.Bold = TRUE
 ObjExcel.Cells(1, 9).Value = "HC OVERAGE"
 objExcel.Cells(1, 9).Font.Bold = TRUE
-If MMIS_checkbox = checked Then 
+If MMIS_checkbox = checked Then
 	ObjExcel.Cells(1, 10).Value = "MMIS SPDWN"
 	objExcel.Cells(1, 10).Font.Bold = TRUE
-End If 
+End If
 
 'Adding all client information to a spreadsheet for your viewing pleasure
 For spd_case = 0 to UBound(spenddown_error_array, 2)
-	If spenddown_error_array(add_xcl, spd_case) = TRUE Then 
+	If spenddown_error_array(add_xcl, spd_case) = TRUE Then
 		ObjExcel.Cells(excel_row, 1).Value  = spenddown_error_array (wrk_num,   spd_case)
 		ObjExcel.Cells(excel_row, 2).Value  = spenddown_error_array (case_num,  spd_case)
 		ObjExcel.Cells(excel_row, 3).Value  = "Memb " & spenddown_error_array(ref_numb, spd_case)
@@ -662,7 +674,7 @@ For spd_case = 0 to UBound(spenddown_error_array, 2)
 		ObjExcel.Cells(excel_row, 10).Value = spenddown_error_array (mmis_spdn, spd_case)
 
 		excel_row = excel_row + 1
-	End If 
+	End If
 Next
 
 'Query date/time/runtime info

@@ -41,6 +41,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
 BeginDialog new_HIRE_dialog, 0, 0, 291, 195, "New HIRE dialog"
@@ -117,7 +129,7 @@ EMSearch "SSN #", row, col
 EMReadScreen new_HIRE_SSN, 11, row, col + 5
 PF3
 
-'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES. 
+'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
 EMWriteScreen "h", 6, 3
 transmit
 row = 1
@@ -133,7 +145,7 @@ If row = 0 then MFIP_case = False
 PF3
 
 'GOING TO STAT
-EMSendKey "s" 
+EMSendKey "s"
 transmit
 EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
@@ -159,16 +171,16 @@ EMWriteScreen HH_memb, 20, 76
 transmit
 
 'MFIP cases need to manually add the JOBS panel for ES purposes.
-If MFIP_case = False then create_JOBS_checkbox = checked 
+If MFIP_case = False then create_JOBS_checkbox = checked
 
 'Defaulting the "set TIKL" variable to checked
 TIKL_checkbox = checked
 
 'Setting the variable for the following do...loop
-HH_memb_row = 5 
+HH_memb_row = 5
 
 'Show dialog
-do 
+do
 	Do
 		Dialog new_HIRE_dialog
 		cancel_confirmation
@@ -177,7 +189,7 @@ do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first. 
+'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 EMReadScreen jobs_total_panel_count, 1, 2, 78
 IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
 
@@ -192,7 +204,7 @@ If create_JOBS_checkbox = checked then
 	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
 	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
 		EMWriteScreen "w", 5, 34				'Wage income is the type
-		EMWriteScreen "n", 6, 34				'No proof has been provided	
+		EMWriteScreen "n", 6, 34				'No proof has been provided
 	ELSE
 		EMWriteScreen "w", 5, 38				'Wage income is the type
 		EMWriteScreen "n", 6, 38				'No proof has been provided
@@ -207,9 +219,9 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
 	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
 	If FS_case = True then 					'If case is SNAP, it creates a PIC
-		EMWriteScreen "x", 19, 38			
-		transmit						
-		EMWriteScreen current_month, 5, 34		
+		EMWriteScreen "x", 19, 38
+		transmit
+		EMWriteScreen current_month, 5, 34
 		EMWriteScreen current_day, 5, 37
 		EMWriteScreen current_year, 5, 40
 		EMWriteScreen "1", 5, 64
@@ -239,7 +251,7 @@ transmit
 PF9
 transmit
 
-'Writes new hire message but removes the SSN. 
+'Writes new hire message but removes the SSN.
 EMSendKey replace(new_hire_first_line, new_HIRE_SSN, "XXX-XX-XXXX") & "<newline>" & new_hire_second_line & "<newline>" & new_hire_third_line + "<newline>" & new_hire_fourth_line & "<newline>" & "---" & "<newline>"
 
 'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.

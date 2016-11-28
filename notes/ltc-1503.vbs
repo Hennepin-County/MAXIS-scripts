@@ -38,7 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -111,7 +123,7 @@ Do
 	Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	IF worker_signature = "" THEN MsgBox "You must sign your case note."
-LOOP UNTIL worker_signature <> ""  
+LOOP UNTIL worker_signature <> ""
 
 'Checks for an active MAXIS session
 call check_for_MAXIS(False)
@@ -143,12 +155,12 @@ End if
 If FACI_update_check = 1 then
 	call navigate_to_MAXIS_screen("stat", "faci")
 	EMReadScreen panel_max_check, 1, 2, 78
-	IF panel_max_check = "5" THEN 
+	IF panel_max_check = "5" THEN
 		script_end_procedure ("This case has reached the maximum amount of FACI panels.  Please review your case, delete an appropriate FACI panel, and run the script again.  Thank you.")
 	ELSE
 		EMWriteScreen "nn", 20, 79
 		transmit
-	END IF 
+	END IF
 	EMWriteScreen FACI, 6, 43
 	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
 	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
@@ -171,14 +183,14 @@ End if
 
 'HCMI
 If HCMI_update_check = 1 THEN
-	call navigate_to_MAXIS_screen("stat", "hcmi") 
+	call navigate_to_MAXIS_screen("stat", "hcmi")
 	EMReadScreen HCMI_panel_check, 1, 2, 78
 	IF HCMI_panel_check <> 0 Then
 		PF9
 	ELSE
 		EMWriteScreen "nn", 20, 79
 		transmit
-	END IF 
+	END IF
 	EMWriteScreen "dp", 10, 57
 	transmit
 	transmit
@@ -198,7 +210,7 @@ End if
 
 'The CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
-If processed_1503_check = 1 then 
+If processed_1503_check = 1 then
   call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI & "***")
 Else
   call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***")
@@ -210,7 +222,7 @@ Call write_bullet_and_variable_in_case_note("Hospital admitted from", hospital_a
 Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
 Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
 Call write_variable_in_CASE_NOTE("---")
-If updated_RLVA_check = 1 and updated_FACI_check = 1 then 
+If updated_RLVA_check = 1 and updated_FACI_check = 1 then
 Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
 Else
   If updated_RLVA_check = 1 then Call write_variable_in_case_note("* Updated RLVA.")

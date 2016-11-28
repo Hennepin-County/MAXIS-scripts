@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
   EditBox 30, 15, 350, 15, unearned_income
@@ -342,7 +354,7 @@ function income_summary
 
 	EMConnect ""
 
-	
+
 	back_to_self
 	EMWriteScreen MAXIS_footer_month, 20, 43
 	EMWriteScreen MAXIS_footer_year, 20, 46
@@ -612,7 +624,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 		Text 10, 5, 85, 10, "Enter your case number:"
 		GroupBox 60, 45, 85, 40, "COLA case note types"
 	EndDialog
-	
+
 	DO
 		err_msg = ""
 		Dialog COLA_case_number_dialog

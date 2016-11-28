@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Dialog---------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 126, 45, "Case number dialog"
   EditBox 60, 5, 60, 15, MAXIS_case_number
@@ -106,7 +118,7 @@ CFR_resp = right(worker_county_code, 2)
 If MAXIS_case_number = "" Then
 	Dialog case_number_dialog
 	cancel_confirmation
-End If 
+End If
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -116,9 +128,9 @@ Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 EMReadScreen date_of_death, 10, 19, 42
 If date_of_death = "__ __ ____" Then
 	date_of_death = ""
-Else 
+Else
 	date_of_death = replace(date_of_death, " ", "/")
-End If 
+End If
 'Pulls some asset information
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", CASH_ACCTs)
 call autofill_editbox_from_MAXIS(HH_member_array, "CASH", CASH_ACCTs)
@@ -131,15 +143,15 @@ Do
 		Dialog County_Burial_Application_Received
 		cancel_confirmation
 		IF buttonpressed = 0 THEN stopscript
-		If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "You must enter a case number." 
-		If date_received = "" Then err_msg = err_msg & vbNewLine & "Enter the date the application was recieved." 
-		If date_of_death = "" Then err_msg = err_msg & vbNewLine & "Enter the date of death." 
-		If CFR_resp = "" Then err_msg = err_msg & vbNewLine & "List the County of Financial Responsibility." 
-		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "Sign your case note." 
+		If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "You must enter a case number."
+		If date_received = "" Then err_msg = err_msg & vbNewLine & "Enter the date the application was recieved."
+		If date_of_death = "" Then err_msg = err_msg & vbNewLine & "Enter the date of death."
+		If CFR_resp = "" Then err_msg = err_msg & vbNewLine & "List the County of Financial Responsibility."
+		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "Sign your case note."
 		If err_msg <> "" Then MsgBox ("The following must be resolved before continuing." & vbNewLine & err_msg)
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'checking for an active MAXIS session
 CALL check_for_MAXIS(FALSE)
