@@ -40,18 +40,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'CHANGELOG BLOCK ===========================================================================================================
-'Starts by defining a changelog array
-changelog = array()
-
-'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
-
-'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
-changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
-
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -261,7 +249,6 @@ IF SNAP_banked_mo_check = checked THEN
 	Loop until err_msg = ""
 
 	ReDim BM_Clients_Array (3, 0)
-	excel_row = 2
 
 	For clt_dialog_response = 0 to (clients_on_case - 1)		'Creates an array of all the clients the worker selected as using banked months
 		IF All_SNAP_Clients_Array (5, clt_dialog_response) = checked THEN
@@ -292,126 +279,46 @@ IF SNAP_banked_mo_check = checked THEN
 			Next
 
 			Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
-			'This is David Courtright's code for using Access
-			IF banked_months_db_tracking = True Then 'This global variable needs to be set to true in the global variables file for counties using this method
-			'Counties also need to define the location of the database file using banked_month_database_path in global variables.
-			'----------------THis section updates an access database for ABAWD banked months---------------------------------'
-				abawd_member_array = Split(ABAWD_member_list, ",")
 
-			'Creating objects for Access
-				Set objConnection = CreateObject("ADODB.Connection")
-				Set objRecordSet = CreateObject("ADODB.Recordset")
-				objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & banked_month_database_path & ""
-				'This looks for an existing case number and edits it if needed
-				FOR i = 0 to UBound(BM_Clients_Array,2)
-					slash_loc = instr(Used_ABAWD_Months_Array(0), "/") 'this helps us get rid of the year info to match the database formatting.'
-					banked_month = left(Used_ABAWD_Months_Array(0), slash_loc - 1) ' This does the removal of the year, so the months match the database columns
-					if ubound(Used_ABAWD_Months_Array) > 0 THEN
-					slash_loc = instr(Used_ABAWD_Months_Array(1), "/")
-					banked_month_2 = left(Used_ABAWD_Months_Array(1), slash_loc - 1)
+			'This for... loop will write a TIKL to review SNAP and update tracking for each banked month
+			For each month_to_tikl in Used_ABAWD_Months_Array
+
+				month_to_tikl = Trim(month_to_tikl)
+				IF len(month_to_tikl) = 4 THEN month_to_tikl = "0" & month_to_tikl
+				tikl_month_mm = left(month_to_tikl,2)
+				tikl_month_yy = right(month_to_tikl,2)
+				tikl_date = tikl_month_mm & "/01/20" & tikl_month_yy
+				IF cdate(tikl_date) > date THEN 'We can only enter TIKL's for tomorrow or later
+					navigate_to_MAXIS_screen "DAIL", "WRIT"
+					EMWriteScreen tikl_month_mm, 5, 18
+					EMWriteScreen "01", 5, 21
+					EMWriteScreen tikl_month_yy, 5, 24
+					transmit
+					EMReadScreen tikl_corr, 4, 24, 2
+					IF tikl_corr = "DATE" then
+						PF10
+						PF3
+						tikl_set = False
+						MsgBox "*** ALERT !!! ***" & vbCr & "The TIKL to review SNAP BANKED MONTHS was not set for some reason!" & vbCr & "You must set a TIKL Manually"
+					Else
+						tikl_notc = "BANKED MONTH CASE Must be reviewed.  Review eligibility,"
+						tikl_notc_two = "update WREG tracking and appove results."
+						EMWriteScreen tikl_notc, 9, 3
+						EMWriteScreen tikl_notc_two, 10, 3
+						tikl_set = TRUE
+						cls_month = abs(last_month_mm) + 1
+						IF cls_month = 13 then
+							cls_date = "01" & "/" & (abs(last_month_yy) + 1)
+						Else
+							cls_date = cls_month & "/" & last_month_yy
+						End IF
 					END IF
-					IF ubound(Used_ABAWD_Months_Array) > 1 THEN
-					slash_loc = instr(Used_ABAWD_Months_Array(2), "/")
-					banked_month_3 = left(Used_ABAWD_Months_Array(2), slash_loc - 1)
-					END IF
-
-					set abawdrs = objConnection.Execute("SELECT * FROM banked_month_log WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & "") 'pulling all existing case / member info into a recordset
-					'These lines format the SQL string based on the number of months to update'
-					IF ubound(Used_ABAWD_Months_Array) = 2 THEN
-					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1, " & banked_month_3 & " = -1  WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-					 insert_string = banked_month & ", " & banked_month_2 & ", " & banked_month_3 & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1', '-1')"
-					ELSEIF ubound(Used_ABAWD_Months_Array) = 1 THEN
-					 update_string = banked_month & " = -1, " & banked_month_2 & " = -1 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-					 insert_string = banked_month & ", " & banked_month_2 & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1', '-1')"
-					ELSEIF ubound(Used_ABAWD_Months_Array) = 0 THEN
-						update_string = banked_month & " = -1 WHERE MAXIS_case_number = " & MAXIS_case_number & " AND member_number = " & BM_Clients_Array(0,i) & ""
-						insert_string = banked_month & ") VALUES ('" & MAXIS_case_number & "', '" & BM_Clients_Array(0,i) & "', '-1')"
-					END IF
-
-					IF NOT(abawdrs.EOF) THEN 'There is an existing case, we need to update
-						objConnection.Execute "UPDATE banked_month_log SET " & update_string 'Here we are actually writing to the database
-					ELSE 'There is no existing case, add a new one using the info pulled from the script
-						objConnection.Execute "INSERT INTO banked_month_log (MAXIS_case_number, member_number, " & insert_string
-					END IF
-					set abawdrs = nothing
-				NEXT
-				objConnection.close
-			END IF
-
-			IF banked_months_db_tracking = False Then
-				If worker_county_code <> "x127" then
-					If worker_county_code <> "x162" then
-						'For counties (who are not Hennepin and Ramsey) with no Access DB set up - this is create an excel sheet with the months listed - counties will need to determine their tracking process at this time
-						'Opening the Excel file
-						Set objExcel = CreateObject("Excel.Application")
-						objExcel.Visible = True
-						Set objWorkbook = objExcel.Workbooks.Add()
-						objExcel.DisplayAlerts = True
-
-						'Setting the first 4 col as worker, case number, name, and APPL date
-						ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
-						objExcel.Cells(1, 1).Font.Bold = TRUE
-						ObjExcel.Cells(excel_row, 1).Value = MAXIS_case_number
-						ObjExcel.Cells(1, 2).Value = "CLT REF #"
-						objExcel.Cells(1, 2).Font.Bold = TRUE
-						ObjExcel.Cells(excel_row, 2).Value = BM_Clients_Array(0, clt_banked_mo_apprvd)
-						ObjExcel.Cells(1, 3).Value = "CLT NAME"
-						objExcel.Cells(1, 3).Font.Bold = TRUE
-						ObjExcel.Cells(excel_row, 3).Value = BM_Clients_Array(1, clt_banked_mo_apprvd)
-						ObjExcel.Cells(1, 4).Value = "1st Banked Month"
-						objExcel.Cells(1, 4).Font.Bold = TRUE
-						ObjExcel.Cells(1, 5).Value = "2nd Banked Month"
-						objExcel.Cells(1, 5).Font.Bold = TRUE
-						ObjExcel.Cells(1, 6).Value = "3rd Banked Month"
-						objExcel.Cells(1, 6).Font.Bold = TRUE
-
-						month_col = 4
-						For v = 0 to UBound(Used_ABAWD_Months_Array)
-							ObjExcel.Cells(excel_row, month_col).Value = Used_ABAWD_Months_Array(v)
-							month_col = month_col + 1
-						Next
-
-							'Autofitting columns
-						For col_to_autofit = 1 to 6
-							ObjExcel.columns(col_to_autofit).AutoFit()
-						Next
-					END IF
-				End if
+				IF tikl_set = FALSE THEN MsgBox "*** ATTENTION ***" & vbCr & "The TIKL to review Banked Months did not set" & vbCr & "You must manually set the TIKL!"
 			End If
 
-			'Writing a TIKL to close SNAP once Banked Months are done for this person
-			navigate_to_MAXIS_screen "DAIL", "WRIT"
-			last_month = Trim(Used_ABAWD_Months_Array(UBound(Used_ABAWD_Months_Array)))
-			IF len(last_month) = 4 THEN last_month = "0" & last_month
-			last_month_mm = left(last_month,2)
-			last_month_yy = right(last_month,2)
-			EMWriteScreen last_month_mm, 5, 18
-			EMWriteScreen "01", 5, 21
-			EMWriteScreen last_month_yy, 5, 24
-			transmit
-			EMReadScreen tikl_corr, 4, 24, 2
-			IF tikl_corr = "DATE" then
-				PF10
-				PF3
-				tikl_set = False
-				MsgBox "*** ALERT !!! ***" & vbCr & "The TIKL to close SNAP BANKED MONTHS was not set for some reason!" & vbCr & "You must set a TIKL Manually"
-			Else
-				tikl_notc = "!!CLOSE SNAP for Memb " & BM_Clients_Array(0, clt_banked_mo_apprvd) & ". Client has used banked months and"
-				tikl_notc_two = "eligibility must be redetermined."
-				EMWriteScreen tikl_notc, 9, 3
-				EMWriteScreen tikl_notc_two, 10, 3
-				tikl_set = TRUE
-				cls_month = abs(last_month_mm) + 1
-				IF cls_month = 13 then
-					cls_date = "01" & "/" & (abs(last_month_yy) + 1)
-				Else
-					cls_date = cls_month & "/" & last_month_yy
-				End IF
-			End If
-			IF tikl_set = FALSE THEN MsgBox "*** ATTENTION ***" & vbCr & "The TIKL to close SNAP at the end of the Banked Months did not set" & vbCr & "You must manually set the TIKL!"
-			clt_banked_mo_apprvd = clt_banked_mo_apprvd + 1
-		End If
-		excel_row = excel_row + 1
+		NEXT
+		clt_banked_mo_apprvd = clt_banked_mo_apprvd + 1
+		END IF
 	Next
 End IF
 
@@ -741,8 +648,7 @@ IF clt_banked_mo_apprvd <> 0 THEN 	'BANKED MONTH Case Note - each client gets a 
 	For clt_banked_mo_apprvd = 0 to UBound (BM_Clients_Array,2)
 		Call start_a_blank_CASE_NOTE
 		Call write_variable_in_CASE_NOTE ("!~!~! Memb " & BM_Clients_Array(0,clt_banked_mo_apprvd) & "used BANKED MONTHS in " & BM_Clients_Array (2, clt_banked_mo_apprvd) & " !~!~!")	'Months used moved to header
-		IF worker_county_code = "x169" THEN Call write_variable_in_CASE_NOTE ("BANKED MONTH Information added to Database for reporting")
-		IF tikl_set = TRUE Then Call write_variable_in_CASE_NOTE ("TIKL Created to close SNAP for " & cls_date)
+		IF tikl_set = TRUE Then Call write_variable_in_CASE_NOTE ("TIKL Created to review results and update tracking for each month noted above.")
 		Call write_variable_in_CASE_NOTE ("---")
 		Call write_variable_in_CASE_NOTE (worker_signature)
 	Next
@@ -822,5 +728,6 @@ If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs ne
 IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("BANKED MONTHS were approved - see previous case note for detail.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
+
 
 script_end_procedure("Success! Please remember to check the generated notice to make sure it is correct. If not, please add WCOMs to make notice read correctly.")
