@@ -37,6 +37,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog Dialog1, 0, 0, 261, 135, "PRISM screen finder"
   ButtonGroup ButtonPressed
@@ -46,7 +58,7 @@ BeginDialog Dialog1, 0, 0, 261, 135, "PRISM screen finder"
     PushButton 140, 55, 45, 10, "CAFS", CAFS_button
     PushButton 140, 85, 45, 10, "GCSC", GCSC_button
     PushButton 140, 115, 45, 10, "PESE", PESE_button
- 
+
   Text 35, 70, 90, 10, "Direct deposit listing:"
   Text 35, 40, 65, 10, "Case notes:"
   Text 35, 55, 100, 10, "Case financial summary:"

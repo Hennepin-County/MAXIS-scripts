@@ -42,6 +42,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS-------------------------------------------------------
 BeginDialog REPT_ARST_dialog, 0, 0, 276, 135, "REPT ARST Dialog"
   CheckBox 10, 15, 60, 10, "Cash", cash_check
@@ -155,8 +167,8 @@ objExcel.Cells(2, 2).Font.Bold = TRUE
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
 col_to_use = 3 'Starting with 3 because cols 1-2 are already used
 
-'creates a gather_cases_pending veriable as TRUE if any of the pending options is checked to get case data correctly 
-If pending_check = checked OR pending_under_31_check = checked OR pending_31_to_45_check = checked OR pending_46_to_60_check = checked OR pending_over_60_check = checked THEN gather_cases_pending = TRUE 
+'creates a gather_cases_pending veriable as TRUE if any of the pending options is checked to get case data correctly
+If pending_check = checked OR pending_under_31_check = checked OR pending_31_to_45_check = checked OR pending_46_to_60_check = checked OR pending_over_60_check = checked THEN gather_cases_pending = TRUE
 
 case_header_col = col_to_use		'Sets the header to be used later for merging Cells
 
@@ -605,7 +617,7 @@ For each worker_number in worker_array
 
 	'The following will determine if the worker is active or inactive. Inactive workers will show a 0 for all numbers, and will not be entered into the spreadsheet
 	EMReadScreen total_cases, 			 9, 5, 47
-	EMReadScreen cases_actv, 			 9, 6, 47 
+	EMReadScreen cases_actv, 			 9, 6, 47
 	EMReadScreen cases_rein, 			 9, 7, 47
 	EMReadScreen cases_pnd2, 			 9, 8, 47
 	EMReadScreen cases_pnd1, 			 9, 9, 47
@@ -694,11 +706,11 @@ For each worker_number in worker_array
 		ObjExcel.Cells(excel_row, case_total_col).Value = total_cases
 		If active_check = checked then ObjExcel.Cells(excel_row, case_actv_col).Value = cases_actv
 		If REIN_check = checked then ObjExcel.Cells(excel_row, case_REIN_col).Value = cases_rein
-		If gather_cases_pending = TRUE then 
+		If gather_cases_pending = TRUE then
 			ObjExcel.Cells(excel_row, case_pnd2_col).Value = cases_pnd2
 			ObjExcel.Cells(excel_row, case_pnd1_col).Value = cases_pnd1
-		End If 
-		
+		End If
+
 		'Cash info to Excel
 		If cash_check = checked then
 			If active_check = checked then ObjExcel.Cells(excel_row, cash_actv_col).Value = cash_active_count

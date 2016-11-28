@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '<<<GO THROUGH AND REMOVE REDUNDANT FUNCTIONS
 
 
@@ -80,8 +92,8 @@ Do
   BILS_line_01 = replace(BILS_line_01, "$", " ")
   BILS_line_01 = split(BILS_line_01, "  ")
   BILS_line_01(1) = replace(BILS_line_01(1), " ", "/")
-  If IsDate(BILS_line_01(1)) = True then 
-    If datediff("d", target_date, BILS_line_01(1)) > 0 and BILS_line_01(2) = 27 and BILS_line_01(5) <> "243.00" then 
+  If IsDate(BILS_line_01(1)) = True then
+    If datediff("d", target_date, BILS_line_01(1)) > 0 and BILS_line_01(2) = 27 and BILS_line_01(5) <> "243.00" then
       EMWriteScreen "243.00", 6, 48
       EMWriteScreen "c", 6, 24
       updates_made = updates_made + 1
@@ -92,8 +104,8 @@ Do
   BILS_line_02 = replace(BILS_line_02, "$", " ")
   BILS_line_02 = split(BILS_line_02, "  ")
   BILS_line_02(1) = replace(BILS_line_02(1), " ", "/")
-  If IsDate(BILS_line_02(1)) = True then 
-    If datediff("d", target_date, BILS_line_02(1)) > 0 and BILS_line_02(2) = 27 and BILS_line_02(5) <> "243.00" then  
+  If IsDate(BILS_line_02(1)) = True then
+    If datediff("d", target_date, BILS_line_02(1)) > 0 and BILS_line_02(2) = 27 and BILS_line_02(5) <> "243.00" then
     EMWriteScreen "243.00", 7, 48
     EMWriteScreen "c", 7, 24
     updates_made = updates_made + 1
@@ -104,8 +116,8 @@ Do
   BILS_line_03 = replace(BILS_line_03, "$", " ")
   BILS_line_03 = split(BILS_line_03, "  ")
   BILS_line_03(1) = replace(BILS_line_03(1), " ", "/")
-  If IsDate(BILS_line_03(1)) = True then 
-    If datediff("d", target_date, BILS_line_03(1)) > 0 and BILS_line_03(2) = 27 and BILS_line_03(5) <> "243.00" then  
+  If IsDate(BILS_line_03(1)) = True then
+    If datediff("d", target_date, BILS_line_03(1)) > 0 and BILS_line_03(2) = 27 and BILS_line_03(5) <> "243.00" then
     EMWriteScreen "243.00", 8, 48
     EMWriteScreen "c", 8, 24
     updates_made = updates_made + 1
@@ -116,8 +128,8 @@ Do
   BILS_line_04 = replace(BILS_line_04, "$", " ")
   BILS_line_04 = split(BILS_line_04, "  ")
   BILS_line_04(1) = replace(BILS_line_04(1), " ", "/")
-  If IsDate(BILS_line_04(1)) = True then 
-    If datediff("d", target_date, BILS_line_04(1)) > 0 and BILS_line_04(2) = 27 and BILS_line_04(5) <> "243.00" then  
+  If IsDate(BILS_line_04(1)) = True then
+    If datediff("d", target_date, BILS_line_04(1)) > 0 and BILS_line_04(2) = 27 and BILS_line_04(5) <> "243.00" then
     EMWriteScreen "243.00", 9, 48
     EMWriteScreen "c", 9, 24
     updates_made = updates_made + 1
@@ -128,8 +140,8 @@ Do
   BILS_line_05 = replace(BILS_line_05, "$", " ")
   BILS_line_05 = split(BILS_line_05, "  ")
   BILS_line_05(1) = replace(BILS_line_05(1), " ", "/")
-  If IsDate(BILS_line_05(1)) = True then 
-    If datediff("d", target_date, BILS_line_05(1)) > 0 and BILS_line_05(2) = 27 and BILS_line_05(5) <> "243.00" then  
+  If IsDate(BILS_line_05(1)) = True then
+    If datediff("d", target_date, BILS_line_05(1)) > 0 and BILS_line_05(2) = 27 and BILS_line_05(5) <> "243.00" then
     EMWriteScreen "243.00", 10, 48
     EMWriteScreen "c", 10, 24
     updates_made = updates_made + 1
@@ -140,8 +152,8 @@ Do
   BILS_line_06 = replace(BILS_line_06, "$", " ")
   BILS_line_06 = split(BILS_line_06, "  ")
   BILS_line_06(1) = replace(BILS_line_06(1), " ", "/")
-  If IsDate(BILS_line_06(1)) = True then 
-    If datediff("d", target_date, BILS_line_06(1)) > 0 and BILS_line_06(2) = 27 and BILS_line_06(5) <> "243.00" then  
+  If IsDate(BILS_line_06(1)) = True then
+    If datediff("d", target_date, BILS_line_06(1)) > 0 and BILS_line_06(2) = 27 and BILS_line_06(5) <> "243.00" then
     EMWriteScreen "243.00", 11, 48
     EMWriteScreen "c", 11, 24
     updates_made = updates_made + 1
@@ -152,8 +164,8 @@ Do
   BILS_line_07 = replace(BILS_line_07, "$", " ")
   BILS_line_07 = split(BILS_line_07, "  ")
   BILS_line_07(1) = replace(BILS_line_07(1), " ", "/")
-  If IsDate(BILS_line_07(1)) = True then 
-    If datediff("d", target_date, BILS_line_07(1)) > 0 and BILS_line_07(2) = 27 and BILS_line_07(5) <> "243.00" then  
+  If IsDate(BILS_line_07(1)) = True then
+    If datediff("d", target_date, BILS_line_07(1)) > 0 and BILS_line_07(2) = 27 and BILS_line_07(5) <> "243.00" then
     EMWriteScreen "243.00", 12, 48
     EMWriteScreen "c", 12, 24
     updates_made = updates_made + 1
@@ -164,8 +176,8 @@ Do
   BILS_line_08 = replace(BILS_line_08, "$", " ")
   BILS_line_08 = split(BILS_line_08, "  ")
   BILS_line_08(1) = replace(BILS_line_08(1), " ", "/")
-  If IsDate(BILS_line_08(1)) = True then 
-    If datediff("d", target_date, BILS_line_08(1)) > 0 and BILS_line_08(2) = 27 and BILS_line_08(5) <> "243.00" then  
+  If IsDate(BILS_line_08(1)) = True then
+    If datediff("d", target_date, BILS_line_08(1)) > 0 and BILS_line_08(2) = 27 and BILS_line_08(5) <> "243.00" then
     EMWriteScreen "243.00", 13, 48
     EMWriteScreen "c", 13, 24
     updates_made = updates_made + 1
@@ -176,8 +188,8 @@ Do
   BILS_line_09 = replace(BILS_line_09, "$", " ")
   BILS_line_09 = split(BILS_line_09, "  ")
   BILS_line_09(1) = replace(BILS_line_09(1), " ", "/")
-  If IsDate(BILS_line_09(1)) = True then 
-    If datediff("d", target_date, BILS_line_09(1)) > 0 and BILS_line_09(2) = 27 and BILS_line_09(5) <> "243.00" then  
+  If IsDate(BILS_line_09(1)) = True then
+    If datediff("d", target_date, BILS_line_09(1)) > 0 and BILS_line_09(2) = 27 and BILS_line_09(5) <> "243.00" then
     EMWriteScreen "243.00", 14, 48
     EMWriteScreen "c", 14, 24
     updates_made = updates_made + 1
@@ -188,8 +200,8 @@ Do
   BILS_line_10 = replace(BILS_line_10, "$", " ")
   BILS_line_10 = split(BILS_line_10, "  ")
   BILS_line_10(1) = replace(BILS_line_10(1), " ", "/")
-  If IsDate(BILS_line_10(1)) = True then 
-    If datediff("d", target_date, BILS_line_10(1)) > 0 and BILS_line_10(2) = 27 and BILS_line_10(5) <> "243.00" then  
+  If IsDate(BILS_line_10(1)) = True then
+    If datediff("d", target_date, BILS_line_10(1)) > 0 and BILS_line_10(2) = 27 and BILS_line_10(5) <> "243.00" then
     EMWriteScreen "243.00", 15, 48
     EMWriteScreen "c", 15, 24
     updates_made = updates_made + 1
@@ -200,8 +212,8 @@ Do
   BILS_line_11 = replace(BILS_line_11, "$", " ")
   BILS_line_11 = split(BILS_line_11, "  ")
   BILS_line_11(1) = replace(BILS_line_11(1), " ", "/")
-  If IsDate(BILS_line_11(1)) = True then 
-    If datediff("d", target_date, BILS_line_11(1)) > 0 and BILS_line_11(2) = 27 and BILS_line_11(5) <> "243.00" then  
+  If IsDate(BILS_line_11(1)) = True then
+    If datediff("d", target_date, BILS_line_11(1)) > 0 and BILS_line_11(2) = 27 and BILS_line_11(5) <> "243.00" then
     EMWriteScreen "243.00", 16, 48
     EMWriteScreen "c", 16, 24
     updates_made = updates_made + 1
@@ -212,8 +224,8 @@ Do
   BILS_line_12 = replace(BILS_line_12, "$", " ")
   BILS_line_12 = split(BILS_line_12, "  ")
   BILS_line_12(1) = replace(BILS_line_12(1), " ", "/")
-  If IsDate(BILS_line_12(1)) = True then 
-    If datediff("d", target_date, BILS_line_12(1)) > 0 and BILS_line_12(2) = 27 and BILS_line_12(5) <> "243.00" then  
+  If IsDate(BILS_line_12(1)) = True then
+    If datediff("d", target_date, BILS_line_12(1)) > 0 and BILS_line_12(2) = 27 and BILS_line_12(5) <> "243.00" then
     EMWriteScreen "243.00", 17, 48
     EMWriteScreen "c", 17, 24
     updates_made = updates_made + 1

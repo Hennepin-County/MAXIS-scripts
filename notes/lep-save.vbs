@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOG PORTION----------------------------------------------------------------------------------------------------------------------------------------------
 
 BeginDialog SAVE_dialog, 0, 0, 206, 355, "SAVE Dialog"
@@ -86,11 +98,11 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)      'finding case number
 
 Call check_for_MAXIS(true)						'making sure that person is in MAXIS and logged in
- 
+
 Do
 	err_msg = ""						'error message handling to keep dialog looping until completed correctly.
 	Dialog SAVE_dialog
-	cancel_confirmation	
+	cancel_confirmation
 	If MAXIS_case_number = "" THEN err_msg = err_msg & "You must enter a Case number." & vbNewLine
 	If TIKL_check = 1 and IsDate(exp_date) = False then err_msg = err_msg & "You must enter a proper date (MM/DD/YYYY) if you want the script to TIKL out." & vbNewLine
 	If imig_doc_received = "" THEN err_msg = err_msg & "Please enter a immigration doc received." & vbNewLine
@@ -121,7 +133,7 @@ End If
 															'Case notes portion shared by SAVE 1 and SAVE 2
 Call write_bullet_and_variable_in_CASE_NOTE("Immigration document received", imig_doc_received)
 Call write_bullet_and_variable_in_CASE_NOTE("Expiration date", exp_date)
-If TIKL_check = 1 then Call write_variable_in_CASE_NOTE("* TIKLed to re-request " & dateadd("d", -90, exp_date) & ".")  'subtracting 90 days from expiration date to write a TIKL to request updated information. 
+If TIKL_check = 1 then Call write_variable_in_CASE_NOTE("* TIKLed to re-request " & dateadd("d", -90, exp_date) & ".")  'subtracting 90 days from expiration date to write a TIKL to request updated information.
 If SAVE_2_requested_check = checked then Call write_variable_in_CASE_NOTE("* SAVE 2 requested.")
 Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
@@ -132,9 +144,9 @@ Call write_variable_in_CASE_NOTE(worker_sig)
 
 If TIKL_check = checked then
 	Call navigate_to_MAXIS_screen("DAIL","WRIT")
-	Call create_MAXIS_friendly_date(exp_date, -90, 5, 18)  'subtracting 90 days from expiration date to write a TIKL to request updated information. 
+	Call create_MAXIS_friendly_date(exp_date, -90, 5, 18)  'subtracting 90 days from expiration date to write a TIKL to request updated information.
 	Call write_variable_in_TIKL("Check on immigration documentation. If it hasn't been updated, request updated info, as what we have expires " & exp_date & ". TIKL generated via script.")
-	script_end_procedure("Success! TIKL sent for " & dateadd("d", -90, exp_date) & ", 90 days prior to document expiration.")   'subtracting 90 days from expiration date to write a TIKL to request updated information. 
+	script_end_procedure("Success! TIKL sent for " & dateadd("d", -90, exp_date) & ", 90 days prior to document expiration.")   'subtracting 90 days from expiration date to write a TIKL to request updated information.
 END IF
 
 script_end_procedure("")

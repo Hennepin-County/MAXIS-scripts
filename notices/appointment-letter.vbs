@@ -98,7 +98,7 @@ elseif worker_county_code = "x108" then
 elseif worker_county_code = "x109" then
     agency_office_array = array("Cloquet", "Moose Lake")
 elseif worker_county_code = "x110" then
-    agency_office_array = array("Carver") 
+    agency_office_array = array("Carver")
 elseif worker_county_code = "x111" then
     agency_office_array = array("Cass")
 elseif worker_county_code = "x112" then
@@ -118,7 +118,7 @@ elseif worker_county_code = "x118" then
 elseif worker_county_code = "x119" then
     agency_office_array = array("Dakota")
 elseif worker_county_code = "x120" then
-    agency_office_array = array("Dodge") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties	
+    agency_office_array = array("Dodge") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties
     elseif worker_county_code = "x121" then
     agency_office_array = array("Douglas")
 elseif worker_county_code = "x122" then
@@ -299,9 +299,9 @@ BeginDialog appointment_letter_dialog, 0, 0, 156, 355, "Appointment letter"
   Text 15, 310, 65, 10, "Worker signature:"
 EndDialog
 
-'Case number only dialog for x127 users 
+'Case number only dialog for x127 users
 BeginDialog case_number_dialog, 0, 0, 136, 60, "Case number dialog"
-  EditBox 60, 10, 60, 15, MAXIS_case_number					
+  EditBox 60, 10, 60, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 15, 35, 50, 15
     CancelButton 70, 35, 50, 15
@@ -327,9 +327,9 @@ EndDialog
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-If worker_county_code = "x127" then 
-	Do 
-		Do 
+If worker_county_code = "x127" then
+	Do
+		Do
 			err_msg = ""
 			dialog case_number_dialog
 			If ButtonPressed = 0 then stopscript
@@ -340,21 +340,21 @@ If worker_county_code = "x127" then
 	LOOP UNTIL are_we_passworded_out = false
 
 	'grabs CAF date, turns CAF date into string for variable
-	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_date)	
+	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_date)
 	CAF_date = CAF_date & ""
-	
-	'creates interview date for 7 calendar days from the CAF date 
-	interview_date = dateadd("d", 7, CAF_date) 
+
+	'creates interview date for 7 calendar days from the CAF date
+	interview_date = dateadd("d", 7, CAF_date)
 	If interview_date < date then interview_date = dateadd("d", 7, date)
 	interview_date = interview_date & ""		'turns interview date into string for variable
 
 	'Establishing values for variables that do not appear in the x127 dialog
 	app_type = "new application"
-	interview_location = "PHONE" 
+	interview_location = "PHONE"
 	interview_time = "9:00 AM - 1:00 PM"
-	
+
 	Do
-		Do 
+		Do
     		err_msg = ""
     		dialog Hennepin_appt_dialog
     		cancel_confirmation
@@ -364,9 +364,9 @@ If worker_county_code = "x127" then
     	Loop until err_msg = ""
     	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
-Else 
+Else
 	'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
-	Do 
+	Do
 		Do
 			err_msg = ""
 			Dialog appointment_letter_dialog
@@ -374,7 +374,7 @@ Else
 			If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You must fill in a valid case number. Please try again."
 			CAF_date = replace(CAF_date, ".", "/")
 			If no_CAF_check = checked and app_type = "new application" then no_CAF_check = unchecked 'Shuts down "no_CAF_check" so that it will validate the date entered. New applications can't happen if a CAF wasn't provided.
-			If no_CAF_check = unchecked and isdate(CAF_date) = False then err_msg = err_msg & vbnewline & "* You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."                    
+			If no_CAF_check = unchecked and isdate(CAF_date) = False then err_msg = err_msg & vbnewline & "* You did not enter a valid CAF date (MM/DD/YYYY format). Please try again."
 	    	If interview_location = "Select one..." then err_msg = err_msg & vbnewline & "* You must select an interview location! Please try again!"
 	    	If interview_location = "PHONE" and client_phone = "" then err_msg = err_msg & vbnewline & "* If this is a phone interview, you must enter a phone number! Please try again."
 	    	interview_date = replace(interview_date, ".", "/")
@@ -384,10 +384,10 @@ Else
 	    	If expedited_check = checked and datediff("d", CAF_date, interview_date) > 6 and expedited_explanation = "" then err_msg = err_msg & vbnewline & "* You have indicated that your case is expedited, but scheduled the interview date outside of the six-day window. An explanation of why is required for QC purposes."
 			If worker_signature = "" then err_msg = err_msg & vbnewline & "* You must provide a signature for your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-		Loop until err_msg = ""	
+		Loop until err_msg = ""
 		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false
-END IF 
+END IF
 
 'Creates a variable to contain the agency addresses. "Address" is a class defined above.
 set agency_address = new address
@@ -533,7 +533,7 @@ ELSEIF worker_county_code = "x126" THEN
     agency_address.city = "Elbow Lake"
     agency_address.zip = "56531"
 ELSEIF worker_county_code = "x127" THEN
-    IF interview_location = "South Minneapolis" THEN 
+    IF interview_location = "South Minneapolis" THEN
         agency_address.street = "330 South 12th Street"
         agency_address.city = "Minneapolis"
         agency_address.zip = "55440"
@@ -846,7 +846,7 @@ ELSEIF worker_county_code = "x180" THEN
     agency_address.street = "124 First Street SE"
     agency_address.city = "Wadena"
     agency_address.zip = "56482"
-ELSEIF worker_county_code = "x181" THEN   
+ELSEIF worker_county_code = "x181" THEN
     agency_address.street = "299 JOHNSON SW STE 160"
     agency_address.city = "Waseca"
     agency_address.zip = "56093"
@@ -996,11 +996,11 @@ Elseif app_type = "recertification" then
 End if
 call write_variable_in_SPEC_MEMO("")
 If interview_location = "PHONE" then    'Phone interviews have a different verbiage than any other interview type
-	IF worker_county_code = "x127" then 
+	IF worker_county_code = "x127" then
 		call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " anytime between " & interview_time & "." )
-	Else 	
+	Else
     	call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " at " & interview_time & "." )
-	END IF 
+	END IF
 Else
     call write_variable_in_SPEC_MEMO("Your in-office interview is scheduled for " & interview_date & " at " & interview_time & ".")
 End if
@@ -1009,11 +1009,11 @@ If interview_location = "PHONE" then
 	if worker_county_code = "x127" then 	'This is for Hennepin County only, x127 recipients/applicants will be calling into the agency using the EZ info number
 		Call write_variable_in_SPEC_MEMO("Please call the EZ Info Line at 612-596-1300 to complete your phone interview.")
 		call write_variable_in_SPEC_MEMO("If this date and/or time frame does not work, or you would prefer an interview in the office, please call the EZ Info Line.")
-	Else 
+	Else
 		call write_variable_in_SPEC_MEMO("We will be calling you at this number: " & client_phone & ".")
 		call write_variable_in_SPEC_MEMO("")
     	call write_variable_in_SPEC_MEMO("If this date and/or time does not work, or you would prefer an interview in the office, please call your worker.")
-	END IF 
+	END IF
 Else
     call write_variable_in_SPEC_MEMO("Your interview is at the " & interview_location & " Office, located at:")
     for each line in agency_address.twolines		'"twolines" is an array, so this will write each line in.
@@ -1064,13 +1064,13 @@ End if
 If same_day_declined_check = checked then write_variable_in_CASE_NOTE("* Same day interview offered and declined.")
 call write_bullet_and_variable_in_CASE_NOTE("Appointment date", interview_date)
 IF interview_location = "PHONE" then
-	If worker_county_code = "x127" then 	'text for case note for x127 users 
+	If worker_county_code = "x127" then 	'text for case note for x127 users
 		call write_bullet_and_variable_in_CASE_NOTE("Appointment time frame", interview_time)
-		call write_variable_in_CASE_NOTE("* Client was instructed to call the EZ info line to complete interview.")		
-	Else 
+		call write_variable_in_CASE_NOTE("* Client was instructed to call the EZ info line to complete interview.")
+	Else
 		call write_bullet_and_variable_in_CASE_NOTE("Appointment time", interview_time)
 		call write_variable_in_CASE_NOTE("* Interview will take place by telephone.")
-	End if 
+	End if
 Else
 	call write_bullet_and_variable_in_CASE_NOTE("Appointment location", interview_location)
 End if

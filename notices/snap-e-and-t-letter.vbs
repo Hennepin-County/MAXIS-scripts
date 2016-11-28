@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -276,7 +288,7 @@ DO
 			END IF
 			'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
 			'Somali-language orientation
-			IF interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" then 
+			IF interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" then
 				SNAPET_name = "Sabathani Community Center"
 				SNAPET_address_01 = "310 East 38th Street #120"
 				SNAPET_city = "Minneapolis"
@@ -398,13 +410,13 @@ DO
 		If AM_PM = "Select one..." then err_msg = err_msg & vbNewLine & "* Select either AM or PM for your appointment time."
 		IF SNAPET_contact = "" then err_msg = err_msg & vbNewLine & "* Enter a contact name."
 		IF SNAPET_phone = "" then err_msg = err_msg & vbNewLine & "* Enter a phone number."
-		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location." 
+		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location."
 		IF (manual_referral = "Other manual referral" and other_referral_notes = "") then err_msg = err_msg & vbNewLine & "* Enter other manual referral notes."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'The Hennepin County worker must confirm the appointment time and date, and gives them the option to select another date
 If worker_county_code = "x127" THEN
@@ -417,8 +429,8 @@ If worker_county_code = "x127" THEN
 			If orientation_date_confirmation = vbYes then exit do
 			If orientation_date_confirmation = vbNo then appointment_date = dateadd("d", 7, appointment_date)
 		LOOP until orientation_date_confirmation = vbYes
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in	
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
@@ -1043,7 +1055,7 @@ If memb_error_check = "Arrival" then	'checking for valid HH member
 	PF3
 	PF10
 	script_end_procedure("The HH member is invalid. Please review your case, and the HH member number before trying the script again.")
-END IF 	
+END IF
 EMReadScreen last_name, 24, 6, 30
 EMReadScreen first_name, 11, 6, 63
 last_name = trim(replace(last_name, "_", ""))
@@ -1056,25 +1068,25 @@ transmit
 
 'Ensuring that students have a FSET status of "12" and all others are coded with "30"
 EMReadScreen FSET_status, 2, 8, 50
-If manual_referral = "Student" then 
+If manual_referral = "Student" then
     if FSET_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
-Else 
+Else
     If FSET_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
-End if 
+End if
 'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
 EMReadScreen ABAWD_status, 2, 13, 50
-If manual_referral = "Banked months" then 
+If manual_referral = "Banked months" then
  	if ABAWD_status <> "13" then script_end_procedure ("Member " & member_number & " is not coded as a banked months recipient. The script will now end.")
-End if 
+End if
 
 'Ensuring the orientation date is coding in the with the referral date scheduled
 EMReadScreen orientation_date, 8, 9, 50
 orientation_date = replace(orientation_date, " ", "/")
-If appointment_date <> orientation_date then 
+If appointment_date <> orientation_date then
 	PF9
 	Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
 	PF3
-END if  
+END if
 
 'The CASE/NOTE----------------------------------------------------------------------------------------------------
 'Navigates to a blank case note
@@ -1117,9 +1129,9 @@ PF3
 'Creates a 30 day TILK to check for compliance with E & T'
 If manual_referral <> "Select one..." then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 30, 5, 18) 
+	call create_MAXIS_friendly_date(date, 30, 5, 18)
 	Call write_variable_in_TIKL("Manual referral was made for " & other_referral_notes & " recipient 30 days ago. Please review case to see if verification of E and T compliance was sent to recipient, and that they are complying.")
-	transmit	
+	transmit
 	PF3
 End if
 
@@ -1130,15 +1142,15 @@ If manual_referral <> "Select one..." then 					'if banked months or student are
 	EMWriteScreen "FS", 8, 46													'this is a program for ABAWD's for SNAP is the only option for banked months
 	EMWriteScreen member_number, 8, 9									'enters member number
 	Call create_MAXIS_friendly_date(appointment_date, 0, 8, 65)			'enters the E & T referral date
-	If manual_referral = "Banked months" then 
+	If manual_referral = "Banked months" then
 		EMWriteScreen "Banked ABAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
 	ELSEIF manual_referral = "Student" then
 		EMWriteScreen "Student", 17, 6
-	ELSEIF manual_referral = "Working with CBO" then 
+	ELSEIF manual_referral = "Working with CBO" then
 		EMWriteScreen "Working with Community Based Organization", 17, 6
-	ELSEIF manual_referral = "Other manual referral" then 
+	ELSEIF manual_referral = "Other manual referral" then
 		EMWriteScreen other_referral_notes, 17, 6
-	END IF 
+	END IF
 	EMWriteScreen "x", 8, 53																				'selects the ES provider
 	transmit																												'navigates to the ES provider selection screen
 		If worker_county_code = "x127" then				'HENNEPIN CO specific info'

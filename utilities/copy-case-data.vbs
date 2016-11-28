@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'CONSTANTS=============================
 'These are the start rows for each MAXIS panel
 memb_row = 6
@@ -55,7 +67,7 @@ coex_row = 193
 dcex_row = 210
 dfln_row = 237
 diet_row = 249
-disa_row = 261	
+disa_row = 261
 dstt_row = 277
 eats_row = 280
 emma_row = 285
@@ -97,11 +109,11 @@ wreg_row = 674
 'custom function for determining data validation values in the given cell and matching with what is needed...
 FUNCTION check_for_data_validation(cell_row, cell_column, maxis_value, objExcel, objWorkbook, objTemplate, objNewSheet)
 	'backing out of the function and skipping that cell if the script finds a "?" and notifying the user of the problem...
-	IF InStr(maxis_value, "?") <> 0 THEN 
+	IF InStr(maxis_value, "?") <> 0 THEN
 		MsgBox "*** NOTICE!!! ***" & vbCr & vbCr & "The script is attempting to write a ''?'' to the template. This value is not supported. The script will skip this value for the cell at row " & cell_row & " and column " & cell_column & ".", vbInformation + vbSystemModal, "Invalid Character Found"
 		EXIT FUNCTION
 	END IF
-	
+
 	'creating string of alphabet for comparison
 	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	'converting the row and column
@@ -111,7 +123,7 @@ FUNCTION check_for_data_validation(cell_row, cell_column, maxis_value, objExcel,
 	SET objTempRange = objNewSheet.Range(specific_cell)
 	'grabbing the controls range for the data validation on that cell
 	source_range = objTempRange.Validation.Formula1
-	
+
 	'Checking to see that the data validation is from a reference to the controls sheet or if it has been hard-coded to the field
 	IF InStr(source_range, "controls") = 0 THEN 					'<<< if the values are hard coded
 		all_possible_values = split(source_range, ",")				'<<< looking for the specific value in the list of values
@@ -121,43 +133,43 @@ FUNCTION check_for_data_validation(cell_row, cell_column, maxis_value, objExcel,
 				EXIT FOR											'<<< and EXIT the FOR/NEXT
 			END IF
 		NEXT
-	
+
 	ELSE			'<<< if the values are taken from 'controls'
 		'Trimming and modifiying the source range to make it workable
 		source_range = replace(source_range, "$", "")
 		source_range = replace(source_range, "=controls!", "")
-		
+
 		'Determining the start and end of the range
 		colon_pos = InStr(source_range, ":")
 		start_cell = left(source_range, colon_pos - 1)
 		end_cell = right(source_range, len(source_range) - len(start_cell) - 1)
-	
+
 		'Converting the range to script-friendly parts...
 		'...the start row and column
 		FOR i = 1 TO len(start_cell)
-			IF IsNumeric(right(start_cell, i)) = FALSE THEN 
+			IF IsNumeric(right(start_cell, i)) = FALSE THEN
 				start_row = right(start_cell, i - 1)
 				start_col = left(start_cell, len(start_cell) - len(start_row))
 				EXIT FOR
 			END IF
 		NEXT
-		
+
 		'...and the end row
 		FOR i = 1 TO len(end_cell)
-			IF IsNumeric(right(end_cell, i)) = FALSE THEN 
+			IF IsNumeric(right(end_cell, i)) = FALSE THEN
 				end_row = right(end_cell, i - 1)
 				end_col = left(end_cell, len(end_cell) - len(end_row))
 				EXIT FOR
 			END IF
 		NEXT
-			
+
 		'Grabbing validation values from control worksheet
 		SET objControls = objWorkbook.Worksheets("Controls")
-		
+
 		'now going through the range of validation cells to find the one that matches what we found in MAXIS
 		FOR i = (start_row * 1) TO (end_row * 1)
 			control_col = InStr(alphabet, start_col)
-			IF InStr(objControls.Cells(i, control_col).Value, maxis_value) = 1 THEN 
+			IF InStr(objControls.Cells(i, control_col).Value, maxis_value) = 1 THEN
 				objExcel.Cells(cell_row, cell_column).Value = objControls.Cells(i, control_col).Value
 				EXIT FOR
 			END IF
@@ -189,34 +201,34 @@ DO
             OkButton 270, 300, 50, 15
             CancelButton 325, 300, 50, 15
         EndDialog
-    
+
     	Dialog
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
     Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
-    
+
     'checking that MX is not timed out
     CALL check_for_MAXIS(false)
-    
+
     'opening the spreadsheet
     SET objExcel = CreateObject("Excel.Application")
     objExcel.Visible = TRUE
     SET objWorkbook = objExcel.Workbooks.Add(training_case_creator_excel_file_path)
     objExcel.DisplayAlerts = FALSE
-	
+
 	'Asking the user to confirm the spreadsheet
 	confirm_spreadsheet = MsgBox ("Is this the correct spreadsheet? Press YES to confirm and continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel, vbQuestion + vbSystemModal, "Confirm SpreadSheet")
 	IF confirm_spreadsheet = vbCancel THEN script_end_procedure("Script cancelled.")
-	IF confirm_spreadsheet = vbNo THEN 
+	IF confirm_spreadsheet = vbNo THEN
 		objWorkbook.Close
 		objExcel.Quit
 	END IF
 LOOP UNTIL confirm_spreadsheet = vbYes
 
-'naming the scenario	 
+'naming the scenario
 DO
 	err_msg = ""
-	
+
 	BeginDialog Dialog1, 0, 0, 216, 60, "Scenario Creator"
 	EditBox 105, 10, 105, 15, scenario_name
 	ButtonGroup ButtonPressed
@@ -224,7 +236,7 @@ DO
 		CancelButton 160, 40, 50, 15
 	Text 10, 15, 90, 10, "Name your new scenario:"
 	EndDialog
-	
+
 	DIALOG
 	cancel_confirmation
 	IF scenario_name = "" THEN err_msg = err_msg & vbCr & "* You must give the scenario a name."
@@ -234,7 +246,7 @@ LOOP UNTIL err_msg = ""
 'double checking that MX is not timed out
 CALL check_for_MAXIS(false)
 
-objExcel.WorkSheets("Template").Activate				
+objExcel.WorkSheets("Template").Activate
 SET objTemplate = objWorkbook.Worksheets("Template")			'activating the template worksheet
 SET objTemplateRange = objTemplate.Range("A1:Z700")				'selecting everything relevant to Krabappel
 objTemplateRange.Copy											'copying the range
@@ -249,7 +261,7 @@ FOR column = 1 to 26
 NEXT
 
 'saving the workbook
-objWorkbook.SaveAs(training_case_creator_excel_file_path) 
+objWorkbook.SaveAs(training_case_creator_excel_file_path)
 
 'The script ------- grabbing the MAXIS case number
 EMConnect ""
@@ -265,11 +277,11 @@ DO
         CancelButton 155, 40, 50, 15
       Text 10, 15, 125, 10, "Please enter a case number to copy:"
     EndDialog
-    
+
     DIALOG
     cancel_confirmation
 	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "Please enter a valid MAXIS case number."
-LOOP UNTIL 
+LOOP UNTIL
 
 '...and now we burgle...
 back_to_SELF
@@ -301,7 +313,7 @@ DO
 	'EMReadScreen cl_alias, 1, 15, 42				' <<< currently (7/11/2016) commented out... Krabappel is not capable of handling aliases...going to hard code to "N"
 	cl_alias = "N"
 	EMReadScreen hisp_latino, 1, 16, 68
-	
+
 	objExcel.Cells(2, excel_col).Value = ref_num
 	'writing the bits from MEMB
 	objExcel.Cells(memb_row + 3, excel_col).Value = client_dob
@@ -316,14 +328,14 @@ DO
 	objExcel.Cells(memb_row + 12, excel_col).Value = hisp_latino
 
 	client_array = client_array & ref_num & ","
-	
+
 	'Going to the next MEMB------------------------------------------------------------------------------------------
 	transmit
-	
+
 	'finding the last MEMB
 	EMReadScreen enter_a_valid, 13, 24, 2
 	IF enter_a_valid = "ENTER A VALID" THEN EXIT DO
-	
+
 	excel_col = excel_col + 1
 LOOP
 
@@ -333,14 +345,14 @@ client_array = replace(client_array, ",END", "")
 client_array = split(client_array, ",")
 
 'Dealing with the client's name...
-IF maxis_enviro = "PRODU" OR maxis_enviro = "INQUI" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & vbNewLine & "You are not running this in the training region. The script will ask for member names to ensure the privacy of the real cases you are copying.", vbInformation + vbSystemModal, "Reality Detected" 
+IF maxis_enviro = "PRODU" OR maxis_enviro = "INQUI" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & vbNewLine & "You are not running this in the training region. The script will ask for member names to ensure the privacy of the real cases you are copying.", vbInformation + vbSystemModal, "Reality Detected"
 
 'Grabbing client names...if we are in training
 REDIM client_multi_array(ubound(client_array), 3)
 client_position = 0
 CALL write_value_and_transmit("01", 20, 76)
 
-IF maxis_enviro = "TRAIN" THEN 
+IF maxis_enviro = "TRAIN" THEN
 	FOR EACH client IN client_array
 		'Reading ref num
 		EMReadScreen client_multi_array(client_position, 0), 2, 4, 33
@@ -357,16 +369,16 @@ IF maxis_enviro = "TRAIN" THEN
 	NEXT
 END IF
 
-'gathering/confirming the clients' names and getting APPL information	
+'gathering/confirming the clients' names and getting APPL information
 DO
 	err_msg = ""
-	
+
 	'resizing this dialog depending on the number of peeps
 	dlg_height = 100 + (ubound(client_array) * 20)
-	
+
 	BeginDialog Dialog1, 0, 0, 246, dlg_height, "Name and APPL Info"
       DropListBox 60, 35, 65, 15, "Select one:"+chr(9)+"CM"+chr(9)+"CM -1"+chr(9)+"CM -2"+chr(9)+"CM -3"+chr(9)+"CM -4"+chr(9)+"CM -5", appl_month
-	  EditBox 185, 30, 30, 15, appl_day	
+	  EditBox 185, 30, 30, 15, appl_day
 	  Text 10, 35, 45, 10, "APPL Month:"
       Text 10, 55, 35, 10, "Ref Num"
       Text 70, 55, 65, 10, "First Name"
@@ -383,9 +395,9 @@ DO
 	  NEXT
 	  ButtonGroup ButtonPressed
         OkButton 5, 10, 50, 15
-        CancelButton 55, 10, 50, 15	  
+        CancelButton 55, 10, 50, 15
 	EndDialog
-	
+
 	'calling the dialog
 	DIALOG
 	cancel_confirmation
@@ -426,7 +438,7 @@ FOR EACH client IN client_array
 		spouse_ref_num = replace(spouse_ref_num, "_", "")
 	EMReadScreen last_grade, 2, 9, 49
 	EMReadScreen citizen_yn, 1, 10, 49
-	
+
 	'and writing it into the template
 	objExcel.Cells(memi_row, excel_col).Value = marital_status
 	objExcel.Cells(memi_row + 1, excel_col).Value = spouse_ref_num
@@ -497,18 +509,18 @@ snap_case = FALSE
 FOR EACH client IN client_array
 	'adding to STATS_manualtime -------------------
 	STATS_manualtime = STATS_manualtime + 11
-	
+
 	EMReadScreen cash_appl, 1, type_row, 28
 	IF cash_appl = "Y" THEN cash_case = TRUE
 	EMReadScreen hc_appl, 1, type_row, 37
 	IF hc_appl = "Y" THEN health_care_case = TRUE
 	EMReadScreen snap_appl, 1, type_row, 46
 	IF snap_appl = "Y" THEN snap_case = TRUE
-	
+
 	objExcel.Cells(38, excel_col).Value = cash_appl
 	objExcel.Cells(39, excel_col).Value = hc_appl
 	objExcel.Cells(40, excel_col).Value = snap_appl
-	
+
 	excel_col = excel_col + 1
 	type_row = type_row + 1
 NEXT
@@ -526,19 +538,19 @@ FOR EACH client IN client_array
 NEXT
 
 'Navigating to REVW------------------------------------------------------------------------------------------
-IF health_care_case = TRUE THEN 
+IF health_care_case = TRUE THEN
 	CALL navigate_to_MAXIS_screen("STAT", "REVW")
 	'adding to STATS_manualtime -----------------------
 	STATS_manualtime = STATS_manualtime + 12
-	
+
 	CALL write_value_and_transmit("X", 5, 71)
 	EMReadScreen ir_date, 8, 8, 27
 	EMReadScreen ir_ar_date, 8, 8, 71
 	EMReadScreen exempt_ir_ar, 1, 9, 71
-	
+
 	IF ir_date <> "__ 01 __" THEN objExcel.Cells(revw_row, 3).Value = replace(ir_date, " ", "/")
 	IF ir_ar_date <> "__ 01 __" THEN objExcel.Cells(revw_row, 3).Value = replace(ir_ar_date, " ", "/")
-	objExcel.Cells(revw_row + 1, 3).Value = exempt_ir_ar	
+	objExcel.Cells(revw_row + 1, 3).Value = exempt_ir_ar
 	transmit
 END IF
 
@@ -546,10 +558,10 @@ END IF
 'ABPS
 CALL navigate_to_MAXIS_screen("STAT", "ABPS")
 EMReadScreen num_of_abps, 1, 2, 78
-IF num_of_abps <> "0" THEN 
+IF num_of_abps <> "0" THEN
 	'adding to STATS_manualtime -------------------
 	STATS_manualtime = STATS_manualtime + 7
-	
+
 	EMReadScreen abps_support_coop, 1, 4, 73
 	EMReadScreen abps_good_cause, 1, 5, 47
 
@@ -563,10 +575,10 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_acct, 1, 2, 78
-	IF num_of_acct <> "0" THEN 
+	IF num_of_acct <> "0" THEN
 		'adding to STATS_manualtime ------------------------------------
 		STATS_manualtime = STATS_manualtime + 47
-		
+
 		'reading
 		EMReadScreen acct_account_type, 2, 6, 44
 		EMReadScreen acct_account_num, 20, 7, 44
@@ -590,7 +602,7 @@ FOR EACH client IN client_array
 		EMReadScreen acct_share_ratio, 5, 15, 76
 		EMReadScreen acct_interest_mo, 2, 17, 57
 		EMReadScreen acct_interest_yr, 2, 17, 60
-		
+
 		'writing
 		CALL check_for_data_validation(acct_row, excel_col, acct_account_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 		objExcel.Cells(acct_row + 1, excel_col).Value = acct_account_num
@@ -607,7 +619,7 @@ FOR EACH client IN client_array
 		CALL check_for_data_validation(acct_row +  12, excel_col, acct_joint_owner, objExcel, objWorkbook, objTemplate, objNewSheet)
 		objExcel.Cells(acct_row + 13, excel_col).Value = acct_share_ratio
 		objExcel.Cells(acct_row + 14, excel_col).Value = acct_interest_mo
-		objExcel.Cells(acct_row + 15, excel_col).Value = acct_interest_yr	
+		objExcel.Cells(acct_row + 15, excel_col).Value = acct_interest_yr
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -618,10 +630,10 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_acut, 1, 2, 78
-	IF num_of_acut <> "0" THEN 
+	IF num_of_acut <> "0" THEN
 		'Adding to STATS_manualtime...............
 		STATS_manualtime = STATS_manualtime + 24
-		
+
 		'reading
 		EMReadScreen acut_shared, 1, 6, 42
 		EMReadScreen acut_heat, 8, 10, 61
@@ -649,7 +661,7 @@ FOR EACH client IN client_array
 		EMReadScreen acut_sewer_verif, 1, 16, 55
 		EMReadScreen acut_other_verif, 1, 17, 55
 		EMReadScreen acut_phone, 1, 18, 55
-		
+
 		'writing
 		IF acut_shared <> "_" 			THEN CALL check_for_data_validation(acut_row, excel_col, acut_shared, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF acut_heat <> "" 				THEN objExcel.Cells(acut_row + 1, excel_col).Value = acut_heat
@@ -667,7 +679,7 @@ FOR EACH client IN client_array
 		IF acut_sewer <> "" 			THEN objExcel.Cells(acut_row + 13, excel_col).Value = acut_sewer
 		IF acut_sewer_verif <> "_" 		THEN CALL check_for_data_validation(acut_row + 14, excel_col, acut_sewer_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF acut_other <> "" 			THEN objExcel.Cells(acut_row + 15, excel_col).Value = acut_other
-		IF acut_other_verif <> "_" 		THEN CALL check_for_data_validation(acut_row + 16, excel_col, acut_other_verif, objExcel, objWorkbook, objTemplate, objNewSheet)		
+		IF acut_other_verif <> "_" 		THEN CALL check_for_data_validation(acut_row + 16, excel_col, acut_other_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF acut_phone <> "" 			THEN CALL check_for_data_validation(acut_row + 17, excel_col, acut_phone, objExcel, objWorkbook, objTemplate, objNewSheet)
 	END IF
 	excel_col = excel_col + 1
@@ -676,17 +688,17 @@ NEXT
 'BILS
 CALL navigate_to_MAXIS_screen("STAT", "BILS")
 EMReadScreen num_of_bils, 1, 2, 78
-IF num_of_bils <> "0" THEN 
+IF num_of_bils <> "0" THEN
 	'creating m-d array so I don't have to write this 9 times -- Robert
 	REDIM bils_array (8, 6)
-	'(i, 0) = ref num 
+	'(i, 0) = ref num
 	'(i, 1) = date
-	'(i, 2) = service 
-	'(i, 3) = gross amount 
+	'(i, 2) = service
+	'(i, 3) = gross amount
 	'(i, 4) = third party payments
 	'(i, 5) = verif
 	'(i, 6) = bill type
-	
+
 	'reading
 	bils_read_row = 6
 	FOR i = 0 TO 8
@@ -698,15 +710,15 @@ IF num_of_bils <> "0" THEN
 		EMReadScreen bils_array(i, 4), 9, bils_read_row + i, 57
 			bils_array(i, 4) = trim(replace(bils_array(i, 4), "_", ""))
 		EMReadScreen bils_array(i, 5), 2, bils_read_row + i, 67
-		EMReadScreen bils_array(i, 6), 1, bils_read_row + i, 71	
+		EMReadScreen bils_array(i, 6), 1, bils_read_row + i, 71
 	NEXT
-	
+
 	'writing
 	FOR i = 0 TO 8
-		IF bils_array(i, 0) <> "__" THEN 
+		IF bils_array(i, 0) <> "__" THEN
 			'adding to the manual time for each row that the script is copying to Excel...
 			STATS_manualtime = STATS_manualtime + 25
-			
+
 			objExcel.Cells(bils_row, 3).Value = bils_array(i, 0)
 				bils_row = bils_row + 1
 			IF bils_array(i, 1) <> "__ __ __" 		THEN objExcel.Cells(bils_row, 3).Value = replace(bils_array(i, 1), " ", "/")
@@ -732,21 +744,21 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_busi, 1, 2, 78
-	IF num_of_busi <> "0" THEN 
+	IF num_of_busi <> "0" THEN
 		'looking for the first active BUSI panel
-		DO 
+		DO
 			EMReadScreen panel_end_date, 8, 5, 72
-			IF panel_end_date = "__ __ __" THEN 
+			IF panel_end_date = "__ __ __" THEN
 				'adding to STATS_manualtime --------------------------
 				STATS_manualtime = STATS_manualtime + 55
 				'the stats manual time on BUSI is a bit variable given the number of data points... this run time assumes cash and SNAP
-			
+
 				'reading
 				'basic info
 				EMReadScreen busi_type, 2, 5, 37
 				EMReadScreen busi_start_date, 8, 5, 55
 				'not reading busi end date because the script has already skipped over that
-				
+
 				'going in to the income calc pop up
 				CALL write_value_and_transmit("X", 6, 26)
 				'income
@@ -774,7 +786,7 @@ FOR EACH client IN client_array
 					busi_hc_b_inc_prosp = trim(replace(busi_hc_b_inc_prosp, "_", ""))
 				EMReadScreen busi_hc_b_inc_verif, 1, 13, 73
 				'expenses
-				'cash	
+				'cash
 				EMReadScreen busi_cash_exp_retro, 8, 15, 43
 					busi_cash_exp_retro = trim(replace(busi_cash_exp_retro, "_", ""))
 				EMReadScreen busi_cash_exp_prosp, 8, 15, 59
@@ -799,12 +811,12 @@ FOR EACH client IN client_array
 				EMReadScreen busi_hc_b_exp_verif, 1, 19, 73
 				'leaving pop up
 				PF3
-				
+
 				EMReadScreen busi_self_emp_retro_hours, 3, 13, 60
 					busi_self_emp_retro_hours = trim(replace(busi_self_emp_retro_hours, "_", ""))
 				EMReadScreen busi_self_emp_prosp_hours, 3, 13, 74
 					busi_self_emp_prosp_hours = trim(replace(busi_self_emp_prosp_hours, "_", ""))
-					
+
 				'going to HC inc/exp pop up
 				CALL write_value_and_transmit("X", 17, 27)
 				EMReadScreen busi_hc_ttl_inc_a, 8, 7, 54
@@ -819,7 +831,7 @@ FOR EACH client IN client_array
 					busi_hc_ttl_hours = trim(replace(busi_hc_ttl_hours, "_", ""))
 				'leaving pop up
 				PF3
-		
+
 				'writing
 				CALL check_for_data_validation(busi_row, excel_col, busi_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 				objExcel.Cells(busi_row + 1, excel_col).Value = replace(busi_start_date, " ", "/")
@@ -855,7 +867,7 @@ FOR EACH client IN client_array
 				objExcel.Cells(busi_row + 31, excel_col).Value = busi_hc_ttl_exp_a
 				objExcel.Cells(busi_row + 32, excel_col).Value = busi_hc_ttl_exp_b
 				objExcel.Cells(busi_row + 33, excel_col).Value = busi_hc_ttl_hours
-				
+
 				'and leave b/c we have found one for this client and that is all the template can handle
 				EXIT DO
 			ELSE
@@ -875,11 +887,11 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_cars, 1, 2, 78
-	IF num_of_cars <> "0" THEN 
+	IF num_of_cars <> "0" THEN
 		'adding to STATS_manualtime ----------------------
 		STATS_manualtime = STATS_manualtime + 50
-			
-		
+
+
 		'reading
 		EMReadScreen cars_type, 1, 6, 43
 		EMReadScreen cars_year, 4, 8, 31
@@ -909,9 +921,9 @@ FOR EACH client IN client_array
 		EMReadScreen cars_hc_cl_bene, 1, 15, 76
 		EMReadScreen cars_joint_own, 1, 16, 43
 		EMReadScreen cars_share_ratio, 5, 16, 76
-		
+
 		'writing
-		CALL check_for_data_validation(cars_row, excel_col, cars_type, objExcel, objWorkbook, objTemplate, objNewSheet)	
+		CALL check_for_data_validation(cars_row, excel_col, cars_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF cars_year <> "" 					THEN objExcel.Cells(cars_row + 1, excel_col).Value = cars_year
 		IF cars_make <> "" 					THEN objExcel.Cells(cars_row + 2, excel_col).Value = cars_make
 		IF cars_model <> "" 				THEN objExcel.Cells(cars_row + 3, excel_col).Value = cars_model
@@ -942,10 +954,10 @@ FOR EACH client IN client_array
 	EMReadScreen cash_amt, 8, 8, 39
 	cash_cash_amt = trim(cash_amt)
 	cash_cash_amt = replace(cash_amt, "_", "")
-	
+
 	'only value on CASH
-	objExcel.Cells(cash_row, excel_col).Value = cash_cash_amt	
-	
+	objExcel.Cells(cash_row, excel_col).Value = cash_cash_amt
+
 	excel_col = excel_col + 1
 NEXT
 
@@ -957,8 +969,8 @@ FOR EACH client IN client_array
 	EMReadScreen num_of_coex, 1, 2, 78
 	IF num_of_coex <> "0" THEN
 		'adding to STATS_manualtime --------------------------
-		STATS_manualtime = STATS_manualtime + 30		
-		
+		STATS_manualtime = STATS_manualtime + 30
+
 		'reading the COEX bits
 		EMReadScreen coex_retro_support, 8, 10, 45
 			coex_retro_support = trim(replace(coex_retro_support, "_", ""))
@@ -992,7 +1004,7 @@ FOR EACH client IN client_array
 		EMReadScreen coex_hc_other, 8, 8, 38
 			coex_hc_other = trim(replace(coex_hc_other, "_", ""))
 		PF3
-		
+
 		'writing to template
 		IF coex_retro_support <> "" 	THEN objExcel.Cells(coex_row, excel_col).Value = coex_retro_support
 		IF coex_prosp_support <> "" 	THEN objExcel.Cells(coex_row + 1, excel_col).Value = coex_prosp_support
@@ -1022,7 +1034,7 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_dcex, 1, 2, 78
-	IF num_of_dcex <> "0" THEN 
+	IF num_of_dcex <> "0" THEN
 		EMReadScreen dcex_provider, 25, 6, 47
 			dcex_provider = trim(replace(dcex_provider, "_", ""))
 		EMReadScreen dcex_reason, 1, 7, 44
@@ -1035,22 +1047,22 @@ FOR EACH client IN client_array
 			'(i, 1) = verif
 			'(i, 2) = retro
 			'(i, 3) = prosp
-			EMReadScreen dcex_array(i, 0), 2, i + 11, 29			
+			EMReadScreen dcex_array(i, 0), 2, i + 11, 29
 			EMReadScreen dcex_array(i, 1), 8, i + 11, 48
 			EMReadScreen dcex_array(i, 2), 8, i + 11, 63
 			EMReadScreen dcex_array(i, 3), 1, i + 11, 41
-		NEXT		
-	
+		NEXT
+
 		'writing
 		objExcel.Cells(dcex_row, excel_col).Value = dcex_provider
 		IF dcex_reason <> "_" THEN CALL check_for_data_validation(dcex_row + 1, excel_col, dcex_reason, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF dcex_subsidy <> "_" THEN CALL check_for_data_validation(dcex_row + 2, excel_col, dcex_subsidy, objExcel, objWorkbook, objTemplate, objNewSheet)
 		placeholder_dcex_row = 3
 		FOR i = 0 TO 5
-			IF dcex_array(i, 0) <> "__" THEN 
+			IF dcex_array(i, 0) <> "__" THEN
 				'adding to STATS_manualtime ONLY when the row is being written to Excel ---------------------
-				STATS_manualtime = STATS_manualtime + 22		
-				
+				STATS_manualtime = STATS_manualtime + 22
+
 				objExcel.Cells(dcex_row + placeholder_dcex_row, excel_col).Value = dcex_array(i, 0)
 					placeholder_dcex_row = placeholder_dcex_row + 1
 				objExcel.Cells(dcex_row + placeholder_dcex_row, excel_col).Value = dcex_array(i, 1)
@@ -1059,7 +1071,7 @@ FOR EACH client IN client_array
 					placeholder_dcex_row = placeholder_dcex_row + 1
 				CALL check_for_data_validation(dcex_row + placeholder_dcex_row, excel_col, dcex_array(i, 3), objExcel, objWorkbook, objTemplate, objNewSheet)
 					placeholder_dcex_row = placeholder_dcex_row + 1
-			END IF		
+			END IF
 		NEXT
 		'Reseting the array
 		FOR i = 0 TO 5
@@ -1077,17 +1089,17 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_dfln, 1, 2, 78
-	IF num_of_dfln <> "0" THEN 
+	IF num_of_dfln <> "0" THEN
 		'adding to STATS_manualtime ------------------------
 		STATS_manualtime = STATS_manualtime + 27
-		
+
 		'reading
 		EMReadScreen dfln_conv_dt1, 8, 6, 27
 		EMReadScreen dfln_conv_juris1, 30, 6, 41
 			dfln_conv_juris1 = trim(dfln_conv_juris1)
 			dfln_conv_juris1 = replace(dfln_conv_juris1, "_", "")
 		EMReadScreen dfln_conv_state1, 2, 6, 75
-		EMReadScreen dfln_conv_dt2, 8, 7, 27		
+		EMReadScreen dfln_conv_dt2, 8, 7, 27
 		EMReadScreen dfln_conv_juris2, 30, 7, 41
 			dfln_conv_juris2 = trim(dfln_conv_juris2)
 			dfln_conv_juris2 = replace(dfln_conv_juris2, "_", "")
@@ -1101,22 +1113,22 @@ FOR EACH client IN client_array
 		EMReadScreen dfln_tester_name2, 30, 15, 41
 			dfln_tester_name2 = trim(dfln_tester_name2)
 			dfln_tester_name2 = replace(dfln_tester_name2, "_", "")
-		EMReadScreen dfln_result2, 2, 15, 75	
-	
+		EMReadScreen dfln_result2, 2, 15, 75
+
 		'writing
 		IF dfln_conv_dt1 <> "__ __ __"			THEN objExcel.Cells(dfln_row, excel_col).Value = replace(dfln_conv_dt1, " ", "/")
 		IF dfln_conv_juris1 <> ""				THEN objExcel.Cells(dfln_row + 1, excel_col).Value = dfln_conv_juris1
 		IF dfln_conv_state1 <> "__"				THEN CALL check_for_data_validation(dfln_row + 2, excel_col, dfln_conv_state1, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF dfln_conv_dt2 <> "__ __ __"			THEN objExcel.Cells(dfln_row + 3, excel_col).Value = replace(dfln_conv_dt2, " ", "/")
 		IF dfln_conv_juris2 <> ""				THEN objExcel.Cells(dfln_row + 4, excel_col).Value = dfln_conv_juris2
-		IF dfln_conv_state2 <> "__"				THEN CALL check_for_data_validation(dfln_row + 5, excel_col, dfln_conv_state2, objExcel, objWorkbook, objTemplate, objNewSheet)		
+		IF dfln_conv_state2 <> "__"				THEN CALL check_for_data_validation(dfln_row + 5, excel_col, dfln_conv_state2, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF dfln_test_dt1 <> "__ __ __"			THEN objExcel.Cells(dfln_row + 6, excel_col).Value = replace(dfln_test_dt1, " ", "/")
 		IF dfln_tester_name1 <> "" 				THEN objExcel.Cells(dfln_row + 7, excel_col).Value = dfln_tester_name1
 		IF dfln_result1	<> "__" 				THEN CALL check_for_data_validation(dfln_row + 8, excel_col, dfln_result1, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF dfln_test_dt2 <> "__ __ __"			THEN objExcel.Cells(dfln_row + 9, excel_col).Value = replace(dfln_test_dt2, " ", "/")
 		IF dfln_tester_name2 <> "" 				THEN objExcel.Cells(dfln_row + 10, excel_col).Value = dfln_tester_name2
-		IF dfln_result2	<> "__" 				THEN CALL check_for_data_validation(dfln_row + 11, excel_col, dfln_result2, objExcel, objWorkbook, objTemplate, objNewSheet)		
-	END IF	
+		IF dfln_result2	<> "__" 				THEN CALL check_for_data_validation(dfln_row + 11, excel_col, dfln_result2, objExcel, objWorkbook, objTemplate, objNewSheet)
+	END IF
 	excel_col = excel_col + 1
 NEXT
 
@@ -1126,10 +1138,10 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_diet, 1, 2, 78
-	IF num_of_diet <> "0" THEN 
+	IF num_of_diet <> "0" THEN
 		'adding to STATS_manualtime -------------------
 		STATS_manualtime = STATS_manualtime + 10
-				
+
 		'reading
 		EMReadScreen diet_mfip1_code, 2, 8, 40
 		EMReadScreen diet_mfip1_ver, 1, 8, 51
@@ -1143,7 +1155,7 @@ FOR EACH client IN client_array
 		EMReadScreen diet_msa3_ver, 1, 13, 51
 		EMReadScreen diet_msa4_code, 2, 14, 40
 		EMReadScreen diet_msa4_ver, 1, 14, 51
-			
+
 		'writing
 		IF diet_mfip1_code <> "__"     THEN CALL check_for_data_validation(diet_row, excel_col, diet_mfip1_code, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF diet_mfip1_ver <> "_"    THEN CALL check_for_data_validation(diet_row + 1, excel_col, diet_mfip1_ver, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1167,10 +1179,10 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_disa, 1, 2, 78
-	IF num_of_disa <> "0" THEN 
+	IF num_of_disa <> "0" THEN
 		'adding to STATS_manualtime -------------------
 		STATS_manualtime = STATS_manualtime + 20
-		
+
 		'reading
 		EMReadScreen disa_bgn_dt, 10, 6, 47
 		EMReadScreen disa_end_dt, 10, 6, 69
@@ -1188,7 +1200,7 @@ FOR EACH client IN client_array
 		EMReadScreen disa_hc_ver, 1, 13, 69
 		EMReadScreen disa_home_comm_wvr, 1, 14, 59
 		EMReadScreen disa_drug_alc_ver, 1, 18, 69
-		
+
 		'writing
 		IF disa_bgn_dt <> "__ __ ____" 			THEN objExcel.Cells(disa_row, excel_col).Value = replace(disa_bgn_dt, " ", "/")
 		IF disa_end_dt <> "__ __ ____" 			THEN objExcel.Cells(disa_row + 1, excel_col).Value = replace(disa_end_dt, " ", "/")
@@ -1213,10 +1225,10 @@ NEXT
 'DSTT
 CALL navigate_to_MAXIS_screen("STAT", "DSTT")
 EMReadScreen num_of_dstt, 1, 2, 78
-IF num_of_dstt <> "0"THEN 
+IF num_of_dstt <> "0"THEN
 	'adding STATS_manualtime ------------------------
 	STATS_manualtime = STATS_manualtime + 8
-	
+
 	'reading
 	EMReadScreen dstt_ongoing_income, 1, 6, 69
 	EMReadScreen dstt_hh_income_stop, 8, 9, 69
@@ -1224,20 +1236,20 @@ IF num_of_dstt <> "0"THEN
 	EMReadScreen dstt_income_exp_amt, 8, 12, 71
 		dstt_income_exp_amt = trim(dstt_income_exp_amt)
 		dstt_income_exp_amt = replace(dstt_income_exp_amt, "_", "")
-	
+
 	'writing
 	CALL check_for_data_validation(dstt_row, 3, dstt_ongoing_income, objExcel, objWorkbook, objTemplate, objNewSheet)
 	objExcel.Cells(dstt_row + 1, 3).Value = dstt_hh_income_stop
-	objExcel.Cells(dstt_row + 2, 3).Value = dstt_income_exp_amt	
+	objExcel.Cells(dstt_row + 2, 3).Value = dstt_income_exp_amt
 END IF
 
 'EATS
 CALL navigate_to_MAXIS_screen("STAT", "EATS")
 EMReadScreen num_of_eats, 1, 2, 78
-IF num_of_eats <> "0" THEN 
+IF num_of_eats <> "0" THEN
 	'adding STATS_manualtime -------------------------
 	STATS_manualtime = STATS_manualtime + 10
-	
+
 	'reading
 	EMReadScreen eats_all_eat_together, 1, 4, 72
 	EMReadScreen eats_app_boarder, 1, 5, 72
@@ -1253,7 +1265,7 @@ IF num_of_eats <> "0" THEN
 		eats_group3 = replace(eats_group3, "?", "_")
 		eats_group3 = replace(eats_group3, "  ", ",")
 		eats_group3 = replace(eats_group3, ",__", "")
-	
+
 	'writing
 	CALL check_for_data_validation(eats_row, 3, eats_all_eat_together, objExcel, objWorkbook, objTemplate, objNewSheet)
 	CALL check_for_data_validation(eats_row + 1, 3, eats_app_boarder, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1268,17 +1280,17 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_emma, 1, 2, 78
-	IF num_of_emma <> "0" THEN 
+	IF num_of_emma <> "0" THEN
 		'adding STATS_manualtime ---------------------
 		STATS_manualtime = STATS_manualtime + 15
-		
+
 		'reading
 		EMReadScreen emma_med_emer, 2, 6, 46
 		EMReadScreen emma_health_conseq, 2, 8, 46
 		EMReadScreen emma_verif, 2, 10, 46
 		EMReadScreen emma_begin_dt, 8, 12, 46
 		EMReadScreen emma_end_dt, 8, 14, 46
-	
+
 		'writing
 		CALL check_for_data_validation(emma_row, excel_col, emma_med_emer, objExcel, objWorkbook, objTemplate, objNewSheet)
 		CALL check_for_data_validation(emma_row + 1, excel_col, emma_health_conseq, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1295,10 +1307,10 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_emps, 1, 2, 78
-	IF num_of_emps <> "0" THEN 
+	IF num_of_emps <> "0" THEN
 		'adding STATS_manualtime ---------------------------
 		STATS_manualtime = STATS_manualtime + 28
-		
+
 		'reading
 		EMReadScreen emps_orient_date, 8, 5, 39
 		EMReadScreen emps_attend_orient, 1, 5, 65
@@ -1311,7 +1323,7 @@ FOR EACH client IN client_array
 		EMReadScreen emps_hard_employ, 2, 11, 76
 		EMReadScreen emps_ft_care, 1, 12, 76
 		EMReadScreen emps_dwp_plan_dt, 8, 17, 40
-		
+
 		'writing
 		IF emps_orient_date <> "__ __ __" 		THEN objExcel.Cells(emps_row, excel_col).Value = replace(emps_orient_date, " ", "/")
 		IF emps_attend_orient <> "_" 			THEN CALL check_for_data_validation(emps_row + 1, excel_col, emps_attend_orient, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1335,10 +1347,10 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_faci, 1, 2, 78
-	IF num_of_faci <> "0" THEN 
+	IF num_of_faci <> "0" THEN
 		'adding STATS_manualtime ------------------------------
 		STATS_manualtime = STATS_manualtime + 29
-		
+
 		'reading
 		EMReadScreen faci_vendor_number, 8, 5, 43
 		EMReadScreen faci_vendor_name, 30, 6, 43
@@ -1348,7 +1360,7 @@ FOR EACH client IN client_array
 		EMReadScreen faci_fs_faci_type, 1, 8, 71
 		EMReadScreen faci_date_in, 10, 14, 47
 		EMReadScreen faci_date_out, 10, 14, 71
-		
+
 		'writing
 		objExcel.Cells(faci_row, excel_col).Value = faci_vendor_number
 		objExcel.Cells(faci_row + 1, excel_col).Value = faci_vendor_name
@@ -1368,19 +1380,19 @@ excel_col = 3
 REDIM fmed_array(3, 6)
 '(i, 0) = type
 '(i, 1) = verif
-'(i, 2) = ref num 
+'(i, 2) = ref num
 '(i, 3) = category
-'(i, 4) = begin date 
+'(i, 4) = begin date
 '(i, 5) = end date
 '(i, 6) = amount
 
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_fmed, 1, 2, 78
-	IF num_of_fmed <> "0" THEN 
+	IF num_of_fmed <> "0" THEN
 		'reading
 		EMReadScreen fmed_miles, 4, 17, 34
-			
+
 		fmed_read_row = 9
 		FOR i = 0 TO 3
 			EMReadScreen fmed_array(i, 0), 2, fmed_read_row + i, 25
@@ -1392,15 +1404,15 @@ FOR EACH client IN client_array
 			EMReadScreen fmed_array(i, 6), 8, fmed_read_row + i, 70
 				fmed_array(i, 6) = trim(replace(fmed_array(i, 6), "_", ""))
 		NEXT
-		
+
 		'writing
 		objExcel.Cells(fmed_row, excel_col).Value = trim(replace(fmed_miles, "_", ""))
 		fmed_write_row = fmed_row + 1
 		FOR a = 0 TO 3
-			IF fmed_array(a, 0) <> "__" THEN 
+			IF fmed_array(a, 0) <> "__" THEN
 				'adding STATS_manualtime only for those FMED rows that are written --------------------------
 				STATS_manualtime = STATS_manualtime + 20
-				
+
 				CALL check_for_data_validation(fmed_write_row, excel_col, fmed_array(a, 0))
 				fmed_write_row = fmed_write_row + 1
 				IF fmed_array(a, 1) <> "__" 		THEN CALL check_for_data_validation(fmed_write_row, excel_col, fmed_array(a, 1), objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1417,7 +1429,7 @@ FOR EACH client IN client_array
 				fmed_write_row = fmed_write_row + 1
 			END IF
 		NEXT
-			
+
 		'reseting the array
 		FOR ib = 0 TO 3
 			FOR jk = 0 TO 6
@@ -1431,10 +1443,10 @@ NEXT
 'HEST
 CALL navigate_to_MAXIS_screen("STAT", "HEST")
 EMReadScreen num_of_hest, 1, 2, 78
-IF num_of_hest <> "0" THEN 
+IF num_of_hest <> "0" THEN
 	'adding STATS_manualtime ---------------------
 	STATS_manualtime = STATS_manualtime + 16
-	
+
 	'reading
 	EMReadScreen hest_fs_choice_date, 8, 7, 40
 	EMReadScreen hest_initial_month, 8, 8, 61
@@ -1446,7 +1458,7 @@ IF num_of_hest <> "0" THEN
 	EMReadScreen hest_prosp_elec, 1, 14, 60
 	EMReadScreen hest_retro_phone, 1, 15, 34
 	EMReadScreen hest_prosp_phone, 1, 15, 60
-	
+
 	'writing
 	IF hest_fs_choice_date <> "__ __ __" THEN objExcel.Cells(hest_row, 3).Value = hest_fs_choice_date
 	IF hest_initial_month <> "" THEN objExcel.Cells(hest_row + 1, 3).Value = hest_initial_month
@@ -1464,10 +1476,10 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_imig, 1, 2, 78
-	IF num_of_imig <> "0" THEN 
+	IF num_of_imig <> "0" THEN
 		'adding STATS_manualtime ------------------------
 		STATS_manualtime = STATS_manualtime + 33
-		
+
 		'reading
 		EMReadScreen imig_status, 2, 6, 45
 		EMReadScreen imig_entry_date, 10, 7, 45
@@ -1485,7 +1497,7 @@ FOR EACH client IN client_array
 		EMReadScreen imig_esl_coop, 1, 17, 56
 		EMReadScreen imig_esl_coop_ver, 1, 17, 71
 		EMReadScreen imig_esl_skillz, 1, 18, 56
-		
+
 		'writing
 		IF imig_status <> "__" 					THEN CALL check_for_data_validation(imig_row, excel_col, imig_status, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF imig_entry_date <> "__ __ ____" 		THEN objExcel.Cells(imig_row + 1, excel_col).Value = replace(imig_entry_date, " ", "/")
@@ -1512,10 +1524,10 @@ CALL navigate_to_MAXIS_screen("STAT", "INSA")
 excel_col = 3
 CALL write_value_and_transmit("01", 20, 79)
 EMReadScreen num_of_insa, 1, 2, 78
-IF num_of_insa <> "0" THEN 
+IF num_of_insa <> "0" THEN
 	'adding STATS_manualtime ----------------------
 	STATS_manualtime = STATS_manualtime + 12
-	
+
 	'reading
 	EMReadScreen insa_resp_coop, 1, 4, 62
 	EMReadScreen insa_good_cause_status, 1, 5, 62
@@ -1535,7 +1547,7 @@ IF num_of_insa <> "0" THEN
 	insa_covered_dudes = ""
 	IF insa_covered_dudes1 <> "__" THEN insa_covered_dudes = insa_covered_dudes1
 	IF insa_covered_dudes2 <> "__" THEN insa_covered_dudes = insa_covered_dudes & "," & insa_covered_dudes2
-	
+
 	'writing
 	IF insa_resp_coop <> "_" 				THEN CALL check_for_data_validation(insa_row, excel_col, insa_resp_coop, objExcel, objWorkbook, objTemplate, objNewSheet)
 	IF insa_good_cause_status <> "_" 		THEN CALL check_for_data_validation(insa_row + 1, excel_col, insa_good_cause_status, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1555,7 +1567,7 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_jobs, 1, 2, 78
-	IF num_of_jobs <> "0" THEN 
+	IF num_of_jobs <> "0" THEN
 		num_of_active_jobs = 0
 		DO
 			EMReadScreen jobs_end_date, 8, 9, 49
@@ -1563,7 +1575,7 @@ FOR EACH client IN client_array
 			transmit
 			EMReadScreen enter_a_valid, 13, 24, 2
 		LOOP UNTIL enter_a_valid = "ENTER A VALID"
-		
+
 		IF num_of_active_jobs >= 1 THEN
 			CALL write_value_and_transmit("01", 20, 79)
 			DO
@@ -1577,9 +1589,9 @@ FOR EACH client IN client_array
 				jobs1_employer = trim(replace(jobs1_employer, "_", ""))
 			EMReadScreen jobs1_inc_start, 8, 9, 35
 				jobs1_inc_start = replace(jobs1_inc_start, " ", "/")
-				
+
 			'if this is a snap case, we will grab earned income information off the PIC
-			IF snap_case = TRUE THEN 
+			IF snap_case = TRUE THEN
 				CALL write_value_and_transmit("X", 19, 38)
 				EMReadScreen jobs1_pay_freq, 1, 5, 64
 				EMReadScreen jobs1_per_pay_period_hrs, 6, 16, 51
@@ -1587,24 +1599,24 @@ FOR EACH client IN client_array
 				EMReadScreen jobs1_per_pay_period_earn, 8, 17, 56
 					jobs1_per_pay_period_earn = (trim(jobs1_per_pay_period_earn) * 1)
 				jobs1_income = jobs1_per_pay_period_earn / jobs1_per_pay_period_hrs
-				
-				IF jobs1_pay_freq = "1" THEN 
+
+				IF jobs1_pay_freq = "1" THEN
 					jobs1_weekly_hrs = jobs1_per_pay_period_hrs / 4.3
-				ELSEIF jobs1_pay_freq = "2" THEN 
+				ELSEIF jobs1_pay_freq = "2" THEN
 					jobs1_weekly_hrs = jobs1_per_pay_period_hrs / 2.15
-				ELSEIF jobs1_pay_freq = "3" THEN 
+				ELSEIF jobs1_pay_freq = "3" THEN
 					jobs1_weekly_hrs = jobs1_per_pay_period_hrs / 2
-				ELSEIF jobs1_pay_freq = "4" THEN 
+				ELSEIF jobs1_pay_freq = "4" THEN
 					jobs1_weekly_hrs = jobs1_per_pay_period_hrs
 				END IF
 				PF3
 			END IF
 			'if this is a cash case with no snap, the script will grab hourly and weekly income information from the prospective side
-			IF snap_case = FALSE THEN 
+			IF snap_case = FALSE THEN
 				EMReadScreen jobs1_pay_freq, 1, 18, 35
 				'Reading and converting the total number of hours worked in the prospective budget cycle
 				EMReadScreen jobs1_month_hrs, 3, 18, 72
-					IF InStr(jobs1_month_hrs, "?") <> 0 THEN 
+					IF InStr(jobs1_month_hrs, "?") <> 0 THEN
 						jobs1_month_hrs = 1
 						MsgBox "*** NOTICE!!! ***" & vbCr & vbCr & "The script has found a question mark in this JOBS panel. It will substitue a 1 for working hours but you should update working hours for JOBS1 with an appropriate value AFTER the script has finished running.", vbInformation + vbSystemModal, "Question Mark Found"
 					ELSE
@@ -1616,7 +1628,7 @@ FOR EACH client IN client_array
 					jobs1_income = (trim(jobs1_income) * 1)
 					jobs1_income = jobs1_income / jobs1_month_hrs
 			END IF
-			
+
 			'writing
 			CALL check_for_data_validation(jobs1_row, excel_col, jobs1_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(jobs1_row + 1, excel_col, jobs1_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1642,9 +1654,9 @@ FOR EACH client IN client_array
 			EMReadScreen jobs2_pay_freq, 1, 18, 35
 			'Reading and converting the total number of hours worked in the prospective budget cycle
 			EMReadScreen jobs2_month_hrs, 3, 18, 72
-				IF InStr(jobs2_month_hrs, "?") <> 0 THEN 
+				IF InStr(jobs2_month_hrs, "?") <> 0 THEN
 					jobs2_month_hrs = 1
-					MsgBox "*** NOTICE!!! ***" & vbCr & vbCr & "The script has found a question mark in this JOBS panel. It will substitue a 1 for working hours but you should update working hours for JOBS2 with an appropriate value AFTER the script has finished running.", vbInformation + vbSystemModal, "Question Mark Found"					
+					MsgBox "*** NOTICE!!! ***" & vbCr & vbCr & "The script has found a question mark in this JOBS panel. It will substitue a 1 for working hours but you should update working hours for JOBS2 with an appropriate value AFTER the script has finished running.", vbInformation + vbSystemModal, "Question Mark Found"
 				ELSE
 					jobs2_month_hrs = trim(jobs2_month_hrs) * 1
 					jobs2_weekly_hrs = jobs2_month_hrs / 4.33
@@ -1653,7 +1665,7 @@ FOR EACH client IN client_array
 			EMReadScreen jobs2_income, 8, 17, 67
 				jobs2_income = (trim(jobs2_income) * 1)
 				jobs2_income = jobs2_income / jobs2_month_hrs
-			
+
 			'writing
 			CALL check_for_data_validation(jobs2_row, excel_col, jobs2_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(jobs2_row + 1, excel_col, jobs2_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1679,7 +1691,7 @@ FOR EACH client IN client_array
 			EMReadScreen jobs3_pay_freq, 1, 18, 35
 			'Reading and converting the total number of hours worked in the prospective budget cycle
 			EMReadScreen jobs3_month_hrs, 3, 18, 72
-				IF InStr(jobs3_month_hrs, "?") <> 0 THEN 
+				IF InStr(jobs3_month_hrs, "?") <> 0 THEN
 					jobs3_month_hrs = 1
 					MsgBox "*** NOTICE!!! ***" & vbCr & vbCr & "The script has found a question mark in this JOBS panel. It will substitue a 1 for working hours but you should update working hours for JOBS3 with an appropriate value AFTER the script has finished running.", vbInformation + vbSystemModal, "Question Mark Found"
 				ELSE
@@ -1690,7 +1702,7 @@ FOR EACH client IN client_array
 			EMReadScreen jobs3_income, 8, 17, 67
 				jobs3_income = (trim(jobs3_income) * 1)
 				jobs3_income = jobs3_income / jobs3_month_hrs
-			
+
 			'writing
 			CALL check_for_data_validation(jobs3_row, excel_col, jobs3_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(jobs3_row + 1, excel_col, jobs3_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1699,7 +1711,7 @@ FOR EACH client IN client_array
 			objExcel.Cells(jobs3_row + 4, excel_col).Value = jobs3_pay_freq
 			objExcel.Cells(jobs3_row + 5, excel_col).Value = FormatNumber(jobs3_weekly_hrs, 2)
 			objExcel.Cells(jobs3_row + 6, excel_col).Value = FormatNumber(jobs3_income, 2)
-		END IF		
+		END IF
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -1710,7 +1722,7 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_medi, 1, 2, 78
-	IF num_of_medi <> "0" THEN 
+	IF num_of_medi <> "0" THEN
 		'reading
 		EMReadScreen medi_claim_suffix, 3, 6, 56
 		EMReadScreen medi_part_a_prem, 8, 7, 46
@@ -1723,7 +1735,7 @@ FOR EACH client IN client_array
 		EMReadScreen medi_part_b_bgn, 8, 15, 54
 		EMReadScreen medi_apply_to_spdn, 1, 11, 71
 		EMReadScreen medi_apply_thru_dt, 5, 12, 71
-		
+
 		'writing
 		objExcel.Cells(medi_row, excel_col).Value = medi_claim_suffix
 		objExcel.Cells(medi_row + 1, excel_col).Value = medi_part_a_prem
@@ -1731,7 +1743,7 @@ FOR EACH client IN client_array
 		IF medi_part_a_bgn <> "__ __ __" THEN objExcel.Cells(medi_row + 3, excel_col).Value = replace(medi_part_a_bgn, " ", "/")
 		IF medi_part_b_bgn <> "__ __ __" THEN objExcel.Cells(medi_row + 4, excel_col).Value = replace(medi_part_b_bgn, " ", "/")
 		CALL check_for_data_validation(medi_row + 5, excel_col, medi_apply_to_spdn, objExcel, objWorkbook, objTemplate, objNewSheet)
-		objExcel.Cells(medi_row + 6, excel_col).Value = medi_apply_thru_dt		
+		objExcel.Cells(medi_row + 6, excel_col).Value = medi_apply_thru_dt
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -1742,13 +1754,13 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_mmsa, 1, 2, 78
-	IF num_of_mmsa <> "0" THEN 
+	IF num_of_mmsa <> "0" THEN
 		'reading
 		EMReadScreen mmsa_fed_liv_arr, 1, 7, 54
 		EMReadScreen mmsa_cont_elig, 1, 9, 54
 		EMReadScreen mmsa_spousal_income, 1, 12, 62
 		EMReadScreen mmsa_shared_housing, 1, 14, 62
-		
+
 		'writing
 		IF mmsa_fed_liv_arr <> "_" 		THEN CALL check_for_data_validation(mmsa_row, excel_col, mmsa_fed_liv_arr, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF mmsa_cont_elig <> "_" 		THEN CALL check_for_data_validation(mmsa_row + 1, excel_col, mmsa_cont_elig, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -1768,7 +1780,7 @@ FOR EACH client IN client_array
 		'reading
 		EMReadScreen msur_start_dt, 10, 7, 36
 		msur_start_dt = replace(msur_start_dt, "/", "")
-		
+
 		'writing
 		objExcel.Cells(msur_row, excel_col).Value = replace(msur_start_dt, " ", "/")
 	END IF
@@ -1782,7 +1794,7 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_othr, 1, 2, 78
-	IF num_of_othr <> "0" THEN 
+	IF num_of_othr <> "0" THEN
 		'reading
 		EMReadScreen othr_asset_type, 1, 6, 40
 		EMReadScreen othr_cash_value, 10, 8, 40
@@ -1800,7 +1812,7 @@ FOR EACH client IN client_array
 		EMReadScreen othr_count_ive, 1, 12, 73
 		EMReadScreen othr_joint_own, 1, 13, 44
 		EMReadScreen othr_share_ratio, 5, 15, 50
-		
+
 		'writing
 		CALL check_for_data_validation(othr_row, excel_col, othr_asset_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 		objExcel.Cells(othr_row + 1, excel_col).Value = othr_cash_value
@@ -1824,7 +1836,7 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_pare, 1, 2, 78
-	IF num_of_pare <> "0" THEN 
+	IF num_of_pare <> "0" THEN
 		'reading
 		EMReadScreen pare_child1_ref, 2, 8, 24
 			pare_child1_ref = replace(pare_child1_ref, "?", "_")
@@ -1849,39 +1861,39 @@ FOR EACH client IN client_array
 		EMReadScreen pare_child6_ref, 2, 13, 24
 			pare_child6_ref = replace(pare_child6_ref, "?", "_")
 		EMReadScreen pare_child6_rel, 1, 13, 53
-		EMReadScreen pare_child6_ver, 2, 13, 71		
-		
+		EMReadScreen pare_child6_ver, 2, 13, 71
+
 		'writing
-		IF pare_child1_ref <> "__" THEN 
+		IF pare_child1_ref <> "__" THEN
 			objExcel.Cells(pare_row, excel_col).Value = pare_child1_ref
 			CALL check_for_data_validation(pare_row + 1, excel_col, pare_child1_rel, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(pare_row + 2, excel_col, pare_child1_ver, objExcel, objWorkbook, objTemplate, objNewSheet)
 		END IF
-		IF pare_child2_ref <> "__" THEN 
+		IF pare_child2_ref <> "__" THEN
 			objExcel.Cells(pare_row + 3, excel_col).Value = pare_child2_ref
 			CALL check_for_data_validation(pare_row + 4, excel_col, pare_child2_rel, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(pare_row + 5, excel_col, pare_child2_ver, objExcel, objWorkbook, objTemplate, objNewSheet)
 		END IF
-		IF pare_child3_ref <> "__" THEN 
+		IF pare_child3_ref <> "__" THEN
 			objExcel.Cells(pare_row + 6, excel_col).Value = pare_child3_ref
 			CALL check_for_data_validation(pare_row + 7, excel_col, pare_child3_rel, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(pare_row + 8, excel_col, pare_child3_ver, objExcel, objWorkbook, objTemplate, objNewSheet)
 		END IF
-		IF pare_child4_ref <> "__" THEN 
+		IF pare_child4_ref <> "__" THEN
 			objExcel.Cells(pare_row + 9, excel_col).Value = pare_child4_ref
 			CALL check_for_data_validation(pare_row + 10, excel_col, pare_child4_rel, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(pare_row + 11, excel_col, pare_child4_ver, objExcel, objWorkbook, objTemplate, objNewSheet)
 		END IF
-		IF pare_child5_ref <> "__" THEN 
+		IF pare_child5_ref <> "__" THEN
 			objExcel.Cells(pare_row + 12, excel_col).Value = pare_child5_ref
 			CALL check_for_data_validation(pare_row + 13, excel_col, pare_child5_rel, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(pare_row + 14, excel_col, pare_child5_ver, objExcel, objWorkbook, objTemplate, objNewSheet)
 		END IF
-		IF pare_child6_ref <> "__" THEN 
+		IF pare_child6_ref <> "__" THEN
 			objExcel.Cells(pare_row + 15, excel_col).Value = pare_child6_ref
 			CALL check_for_data_validation(pare_row + 16, excel_col, pare_child6_rel, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(pare_row + 17, excel_col, pare_child6_ver, objExcel, objWorkbook, objTemplate, objNewSheet)
-		END IF		
+		END IF
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -1892,52 +1904,52 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_pben, 1, 2, 78
-	IF num_of_pben <> "0" THEN 
+	IF num_of_pben <> "0" THEN
 		EMReadScreen pben1_type, 2, 8, 24
-		IF pben1_type <> "__" THEN 
+		IF pben1_type <> "__" THEN
 			EMReadScreen pben1_referral_dt, 8, 8, 40
 			EMReadScreen pben1_appl_dt, 8, 8, 51
 			EMReadScreen pben1_appl_verif, 1, 8, 62
 			EMReadScreen pben1_iaa_date, 8, 8, 66
 			EMReadScreen pben1_disp_code, 1, 8, 77
-			
+
 			IF pben1_referral_dt <> "__ __ __" THEN objExcel.Cells(pben1_row, excel_col).Value = replace(pben1_referral_dt, " ", "/")
 			CALL check_for_data_validation(pben1_row + 1, excel_col, pben1_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			IF pben1_appl_dt <> "__ __ __" THEN objExcel.Cells(pben1_row + 2, excel_col).Value = replace(pben1_appl_dt, " ", "/")
 			CALL check_for_data_validation(pben1_row + 3, excel_col, pben1_appl_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 			IF pben1_iaa_date <> "__ __ __" THEN objExcel.Cells(pben1_row + 4, excel_col).Value = replace(pben1_iaa_date, " ", "/")
-			CALL check_for_data_validation(pben1_row + 5, excel_col, pben1_disp_code, objExcel, objWorkbook, objTemplate, objNewSheet)		
+			CALL check_for_data_validation(pben1_row + 5, excel_col, pben1_disp_code, objExcel, objWorkbook, objTemplate, objNewSheet)
 		END IF
 		EMReadScreen pben2_type, 2, 9, 24
-		IF pben2_type <> "__" THEN 
+		IF pben2_type <> "__" THEN
 			EMReadScreen pben2_referral_dt, 8, 9, 40
 			EMReadScreen pben2_appl_dt, 8, 9, 51
 			EMReadScreen pben2_appl_verif, 1, 9, 62
 			EMReadScreen pben2_iaa_date, 8, 9, 66
 			EMReadScreen pben2_disp_code, 1, 9, 77
-			
+
 			IF pben2_referral_dt <> "__ __ __" THEN objExcel.Cells(pben2_row, excel_col).Value = replace(pben2_referral_dt, " ", "/")
 			CALL check_for_data_validation(pben2_row + 1, excel_col, pben2_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			IF pben2_appl_dt <> "__ __ __" THEN objExcel.Cells(pben2_row + 2, excel_col).Value = replace(pben2_appl_dt, " ", "/")
 			CALL check_for_data_validation(pben2_row + 3, excel_col, pben2_appl_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 			IF pben2_iaa_date <> "__ __ __" THEN objExcel.Cells(pben2_row + 4, excel_col).Value = replace(pben2_iaa_date, " ", "/")
-			CALL check_for_data_validation(pben2_row + 5, excel_col, pben2_disp_code, objExcel, objWorkbook, objTemplate, objNewSheet)		
+			CALL check_for_data_validation(pben2_row + 5, excel_col, pben2_disp_code, objExcel, objWorkbook, objTemplate, objNewSheet)
 		END IF
 		EMReadScreen pben3_type, 2, 10, 24
-		IF pben3_type <> "__" THEN 
+		IF pben3_type <> "__" THEN
 			EMReadScreen pben3_referral_dt, 8, 10, 40
 			EMReadScreen pben3_appl_dt, 8, 10, 51
 			EMReadScreen pben3_appl_verif, 1, 10, 62
 			EMReadScreen pben3_iaa_date, 8, 10, 66
 			EMReadScreen pben3_disp_code, 1, 10, 77
-			
+
 			IF pben3_referral_dt <> "__ __ __" 		THEN objExcel.Cells(pben3_row, excel_col).Value = replace(pben3_referral_dt, " ", "/")
 			CALL check_for_data_validation(pben3_row + 1, excel_col, pben3_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			IF pben3_appl_dt <> "__ __ __" 			THEN objExcel.Cells(pben3_row + 2, excel_col).Value = replace(pben3_appl_dt, " ", "/")
 			CALL check_for_data_validation(pben3_row + 3, excel_col, pben3_appl_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 			IF pben3_iaa_date <> "__ __ __" 		THEN objExcel.Cells(pben3_row + 4, excel_col).Value = replace(pben3_iaa_date, " ", "/")
-			CALL check_for_data_validation(pben3_row + 5, excel_col, pben3_disp_code, objExcel, objWorkbook, objTemplate, objNewSheet)		
-		END IF		
+			CALL check_for_data_validation(pben3_row + 5, excel_col, pben3_disp_code, objExcel, objWorkbook, objTemplate, objNewSheet)
+		END IF
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -1948,7 +1960,7 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_pded, 1, 2, 78
-	IF num_of_pded <> "0" THEN 
+	IF num_of_pded <> "0" THEN
 		EMReadScreen pded_disa_widow, 1, 7, 60
 		EMReadScreen pded_adult_child, 1, 8, 60
 		EMReadScreen pded_widow_dis, 1, 9, 60
@@ -1983,7 +1995,7 @@ FOR EACH client IN client_array
 			pded_excess_need = trim(pded_excess_need)
 			pded_excess_need = replace(pded_excess_need, "_", "")
 		EMReadScreen pded_straunt, 1, 19, 78
-		
+
 		IF pded_disa_widow <> "_" 		THEN CALL check_for_data_validation(pded_row, excel_col, pded_disa_widow, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF pded_adult_child <> "_" 		THEN CALL check_for_data_validation(pded_row + 1, excel_col, pded_adult_child, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF pded_widow_dis <> "_"		THEN CALL check_for_data_validation(pded_row + 2, excel_col, pded_widow_dis, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -2008,7 +2020,7 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_preg, 1, 2, 78
-	IF num_of_preg <> "0" THEN 
+	IF num_of_preg <> "0" THEN
 		EMReadScreen conception_dt, 8, 6, 53
 			conception_dt = replace(conception_dt, " ", "/")
 		EMReadScreen conception_dt_verif, 1, 6, 75
@@ -2016,12 +2028,12 @@ FOR EACH client IN client_array
 		EMReadScreen baby_due_date, 8, 10, 53
 			baby_due_date = replace(baby_due_date, " ", "/")
 		EMReadScreen multiple_birth, 1, 12, 53
-		
+
 		objExcel.Cells(preg_row, excel_col).Value = conception_dt
 		objExcel.Cells(preg_row + 1, excel_col).Value = conception_dt_verif
 		objExcel.Cells(preg_row + 2, excel_col).Value = third_tri_verif
 		objExcel.Cells(preg_row + 3, excel_col).Value = baby_due_date
-		objExcel.Cells(preg_row + 4, excel_col).Value = multiple_birth		
+		objExcel.Cells(preg_row + 4, excel_col).Value = multiple_birth
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -2037,7 +2049,7 @@ FOR EACH client IN client_array
 		DO
 			'finding the first active RBIC panel
 			EMReadScreen panel_end_date, 8, 6, 68
-			IF panel_end_date = "__ __ __" THEN 
+			IF panel_end_date = "__ __ __" THEN
 				'reading
 				EMReadScreen rbic_income_type, 2, 5, 44
 				EMReadScreen rbic_start_date, 8, 6, 44
@@ -2050,7 +2062,7 @@ FOR EACH client IN client_array
 				EMReadScreen rbic_group1_prosp, 8, 10, 62
 					rbic_group1_prosp = trim(replace(rbic_group1_prosp, "_", ""))
 				EMReadScreen rbic_group1_verif, 1, 10, 76
-				
+
 				EMReadScreen rbic_group2, 17, 11, 25
 					rbic_group2 = replace(rbic_group2, " ", ",")
 					rbic_group2 = replace(rbic_group2, ",__", "")
@@ -2059,7 +2071,7 @@ FOR EACH client IN client_array
 				EMReadScreen rbic_group2_prosp, 8, 11, 62
 					rbic_group2_prosp = trim(replace(rbic_group2_prosp, "_", ""))
 				EMReadScreen rbic_group2_verif, 1, 11, 76
-					
+
 				EMReadScreen rbic_group3, 17, 12, 25
 					rbic_group3 = replace(rbic_group3, " ", ",")
 					rbic_group3 = replace(rbic_group3, ",__", "")
@@ -2068,12 +2080,12 @@ FOR EACH client IN client_array
 				EMReadScreen rbic_group3_prosp, 8, 12, 62
 					rbic_group3_prosp = trim(replace(rbic_group3_prosp, "_", ""))
 				EMReadScreen rbic_group3_verif, 1, 12, 76
-				
+
 				EMReadScreen rbic_retro_hrs, 3, 13, 15
 					rbic_retro_hrs = trim(replace(rbic_retro_hrs, "_", ""))
 				EMReadScreen rbic_prosp_hrs, 3, 13, 67
-					rbic_prosp_hrs = trim(replace(rbic_prosp_hrs, "_", ""))			
-				
+					rbic_prosp_hrs = trim(replace(rbic_prosp_hrs, "_", ""))
+
 				EMReadScreen rbic_expense1_type, 2, 15, 25
 				EMReadScreen rbic_expense1_retro, 8, 15, 47
 					rbic_expense1_retro = trim(replace(rbic_expense1_retro, "_", ""))
@@ -2086,12 +2098,12 @@ FOR EACH client IN client_array
 					rbic_expense2_retro = trim(replace(rbic_expense2_retro, "_", ""))
 				EMReadScreen rbic_expense2_prosp, 8, 16, 62
 					rbic_expense2_prosp = trim(replace(rbic_expense2_prosp, "_", ""))
-				EMReadScreen rbic_expense2_verif, 1, 16, 76				
-				
+				EMReadScreen rbic_expense2_verif, 1, 16, 76
+
 				'writing
 				IF rbic_income_type <> "__" 			THEN CALL check_for_data_validation(rbic_row, excel_col, rbic_income_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 				IF rbic_start_date <> "__ __ __" 		THEN objExcel.Cells(rbic_row + 1, excel_col).Value = replace(rbic_start_date, " ", "/")
-				'not writing the rbic end date... 
+				'not writing the rbic end date...
 				IF rbic_group1 <> "__" 					THEN objExcel.Cells(rbic_row + 3, excel_col).Value = rbic_group1
 				IF rbic_group1_retro <> "" 				THEN objExcel.Cells(rbic_row + 4, excel_col).Value = rbic_group1_retro
 				IF rbic_group1_prosp <> "" 				THEN objExcel.Cells(rbic_row + 5, excel_col).Value = rbic_group1_prosp
@@ -2099,11 +2111,11 @@ FOR EACH client IN client_array
 				IF rbic_group2 <> "__" 					THEN objExcel.Cells(rbic_row + 7, excel_col).Value = rbic_group2
 				IF rbic_group2_retro <> "" 				THEN objExcel.Cells(rbic_row + 8, excel_col).Value = rbic_group2_retro
 				IF rbic_group2_prosp <> "" 				THEN objExcel.Cells(rbic_row + 9, excel_col).Value = rbic_group2_prosp
-				IF rbic_group2_verif <> "_"				THEN CALL check_for_data_validation(rbic_row + 10, excel_col, rbic_group2_verif, objExcel, objWorkbook, objTemplate, objNewSheet)				
+				IF rbic_group2_verif <> "_"				THEN CALL check_for_data_validation(rbic_row + 10, excel_col, rbic_group2_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 				IF rbic_group3 <> "__" 					THEN objExcel.Cells(rbic_row + 11, excel_col).Value = rbic_group3
 				IF rbic_group3_retro <> "" 				THEN objExcel.Cells(rbic_row + 12, excel_col).Value = rbic_group3_retro
 				IF rbic_group3_prosp <> "" 				THEN objExcel.Cells(rbic_row + 13, excel_col).Value = rbic_group3_prosp
-				IF rbic_group3_verif <> "_"				THEN CALL check_for_data_validation(rbic_row + 14, excel_col, rbic_group3_verif, objExcel, objWorkbook, objTemplate, objNewSheet)				
+				IF rbic_group3_verif <> "_"				THEN CALL check_for_data_validation(rbic_row + 14, excel_col, rbic_group3_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 				IF rbic_retro_hrs <> ""  				THEN objExcel.Cells(rbic_row + 15, excel_col).Value = rbic_retro_hrs
 				IF rbic_prosp_hrs <> ""  				THEN objExcel.Cells(rbic_row + 16, excel_col).Value = rbic_prosp_hrs
 				IF rbic_expense1_type <> "__"			THEN CALL check_for_data_validation(rbic_row + 17, excel_col, rbic_expense1_type, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -2114,7 +2126,7 @@ FOR EACH client IN client_array
 				IF rbic_expense2_retro <> ""			THEN objExcel.Cells(rbic_row + 22, excel_col).Value = rbic_expense2_retro
 				IF rbic_expense2_prosp <> ""			THEN objExcel.Cells(rbic_row + 23, excel_col).Value = rbic_expense2_prosp
 				IF rbic_expense2_verif <> "_"			THEN CALL check_for_data_validation(rbic_row + 24, excel_col, rbic_expense2_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
-				
+
 				'all done
 				EXIT DO
 			ELSE
@@ -2134,7 +2146,7 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_rest, 1, 2, 78
-	IF num_of_rest <> "0" THEN 
+	IF num_of_rest <> "0" THEN
 		'reading
 		EMReadScreen rest_ppty_type, 1, 6, 39
 		EMReadScreen rest_type_verif, 2, 6, 62
@@ -2149,7 +2161,7 @@ FOR EACH client IN client_array
 		EMReadScreen rest_joint_own, 1, 13, 54
 		EMReadScreen rest_share_ratio, 5, 14, 54
 		EMReadScreen rest_repay_date, 8, 16, 62
-				
+
 		'writing
 		IF rest_ppty_type <> "_" 			THEN CALL check_for_data_validation(rest_row, excel_col, rest_ppty_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF rest_type_verif <> "__" 			THEN CALL check_for_data_validation(rest_row + 1, excel_col, rest_type_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -2172,7 +2184,7 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_schl, 1, 2, 78
-	IF num_of_schl <> "0" THEN 
+	IF num_of_schl <> "0" THEN
 		EMReadScreen schl_status, 1, 6, 40
 		EMReadScreen schl_verif, 2, 6, 63
 		EMReadScreen schl_type, 2, 7, 40
@@ -2183,7 +2195,7 @@ FOR EACH client IN client_array
 		EMReadScreen schl_funding, 1, 14, 63
 		EMReadScreen schl_fs_elig, 2, 16, 63
 		EMReadScreen schl_higher_ed, 1, 18, 63
-		
+
 		CALL check_for_data_validation(schl_row, excel_col, schl_status, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF schl_verif <> "__" 			THEN CALL check_for_data_validation(schl_row + 1, excel_col, schl_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF schl_type <> "__" 			THEN CALL check_for_data_validation(schl_row + 2, excel_col, schl_type, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -2205,7 +2217,7 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_SECU, 1, 2, 78
-	IF num_of_SECU <> "0" THEN 
+	IF num_of_SECU <> "0" THEN
 		EMReadScreen secu_type, 2, 6, 50
 		EMReadScreen secu_policy, 12, 7, 50
 			secu_policy = trim(secu_policy)
@@ -2228,7 +2240,7 @@ FOR EACH client IN client_array
 		EMReadScreen secu_count_ive, 1, 15, 80
 		EMReadScreen secu_joint_own, 1, 16, 44
 		EMReadScreen secu_own_ratio, 5, 16, 76
-			
+
 		CALL check_for_data_validation(secu_row, excel_col, secu_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 		objExcel.Cells(secu_row + 1, excel_col).Value = secu_policy
 		objExcel.Cells(secu_row + 2, excel_col).Value = secu_name
@@ -2243,7 +2255,7 @@ FOR EACH client IN client_array
 		IF secu_count_grh <> "_" 			THEN CALL check_for_data_validation(secu_row + 11, excel_col, secu_count_grh, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF secu_count_ive <> "_" 			THEN CALL check_for_data_validation(secu_row + 12, excel_col, secu_count_ive, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF secu_joint_own <> "_"			THEN CALL check_for_data_validation(secu_row + 13, excel_col, secu_joint_own, objExcel, objWorkbook, objTemplate, objNewSheet)
-		objExcel.Cells(secu_row + 14, excel_col).Value = secu_own_ratio		
+		objExcel.Cells(secu_row + 14, excel_col).Value = secu_own_ratio
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -2254,7 +2266,7 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_shel, 1, 2, 78
-	IF num_of_shel <> "0" THEN 
+	IF num_of_shel <> "0" THEN
 		EMReadScreen shel_subsidized, 1, 6, 46
 		EMReadScreen shel_shared, 1, 6, 64
 		EMReadScreen shel_paid_to, 25, 7, 50
@@ -2351,20 +2363,20 @@ NEXT
 'SIBL
 CALL navigate_to_MAXIS_screen("STAT", "SIBL")
 EMReadScreen num_of_sibl, 1, 2, 78
-IF num_of_sibl <> "0" THEN 
+IF num_of_sibl <> "0" THEN
 	EMReadScreen sibl_group1, 38, 7, 39
 		sibl_group1 = replace(sibl_group1, "  ", ",")
 		sibl_group1 = replace(sibl_group1, ",__", "")
 		sibl_group1 = trim(sibl_group1)
 	EMReadScreen sibl_group2, 38, 8, 39
-		sibl_group2 = replace(sibl_group2, "  ", ",")	
-		sibl_group2 = replace(sibl_group2, ",__", "")	
+		sibl_group2 = replace(sibl_group2, "  ", ",")
+		sibl_group2 = replace(sibl_group2, ",__", "")
 		sibl_group2 = trim(sibl_group2)
 	EMReadScreen sibl_group3, 38, 9, 39
 		sibl_group3 = replace(sibl_group3, "  ", ",")
-		sibl_group3 = replace(sibl_group3, ",__", "")	
+		sibl_group3 = replace(sibl_group3, ",__", "")
 		sibl_group3 = trim(sibl_group3)
-	
+
 	IF sibl_group1 <> "__" THEN objExcel.Cells(sibl_row, 3).Value = sibl_group1
 	IF sibl_group2 <> "__" THEN objExcel.Cells(sibl_row + 1, 3).Value = sibl_group2
 	IF sibl_group3 <> "__" THEN objExcel.Cells(sibl_row + 2, 3).Value = sibl_group3
@@ -2375,14 +2387,14 @@ CALL navigate_to_MAXIS_screen("STAT", "SPON")
 excel_col = 3
 FOR EACH client IN client_array
 	EMReadScreen num_of_spon, 1, 2, 78
-	IF num_of_spon <> "0" THEN 
+	IF num_of_spon <> "0" THEN
 		EMReadScreen spon_type, 2, 6, 38
 		EMReadScreen spon_verif, 1, 6, 62
 		EMReadScreen spon_name, 20, 8, 38
 			spon_name = replace(spon_name, "_", "")
 			spon_name = trim(spon_name)
 		EMReadScreen spon_state, 2, 10, 62
-	
+
 		CALL check_for_data_validation(spon_row, excel_col, spon_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 		CALL check_for_data_validation(spon_row + 1, excel_col, spon_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 		objExcel.Cells(spon_row + 3, excel_col).Value = spon_name
@@ -2390,16 +2402,16 @@ FOR EACH client IN client_array
 	END IF
 	excel_col = excel_col + 1
 NEXT
- 
+
 'STEC
 CALL navigate_to_MAXIS_screen("STAT", "STEC")
 excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_stec, 1, 2, 78
-	IF num_of_stec <> "0" THEN 
+	IF num_of_stec <> "0" THEN
 		EMReadScreen stec1_type, 2, 8, 25
-		IF stec1_type <> "__" THEN 
+		IF stec1_type <> "__" THEN
 			EMReadScreen stec1_amt, 8, 8, 31
 				stec1_amt = trim(stec1_amt)
 				stec1_amt = replace(stec1_amt, "_", "")
@@ -2413,16 +2425,16 @@ FOR EACH client IN client_array
 			EMReadScreen stec1_ear_mos, 12, 8, 69
 				stec1_ear_mos = replace(stec1_ear_mos, "  ", "-")
 				stec1_ear_mos = replace(stec1_ear_mos, " ", "/")
-			
+
 			CALL check_for_data_validation(stec_row, excel_col, stec1_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			objExcel.Cells(stec_row + 1, excel_col).Value = stec1_amt
 			IF stec1_thru_dts <> "__/__-__/__" THEN objExcel.Cells(stec_row + 2, excel_col).Value = stec1_thru_dts
 			CALL check_for_data_validation(stec_row + 3, excel_col, stec1_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 			objExcel.Cells(stec_row + 4, excel_col).Value = stec1_earmarked
 			IF stec1_ear_mos <> "__/__-__/__" THEN objExcel.Cells(stec_row + 5, excel_col).Value stec1_ear_mos
-			
+
 			EMReadScreen stec2_type, 2, 9, 25
-			IF stec2_type <> "__" THEN 
+			IF stec2_type <> "__" THEN
 				EMReadScreen stec2_amt, 8, 8, 31
 					stec2_amt = trim(stec2_amt)
 					stec2_amt = replace(stec2_amt, "_", "")
@@ -2436,13 +2448,13 @@ FOR EACH client IN client_array
 				EMReadScreen stec2_ear_mos, 12, 8, 69
 					stec2_ear_mos = replace(stec2_ear_mos, "  ", "-")
 					stec2_ear_mos = replace(stec2_ear_mos, " ", "/")
-				
+
 				CALL check_for_data_validation(stec_row + 6, excel_col, stec2_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 				objExcel.Cells(stec_row + 7, excel_col).Value = stec2_amt
 				IF stec2_thru_dts <> "__/__-__/__" THEN objExcel.Cells(stec_row + 8, excel_col).Value = stec2_thru_dts
 				CALL check_for_data_validation(stec_row + 9, excel_col, stec2_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 				objExcel.Cells(stec_row + 10, excel_col).Value = stec2_earmarked
-				IF stec2_ear_mos <> "__/__-__/__" THEN objExcel.Cells(stec_row + 11, excel_col).Value stec2_ear_mos			
+				IF stec2_ear_mos <> "__/__-__/__" THEN objExcel.Cells(stec_row + 11, excel_col).Value stec2_ear_mos
 			END IF
 		END IF
 	END IF
@@ -2457,7 +2469,7 @@ FOR EACH client IN client_array
 	EMReadScreen num_of_stin, 1, 2, 78
 	IF num_of_stin <> "0" THEN
 		EMReadScreen stin_type1, 2, 8, 27
-		IF stin_type1 <> "__" THEN 
+		IF stin_type1 <> "__" THEN
 			EMReadScreen stin_amt1, 8, 8, 34
 				stin_amt1 = trim(stin_amt1)
 				stin_amt1 = replace(stin_amt1, "_", "")
@@ -2466,15 +2478,15 @@ FOR EACH client IN client_array
 				stin_thru_dts1 = replace(stin_thru_dts1, "    ", "-")
 				stin_thru_dts1 = replace(stin_thru_dts1, " ", "/")
 			EMReadScreen stin_verif1, 1, 8, 76
-			
+
 			CALL check_for_data_validation(stin_row, excel_col, stin_type1, objExcel, objWorkbook, objTemplate, objNewSheet)
 			objExcel.Cells(stin_row + 1, excel_col).Value = stin_amt1
 			IF stin_avail1 <> "__ __ __" THEN objExcel.Cells(stin_row + 2, excel_col).Value = replace(stin_avail1, " ", "/")
 			IF stin_thru_dts1 <> "__/__-__/__" THEN objExcel.Cells(stin_row + 3, excel_col).Value = stin_thru_dts1
 			IF stin_verif1 <> "_" THEN CALL check_for_data_validation(stin_row + 4, excel_col, stin_verif1, objExcel, objWorkbook, objTemplate, objNewSheet)
-			
+
 			EMReadScreen stin_type2, 2, 9, 27
-			IF stin_type2 <> "__" THEN 
+			IF stin_type2 <> "__" THEN
 				EMReadScreen stin_amt2, 8, 9, 34
 					stin_amt2 = trim(stin_amt2)
 					stin_amt2 = replace(stin_amt2, "_", "")
@@ -2483,7 +2495,7 @@ FOR EACH client IN client_array
 					stin_thru_dts2 = replace(stin_thru_dts2, "    ", "-")
 					stin_thru_dts2 = replace(stin_thru_dts2, " ", "/")
 				EMReadScreen stin_verif2, 1, 9, 76
-				
+
 				CALL check_for_data_validation(stin_row + 5, excel_col, stin_type2, objExcel, objWorkbook, objTemplate, objNewSheet)
 				objExcel.Cells(stin_row + 6, excel_col).Value = stin_amt2
 				IF stin_avail2 <> "__ __ __" THEN objExcel.Cells(stin_row + 7, excel_col).Value = replace(stin_avail2, " ", "/")
@@ -2501,7 +2513,7 @@ excel_col = 3
 FOR EACH client IN client_array
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_stwk, 1, 2, 78
-	IF num_of_stwk <> "0" THEN 
+	IF num_of_stwk <> "0" THEN
 		EMReadScreen stwk_employer, 30, 6, 46
 			stwk_employer = trim(stwk_employer)
 			stwk_employer = replace(stwk_employer, "_", "")
@@ -2516,10 +2528,10 @@ FOR EACH client IN client_array
 		EMReadScreen stwk_good_cause_snap, 1, 12, 67
 		EMReadScreen stwk_fs_pwe, 1, 14, 46
 		EMReadScreen stwk_maepd, 1, 16, 46
-		
+
 		IF stwk_employer <> "" 					THEN objExcel.Cells(stwk_row, excel_col).Value = stwk_employer
 		IF stwk_stop_work_dt <> "__ __ __"		THEN objExcel.Cells(stwk_row + 1, excel_col).Value = replace(stwk_stop_work_dt, " ", "/")
-		IF stwk_verif <> "_" 					THEN CALL check_for_data_validation(stwk_row + 2, excel_col, stwk_verif, objExcel, objWorkbook, objTemplate, objNewSheet)	
+		IF stwk_verif <> "_" 					THEN CALL check_for_data_validation(stwk_row + 2, excel_col, stwk_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF stwk_inc_stop_dt <> "__ __ __"		THEN objExcel.Cells(stwk_row + 3, excel_col).Value = replace(stwk_inc_stop_dt, " ", "/")
 		IF stwk_refuse_emp <> "_" 				THEN CALL check_for_data_validation(stwk_row + 4, excel_col, stwk_refuse_emp, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF stwk_vol_quit <> "_" 				THEN CALL check_for_data_validation(stwk_row + 5, excel_col, stwk_vol_quit, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -2547,8 +2559,8 @@ FOR EACH client IN client_array
 			IF unea_end_date = "__ __ __" THEN num_of_active_unea = num_of_active_unea + 1
 			transmit
 			EMReadScreen enter_a_valid, 13, 24, 2
-		LOOP UNTIL enter_a_valid = "ENTER A VALID"	
-		
+		LOOP UNTIL enter_a_valid = "ENTER A VALID"
+
 		IF num_of_active_unea >= 1 THEN
 			CALL write_value_and_transmit("01", 20, 79)
 			DO
@@ -2557,7 +2569,7 @@ FOR EACH client IN client_array
 				transmit
 			LOOP
 			EMReadScreen unea1_type, 2, 5, 37
-				IF unea1_type = "01" OR unea1_type = "02" OR unea1_type = "03" THEN 
+				IF unea1_type = "01" OR unea1_type = "02" OR unea1_type = "03" THEN
 					EMReadScreen unea1_suffix, 3, 6, 46
 					objExcel.Cells(unea1_row + 2, excel_col).Value = unea1_suffix
 				END IF
@@ -2572,7 +2584,7 @@ FOR EACH client IN client_array
 					unea1_pay_amt = trim(unea1_pay_amt)
 				transmit
 			END IF
-			IF snap_case = FALSE AND health_care_case = TRUE THEN 
+			IF snap_case = FALSE AND health_care_case = TRUE THEN
 				CALL write_value_and_transmit("X", 6, 56)
 				EMReadscreen unea1_pay_freq, 1, 10, 63
 				IF unea1_pay_freq = "_" THEN unea1_pay_freq = "1"
@@ -2580,20 +2592,20 @@ FOR EACH client IN client_array
 					unea1_pay_amt = trim(replace(unea1_pay_amt, "_", ""))
 				transmit
 			END IF
-			IF snap_case = FALSE AND health_care_case = FALSE AND cash_case = TRUE THEN 
+			IF snap_case = FALSE AND health_care_case = FALSE AND cash_case = TRUE THEN
 				'assuming pay frequency is once monthly if we cannot find it anywhere
 				unea1_pay_freq = "1"
 				EMReadScreen unea1_pay_amt, 8, 18, 68
 				unea1_pay_amt = trim(unea1_pay_amt)
 			END IF
-			
+
 			CALL check_for_data_validation(unea1_row, excel_col, unea1_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(unea1_row + 1, excel_col, unea1_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 			objExcel.Cells(unea1_row + 3, excel_col).Value = unea1_inc_start
 			objExcel.Cells(unea1_row + 4, excel_col).Value = unea1_pay_freq
-			objExcel.Cells(unea1_row + 5, excel_col).Value = unea1_pay_amt			
+			objExcel.Cells(unea1_row + 5, excel_col).Value = unea1_pay_amt
 		END IF
-		
+
 		IF num_of_active_unea >= 2 THEN
 			transmit
 			DO
@@ -2602,10 +2614,10 @@ FOR EACH client IN client_array
 				transmit
 			LOOP
 			EMReadScreen unea2_type, 2, 5, 37
-				IF unea2_type = "01" OR unea2_type = "02" OR unea2_type = "03" THEN 
+				IF unea2_type = "01" OR unea2_type = "02" OR unea2_type = "03" THEN
 					EMReadScreen unea2_suffix, 3, 6, 46
 					objExcel.Cells(unea2_row + 2, excel_col).Value = unea2_suffix
-				END IF			
+				END IF
 			EMReadScreen unea2_verif, 1, 5, 65
 			EMReadScreen unea2_inc_start, 8, 7, 37
 				unea2_inc_start = replace(unea2_inc_start, " ", "/")
@@ -2617,7 +2629,7 @@ FOR EACH client IN client_array
 					unea2_pay_amt = trim(unea2_pay_amt)
 				transmit
 			END IF
-			IF snap_case = FALSE AND health_care_case = TRUE THEN 
+			IF snap_case = FALSE AND health_care_case = TRUE THEN
 				CALL write_value_and_transmit("X", 6, 56)
 				EMReadscreen unea2_pay_freq, 1, 10, 63
 				IF unea2_pay_freq = "_" THEN unea2_pay_freq = "1"
@@ -2625,20 +2637,20 @@ FOR EACH client IN client_array
 					unea2_pay_amt = trim(replace(unea2_pay_amt, "_", ""))
 				transmit
 			END IF
-			IF snap_case = FALSE AND health_care_case = FALSE AND cash_case = TRUE THEN 
+			IF snap_case = FALSE AND health_care_case = FALSE AND cash_case = TRUE THEN
 				'assuming pay frequency is once monthly if we cannot find it anywhere
 				unea2_pay_freq = "1"
 				EMReadScreen unea2_pay_amt, 8, 18, 68
 				unea2_pay_amt = trim(unea2_pay_amt)
 			END IF
-			
+
 			CALL check_for_data_validation(unea2_row, excel_col, unea2_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(unea2_row + 1, excel_col, unea2_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 			objExcel.Cells(unea2_row + 3, excel_col).Value = unea2_inc_start
 			objExcel.Cells(unea2_row + 4, excel_col).Value = unea2_pay_freq
-			objExcel.Cells(unea2_row + 5, excel_col).Value = unea2_pay_amt	
-		END IF		
-		
+			objExcel.Cells(unea2_row + 5, excel_col).Value = unea2_pay_amt
+		END IF
+
 		IF num_of_active_unea >= 3 THEN
 			transmit
 			DO
@@ -2647,10 +2659,10 @@ FOR EACH client IN client_array
 				transmit
 			LOOP
 			EMReadScreen unea3_type, 2, 5, 37
-				IF unea3_type = "01" OR unea3_type = "02" OR unea3_type = "03" THEN 
+				IF unea3_type = "01" OR unea3_type = "02" OR unea3_type = "03" THEN
 					EMReadScreen unea3_suffix, 3, 6, 46
 					objExcel.Cells(unea3_row + 2, excel_col).Value = unea3_suffix
-				END IF			
+				END IF
 			EMReadScreen unea3_verif, 1, 5, 65
 			EMReadScreen unea3_inc_start, 8, 7, 37
 				unea3_inc_start = replace(unea3_inc_start, " ", "/")
@@ -2662,7 +2674,7 @@ FOR EACH client IN client_array
 					unea3_pay_amt = trim(unea3_pay_amt)
 				transmit
 			END IF
-			IF snap_case = FALSE AND health_care_case = TRUE THEN 
+			IF snap_case = FALSE AND health_care_case = TRUE THEN
 				CALL write_value_and_transmit("X", 6, 56)
 				EMReadscreen unea3_pay_freq, 1, 10, 63
 				IF unea3_pay_freq = "_" THEN unea3_pay_freq = "1"
@@ -2670,19 +2682,19 @@ FOR EACH client IN client_array
 					unea3_pay_amt = trim(replace(unea3_pay_amt, "_", ""))
 				transmit
 			END IF
-			IF snap_case = FALSE AND health_care_case = FALSE AND cash_case = TRUE THEN 
+			IF snap_case = FALSE AND health_care_case = FALSE AND cash_case = TRUE THEN
 				'assuming pay frequency is once monthly if we cannot find it anywhere
 				unea3_pay_freq = "1"
 				EMReadScreen unea3_pay_amt, 8, 18, 68
 				unea3_pay_amt = trim(unea3_pay_amt)
 			END IF
-			
+
 			CALL check_for_data_validation(unea3_row, excel_col, unea3_type, objExcel, objWorkbook, objTemplate, objNewSheet)
 			CALL check_for_data_validation(unea3_row + 1, excel_col, unea3_verif, objExcel, objWorkbook, objTemplate, objNewSheet)
 			objExcel.Cells(unea3_row + 3, excel_col).Value = unea3_inc_start
 			objExcel.Cells(unea3_row + 4, excel_col).Value = unea3_pay_freq
-			objExcel.Cells(unea3_row + 5, excel_col).Value = unea3_pay_amt		
-		END IF				
+			objExcel.Cells(unea3_row + 5, excel_col).Value = unea3_pay_amt
+		END IF
 	END IF
 	excel_col = excel_col + 1
 NEXT
@@ -2694,7 +2706,7 @@ FOR EACH client IN client_array
 	EMWriteScreen client, 20, 76
 	CALL write_value_and_transmit("01", 20, 79)
 	EMReadScreen num_of_wkex, 1, 2, 78
-	IF num_of_wkex <> "0" THEN 
+	IF num_of_wkex <> "0" THEN
 		'reading the first WKEX panel
 		EMReadScreen wkex_program, 2, 5, 33
 		EMReadScreen wkex_fed_tax_retro, 8, 7, 43
@@ -2778,7 +2790,7 @@ FOR EACH client IN client_array
 		'and leaving...
 		PF3
 		'and finally done reading from WKEX
-		
+
 		'writing
 		IF wkex_program <> "__" 			THEN CALL check_for_data_validation(wkex_row, excel_col, wkex_program, objExcel, objWorkbook, objTemplate, objNewSheet)
 		IF wkex_fed_tax_retro <> ""			THEN objExcel.Cells(wkex_row + 1, excel_col).Value = wkex_fed_tax_retro
@@ -2841,7 +2853,7 @@ FOR EACH client IN client_array
 	'Navigating to WREG for each ref num
 	CALL write_value_and_transmit(client, 20, 76)
 	EMReadScreen num_of_wreg, 1, 2, 78
-	IF num_of_wreg <> "0" THEN 	
+	IF num_of_wreg <> "0" THEN
 		STATS_manualtime = STATS_manualtime + 28
 		'reading
 		EMReadScreen fs_pwe, 1, 6, 68
@@ -2854,7 +2866,7 @@ FOR EACH client IN client_array
 		EMReadScreen num_wreg_sanc, 2, 11, 50
 		EMReadScreen abawd_status, 2, 13, 50
 		EMReadScreen ga_basis, 2, 15, 50
-		
+
 		'writing
 		IF fs_pwe <> "_" 					THEN objExcel.Cells(wreg_row, excel_col).Value = fs_pwe
 		IF fset_status <> "__" 				THEN CALL check_for_data_validation(wreg_row + 1, excel_col, fset_status, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -2873,7 +2885,7 @@ FOR i = 3 TO excel_col - 1
 	objExcel.Columns(i).Autofit()
 NEXT
 
-objWorkbook.SaveAs(training_case_creator_excel_file_path) 
+objWorkbook.SaveAs(training_case_creator_excel_file_path)
 end_time = timer
 run_time = end_time - start_time
 script_end_procedure("file saved." & vbCr & "manual time = " & STATS_manualtime & vbCr & "script run time = " & run_time)

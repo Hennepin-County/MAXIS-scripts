@@ -38,7 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
@@ -117,7 +129,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 			If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
 		Loop until MAXIS_case_number <> ""														'Loops until that case number exists
 		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-	LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists	
+	LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists
 ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 	DO
 		Do
@@ -172,7 +184,7 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 		Loop until MAXIS_case_number <> ""														'Loops until that case number exists
 		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false
-END IF 
+END IF
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)

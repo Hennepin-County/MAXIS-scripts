@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
@@ -63,7 +75,7 @@ BeginDialog , 0, 0, 161, 65, "Case number and footer month"
     CancelButton 85, 45, 50, 15
 EndDialog
 
-Do 
+Do
 	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -96,7 +108,7 @@ BeginDialog , 0, 0, 291, 300, "New job reported dialog"
   CheckBox 5, 215, 190, 10, "Check here if you sent a status update to ES.", ES_checkbox
   CheckBox 5, 230, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
   CheckBox 5, 245, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  CheckBox 5, 260, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_checkbox 
+  CheckBox 5, 260, 235, 10, "Check here to have the script send a TIKL to return proofs in 10 days.", TIKL_checkbox
   EditBox 65, 275, 110, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 180, 275, 50, 15
@@ -206,7 +218,7 @@ If create_JOBS_checkbox = checked then
 	Loop until edit_mode_check = "D"
 End if
 
-If TIKL_checkbox = 1 then 
+If TIKL_checkbox = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
 	'The following will generate a TIKL formatted date for 10 days from now.
 	call create_MAXIS_friendly_date(date, 10, 5, 18)
@@ -214,7 +226,7 @@ If TIKL_checkbox = 1 then
 	call write_variable_in_TIKL("Verification of " & employer & " job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 	transmit
 	PF3
-End if 
+End if
 
 'Now the script will case note what's happened.
 start_a_blank_CASE_NOTE
@@ -234,8 +246,8 @@ call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
-If TIKL_checkbox = 1 then 
+If TIKL_checkbox = 1 then
 	script_end_procedure("Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at: " & employer & ".")
-Else 
+Else
 	script_end_procedure("Success! MAXIS updated for job change, and a case note has been made. An EV should now be sent. The job is at: " & employer & ".")
-END IF 
+END IF

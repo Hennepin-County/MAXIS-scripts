@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   EditBox 60, 5, 90, 15, MAXIS_case_number
@@ -50,7 +62,7 @@ BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   Text 10, 30, 50, 10, "Footer month:"
   Text 95, 30, 20, 10, "Year:"
 EndDialog
-  
+
 BeginDialog LTC_app_recd_dialog, 0, 0, 286, 415, "LTC application received dialog"
   EditBox 75, 35, 65, 15, appl_date
   EditBox 75, 55, 65, 15, appl_type
@@ -176,7 +188,7 @@ Call check_for_MAXIS(False)
 
 
 'UPDATING PND2----------------------------------------------------------------------------------------------------
-If update_PND2_check = 1 then 
+If update_PND2_check = 1 then
 	call navigate_to_MAXIS_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
@@ -206,7 +218,7 @@ End if
 'THE TIKL's----------------------------------------------------------------------------------------------------
 If TIKL_45_day_check = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(appl_date, 45, 5, 18) 
+	call create_MAXIS_friendly_date(appl_date, 45, 5, 18)
 	EMSetCursor 9, 3
 	Call write_variable_in_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
 	transmit
@@ -215,7 +227,7 @@ End if
 
 If TIKL_60_day_check = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(appl_date, 60, 5, 18) 
+	call create_MAXIS_friendly_date(appl_date, 60, 5, 18)
 	EMSetCursor 9, 3
 	Call write_variable_in_TIKL("HC pending 60 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
 	transmit

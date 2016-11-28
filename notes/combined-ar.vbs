@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", 1, date)
 MAXIS_footer_month = datepart("m", next_month)
@@ -207,7 +219,7 @@ DO
 		If worker_signature = "" or review_status = "Select one..." or actions_taken = "" or recert_datestamp = "" then MsgBox "You must sign your case note and update the datestamp, actions taken, and review status sections."
 	Loop until worker_signature <> "" and review_status <> "Select one..." and actions_taken <> "" and recert_datestamp <> ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false			
+LOOP UNTIL are_we_passworded_out = false
 
 'The case note----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
