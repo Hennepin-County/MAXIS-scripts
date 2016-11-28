@@ -44,8 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
-
+call changelog_update("11/20/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
@@ -560,6 +559,7 @@ If SNAP_active = TRUE Then
 	transmit
 
 	EMReadScreen FPG_130, 8, 8, 73
+	If FPG_130 = "        " THEN FPG_130 = "9999"
 	transmit
 	EMReadScreen REPT_status, 9, 8, 31
 	amount_CS_reported = 0
