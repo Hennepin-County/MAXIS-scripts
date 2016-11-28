@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 MAXIS_footer_month = datepart("m", date)
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
@@ -201,7 +213,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Grabbing the footer month/year
 call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then 
+If row <> 0 then
 	MAXIS_footer_month = MAXIS_footer_month
 	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 	If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
@@ -320,7 +332,7 @@ End if
 'Tikl portion-----------------------------------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18) 
+	call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18)
 	EMSetCursor 9, 3
 	EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
 	transmit
@@ -331,6 +343,7 @@ End if
 start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note("***HCAPP received " & HCAPP_datestamp & ": " & HCAPP_status & "***")
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+IF move_verifs_needed = TRUE THEN CALL write_variable_in_case_note("---")                                                       'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll add a line separator.
 CALL write_bullet_and_variable_in_CASE_NOTE("HCAPP type", HCAPP_type)
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
@@ -351,7 +364,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("INSA", INSA)
 CALL write_bullet_and_variable_in_CASE_NOTE("ACCI", ACCI)
 CALL write_bullet_and_variable_in_CASE_NOTE("BILS", BILS)
 CALL write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
-IF application_signed_check = checked THEN 
+IF application_signed_check = checked THEN
 	CALL write_variable_in_CASE_NOTE("* Application was signed.")
 ELSE
 	CALL write_variable_in_CASE_NOTE("* Application was not signed.")
