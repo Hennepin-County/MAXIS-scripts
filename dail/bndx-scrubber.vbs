@@ -10,7 +10,7 @@
 '----------------------------------------------------------------
 '(2) The error message and comparison message has been updated to provide more information.
 '----------------------------------------------------------------
-'(3) The way the script handles the RSDI claim number has been updated. Because some claim suffixes include numeric values, the script will read 11 characters on UNEA, but it will always drop the last 
+'(3) The way the script handles the RSDI claim number has been updated. Because some claim suffixes include numeric values, the script will read 11 characters on UNEA, but it will always drop the last
 ' character when reading a claim number ending in "A". The reason for this is that some cases have A00 in the claim number and some only have "A". BNDX, however, will only ever put "A" for the suffix.
 '-----------------------------------------------------------------
 '(4) Future plans could include bulking the BNDX Scrubber. However, for 04/2015, the number of BNDX DAILs seems to be down considerably. That enhancement request could be put on hold.
@@ -56,6 +56,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 FUNCTION abended_function
 	EMReadScreen case_abended, 7, 9, 27
 	IF case_abended = "abended" THEN transmit
@@ -94,7 +106,7 @@ search_row = read_row
 '========== Collects the case number ==========
 DO
 	EMReadScreen look_for_case_number, 18, search_row, 63
-	IF left(look_for_case_number, 10) = "CASE NBR: " THEN 
+	IF left(look_for_case_number, 10) = "CASE NBR: " THEN
 		maxis_case_number = right(look_for_case_number, 8)
 		maxis_case_number = replace(maxis_case_number, " ", "")
 	ELSE
@@ -117,7 +129,7 @@ ReDim bndx_array(2, 5)
 EMReadScreen bndx_claim_one_number, 13, 5, 12
 bndx_claim_one_number = replace(bndx_claim_one_number, " ", "")
 EMReadScreen bndx_claim_one_amt, 8, 7, 12
-bndx_claim_one_amt = replace(bndx_claim_one_amt, " ", "")  
+bndx_claim_one_amt = replace(bndx_claim_one_amt, " ", "")
 'ReDim bndx_array(0, 5)
 num_of_rsdi = 0
 bndx_array(0, 0) = bndx_claim_one_number
@@ -127,7 +139,7 @@ EMReadScreen bndx_claim_two_number, 13, 5, 38
 bndx_claim_two_number = replace(bndx_claim_two_number, " ", "")
 EMReadScreen bndx_claim_two_amt, 8, 7, 38
 bndx_claim_two_amt = replace(bndx_claim_two_amt, " ", "")
-	IF bndx_claim_two_amt <> "" THEN 
+	IF bndx_claim_two_amt <> "" THEN
 '		ReDim bndx_array(1, 5)
 		num_of_rsdi = 1
 		bndx_array(1, 0) = bndx_claim_two_number
@@ -146,7 +158,7 @@ bndx_claim_three_amt = replace(bndx_claim_three_amt, " ", "")
 	END IF
 
 
-	
+
 '========== Goes back to STAT/PROG to determine which programs are active. ==========
 back_to_SELF
 EMWriteScreen "STAT", 16, 43
@@ -165,7 +177,7 @@ EMReadScreen fs_status, 4, 10, 74
 EMReadScreen ive_status, 4, 11, 74
 EMReadScreen hc_status, 4, 12, 74
 
-IF cash_one_status <> "ACTV" AND cash_two_status <> "ACTV" AND grh_status <> "ACTV" AND fs_status <> "ACTV" AND ive_status <> "ACTV" AND hc_status <> "ACTV" THEN 
+IF cash_one_status <> "ACTV" AND cash_two_status <> "ACTV" AND grh_status <> "ACTV" AND fs_status <> "ACTV" AND ive_status <> "ACTV" AND hc_status <> "ACTV" THEN
   IF cash_one_status <> "PEND" AND cash_two_status <> "PEND" AND grh_status <> "PEND" AND fs_status <> "PEND" AND ive_status <> "PEND" AND hc_status <> "PEND" THEN script_end_procedure("The client does not have any active or pending MAXIS cases.")
 END IF
 
@@ -200,10 +212,10 @@ FOR i = 0 TO num_of_rsdi
 			bndx_array(i, 2) = unea_claim_number
 			IF (right(bndx_array(i, 0), 1) = "A" AND right(bndx_array(i, 0), 2) <> "HA") OR _
 				(right(bndx_array(i, 0), 1) = "B" AND right(bndx_array(i, 0), 2) <> "HB") OR _
-				right(bndx_array(i, 0), 1) = "D" OR _ 
-				right(bndx_array(i, 0), 1) = "E" OR _ 
+				right(bndx_array(i, 0), 1) = "D" OR _
+				right(bndx_array(i, 0), 1) = "E" OR _
 				right(bndx_array(i, 0), 1) = "G" OR _
-				right(bndx_array(i, 0), 1) = "M" OR _ 
+				right(bndx_array(i, 0), 1) = "M" OR _
 				right(bndx_array(i, 0), 1) = "T" OR _
 				right(bndx_array(i, 0), 1) = "W" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
 			IF bndx_array(i, 0) <> bndx_array(i, 2) THEN error_message = error_message & chr(13) & "Claim numbers do not match."
@@ -241,16 +253,16 @@ FOR i = 0 TO num_of_rsdi
 			end_of_unea = trim(end_of_unea)
 			IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There is a discrepancy with BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 		LOOP UNTIL unea_type = "RSDI" or end_of_unea <> ""
-		IF end_of_unea = "" THEN 
+		IF end_of_unea = "" THEN
 			DO
 				EMReadScreen unea_claim_number, 11, 6, 37
 				bndx_array(i, 2) = unea_claim_number
 				IF (right(bndx_array(i, 0), 1) = "A" AND right(bndx_array(i, 0), 2) <> "HA") OR _
 					(right(bndx_array(i, 0), 1) = "B" AND right(bndx_array(i, 0), 2) <> "HB") OR _
-					right(bndx_array(i, 0), 1) = "D" OR _ 
-					right(bndx_array(i, 0), 1) = "E" OR _ 
+					right(bndx_array(i, 0), 1) = "D" OR _
+					right(bndx_array(i, 0), 1) = "E" OR _
 					right(bndx_array(i, 0), 1) = "G" OR _
-					right(bndx_array(i, 0), 1) = "M" OR _ 
+					right(bndx_array(i, 0), 1) = "M" OR _
 					right(bndx_array(i, 0), 1) = "T" OR _
 					right(bndx_array(i, 0), 1) = "W" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
 				IF bndx_array(i, 0) <> bndx_array(i, 2) THEN transmit
@@ -258,7 +270,7 @@ FOR i = 0 TO num_of_rsdi
 				end_of_unea = trim(end_of_unea)
 				IF end_of_unea <> "" THEN error_message = error_message & vbCr & "There is a discrepancy with BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
 			LOOP UNTIL bndx_array(i, 0) = bndx_array(i, 2) OR end_of_unea <> ""
-			IF end_of_unea = "" THEN 
+			IF end_of_unea = "" THEN
 				EMReadScreen unea_prospective_amt, 8, 18, 68
 				bndx_array(i, 3) = trim(unea_prospective_amt)
 				IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The prospective amount in UNEA is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
@@ -294,11 +306,11 @@ EMWriteScreen "DAIL", 21, 70
 transmit
 
 '========== The bit about the MSGBox is used only as a safeguard for Beta Testing.
-IF error_message = "" THEN 
+IF error_message = "" THEN
 	compare_message = "BNDX Conclusion" & vbCr & "============="
 	FOR i = 0 to num_of_rsdi
 		compare_message = compare_message & vbCr & "BNDX Claim #: " & bndx_array(i, 0)
-		compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1) 
+		compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1)
 		compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
 		IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
 		IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)
@@ -327,7 +339,7 @@ ELSE
 	'compare_message = "BNDX Conclusion" & vbCr & "============="
 	'FOR i = 0 to num_of_rsdi
 	'	compare_message = compare_message & vbCr & "BNDX Claim #: " & bndx_array(i, 0)
-	'	compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1) 
+	'	compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1)
 	'	compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
 	'	IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
 	'	IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)

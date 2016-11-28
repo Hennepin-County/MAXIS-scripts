@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Dialogs
 BeginDialog case_number_dlg, 0, 0, 211, 80, "Case Number Dialog"
   EditBox 70, 10, 60, 15, MAXIS_case_number
@@ -75,7 +87,7 @@ EMConnect ""
 
 call MAXIS_case_number_finder(MAXIS_case_number)
 approval_month = DatePart("M", (DateAdd("M", 1, date)))
-IF len(approval_month) = 1 THEN 
+IF len(approval_month) = 1 THEN
 	approval_month = "0" & approval_month
 ELSE
 	approval_month = Cstr(approval_month)
@@ -90,26 +102,26 @@ DO
 	IF len(approval_month) <> 2 THEN err_msg = err_msg & "* Please enter your month in MM format." & vbNewLine
 	IF len(approval_year) <> 2 THEN err_msg = err_msg & "* Please enter your year in YY format." & vbNewLine
 	IF err_msg <> "" THEN msgbox err_msg
-LOOP until err_msg = ""	
+LOOP until err_msg = ""
 
 CALL check_for_MAXIS(false)
 
 DIALOG banked_months_menu_dialog
 	cancel_confirmation
-	
+
 	'This is the WCOM for when the client has used all their banked months.
 	IF ButtonPressed = banked_months_used_button THEN
 		call navigate_to_MAXIS_screen("spec", "wcom")
-		
+
 		EMWriteScreen approval_month, 3, 46
 		EMWriteScreen approval_year, 3, 51
 		transmit
-		
+
 		DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
 			EMReadScreen more_pages, 8, 18, 72
 			IF more_pages = "MORE:  -" THEN PF7
 		LOOP until more_pages <> "MORE:  -"
-		
+
 		read_row = 7
 		DO
 			waiting_check = ""
@@ -134,22 +146,22 @@ DIALOG banked_months_menu_dialog
 				read_row = 7
 			End if
 		LOOP until prog_type = "  "
-		
+
 		wcom_type = "all banked months"
-		
+
 	'This is the WCOM for when the client is closing for ABAWD and is being notified that they could be eligible for banked months.
-	ELSEIF ButtonPressed = banked_months_notifier THEN 
+	ELSEIF ButtonPressed = banked_months_notifier THEN
 		call navigate_to_MAXIS_screen("spec", "wcom")
-		
+
 		EMWriteScreen approval_month, 3, 46
 		EMWriteScreen approval_year, 3, 51
 		transmit
-		
+
 		DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
 			EMReadScreen more_pages, 8, 18, 72
 			IF more_pages = "MORE:  -" THEN PF7
 		LOOP until more_pages <> "MORE:  -"
-		
+
 		read_row = 7
 		DO
 			waiting_check = ""
@@ -174,29 +186,29 @@ DIALOG banked_months_menu_dialog
 				read_row = 7
 			End if
 		LOOP until prog_type = "  "
-		
+
 		wcom_type = "banked months notifier"
 
 	'This is the WCOM for when the client is closing on banked months for E&T Non-Coop
-	ELSEIF ButtonPressed = e_t_non_coop_button THEN 
-	
+	ELSEIF ButtonPressed = e_t_non_coop_button THEN
+
 		DO
 			hh_member = InputBox("Please enter the name of the client that is closing for E&T Non-Coop...")
 			confirmation_msg = MsgBox("Please confirm to add the client's name to the WCOM: " & vbCr & vbCr & hh_member & " is closing on banked months for SNAP E&T Non-Cooperation." & vbCr & vbCr & "Is this correct? Press YES to continue. Press NO to re-enter the client's name. Press CANCEL to stop the script.", vbYesNoCancel)
 			IF confirmation_msg = vbCancel THEN stopscript
 		LOOP UNTIL confirmation_msg = vbYes
-		
+
 		call navigate_to_MAXIS_screen("spec", "wcom")
-		
+
 		EMWriteScreen approval_month, 3, 46
 		EMWriteScreen approval_year, 3, 51
 		transmit
-		
+
 		DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
 			EMReadScreen more_pages, 8, 18, 72
 			IF more_pages = "MORE:  -" THEN PF7
 		LOOP until more_pages <> "MORE:  -"
-		
+
 		read_row = 7
 		DO
 			waiting_check = ""
@@ -221,7 +233,7 @@ DIALOG banked_months_menu_dialog
 				read_row = 7
 			End if
 		LOOP until prog_type = "  "
-		
+
 		wcom_type = "non coop"
 	END IF
 
@@ -233,16 +245,16 @@ ELSE 					'If a waiting FS notice is found
 	'Case note
 	start_a_blank_case_note
 	call write_variable_in_CASE_NOTE("---WCOM added regarding banked months---")
-	IF wcom_type = "all banked months" THEN 
+	IF wcom_type = "all banked months" THEN
 		CALL write_variable_in_CASE_NOTE("* WCOM added because client all eligible banked months have been used.")
 	ELSEIF wcom_type = "non coop" THEN
 		CALL write_variable_in_CASE_NOTE("* Banked months ending for SNAP E & T non-coop.")
-	ELSEIF wcom_type = "banked months notifier" THEN 
+	ELSEIF wcom_type = "banked months notifier" THEN
 		CALL write_variable_in_CASE_NOTE("* Client has used ABAWD counted months and MAY be eligible for banked months. Eligibility questions should be directed to financial worker.")
 	END IF
-	
+
 	call write_variable_in_CASE_NOTE("---")
-	IF worker_signature <> "" THEN 
+	IF worker_signature <> "" THEN
 		call write_variable_in_CASE_NOTE(worker_signature)
 	ELSE
 		worker_signature = InputBox("Please sign your case note...")

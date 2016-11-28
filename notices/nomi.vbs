@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'logic to autofill the 'last_day_for_recert' field
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
@@ -165,9 +177,9 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 					If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 				LOOP until err_msg = ""
-			LOOP until ButtonPressed = -1	
-		ELSE		
-			DO								
+			LOOP until ButtonPressed = -1
+		ELSE
+			DO
 				Err_msg = ""
 				Dialog SNAP_ER_NOMI_dialog	'dialog for all other users for ER
 				cancel_confirmation
@@ -179,15 +191,15 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP until err_msg = ""
 		END IF
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in					
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
 	EMReadScreen memo_display_check, 12, 2, 33
 	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-	
+
 	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 	row = 4                             'Defining row and col for the search feature.
 	col = 1
@@ -199,7 +211,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
 		PF5                                                     'PF5s again to initiate the new memo process
 	END IF
-	
+
 	'Checking for SWKR
 	row = 4                             'Defining row and col for the search feature.
 	col = 1
@@ -214,7 +226,7 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
 	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit  
+	transmit
 
 	If worker_county_code = "x127" then
 		'writes in the SPEC/MEMO for Hennepin County users
@@ -273,8 +285,8 @@ If recert_check = vbYes then 'This is the "yes" button on a MsgBox
 Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 	back_to_self
 	'Shows dialog, checks for password prompt
-	DO 
-		If worker_county_code = "x127" then		'Hennepin county specific dialog	
+	DO
+		If worker_county_code = "x127" then		'Hennepin county specific dialog
 			DO
 				DO
 					Err_msg = ""
@@ -291,7 +303,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 					If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 				LOOP until err_msg = ""
-			Loop until ButtonPressed = -1 		
+			Loop until ButtonPressed = -1
 		ELSE
 			DO					'dialog for all other users
 				Err_msg = ""
@@ -306,8 +318,8 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP until err_msg = ""
 		END IF
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in					
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	IF worker_county_code = "x127" then  'sends SPEC/MEMO
 		Call navigate_to_MAXIS_screen("SPEC", "MEMO")	'Navigating to SPEC/MEMO
@@ -315,7 +327,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		PF5
 		EMReadScreen memo_display_check, 12, 2, 33
 		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-		
+
 		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 		row = 4                             'Defining row and col for the search feature.
 		col = 1
@@ -327,7 +339,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 			call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
 			PF5                                                     'PF5s again to initiate the new memo process
 		END IF
-		
+
 		'Checking for SWKR
 		row = 4                             'Defining row and col for the search feature.
 		col = 1
@@ -342,8 +354,8 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
 		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		transmit 
-		
+		transmit
+
 		'writes in the SPEC/MEMO for Hennepin County users
 		Call write_variable_in_SPEC_MEMO("*************APPLICATION INTERVIEW REMINDER*************")
 		IF time_of_missed_interview <> "" then
@@ -368,17 +380,17 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		ElseIF region_residence = "West" Then
 			Call write_variable_in_SPEC_MEMO("You may also come into the Hopkins office to complete an interview. The office is located at: 1011 1st Street S. (in the Wells Fargo building). Office hours are Monday through Friday from 8 a.m. to 4:30 p.m.")
 		END IF
-		If CASH_check = 1 Then 
+		If CASH_check = 1 Then
 			Call write_variable_in_SPEC_MEMO(" ")
 			Call write_variable_in_SPEC_MEMO("If you are applying for cash, a face-to-face interview is required. If you have been on cash assistance in the last 12 months, you may not need to be interviewed in the office. You may be able to have a phone interview.")
 		END IF
 		Call write_variable_in_SPEC_MEMO(" ")
 		check_date = dateadd("d", 21, application_date)
-		If date =< check_date then 
+		If date =< check_date then
 			Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 31, application_date)) & ", we will deny your application.")
 		ELSEif date > check_date then
 			Call write_variable_in_SPEC_MEMO(" If we do not hear from you by " & (dateadd("d", 61, application_date)) & ", we will deny your application.")
-		END IF 
+		END IF
 		Call write_variable_in_SPEC_MEMO(" ")
 		Call write_variable_in_SPEC_MEMO("Auth: Laws of Minnesota 7CFR 273.2(e)(3)")
 		Call write_variable_in_SPEC_MEMO(" ")
@@ -432,23 +444,23 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 			client_delay_check = 0
 		End if
 	End if
-	
+
 	'First NOMI TIKL
-	If NOMI_selection = "First NOMI" then 
+	If NOMI_selection = "First NOMI" then
 		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(date, 11, 5, 18) 
+		call create_MAXIS_friendly_date(date, 11, 5, 18)
 		Call write_variable_in_TIKL(NOMI_selection & " was sent 11 days ago. Check case notes to see if interview has been conducted. Send the Second NOMI if client has not completed the interview to date.")
-		transmit	
+		transmit
 		PF3
 	End if
-	
+
 	'date variables for the Second NOMI TIKL
 	check_date = dateadd("d", 21, application_date)
 	pending_sixty_days_date = dateadd("d", 60, application_date)
 	ten_day_date = dateadd("d", 10, date)
-	
+
 	'Second NOMI TIKL
-	If NOMI_selection = "Second NOMI" then  
+	If NOMI_selection = "Second NOMI" then
 		call navigate_to_MAXIS_screen("DAIL", "WRIT")
 		IF date =< check_date then
 			days_pending = "a full 30 days"
@@ -459,7 +471,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		ELSEif pending_sixty_days_date < ten_day_date then
 			call create_MAXIS_friendly_date(date, 10, 5, 18)	'sets a 10 day TIKL if the current date is less than the over
 			days_pending = "60 days allowing for 10 day notice"
-		else 
+		else
 			call create_MAXIS_friendly_date(application_date, 61, 5, 18)		'otherwise a 60 day TIKL is set
 			days_pending = "60 days from the application date"
 		END IF
@@ -467,7 +479,7 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		transmit
 		PF3
 	END IF
- 	
+
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("**Client missed SNAP interview**")
@@ -484,14 +496,14 @@ Elseif recert_check = vbNo then	'This is the "no" button on a MsgBox
 		CALL write_variable_in_CASE_NOTE("* A NOMI has been sent via SPEC/LETR informing them of missed interview.")
 	END IF
 	If client_delay_check = checked then call write_variable_in_CASE_NOTE("* Updated PND2 for client delay.")
-	If NOMI_selection = "First NOMI" then 
+	If NOMI_selection = "First NOMI" then
 		Call write_variable_in_CASE_NOTE("* First NOMI has been sent")
 		Call write_variable_in_CASE_NOTE("* A TIKL has been made for 11 days from now to follow-up on application progress.")
 	END IF
-	If NOMI_selection = "Second NOMI" then 
+	If NOMI_selection = "Second NOMI" then
 		Call write_variable_in_CASE_NOTE("* Second NOMI has been sent")
 		call write_variable_in_CASE_NOTE("* A TIKL has been made for " & days_pending & " to follow-up on application progress.")
-	END IF 
+	END IF
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 End if

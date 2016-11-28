@@ -39,6 +39,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
@@ -193,7 +205,7 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
   EditBox 100, 150, 345, 15, FIAT_reasons
   CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
   CheckBox 15, 205, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
-  CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox 
+  CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox
   CheckBox 15, 235, 70, 10, "EBT referral sent?", EBT_referral_checkbox
   CheckBox 115, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
   CheckBox 115, 205, 50, 10, "Expedited?", expedited_checkbox
@@ -288,10 +300,10 @@ Do
 		cancel_confirmation
 		If CAF_type = "Select one..." then err_msg = err_msg & vbnewline & "* You must select the CAF type."
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect						
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
@@ -317,8 +329,8 @@ If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array
 HH_comp = replace(HH_comp, "; ", "")
 
 'I put these sections in here, just because SHEL should come before HEST, it just looks cleaner.
-call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST) 
-call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST) 
+call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
+call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 
 'Now it grabs the rest of the info, not dependent on which programs are selected.
 call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
@@ -370,7 +382,7 @@ Do
 			Do
 				err_msg = ""
 				Dialog CAF_dialog_01			'Displays the first dialog
-				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.	
+				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."
 				If err_msg <> "" THEN Msgbox err_msg
@@ -382,9 +394,9 @@ Do
 					Dialog CAF_dialog_02			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-					If ButtonPressed = income_notes_button Then 
+					If ButtonPressed = income_notes_button Then
 						Dialog income_notes_dialog
-						If ButtonPressed = add_to_notes_button Then 
+						If ButtonPressed = add_to_notes_button Then
 							If jobs_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from jobs to continue at this amount."
 							If new_jobs_checkbox = checked Then notes_on_income = notes_on_income & "; This is a new job and actual check stubs have not been received, advised client to provide proof once pay is received if the income received differs significantly."
 							If busi_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from self employment to continue at this amount."
@@ -395,9 +407,9 @@ Do
 							If tikl_for_ui = checked Then notes_on_income = notes_on_income & " TIKL set to request an update on Unemployment Income."
 							If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; Client has reported they have no income and do not expect any changes to this at this time."
 							If left(notes_on_income, 1) = ";" Then notes_on_income = right(notes_on_income, len(notes_on_income) - 1)
-						End If 
+						End If
 					End If
-					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN income_note_error_msg = True 
+					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN income_note_error_msg = True
 					If err_msg <> "" THEN Msgbox err_msg
 				Loop until ButtonPressed = (next_to_page_03_button AND err_msg = "") or (ButtonPressed = previous_to_page_01_button AND err_msg = "")		'If you press either the next or previous button, this loop ends
 				If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
@@ -421,10 +433,10 @@ Do
 	call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-Call check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing. 
+Call check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing.
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
-If client_delay_checkbox = checked and CAF_type <> "Recertification" then 
+If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 	call navigate_to_MAXIS_screen("rept", "pnd2")
 	EMGetCursor PND2_row, PND2_col
 	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
@@ -460,9 +472,9 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 	If cash_checkbox = checked or EMER_checkbox = checked or SNAP_checkbox = checked then
 		If DateDiff ("d", CAF_datestamp, date) > 30 Then 'Error handling to prevent script from attempting to write a TIKL in the past
 			MsgBox "Cannot set TIKL as CAF Date is over 30 days old and TIKL would be in the past. You must manually track."
-		Else 
+		Else
 			call navigate_to_MAXIS_screen("dail", "writ")
-			call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18) 
+			call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18)
 			If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
 			If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
 			If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
@@ -470,31 +482,31 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 			TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
 			Call write_variable_in_TIKL (TIKL_msg_one)
 			PF3
-		End If 
+		End If
 	End if
 	If HC_checkbox = checked then
 		If DateDiff ("d", CAF_datestamp, date) > 45 Then 'Error handling to prevent script from attempting to write a TIKL in the past
 			MsgBox "Cannot set TIKL as CAF Date is over 45 days old and TIKL would be in the past. You must manually track."
 		Else
 			call navigate_to_MAXIS_screen("dail", "writ")
-			call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18) 
+			call create_MAXIS_friendly_date(CAF_datestamp, 45, 5, 18)
 			Call write_variable_in_TIKL ("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
 			PF3
-		End If 
+		End If
 	End if
 End if
 If client_delay_TIKL_checkbox = checked then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 10, 5, 18) 
+	call create_MAXIS_friendly_date(date, 10, 5, 18)
 	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
 	PF3
 End if
 '----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
-'----IF the DatePart("M", CAF_datestamp) = MAXIS_footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then 
+'----IF the DatePart("M", CAF_datestamp) = MAXIS_footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then
 '---------the script generates a TIKL.
 footer_comparison_month = DatePart("M", CAF_datestamp)
 IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
-IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN 
+IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
 	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
@@ -503,14 +515,14 @@ IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month
 	EMWriteScreen ("AND TIKL FOR " & denial_consider_date & " TO EVALUATE FOR POSSIBLE DENIAL."), 10, 3
 	transmit
 	PF3
-END IF	
+END IF
 
-IF tikl_for_ui THEN 
+IF tikl_for_ui THEN
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
 	two_weeks_from_now = DateAdd("d", 14, date)
 	call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
 	call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
-	PF3 
+	PF3
 END IF
 '--------------------END OF TIKL BUSINESS
 
@@ -525,21 +537,21 @@ If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CALL write_variable_in_CASE_NOTE("***" & CAF_type & CAF_status & "***")
-IF move_verifs_needed = TRUE THEN 
+IF move_verifs_needed = TRUE THEN
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 	CALL write_variable_in_CASE_NOTE("------------------------------")
-End if 
+End if
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF datestamp", CAF_datestamp)
-If Used_Interpreter_checkbox = checked then 
-	CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " w/ interpreter")	
-Else 
-	CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)	
-End if 											
+If Used_Interpreter_checkbox = checked then
+	CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " w/ interpreter")
+Else
+	CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)
+End if
 CALL write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("HC document received", HC_document_received)								
+CALL write_bullet_and_variable_in_CASE_NOTE("HC document received", HC_document_received)
 CALL write_bullet_and_variable_in_CASE_NOTE("HC datestamp", HC_datestamp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Programs applied for", programs_applied_for)
-CALL write_bullet_and_variable_in_CASE_NOTE("How CAF was received", how_app_was_received)								
+CALL write_bullet_and_variable_in_CASE_NOTE("How CAF was received", how_app_was_received)
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp/EATS", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
 CALL write_bullet_and_variable_in_CASE_NOTE("IMIG", IMIG)
@@ -567,7 +579,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("DIET", DIET)
 CALL write_bullet_and_variable_in_CASE_NOTE("BILS", BILS)
 CALL write_bullet_and_variable_in_CASE_NOTE("FMED", FMED)
 CALL write_bullet_and_variable_in_CASE_NOTE("Retro Request (IF applicable)", retro_request)
-IF application_signed_checkbox = checked THEN 
+IF application_signed_checkbox = checked THEN
 	CALL write_variable_in_CASE_NOTE("* Application was signed.")
 Else
 	CALL write_variable_in_CASE_NOTE("* Application was not signed.")

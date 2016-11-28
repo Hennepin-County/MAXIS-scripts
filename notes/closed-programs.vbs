@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -213,23 +225,23 @@ End if
 
 'SNAP closures have different logic for when to REIN. For SNAP the client gets an additional month to turn in proofs, and can be REINed without a new app.
 If SNAP_check = 1 then
-	IF postponed_verif_checkbox = 1 THEN					'additional logic fo expedited cases closing for no postponed verifications returned. 
+	IF postponed_verif_checkbox = 1 THEN					'additional logic fo expedited cases closing for no postponed verifications returned.
 		Call navigate_to_MAXIS_screen("STAT", "PROG")		'must NAV to find appl date to determine if when it was rec'd
 		EMReadScreen SNAP_application_date, 8, 10, 33
 		SNAP_application_date = replace(SNAP_application_date, " ", "/")
 		fifteen_of_appl_month = left(SNAP_application_date, 2) & "/15/" & right(SNAP_application_date, 2)
-		IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'if rec'd ON or BEFORE 15th client gets 30 days from date of application to be reinstated. 
+		IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'if rec'd ON or BEFORE 15th client gets 30 days from date of application to be reinstated.
 			progs_closed = progs_closed & "SNAP/"
 			SNAP_last_REIN_date = dateadd("d", 30, SNAP_application_date)
-			SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."	
+			SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
 			IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)			        'if cash is not being closed the intake date needs to be the day after the rein date
 		Else
-			progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated. 
+			progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated.
 			SNAP_last_REIN_date = closure_date
-			SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."	
+			SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
 			IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)					'if cash is not being closed the intake date needs to be the day after the rein date
 		END IF
-	ELSE															'if the case didn't close for postponed verifs then the client gets the regular 30 day reinstate period. 
+	ELSE															'if the case didn't close for postponed verifs then the client gets the regular 30 day reinstate period.
 		progs_closed = progs_closed & "SNAP/"
 		SNAP_last_REIN_date = closure_month_last_day
 		SNAP_followup_text = ", after which a new CAF is required."

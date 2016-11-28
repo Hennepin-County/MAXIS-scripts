@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '>>>>NOTE: these were added as a batch process. Check below for any 'StopScript' functions and convert manually to the script_end_procedure("") function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
@@ -103,7 +115,7 @@ EMConnect ""
 'Grabbing case number & footer month/year
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
- 
+
 'Shows case number dialog
 Dialog case_number_dialog
 cancel_confirmation
@@ -123,7 +135,7 @@ transmit
 
 'Checks to make sure it's in HCMI, due to error prone cases
 call navigate_to_MAXIS_screen("STAT", "HCMI")
-EMReadScreen HCMI_check, 4, 2, 55 
+EMReadScreen HCMI_check, 4, 2, 55
 If HCMI_check <> "HCMI" then transmit
 
 'Checks the spenddown option. If one is indicated it will navigate to FACI and pull the current FACI into the designated provider box. If no FACI is given it will generate a warning message to the worker to check MMIS.
@@ -266,7 +278,7 @@ Do
 	err_msg = ""
 	Dialog approval_dialog
 	cancel_confirmation
-	MAXIS_dialog_navigation	
+	MAXIS_dialog_navigation
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until err_msg = ""

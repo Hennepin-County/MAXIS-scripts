@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog exp_screening_dialog, 0, 0, 181, 210, "Expedited Screening Dialog"
   EditBox 55, 5, 95, 15, MAXIS_case_number
@@ -100,7 +112,7 @@ Call check_for_MAXIS(FALSE)
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
 If heat_AC_check = checked then
 	utilities = heat_AC_amt
-ElseIf electric_check = checked and phone_check = checked then 
+ElseIf electric_check = checked and phone_check = checked then
 	utilities = phone_amt + electric_amt					'Phone standard plus electric standard.
 ElseIf phone_check = checked and electric_check = unchecked then
 	utilities = phone_amt
@@ -128,30 +140,30 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Reads the DISQ info for the case note.
 EMReadScreen DISQ_member_check, 34, 24, 2
-If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then 
+If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then
 	has_DISQ = False
 Else
 	has_DISQ = True
 End if
 
-'Reads MONY/DISB to see if EBT account is open 
-IF expedited_status = "client appears expedited" THEN 
+'Reads MONY/DISB to see if EBT account is open
+IF expedited_status = "client appears expedited" THEN
 	Call navigate_to_MAXIS_screen("MONY", "DISB")
 	EMReadScreen EBT_account_status, 1, 14, 27
-END IF 
+END IF
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 	call navigate_to_MAXIS_screen("case", "note")
 	PF9
-	
+
 	EMReadScreen case_note_check, 17, 2, 33
 	EMReadScreen mode_check, 1, 20, 09
 	If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then    'this will account for those cases when the script is run on an out of county case.
 		msgbox "The script can't open a case note. You may be in inquiry or entered a case number that is in another county." &_
 		vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
 		script_end_procedure("")
-	else	
-		'Body of the case note 
+	else
+		'Body of the case note
 		Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
 		call write_variable_in_CASE_NOTE("---")
 		call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)

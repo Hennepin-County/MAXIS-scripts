@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 MAXIS_footer_month = datepart("m", date) & ""
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month & ""
@@ -192,17 +204,17 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
-DO 
+DO
 	Do
 		Dialog case_number_dialog
 		If ButtonPressed = 0 then stopscript
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'EMER screnning code----------------------------------------------------------------------------------------------------
-If EGA_screening_check = 1 then 
+If EGA_screening_check = 1 then
     'Running the initial dialog
     DO
     	DO
@@ -222,16 +234,16 @@ If EGA_screening_check = 1 then
     			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     		LOOP until err_msg = ""
     	LOOP until ButtonPressed = -1
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    Loop until are_we_passworded_out = false					'loops until user passwords back in					
-    		
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
     'navigating to INQX'
     back_to_self
     EMWriteScreen "________", 18, 43
     EMWriteScreen MAXIS_case_number, 18, 43
     EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
     EMWriteScreen CM_yr, 20, 46
-    
+
     Call navigate_to_MAXIS_screen("MONY", "INQX")
     EMWriteScreen begin_search_month, 6, 38		'entering footer month/year 13 months prior to current footer month/year'
     EMWriteScreen begin_search_year, 6, 41
@@ -240,7 +252,7 @@ If EGA_screening_check = 1 then
     EMWriteScreen "x", 9, 50		'selecting EA
     EMWriteScreen "x", 11, 50		'selecting EGA
     transmit
-    
+
     'searching for EA/EG issued on the INQD screen
     DO
     	row = 6
@@ -261,17 +273,17 @@ If EGA_screening_check = 1 then
     		EMReadScreen last_page_check, 21, 24, 2
     		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
     LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
-    
+
     'creating variables and conditions for EMER screening
     New_EMER_year = dateadd("YYYY", 1, EMER_elig_end_date)
     EMER_available_date = dateadd("d", 1, New_EMER_year)	'creating emer available date that is 1 day & 1 year past the EMER_elig_end_date
     EMER_last_used_dates = EMER_elig_start_date & " - " & EMER_elig_end_date	'combining dates into new variable
-    
+
     If emer_issued <> "E" then	'creating variables for cases that have not had EMER issued in current 13 months
      	EMER_last_used_dates = "n/a"
     	EMER_available_date = "Currently available"
     END IF
-    
+
     'Logic to enter what the "crisis" variable is from the check boxes indicated
     If eviction_check = 1 then crisis = crisis & "eviction, "
     If utility_disconnect_check = 1 then crisis = crisis & "utility disconnect, "
@@ -283,9 +295,9 @@ If EGA_screening_check = 1 then
       crisis = trim(crisis)
       crisis = left(crisis, len(crisis) - 1)
     End if
-    
+
     'determining  200% FPG (using last year's amounts) per HH member---handles up to 20 members
-    If worker_county_code = "x127" then 
+    If worker_county_code = "x127" then
 		If HH_members = "1" then monthly_standard = "1915"
     	If HH_members = "2" then monthly_standard = "2585"
     	If HH_members = "3" then monthly_standard = "3255"
@@ -306,7 +318,7 @@ If EGA_screening_check = 1 then
     	If HH_members = "18" then monthly_standard = "13305"
     	If HH_members = "19" then monthly_standard = "13975"
     	If HH_members = "20" then monthly_standard = "14645"
-	Elseif worker_county_code = "x162" then 
+	Elseif worker_county_code = "x162" then
 		If HH_members = "1" then monthly_standard = "1962"
 		If HH_members = "2" then monthly_standard = "2655"
 		If HH_members = "3" then monthly_standard = "3348"
@@ -327,23 +339,23 @@ If EGA_screening_check = 1 then
 		If HH_members = "18" then monthly_standard = "13053"
 		If HH_members = "19" then monthly_standard = "13746"
 		If HH_members = "20" then monthly_standard = "14439"
-	End if 
-	
+	End if
+
 	If worker_county_code = "x127" then seventy_percent_income = net_income * .70
-	
+
     'determining if client is potentially elig for EMER or not'
-    If worker_county_code = "x127" then 
-		If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(seventy_percent_income) > abs(shelter_costs) then 
+    If worker_county_code = "x127" then
+		If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(seventy_percent_income) > abs(shelter_costs) then
 			screening_determination = "potentially eligible for emergency programs."
-		END IF 
-	Elseif worker_county_code = "x162" then 
-		If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(net_income) > abs(shelter_costs) then 
+		END IF
+	Elseif worker_county_code = "x162" then
+		If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(net_income) > abs(shelter_costs) then
 			screening_determination = "potentially eligible for emergency programs."
-		END IF	
-	Else  		
+		END IF
+	Else
     	screening_determination = "NOT be eligible for emergency programs because: "
     END IF
-	    
+
     'if client is not elig, reason(s) for not being elig will be listed in the msgbox
     If crisis = "no crisis given" then screening_determination = screening_determination & vbNewLine & "* No crisis meeting program requirements."
     If worker_county_code = "x127" and abs(seventy_percent_income) < abs(shelter_costs) then screening_determination = screening_determination & vbNewLine & "* The HH's shelter costs are more than 70% of the HH's net income."
@@ -352,11 +364,11 @@ If EGA_screening_check = 1 then
     If abs(net_income) > abs(monthly_standard)then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
     IF net_income = "0" then screening_determination = screening_determination & vbNewLine & "* Household does not have current/ongoing income."
     If EMER_last_used_dates <> "n/a" then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
-    
+
     'Msgbox with screening results. Will give the user the option to cancel the script, case note the results, or use the EMER notes script
     Screening_options = MsgBox ("Based on the information provided, this HH appears to " & screening_determination & vbNewLine & vbNewLine &"The last date emergency funds were used was: " & EMER_last_used_dates & "." & _
     vbNewLine & "Emergency programs will be available to the HH again on: " & EMER_available_date & "." & vbNewLine & vbNewLine & "Would you like to start the NOTES - EMERGENCY script?" , vbYesNoCancel, "Screening results dialog")
-    
+
     IF Screening_options = vbCancel then script_end_procedure("")	'ends the script
     IF Screening_options = vbNO then
     	'The case note
@@ -380,9 +392,9 @@ If EGA_screening_check = 1 then
     	Call write_variable_in_CASE_NOTE(worker_signature)
 		script_end_procedure("")
 	END IF
-END IF 
+END IF
 'End of EMER screening code----------------------------------------------------------------------------------------------------
-		    
+
 'Jumping into STAT
 call navigate_to_MAXIS_screen("stat", "hcre")
 'Creating a custom dialog for determining who the HH members are
@@ -452,4 +464,4 @@ IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent fo
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")  
+script_end_procedure("")

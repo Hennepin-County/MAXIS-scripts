@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Declaring variables----------------------------------------------------------------------------------------------------
 'DIM month, full_date_to_display, num_of_days, next_month, available_dates_array, month_to_use
 'DIM first_appointment_listbox, olAppointmentItem, olRecursDaily
@@ -186,7 +198,7 @@ last_day_of_recert = dateadd("D", -1, last_day_of_recert)
 
 'Grabbing the worker's X number.
 CALL find_variable("User: ", worker_number, 7)
-get_county_code				
+get_county_code
 
 'if user is Hennepin Co. user, then contact phone number auto-fills with EZ info number
 if worker_county_code = "x127" Then contact_phone_number = "612-596-1300"
@@ -206,8 +218,8 @@ Do
 		'Display the error message
 		IF err_msg <> "" THEN msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Entering developer mode if Konami code entered as contact_phone_number.
 If contact_phone_number = "UUDDLRLRBA" then
@@ -219,7 +231,7 @@ END IF
 REPT_month = CM_plus_2_mo
 REPT_year = CM_plus_2_yr
 
-'resetting variables for developer mode to allow testing in current month before the 16th. 
+'resetting variables for developer mode to allow testing in current month before the 16th.
 day_of_month = DatePart("D", date)
 'Stopping the script if the user is running it before the 16th of the month.
 If developer_mode <> true then
@@ -332,8 +344,8 @@ DO
 		'Display the error message
 		IF err_msg <> "" THEN msgbox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Converts to integer
 IF max_reviews_per_worker <> "" THEN max_reviews_per_worker = abs(max_reviews_per_worker)
@@ -459,13 +471,13 @@ DO 'Loops until there are no more cases in the Excel list
 	ELSE		'For all of the cases that aren't privileged...
 		MFIP_ACTIVE = FALSE		'Setting some variables for the loop
 		SNAP_ACTIVE = False
-		
+
 		SNAP_status_check = ""
 		MFIP_prog_1_check = ""
 		MFIP_status_1_check = ""
 		MFIP_prog_2_check = ""
 		MFIP_status_2_check = ""
-		
+
 		'Reading the status and program
 		EMReadScreen SNAP_status_check, 4, 10, 74
 
@@ -475,25 +487,25 @@ DO 'Loops until there are no more cases in the Excel list
 		EMReadScreen MFIP_status_2_check, 4, 6, 74
 
 		'Logic to determine if MFIP is active
-		If MFIP_prog_1_check = "MF" Then 
-			If MFIP_status_1_check = "ACTV" Then MFIP_ACTIVE = TRUE 
-		ElseIf MFIP_prog_2_check = "MF" Then 
-			If MFIP_status_2_check = "ACTV" Then MFIP_ACTIVE = TRUE 
-		End If 
+		If MFIP_prog_1_check = "MF" Then
+			If MFIP_status_1_check = "ACTV" Then MFIP_ACTIVE = TRUE
+		ElseIf MFIP_prog_2_check = "MF" Then
+			If MFIP_status_2_check = "ACTV" Then MFIP_ACTIVE = TRUE
+		End If
 
 		'Only looks for SNAP if MFIP is not active
-		If MFIP_ACTIVE = FALSE Then 
+		If MFIP_ACTIVE = FALSE Then
 			IF SNAP_status_check = "ACTV" Then SNAP_ACTIVE = TRUE
-		End If 
-		
-		'Going to STAT/REVW to to check for ER vs CSR for SNAP cases 
+		End If
+
+		'Going to STAT/REVW to to check for ER vs CSR for SNAP cases
 		CALL navigate_to_MAXIS_screen("STAT", "REVW")
 		If MFIP_ACTIVE = TRUE Then recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
-		If SNAP_ACTIVE = TRUE Then 
+		If SNAP_ACTIVE = TRUE Then
 			EMReadScreen SNAP_review_check, 8, 9, 57
 			If SNAP_review_check = "__ 01 __" then 		'If this is blank there are big issues
 				recert_status = "NO"
-			Else 
+			Else
 				EMwritescreen "x", 5, 58		'Opening the SNAP popup
 				Transmit
 				DO
@@ -505,25 +517,25 @@ DO 'Loops until there are no more cases in the Excel list
 				EMReadScreen CSR_yr, 2, 9, 32
 				EMReadScreen recert_mo, 2, 9, 64
 				EMReadScreen recert_yr, 2, 9, 70
-				
+
 				'Comparing CSR and ER daates to the month of REVS review
 				IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN recert_status = "NO"
 				If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
 				IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
-			End If 
-		End If 
-		
+			End If
+		End If
+
 		'Removing the case from the spreadsheet if not a recert
-		If recert_status = "NO" Then 
+		If recert_status = "NO" Then
 			SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 			objRange.Delete				'all other cases that are not due for a recert will be deleted
 			excel_row = excel_row - 1
-		End If 
-	END IF 	
+		End If
+	END IF
     STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
     excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 2).value = ""	'looping until the list of cases to check for recert is complete
-    
+
 'Now the script needs to go back to the start of the Excel file and start assigning appointments.
 'FOR EACH day that is not checked, start assigning appointments according to DatePart("N", appointment) because DatePart"N" is minutes. Once datepart("N") = last_appointment_time THEN the script needs to jump to the next day.
 
@@ -682,7 +694,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 		" * Reschedule your appointment." & vbNewLine &_
 		" * Report a new phone number, or other changes" & vbNewLine & vbNewLine &_
 		" * Request an in-person interview."
-		
+
 		MsgBox Memo_to_display
 
 		Case_note_to_display = "Case Note: " & "***SNAP Recertification Interview Scheduled***" & vbNewLine
@@ -697,13 +709,13 @@ DO 								'looping until it meets a blank excel cell without a case number
 		Case_note_to_display = Case_note_to_display & "---" & vbNewLine & worker_signature
 
 		msgbox Case_note_to_display
-        
-        tikl_date = DatePart("M", interview_time) & "/" & DatePart("D", interview_time) & "/" & right(DatePart("YYYY", interview_time), 2)    
+
+        tikl_date = DatePart("M", interview_time) & "/" & DatePart("D", interview_time) & "/" & right(DatePart("YYYY", interview_time), 2)
 		MsgBox MAXIS_case_number & vbnewLine & "Dail: ~*~*~CLIENT HAD RECERT INTERVIEW APPT AT " & interview_time & ". IF MISSED SEND NOMI." & vbNewLine & _
 			"tikl date: " & tikl_date
-	
+
 	ELSE			'ELSE in this case is LIVE cases, not testing in developer mode
-	 
+
 		CALL navigate_to_MAXIS_screen("SPEC", "MEMO")
 		PF5
 		EMReadScreen memo_display_check, 12, 2, 33
@@ -719,7 +731,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 			call navigate_to_MAXIS_screen("SPEC", "MEMO")
 			PF5
 		END IF
-		
+
 		'Checking for SWKR if found sending MEMO to them as well
 		row = 4
 		col = 1
@@ -731,7 +743,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 			call navigate_to_MAXIS_screen("SPEC", "MEMO")
 			PF5
 		END IF
-		
+
 		EMWriteScreen "x", 5, 10
 		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10
 		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10
@@ -768,7 +780,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 		CALL write_variable_in_SPEC_MEMO(" * Request an in-person interview.")
 		PF4
 		back_to_self
-		
+
 		'case noting appointment time and date
 		start_a_blank_case_note
 		EMSendKey "***SNAP Recertification Interview Scheduled***"
@@ -782,7 +794,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 		If forms_to_swkr = "Y" then call write_variable_in_case_note("* Copy of notice sent to Social Worker.")
 		call write_variable_in_case_note("---")
 		call write_variable_in_case_note(worker_signature)
-		
+
 		'TIKLing to remind the worker to send NOMI if appointment is missed.
 		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
         tikl_date = DatePart("M", interview_time) & "/" & DatePart("D", interview_time) & "/" & DatePart("YYYY", interview_time)
@@ -791,7 +803,7 @@ DO 								'looping until it meets a blank excel cell without a case number
 		EMWriteScreen "IF MISSED SEND NOMI", 10, 3
 		transmit
 		PF3
-	END IF 
+	END IF
 	excel_row = excel_row + 1
 LOOP until objExcel.cells(excel_row, case_number_col).value = "" or objExcel.cells(excel_row, interview_time_col).value = "SKIPPED" 'If this was skipped it needs to stop here
 
@@ -802,7 +814,7 @@ objExcel.Columns(3).autofit()
 objExcel.Columns(4).autofit()
 
 'Creating the list of privileged cases and adding to the spreadsheet
-If priv_case_list <> "" Then 
+If priv_case_list <> "" Then
 	priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
 	prived_case_array = split(priv_case_list, "|")
 	excel_row = 2
@@ -812,5 +824,5 @@ If priv_case_list <> "" Then
 		objExcel.cells(excel_row, privileged_case_col).value = MAXIS_case_number
 		excel_row = excel_row + 1
 	NEXT
-End If 
+End If
 script_end_procedure("Success! The Excel file now has all of the cases that have had interviews scheduled.  Please manually review the list of privileged cases.")

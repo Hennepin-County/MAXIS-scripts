@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'SECTION 01 -- Dialogs
 BeginDialog opening_dialog_01, 0, 0, 311, 420, "LTC Burial Assets"
   EditBox 95, 25, 60, 15, MAXIS_case_number
@@ -287,12 +299,12 @@ calc_array(40, 0) = "Medical Exam Fee"
 calc_array(40, 3) = "Cash Advance Item"
 
 calc_array(41, 0) = ""							'these two options allows users to enter extra assets that aren't previously listed
-calc_array(41, 3) = other_status				'these will need to be specially accounted for when generating totals later. 
+calc_array(41, 3) = other_status				'these will need to be specially accounted for when generating totals later.
 
-calc_array(42, 0) = ""							
+calc_array(42, 0) = ""
 calc_array(42, 3) = other_status
 
-'This sets the total to 0 for the calculation later, it also defines the starting dialog since it will be determined dynamically to cut down on dialog count. 
+'This sets the total to 0 for the calculation later, it also defines the starting dialog since it will be determined dynamically to cut down on dialog count.
 running_total = 0
 current_dialog = "services"
 
@@ -300,16 +312,16 @@ current_dialog = "services"
 'vairiables to pull through are: the calculation array, the total applied to the BFE, the total of BS/BSI items, the counted asset total, the unavailable asset total
 FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_counted_total, final_unavailable_total)
 	DO
-		DO 
-			FOR i = 0 TO 42											'defining each value as blank to make sure calculations work properly. 
+		DO
+			FOR i = 0 TO 42											'defining each value as blank to make sure calculations work properly.
 				calc_array(i, 1) = calc_array(i, 1) & ""
 			NEXT
-			
+
 			'resetting locations for items in dialog
 			row_height = 0
 			'defining err_msg as blank
 			err_msg = ""
-			
+
 			'dialog to be build dynamically
 			BeginDialog Dialog1, 0, 0, 306, 410, "Dialog"
 			Text 10, 5, 60, 10, "BFE Total: "												'here the running totals will be displayed for the end user to keep track.
@@ -325,12 +337,12 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 				PushButton 120, 390, 50, 15, "CAI", CAI_button
 				OkButton 195, 390, 50, 15
 				CancelButton 250, 390, 50, 15
-			IF current_dialog = "services" THEN Text 25, 35, 240, 10, "BURIAL SERVICES                       VALUE                          STATUS"	
-			IF current_dialog = "bsi" THEN Text 25, 35, 240, 10, "BURIAL SPACE ITEMS                VALUE                            STATUS"	
-			IF current_dialog = "cai" THEN Text 25, 35, 240, 10, "CASH ADVANCE ITEMS                  VALUE                            STATUS"	
+			IF current_dialog = "services" THEN Text 25, 35, 240, 10, "BURIAL SERVICES                       VALUE                          STATUS"
+			IF current_dialog = "bsi" THEN Text 25, 35, 240, 10, "BURIAL SPACE ITEMS                VALUE                            STATUS"
+			IF current_dialog = "cai" THEN Text 25, 35, 240, 10, "CASH ADVANCE ITEMS                  VALUE                            STATUS"
 			'Here is where the dialog differs, if a certain dialog is clicked on the asset fields will be generated based on the calc_array
 			IF current_dialog = "services" THEN							'values 0-16 are the services assets
-				FOR i = 0 TO 16										
+				FOR i = 0 TO 16
 					Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
 					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
 					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
@@ -352,7 +364,7 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"unavailable", calc_array(i, 2)
 					row_height = row_height + 1
 				NEXT
-				FOR i = 41 TO 41										'this is the extra spot to allow users to enter their own asset, value, and type. 
+				FOR i = 41 TO 41										'this is the extra spot to allow users to enter their own asset, value, and type.
 					Text 10, 50 + (20 * row_height), 40, 10, "Other 1:"
 					DropListBox 50, 50 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
 					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
@@ -361,7 +373,7 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 					Text 15, 50 + (20 * row_height), 40, 10, "This is a:"
 					EditBox 55, 50 + (20 * row_height), 60, 15, calc_array(i, 0)
 				NEXT
-				FOR i = 42 to 42										'this is the extra spot to allow users to enter their own asset, value, and type. 
+				FOR i = 42 to 42										'this is the extra spot to allow users to enter their own asset, value, and type.
 					Text 10, 70 + (20 * row_height), 40, 10, "Other 2:"
 					DropListBox 50, 70 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
 					EditBox 120, 70 + (20 * row_height), 60, 15, calc_array(i, 1)
@@ -372,61 +384,61 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 				NEXT
 			END IF
 			EndDialog
-			
+
 			'calling the dynamic dialog
 			Dialog Dialog1
 			cancel_confirmation
 			'if the calc button or any of the other dialogs buttons are pressed this will activate the calculation function thus generating new totals
-			IF ButtonPressed = calc_button or ButtonPressed = service_button  or ButtonPressed = BSI_button or ButtonPressed = CAI_button or ButtonPressed = -1 THEN 
+			IF ButtonPressed = calc_button or ButtonPressed = service_button  or ButtonPressed = BSI_button or ButtonPressed = CAI_button or ButtonPressed = -1 THEN
 				running_total = 0					'at the start of each calculation phase the totals need to be reset.
 				counted_total = 0
 				unavailable_total = 0
 				BFE_full = FALSE					'this is re-defined each time because if the BFE is true the calc function needs to act a different way.
 				FOR i = 0 TO 42
 					'first the array will single out the items applied to the BFE that are not blank and start adding them up.
-					IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND (calc_array(i, 2) = "applied to BFE" OR calc_array(i, 2) = "applied to BFE/counted" OR calc_array(i, 2) = "applied to BFE/unavailable") THEN 
-						calc_array(i, 1) = calc_array(i, 1) * 1								'converting what was entered to a number so we can manipulate it. 
+					IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND (calc_array(i, 2) = "applied to BFE" OR calc_array(i, 2) = "applied to BFE/counted" OR calc_array(i, 2) = "applied to BFE/unavailable") THEN
+						calc_array(i, 1) = calc_array(i, 1) * 1								'converting what was entered to a number so we can manipulate it.
 						running_total = running_total + calc_array(i, 1)					'a running total based on the values entered for the BFE related status
 						IF running_total > 1500 THEN 										'if we hit the limit of the BFE at $1500 we have to check if one of the assets needs to be re-defined
-							IF BFE_full <> TRUE THEN										'if we have not filled the BFE for this calc phase 
-								IF calc_array(i, 2) <> "applied to BFE/unavailable" THEN 	'if the current asset is not listed as applied to bfe/unavailable then we change it to counted. 
-									calc_array(i, 2) = "applied to BFE/counted"				
+							IF BFE_full <> TRUE THEN										'if we have not filled the BFE for this calc phase
+								IF calc_array(i, 2) <> "applied to BFE/unavailable" THEN 	'if the current asset is not listed as applied to bfe/unavailable then we change it to counted.
+									calc_array(i, 2) = "applied to BFE/counted"
 									msgbox "BFE limit of $1500 has been met. " & vbCr & calc_array(i, 0) & " was relabeled as Applied to BFE/counted and the amount was split between the BFE and Counted Totals. Please review status for this change for accuracy."
 								END IF
-								BFE_full = TRUE												'if we've gone over 1500 we are over the BFE thus we need to change it to true. 
-							ELSE 
-								IF calc_array(i, 2) = "applied to BFE" THEN 				'otherwise if someone has left items that are applied to the BFE after we've already filled it we change those to counted. 
+								BFE_full = TRUE												'if we've gone over 1500 we are over the BFE thus we need to change it to true.
+							ELSE
+								IF calc_array(i, 2) = "applied to BFE" THEN 				'otherwise if someone has left items that are applied to the BFE after we've already filled it we change those to counted.
 									msgbox "BFE limit of $1500 has been met. " & vbCr & calc_array(i, 0) & " was relabeled as counted. Please review status for this change for accuracy."
 									calc_array(i, 2) = "counted"
 								END IF
 							END IF
-							remainder_total = running_total - 1500							'this is what builds out remainder total so we can accurately determine the running totals included the split bfe/other values. 
+							remainder_total = running_total - 1500							'this is what builds out remainder total so we can accurately determine the running totals included the split bfe/other values.
 							IF calc_array(i, 2) = "applied to BFE/counted" OR calc_array(i, 2) = "counted" THEN counted_total = remainder_total + counted_total
 							IF calc_array(i, 2) = "applied to BFE/unavailable" OR calc_array(i, 2) = "unavailable" THEN unavailable_total = remainder_total + unavailable_total
 							running_total = 1500											'since we've exceeded/maxed the BFE then we can redefine it as $1500
 						ELSEIF running_total < 1500 THEN 									'if the running total for the BFE is under $1500 we can keep BFE_full as false
 								BFE_full = FALSE
-						ELSEIF running_total = 1500 THEN									'if the running total for the BFE is EXACTLY 1500 then the current item that was added is changed to applied 
-								calc_array(i, 2) = "applied to BFE"							
+						ELSEIF running_total = 1500 THEN									'if the running total for the BFE is EXACTLY 1500 then the current item that was added is changed to applied
+								calc_array(i, 2) = "applied to BFE"
 								BFE_full = TRUE												'we also need to mark the BFE as being full.
 						END IF
-					ELSE																	'if the current item isn't related to the BFE then we just add that value to the other totals. 
-						IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "counted" THEN 
+					ELSE																	'if the current item isn't related to the BFE then we just add that value to the other totals.
+						IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "counted" THEN
 							calc_array(i, 1) = calc_array(i, 1) * 1
 							counted_total = counted_total + calc_array(i, 1)
 						END IF
-						IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "unavailable" THEN 
+						IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "unavailable" THEN
 							calc_array(i, 1) = calc_array(i, 1) * 1
 							unavailable_total = unavailable_total + calc_array(i, 1)
 						END IF
 					END IF
 				NEXT
 			END IF
-			'after the calculation is completed if the user hit a button to nav to another dialog the value to determine the dialog is redefined. 
-			IF ButtonPressed = service_button THEN current_dialog = "services"					
+			'after the calculation is completed if the user hit a button to nav to another dialog the value to determine the dialog is redefined.
+			IF ButtonPressed = service_button THEN current_dialog = "services"
 			IF ButtonPressed = BSI_button THEN current_dialog = "bsi"
 			IF ButtonPressed = CAI_button THEN current_dialog = "cai"
-			'error proofing to ensure that people are entering the correct information into the fields. 
+			'error proofing to ensure that people are entering the correct information into the fields.
 			FOR i = 0 TO 42
 				IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = FALSE THEN err_msg = err_msg & "The value entered for " & calc_array(i, 0) & " is not a number." & vbCr
 				IF calc_array(i, 1) <> "" AND calc_array (i, 2) = "" THEN err_msg = err_msg & "You entered a value entered for " & calc_array(i, 0) & " but did not select a status." & vbCr
@@ -439,7 +451,7 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 			IF calc_array(42, 1) <> "" AND calc_array(42, 0) = "" THEN err_msg = err_msg & "You entered a value entered for " & calc_array(42, 0) & " but did enter what the value is for." & vbCr
 			IF err_msg <> "" THEN msgbox "Please resolve these issues:" & vbCr & vbCr & err_msg
 		LOOP until ButtonPressed = -1								'keep looping this calculation and error checking until the worker clicks ok
-		
+
 		'Here is where the final totals are being build.
 		'Totalling BFE and defining starting point as 0.
 		remainder_counted_total = 0
@@ -452,7 +464,7 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 				BFE_running_total = BFE_running_total + calc_array(i, 1)
 				IF BFE_running_total > 1500 THEN 											'however we must still keep track of the limit of the bfe total.
 					BFE_total = 1500
-				ELSEIF BFE_running_total < 1500 THEN 
+				ELSEIF BFE_running_total < 1500 THEN
 					BFE_total = BFE_running_total
 				ELSEIF BFE_running_total = 1500 THEN
 					BFE_total = 1500
@@ -469,51 +481,51 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 				BFE_total = 1500
 			END IF
 		NEXT
-		
+
 		'Totalling BS/BSI Excluded Amount
 		BS_BSI_total = 0
 		FOR i = 17 TO 28									'values in the array of 17-28 are defined as burial space/burial space items, there can be status counted or excluded only.
-			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "excluded" THEN 
+			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "excluded" THEN
 				calc_array(i, 1) = calc_array(i, 1) * 1
 				BS_BSI_total = BS_BSI_total + calc_array(i, 1)
 			END IF
 		NEXT															'the following two items need to be calculated as they can be labeled as BS/BSI items.
-		IF calc_array(41, 1) <> "" AND IsNumeric(calc_array(41, 1)) = TRUE AND calc_array(41, 2) = "excluded" AND calc_array(41, 3) = "BS/BSI" THEN 
+		IF calc_array(41, 1) <> "" AND IsNumeric(calc_array(41, 1)) = TRUE AND calc_array(41, 2) = "excluded" AND calc_array(41, 3) = "BS/BSI" THEN
 			calc_array(41, 1) = calc_array(41, 1) * 1
 			BS_BSI_total = BS_BSI_total + calc_array(41, 1)
 		END IF
-		IF calc_array(42, 1) <> "" AND IsNumeric(calc_array(42, 1)) = TRUE AND calc_array(42, 2) = "excluded" AND calc_array(42, 3) = "BS/BSI" THEN 
+		IF calc_array(42, 1) <> "" AND IsNumeric(calc_array(42, 1)) = TRUE AND calc_array(42, 2) = "excluded" AND calc_array(42, 3) = "BS/BSI" THEN
 			calc_array(42, 1) = calc_array(42, 1) * 1
 			BS_BSI_total = BS_BSI_total + calc_array(42, 1)
 		END IF
-		
+
 		'Totalling Unavailable Amount
 		final_unavailable_total = 0 + remainder_unavailable_total						'we need to define that starting value of the unavailable total to include the remainder of any applied to bfe/unavailable
 		FOR i = 0 to 42
-			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "unavailable" THEN 
+			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "unavailable" THEN
 				calc_array(i, 1) = calc_array(i, 1) * 1
 				final_unavailable_total = final_unavailable_total + calc_array(i, 1)
 			END IF
 		NEXT
-		
+
 		'Totalling Counted Amount
 		final_counted_total = 0 + remainder_counted_total								'we need to define that starting value of the unavailable total to include the remainder of any applied to bfe/counted
 		FOR i = 0 to 42
-			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "counted" THEN 
+			IF calc_array(i, 1) <> "" AND IsNumeric(calc_array(i, 1)) = TRUE AND calc_array(i, 2) = "counted" THEN
 				calc_array(i, 1) = calc_array(i, 1) * 1
 				final_counted_total = final_counted_total + calc_array(i, 1)
 			END IF
 		NEXT
-		
-		'here we are defining a variable to be used in a special message box that will allow users to review before case noting and go back to fix things if needed. 
+
+		'here we are defining a variable to be used in a special message box that will allow users to review before case noting and go back to fix things if needed.
 		break_down_display = ""
-		FOR i = 0 TO 42										'this will grab every value for assets that are not blank and bring them over to the double check message box. 
+		FOR i = 0 TO 42										'this will grab every value for assets that are not blank and bring them over to the double check message box.
 			IF calc_array(i, 1) <> "" THEN
 				break_down_display = break_down_display & vbCr & calc_array(i, 1) & ", " & calc_array(i, 0) & ",    " & calc_array(i, 3) & ",    " & calc_array(i, 2)
 			END IF
 		NEXT
-		
-		double_check_display = ""					'blank message box variable so that it won't carry information from previous runs if user chooses to alter data. 
+
+		double_check_display = ""					'blank message box variable so that it won't carry information from previous runs if user chooses to alter data.
 		double_check_display = Msgbox ("The script has finished calculating your Burial Assets. Please review the following information for accuracy." & vbCr &_
 			"If this is accurate, press YES to continue." & vbCr &_
 			"If this needs modification, press NO to retry." & vbCr &_
@@ -524,7 +536,7 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 			"Unavailable: " & final_unavailable_total & vbCr &_
 			"Counted: " & final_counted_total, vbYesNoCancel + vbSystemModal + vbInformation, "PLEASE REVIEW")
 		IF double_check_display = vbCancel THEN stopscript
-	LOOP UNTIL double_check_display = vbYes					'we loop until the user decided they are happy with the results and then move on. 
+	LOOP UNTIL double_check_display = vbYes					'we loop until the user decided they are happy with the results and then move on.
 END FUNCTION
 
 'SECTION 03: The script----------------------------------------------------------------------------------------------------
@@ -533,7 +545,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)	'grabbing the case number
 
 insurance_policy_number = "none"			'establishing value of the variable
 
-'calling the initial dialog					
+'calling the initial dialog
 DO
 	err_msg = "" 					'established the perimeter that err_msg = ""
 	Dialog opening_dialog_01		'calls the initial dialog
@@ -544,7 +556,7 @@ DO
 	"Insurance Counted Value is not a number. Do not include letters or special characters."
 	If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
 	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
-	
+
 	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -564,10 +576,10 @@ Do
 		END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = "" AND ButtonPressed = next_to_02_button
-	DO														'if the type of burial agreement is NONE the script will skip the detail asset breakdown. 
-		IF type_of_burial_agreement <> "None" THEN CALL build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_counted_total, final_unavailable_total)  'here we call the burial item dialogs, these are built dynamically with safe guarding built into function. 
+	DO														'if the type of burial agreement is NONE the script will skip the detail asset breakdown.
+		IF type_of_burial_agreement <> "None" THEN CALL build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_counted_total, final_unavailable_total)  'here we call the burial item dialogs, these are built dynamically with safe guarding built into function.
 	LOOP until err_msg = ""
-	DO	
+	DO
 		actions_taken = InputBox("Actions Taken: ", "Actions taken")
 	LOOP until actions_taken <> ""
 LOOP until err_msg = ""
@@ -579,10 +591,10 @@ If counted_value_designated <> "" then final_counted_total = final_counted_total
 If insurance_counted_value <> "" then final_counted_total = final_counted_total + cint(insurance_counted_value)
 
 'SECTION 05: The CASE NOTE----------------------------------------------------------------------------------------------------
-DIM MAXIS_service_row			'variables used for checking the headers to see if they need to be written on the top of a continuing case note. 
+DIM MAXIS_service_row			'variables used for checking the headers to see if they need to be written on the top of a continuing case note.
 DIM MAXIS_col
 
-'first section of case note is dependant on what types of designated accounts were chosen. 
+'first section of case note is dependant on what types of designated accounts were chosen.
 start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member & " for " & programs & "**")
 IF type_of_designated_account <> "None" then
@@ -603,7 +615,7 @@ IF insurance_policy_number <> "none" THEN
 	call write_bullet_and_variable_in_case_note("Counted Value", insurance_counted_value)
 	call write_bullet_and_variable_in_case_note("Info on BFE", insurance_BFE_steps_info)
 END IF
-IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement is NONE the script will skip the detail asset breakdown. 
+IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement is NONE the script will skip the detail asset breakdown.
 	If applied_BFE_check = 1 AND BFE_total = "" then CALL write_variable_in_case_note("* Applied $1500 of burial services to BFE.")
 	CALL write_variable_in_case_note("* Type: " & type_of_burial_agreement & ". Purchase date: " & purchase_date & ".")
 	CALL write_variable_in_case_note("* Issuer: " & issuer_name & ". Policy #: " & policy_number & ".")
@@ -612,11 +624,11 @@ IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement
 	IF Primary_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Primary beneficiary is: Any funeral provider whose interest may appear                irrevocably")
 	IF Contingent_benficiary_check = 1 THEN Call write_variable_in_case_note ("* Contingent Beneficiary is: The estate of the insured")
 	IF policy_CSV_check = 1 THEN Call write_variable_in_case_note ("* Policy's CSV is irrevocably designated to the funeral provider")
-	
+
 	'the following section will write the various sections of assets and then for each items in the arrays (in certain spots) it will write the value, item, and status of the asset
-	
+
 	CALL write_variable_in_case_note("--------------SERVICE--------------------AMOUNT----------STATUS------------")
-	
+
 	FOR i = 0 to 16
 		case_note_page_four
 		extra_spaces = ""
@@ -625,7 +637,7 @@ IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement
 			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
 		End if
 	NEXT
-	
+
 	FOR i = 41 to 42								'these two spots on the array have special handling to write only if they are services.
 		case_note_page_four
 		extra_spaces = ""
@@ -634,9 +646,9 @@ IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement
 			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
 		End if
 	NEXT
-	
+
 	CALL write_variable_in_case_note("--------BURIAL SPACE/ITEMS---------------AMOUNT----------STATUS------------")
-	
+
 	FOR i = 17 to 28
 		case_note_page_four
 		extra_spaces = ""
@@ -654,9 +666,9 @@ IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement
 			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
 		End if
 	NEXT
-	
+
 	CALL write_variable_in_case_note("--------CASH ADVANCE ITEMS---------------AMOUNT----------STATUS------------")
-	
+
 	FOR i = 29 to 40
 		case_note_page_four
 		extra_spaces = ""
@@ -665,7 +677,7 @@ IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement
 			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
 		End if
 	NEXT
-	
+
 	FOR i = 41 to 42							'these two spots on the array have special handling to write only if they are CAI.
 		case_note_page_four
 		extra_spaces = ""

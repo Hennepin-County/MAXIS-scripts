@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'main dialog
 BeginDialog EVF_received, 0, 0, 291, 205, "Employment Verification Form Received"
   EditBox 70, 5, 60, 15, MAXIS_case_number
@@ -72,7 +84,7 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-Tikl_checkbox = checked 'defaulting the TIKL checkbox to be checked initially in the dialog. 
+Tikl_checkbox = checked 'defaulting the TIKL checkbox to be checked initially in the dialog.
 
 'starts the EVF received case note dialog
 DO
@@ -87,36 +99,36 @@ DO
 		IF client = "" THEN err_msg = err_msg & vbCr & "* You must enter the MEMB information."  'checks if the client name has been entered
 		IF info = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select if additional info was requested."  'checks if completed by employer was selected
 		IF info = "yes" and IsDate(info_date) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date that additional info was requested."  'checks that there is a info request date entered if the it was requested
-		IF info = "yes" and request_info = "" THEN err_msg = err_msg & vbCr & "* You must enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested		
-		If info = "no" and request_info <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."	
-		If info = "no" and info_date <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."	
-		If Tikl_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."	
-		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered		
+		IF info = "yes" and request_info = "" THEN err_msg = err_msg & vbCr & "* You must enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
+		If info = "no" and request_info <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
+		If info = "no" and info_date <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
+		If Tikl_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
+		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!" 		'checks that the case note was signed
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "* Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false			
+LOOP UNTIL are_we_passworded_out = false
 
 'starts a blank case note
 call start_a_blank_case_note
-'this enters the actual case note info 
+'this enters the actual case note info
 call write_variable_in_CASE_NOTE("***EVF received " & date_received & ": " & EVF_status_dropdown & "***")
 Call write_bullet_and_variable_in_CASE_NOTE("Employer name", employer)
 Call write_bullet_and_variable_in_CASE_NOTE("EVF for HH member", client)
 'for additional information needed
-IF info = "yes" then 
+IF info = "yes" then
 	call write_variable_in_CASE_NOTE ("* Additional Info requested: " & info & " on " & info_date & " by " & request_info)
 	If Tikl_checkbox = 1 then call write_variable_in_CASE_NOTE ("***TIKLed for 10 day return.***")
-Else 
+Else
 	Call write_variable_in_CASE_NOTE("* No additional information is needed/requested.")
-END IF 
+END IF
 call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 'Checks if additional info is yes and the TIKL is checked, sets a TIKL for the return of the info
-IF Tikl_checkbox = 1 THEN 
+IF Tikl_checkbox = 1 THEN
 	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(date, 10, 5, 18)		'The following will generate a TIKL formatted date for 10 days from now.
 	call write_variable_in_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action. (TIKL auto-generated from script)." )
@@ -124,6 +136,6 @@ IF Tikl_checkbox = 1 THEN
 	PF3
 	'Success message
 	script_end_procedure("Success! TIKL has been sent for 10 days from now for the additional information requested.")
-ELSE 
+ELSE
 	script_end_procedure("")	'ends the script without the success message
 End if

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 IF collecting_ES_statistics = true THEN
 'Collecting ES agencies from database
 		'Setting constants
@@ -99,12 +111,12 @@ END IF
    Text 135, 120, 90, 10, "Schedule/Reschedule date:"
  EndDialog
 
-'Connecting to MAXIS and grabbing case number 
+'Connecting to MAXIS and grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------Calling the dialog / requiring completion of most fields.
-DO  
+DO
     DO
         err_msg = ""
 	    Dialog ES_referral_dialog
@@ -113,15 +125,15 @@ DO
         If select_program = "Select one..." THEN err_msg = err_msg & vbCr & "* Select the cash program."
         IF referral_date = "" THEN err_msg = err_msg & vbCr & "* Please enter a referral date."
 	    if appt_type <> "Select one..." and appt_date = "" THEN err_msg = err_msg & vbCr & "* Please enter the appointment date."
-        IF appt_date <> "" and appt_type = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select the appointment type."            
+        IF appt_date <> "" and appt_type = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select the appointment type."
 	    IF ES_provider = "" THEN err_msg = err_msg & vbCr &  "Please enter an employment services provider."
 	    IF worker_signature = "" THEN err_msg = err_msg & vbCr &  "Please sign your case note."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     LOOP UNTIL err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-		
+
 IF TIKL_check = checked THEN
 	call navigate_to_MAXIS_screen("DAIL", "WRIT")
 	call create_maxis_friendly_date(plan_deadline, 0, 5, 18)
@@ -129,7 +141,7 @@ IF TIKL_check = checked THEN
 	PF3
 END IF
 'Setting up the HH member list from dialog input
-member_array = split(hh_member_list, ",") 
+member_array = split(hh_member_list, ",")
 'assigning values for database (necessary to redefine these later so one member doesn't rewrite over existing data)
 ESDate = referral_date
 ESProvider = ES_Provider

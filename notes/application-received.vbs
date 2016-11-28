@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS-------------------------------------------------------------
 BeginDialog case_appld_dialog, 0, 0, 161, 65, "Application Received"
   EditBox 95, 5, 60, 15, MAXIS_case_number
@@ -87,7 +99,7 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 'Runs the first dialog - which confirms the case number and gathers worker signature
-Do 
+Do
 	Dialog case_appld_dialog
 	If buttonpressed = cancel then stopscript
 	If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"
@@ -99,8 +111,8 @@ call check_for_MAXIS(true)
 'Gathers Date of application and creates MAXIS friendly dates to be sure to navigate to the correct time frame
 'This only functions if case is in PND2 status
 call navigate_to_MAXIS_screen("REPT","PND2")
-dateofapp_row = 1 
-dateofapp_col = 1 
+dateofapp_row = 1
+dateofapp_col = 1
 EMSearch MAXIS_case_number, dateofapp_row, dateofapp_col
 EMReadScreen MAXIS_footer_month, 2, dateofapp_row, 38
 EMReadScreen app_day, 2, dateofapp_row, 41
@@ -108,8 +120,8 @@ EMReadScreen MAXIS_footer_year, 2, dateofapp_row, 44
 date_of_app = MAXIS_footer_month & "/" & app_day & "/" & MAXIS_footer_year
 
 'If case is not in PND2 status this defaults the date information to current date to allow correct navigation
-If date_of_app = "  /  /  " then 
-	date_of_app = date 
+If date_of_app = "  /  /  " then
+	date_of_app = date
 	Call convert_date_into_MAXIS_footer_month (date, MAXIS_footer_month, MAXIS_footer_year)
 End If
 
@@ -125,46 +137,46 @@ EMReadScreen hc_pend, 4, 12, 74
 
 'Assigns a value so the programs pending will show up in check boxes
 IF cash1_pend = "PEND" THEN
-	cash1_pend = 1 
-	Else 
-	cash1_pend = 0 
+	cash1_pend = 1
+	Else
+	cash1_pend = 0
 End If
 
-If cash2_pend = "PEND" THEN 
+If cash2_pend = "PEND" THEN
 	cash2_pend = 1
-	Else 
+	Else
 	cash2_pend = 0
 End if
 
-If cash1_pend = 1 OR cash2_pend = 1 then cash_pend = 1 
+If cash1_pend = 1 OR cash2_pend = 1 then cash_pend = 1
 
-If emer_pend = "PEND" THEN 
+If emer_pend = "PEND" THEN
 	emer_pend = 1
-	Else 
+	Else
 	emer_pend = 0
 End if
 
-If grh_pend = "PEND" THEN 
+If grh_pend = "PEND" THEN
 	grh_pend = 1
-	Else 
+	Else
 	grh_pend = 0
 End if
 
-If fs_pend = "PEND" THEN 
+If fs_pend = "PEND" THEN
 	fs_pend = 1
-	Else 
+	Else
 	fs_pend = 0
 End if
 
-If ive_pend = "PEND" THEN 
+If ive_pend = "PEND" THEN
 	ive_pend = 1
-	Else 
+	Else
 	ive_pend = 0
 End if
 
-If hc_pend = "PEND" THEN 
+If hc_pend = "PEND" THEN
 	hc_pend = 1
-	Else 
+	Else
 	hc_pend = 0
 End if
 
@@ -174,7 +186,7 @@ pended_date = date & ""
 'Runs the second dialog - which gathers information about the application
 Do
 	Do
-		Do	
+		Do
 			Dialog app_detail_dialog
 			cancel_confirmation
 			If app_type = "Select One" then MsgBox "Please enter the type of application received."
@@ -202,8 +214,8 @@ IF transfer_case = 1 THEN
 	PF9
 	EMWriteScreen worker_number, 18, 61
 	transmit
-	EMReadScreen worker_check, 9, 24, 2 
-	IF worker_check = "SERVICING" THEN 
+	EMReadScreen worker_check, 9, 24, 2
+	IF worker_check = "SERVICING" THEN
 		MsgBox "The correct worker number was not entered, this X-Number is not a valid worker in MAXIS. You will need to transfer the case manually"
 		PF10
 		transfer_case = unchecked
@@ -213,11 +225,11 @@ End If
 
 IF time_of_app <> "" Then
 	time_stamp = " at " & time_of_app & " " & AM_PM
-ELSE 
+ELSE
 	time_stamp = " "
 End If
 
-'Writes the case note 	
+'Writes the case note
 CALL start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("APP PENDED - " & app_type & " rec'vd via " & how_app_recvd & " on " & date_of_app & time_stamp)
 IF isnumeric(confirmation_number) = true THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)

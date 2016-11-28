@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOG-------------------------------------------------------------------
 BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
   Text 5, 10, 50, 10, "Case number:"
@@ -115,9 +127,9 @@ Call check_for_MAXIS(False)
 'Case noting & navigating to a new case note
 Call start_a_blank_CASE_NOTE
 EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
-EMSendKey string(77, "-") 
+EMSendKey string(77, "-")
 EMSendKey "    HH MEMB         EXEMPT REASON            CIT PROOF         ID PROOF" & "<newline>"
-If HH_memb_01 <> "" then 
+If HH_memb_01 <> "" then
         STATS_counter = STATS_counter                      'does not add one instance to the stats counter as it starts at one and this is the first person
 	EMWriteScreen string(76, " "), 7, 3
 	EMWriteScreen HH_memb_01, 7, 5

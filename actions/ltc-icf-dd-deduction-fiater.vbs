@@ -37,6 +37,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Dialogs____________________________________________________________________________________________________________
 BeginDialog case_number_dialog, 0, 0, 141, 70, "Case number"
   EditBox 80, 5, 55, 15, MAXIS_case_number
@@ -99,19 +111,19 @@ call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 DO
 	dialog case_number_dialog
 	cancel_confirmation
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'confirms that case is in the footer month/year selected by the user
-Call MAXIS_footer_month_confirmation 
+Call MAXIS_footer_month_confirmation
 MAXIS_background_check
 
 'Enters into STAT for the client
 Call navigate_to_MAXIS_screen("STAT", "WKEX")
 EMReadScreen WKEX_check, 1, 2, 73
-If WKEX_check = "0" then 
+If WKEX_check = "0" then
 	script_end_procedure("You do not have a WKEX panel. Please create a WKEX panel for your HC case, and re-run the script.")
-Elseif WKEX_check <> "0" then 
+Elseif WKEX_check <> "0" then
 	'Reads work expenses for MEMB 01, verification codes and impairment related code
 	EMReadScreen program_check,          2, 5, 33
 	EMReadScreen federal_tax,            8, 7, 57
@@ -122,12 +134,12 @@ Elseif WKEX_check <> "0" then
 	EMReadScreen FICA_witheld_verif_code, 1, 9, 69
 	EMReadScreen transportation_expense, 8, 10, 57
 	EMReadScreen transportation_expense_verif_code, 1, 10, 69
-	EMReadScreen transportation_impair, 1, 10, 75 
+	EMReadScreen transportation_impair, 1, 10, 75
 	EMReadScreen meals_expense, 8, 11, 57
 	EMReadScreen meals_impair, 1, 11, 75
 	EMReadScreen meals_expense_verif_code, 1, 11, 69
-	EMReadScreen uniform_expense, 8, 12, 57	
-	EMReadScreen uniform_expense_verif_code, 1, 12, 69	
+	EMReadScreen uniform_expense, 8, 12, 57
+	EMReadScreen uniform_expense_verif_code, 1, 12, 69
 	EMReadScreen uniform_impair, 1, 12, 75
 	EMReadScreen tools_expense, 8, 13, 57
 	EMReadScreen tools_expense_verif_code, 1, 13, 69
@@ -164,7 +176,7 @@ other_expense = trim(other_expense)
 If federal_tax = "" OR federal_tax_verif_code = "N" then federal_tax = "0"
 If state_tax = "" OR state_tax_verif_code = "N" then state_tax = "0"
 If FICA_witheld = "" OR FICA_witheld_verif_code = "N" then FICA_witheld = "0"
-If transportation_expense = "" OR transportation_expense_verif_code = "N" OR _ 
+If transportation_expense = "" OR transportation_expense_verif_code = "N" OR _
 	transportation_impair =  "_" OR transportation_impair = "N" then transportation_expense = "0"
 If meals_expense = "" OR meals_expense_verif_code = "N" OR _
 	meals_impair = "_" OR meals_impair = "N" then meals_expense = "0"
@@ -190,18 +202,18 @@ If other_earned_income_PDED = "" then other_earned_income_PDED = "0"
 
 'creating new variables for input of deductions that don't have their own expense field in the HC budget
 Total_taxes = abs(federal_tax) + abs(state_tax)
-Total_employment_expense = abs(meals_expenses) + abs(uniform_expense) + abs(tools_expense) + abs(dues_expenses) 
+Total_employment_expense = abs(meals_expenses) + abs(uniform_expense) + abs(tools_expense) + abs(dues_expenses)
 total_other_expenses = abs(other_expenses) + abs(other_earned_income_PDED)
 
 'Determining if earned income is less than $80
 Call navigate_to_MAXIS_screen ("STAT", "JOBS")
 EMReadScreen JOBS_panel_income, 7, 17, 68
 JOBS_panel_income = trim(JOBS_panel_income)
-If abs(JOBS_panel_income) < 80 then 
+If abs(JOBS_panel_income) < 80 then
 	special_pers_allow = JOBS_panel_income	'if less then $80 deduction is earned income amount
 ELSE
 	special_pers_allow = "80.00"		'otherwise deduction is $80
-END IF 
+END IF
 
 'Shows the LTC_ICFDD_Fiater_dialog
 DO
@@ -210,8 +222,8 @@ DO
 		cancel_confirmation
 		MAXIS_Dialog_navigation
 	Loop until ButtonPressed = -1 							' - 1 is OK button
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Navigates to ELIG/HC.
 Call navigate_to_MAXIS_screen("ELIG", "HC")
@@ -239,12 +251,12 @@ If ELIG_HC_col = 0 then script_end_procedure("Requested footer month not found. 
 col = ELIG_HC_col + 1
 
 'setting the variable for the next do...loop
-budget_months = 0 
+budget_months = 0
 
 'Fills all budget months with "x's", so that the script will go into each one in succession.
 Do
   EMReadScreen budget_check, 1, 12, col
-  If budget_check = "/" then 
+  If budget_check = "/" then
     budget_months = budget_months + 1
     EMWriteScreen "x", 9, col + 1
   End if
@@ -260,13 +272,13 @@ For amt_of_months_to_do = 1 to budget_months
 
  	'For an unknown (as of 06/24/2013) reason, some cases seem to stay in the first budget month and not move on. This gathers the current month to see if we've moved past it later.
   	EMReadScreen starting_bdgt_month, 5, 6, 14
-	'Transmit to the next screen after putting an "x" on the Countable Earned Income (LBUD) screen 
-	EMWriteScreen "x", 9, 3		
+	'Transmit to the next screen after putting an "x" on the Countable Earned Income (LBUD) screen
+	EMWriteScreen "x", 9, 3
 	Transmit
 	EMWriteScreen "x", 6, 7
 	transmit
 	EMWriteScreen "___________", 8, 43			'enters into the gross earned income field as this needs to carry over through the whole budget period
-	EMWriteScreen JOBS_panel_income, 8, 43	
+	EMWriteScreen JOBS_panel_income, 8, 43
 	EMWriteScreen "N", 8, 59					'excluded income "N"
 	transmit
 	transmit 									'must transmit twice to go back to deductions
@@ -284,11 +296,11 @@ For amt_of_months_to_do = 1 to budget_months
 	EMWriteScreen total_other_expenses, 12, 42
 	transmit
 	transmit
-	
+
 	'For an unknown (as of 06/24/2013) reason, some cases seem to stay in the first budget month and not move on. This is a fix for that.
  	EMReadScreen ending_bdgt_month, 5, 6, 14
  	If starting_bdgt_month = ending_bdgt_month then transmit
-	
+
  	'Resets the variables to check on the next month.
  	LBUD_check = ""
 NEXT

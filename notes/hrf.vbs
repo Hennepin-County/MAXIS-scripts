@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'defaulting the MAXIS footer month/year to current month plus one
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
@@ -148,14 +160,14 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Showing case number dialog
-do 
+do
 	Do
   		Dialog case_number_dialog
   		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Checking for an active MAXIS seesion
 Call check_for_MAXIS(False)
@@ -220,19 +232,19 @@ End if
 If grab_FS_info_check = 1 then
 	call navigate_to_MAXIS_screen("elig", "fs__")
 	EMReadScreen FS_check, 4, 3, 48
-	If FS_check <> "FSPR" then 
-		MsgBox "The script couldn't find Elig/FS. It will now jump to case note." 
-	Else 
+	If FS_check <> "FSPR" then
+		MsgBox "The script couldn't find Elig/FS. It will now jump to case note."
+	Else
 		EMWriteScreen "FSSM", 19, 70
-		transmit	
+		transmit
 		EMReadScreen FS_line_01, 37, 13, 44
 	End if
-End If	
+End If
 If grab_GA_info_check = 1 Then
 		call navigate_to_MAXIS_screen("ELIG", "GA__")
 		EMReadScreen GAPR_check, 4, 3, 48
 		IF GAPR_check <> "GAPR" Then
-			MsgBox "The script couldn't find Elig/GA. It will now jump to case note." 
+			MsgBox "The script couldn't find Elig/GA. It will now jump to case note."
 		Else
 			EMWriteScreen "GASM", 20, 70
 			transmit
