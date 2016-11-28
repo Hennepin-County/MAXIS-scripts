@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
@@ -271,9 +283,9 @@ DO
 					cancel_confirmation
 					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 					'If next_button = pressed THEN msgbox next_button
-					If ButtonPressed = income_notes_button Then 
+					If ButtonPressed = income_notes_button Then
 						Dialog income_notes_dialog
-						If ButtonPressed = add_to_notes_button Then 
+						If ButtonPressed = add_to_notes_button Then
 							If jobs_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from jobs to continue at this amount."
 							If new_jobs_checkbox = checked Then notes_on_income = notes_on_income & "; This is a new job and actual check stubs have not been received, advised client to provide proof once pay is received if the income received differs significantly."
 							If busi_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from self employment to continue at this amount."
@@ -284,7 +296,7 @@ DO
 							If tikl_for_ui = checked Then notes_on_income = notes_on_income & " TIKL set to request an update on Unemployment Income."
 							If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; Client has reported they have no income and do not expect any changes to this at this time."
 							If left(notes_on_income, 1) = ";" Then notes_on_income = right(notes_on_income, len(notes_on_income) - 1)
-						End If 
+						End If
 					End If
 				Loop until ButtonPressed <> no_cancel_button
 				MAXIS_dialog_navigation
@@ -312,7 +324,7 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-IF grab_FS_info_checkbox = 1 THEN 
+IF grab_FS_info_checkbox = 1 THEN
 	'grabbing information about elig/fs
 	call navigate_to_MAXIS_screen("elig", "fs")
 	EMReadScreen FSPR_check, 4, 3, 48
@@ -327,12 +339,12 @@ IF grab_FS_info_checkbox = 1 THEN
 	End if
 END IF
 
-IF tikl_for_ui THEN 
+IF tikl_for_ui THEN
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
 	two_weeks_from_now = DateAdd("d", 14, date)
 	call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
 	call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
-	PF3 
+	PF3
 END IF
 
 'Writing the case note to MAXIS----------------------------------------------------------------------------------------------------

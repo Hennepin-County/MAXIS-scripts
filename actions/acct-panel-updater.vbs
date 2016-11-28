@@ -1,9 +1,9 @@
 'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - ACCT PANEL UPDATER.vbs"
 start_time = timer
-STATS_counter = 1              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.  
+STATS_counter = 1              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
 STATS_manualtime = 60          'manual run time in seconds
-STATS_denomination = "I"       'I is for each ITEM 
+STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -37,6 +37,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog ACCT_UPDATERone, 0, 0, 146, 150, "ACCT UPDATER"
   EditBox 64, 4, 60, 16, MAXIS_case_number
@@ -153,7 +165,7 @@ DO
 		Balance = ""
 		as_of_date = ""
 		date_recd = ""
-		penalty = "" 
+		penalty = ""
 		withdrawal_penalty_yes_no = " "
 		CASH_counts = " "
 		FS_counts = " "
@@ -176,7 +188,7 @@ DO
 		If worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
 		If MEMB_num = "" then err_msg = err_msg & vbCr & "* Please enter the member number to be updated."
 		If add_or_update = "Select" then err_msg = err_msg & vbCr & "* Please select update or add an ACCT panel."
-		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."	
+		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
 
 	If add_or_update = "Add" THEN
@@ -193,8 +205,8 @@ DO
 		EMReadScreen HC_status, 4, 12, 74
 
 		'navigates to STAT/ACCT
-		call navigate_to_MAXIS_screen("stat", "acct")			
-						
+		call navigate_to_MAXIS_screen("stat", "acct")
+
 
 		'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
 		EMReadScreen SELF_check, 4, 2, 50
@@ -249,58 +261,58 @@ DO
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL err_msg = ""
 
-		EMWriteScreen "nn", 20, 79 	
-		transmit	
-		
-		EMReadScreen max_panel_check, 4, 24, 2 'This is just in case someone tries to create a 97th panel, 96 is currently the max for ACCT. 
-		IF max_panel_check = "ONLY" THEN script_end_procedure("There are the max number of panels for this Household member. Please review or delete and try again.")					
+		EMWriteScreen "nn", 20, 79
+		transmit
+
+		EMReadScreen max_panel_check, 4, 24, 2 'This is just in case someone tries to create a 97th panel, 96 is currently the max for ACCT.
+		IF max_panel_check = "ONLY" THEN script_end_procedure("There are the max number of panels for this Household member. Please review or delete and try again.")
 
 
 		'Enters the ACCT type.
 		EMWriteScreen ACCT_type, 06, 44
-		'Enters the ACCT number.						
+		'Enters the ACCT number.
 		EMWriteScreen ACCT_number, 07, 44
-		'Enters the ACCT location.						
+		'Enters the ACCT location.
 		EMWriteScreen ACCT_location, 08, 44
-		'Enters the balance of the ACCT.						
-		EMWriteScreen Balance, 10, 46	
-		'Enters the verification type.							
+		'Enters the balance of the ACCT.
+		EMWriteScreen Balance, 10, 46
+		'Enters the verification type.
 		EMWriteScreen VERIF_type, 10, 64
-		'Enters the date of the verification.						
+		'Enters the date of the verification.
 		call create_MAXIS_friendly_date(as_of_date, 0, 11, 44)
-		'Enters if there is a withdrawl penalty.		
-		EMWriteScreen penalty, 12, 46	
-		'Enters, yes or no, if there is a withdrawl penalty.						
-		EMWriteScreen withdrawal_penalty_yes_no, 12, 64 	
-		'Enters if there is a verification of the withdrawl penalty.						
+		'Enters if there is a withdrawl penalty.
+		EMWriteScreen penalty, 12, 46
+		'Enters, yes or no, if there is a withdrawl penalty.
+		EMWriteScreen withdrawal_penalty_yes_no, 12, 64
+		'Enters if there is a verification of the withdrawl penalty.
 		EMWriteScreen penalty_verif, 12, 72
-		'Enters if the ACCT counts towards cash programs.						
-		EMWriteScreen CASH_counts, 14, 50	
-		'Enters if the ACCT counts towards the SNAP program.					
+		'Enters if the ACCT counts towards cash programs.
+		EMWriteScreen CASH_counts, 14, 50
+		'Enters if the ACCT counts towards the SNAP program.
 		EMWriteScreen FS_counts, 14, 57
-		'Enters if the ACCT counts towards the HC program.						 
+		'Enters if the ACCT counts towards the HC program.
 		EMWriteScreen HC_counts, 14, 64
-		'Enters if the ACCT counts towards the GRH program.						
-		EMWriteScreen GRH_counts, 14, 72	
-		'Enters if the ACCT counts towards the IV-E program.					
+		'Enters if the ACCT counts towards the GRH program.
+		EMWriteScreen GRH_counts, 14, 72
+		'Enters if the ACCT counts towards the IV-E program.
 		EMWriteScreen IVE_counts, 14, 80
-		'Enters if the ACCT has a joint owner, yes or no.						
+		'Enters if the ACCT has a joint owner, yes or no.
 		EMWriteScreen joint_owner, 15, 44
-		'Enters the joint owner ratio (first half of the ratio).						
-		EMWriteScreen ratio_one, 15, 76	
-		'Enters the joint owner ratio (second half of the ratio).					
+		'Enters the joint owner ratio (first half of the ratio).
+		EMWriteScreen ratio_one, 15, 76
+		'Enters the joint owner ratio (second half of the ratio).
 		EMWriteScreen ratio_two, 15, 80
-		'Enters the next anticipated date that interest accrues (month).						
+		'Enters the next anticipated date that interest accrues (month).
 		EMWriteScreen interest_month, 17, 57
-		'Enters the next anticipated date that interest accrues (year).					
-		EMWriteScreen interest_year, 17, 60						
+		'Enters the next anticipated date that interest accrues (year).
+		EMWriteScreen interest_year, 17, 60
 		transmit
 		EMReadScreen panel_number, 8, 2, 72
 			'trimming the panel number
 			panel_number = trim(panel_number)
 		'adds one instance to the stats counter
-		STATS_counter = STATS_counter + 1                      
-	
+		STATS_counter = STATS_counter + 1
+
 	else
 
 	call check_for_MAXIS(false)
@@ -316,7 +328,7 @@ DO
 
 		'navigates to STAT/ACCT
 		call navigate_to_MAXIS_screen("stat", "acct")
-						
+
 
 		'Heads into the case/curr screen, checks to make sure the case number is correct before proceeding. If it can't get beyond the SELF menu the script will stop.
 		EMReadScreen SELF_check, 4, 2, 50
@@ -333,7 +345,7 @@ DO
 		'Checks to make sure there are ACCT panels for this member. If none exist the script will close
 		EMReadScreen total_amt_of_panels, 2, 2, 78
 		If total_amt_of_panels = " 0" then script_end_procedure("No ACCT panels exist for this client. Please restart the script and select ADD an ACCT panel or select the correct HHLD member number to update. The script will now stop.") & end_excel_and_script
-		
+
 
 		'If there is more than one panel, this part will grab ACCT info off of them and present it to the worker to decide which one to use.
 		If total_amt_of_panels <> " 0" then
@@ -365,11 +377,11 @@ DO
     	      	as_of_date = replace(as_of_date, " ", "/")
     	      	EMReadScreen penalty, 8, 12, 46
 	          	EMReadScreen withdrawal_penalty_yes_no, 1, 12, 64
-	         	EMReadScreen penalty_verif, 1, 12, 72	
+	         	EMReadScreen penalty_verif, 1, 12, 72
 	          	EMReadScreen CASH_counts, 1, 14, 50
 	          	EMReadScreen FS_counts, 1, 14, 57
 	          	EMReadScreen HC_counts, 1, 14, 64
-	          	EMReadScreen GRH_counts, 1, 14, 72	
+	          	EMReadScreen GRH_counts, 1, 14, 72
 	          	EMReadScreen IVE_counts, 1, 14, 80
 	          	EMReadScreen joint_owner, 1, 15, 44
 	          	EMReadScreen ratio_one, 1, 15, 76
@@ -463,7 +475,7 @@ DO
 			Dialog ACCT_UPDATERtwo
 			'asks if you want to cancel and if "yes" is selected sends StopScript and closes excel
 			If ButtonPressed = 0 then end_excel_and_script
-			cancel_confirmation 
+			cancel_confirmation
 			'checks that an ACCT type has been selected
 			IF ACCT_type = "  " THEN err_msg = err_msg & vbCr & "You must select an ACCT type."
 			'checks if the ACCT number has been entered.
@@ -501,7 +513,7 @@ DO
 		LOOP UNTIL err_msg = ""
 
 	PF9
-	'checking to see if we got into edit mode. 
+	'checking to see if we got into edit mode.
 	EMReadScreen edit_mode_check, 1, 20, 8
 	If edit_mode_check = "D" then script_end_procedure("Unable to create a new JOBS panel. Check which member number you provided. Otherwise you may be in inquiry mode. If so switch to production and try again. Or try closing BlueZone.")
 
@@ -510,44 +522,44 @@ DO
 
 		'Enters the ACCT type.
 		EMWriteScreen ACCT_type, 06, 44
-		'Enters the ACCT number.						
+		'Enters the ACCT number.
 		EMWriteScreen ACCT_number, 07, 44
-		'Enters the ACCT location.						
+		'Enters the ACCT location.
 		EMWriteScreen ACCT_location, 08, 44
-		'Clears the old balance of the ACCT.						
+		'Clears the old balance of the ACCT.
 		EMWriteScreen Balance_cleanup, 10, 46
-		'Enters the new balance of the ACCT.						
-		EMWriteScreen Balance, 10, 46	
-		'Enters the verification type.							
+		'Enters the new balance of the ACCT.
+		EMWriteScreen Balance, 10, 46
+		'Enters the verification type.
 		EMWriteScreen VERIF_type, 10, 64
-		'Enters the date of the verification.						
+		'Enters the date of the verification.
 		call create_MAXIS_friendly_date(as_of_date, 0, 11, 44)
-		'Enters if there is a withdrawl penalty.			
-		EMWriteScreen penalty, 12, 46	
-		'Enters, yes or no, if there is a withdrawl penalty.						
-		EMWriteScreen withdrawal_penalty_yes_no, 12, 64 	
-		'Enters if there is a verification of the withdrawl penalty.						
+		'Enters if there is a withdrawl penalty.
+		EMWriteScreen penalty, 12, 46
+		'Enters, yes or no, if there is a withdrawl penalty.
+		EMWriteScreen withdrawal_penalty_yes_no, 12, 64
+		'Enters if there is a verification of the withdrawl penalty.
 		EMWriteScreen penalty_verif, 12, 72
-		'Enters if the ACCT counts towards cash programs.						
+		'Enters if the ACCT counts towards cash programs.
 		EMWriteScreen CASH_counts, 14, 50
-		'Enters if the ACCT counts towards the SNAP program.						
+		'Enters if the ACCT counts towards the SNAP program.
 		EMWriteScreen FS_counts, 14, 57
-		'Enters if the ACCT counts towards the HC program.						 
+		'Enters if the ACCT counts towards the HC program.
 		EMWriteScreen HC_counts, 14, 64
-		'Enters if the ACCT counts towards the GRH program.						
+		'Enters if the ACCT counts towards the GRH program.
 		EMWriteScreen GRH_counts, 14, 72
-		'Enters if the ACCT counts towards the IV-E program.						
+		'Enters if the ACCT counts towards the IV-E program.
 		EMWriteScreen IVE_counts, 14, 80
-		'Enters if the ACCT has a joint owner, yes or no.						
+		'Enters if the ACCT has a joint owner, yes or no.
 		EMWriteScreen joint_owner, 15, 44
-		'Enters the joint owner ratio (first half of the ratio).						
+		'Enters the joint owner ratio (first half of the ratio).
 		EMWriteScreen ratio_one, 15, 76
-		'Enters the joint owner ratio (second half of the ratio).						
-		EMWriteScreen ratio_two, 15, 80	
-		'Enters the next anticipated date that interest accrues (month).					
-		EMWriteScreen interest_month, 17, 57	
-		'Enters the next anticipated date that interest accrues (year).					
-		EMWriteScreen interest_year, 17, 60						
+		'Enters the joint owner ratio (second half of the ratio).
+		EMWriteScreen ratio_two, 15, 80
+		'Enters the next anticipated date that interest accrues (month).
+		EMWriteScreen interest_month, 17, 57
+		'Enters the next anticipated date that interest accrues (year).
+		EMWriteScreen interest_year, 17, 60
 		transmit
 	End if
 
@@ -556,7 +568,7 @@ DO
 		'starts the DoneUpdating dialog
 		Dialog DoneUpdating
 		If more_updates = "Select" then err_msg = err_msg & vbCr & "* Please select if there are more ACCT panels to update/add.."
-		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."	
+		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
 
 	IF ACCT_type = "SV" THEN ACCT_type = "SV - Savings"
@@ -591,7 +603,7 @@ DO
 
 
 	'the following dumps all case note info into an excel spreadsheet
-	ObjExcel.Cells(excel_row, 1).Value = "* ACCT panel " & panel_number & " " & add_or_update & " Memb " & MEMB_num & ", " & ACCT_type & " at " & ACCT_location & "." 
+	ObjExcel.Cells(excel_row, 1).Value = "* ACCT panel " & panel_number & " " & add_or_update & " Memb " & MEMB_num & ", " & ACCT_type & " at " & ACCT_location & "."
 	'updates the excel row number to the next row
 	excel_row = excel_row + 1
 	ObjExcel.Cells(excel_row, 1).Value = "* As of " & as_of_date & ". Verif rec'd on " & date_recd & "." & " Verif type: " & VERIF_type & "."
@@ -600,7 +612,7 @@ DO
 	ObjExcel.Cells(excel_row, 1).Value = "---"
 
 	'adds one instance to the stats counter
-	STATS_counter = STATS_counter + 1 
+	STATS_counter = STATS_counter + 1
 
 	IF more_updates = "Yes" THEN excel_row = excel_row + 1
 
@@ -610,7 +622,7 @@ LOOP UNTIL more_updates = "No"
 'starts a blank case note
 call start_a_blank_case_note
 
-'this enters the actual case note info 
+'this enters the actual case note info
 IF excel_row = 3 THEN call write_variable_in_CASE_NOTE("***ACCT panel " & add_or_update & " for " & "Member " & MEMB_num & "***")
 IF excel_row > 3 THEN call write_variable_in_CASE_NOTE("***Multiple ACCT panels added/updated.***")
 
@@ -618,7 +630,7 @@ IF excel_row > 3 THEN call write_variable_in_CASE_NOTE("***Multiple ACCT panels 
 	row_num = 1
 	'looping to pull all info from excel into the case note
 	DO
-    		note_excel = ObjExcel.Cells(row_num, 1).Value 
+    		note_excel = ObjExcel.Cells(row_num, 1).Value
 		call write_variable_in_CASE_NOTE(note_excel)
 		row_num = row_num + 1
 		excel_row = excel_row - 1

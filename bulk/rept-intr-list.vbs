@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOG=============================================================================
 BeginDialog bulk_paris_report_dialog, 0, 0, 361, 160, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
@@ -67,7 +79,7 @@ EMConnect ""
 'Looks up an existing user for autofilling the next dialog
 CALL find_variable("User: ", x_number_editbox, 7)
 
-'Shows the dialog. 
+'Shows the dialog.
 DO
 	Do
 		err_msg = ""
@@ -79,12 +91,12 @@ DO
 		If end_year <> "" AND isnumeric(end_year) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the year year field."
 		If err_msg <> "" Then MsgBox "Please resolve:" & vbNewLine & err_msg
 	Loop until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-entire_county = FALSE 
+entire_county = FALSE
 
 resolution_code = left(res_status_list, 2)
 
@@ -109,8 +121,8 @@ ObjExcel.ActiveSheet.Name = "Case information"
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value     = "SUPERVISOR ID"
 objExcel.Cells(1, 1).Font.Bold = True
-objExcel.Cells(1, 2).Value     = "X1 NUMBER" 
-objExcel.Cells(1, 2).Font.Bold = True 
+objExcel.Cells(1, 2).Value     = "X1 NUMBER"
+objExcel.Cells(1, 2).Font.Bold = True
 objExcel.Cells(1, 3).Value     = "WORKER NAME"
 objExcel.Cells(1, 3).Font.Bold = True
 objExcel.Cells(1, 4).Value     = "CASE NBR"
@@ -132,7 +144,7 @@ objExcel.ActiveWindow.FreezePanes = True
 'Sets variable for all of the Excel stuff
 excel_row = 2
 
-supervisor_number = FALSE 
+supervisor_number = FALSE
 
 'This for...next contains each worker indicated above
 For each x_number in x_number_array
@@ -140,7 +152,7 @@ For each x_number in x_number_array
 	'Trims the x_number so that we don't have glitches
 	x_number = trim(x_number)
 	x_number = UCase(x_number)
-	
+
 	'Going to idetify if the x-number is for a supervisor
 	back_to_SELF
 	CALL navigate_to_MAXIS_screen("REPT", "USER")		'Go to REPT USER and refresh to supervisor view
@@ -151,7 +163,7 @@ For each x_number in x_number_array
 	If entire_county = FALSE Then 						'If running agency wide - this is not needed because every worker will be selected
 		EMReadScreen worker_number, 7, 7, 5				'Otherwise if there is a worker number listed under sup in this view - they are a supervisor
 		If worker_number <> "       " Then supervisor_number = TRUE
-	End IF 
+	End IF
 	EMReadScreen worker_name, 30, 3, 47					'Gets the worker name from REPT USER
 	worker_name = trim(worker_name)
 
@@ -161,35 +173,35 @@ For each x_number in x_number_array
 	If supervisor_number = TRUE then 									'For supervisors, the worker line is blanked out and the enumber is put on the supervisor line
 		EMWriteScreen x_number, 6, 15
 		EMWriteScreen "       ", 5, 15
-	End If 
+	End If
 	EMWriteScreen resolution_code, 5, 67			'Entering the resolution code selected in dialog
-	If start_month <> "" Then 
+	If start_month <> "" Then
 		start_month = right("00" & start_month, 2)
 		EMWriteScreen start_month, 6, 67			'Entering the date range if selected
-	End If 
-	If start_year <> "" Then 
-		start_year = right("00" & start_year, 2)	
+	End If
+	If start_year <> "" Then
+		start_year = right("00" & start_year, 2)
 		EMWriteScreen start_year, 6, 70
-	End If 
-	If end_month <> "" Then 
-		end_month = right("00" & end_month, 2)	
+	End If
+	If end_month <> "" Then
+		end_month = right("00" & end_month, 2)
 		EMWriteScreen end_month, 7, 67
-	End If 
-	If end_year <> "" Then 
-		end_year = right("00" & end_year, 2)	
+	End If
+	If end_year <> "" Then
+		end_year = right("00" & end_year, 2)
 		EMWriteScreen end_year, 7, 70
-	End If 
-	transmit										'and GO	
-	
+	End If
+	transmit										'and GO
+
 	EMReadScreen intr_exists, 8, 11, 5				'Looking if there are any matches listed under this worker
 	intr_exists = trim(intr_exists)
 	row = 11
 	If intr_exists <> "" Then 	'If there are any matches the script will pull detail
-		Do 
+		Do
 			EMReadScreen maxis_case_number, 8, row, 5			'Reading the case number
 			maxis_case_number = trim(maxis_case_number)			'removing the spaces
 			If maxis_case_number = "" then exit Do 		'Once the script reaches the last line in the list, it will go to the next worker
-			
+
 			EMReadScreen match_x_number, 7, row, 14				'Reading the worker x-number listed on the match - necessary if the number in the array is a supervisor number
 			EMReadScreen supervisor_id, 7, 6, 15				'Reading the x-number of the supervisor for that case
 			EMReadScreen client_name, 20, row, 31				'Reading the client name and removing the blanks
@@ -200,9 +212,9 @@ For each x_number in x_number_array
 			EMReadScreen notice_date, 8, row, 71				'Reading the notice date field
 			if notice_date = "        " then notice_date = ""	'blanking out if there is no date
 			notice_date = replace(notice_date, " ", "/")		'Formatting the date
-			
+
 			'Adding all the information to Excel
-			objExcel.Cells(excel_row, 1).Value = supervisor_id	
+			objExcel.Cells(excel_row, 1).Value = supervisor_id
 			objExcel.Cells(excel_row, 2).Value = match_x_number
 			If supervisor_number = FALSE Then objExcel.Cells(excel_row, 3).Value = worker_name
 			objExcel.Cells(excel_row, 4).Value = maxis_case_number
@@ -210,21 +222,21 @@ For each x_number in x_number_array
 			objExcel.Cells(excel_row, 6).Value = match_month
 			objExcel.Cells(excel_row, 7).Value = res_status
 			objExcel.Cells(excel_row, 8).Value = notice_date
-			
+
 			row = row + 1		'Go to the next excel row
-			
+
 			If row = 19 Then 		'If we have reached the end of the page, it will go to the next page
 				PF8
 				row = 11			'Resets the row
-				EMReadScreen last_page_check, 21, 24, 2	
-			End If 
+				EMReadScreen last_page_check, 21, 24, 2
+			End If
 			excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
 			STATS_counter = STATS_counter + 1		'Counts 1 item for every Match found and entered into excel.			diff_notc_date = ""			'blanks this out so that the information is not carried over in the do-loop'
 			maxis_case_number = ""
 
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
-	
-	Else 
+
+	Else
 		objExcel.Cells(excel_row, 2).Value = x_number						'If there are no items on a worker's report, this adds that information to the excel sheet
 		EMReadScreen supervisor_id, 7, 6, 15				'Finding Supervisor X Number and adding to Excel
 		objExcel.Cells(excel_row, 1).Value = supervisor_id
@@ -232,15 +244,15 @@ For each x_number in x_number_array
 		EMReadScreen INTR_check, 4, 2, 55
 		objExcel.Cells(excel_row, 5).Value = "No PARIS Matches for this worker."		'Adds line to Excel sheet indicating no matches
 		excel_row = excel_row + 1
-	End If 
+	End If
 
 	supervisor_number = FALSE
-Next 
+Next
 
 last_excel_row = excel_row - 1
 
 'Centers the text for the columns with days remaining and difference notice
-objExcel.Columns(6).HorizontalAlignment = -4108	
+objExcel.Columns(6).HorizontalAlignment = -4108
 objExcel.Columns(7).HorizontalAlignment = -4108
 objExcel.Columns(8).HorizontalAlignment = -4108
 
@@ -263,29 +275,29 @@ objExcel.Cells(4, 12).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'E
 
 'Need a new array for the x-numbers of all the matches because if supervisor numbers are used all the numbers are not in the original array
 Dim worker_number_array
-ReDim worker_number_array (0) 
+ReDim worker_number_array (0)
 array_counter = 0
 
 'Going to REPT USER to get the worker's name
 CALL navigate_to_MAXIS_screen ("REPT", "USER")
 excel_row = 2
-Do 
+Do
 	If objExcel.Cells(excel_row, 3).Value = "" Then 			'If the worker's name was not in the excel sheet - the script will look for it
 		worker_number = objExcel.Cells(excel_row, 2).Value		'Gets the worker number from the spreadsheet
 		in_array = FALSE 										'Setting the variable
 		For each worker in worker_number_array					'Looping through the new array to compare it to the current worker number
-			if worker_number = worker then 
+			if worker_number = worker then
 				in_array = TRUE
-				Exit For 
+				Exit For
 			End if
 		Next
 		If in_array = FALSE Then 	'If the x-number was not found already in the array the number will be added to the array
 			ReDim Preserve worker_number_array(array_counter)
 			worker_number_array(array_counter) = worker_number
 			array_counter = array_counter + 1
-		End If 
+		End If
 		EMWriteScreen worker_number, 21, 12			'Entering the worker number and opening detail about the worker
-		transmit 
+		transmit
 		EMWriteScreen "X", 7, 3
 		transmit
 		EMReadScreen worker_name, 40, 7, 27			'Reading the worker number
@@ -293,30 +305,30 @@ Do
 		worker_name = trim(worker_name)
 		objExcel.Cells(excel_row, 3).Value = worker_name	'Adding the number to Excel
 		excel_row = excel_row + 1 					'Go to the next row
-		Do 
+		Do
 			If objExcel.Cells(excel_row, 2).Value = worker_number Then 	'If the next row has the same number - add the same name
 				objExcel.Cells(excel_row, 3).Value = worker_name
 				excel_row = excel_row + 1
-			Else 
-				Exit Do 
-			End If 
+			Else
+				Exit Do
+			End If
 		loop until objExcel.Cells(excel_row, 3).Value <> worker_number
 	Else 																'If the name is already in Excel the number will be reviewed for adding to the array
 		worker_number = objExcel.Cells(excel_row, 2).Value		'Gets the worker number from the spreadsheet
 		in_array = FALSE 										'Setting the variable
 		For each worker in worker_number_array					'Looping through the new array to compare it to the current worker number
-			if worker_number = worker then 
+			if worker_number = worker then
 				in_array = TRUE
-				Exit For 
+				Exit For
 			End if
 		Next
 		If in_array = FALSE Then 			'If the x-number was not found already in the array the number will be added to the array
 			ReDim Preserve worker_number_array(array_counter)
 			worker_number_array(array_counter) = worker_number
 			array_counter = array_counter + 1
-		End If 
+		End If
 		excel_row = excel_row + 1
-	End If 
+	End If
 Loop until excel_row = last_excel_row + 1
 
 'Formatting the column width.
@@ -333,7 +345,7 @@ ObjExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 1).Value = "WORKER"
 objExcel.Cells(2, 1).Font.Bold = TRUE
 ObjExcel.Cells(2, 2).Value = "NAME"
-ObjExcel.Cells(2, 2).Font.Bold = TRUE 
+ObjExcel.Cells(2, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 3).Value = "UNRESOLVED"
 objExcel.Cells(2, 3).Font.Bold = TRUE
 
@@ -353,9 +365,9 @@ For each x_number in worker_number_array
 		transmit
 		EMReadScreen worker_name, 24, 3, 11
 		worker_name = trim(worker_name)
-	Else 
+	Else
 		worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
-	End IF 
+	End IF
 	'Adding all the information to Excel
 	ObjExcel.Cells(worker_row, 1).Value = x_number
 	ObjExcel.Cells(worker_row, 2).Value = worker_name

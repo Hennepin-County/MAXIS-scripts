@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 MAXIS_footer_month = datepart("m", next_month)
@@ -311,50 +323,50 @@ End if
 
 'REMOVING ANY UNUSED LINES IN THE DIALOG
 For i = 1 to 6 'Does it several times to make sure the job gets done completely. This is easier than writing redundant sliding into each If...then statement from all other if...then statements.
-  If elig_type_std_01 = "___" or elig_type_std_01 = "" then 
+  If elig_type_std_01 = "___" or elig_type_std_01 = "" then
     elig_date_01 = elig_date_02
     elig_type_std_01 = elig_type_std_02
-    elig_waiver_type_01 = elig_waiver_type_02 
+    elig_waiver_type_01 = elig_waiver_type_02
     elig_method_01 = elig_method_02
     elig_date_02 = ""
     elig_waiver_type_02 = ""
     elig_method_02 = ""
     elig_type_std_02 = ""
   End if
-  If elig_type_std_02 = "___" or elig_type_std_02 = "" then 
+  If elig_type_std_02 = "___" or elig_type_std_02 = "" then
     elig_date_02 = elig_date_03
     elig_type_std_02 = elig_type_std_03
-    elig_waiver_type_02 = elig_waiver_type_03 
+    elig_waiver_type_02 = elig_waiver_type_03
     elig_method_02 = elig_method_03
     elig_date_03 = ""
     elig_waiver_type_03 = ""
     elig_method_03 = ""
     elig_type_std_03 = ""
   End if
-  If elig_type_std_03 = "___" or elig_type_std_03 = "" then 
+  If elig_type_std_03 = "___" or elig_type_std_03 = "" then
     elig_date_03 = elig_date_04
     elig_type_std_03 = elig_type_std_04
-    elig_waiver_type_03 = elig_waiver_type_04 
+    elig_waiver_type_03 = elig_waiver_type_04
     elig_method_03 = elig_method_04
     elig_date_04 = ""
     elig_waiver_type_04 = ""
     elig_method_04 = ""
     elig_type_std_04 = ""
   End if
-  If elig_type_std_04 = "___" or elig_type_std_04 = "" then 
+  If elig_type_std_04 = "___" or elig_type_std_04 = "" then
     elig_date_04 = elig_date_05
     elig_type_std_04 = elig_type_std_05
-    elig_waiver_type_04 = elig_waiver_type_05 
+    elig_waiver_type_04 = elig_waiver_type_05
     elig_method_04 = elig_method_05
     elig_date_05 = ""
     elig_waiver_type_05 = ""
     elig_method_05 = ""
     elig_type_std_05 = ""
   End if
-  If elig_type_std_05 = "___" or elig_type_std_05 = "" then 
+  If elig_type_std_05 = "___" or elig_type_std_05 = "" then
     elig_date_05 = elig_date_06
     elig_type_std_05 = elig_type_std_06
-    elig_waiver_type_05 = elig_waiver_type_06 
+    elig_waiver_type_05 = elig_waiver_type_06
     elig_method_05 = elig_method_06
     elig_date_06 = ""
     elig_waiver_type_06 = ""
@@ -449,7 +461,7 @@ If BBUD_check = "BBUD" then
     Call check_for_MAXIS(False)
     Dialog BBUD_Dialog
     cancel_confirmation
-    Call check_for_MAXIS(False) 
+    Call check_for_MAXIS(False)
     back_to_SELF
     EMWriteScreen "stat", 16, 43
     EMWriteScreen "bils", 21, 70
@@ -472,7 +484,7 @@ Do
 		If actions_taken = "" THEN MsgBox "You need to complete the 'actions taken' field."
 		If application_date = "" THEN MsgBox "You need to fill in the application date."
 		IF worker_signature = "" then MsgBox "You need to sign your case note."
-	Loop until actions_taken <> "" and application_date <> "" and worker_signature <> "" 
+	Loop until actions_taken <> "" and application_date <> "" and worker_signature <> ""
 	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
 Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 
@@ -497,8 +509,8 @@ If recipient_amt = "$" THEN recipient_amt = "no spenddown"
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE ("***MA effective " & header_date & "***")
-If elig_type <> "DP" then 
-  If budget_type = "L" then call write_bullet_and_variable_in_CASE_NOTE ("LTC spenddown", recipient_amt)	'these 3 are separate options as the 3 budget types have different wording for the client portion 
+If elig_type <> "DP" then
+  If budget_type = "L" then call write_bullet_and_variable_in_CASE_NOTE ("LTC spenddown", recipient_amt)	'these 3 are separate options as the 3 budget types have different wording for the client portion
   If budget_type = "S" then call write_bullet_and_variable_in_CASE_NOTE ("SISEW waiver obligation", recipient_amt)
   If budget_type = "B" then call write_bullet_and_variable_in_CASE_NOTE ("Recipient amount", recipient_amt)
 End if
@@ -515,7 +527,7 @@ If DHS_1503_on_file_check = 1 then call write_variable_in_CASE_NOTE("* DHS-1503 
 call write_bullet_and_variable_in_CASE_NOTE("Retro request", retro_months)
 call write_bullet_and_variable_in_CASE_NOTE("Month MA starts", month_MA_starts)
 call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC starts", month_MA_LTC_starts)
-Call write_bullet_and_variable_in_case_note ("Baseline Date", baseline_date) 
+Call write_bullet_and_variable_in_case_note ("Baseline Date", baseline_date)
 Call write_bullet_and_variable_in_case_note ("Lookback period", lookback_period & "-" & end_of_lookback)
 If community_check = 1 then call write_variable_in_CASE_NOTE("* Client is in the community.")
 call write_bullet_and_variable_in_CASE_NOTE("AREP/SWKR", AREP_SWKR)

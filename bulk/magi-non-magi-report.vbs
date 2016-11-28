@@ -37,6 +37,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Connecting
 EMConnect ""
 CALL check_for_MAXIS(true)
@@ -64,7 +76,7 @@ CALL check_for_MAXIS(false)
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the column headers
@@ -81,7 +93,7 @@ objExcel.Cells(1, 10).Value = "Non-MAGI Household"
 objExcel.Cells(1, 11).Value = "MAGI Review aligned?"
 objExcel.Cells(1, 12).Value = "HC ER MONTH"
 'Here's your option to add other active programs
-IF other_progs_check = 1 THEN 
+IF other_progs_check = 1 THEN
 	objExcel.Cells(1, 13).Value = "CASH PROG"
 	objExcel.Cells(1, 13).Font.Bold = TRUE
 	objExcel.Cells(1, 14).Value = "SNAP ACTV"
@@ -94,11 +106,11 @@ FOR i = 1 TO 12
 NEXT
 
 'Determining the list of workers to check
-IF all_workers_check = 1 THEN 
+IF all_workers_check = 1 THEN
 	CALL create_array_of_all_active_x_numbers_in_county(all_workers_array, right(worker_county_code, 2))
 ELSE
 	'If the user entered multiple users, the script will look for commas and separate
-	IF InStr(x1_numbers, ",") = 0 THEN 
+	IF InStr(x1_numbers, ",") = 0 THEN
 		all_workers_array = split(x1_numbers)
 	ELSE
 		x1_numbers = replace(x1_numbers, " ", "")
@@ -113,7 +125,7 @@ FOR EACH worker IN all_workers_array
 	CALL write_value_and_transmit(worker, 21, 13)
 	'Returning to first page of REPT/ACTV
 	PF7
-	
+
 	'Top of REPT/ACTV
 	rept_actv_row = 7
 	DO
@@ -122,7 +134,7 @@ FOR EACH worker IN all_workers_array
 		'Reading for hc status
 		EMReadScreen hc_status, 1, rept_actv_row, 64
 		'If the client's HC is active...
-		IF hc_status = "A" THEN 
+		IF hc_status = "A" THEN
 			'Writing the worker X1 number...
 			objExcel.Cells(excel_row, 1).Value = UCASE(worker)
 			'Reading and writing case number
@@ -132,7 +144,7 @@ FOR EACH worker IN all_workers_array
 			EMReadScreen client_name, 20, rept_actv_row, 21
 			objExcel.Cells(excel_row, 3).Value = trim(client_name)
 			'If the user requested to see info about CASH and SNAP on the report...
-			IF other_progs_check = 1 THEN 
+			IF other_progs_check = 1 THEN
 				EMReadScreen cash_one_status, 1, rept_actv_row, 54
 				EMReadScreen cash_one_prog, 2, rept_actv_row, 51
 				EMReadScreen cash_two_status, 1, rept_actv_row, 59
@@ -162,8 +174,8 @@ FOR EACH worker IN all_workers_array
 NEXT
 
 'Going back through and determining MAGI & Non-MAGI
-excel_row = 2 
-Do 
+excel_row = 2
+Do
 	'Assigning a value to MAXIS_case_number
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
 	'When the script gets to the end of the list, it exits the do/loop
@@ -174,7 +186,7 @@ Do
 	nonMAGI_count = 0
 	magi_clients = ""
 	non_magi_clients = ""
-	
+
 	'setting the row to read on ELIG/HC
 	hhmm_row = 8
 	DO
@@ -190,7 +202,7 @@ Do
 		'...and if information is found for that row...
 		IF hc_information_found <> "" THEN
 			'...if the client is eligible and active...
-			IF elig_result = "ELIG" AND elig_status = "ACTIVE" THEN 
+			IF elig_result = "ELIG" AND elig_status = "ACTIVE" THEN
 				'looking for the first character on hc request...
 				EMReadScreen hc_requested, 1, hhmm_row, 28
 				'...if the client is active on a medicare savings program...
@@ -199,13 +211,13 @@ Do
 						temp_hhmm_row = hhmm_row
 						DO
 							EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-							IF hc_ref_num = "  " THEN 
+							IF hc_ref_num = "  " THEN
 								temp_hhmm_row = temp_hhmm_row - 1
 							ELSE
 								EXIT DO
 							END IF
 						LOOP
-					END IF					
+					END IF
 					IF InStr(non_magi_clients, hc_ref_num & ";") = 0 THEN non_magi_clients = non_magi_clients & hc_ref_num & ";"
 					hhmm_row = hhmm_row + 1
 				'...otherwise, if the client is active on Medicaid or EMA...
@@ -214,12 +226,12 @@ Do
 					EMWriteScreen "X", hhmm_row, 26
 					transmit
 					EMReadScreen budg_mthd, 1, 13, 76
-					IF budg_mthd = "A" THEN 
+					IF budg_mthd = "A" THEN
 						IF hc_ref_num = "  " THEN
 							temp_hhmm_row = hhmm_row
 							DO
 								EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-								IF hc_ref_num = "  " THEN 
+								IF hc_ref_num = "  " THEN
 									temp_hhmm_row = temp_hhmm_row - 1
 								ELSE
 									EXIT DO
@@ -232,7 +244,7 @@ Do
 							temp_hhmm_row = hhmm_row
 							DO
 								EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-								IF hc_ref_num = "  " THEN 
+								IF hc_ref_num = "  " THEN
 									temp_hhmm_row = temp_hhmm_row - 1
 								ELSE
 									EXIT DO
@@ -250,12 +262,12 @@ Do
 				hhmm_row = hhmm_row + 1
 			END IF
 		ELSE
-			EXIT DO			
+			EXIT DO
 		END IF
 	LOOP UNTIL hhmm_row = 20 OR hc_ref_num = "  "
-	
+
 	'Going back to determine if the individual is still MAGI...SSI, Medicare, and MA-EPD disq the person as Non-MAGI
-	IF magi_clients <> "" THEN 
+	IF magi_clients <> "" THEN
 		magi_peeps = replace(magi_clients & "~~~", ";~~~", "")
 		magi_peeps = split(magi_peeps, ";")
 		FOR EACH client IN magi_peeps
@@ -263,8 +275,8 @@ Do
 			CALL write_value_and_transmit(client, 20, 76)
 			EMReadScreen client_age, 2, 8, 76
 			IF client_age = "  " THEN client_age = 0
-			'Removing that client from the non-magi list 
-			IF client_age >= 65 THEN 
+			'Removing that client from the non-magi list
+			IF client_age >= 65 THEN
 				magi_clients = replace(magi_clients, client & ";", "")
 				IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
 			ELSE
@@ -272,7 +284,7 @@ Do
 				CALL navigate_to_MAXIS_screen("STAT", "DISA")
 				CALL write_value_and_transmit(client, 20, 76)
 				EMReadScreen hc_disa_status, 2, 13, 59
-				IF hc_disa_status = "03" OR hc_disa_status = "04" OR hc_disa_status = "22" THEN 
+				IF hc_disa_status = "03" OR hc_disa_status = "04" OR hc_disa_status = "22" THEN
 					magi_clients = replace(magi_clients, client & ";", "")
 					IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
 				ELSE
@@ -280,17 +292,17 @@ Do
 					CALL write_value_and_transmit(client, 20, 76)
 					EMReadScreen medi_ref_num, 15, 6, 44
 					medi_ref_num = trim(replace(medi_ref_num, "_", ""))
-					IF medi_ref_num <> "" THEN 
+					IF medi_ref_num <> "" THEN
 						magi_clients = replace(magi_clients, client & ";", "")
 						IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
 					END IF
 				END IF
-			END IF					
+			END IF
 		NEXT
 	END IF
-	
+
 	'Going back to determine if the individual is still Non-MAGI...SSI, Medicare, and MA-EPD disq the person as Non-MAGI
-	IF non_magi_clients <> "" THEN 
+	IF non_magi_clients <> "" THEN
 		non_magi_peeps = replace(non_magi_clients & "~~~", ";~~~", "")
 		non_magi_peeps = split(non_magi_peeps, ";")
 		FOR EACH client IN non_magi_peeps
@@ -301,39 +313,39 @@ Do
 			EMReadScreen medi_case_number, 15, 6, 44
 			medi_case_number = trim(replace(medi_case_number, "_", ""))
 			IF medi_case_number <> "" THEN non_magi = TRUE
-			IF non_magi <> TRUE THEN 
+			IF non_magi <> TRUE THEN
 				CALL navigate_to_MAXIS_screen("STAT", "DISA")
 				CALL write_value_and_transmit(client, 20, 76)
 				EMReadScreen hc_disa_status, 2, 13, 59
 				IF hc_disa_status = "03" OR hc_disa_status = "04" OR hc_disa_status = "22" THEN non_magi = TRUE
 			END IF
-			IF non_magi <> TRUE THEN 
+			IF non_magi <> TRUE THEN
 				non_magi_clients = replace(non_magi_clients, client & ";", "")
 				IF InStr(magi_clients, client & ";") = 0 THEN magi_clients = magi_clients & client & ";"
 			END IF
 		NEXT
 	END IF
-	
+
 	'Writing all these ding-dang values to Excel
 	objExcel.Cells(excel_row, 4).Value = magi_clients
-	IF magi_clients <> "" THEN 
+	IF magi_clients <> "" THEN
 		MAGI_count = UBound(split(magi_clients, ";"))
 		objExcel.Cells(excel_row, 6).Value = MAGI_count
 	ELSE
 		objExcel.Cells(excel_row, 6).Value = 0
 	END IF
-	
+
 	objExcel.Cells(excel_row, 5).Value = non_magi_clients
-	IF non_magi_clients <> "" THEN 
+	IF non_magi_clients <> "" THEN
 		nonMAGI_count = UBound(split(non_magi_clients, ";"))
 		objExcel.Cells(excel_row, 7).Value = nonMAGI_count
 	ELSE
 		objExcel.Cells(excel_row, 7).Value = 0
 	END IF
-	
+
 	CALL navigate_to_MAXIS_screen("STAT", "REVW")
 	EMReadScreen revw_does_not_exist, 19, 24, 2
-	IF revw_does_not_exist <> "REVW DOES NOT EXIST" THEN 
+	IF revw_does_not_exist <> "REVW DOES NOT EXIST" THEN
 		EMwritescreen "X", 5, 71
 		Transmit
 		'Checking to make sure pop up opened
@@ -346,10 +358,10 @@ Do
 		EMReadScreen hc_IA_renewal, 8, 8, 71
 		EMReadScreen hc_annual_renewal, 8, 9, 27
 		objExcel.Cells(excel_row, 12).Value = replace(hc_annual_renewal, " ", "/")
-		IF MAGI_count <> 0 THEN 
+		IF MAGI_count <> 0 THEN
 			IF hc_income_renewal = "__ 01 __" THEN hc_compare_renewal = hc_IA_renewal
 			IF hc_IA_renewal = "__ 01 __" THEN hc_compare_renewal = hc_income_renewal
-	
+
 			IF hc_annual_renewal = hc_compare_renewal THEN
 				objExcel.Cells(excel_row, 11).Value = "Y"
 			ELSE
@@ -359,15 +371,15 @@ Do
 	ELSE
 		objExcel.Cells(excel_row, 12).Value = "NO REVIEW DATE"
 	END IF
-    
-	IF MAGI_count <> 0 AND nonMAGI_count = 0 THEN 
+
+	IF MAGI_count <> 0 AND nonMAGI_count = 0 THEN
 		objExcel.Cells(excel_row, 8).Value = "Y"
-	ELSEIF MAGI_count <> 0 AND nonMAGI_count <> 0 THEN 
+	ELSEIF MAGI_count <> 0 AND nonMAGI_count <> 0 THEN
 		objExcel.Cells(excel_row, 9).Value = "Y"
-	ELSEIF MAGI_count = 0 AND nonMAGI_count <> 0 THEN 
+	ELSEIF MAGI_count = 0 AND nonMAGI_count <> 0 THEN
 		objExcel.Cells(excel_row, 10).Value = "Y"
 	END IF
-	
+
 	excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""
 
@@ -375,23 +387,23 @@ FOR i = 1 TO 14
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-IF supervisor_check = 1 THEN 
+IF supervisor_check = 1 THEN
   STATS_manualtime = STATS_manualtime + 25
 
 	'Adding a column to the left of the data
 	SET objSheet = objWorkbook.Sheets("Sheet1")
 	objSheet.Columns("A:A").Insert -4161
 	objExcel.Cells(1, 1).Value = "SUPERVISOR NAME"
-	
+
 	'Going to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-	
+
 	'Starting back at the top of the page
 	excel_row = 2
 	DO
 		worker_id = objExcel.Cells(excel_row, 2).Value
 		prev_worker_id = objExcel.Cells(excel_row - 1, 2).Value
-		IF worker_id <> prev_worker_id THEN 
+		IF worker_id <> prev_worker_id THEN
 			'Entering the worker number into REPT/USER
 			CALL write_value_and_transmit(worker_id, 21, 12)
 			CALL write_value_and_transmit("X", 7, 3)
@@ -408,7 +420,7 @@ IF supervisor_check = 1 THEN
 		END IF
 		excel_row = excel_row + 1
 	LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
-	
+
 	objExcel.Columns(1).AutoFit()
 END IF
 

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -67,7 +79,7 @@ EndDialog
 'logic to autofill the 'last_day_for_recert' into the notice
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
-last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string			
+last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER; As such, it does NOT include protections to be ran independently.
 EMConnect ""
@@ -91,36 +103,36 @@ transmit
 interview_confirm = MsgBox("Was an interview completed for this case's recertification?", vbYesNoCancel, "Interview confirmation")
 If interview_confirm = vbCancel then stopscript
 If interview_confirm = vbYes then  			'returns user back to DAIL/DAIL and stops the script since no further action is required
-	PF3 	
+	PF3
 	script_end_procedure("Success! A NOMI is not required if the recertification interview is complete." & vbNewLine & "Please review the case for completion if necessary.")
-ELSEIF interview_confirm = vbNo then 		'interview was not completed 
+ELSEIF interview_confirm = vbNo then 		'interview was not completed
 	If worker_county_code = "x127" then
 		DO
 			DO
 				err_msg = ""
 				dialog Hennepin_worker_signature		'dialog for Hennepin users with county office selection options
-				cancel_confirmation 
+				cancel_confirmation
 				If region_residence = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the client's region of residence."
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			Loop until err_msg = ""
-			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-		Loop until are_we_passworded_out = false					'loops until user passwords back in					
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		Loop until are_we_passworded_out = false					'loops until user passwords back in
 	Else
 		Do
 			Do
 				err_msg = ""
-				dialog worker_signature_dialog			'dialog for everyone else...because elitism:) 
+				dialog worker_signature_dialog			'dialog for everyone else...because elitism:)
 				cancel_confirmation
 				If isdate(last_day_for_recert) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid last day for recert date."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			Loop until err_msg = ""
-			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-		Loop until are_we_passworded_out = false					'loops until user passwords back in					
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		Loop until are_we_passworded_out = false					'loops until user passwords back in
 	End if
-	
+
 	PF3							'exits case note, back to DAIL
 	EMSendKey "p"				'navigates to SPEC
 	transmit
@@ -130,7 +142,7 @@ ELSEIF interview_confirm = vbNo then 		'interview was not completed
 	PF5
 	EMReadScreen memo_display_check, 12, 2, 33
 	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-	
+
 	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 	row = 4                             'Defining row and col for the search feature.
 	col = 1
@@ -200,5 +212,5 @@ ELSEIF interview_confirm = vbNo then 		'interview was not completed
 	Call write_variable_in_CASE_NOTE (worker_signature & ", using automated script.")
 	PF3	'saves the case note'
 	Call navigate_to_MAXIS_screen("DAIL", "DAIL") 'brings user back to DAIL'
-	script_end_procedure("Success! A SNAP NOMI for recertification SPEC/MEMO has been sent.")	
+	script_end_procedure("Success! A SNAP NOMI for recertification SPEC/MEMO has been sent.")
 END IF

@@ -38,7 +38,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'Script---------------------------------------------------------------------------------------------------------------------------
 'connecting to BlueZone, and grabbing the case number
@@ -48,33 +58,33 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call navigate_to_MAXIS_screen ("CASE", "NOTE")
 row = 1
 col = 1
-EMSearch "County Burial Application", row, col 
-IF row <> 0 THEN 
-	application_note = TRUE 
+EMSearch "County Burial Application", row, col
+IF row <> 0 THEN
+	application_note = TRUE
 	EMWriteScreen "x", row, 3
 	transmit
-ELSEIF row = 0 THEN 
+ELSEIF row = 0 THEN
 	application_note = FALSE
-END IF 
+END IF
 
 'Script is gathering the service information from the application case note
 IF application_note = TRUE THEN
 	row = 1
-	col = 1 
+	col = 1
 	EMSearch "Services Requested:", row, col 		'Looking for what type of service requested (burial or cremation)
-	If row <> 0 Then 
+	If row <> 0 Then
 		EMReadScreen service_in_note, 55, row, 25	'Reading the service requested from the case note
 		service_in_note = trim(service_in_note)
-		
+
 		services_dropdown = service_in_note+chr(9)+"Creamation"+chr(9)+"Burial"	'Formatting the dropdown for the next dialog
-	End If 
-	
+	End If
+
 	row = 1
-	col = 1 
+	col = 1
 	EMSearch "Amount requested:", row, col 			'getting the information from the case note with the amount requested
 	EMReadScreen service_cost, 7, row, col+18
 	service_cost = trim(service_cost)
-End IF 
+End IF
 
 If services_dropdown = "" Then services_dropdown = ""+chr(9)+"Cremation"+chr(9)+"Burial"	'If a note was not found - creating the dropdown
 
@@ -101,7 +111,7 @@ EndDialog
 
 'Running the dialog
 Do
-	Do 
+	Do
 		err_msg = ""
 		Dialog county_burial_determination_dialog
 		cancel_confirmation

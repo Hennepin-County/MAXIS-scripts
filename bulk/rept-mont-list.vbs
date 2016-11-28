@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -63,14 +75,14 @@ EndDialog
 EMConnect ""
 
 'Shows dialog
-DO 
+DO
 	DO
 		Dialog pull_rept_data_into_Excel_dialog
 		If buttonpressed = cancel then script_end_procedure("")
 		If SNAP_check = 0 AND cash_check = 0 THEN msgbox "You must select at least one program to add to the Excel list."
 	Loop until SNAP_check = 1 OR cash_check = 1
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -171,7 +183,7 @@ For each worker in worker_array
 				'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
 				If cash_status = "-" then cash_status = ""
 				If SNAP_status = "-" then SNAP_status = ""
-	
+
 				'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
 				If T_check = checked THEN
 					IF trim(case_status) = "T" and cash_check = checked THEN add_case_info_to_Excel = True

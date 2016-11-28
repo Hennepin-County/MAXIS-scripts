@@ -38,25 +38,37 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT----------------------------------------------------------------------------------------------------
 Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
   variable_array = split(y, " ")
   EMSendKey "* " & x & ": "
-  For each x in variable_array 
-    EMGetCursor row, col 
+  For each x in variable_array
+    EMGetCursor row, col
     If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
       EMSendKey "<PF8>"
       EMWaitReady 0, 0
     End if
     EMReadScreen max_check, 51, 24, 2
     If max_check = "A MAXIMUM OF 4 PAGES ARE ALLOWED FOR EACH CASE NOTE" then exit for
-    EMGetCursor row, col 
+    EMGetCursor row, col
     If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(5)
     If (row = 5 and col = 3) then EMSendKey space(5)
     EMSendKey x & " "
-    If right(x, 1) = ";" then 
-      EMSendKey "<backspace>" & "<backspace>" 
-      EMGetCursor row, col 
+    If right(x, 1) = ";" then
+      EMSendKey "<backspace>" & "<backspace>"
+      EMGetCursor row, col
       If row = 18 then
         EMSendKey "<PF8>"
         EMWaitReady 0, 0
@@ -67,7 +79,7 @@ Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable 
     End if
   Next
   EMSendKey "<newline>"
-  EMGetCursor row, col 
+  EMGetCursor row, col
   If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
     EMSendKey "<PF8>"
     EMWaitReady 0, 0
@@ -75,14 +87,14 @@ Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable 
 End function
 
 Function write_new_line_in_person_note(x)
-  EMGetCursor row, col 
+  EMGetCursor row, col
   If (row = 18 and col + (len(x)) >= 80 + 1 ) or (row = 5 and col = 3) then
     EMSendKey "<PF8>"
     EMWaitReady 0, 0
   End if
   EMReadScreen max_check, 51, 24, 2
   EMSendKey x & "<newline>"
-  EMGetCursor row, col 
+  EMGetCursor row, col
   If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
     EMSendKey "<PF8>"
     EMWaitReady 0, 0
@@ -154,7 +166,7 @@ back_to_self
 call navigate_to_MAXIS_screen("aset", "____")
 
 EMWriteScreen "________", 13, 62
-If community_spouse_check = 1 then 
+If community_spouse_check = 1 then
   EMWriteScreen community_spouse_PMI, 13, 62
 Else
   EMWriteScreen LTC_spouse_PMI, 13, 62
@@ -176,12 +188,12 @@ transmit
 EMReadScreen total_counted_assets, 10, 6, 66
 total_counted_assets = trim(total_counted_assets)
 total_counted_assets = replace(total_counted_assets, ",", "")
-half_of_total = "$" & round(ccur(total_counted_assets)/2, 2) 
+half_of_total = "$" & round(ccur(total_counted_assets)/2, 2)
 total_counted_assets = "$" & total_counted_assets
 EMReadScreen CSAA, 10, 8, 66
 CSAA = trim(CSAA)
 CSAA = replace(CSAA, ",", "")
-CSAA = "$" & round(ccur(CSAA), 2) 
+CSAA = "$" & round(ccur(CSAA), 2)
 
 'Now it's going to read the entire SPAA screen, to enter it into a case note. Skips the fourth, sixth, and twelfth line as they're blank!
 EMReadScreen SPAA_line_01, 55, 4, 24
@@ -210,7 +222,7 @@ EMReadScreen SPAA_line_15, 55, 18, 24
 If trim(SPAA_line_15) = "" then SPAA_line_15 = "."
 
 'Now it's going to get the marital asset list. Skips lines 2 and 16 as they are blank.
-EMWriteScreen "x", 4, 33 
+EMWriteScreen "x", 4, 33
 transmit
 'these lines are not included in the DO LOOP since they are headers and footers
 EMReadScreen total_marital_asset_list_line_01, 53, 2, 25	'TOTAL MARITAL ASSET LIST (header)
@@ -230,7 +242,7 @@ EMReadScreen total_marital_asset_list_line_18, 53, 14, 25
 EMReadScreen total_marital_asset_list_line_19, 53, 15, 25
 PF8
 EMReadScreen last_SPAA_page_check, 5, 19, 7		'checking to make sure that no more assets need to be copied for the case note
-If last_SPAA_page_check = "THERE" THEN 
+If last_SPAA_page_check = "THERE" THEN
 	PF3
 ELSE
 	'2nd page of the total marital asset list
@@ -246,7 +258,7 @@ ELSE
 	EMReadScreen total_marital_asset_list_line_29, 53, 15, 25
 	PF8
 	EMReadScreen last_SPAA_page_check, 5, 19, 7		'checking to make sure that no more assets need to be copied for the case note
-	If last_SPAA_page_check = "THERE" THEN 
+	If last_SPAA_page_check = "THERE" THEN
 		PF3
 	ELSE
 		'3rd page of the total marital asset list
@@ -262,7 +274,7 @@ ELSE
 		EMReadScreen total_marital_asset_list_line_39, 53, 15, 25
 		PF8
 		EMReadScreen last_SPAA_page_check, 5, 19, 7		'checking to make sure that no more assets need to be copied for the case note
-		If last_SPAA_page_check = "THERE" THEN 
+		If last_SPAA_page_check = "THERE" THEN
 			PF3
 		ELSE
 			'4th page of the total marital asset list
@@ -287,13 +299,13 @@ Do			'calls the main asset assessment dialog
 	dialog asset_assessment_dialog
 	cancel_confirmation
 	transmit
-	EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function 
-	If function_check <> "ASET" then 
+	EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function
+	If function_check <> "ASET" then
 		MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
 	END IF
 Loop until function_check = "ASET"
 
-PF5 	'navigates to person note 
+PF5 	'navigates to person note
 PF9		'puts person note into edit mode
 'case/person notes information about forms sent to client
 If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
@@ -317,7 +329,7 @@ call write_new_line_in_person_note("---")
 If worker_signature <> "" then call write_new_line_in_person_note(worker_signature)
 Do
   EMGetCursor row, col
-  If row < 18 then 
+  If row < 18 then
     EMSendKey "."
     EMSendKey "<newline>"
   End if
@@ -338,7 +350,7 @@ call write_new_line_in_person_note(SPAA_line_14)
 call write_new_line_in_person_note(SPAA_line_15)
 Do
   EMGetCursor row, col
-  If row < 18 then 
+  If row < 18 then
     EMSendKey "."
     EMSendKey "<newline>"
   End if
@@ -418,7 +430,7 @@ call write_variable_in_CASE_NOTE("---")
 If worker_signature <> "" then call write_variable_in_case_note(worker_signature)
 Do
   EMGetCursor row, col
-  If row < 17 then 
+  If row < 17 then
     EMSendKey "."
     EMSendKey "<newline>"
   End if
@@ -440,7 +452,7 @@ call write_variable_in_CASE_NOTE(SPAA_line_15)
 
 Do
   EMGetCursor row, col
-  If row < 17 then 
+  If row < 17 then
     EMSendKey "."
     EMSendKey "<newline>"
   End if

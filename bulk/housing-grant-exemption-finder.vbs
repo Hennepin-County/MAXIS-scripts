@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -194,7 +206,7 @@ For each worker in worker_array
 			MAXIS_row = 7	'Sets the row to start searching in MAXIS for
 			Do
 				EMReadScreen emps_status, 2, MAXIS_row, 52		'Reading Emps Status & only searches for exempt emps status codes
-				If  emps_status = "02" OR emps_status = "07" OR _		
+				If  emps_status = "02" OR emps_status = "07" OR _
 					emps_status = "08" OR emps_status = "12" OR _
 					emps_status = "23" OR emps_status = "24" OR _
 					emps_status = "27" OR emps_status = "15" OR _

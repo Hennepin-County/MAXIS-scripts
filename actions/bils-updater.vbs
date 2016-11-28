@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog BILS_case_number_dialog, 0, 0, 161, 57, "BILS case number dialog"
   EditBox 95, 0, 60, 15, MAXIS_case_number
@@ -162,7 +174,7 @@ Call check_for_MAXIS(False)
 Call MAXIS_background_check
 Call navigate_to_MAXIS_screen("STAT", "BUDG")
 
-'Determines budget begin/end dates. 
+'Determines budget begin/end dates.
 EMReadScreen budget_begin, 5, 10, 35
 budget_begin = replace(trim(budget_begin), " ", "/")	'MM/DD format, trims the EMReadScreen to ignore strings that are all spaces (implies no budget period established, case may be pending)
 EMReadScreen budget_end, 5, 10, 46
@@ -173,8 +185,8 @@ budget_end = replace(trim(budget_end), " ", "/")	'MM/DD format, trims the EMRead
 call navigate_to_MAXIS_screen("STAT", "BILS")
 'checking to see if BILS panel exists, if not, then one is created
 EMReadScreen BILS_panel_check, 1, 3, 73
-'if BILS panel is not able to update due to no HC or case not in agency, script will end 
-IF BILS_panel_check <> "0" THEN	'if panel exists then puts panel into edit mode 
+'if BILS panel is not able to update due to no HC or case not in agency, script will end
+IF BILS_panel_check <> "0" THEN	'if panel exists then puts panel into edit mode
 	PF9
 ELSEIF BILS_panel_check = "0" THEN	'if panel does not exist, creates new panel
 	EMWriteScreen "NN", 20, 79
@@ -192,9 +204,9 @@ IF Needs_new_check <> TRUE THEN   'if a new panel hasn't been created
 		PF19
 		EMReadScreen first_page_check, 4, 24, 20
 	Loop until first_page_check = "PAGE"
-	Transmit 'this transmit will leave edit mode but it will allow the future pf9s to get back to a place the script can edit. 
-END IF 
-	
+	Transmit 'this transmit will leave edit mode but it will allow the future pf9s to get back to a place the script can edit.
+END IF
+
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
 If updating_existing_BILS_check = checked then
 
@@ -224,36 +236,36 @@ If updating_existing_BILS_check = checked then
 		BILS_line = replace(BILS_line, "$", " ")
 		BILS_line = split(BILS_line, "  ")
 		BILS_line(1) = replace(BILS_line(1), " ", "/")
-		If IsDate(BILS_line(1)) = True and BILS_line(0) = ref_nbr_abbreviated then 
-			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 24 and BILS_line(5) <> gross_recurring_24 and gross_recurring_24 <> "" then 
+		If IsDate(BILS_line(1)) = True and BILS_line(0) = ref_nbr_abbreviated then
+			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 24 and BILS_line(5) <> gross_recurring_24 and gross_recurring_24 <> "" then
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_24, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
-			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 25 and BILS_line(5) <> gross_recurring_25 and gross_recurring_25 <> "" then 
+			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 25 and BILS_line(5) <> gross_recurring_25 and gross_recurring_25 <> "" then
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_25, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
-			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 26 and BILS_line(5) <> gross_recurring_26 and gross_recurring_26 <> "" then 
+			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 26 and BILS_line(5) <> gross_recurring_26 and gross_recurring_26 <> "" then
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_26, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
-			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 27 and BILS_line(5) <> gross_recurring_27 and gross_recurring_27 <> "" then 
+			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 27 and BILS_line(5) <> gross_recurring_27 and gross_recurring_27 <> "" then
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_27, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
 				updates_made = updates_made + 1
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			End If
-			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 99 and BILS_line(5) <> gross_recurring_99 and gross_recurring_99 <> "" then 
+			If datediff("d", budget_begin, BILS_line(1)) >= 0 and BILS_line(2) = 99 and BILS_line(5) <> gross_recurring_99 and gross_recurring_99 <> "" then
 				EMWriteScreen "_________", MAXIS_row, 45
 				EMWriteScreen gross_recurring_99, MAXIS_row, 45
 				EMWriteScreen "c", MAXIS_row, 24
@@ -293,7 +305,7 @@ Do
 	 (ref_nbr_recurring_03 <> "" and ver_recurring_03 = " ") or _
 	 (ref_nbr_recurring_04 <> "" and ver_recurring_04 = " ") or _
 	 (ref_nbr_recurring_05 <> "" and ver_recurring_05 = " ") or _
-	 (ref_nbr_recurring_06 <> "" and ver_recurring_06 = " ") then 
+	 (ref_nbr_recurring_06 <> "" and ver_recurring_06 = " ") then
 		MsgBox "Make sure you select a verification for all indicated BILS. BILS requires an entry here. You can add it in the ''ver'' column."
 		dialog_validation_complete = False		'Simplifying this for the do...loop, rather than typing all possible iterations of the above that could be valid.
 	Else
@@ -315,14 +327,14 @@ budget_end = replace(budget_end, "-", "/")
 'Adding the "01" in to the begin and end dates for the budget selector
 budget_begin = replace(budget_begin, "/", "/01/")
 
-budget_end = replace(budget_end, "/", "/01/") 
+budget_end = replace(budget_end, "/", "/01/")
 
 
 'Using working_date as a variable, it will now determine each footer month between the budget period start and end
 working_date = budget_begin											'starting with the first month
 total_months = DateDiff("m", budget_begin, budget_end)				'Figuring out the total amount of months
 dim all_possible_dates_array()										'Creating a blank array
-redim all_possible_dates_array(total_months)						'Setting the blank array as having a blank element for each one of the total number of months 
+redim all_possible_dates_array(total_months)						'Setting the blank array as having a blank element for each one of the total number of months
 For i = 0 to total_months											'For each one of those blank elements...
 	all_possible_dates_array(i) = working_date						'...the element should be the working date, and...
 	working_date = DateAdd("m", 1, working_date)					'...the working date should increase by one month.
@@ -354,7 +366,7 @@ MAXIS_row = 6 'Setting the variable for the following do loop
 
 'NOTE: I'm only commenting this first If...then statement. All others follow the same approach. REMEMBER, IF YOU EDIT THIS ONE, EDIT THE OTHERS TO MATCH!!! :) -VKC, 10/24/2014
 'Now, we enter the recurring bills onto STAT/BILS.
-If ref_nbr_recurring_01 <> "" then 
+If ref_nbr_recurring_01 <> "" then
 	For each possible_date in all_possible_dates_array								'Does this for each date in the array.
 		possible_date = cdate(possible_date)										'Converts the string to a date
 		Do																			'Loops the following until we hit a blank MAXIS_row
@@ -372,7 +384,7 @@ If ref_nbr_recurring_01 <> "" then
 		If ver_recurring_01 = "No ver prvd" then 									'If the verification type is "no ver prvd", it'll do a "NO" for the ver col...
 			EMWriteScreen "no", MAXIS_row, 67
 		Else																		'...otherwise it'll do the "0", and the left character of the ver indicated.
-			EMWriteScreen "0" & left(ver_recurring_01, 1), MAXIS_row, 67	
+			EMWriteScreen "0" & left(ver_recurring_01, 1), MAXIS_row, 67
 		End if
 		EMWriteScreen bill_type_recurring_01, MAXIS_row, 71							'Writes the bill type
 		MAXIS_row = MAXIS_row + 1													'Go to the next MAXIS_row
@@ -380,7 +392,7 @@ If ref_nbr_recurring_01 <> "" then
 	Next
 End if
 
-If ref_nbr_recurring_02 <> "" then 
+If ref_nbr_recurring_02 <> "" then
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
 		Do
@@ -395,7 +407,7 @@ If ref_nbr_recurring_02 <> "" then
 		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
 		EMWriteScreen left(serv_type_recurring_02, 2), MAXIS_row, 40
 		EMWriteScreen gross_recurring_02, MAXIS_row, 45
-		If ver_recurring_02 = "No ver prvd" then 
+		If ver_recurring_02 = "No ver prvd" then
 			EMWriteScreen "no", MAXIS_row, 67
 		Else
 			EMWriteScreen "0" & left(ver_recurring_02, 1), MAXIS_row, 67
@@ -406,7 +418,7 @@ If ref_nbr_recurring_02 <> "" then
 	Next
 End if
 
-If ref_nbr_recurring_03 <> "" then 
+If ref_nbr_recurring_03 <> "" then
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
 		Do
@@ -421,7 +433,7 @@ If ref_nbr_recurring_03 <> "" then
 		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
 		EMWriteScreen left(serv_type_recurring_03, 2), MAXIS_row, 40
 		EMWriteScreen gross_recurring_03, MAXIS_row, 45
-		If ver_recurring_03 = "No ver prvd" then 
+		If ver_recurring_03 = "No ver prvd" then
 			EMWriteScreen "no", MAXIS_row, 67
 		Else
 			EMWriteScreen "0" & left(ver_recurring_03, 1), MAXIS_row, 67
@@ -432,7 +444,7 @@ If ref_nbr_recurring_03 <> "" then
 	Next
 End if
 
-If ref_nbr_recurring_04 <> "" then 
+If ref_nbr_recurring_04 <> "" then
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
 		Do
@@ -447,7 +459,7 @@ If ref_nbr_recurring_04 <> "" then
 		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
 		EMWriteScreen left(serv_type_recurring_04, 2), MAXIS_row, 40
 		EMWriteScreen gross_recurring_04, MAXIS_row, 45
-		If ver_recurring_04 = "No ver prvd" then 
+		If ver_recurring_04 = "No ver prvd" then
 			EMWriteScreen "no", MAXIS_row, 67
 		Else
 			EMWriteScreen "0" & left(ver_recurring_04, 1), MAXIS_row, 67
@@ -458,7 +470,7 @@ If ref_nbr_recurring_04 <> "" then
 	Next
 End if
 
-If ref_nbr_recurring_05 <> "" then 
+If ref_nbr_recurring_05 <> "" then
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
 		Do
@@ -473,7 +485,7 @@ If ref_nbr_recurring_05 <> "" then
 		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
 		EMWriteScreen left(serv_type_recurring_05, 2), MAXIS_row, 40
 		EMWriteScreen gross_recurring_05, MAXIS_row, 45
-		If ver_recurring_05 = "No ver prvd" then 
+		If ver_recurring_05 = "No ver prvd" then
 			EMWriteScreen "no", MAXIS_row, 67
 		Else
 			EMWriteScreen "0" & left(ver_recurring_05, 1), MAXIS_row, 67
@@ -484,7 +496,7 @@ If ref_nbr_recurring_05 <> "" then
 	Next
 End if
 
-If ref_nbr_recurring_06 <> "" then 
+If ref_nbr_recurring_06 <> "" then
 	For each possible_date in all_possible_dates_array
 		possible_date = cdate(possible_date)
 		Do
@@ -499,7 +511,7 @@ If ref_nbr_recurring_06 <> "" then
 		call create_MAXIS_friendly_date(possible_date, 0, MAXIS_row, 30)
 		EMWriteScreen left(serv_type_recurring_06, 2), MAXIS_row, 40
 		EMWriteScreen gross_recurring_06, MAXIS_row, 45
-		If ver_recurring_06 = "No ver prvd" then 
+		If ver_recurring_06 = "No ver prvd" then
 			EMWriteScreen "no", MAXIS_row, 67
 		Else
 			EMWriteScreen "0" & left(ver_recurring_06, 1), MAXIS_row, 67
@@ -535,7 +547,7 @@ If ref_nbr_actual_01 <> "" then 											'If it isn't blank, add it to BILS
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
 
-If ref_nbr_actual_02 <> "" then 
+If ref_nbr_actual_02 <> "" then
 	Do
 		If MAXIS_row = 18 then
 			PF20
@@ -548,7 +560,7 @@ If ref_nbr_actual_02 <> "" then
 	call create_MAXIS_friendly_date(date_actual_02, 0, MAXIS_row, 30)
 	EMWriteScreen left(serv_type_actual_02, 2), MAXIS_row, 40
 	EMWriteScreen gross_actual_02, MAXIS_row, 45
-	If ver_actual_02 = "No ver prvd" then 
+	If ver_actual_02 = "No ver prvd" then
 		EMWriteScreen "no", MAXIS_row, 67
 	Else
 		EMWriteScreen "0" & left(ver_actual_02, 1), MAXIS_row, 67
@@ -558,7 +570,7 @@ If ref_nbr_actual_02 <> "" then
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
 
-If ref_nbr_actual_03 <> "" then 
+If ref_nbr_actual_03 <> "" then
 	Do
 		If MAXIS_row = 18 then
 			PF20
@@ -571,7 +583,7 @@ If ref_nbr_actual_03 <> "" then
 	call create_MAXIS_friendly_date(date_actual_03, 0, MAXIS_row, 30)
 	EMWriteScreen left(serv_type_actual_03, 2), MAXIS_row, 40
 	EMWriteScreen gross_actual_03, MAXIS_row, 45
-	If ver_actual_03 = "No ver prvd" then 
+	If ver_actual_03 = "No ver prvd" then
 		EMWriteScreen "no", MAXIS_row, 67
 	Else
 		EMWriteScreen "0" & left(ver_actual_03, 1), MAXIS_row, 67

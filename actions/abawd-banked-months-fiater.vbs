@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	'defines an intial date from the initial_month and initial_year parameters
@@ -234,7 +246,7 @@ For each member in ABAWD_member_array 'This loop will check that WREG is coded c
 	row = current_yr_row
 	col = current_month_col
 	EMSearch "M", row, col			'This looks to make sure there is an initial banked month coded on WREG on or after the initial month as an "M"
-	IF row < current_yr_row OR row > current_yr_row + 1 THEN 
+	IF row < current_yr_row OR row > current_yr_row + 1 THEN
 		EMSearch "X", row, col 		'This looks to make sure there is an initial banked month coded on WREG on or after the initial month as an "X"
 		IF row < current_yr_row OR row > current_yr_row + 1 THEN err_msg = err_msg & vbCr & "Member " & member & " does not have an initial banked month coded on WREG."
 	End if
@@ -275,30 +287,30 @@ For i = 0 to ubound(footer_month_array)
 		EMReadScreen HEST_elect, 6, 14, 75				'<<<<< Pulls information from prospective side of Electric standard if HEAT/AC is not used
 		EMReadScreen HEST_phone, 6, 15, 75				'<<<<< Pulls information from prospective side of Phone standard if HEAT/AC is not used
 	End If
-	
+
 	Call navigate_to_MAXIS_screen("STAT", "PROG")		'Navicates to STAT/PROG
 	EMReadScreen appl_mo, 2, 10, 33						'Gets date of application information
 	EMReadScreen appl_da, 2, 10, 36
 	EMReadScreen appl_yr, 2, 10, 39
-	
+
 	'This bit will identify new cases which are cases that were appled in the current month OR
 	'Cases that were appled last month after the 15th
 	'These are cases that need to be reviewed for XFS
 	IF appl_mo = MAXIS_footer_month AND appl_yr = MAXIS_footer_year Then 		'Same month and year
-		new_case = TRUE 
+		new_case = TRUE
 	'Last month, same year, after the 15th
 	ELSEIF abs(appl_mo) = abs(MAXIS_footer_month) - 1 AND appl_yr = MAXIS_footer_year AND abs(appl_da) > 15 Then
 		new_case = TRUE
 	'When in January, last month, is also last year and after the 15th
-	ELSEIF MAXIS_footer_month = "01" Then 
-		If appl_mo = "12" AND abs(appl_yr) = abs(MAXIS_footer_year) - 1 AND abs(appl_da) > 15 Then 
-			new_case = TRUE 
-		Else 
-			new_case = FALSE 
-		End If 
-	ELSE 
+	ELSEIF MAXIS_footer_month = "01" Then
+		If appl_mo = "12" AND abs(appl_yr) = abs(MAXIS_footer_year) - 1 AND abs(appl_da) > 15 Then
+			new_case = TRUE
+		Else
+			new_case = FALSE
+		End If
+	ELSE
 		new_case = FALSE 	'Not reviewed for XFS
-	END IF 
+	END IF
 
 	For each hh_member in HH_member_array
 		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
@@ -453,19 +465,19 @@ For i = 0 to ubound(footer_month_array)
 					acct_amount = abs(acct_balance) - abs(withdraw_penalty)		'Removing any withdraw penalty
 					EMReadScreen share_ratio, 1, 15, 80							'Splitting by the amount to attribute
 					acct_amount = acct_amount / abs(share_ratio)
-				End If 
+				End If
 				case_resources = case_resources + acct_amount					'Combining all assets together
 			Next
-		End If 
-		
+		End If
+
 		Call navigate_to_MAXIS_screen("STAT", "CASH")		'<<<<< Goes to CASH for this person
 		EMWriteScreen HH_member, 20, 76
 		Transmit
 		EMReadScreen cash_amount, 8, 8, 39
 		If cash_amount = "________" Then cash_amount = 0
-		case_resources = case_resources + abs(cash_amount)	'Adding cash to asset count	
-		
-	Next 
+		case_resources = case_resources + abs(cash_amount)	'Adding cash to asset count
+
+	Next
 
 '//////////// Going to pull UNEA information
 	For each HH_member in HH_member_array
@@ -528,7 +540,7 @@ For i = 0 to ubound(footer_month_array)
 					End If
 				END IF
 		Next
-				
+
 		Call navigate_to_MAXIS_screen("STAT", "JOBS")		'<<<<< Goes to JOBS for this person
 		EMWriteScreen HH_member, 20, 76
 		Transmit
@@ -540,7 +552,7 @@ For i = 0 to ubound(footer_month_array)
 				IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
 					EMReadScreen jobs_type, 1, 5, 34
 					EMReadScreen jobs_subsidy, 2, 5, 74
-					EMReadScreen jobs_verified, 1, 6, 34				
+					EMReadScreen jobs_verified, 1, 6, 34
 				ELSE
 					EMReadScreen jobs_type, 1, 5, 38
 					EMReadScreen jobs_subsidy, 2, 5, 71
@@ -589,7 +601,7 @@ For i = 0 to ubound(footer_month_array)
 			gross_BUSI = abs(gross_BUSI) + abs(busi_amount)		'<<<<<< Combining all busi income together
 		Next
 	Next
-	
+
 	'ABAWD_months_array(i).gross_wages = cstr(jobs_income)
 	'storing all total amounts / adding trims so they read correctly in dialog
 	jobs_income = trim(jobs_income)
@@ -782,7 +794,7 @@ For i = 0 to ubound(footer_month_array)
 			transmit
 			EMReadScreen all_income, 9, 7, 72
 			transmit
-		ELSE 
+		ELSE
 			EMReadScreen all_income, 9, 7, 72
 		END IF
 		EMwritescreen "FFB2", 20, 70 'This is to make sure we end up in the right place'
@@ -813,7 +825,7 @@ For i = 0 to ubound(footer_month_array)
 			transmit
 			EMReadScreen all_expenses, 8, 14, 29
 			transmit
-		ELSE 
+		ELSE
 			EMReadScreen all_expenses, 8, 14, 29
 		END IF
 		EMwritescreen "FFSM", 20, 70 'This is to make sure we end up in the right place'
@@ -824,35 +836,35 @@ For i = 0 to ubound(footer_month_array)
 		IF new_case = TRUE Then 		'If the case needs to be assessed for XFS
 			EMWriteScreen "X", 14, 31			'Opening the Expedited Status Window
 			transmit
-			
+
 			'Making the screen grabs numbers for math to happen
 			all_income = abs(trim(all_income))
 			all_expenses = abs(trim(all_expenses))
 			case_resources = abs(ABAWD_months_array(i).case_resources)
-			
+
 			'XFS criteria income less than $150 and Assets $100 or less
-			IF all_income < 150 AND case_resources =< 100 Then 
+			IF all_income < 150 AND case_resources =< 100 Then
 				EMWriteScreen "X", 16, 5
 				XFS_case = TRUE
-			End If 
+			End If
 			'XFS Criteria all income plus all asseets are less than expenses
-			IF all_income + case_resources < all_expenses Then 
+			IF all_income + case_resources < all_expenses Then
 				EMWriteScreen "X", 19, 5
 				XFS_case = TRUE
-			End If 
-			
+			End If
+
 			'If NOT XFS - blanking out the X's that code for XFS
-			IF XFS_case = FALSE Then 
+			IF XFS_case = FALSE Then
 				EMWriteScreen " ", 3, 5
 				EMWriteScreen " ", 5, 5
 				EMWriteScreen " ", 9, 5
 				EMWriteScreen " ", 16, 5
 				EMWriteScreen " ", 19, 5
-			END If 
+			END If
 
 			PF3
-		END IF 
-		
+		END IF
+
 		PF3 'back to FFSL
 		PF3 'This should bring up the "do you want to retain" popup
 		EMReadScreen income_cap_check, 11, 24, 2
