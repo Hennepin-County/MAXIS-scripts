@@ -137,6 +137,7 @@ If MAXIS_case_number <> "" Then
 		If row <> 0 Then 
 			EMReadScreen prog_status, 9, row, 9
 		End If 
+		prog_status = trim(prog_status)
 		If program = "Case:" AND prog_status = "INACTIVE" Then Case_inactive = TRUE
 		If program = "MFIP:" OR program = "DWP:" Then 
 		 	If prog_status = "ACTIVE" Then Family_case = TRUE
@@ -144,12 +145,16 @@ If MAXIS_case_number <> "" Then
 		If program = "GA:" OR program = "MSA:" Then 
 			If prog_status = "ACTIVE" Then Adult_case = TRUE
 		End If
-		If program = "FS:" AND prog_status = "INACTIVE" Then SNAP_Active = TRUE
-		MsgBox program & " " & prog_status
+		If program = "FS:" AND prog_status = "ACTIVE" Then SNAP_Active = TRUE
 	Next 
-	
-	MsgBox "Case inactive: " & Case_inactive & vbNewLine & "Family Cash: " & Family_case & vbNewLine & "Adult Cash: " & Adult_case & vbNewLine & "SNAP: " & SNAP_Active
-	
+		
+	If Case_inactive = TRUE Then 
+		case_status_dropdown = "Closed"
+	Else 
+		If Family_case = FALSE AND Adult_case = FALSE Then case_status_dropdown = "Active but NO Cash"
+	End If
+	If Family_case = TRUE Then case_status_dropdown = "Active Family Cash"
+	If Adult_case = TRUE Then case_status_dropdown = "Active Adult Cash"
 End If 
 
 'Find case status (cash/active/etc)
@@ -264,6 +269,14 @@ Case "Initial information Not Received"
 	clt_ref_num = left(clt_to_update, 2)	'Settin the reference number
 
 Case "Testing Follow Up"
+
+	navigate_to_MAXIS_screen "STAT", "DFLN"
+	EMReadScreen convc_dt, 8, 6, 27
+	If convc_dt <> "__ __ __" Then 
+		convc_dt = replace(convc_dt, " ", "/")
+		conviction_date = convc_dt
+	End If
+	
 	DO
 		err_msg = ""
 		Dialog dfln_testing_dialog
