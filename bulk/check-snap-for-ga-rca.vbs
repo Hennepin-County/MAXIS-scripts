@@ -64,6 +64,8 @@ EndDialog
 
 EMConnect ""
 
+Call check_for_MAXIS(True)
+
 benefit_month = datepart("M", dateadd("M", 1, date))
 IF len(benefit_month) <> 2 THEN benefit_month = "0" & benefit_month
 benefit_year = datepart("YYYY", dateadd("M", 1, date))
@@ -74,9 +76,12 @@ EMWriteScreen benefit_month, 20, 43
 EMWriteScreen benefit_year, 20, 46
 
 DO
-	DIALOG check_snap_dlg
+	DO
+		DIALOG check_snap_dlg
 		IF ButtonPressed = 0 THEN stopscript
-LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
+	LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in 
 
 IF all_worker_check = 1 THEN
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
