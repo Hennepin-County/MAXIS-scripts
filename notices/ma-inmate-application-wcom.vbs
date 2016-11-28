@@ -38,6 +38,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 '--- DIALOGS-----------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dlg, 0, 0, 196, 85, "MA Inmate Application WCOM"
@@ -108,21 +119,21 @@ EMWriteScreen "01", 20, 79
 transmit
 EMReadScreen FACI_total, 1, 2, 78
 IF FACI_total = 0 THEN script_end_procedure("Correctional facility panel with an end date was not found for requested member. Please review case.")   'quitting if no FACI panels found.
-If FACI_total <> 0 then 
+If FACI_total <> 0 then
 DO
 	row = 14
 	EMReadScreen FACI_current, 1, 2, 73
     Do
 		EMReadScreen faci_type, 2, 7, 43     'reading for facility type 68 (county correctional facility) 69 (non county correctional facility)
-		IF faci_type = "68" or faci_type = "69" THEN 
-			EMReadscreen date_out, 10, row, 71    
+		IF faci_type = "68" or faci_type = "69" THEN
+			EMReadscreen date_out, 10, row, 71
 			If date_out = "__ __ ____" AND row = 14 THEN Exit Do										'stopping as if the first row read doesn't have an end date then it cannot be compared.
 			If date_out <> "__ __ ____" or date_out = "          " THEN 							'finding the most recent date out. Per MAXIS this will always be the one on the bottom
 				row = row + 1																		'if it finds anything other than a blank field it goes to the next row.
 			ELSE
 				EMReadscreen date_out, 10, row - 1, 71											'once it finds a blank row it looks are the row above it (the most recent out date for that panel)
 				date_out = replace(date_out, " ", "/")
-				IF date_to_compare = "" THEN 													'it now sets a date to compare by if it's the first time through the loop that bar is set here. 
+				IF date_to_compare = "" THEN 													'it now sets a date to compare by if it's the first time through the loop that bar is set here.
 					date_to_compare = date_out
 					previous_date_diff = datediff("d", date_to_compare, date_out)
 				END IF
@@ -136,11 +147,11 @@ DO
 			END If
 		ELSE
 			Exit Do
-		END IF		
-	Loop until row = 19											'looping until there are no more date outs to be read on that panel. 		
+		END IF
+	Loop until row = 19											'looping until there are no more date outs to be read on that panel.
 	Transmit
 Loop until FACI_current = FACI_total														'looping until you've checked all of the panels available.
-END IF	
+END IF
 
 IF facility_name = "" THEN script_end_procedure("The script was unable to find a FACI panel with 68 or 69 and an end date. Please review FACI panel.")
 

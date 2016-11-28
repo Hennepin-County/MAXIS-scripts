@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '----------------------------------------------------------------------------------------------------
 'ADD TO FUNCTIONS FILE WHEN GITHUB IS WORKING AGAIN
 Function copy_screen_to_array(output_array)
@@ -87,7 +99,7 @@ EndDialog
 
 'Shows case number dialog
 Do
-	Dialog 
+	Dialog
 	If buttonpressed = 0 then stopscript
 	If isnumeric(MAXIS_case_number) = False then MsgBox "You must type a valid case number."
 Loop until isnumeric(MAXIS_case_number) = True
@@ -315,11 +327,11 @@ For each panel_to_scan in all_panels_selected_array
 	ELSE
 
 		FOR EACH HH_member IN (HH_member_array)
-		
+
 			current_panel = ""
 			number_of_panels = ""
 
-			IF panel_to_scan = "MEMB" THEN 
+			IF panel_to_scan = "MEMB" THEN
 				call navigate_to_MAXIS_screen("STAT", "MEMB")
 				EMWriteScreen hh_member, 20, 76
 				transmit
@@ -329,7 +341,7 @@ For each panel_to_scan in all_panels_selected_array
 					For each line in screentest
 						objSelection.TypeText line & Chr(11)
 					Next
-	
+
 					'Determines if the Word doc needs a new page
 					If screen_on_page = "" or screen_on_page = 1 then
 						screen_on_page = 2
@@ -349,7 +361,7 @@ For each panel_to_scan in all_panels_selected_array
 						For each line in screentest
 							objSelection.TypeText line & Chr(11)
 						Next
-	
+
 						'Determines if the Word doc needs a new page
 						If screen_on_page = "" or screen_on_page = 1 then
 							screen_on_page = 2
@@ -365,7 +377,7 @@ For each panel_to_scan in all_panels_selected_array
 						For each line in screentest
 							objSelection.TypeText line & Chr(11)
 						Next
-	
+
 						'Determines if the Word doc needs a new page
 						If screen_on_page = "" or screen_on_page = 1 then
 							screen_on_page = 2
@@ -383,7 +395,7 @@ For each panel_to_scan in all_panels_selected_array
 							For each line in screentest
 								objSelection.TypeText line & Chr(11)
 							Next
-	
+
 							'Determines if the Word doc needs a new page
 							If screen_on_page = "" or screen_on_page = 1 then
 								screen_on_page = 2
@@ -394,7 +406,7 @@ For each panel_to_scan in all_panels_selected_array
 							End if
 							PF20
 							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-						LOOP until last_bils_screen = "More:   -"	
+						LOOP until last_bils_screen = "More:   -"
 					END IF
 
 			ELSEIF panel_to_scan = "FMED" THEN
@@ -406,7 +418,7 @@ For each panel_to_scan in all_panels_selected_array
 						For each line in screentest
 							objSelection.TypeText line & Chr(11)
 						Next
-	
+
 						'Determines if the Word doc needs a new page
 						If screen_on_page = "" or screen_on_page = 1 then
 							screen_on_page = 2
@@ -462,7 +474,7 @@ For each panel_to_scan in all_panels_selected_array
 				current_panel = cint(current_panel)
 				EMReadScreen number_of_panels, 2, 2, 78
 				number_of_panels = cint(number_of_panels)
-	
+
 				DO
 					EMWriteScreen ("0" & current_panel), 20, 79
 					transmit

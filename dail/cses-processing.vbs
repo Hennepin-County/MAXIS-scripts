@@ -1,9 +1,9 @@
 'Required for statistical purposes===============================================================================
 name_of_script = "DAIL - CSES PROCESSING.vbs"
 start_time = timer
-STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.  
+STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
 STATS_manualtime = 54          'manual run time in seconds
-STATS_denomination = "I"       'I is for each dail message 
+STATS_denomination = "I"       'I is for each dail message
 'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'SECTION 02: THE SCRIPT
 EMConnect ""
 
@@ -57,9 +69,9 @@ Dim line_13_PMI_array
 Dim HC_pay_frequency
 
 'EXCEL BLOCK
-Set objExcel = CreateObject("Excel.Application") 
+Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = False 'Set this to False to make the Excel spreadsheet go away. This is necessary in production.
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = False 'Set this to false to make alerts go away. This is necessary in production.
 
 EMSendKey "t"
@@ -101,7 +113,7 @@ Do
     row = 1
     col = 1
     EMSearch "ISSUED ON ", row, col
-    If row <> 0 then 
+    If row <> 0 then
       EMReadScreen line_issue_date, 8, row, col + 10
     Else
       row = 1
@@ -136,7 +148,7 @@ Do
   PF3
   MAXIS_row = MAXIS_row + 1
   message_number = message_number + 1
-  STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter	
+  STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Loop until line_check <> "DISB"
 
 'THE FOLLOWING LINES OF CODE WERE COPIED FROM DAKOTA'S ANDREW FINK, AND MODIFIED FOR OUR PURPOSES - VKC, 10/02/2014
@@ -147,22 +159,22 @@ penny_issue_excel_row = 1
 'payment1 = 0
 'payment2 = 0
 'payment4 = 0
-  
- 'sends partial pennies to a holding tank for each payment.  
- 
+
+ 'sends partial pennies to a holding tank for each payment.
+
 Do
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "1" then
     payment1 = payment1 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 11).Value = payment1
   end if
-  
-  
+
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "2" then
     payment2 = payment2 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 12).Value = payment2
   end if
-  
-  
+
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "3" then
     payment3 = payment3 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 13).Value = payment3
@@ -172,65 +184,65 @@ Do
     payment4 = payment4 + (ObjExcel.Cells(penny_issue_excel_row, 4).Value - (int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 14).Value = payment4
   end if
-  
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "5" then
     payment5 = payment5 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 15).Value = payment5
   end if
-  
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "6" then
     payment6 = payment6 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 16).Value = payment6
   end if
-    
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "7" then
     payment7 = payment7 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 17).Value = payment7
   end if
-    
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "8" then
     payment8 = payment8 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 18).Value = payment8
   end if
-    
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "9" then
     payment9 = payment9 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 19).Value = payment9
   end if
-    
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "10" then
     payment10 = payment10 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 20).Value = payment10
   end if
-    
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "11" then
     payment11 = payment11 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 21).Value = payment11
   end if
-    
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "12" then
     payment12 = payment12 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 22).Value = payment12
   end if
-  
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "13" then
     payment13 = payment13 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 23).Value = payment13
   end if
-  
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "14" then
     payment14 = payment14 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 24).Value = payment14
   end if
-    
+
   if ObjExcel.Cells(penny_issue_excel_row, 1).Value = "15" then
     payment15 = payment15 + abs(ObjExcel.Cells(penny_issue_excel_row, 4).Value - (Int((ObjExcel.Cells(penny_issue_excel_row, 4).Value) * 100)) / 100)
     ObjExcel.Cells(1, 25).Value = payment15
   end if
-  
-  
+
+
   penny_issue_excel_row = penny_issue_excel_row + 1
-  
+
 Loop until ObjExcel.Cells(penny_issue_excel_row, 1).Value = ""
 
 'After partial pennies have been sent to holding tank, all the payments are rounded
@@ -295,7 +307,7 @@ transmit
 excel_row = 1 'setting the variable for the following Do...Loop
 'The following checks for single-member households. They do not currently work, as the second generation do...loop will not catch the PMI, because the "Enter a valid command" notice doesn't go away.
 EMReadScreen second_member_check, 2, 6, 3
-If second_member_check = "  " then 
+If second_member_check = "  " then
   MsgBox "This is a single-individual household. These are not currently covered by the script. Process manually."
   end_excel_and_script
 End if
@@ -310,7 +322,7 @@ Do
     EMReadScreen HH_memb_number, 2, 4, 33
     EMReadScreen SSN_number, 11, 7, 42
     excel_variable = CStr(ObjExcel.Cells(excel_row, 2).Value)
-    If len(excel_variable) <= 2 then 
+    If len(excel_variable) <= 2 then
       If abs(HH_memb_number) = abs(excel_variable) then
         ObjExcel.Cells(excel_row, 3).Value = HH_memb_number
         ObjExcel.Cells(excel_row, 9).Value = SSN_number
@@ -343,7 +355,7 @@ If retro_month = 0 then retro_year = MAXIS_footer_year - 1
 If retro_month = 0 then retro_month = 12
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 If len(retro_month) = 1 then retro_month = "0" & retro_month
-If HC_active = "True" then 
+If HC_active = "True" then
   EMWriteScreen "revw", 20, 71
   transmit
   EMReadScreen revw_month, 2, 9, 70
@@ -469,7 +481,7 @@ Sub MFIP_sub
     next_issue_day = day(ObjExcel.Cells(MFIP_memb_excel_row, 6).Value)
     next_payment_amount = FormatNumber(ObjExcel.Cells(MFIP_memb_excel_row, 4).Value, 2, , , 0)
     if len(next_issue_day) = 1 then next_issue_day = "0" & next_issue_day
-    If ObjExcel.Cells(MFIP_memb_excel_row, 3).Value = HH_memb_to_check and Cint(income_type_on_UNEA) = ObjExcel.Cells(MFIP_memb_excel_row, 5).Value then 
+    If ObjExcel.Cells(MFIP_memb_excel_row, 3).Value = HH_memb_to_check and Cint(income_type_on_UNEA) = ObjExcel.Cells(MFIP_memb_excel_row, 5).Value then
       EMWriteScreen retro_month, MAXIS_payment_row, 25
       EMWriteScreen next_issue_day, MAXIS_payment_row, 28
       EMWriteScreen retro_year, MAXIS_payment_row, 31
@@ -620,7 +632,7 @@ Do
   EMWriteScreen UNEA_number, 20, 76
   transmit
   EMReadScreen panel_amt_check, 1, 2, 78
-  If panel_amt_check <> "1" then 
+  If panel_amt_check <> "1" then
     EMWriteScreen "01", 20, 79
     transmit
   End if
@@ -655,7 +667,7 @@ If MFIP_active = "True" or (HC_active = "True" and revw_month = MAXIS_footer_mon
     EMWriteScreen UNEA_number, 20, 76
     transmit
     EMReadScreen panel_amt_check, 1, 2, 78
-    If panel_amt_check <> "1" then 
+    If panel_amt_check <> "1" then
       EMWriteScreen "01", 20, 79
       transmit
     End if
@@ -721,7 +733,7 @@ EMSendKey worker_sig & ", using automated script."
 
 'End sub
 
-If MFIP_active = "True" then 
+If MFIP_active = "True" then
   MsgBox "MFIP is active, so the script will not check PRISM for this case. It will now stop."
   end_excel_and_script
 End if
@@ -729,7 +741,7 @@ End if
 'First it checks to see if PRISM is on the same screen. If not, the script will stop and notify the worker.
 attn
 EMReadScreen PRISM_check, 7, 17, 15
-If PRISM_check <> "RUNNING" then 
+If PRISM_check <> "RUNNING" then
   MsgBox "PRISM is not found! Some agencies require workers to check PRISM for support orders when the DAIL messages come in. If your agency requires this, open PRISM and try again. The script will now stop."
   attn
   end_excel_and_script
@@ -738,7 +750,7 @@ EMWriteScreen "12", 2, 15
 transmit
 
 excel_row = 1 'Resetting the variable for the PRISM part of the script.
-Do 
+Do
 If ObjExcel.Cells(excel_row, 9).Value = "" then exit do 'This gets out of the do...loop if there is no SSN indicated.
 
 'The following is a lockout dialog to prevent workers from freezing the PRISM screen.
@@ -757,10 +769,10 @@ EndDialog
     EMReadScreen PRISM_person_search_check, 9, 2, 34
     If PRISM_check = "PRISM" and PRISM_person_search_check = "Main Menu" then exit do
     If PRISM_check <> "PRISM" then Dialog PRISM_lockout_dialog
-    If PRISM_check <> "PRISM" and PRISM_lockout_dialog_ButtonPressed = 0 then 
+    If PRISM_check <> "PRISM" and PRISM_lockout_dialog_ButtonPressed = 0 then
       end_excel_and_script
     End if
-      
+
   Loop until PRISM_check = "PRISM" and PRISM_person_search_check = "Main Menu"
 
   Do 'This will check to make sure the excel row isn't duplicating work.
@@ -769,7 +781,7 @@ EndDialog
 
 	' >>>>>> ONE LINE ADDED BY ROBERT FEWINS-KALB 01/15/2016 <<<<<<<<
 	'Explanation -- because I'm not sure it was being articulated on GH, but users on SIR are reporting the problem as well...
-	'This gets out of the do...loop if there is no SSN indicated. 
+	'This gets out of the do...loop if there is no SSN indicated.
 	'In testing with Excel visible, I was seeing where the script was reading new rows to the point that the SSN cell is blank.
 	'The script would then try to dump a blank SSN into PRISM and read how many cases were there, except that PRISM would not be navigating to the pop up where the number of cases are, because of the blank SSN.
 	'I am not able to identify what about the cases causes this error to occur -- because it does not happen on every case -- but it's a real thing.
@@ -805,7 +817,7 @@ EndDialog
 'Now it checks to see if there is more than one case. If there is, the script will have a worker message then stop. If not, the script will select the case.
   EMReadScreen case_amount_check, 1, 7, 17
 if case_amount_check <> 1 then
-  Do 
+  Do
     EMReadScreen ind_active_check, 1, 7, 41
     If ind_active_check = "Y" then exit do
     EMReadScreen current_case_check, 1, 7, 12

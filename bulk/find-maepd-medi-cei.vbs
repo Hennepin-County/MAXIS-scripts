@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -84,11 +96,11 @@ objExcel.Cells(1, 4).Value = "REIMBURSEMENT ELIG?"
 rept_row = 7
 excel_row = 2
 DO
-	EMReadScreen last_page, 21, 24, 2											'checking to see if this is the last page, if it is the loop can end. 
+	EMReadScreen last_page, 21, 24, 2											'checking to see if this is the last page, if it is the loop can end.
 	DO
 		EMReadScreen MAXIS_case_number, 8, rept_row, 12						'reading the case numbers from rept/actv
 		MAXIS_case_number = trim(MAXIS_case_number)
-		EMReadScreen hc_case, 1, rept_row, 64	
+		EMReadScreen hc_case, 1, rept_row, 64
 		IF MAXIS_case_number <> "" AND hc_case <> " " THEN					'checking for HC cases
 			objExcel.Cells(excel_row, 1).Value = MAXIS_case_number			'adding read variables to the spreadsheet
 			EMReadScreen client_name, 21, rept_row, 21						'grabbing client name
@@ -100,7 +112,7 @@ DO
 			excel_row = excel_row + 1
 		END IF
 		rept_row = rept_row + 1
-	LOOP UNTIL rept_row = 19								'looping until the script reads through the bottom of the page. 
+	LOOP UNTIL rept_row = 19								'looping until the script reads through the bottom of the page.
 	PF8														'pf8 navigates to next page of ACTV
 	rept_row = 7											'resetting the row to the top of the page.
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
@@ -111,9 +123,9 @@ DO
 	back_to_SELF
 	MAXIS_case_number = objExcel.Cells(excel_row, 1).Value					'reading case number from excel spreadsheet
 	CALL find_variable("Environment: ", production_or_inquiry, 10)			'reading if script was started in production of inquiry, this is used later to navigate back from MMIS.
-	CALL navigate_to_MAXIS_screen("ELIG", "HC")							
+	CALL navigate_to_MAXIS_screen("ELIG", "HC")
 	hhmm_row = 8															'setting starting point to review all HH members in ELIG HC
-	DO																		'the script will now navigate to ELIG HC and begin to search for MA caes with DP as the elig type. 
+	DO																		'the script will now navigate to ELIG HC and begin to search for MA caes with DP as the elig type.
 		EMReadScreen hc_type, 2, hhmm_row, 28
 		IF hc_type = "MA" THEN												'if it finds MA as the HC type it will go into those results
 			EMWriteScreen "X", hhmm_row, 26
@@ -122,7 +134,7 @@ DO
 			IF elig_type = "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
 				EMWriteScreen "X", 9, 76
 				transmit
-				EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at. 
+				EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at.
 				pct_fpg = trim(pct_fpg)
 				pct_fpg = pct_fpg * 1
 				IF pct_fpg < 201 THEN										'If the client is 200% or under they may eligible for reimbursement
@@ -148,7 +160,7 @@ DO
 					EMWriteScreen "RELG", 1, 8
 					transmit
 
-					'Reading RELG to determine if the CL is active on MA-EPD		
+					'Reading RELG to determine if the CL is active on MA-EPD
 					EMReadScreen prog01_type, 8, 6, 13
 						EMReadScreen elig01_type, 2, 6, 33
 						EMReadScreen elig01_end, 8, 7, 36
@@ -194,7 +206,7 @@ DO
 					ELSE
 						CALL write_value_and_transmit("RKEY", 1, 8)
 					END IF
-					CALL navigate_to_MAXIS(production_or_inquiry)				'the script now navigates back to the environment the user left MAXIS in to continue searching Household members on the current case. 
+					CALL navigate_to_MAXIS(production_or_inquiry)				'the script now navigates back to the environment the user left MAXIS in to continue searching Household members on the current case.
 					hhmm_row = hhmm_row + 1
 					CALL navigate_to_MAXIS_screen("ELIG", "HC")
 				ELSE
@@ -202,16 +214,16 @@ DO
 						EMReadScreen at_hhmm, 4, 3, 51						'making sure the script made it back to ELIG/HC
 						IF at_hhmm <> "HHMM" THEN PF3
 					LOOP UNTIL at_hhmm = "HHMM"
-					hhmm_row = hhmm_row + 1									'adding to the read row since we have finished evaluating this particular HH member. 
+					hhmm_row = hhmm_row + 1									'adding to the read row since we have finished evaluating this particular HH member.
 				END IF
 			ELSE
 				PF3															'if the MA elig results don't have DP we end up here
-				hhmm_row = hhmm_row + 1										'adding to the read row since we have finished evaluating this particular HH member. 
+				hhmm_row = hhmm_row + 1										'adding to the read row since we have finished evaluating this particular HH member.
 			END IF
 		ELSE
-			hhmm_row = hhmm_row + 1											'If the elig/hc results aren't MA we end up here and add to the read row since we have finished evaluating this particular HH member. 
+			hhmm_row = hhmm_row + 1											'If the elig/hc results aren't MA we end up here and add to the read row since we have finished evaluating this particular HH member.
 		END IF
-		IF hhmm_row = 20 THEN												'here we are determining that we've read all of the HH members on the current HHMM screen. 
+		IF hhmm_row = 20 THEN												'here we are determining that we've read all of the HH members on the current HHMM screen.
 			PF8																'pf8 will cause elig hc to move to the next set of HH members if that page is full
 			EMReadScreen this_is_the_last_page, 21, 24, 2					'if the script has read everyone on a page and PF8'd and reached the last page the script is done evaulating this case
 		END IF

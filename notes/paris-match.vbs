@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS-------------------------------------------------------------
 BeginDialog Paris_dialog, 0, 0, 231, 145, "Paris Dialog"
   EditBox 60, 5, 55, 15, Maxis_Case_number
@@ -74,7 +86,7 @@ Do
 	DO
 		Err_msg = ""
 		Dialog Paris_dialog
-		cancel_confirmation	
+		cancel_confirmation
 			If Maxis_Case_number = "" or IsNumeric(case_number) = False or len(case_number) > 8 THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
 			If month_month = "" THEN err_msg = err_msg & vbNewLine & "*Please enter the month of the Paris Match"
 			If year_year = "" THEN err_msg = err_msg & vbNewLine & "*Please enter the year of the Paris Match"

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS----------------------------------------------------
 'This is a dialog asking if the job is known to the agency.
 BeginDialog job_known_to_agency_dialog, 0, 0, 276, 65, "Job known?"
@@ -63,9 +75,9 @@ current_year = datepart("yyyy", date)
 current_year = current_year - 2000
 
 'Checks for a two line or one line case note
-EMReadScreen second_line_check, 1, 6, 80	
+EMReadScreen second_line_check, 1, 6, 80
 If second_line_check = "+" then
-	EMSendKey "x" 
+	EMSendKey "x"
 	transmit
 End if
 
@@ -99,7 +111,7 @@ transmit
 row = 1
 col = 1
 EMSearch "FS: ", row, col
-If row = 0 then 
+If row = 0 then
 	SNAP_active = False
 Else
 	SNAP_active = True
@@ -126,13 +138,13 @@ Dialog job_known_to_agency_dialog
 If ButtonPressed = cancel then stopscript
 
 'If worker selects that the job is known, script will exit.
-If job_known_check = checked then 
+If job_known_check = checked then
 	MsgBox "The script will stop, this job is known."
 	script_end_procedure("")
 End if
 
 'Cuts the string length down to the first 30 characters, so it will fit on the line.
-employer = left(employer, 30) 
+employer = left(employer, 30)
 
 'Checks to make sure we're still on JOBS. If not (ie, worker navigated away), script exits
 EMReadScreen jobs_check, 4, 2, 45
@@ -162,7 +174,7 @@ EMWriteScreen "0", 12, 67
 EMWriteScreen "0", 18, 72
 
 'Creates a PIC if case is on SNAP, puts pay freq as "monthly" and sets a zero in both anticipated income and hours/wk. It's a PIC with the minimum requirements.
-If SNAP_active = True then 
+If SNAP_active = True then
 	EMWriteScreen "x", 19, 38
 	transmit
 	EMWriteScreen current_month, 5, 34
@@ -183,9 +195,9 @@ transmit
 start_a_blank_CASE_NOTE
 
 'Sending case note
-EMSendKey "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer & "<newline>" 
+EMSendKey "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer & "<newline>"
 EMSendKey "---" & "<newline>"
-EMSendKey "* Job unreported to the agency. Sending employment verification. TIKLed for 10-day return." & "<newline>" 
+EMSendKey "* Job unreported to the agency. Sending employment verification. TIKLed for 10-day return." & "<newline>"
 EMSendKey "---" & "<newline>"
 EMSendKey worker_signature & ", using automated script."
 PF3

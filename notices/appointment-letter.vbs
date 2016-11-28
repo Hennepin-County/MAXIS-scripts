@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'CLASSES----------------------------------------------------------------------------------------------------------------------
 'IF THIS WORKS, CONSIDER INCORPORATING INTO FUNCTIONS LIBRARY
 
@@ -85,7 +97,7 @@ elseif worker_county_code = "x108" then
 elseif worker_county_code = "x109" then
     agency_office_array = array("Cloquet", "Moose Lake")
 elseif worker_county_code = "x110" then
-    agency_office_array = array("Carver") 
+    agency_office_array = array("Carver")
 elseif worker_county_code = "x111" then
     agency_office_array = array("Cass")
 elseif worker_county_code = "x112" then
@@ -105,7 +117,7 @@ elseif worker_county_code = "x118" then
 elseif worker_county_code = "x119" then
     agency_office_array = array("Dakota")
 elseif worker_county_code = "x120" then
-    agency_office_array = array("Dodge") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties	
+    agency_office_array = array("Dodge") 'MNPrairie County Alliance is Dodge, Steele & Waseca Counties
     elseif worker_county_code = "x121" then
     agency_office_array = array("Douglas")
 elseif worker_county_code = "x122" then
@@ -786,7 +798,7 @@ ELSEIF worker_county_code = "x180" THEN
     agency_address.street = "124 First Street SE"
     agency_address.city = "Wadena"
     agency_address.zip = "56482"
-ELSEIF worker_county_code = "x181" THEN   
+ELSEIF worker_county_code = "x181" THEN
     agency_address.street = "299 JOHNSON SW STE 160"
     agency_address.city = "Waseca"
     agency_address.zip = "56093"

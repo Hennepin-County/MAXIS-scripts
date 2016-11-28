@@ -38,10 +38,22 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'commented out as WCOM portion isn't being used. If enhanced in the future this code could be valuable. 
+'commented out as WCOM portion isn't being used. If enhanced in the future this code could be valuable.
 ''THE DIALOG----------------------------------------------------------------------------------------------------
 'BeginDialog WCOM_month_dlg, 0, 0, 196, 60, "Enter approval month for WCOM"
 '  EditBox 65, 10, 30, 15, approval_month
@@ -58,8 +70,8 @@ get_county_code
 'Connects to BlueZone
 EMConnect ""
 
-'the script will first check similiar to the DAIL SCRUBBER to see if you're in CASE/NOTE and your cursor is resting on a case note you want to use. 
-EMReadscreen on_case_note_check, 6, 3, 16 
+'the script will first check similiar to the DAIL SCRUBBER to see if you're in CASE/NOTE and your cursor is resting on a case note you want to use.
+EMReadscreen on_case_note_check, 6, 3, 16
 IF on_case_note_check <> "Update" THEN script_end_procedure("You are not on CASE/NOTE. Please navigate to CASE/NOTE, leave your cursor on the case note you wish to copy, and re-run the script.")
 EMReadscreen MAXIS_case_number, 8, 20, 38
 MAXIS_case_number = trim(MAXIS_case_number)
@@ -69,7 +81,7 @@ IF CN_row < 5 or CN_row > 18 THEN script_end_procedure("Your cursor is not resti
 'reading title of case note so it can display on dialog
 EMReadscreen current_CN_title, 73, CN_row, CN_col + 3
 
-'This needs to be built AFTER the case note title is read or it won't be able to fill into the text in the dialog. 
+'This needs to be built AFTER the case note title is read or it won't be able to fill into the text in the dialog.
 BeginDialog dialog1, 0, 0, 346, 110, "Copy CASE/NOTE to.."
   EditBox 160, 5, 60, 15, MAXIS_case_number
   DropListBox 165, 65, 65, 15, "Select One..."+chr(9)+"CCOL NOTES"+chr(9)+"SPEC MEMO", copy_location
@@ -148,7 +160,7 @@ IF copy_location = "SPEC MEMO" THEN
 	CALL navigate_to_MAXIS_screen("SPEC", "MEMO")
 	'Checking for privileged
 	EMReadScreen privileged_case, 40, 24, 2
-	IF InStr(privileged_case, "PRIVILEGED") <> 0 THEN 
+	IF InStr(privileged_case, "PRIVILEGED") <> 0 THEN
 		privileged_array = privileged_array & MAXIS_case_number & "~~~"
 	ELSE
 		PF5
@@ -177,7 +189,7 @@ IF copy_location = "SPEC MEMO" THEN
 		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
 		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		transmit    
+		transmit
 		FOR EACH case_note_line IN case_note_array						'writing each line into SPEC/MEMO
 			CALL write_variable_in_SPEC_MEMO(case_note_line)
 		NEXT
@@ -185,14 +197,14 @@ IF copy_location = "SPEC MEMO" THEN
 END IF
 
 
-'commenting out for time being as in order to maintain the structure of the original CN we have to keep spaces. However this means that spaces are 
+'commenting out for time being as in order to maintain the structure of the original CN we have to keep spaces. However this means that spaces are
 'used towards the length count. As such a single page of a case note is 1241 characters meaning we could never add a CN to a WCOM. We also cannot ignore blank lines
-'as someone may write a blank line as a spacer in their case note. Leaving code in as it may be valuable if this will be an enhancement. 
+'as someone may write a blank line as a spacer in their case note. Leaving code in as it may be valuable if this will be an enhancement.
 'Copying to SPEC WCOM
 'IF copy_location = "SPEC WCOM" THEN
 '	IF character_count > 840 THEN script_end_procedure("The CASE/NOTE you have selected is too large to copy to a SPEC/WCOM. Please process manually at this time.")
 '	call navigate_to_MAXIS_screen("spec", "wcom")
-'	
+'
 '	DO
 '		err_msg = ""
 '		dialog WCOM_month_dlg
@@ -205,12 +217,12 @@ END IF
 '	EMWriteScreen approval_month, 3, 46
 '	EMWriteScreen approval_year, 3, 51
 '	transmit
-'	
+'
 '	DO 								'This DO/LOOP resets to the first page of notices in SPEC/WCOM
 '		EMReadScreen more_pages, 8, 18, 72
 '		IF more_pages = "MORE:  -" THEN PF7
 '	LOOP until more_pages <> "MORE:  -"
-'	
+'
 '	read_row = 7
 '	DO
 '		waiting_check = ""
@@ -229,7 +241,7 @@ END IF
 '					EMReadScreen character_test, 1, WCOM_row, WCOM_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
 '					If character_test <> " " or WCOM_row >= 18 then
 '						WCOM_row = WCOM_row + 1
-'			
+'
 '						'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
 '						If WCOM_row >= 18 then
 '							script_end_procedure("The CASE/NOTE you have selected is too large to copy to a SPEC/WCOM. CASE/NOTE was only partially written. Please process manually at this time.")
@@ -237,30 +249,30 @@ END IF
 '						End if
 '					End if
 '				Loop until character_test = " "
-'			
+'
 '				'Each word becomes its own member of the array called variable_array.
 '				case_note_line = split(variable, " ")
-'			
+'
 '				For each word in case_note_line
 '					'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
 '					If len(word) + WCOM_col > 74 then
 '						WCOM_row = WCOM_row + 1
 '						WCOM_col = 15
 '					End if
-'			
+'
 '					'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
 '					If WCOM_row >= 18 then
 '						script_end_procedure("The CASE/NOTE you have selected is too large to copy to a SPEC/WCOM. CASE/NOTE was only partially written. Please process manually at this time.")
 '						WCOM_row = 3					'Resets this variable to 3
 '					End if
-'			
+'
 '					'Writes the word and a space using EMWriteScreen
 '					EMWriteScreen word & " ", WCOM_row, WCOM_col
-'			
+'
 '					'Increases WCOM_col the length of the word + 1 (for the space)
 '					WCOM_col = WCOM_col + (len(word) + 1)
 '				Next
-'			
+'
 '				'After the array is processed, set the cursor on the following row, in col 15, so that the user can enter in information here (just like writing by hand).
 '				EMSetCursor WCOM_row + 1, 15
 '			NEXT
@@ -279,7 +291,7 @@ END IF
 '	END IF
 'END IF
 
-STATS_manualtime = STATS_manualtime + 15 * page_count  'multiplying pages copied from a case note 
+STATS_manualtime = STATS_manualtime + 15 * page_count  'multiplying pages copied from a case note
 
 'Script end procedure
 script_end_procedure("")

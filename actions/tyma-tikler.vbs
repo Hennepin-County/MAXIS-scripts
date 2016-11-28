@@ -39,6 +39,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 	'DIALOGS--------------------------------------------------------------------------------------------------------------------
 	BeginDialog TYMA_tikler, 0, 0, 261, 200, "TYMA/TMA TIKLer"
 	EditBox 65, 5, 65, 15, MAXIS_case_number
@@ -68,7 +80,7 @@ END IF
 	Text 10, 10, 55, 10, "Case Number: "
 	Text 10, 175, 60, 10, "Worker Signature: "
 	EndDialog
-	
+
 	BeginDialog TYMA_tikler_full, 0, 0, 141, 130, "TYMA/TMA TIKLer"
 	EditBox 60, 5, 65, 15, MAXIS_case_number
 	EditBox 5, 55, 20, 15, start_month
@@ -83,26 +95,26 @@ END IF
 	Text 5, 95, 60, 10, "Worker Signature: "
 	Text 75, 25, 60, 60, "Script is being run away from DAIL. This will TIKL for 2nd Quarter report form to be sent based on TYMA start month. "
 	EndDialog
-	
+
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
 EMConnect""
 
 'Script runs one of two ways
-' TIKLS all at once: Script will create all of the TIKLS in one burst at the start of TYMA. 
-' TIKLS as you go: Script will create the first TIKL then the worker will use the DAIL Scrubber to create the additional TIKLS. 
-'The divide will be based on the following variable in the GLOBAL VARIABLES file TYMA_TIKL_ALL_AT_ONCE, the variable will be TRUE/FALSE and restrict an agency to once or the other. 
+' TIKLS all at once: Script will create all of the TIKLS in one burst at the start of TYMA.
+' TIKLS as you go: Script will create the first TIKL then the worker will use the DAIL Scrubber to create the additional TIKLS.
+'The divide will be based on the following variable in the GLOBAL VARIABLES file TYMA_TIKL_ALL_AT_ONCE, the variable will be TRUE/FALSE and restrict an agency to once or the other.
 
 'FIRST HALF------------------------------------------------------------------------------------------------------------------------------------
-IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLing all at once. 	
+IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLing all at once.
 	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
-	
+
 	Do
 		err_msg = ""
 		Do
 			dialog TYMA_tikler
 			cancel_confirmation
-			If buttonpressed = calculate_button Then     'calculate button will calculate the TYMA dates if it is pressed, uses the MM/YY TYMA start date entered by worker. 
+			If buttonpressed = calculate_button Then     'calculate button will calculate the TYMA dates if it is pressed, uses the MM/YY TYMA start date entered by worker.
 				If start_month = "" or start_year = "" THEN    'safeguard in case someone clicks calculate without entering a starter month/year
 					Msgbox "Please enter a TYMA start month/year in MM YY format then click the calculate button."
 				ELSE
@@ -128,9 +140,9 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 		If worker_signature = "" THEN err_msg = err_msg & Vbcr & "You must enter a worker signature."
 		IF err_msg <> "" THEN msgbox err_msg
 	Loop until err_msg = ""
-	
+
 	call check_for_MAXIS(false)
-	
+
 	'WRITING THE TIKLS------------------------------------------------------------------------------------------------------------------------------------------------------
 	'TIKLS TO SEND FIRST FORM AND DUE DATE
 	Call navigate_to_MAXIS_screen("dail", "writ")
@@ -172,8 +184,8 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 	Call write_variable_in_TIKL("~*~TYMA ending " & Dateadd("m", 12, TYMA_start_date) &  ", take appropriate action. TYMA started " & TYMA_start_date & ". This TIKL was generated via script.")
 	Transmit
 	PF3
-	
-	
+
+
 	'THE CASE NOTE PORTION------------------------------------------------------------------------------------------------------
 	start_a_blank_CASE_NOTE
 	call write_variable_in_CASE_NOTE("***TYMA TIKLS have been created***")
@@ -193,7 +205,7 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 END If
 
 'SECOND HALF------------------------------------------------------------------------------------------------------------------------------------
-IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This portion will just add the first TIKL then the worker can use the DAIL scrubber on future TIKLS. 
+IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This portion will just add the first TIKL then the worker can use the DAIL scrubber on future TIKLS.
 	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
 	Do
@@ -204,13 +216,13 @@ IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This porti
 		If worker_signature = "" THEN err_msg = err_msg & Vbcr & "You must enter a worker signature."
 		IF err_msg <> "" THEN msgbox err_msg
 	Loop until err_msg = ""
-	
-	'Formatting and calculating date for first TIKL in the cycle. 
+
+	'Formatting and calculating date for first TIKL in the cycle.
 	If len(start_month) < 2 THEN start_month = 0 & start_month    '
 	If len(start_year) > 2 THEN start_year = right(start_year, 2)
 	TYMA_start_date = start_month & "/01/" & start_year
 	first_quart_send = DatePart("m", DateAdd("M", 2, TYMA_start_date)) & "/20/" & DatePart("YYYY", DateAdd("M", 3, TYMA_start_date))   'date to send 1st quarter report form
-	
+
 	'TIKLS TO SEND FIRST FORM AND DUE DATE
 	Call navigate_to_MAXIS_screen("dail", "writ")
 	Call create_MAXIS_friendly_date(first_quart_send, 0, 5, 18)

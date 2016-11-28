@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOG=============================================================================
 BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
@@ -57,12 +69,12 @@ EMConnect ""
 'Looks up an existing user for autofilling the next dialog
 CALL find_variable("User: ", x_number_editbox, 7)
 
-'Shows the dialog. 
+'Shows the dialog.
 DO
 	dialog bulk_ievs_report_dialog
 	cancel_confirmation
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -87,8 +99,8 @@ ObjExcel.ActiveSheet.Name = "Case information"
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value     = "SUPERVISOR ID"
 objExcel.Cells(1, 1).Font.Bold = True
-objExcel.Cells(1, 2).Value     = "X1 NUMBER" 
-objExcel.Cells(1, 2).Font.Bold = True 
+objExcel.Cells(1, 2).Value     = "X1 NUMBER"
+objExcel.Cells(1, 2).Font.Bold = True
 objExcel.Cells(1, 3).Value     = "WORKER NAME"
 objExcel.Cells(1, 3).Font.Bold = True
 objExcel.Cells(1, 4).Value     = "CASE NBR"
@@ -124,43 +136,43 @@ For each x_number in x_number_array
 	If non_disclosure_screen = "Non-disclosure" Then script_end_procedure ("It appears you need to confirm agreement to access IEVC. Please navigate there manually to confirm and then run the script again.")
 	EMWriteScreen x_number, 4, 11					'goes to the specific worker's report
 	transmit
-	
+
 	EMReadScreen unresolved_ievs_exists, 1, 8, 5	'Checks to see if there is something listed on the first line
 	If unresolved_ievs_exists <> " " Then 			'If so, the script will gather data
 		EMReadScreen supervisor_id, 7, 4, 32		'Pulls the X-Number of the supervisor
 		EMReadScreen IEVC_check, 4, 2, 53			'Makes sure still on the IEVC report - sometimes this glitches and causes all kinds of errors
-		If IEVC_check = "IEVC" Then 
+		If IEVC_check = "IEVC" Then
 			EMSendKey "HOME"						'Sets the cursor at the first editable field - which is the worker X-Number
 			PF1										'PF1 on the X-Number to pull up worker information
 			EMReadScreen worker_name, 21, 19, 10	'Reads the worker name
 			worker_name = trim(worker_name)			'Trims the worker name
 			transmit 								'Closes the worker information pop-up
-		End If 
+		End If
 		EMWriteScreen x_number, 4, 11				'goes to the specific worker's report - again
 		transmit									'This part happens again after looking at worker information due to some weird glitchy thing on this report
 		IEVC_Row = 8
-		DO	
+		DO
 			'Reading and trimming the MAXIS case number and dumping it in Excel
 			EMReadScreen maxis_case_number, 8, IEVC_Row, 31
 			If maxis_case_number = "        " then exit Do 		'Once the script reaches the last line in the list, it will go to the next worker
 			maxis_case_number = trim(maxis_case_number)
 			objExcel.Cells(excel_row, 4).Value = maxis_case_number	'Adds case number to Excel
-			
+
 			objExcel.Cells(excel_row, 2).Value = x_number		'enters the worker number to the excel spreadsheet
 			objExcel.Cells(excel_row, 1).Value = supervisor_id	'Adds Supervisor X-Numner to Excel
 			objExcel.Cells(excel_row, 3).Value = worker_name	'Adds the worker name to Excel
 
 			EMReadScreen client_name, 17, IEVC_Row, 14			'Reads the client name and adds to excel
 			client_name = trim(client_name)
-			objExcel.Cells(excel_row, 5).Value = client_name	
-			
+			objExcel.Cells(excel_row, 5).Value = client_name
+
 			EMReadScreen covered_period, 11, IEVC_Row, 62		'Reads the dates of the match and adds to excel
 			covered_period = trim(covered_period)
 			objExcel.Cells(excel_row, 6).Value = covered_period
-			
+
 			EMReadScreen days_remaining, 6, IEVC_Row, 74		'Reads how the days left to resolve the match and adds to excel
-			days_remaining = trim(days_remaining)				
-			objExcel.Cells(excel_row, 7).Value = days_remaining	
+			days_remaining = trim(days_remaining)
+			objExcel.Cells(excel_row, 7).Value = days_remaining
 			objExcel.Cells(excel_row, 7).NumberFormat = "0"
 			If left(days_remaining, 1) = "(" Then 				'If this is a negative number - listed in () on the panel
 				objExcel.Cells(excel_row, 10).Value = "OVERDUE!"		'Adds this to the spreadsheet
@@ -168,10 +180,10 @@ For each x_number in x_number_array
 				For col = 1 to 10
 					objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
 				Next
-			End If 
-			
+			End If
+
 			EMWriteScreen "D", IEVC_Row, 3		'Opens the detail on the match
-			transmit 
+			transmit
 			row = 1
 			col = 1
 			EMSearch "SEND IEVS DIFFERENCE NOTICE?", row, col 	'Finds where the difference notice code is - because it moves
@@ -179,21 +191,21 @@ For each x_number in x_number_array
 			If diff_notc_sent = "Y" Then EMReadScreen diff_notc_date, 8, row, 72	'If notice was sent, reads the date it was sent
 			objExcel.Cells(excel_row, 8).Value = diff_notc_sent	'Adding both of these to excel
 			objExcel.Cells(excel_row, 9).Value = diff_notc_date
-			
+
 			PF3 		'Back to the list!
-			
+
 			IEVC_Row = IEVC_Row + 1 'increment to the next row on the panel
 
 			If IEVC_Row = 18 Then 		'If we have reached the end of the page, it will go to the next page
 				PF8
 				IEVC_Row = 8			'Resets the row
-				EMReadScreen last_page_check, 21, 24, 2	
-			End If 
+				EMReadScreen last_page_check, 21, 24, 2
+			End If
 			excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
 			STATS_counter = STATS_counter + 1		'Counts 1 item for every Match found and entered into excel.			diff_notc_date = ""			'blanks this out so that the information is not carried over in the do-loop'
 			maxis_case_number = ""
 		LOOP until last_page_check = "THIS IS THE LAST PAGE"
-	Else 
+	Else
 		objExcel.Cells(excel_row, 2).Value = x_number						'If there are no items on a worker's report, this adds that information to the excel sheet
 		EMReadScreen supervisor_id, 7, 4, 32				'Finding Supervisor X Number and adding to Excel
 		objExcel.Cells(excel_row, 1).Value = supervisor_id
@@ -204,15 +216,15 @@ For each x_number in x_number_array
 			EMReadScreen worker_name, 21, 19, 10
 			worker_name = trim(worker_name)
 			objExcel.Cells(excel_row, 3).Value = worker_name
-			transmit 
-		End If 
+			transmit
+		End If
 		objExcel.Cells(excel_row, 5).Value = "No IEVS for this worker."		'Adds line to Excel sheet indicating no matches
 		excel_row = excel_row + 1
-	End If 
-Next 
+	End If
+Next
 
 'Centers the text for the columns with days remaining and difference notice
-objExcel.Columns(6).HorizontalAlignment = -4108	
+objExcel.Columns(6).HorizontalAlignment = -4108
 objExcel.Columns(7).HorizontalAlignment = -4108
 objExcel.Columns(8).HorizontalAlignment = -4108
 
@@ -248,7 +260,7 @@ ObjExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 1).Value = "WORKER"
 objExcel.Cells(2, 1).Font.Bold = TRUE
 ObjExcel.Cells(2, 2).Value = "NAME"
-ObjExcel.Cells(2, 2).Font.Bold = TRUE 
+ObjExcel.Cells(2, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
 objExcel.Cells(2, 3).Font.Bold = TRUE
 ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
@@ -274,9 +286,9 @@ For each x_number in x_number_array
 		transmit
 		EMReadScreen worker_name, 24, 3, 11
 		worker_name = trim(worker_name)
-	Else 
+	Else
 		worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
-	End IF 
+	End IF
 	'Adding all the information to Excel
 	ObjExcel.Cells(worker_row, 1).Value = x_number
 	ObjExcel.Cells(worker_row, 2).Value = worker_name
@@ -286,9 +298,9 @@ For each x_number in x_number_array
 	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ")"
 	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
 		ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
-	Else 
+	Else
 		ObjExcel.Cells(worker_row, 5).Value = "0"
-	End If 
+	End If
 	ObjExcel.Cells(worker_row, 5).NumberFormat = "0.00%"		'Formula should be percent
 	ObjExcel.Cells(worker_row, 6).Value = "=D" & worker_row & "/SUM(D:D)"
 	ObjExcel.Cells(worker_row, 6).NumberFormat = "0.00%"		'Formula should be percent

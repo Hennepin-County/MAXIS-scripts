@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THE Dialog--------------------------------------------------------------------------------------------------------------------
 BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 265, "MNSure Retro HC Application"
   EditBox 85, 25, 55, 15, MAXIS_case_number
@@ -92,7 +104,7 @@ DO
 				Dialog MNSure_HC_Appl_dialog
 				cancel_confirmation
 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!" 
+				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!"
 				IF retro_coverage_months = "Select One..." THEN MsgBox "Please select how many retro months are requested!"
 				IF len(curam_case_number)<> 8 THEN MsgBox "Please enter an 8 digit Curam case number!"
 			Loop until len(curam_case_number) = 8
@@ -103,7 +115,7 @@ DO
 Loop until HC_Appl_status <> "Select One..."
 
 
-'Opens a New Case Note					
+'Opens a New Case Note
 call start_a_blank_CASE_NOTE
 
 'Writes the Case Note
@@ -128,6 +140,6 @@ IF tikl_checkbox = 1 THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_maxis_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
-END IF	
+END IF
 
 script_end_procedure ("")
