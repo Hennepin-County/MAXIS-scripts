@@ -38,17 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-''CHANGELOG BLOCK ===========================================================================================================
-''Starts by defining a changelog array
-'changelog = array()
-'
-''INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-''Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-'call changelog_update("11/21/2016", "Enabled access to Hennepin County users. Added TIKL, and added variables to allow DAIL scrubber support. Updated error message handling within dialog.", "Ilse Ferris, Hennepin County")
-'
-''Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
-'changelog_display
-''END CHANGELOG BLOCK =======================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Enabled access to Hennepin County users. Added TIKL, and added variables to allow DAIL scrubber support. Updated error message handling within dialog.", "Ilse Ferris, Hennepin County")
+call changelog_update("11/20/2016", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'CLASSES----------------------------------------------------------------------------------------------------------------------
 'IF THIS WORKS, CONSIDER INCORPORATING INTO FUNCTIONS LIBRARY
@@ -1076,7 +1077,11 @@ End if
 call write_bullet_and_variable_in_CASE_NOTE("Why interview is more than six days from now", expedited_explanation)
 call write_bullet_and_variable_in_CASE_NOTE("Client phone", client_phone)
 call write_variable_in_CASE_NOTE("* Client must complete interview by " & last_contact_day & ".")
-call write_variable_in_CASE_NOTE("* A TIKL has been made for the interview date to send a NOMI if applicable.")
+IF worker_county_code = "x127" then
+	call write_variable_in_CASE_NOTE("* TIKL created to call client on interview date. If applicant did not call in, then send NOMI if appropriate.")
+Else
+	call write_variable_in_CASE_NOTE("* TIKL created for interview date.")
+End if
 If voicemail_check = checked then call write_variable_in_CASE_NOTE("* Left client a voicemail requesting a call back.")
 If forms_to_arep = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")              'Defined above
 If forms_to_swkr = "Y" then call write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")     'Defined above
