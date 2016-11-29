@@ -389,8 +389,8 @@ script_array_G_to_L(script_num).description				= "Template for HRFs (for GRH, us
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "IEVS Notice Received"
-script_array_G_to_L(script_num).file_name				= "ievs-notice-received.vbs"
+script_array_G_to_L(script_num).script_name 			= "IEVS Match Received"
+script_array_G_to_L(script_num).file_name				= "ievs-match-received.vbs"
 script_array_G_to_L(script_num).description				= "Template to case note when a IEVS notice is returned."
 
 script_num = script_num + 1								'Increment by one

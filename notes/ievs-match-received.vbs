@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - IEVS NOTICE RECEIVED.vbs"
+name_of_script = "NOTES - IEVS MATCH RECEIVED.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 90           'manual run time in seconds
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Changed the name and case note header from IEVS Notice to IEVS Match.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -160,7 +161,7 @@ call check_for_MAXIS (false)
 call start_a_blank_case_note
 
 'this enters the actual case note info
-call write_variable_in_CASE_NOTE("***IEVS Notice received: " & OPTIONS & "***")
+call write_variable_in_CASE_NOTE("***IEVS Match received: " & OPTIONS & "***")
 call write_bullet_and_variable_in_CASE_NOTE("HHLD MEMB", MEMB)
 call write_bullet_and_variable_in_CASE_NOTE("Quarter", Quarter)
 call write_bullet_and_variable_in_CASE_NOTE("Employer", Employer)
