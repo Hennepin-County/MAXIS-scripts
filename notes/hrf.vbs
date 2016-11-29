@@ -44,15 +44,12 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/01/2016", "Added seperate functionality for LTC HRF cases.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'defaulting the MAXIS footer month/year to current month plus one
-MAXIS_footer_month = CM_plus_1_mo
-MAXIS_footer_year = CM_plus_1_yr
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 100, "Case number dialog"
@@ -156,7 +153,7 @@ BeginDialog LTC_HRF_dialog, 0, 0, 451, 275, "HRF dialog for LTC Cases"
   EditBox 50, 150, 395, 15, other_notes
   EditBox 235, 170, 210, 15, verifs_needed
   EditBox 235, 190, 210, 15, actions_taken
-  CheckBox 100, 215, 175, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MSA_info_check
+  CheckBox 100, 215, 175, 10, "Check here to case note grant info from ELIG/MSA.", grab_MSA_info_check
   CheckBox 100, 230, 170, 10, "Check here to case note grant info from ELIG/HC. ", grab_HC_info_check
   EditBox 165, 255, 105, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -216,6 +213,8 @@ EMConnect ""
 
 'Grabbing case number & footer month/year
 call MAXIS_case_number_finder(MAXIS_case_number)
+
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing case number dialog
 do
@@ -441,11 +440,15 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	Call navigate_to_MAXIS_screen ("STAT", "JOBS")
 	EMReadScreen JOBS_panel_income, 7, 17, 68
 	JOBS_panel_income = trim(JOBS_panel_income)
-	If abs(JOBS_panel_income) < 80 then
-		special_pers_allow = JOBS_panel_income	'if less then $80 deduction is earned income amount
-	ELSE
-		special_pers_allow = "80.00"		'otherwise deduction is $80
-	END IF
+	If IsNumeric(JOBS_panel_income) = TRUE Then 
+		If abs(JOBS_panel_income) < 80 then
+			special_pers_allow = JOBS_panel_income	'if less then $80 deduction is earned income amount
+		ELSE
+			special_pers_allow = "80.00"		'otherwise deduction is $80
+		END IF
+	Else 
+		JOBS_panel_income = "" 
+	End If 
 	
 	If JOBS_panel_income <> "" Then hc_deductions = hc_deductions & "; Special Allowance - $" & special_pers_allow
 	
@@ -488,35 +491,56 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	If grab_MSA_info_check = 1 then
 		call navigate_to_MAXIS_screen("elig", "msa_")
 		EMReadScreen MSPR_check, 4, 3, 47
-		If MFPR_check <> "MSPR" then
+		If MSPR_check <> "MSPR" then
 			MsgBox "The script couldn't find ELIG/MSA. It will now jump to case note."
 		Else
 			EMWriteScreen "MSSM", 20, 71
 			transmit
-			EMReadScreen MSSM_line_01, 37, 11, 46
-			EMReadScreen MSA_grant, 8, 11, 73
-			MSA_grant = trim(MSA_grant) 
-			If MSA_grant <> "81.00" Then 
-				Write_variable_and_transmit "x", 9, 44
-				mx_row = 8
-				Do 
-					EMReadScreen need_type, 2, mx_row, 6
-					If need_type = "__" Then Exit Do
-					EMReadScreen special_need, 21, mx_row, 9
-					EMReadScreen amount, 8, mx_row, 32
-					special_need = trim(special_need)
-					amount = trim(amount)
-					msa_elig = msa_elig & "; " & special_need & " - $" & amount 
-					mx_row = mx_row + 1 
-					If mx_row = 14 Then 
-						PF20
-						mx_row = 8
-					End If 
-					EMReadScreen list_end, 4, 19, 16
-				Loop until list_end = "LAST"
-				PF3
+			EMWriteScreen "99", 20, 78
+			transmit
+			mx_row = 7
+			Do 
+				EMReadScreen appr_status, 8, mx_row, 50
+				If appr_status = "APPROVED" Then 
+					EMReadScreen appr_version, 2, mx_row, 22
+					appr_version = trim(appr_version)
+					appr_version = right("00"& appr_version, 2)
+					Exit Do
+				Else 
+					mx_row = mx_row + 1
+				End If 
+			Loop until appr_status = "        "
+			If appr_version = "" then
+				MsgBox "The script could not find an APPROVED version of MSA in the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". It will now go to case note."
+			Else 
+				EMWriteScreen appr_version, 18, 54
+				transmit
+				EMReadScreen MSSM_line_01, 37, 11, 46
+				EMReadScreen MSA_grant, 8, 11, 73
+				MSA_grant = trim(MSA_grant) 
+				If MSA_grant <> "81.00" Then 
+					EMWriteScreen "x", 9, 44
+					transmit
+					mx_row = 8
+					Do 
+						EMReadScreen need_type, 2, mx_row, 6
+						If need_type = "__" Then Exit Do
+						EMReadScreen special_need, 21, mx_row, 9
+						EMReadScreen amount, 8, mx_row, 32
+						special_need = trim(special_need)
+						amount = trim(amount)
+						msa_elig = msa_elig & "; " & special_need & " - $" & amount 
+						mx_row = mx_row + 1 
+						If mx_row = 14 Then 
+							PF20
+							mx_row = 8
+						End If 
+						EMReadScreen list_end, 4, 19, 16
+					Loop until list_end = "LAST"
+					PF3
+				End If 
+				If msa_elig <> "" Then msa_elig = "; Special Needs Supplements:" & msa_elig
 			End If 
-			If msa_elig <> "" Then msa_elig = "; Special Needs Supplements:" & msa_elig
 		End if
 		msa_elig = MSSM_line_01 & msa_elig
 	End If 
@@ -606,7 +630,36 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 		HC_Elig_Info = right(HC_Elig_Info, len(HC_Elig_Info) - 2)
 	End If 
 
-MsgBox msa_elig & vbNewLine & HC_Elig_Info
+	'MsgBox msa_elig & vbNewLine & HC_Elig_Info
+	
+	programs_list = "HC"
+	If MSA_check = checked Then programs_list = programs_list & " & MSA"
+	If admit_date <> "" then facility_info = facility_info & ". Admit Date: " & admit_date
+	If msa_elig = "" AND HC_Elig_Info = "" Then no_elig_results = TRUE
+
+	'Enters the case note-----------------------------------------------------------------------------------------------
+	start_a_blank_CASE_NOTE
+	Call write_variable_in_case_note("***" & MAXIS_footer_month & "/" & MAXIS_footer_year & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
+	call write_bullet_and_variable_in_case_note("Programs", programs_list)
+	call write_bullet_and_variable_in_case_note("Facility", facility_info)
+	call write_bullet_and_variable_in_case_note("Earned income", earned_income)
+	call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
+	call write_bullet_and_variable_in_case_note("Assets", assets)
+	call write_bullet_and_variable_in_case_note("Deductions", hc_deductions)
+	call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
+	call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+	If sent_3050_checkbox = 1 then call write_variable_in_CASE_NOTE("* Sent 3050 to Facility")
+	If HRF_release_checkbox = 1 then call write_variable_in_CASE_NOTE("* Released HRF in MAXIS for next month.")
+	IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
+	call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+	call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+	If no_elig_results <> TRUE then call write_variable_in_CASE_NOTE("---")
+	call write_bullet_and_variable_in_case_note("MSA Approval", msa_elig)
+	call write_bullet_and_variable_in_case_note("HC Approval", HC_Elig_Info)
+	call write_variable_in_CASE_NOTE("---")
+	call write_variable_in_CASE_NOTE(worker_signature)
+	
+	end_msg = "Success! Your HRF for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " on a LTC case has been case noted."
 
 
 ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
@@ -710,7 +763,9 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 		call write_variable_in_CASE_NOTE("---")
 	End If
 	call write_variable_in_CASE_NOTE(worker_signature)
+	
+	end_msg = "Success! Your HRF for " & HRF_month & " has been case noted."
 
 End If 
 
-script_end_procedure("")
+script_end_procedure(end_msg)
