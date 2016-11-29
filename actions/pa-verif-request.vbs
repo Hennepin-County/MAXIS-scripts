@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/29/2016", "Checkbox added with the option to have 'Other Income' not listed on the word document.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -402,6 +403,10 @@ If no_income_checkbox <> checked Then
 	objSelection.TypeParagraph()
 Else 
 	objSelection.EndKey end_of_doc
+	objSelection.TypeParagraph()
+	
+	objSelection.TypeText "Number of family members on cash grant: "
+	objSelection.TypeText cash_members
 	objSelection.TypeParagraph()
 	
 	ObjSelection.TypeText "Other Notes: "
