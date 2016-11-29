@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Added safety functionality for if MAXIS is passworded out."m "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -64,6 +65,8 @@ EndDialog
 
 EMConnect ""
 
+Call check_for_MAXIS(True)
+
 benefit_month = datepart("M", dateadd("M", 1, date))
 IF len(benefit_month) <> 2 THEN benefit_month = "0" & benefit_month
 benefit_year = datepart("YYYY", dateadd("M", 1, date))
@@ -74,9 +77,12 @@ EMWriteScreen benefit_month, 20, 43
 EMWriteScreen benefit_year, 20, 46
 
 DO
-	DIALOG check_snap_dlg
+	DO
+		DIALOG check_snap_dlg
 		IF ButtonPressed = 0 THEN stopscript
-LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
+	LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in 
 
 IF all_worker_check = 1 THEN
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
