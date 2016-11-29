@@ -332,7 +332,7 @@ EndDialog
   EMWriteScreen MAXIS_case_number, 18, 43
 
   Call start_a_blank_CASE_NOTE
-  EMSendKey "**Approved COLA updates 01/16: " & elig_type & "-" & budget_type & " " & recipient_amt
+  EMSendKey "**Approved COLA updates 01/&" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt
   If budget_type = "L" then EMSendKey " LTC SD**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " Recip amt.**"
@@ -594,7 +594,7 @@ function income_summary
 	Call check_for_MAXIS(False)
 
 	call start_a_blank_CASE_NOTE
-	Call write_variable_in_CASE_NOTE ("===COLA 2016 INCOME SUMMARY===")
+	Call write_variable_in_CASE_NOTE ("===COLA 20" & MAXIS_footer_year & " INCOME SUMMARY===")
 	call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 	call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 	call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
@@ -610,20 +610,19 @@ EMConnect ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-	BeginDialog COLA_case_number_dialog, 0, 0, 211, 110, "COLA case number dialog"
-		EditBox 100, 0, 60, 15, MAXIS_case_number
-		EditBox 80, 20, 20, 15, MAXIS_footer_month
-		EditBox 180, 20, 20, 15, MAXIS_footer_year
-		CheckBox 65, 55, 75, 10, "Approval Summary", approval_summary_check
-		CheckBox 65, 70, 70, 10, "Income Summary", income_summary_check
-		ButtonGroup ButtonPressed
-			OkButton 45, 90, 50, 15
-			CancelButton 110, 90, 50, 15
-		Text 5, 25, 70, 10, "Approval Month(MM):"
-		Text 110, 25, 65, 10, "Approval Year(YY):"
-		Text 10, 5, 85, 10, "Enter your case number:"
-		GroupBox 60, 45, 85, 40, "COLA case note types"
-	EndDialog
+BeginDialog COLA_case_number_dialog, 0, 0, 171, 125, "COLA case number dialog"
+  EditBox 100, 10, 60, 15, MAXIS_case_number
+  EditBox 115, 30, 20, 15, MAXIS_footer_month
+  EditBox 140, 30, 20, 15, MAXIS_footer_year
+  CheckBox 50, 65, 75, 10, "Approval Summary", approval_summary_check
+  CheckBox 50, 80, 70, 10, "Income Summary", income_summary_check
+  ButtonGroup ButtonPressed
+    OkButton 30, 100, 50, 15
+    CancelButton 95, 100, 50, 15
+  Text 5, 35, 105, 10, "Approval Month/Year (MM/YY):"
+  Text 10, 15, 85, 10, "Enter your case number:"
+  GroupBox 30, 55, 110, 40, "COLA case note types"
+EndDialog
 
 	DO
 		err_msg = ""
