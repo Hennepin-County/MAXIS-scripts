@@ -333,7 +333,7 @@ EndDialog
   EMWriteScreen MAXIS_case_number, 18, 43
 
   Call start_a_blank_CASE_NOTE
-  EMSendKey "**Approved COLA updates 01/&" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt
+  EMSendKey "**Approved COLA updates 01/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt
   If budget_type = "L" then EMSendKey " LTC SD**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " Recip amt.**"
