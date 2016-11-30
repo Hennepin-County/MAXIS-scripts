@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/30/2016", "Corrected Typo: Creamation to Cremation.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -67,7 +68,7 @@ BeginDialog County_Burial_Application_Received, 0, 0, 266, 325, "County Burial A
   EditBox 45, 50, 215, 15, CASH_ACCTs
   EditBox 55, 70, 205, 15, other_assets
   EditBox 80, 90, 180, 15, Total_Counted_Assets
-  ComboBox 80, 115, 180, 45, ""+chr(9)+"Creamation"+chr(9)+"Burial", services_requested
+  ComboBox 80, 115, 180, 45, ""+chr(9)+"Cremation"+chr(9)+"Burial", services_requested
   EditBox 60, 135, 200, 15, funeral_home
   EditBox 60, 155, 75, 15, funeral_home_phone
   EditBox 225, 155, 35, 15, funeral_home_amount
