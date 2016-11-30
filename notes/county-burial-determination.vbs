@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/30/2016", "Corrected Typo: Creamation corrected to Cremation.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -76,7 +77,7 @@ IF application_note = TRUE THEN
 		EMReadScreen service_in_note, 55, row, 25	'Reading the service requested from the case note
 		service_in_note = trim(service_in_note)
 
-		services_dropdown = service_in_note+chr(9)+"Creamation"+chr(9)+"Burial"	'Formatting the dropdown for the next dialog
+		services_dropdown = service_in_note+chr(9)+"Cremation"+chr(9)+"Burial"	'Formatting the dropdown for the next dialog
 	End If
 
 	row = 1
