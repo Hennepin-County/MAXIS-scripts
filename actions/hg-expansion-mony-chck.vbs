@@ -249,8 +249,6 @@ Loop until app_status = "APPROVED" or trim(app_status) = ""
 'If no elig results are found, then the script ends.
 If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
 
-'msgbox "Are we on the most up-to-date approved version?"
-
 'goes into ELIG/MFIP, and checks for the reason for the manual MONY/CHCK: either emps exempt populations or the newly added populations
 MAXIS_row = 7	'establishing the row to start searching
 DO
@@ -329,8 +327,6 @@ DO
 		If trim(member_elig_status) = "A" then number_eligible_members = number_eligible_members + 1	'adds up the total number of eligible members to be inputted into MONY/CHCK
 	END IF
 
-	'msgbox "ref number: " & ref_num & vbcr & "eligible status: " & member_elig_status & vbcr & "add to array: " & add_to_array & vbcr & "cash: " & cash & vbcr & "state food: " & state_food
-
 	MAXIS_row = MAXIS_row + 1	'otherwise it searches again on the next row
 	If MAXIS_row = 16 then
 		PF8
@@ -340,8 +336,6 @@ LOOP until trim(ref_num) = ""
 'ensures that number_eligible_members is a two-digit number to be inputted into MONY/CHCK
 number_eligible_members = "0" & number_eligible_members
 number_eligible_members = right(number_eligible_members, 2)
-
-'msgbox "# of eligible members: " & number_eligible_members
 
 'goes into CASE/PERS and grabs the adult_child_code to be inputted into the MONY/CHCK
 Call navigate_to_MAXIS_screen("CASE", "PERS")
@@ -372,7 +366,6 @@ For item = 0 to Ubound(MFIP_member_array, 2)
 		END if
 		EMReadScreen last_PERS_page, 21, 24, 2
 	LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
-''	msgbox pers_ref_number & " " & relationship_status
 Next
 
 'MONY/CHCK----------------------------------------------------------------------------------------------------
@@ -392,7 +385,6 @@ EMWriteScreen "31", 5, 32		'restored payment code per the HG instruction
 
 'total # eligible house hold members from MFBF needs to be inputted
 EMWriteScreen number_eligible_members, 7, 27			'enters the number of eligible HH members
-'msgbox "# of eligible members: " & number_eligible_members
 transmit
 
 EMReadScreen future_month_check, 6, 24, 2		'ensuring that issuances for current or future months are not being made
@@ -414,17 +406,11 @@ For item = 0 to UBound(MFIP_member_array, 2)
 NEXT
 
 EMwritescreen "110.00", 10, 53			'enters the housing grant amount
-'msgbox "This is what is written here."
-
-'This is here temporarily until testing is completed. Testers will need to PF3 to exit the MONY/CHCK function, then MONY/CHCK's will not be sent to recipients.
-'msgbox "All eligible members and MEMB 01 added and Hg issuance ready. Stop script will occur once message box is closed."
-'stopscript
-
 transmit
+
 EMReadScreen extra_error_check, 7, 17, 4			'double-checking that a duplicate issuance has not been made
 IF extra_error_check = "HOUSING" then script_end_procedure ("Housing grant may have already been issued. Please recheck your case, and try again.")
 EMReadscreen REI_issue, 3, 15, 6
-'msgbox REI_issue
 If REI_issue = "REI" then
 	EMWriteScreen "N", 15, 52	'N to REI issuance per instruction from DHS
 Else
@@ -432,7 +418,6 @@ Else
 END IF
 Transmit
 EMWriteScreen "Y", 15, 29	'Y to confirm approval
-'msgbox "Writing Y to confirm"
 transmit
 transmit 'transmits twice to get to the restoration of benefits screen
 
@@ -440,13 +425,10 @@ transmit 'transmits twice to get to the restoration of benefits screen
 EMReadScreen update_TIME_panel_check, 4, 14, 32
 If update_TIME_panel_check = "TIME" then
 	transmit
-	'msgbox "we are in time"
 	PF10
 	PF3
 END IF
-'msgbox "left time"
 PF3
-'msgbox "leaving notice"
 PF3 	'PF3's twice to NOT send the notice
 
 'Ensuring that issuance made by checking the automated case note
