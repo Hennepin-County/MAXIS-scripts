@@ -2,7 +2,7 @@
 name_of_script = "ACTIONS - HG EXPANSION MONY-CHCK.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 180                	'manual run time in seconds
+STATS_manualtime = 240               	'manual run time in seconds
 STATS_denomination = "C"       			' is for case
 'END OF stats block=========================================================================================================
 
@@ -37,6 +37,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+call changelog_update("12/01/2016", "Added ACTIONS script that will create a MONY/CHCK for cases that meet the Housing Grant expansion criteria.", "Ilse Ferris, Hennepin County")
+call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'Date variables
 'current month -1
