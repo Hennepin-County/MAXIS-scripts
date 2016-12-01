@@ -213,7 +213,6 @@ EMConnect ""
 
 'Grabbing case number & footer month/year
 call MAXIS_case_number_finder(MAXIS_case_number)
-
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing case number dialog
@@ -249,7 +248,7 @@ retro_month_name = monthname(datepart("m", (dateadd("m", -2, HRF_computer_friend
 pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = retro_month_name & "/" & pro_month_name
 
-
+'If a HRF is being run for a HC case, script will ask if this is a LTC case
 If HC_check = checked Then 
 	'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
 	LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have different fields in their dialog.", vbYesNoCancel)
@@ -258,22 +257,27 @@ Else
 	LTC_case = vbNo
 End If 
 
-If LTC_case = vbYes then 									'Shows dialog if LTC
+'If workers answers yes to this is a LTC case - script runs this specific functionality
+If LTC_case = vbYes then 									
 
+	'LTC cases should not have these programs active
 	If MFIP_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* MFIP will be removed."
 	If SNAP_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* SNAP will be removed."
 	If GA_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* GA will be removed."
 	
+	'Alerting worker that these programs will be unchecked.
 	If uncheck_msg <> "" Then MsgBox "You have checked programs that should not be active with LTC. These programs will not be added to the note." & vbNewLine & uncheck_msg
 	
 	MFIP_check = unchecked
 	SNAP_check = unchecked
 	GA_check = unchecked 
 
+	'Getting some additional information for the dialog to be autofilled
 	call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
 	call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
 	call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 	
+	'Going to find the current facility to autofil the dialog
 	Call navigate_to_MAXIS_screen ("STAT", "FACI")
 	
 	'LOOKS FOR MULTIPLE STAT/FACI PANELS, GOES TO THE MOST RECENT ONE
@@ -309,7 +313,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 
 	admit_date = replace(date_in, " ", "/")
 	
-	'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
+	'Gets Facility name and admit in date and enters it into the dialog 
 	If currently_in_FACI = True then
 		EMReadScreen FACI_name, 30, 6, 43
 		facility_info = trim(replace(FACI_name, "_", ""))
@@ -319,7 +323,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	Call MAXIS_footer_month_confirmation
 	MAXIS_background_check
 	
-	'Enters into STAT for the client
+	'Goes to STAT WKEX to get deductions and possible FIAT reasons to autofil the dialog
 	Call navigate_to_MAXIS_screen("STAT", "WKEX")
 	EMReadScreen WKEX_check, 1, 2, 73
 	If WKEX_check = "0" then
@@ -373,7 +377,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	other_expense = replace(other_expense, "_", "")
 	other_expense = trim(other_expense)
 	
-	'Gives unverified expenses and blank expenses the value of $0
+	'Gives unverified expenses and blank expenses the value of $0 and adds non-zero amounts to the dialog for autofil
 	If federal_tax = "" OR federal_tax_verif_code = "N" then 
 		federal_tax = "0"
 	Else 
@@ -429,13 +433,12 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	other_earned_income_PDED = trim(other_earned_income_PDED)
 	
 	'Gives blank expenses the value of $0
-	If other_earned_income_PDED = "" then other_earned_income_PDED = "0"
-	
-	'creating new variables for input of deductions that don't have their own expense field in the HC budget
-	Total_taxes = abs(federal_tax) + abs(state_tax)
-	Total_employment_expense = abs(meals_expenses) + abs(uniform_expense) + abs(tools_expense) + abs(dues_expenses)
-	total_other_expenses = abs(other_expenses) + abs(other_earned_income_PDED)
-	
+	If other_earned_income_PDED = "" then 
+		other_earned_income_PDED = "0"
+	Else 
+		hc_deductions = hc_deductions & "; Other Earned Income Deductions - $" & other_earned_income_PDED
+	End If 
+
 	'Determining if earned income is less than $80
 	Call navigate_to_MAXIS_screen ("STAT", "JOBS")
 	EMReadScreen JOBS_panel_income, 7, 17, 68
@@ -452,8 +455,10 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	
 	If JOBS_panel_income <> "" Then hc_deductions = hc_deductions & "; Special Allowance - $" & special_pers_allow
 	
+	'All of the deductions found to this point need to be FIATed. Added these to the FIAT varirable.
 	FIAT_reasons = hc_deductions
 	
+	'Going to see if there is a deduction on MEDI. (This does not have to be FIATED)
 	Call navigate_to_MAXIS_screen ("STAT", "MEDI")
 	EMReadScreen medi_panel_exists, 1, 2, 78
 	If medi_panel_exists = "1" Then 
@@ -461,11 +466,12 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 		part_b_premium = trim(part_b_premium)
 		If part_b_premium <> "________" Then hc_deductions = hc_deductions & "; Medicare Premium - $" & part_b_premium
 	End If 
-	
+
+	'Formatting the variables for the dialog
 	hc_deductions = right(hc_deductions, len(hc_deductions) - 2)
 	FIAT_reasons = right(FIAT_reasons, len(FIAT_reasons) - 2)
 	
-	'The case note dialog, complete with panel navigation, reading the ELIG/MFIP screen, and navigation to case note, as well as logic for certain sections to be required.
+	'The case note dialog, complete with panel navigation, reading the ELIG/MSA or ELIG/HC screen, and navigation to case note, as well as logic for certain sections to be required.
 	DO
 		DO
 			Do
@@ -488,15 +494,15 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	LOOP UNTIL are_we_passworded_out = false
 
 	'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
-	If grab_MSA_info_check = 1 then
+	If grab_MSA_info_check = 1 then		'Going to MSA
 		call navigate_to_MAXIS_screen("elig", "msa_")
 		EMReadScreen MSPR_check, 4, 3, 47
 		If MSPR_check <> "MSPR" then
 			MsgBox "The script couldn't find ELIG/MSA. It will now jump to case note."
 		Else
-			EMWriteScreen "MSSM", 20, 71
+			EMWriteScreen "MSSM", 20, 71	'Finding the summary
 			transmit
-			EMWriteScreen "99", 20, 78
+			EMWriteScreen "99", 20, 78		'Finding the most recent approved version
 			transmit
 			mx_row = 7
 			Do 
@@ -515,13 +521,14 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 			Else 
 				EMWriteScreen appr_version, 18, 54
 				transmit
-				EMReadScreen MSSM_line_01, 37, 11, 46
-				EMReadScreen MSA_grant, 8, 11, 73
+				EMReadScreen MSSM_line_01, 37, 11, 46	'Wordage for the case note
+				EMReadScreen MSA_grant, 8, 11, 73		'Checking the amount - if a supplement, getting additional detail
 				MSA_grant = trim(MSA_grant) 
-				If MSA_grant <> "81.00" Then 
+				If MSA_grant <> "81.00" Then			'Anything other than 81 is typically a supplement 
 					EMWriteScreen "x", 9, 44
 					transmit
 					mx_row = 8
+					'This will read each row in the supplement pop up to add deail to the case note
 					Do 
 						EMReadScreen need_type, 2, mx_row, 6
 						If need_type = "__" Then Exit Do
@@ -544,6 +551,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 		End if
 		msa_elig = MSSM_line_01 & msa_elig
 	End If 
+	'Getting info about HC approval if requested
 	If grab_HC_info_check = checked Then 
 		For each member in HH_member_array
 			clt_ref_num = member
@@ -595,7 +603,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 										IF elig_month = MAXIS_footer_month AND elig_year = MAXIS_footer_year Then 
 							                EMReadScreen waiver_check, 1, 14, mx_col + 2        'Checking to see if case may be LTC or Waiver'
 							                EMReadScreen method_check, 1, 13, mx_col + 2
-											EMReadScreen obligation, 8, 17, mx_col - 1
+											EMReadScreen obligation, 8, 17, mx_col - 1			'Getting the spenddown amount
 											obligation = trim(obligation)
 											Exit Do 
 										Else 
@@ -630,8 +638,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 		HC_Elig_Info = right(HC_Elig_Info, len(HC_Elig_Info) - 2)
 	End If 
 
-	'MsgBox msa_elig & vbNewLine & HC_Elig_Info
-	
+	'Setting up some variables for the case note
 	programs_list = "HC"
 	If MSA_check = checked Then programs_list = programs_list & " & MSA"
 	If admit_date <> "" then facility_info = facility_info & ". Admit Date: " & admit_date
