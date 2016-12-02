@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/30/2016", "Case Note title changed to indicate GRH payment.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -524,7 +525,7 @@ LOOP UNTIL are_we_passworded_out = false
 
 'GRH NON HRF CASE NOTE
 Call start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE(faci_location & "BILLINGS FOR " & GRH_process_date)      'need to work on how to tell script to stop short of the full listing values indicated, and only stop short of the FACI's name.
+Call write_variable_in_CASE_NOTE(faci_location & "GRH PAYMENT FOR " & GRH_process_date)      'need to work on how to tell script to stop short of the full listing values indicated, and only stop short of the FACI's name.
 call write_variable_in_CASE_NOTE("---------")
 call write_bullet_and_variable_in_CASE_NOTE("Most recent FACI/ADDR info", addr_faci_vnds_status)
 If PostPay_results <> "" then call write_bullet_and_variable_in_CASE_NOTE("PostPay Results", PostPay_results)
