@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/06/2016", "Fixing a bug to make sure correct month gets edited.", "Charles Potter, DHS")
 call changelog_update("12/05/2016", "Fixing a bug to prevent errors when processing in single digit months.", "Charles Potter, DHS")
 call changelog_update("11/20/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -1082,13 +1083,14 @@ If MFIP_active = true then
 		If developer_mode <> TRUE Then
 			'First, make sure we are in correct month to update the panel (issue month + 2)
 			UNEA_month = datepart("M", dateadd("M", 2, issue_date)) 'insuring we get only the month portion so we can correct assess it's length.
+			MAXIS_footer_year = Right(datepart("YYYY", dateadd("M", 2, issue_date)), 2)  'defining MAXIS_footer_year to make sure we get into the right month
 			IF len(UNEA_month) = 1 THEN UNEA_month = "0" & UNEA_month
 			MAXIS_footer_month = UNEA_month
 			back_to_self 'We go back to the self menu, because navigate_to_maxis_screen doesn't update footer month when already in STAT
 			Call navigate_to_MAXIS_screen ("STAT", "UNEA")
 			'ObjExcel.Sheets("Message and Disb info").Activate
 			row = 1
-
+			
 			Do
 				If left(ObjExcel.Cells(row, 1).Value, 4) = "UNEA" Then
 					'Navigates to the correct UNEA panel
