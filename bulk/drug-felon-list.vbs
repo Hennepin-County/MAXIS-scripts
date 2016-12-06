@@ -252,11 +252,11 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 
 	Next
 	
-	If developer_mode = TRUE Then MsgBox "In " & dfln_to_process_array(month_reptd, person) & " case # " & dfln_to_process_array(case_numb, person) & " for person: " &_
-	   dfln_to_process_array(pers_id, person) & " was reported as a drug felon by " & dfln_to_process_array(cty_court_01, person) & " and sentanced on " &_
-	   dfln_to_process_array(sent_dt_01, person) & " listed at address: " & vbNewLine & vbNewLine & dfln_to_process_array(addr1_01, person) &_
-	   dfln_to_process_array(addr2_01, person) & vbNewLine & dfln_to_process_array(city_01, person) & ", " & dfln_to_process_array(state_01, person) &_
-	   " " & dfln_to_process_array(zip_01, person)
+''	If developer_mode = TRUE Then MsgBox "In " & dfln_to_process_array(month_reptd, person) & " case # " & dfln_to_process_array(case_numb, person) & " for person: " &_
+''	   dfln_to_process_array(pers_id, person) & " was reported as a drug felon by " & dfln_to_process_array(cty_court_01, person) & " and sentanced on " &_
+''	   dfln_to_process_array(sent_dt_01, person) & " listed at address: " & vbNewLine & vbNewLine & dfln_to_process_array(addr1_01, person) &_
+''	   dfln_to_process_array(addr2_01, person) & vbNewLine & dfln_to_process_array(city_01, person) & ", " & dfln_to_process_array(state_01, person) &_
+''	   " " & dfln_to_process_array(zip_01, person)
 Next
 
 objExcel.Quit 
@@ -654,56 +654,96 @@ For col_to_autofit = 1 to 34
 Next
 'objNewExcel.columns(4).columnwidth = 850
 
-Set objWord = CreateObject("Word.Application")
-'Const wdDialogFilePrint = 88
-'Const end_of_doc = 6
-objWord.Caption = "DFLN Mailing Labels"
-objWord.Visible = True
-Set objDoc = objWord.Documents.Add
-objWord.MailingLabel.CreateNewDocument "30 Per Page"
-Set objLabels = objDoc.Tables(1)
+''		Set objWord = CreateObject("Word.Application")
+''		'Const wdDialogFilePrint = 88
+''		'Const end_of_doc = 6
+''		objWord.Caption = "DFLN Mailing Labels"
+''		objWord.Visible = True
+''		Set newDoc = objWord.Documents.Add
+''		Set objLabels = objWord.MailingLabel.CreateNewDocument "30 Per Page"
+''
+''		Set objSelection = objLabels.Selection
+''
+''		objSelection.TypeText "Box 1"
+''		SendKeys "{tab}"
+''		objSelection.TypeText "Box 2"
+''		SendKeys "{tab}"
+''		objSelection.TypeText "Box 3"
+''		SendKeys "{tab}"
+''
 
-objLabels.Cell(1, 1).Range.Text = "Box 1"
-objLabels.Cell(1, 2).Range.Text = "Box 2"
-objLabels.Cell(1, 3).Range.Text = "Box 3"
 
-'Set oApp = CreateObject("Word.Application")
-'CreateDataDoc oApp
 
-'Set oDoc = oApp.Documents.Add
-'With oDoc.MailMerge
+'=======================================
+Set objFSO=CreateObject("Scripting.FileSystemObject")
+
+' How to write file  http://stackoverflow.com/questions/2198810/creating-and-writing-lines-to-a-file
+outFile="z:\data.txt"
+Set objFile = objFSO.CreateTextFile(outFile,True)
+For i = 0 to Ubound(dfln_to_process_array, 2)
+
+	objFile.Write dfln_to_process_array(clt_name, person) & vbCrLf
+	If dfln_to_process_array(stat_addr, person) <> "" Then 
+		stat_addr_array = split(dfln_to_process_array(stat_addr, person), "~")
+		objFile.Write stat_addr_array(0) & vbCrLf 'ADDR line 1'
+		objFile.Write stat_addr_array(1) & vbCrLf 'ADDR line 2'
+		objFile.Write stat_addr_array(2) & vbCrLf 'City'
+		objFile.Write stat_addr_array(3) & vbCrLf 'State'
+		objFile.Write stat_addr_array(4) & vbCrLf 'Zip'
+	End If
+Next 
+objFile.Close
+
+'How to read a file
+strFile = "c:\test\file"
+Set objFile = objFS.OpenTextFile(strFile)
+Do Until objFile.AtEndOfStream
+    strLine= objFile.ReadLine
+    Wscript.Echo strLine
+Loop
+objFile.Close
+
+
+
+Set oApp = CreateObject("Word.Application")
+CreateDataDoc oApp
+
+Set oDoc = oApp.Documents.Add
+With oDoc.MailMerge
   ' Add our fields.
-''  .Fields.Add oApp.Selection.Range, "clt_name"
-''  oApp.Selection.TypeText " "
-''  .Fields.Add oApp.Selection.Range, "addr1"
-''  oApp.Selection.TypeParagraph
-''  .Fields.Add oApp.Selection.Range, "addr2"
-''  oApp.Selection.TypeParagraph
-''  .Fields.Add oApp.Selection.Range, "city"
-''  oApp.Selection.TypeText ", "
-''  .Fields.Add oApp.Selection.Range, "state"
-''  oApp.Selection.TypeParagraph
-''  .Fields.Add oApp.Selection.Range, "zip"
-''  oApp.Selection.TypeParagraph'
+  .Fields.Add oApp.Selection.Range, "clt_name"
+  oApp.Selection.TypeText " "
+  .Fields.Add oApp.Selection.Range, "addr1"
+  oApp.Selection.TypeParagraph
+  .Fields.Add oApp.Selection.Range, "addr2"
+  oApp.Selection.TypeParagraph
+  .Fields.Add oApp.Selection.Range, "city"
+  oApp.Selection.TypeText ", "
+  .Fields.Add oApp.Selection.Range, "state"
+  oApp.Selection.TypeParagraph
+  .Fields.Add oApp.Selection.Range, "zip"
+  oApp.Selection.TypeParagraph'
 		 
   ' Create an autotext entry.
-''  Dim oAutoText
-''  Set oAutoText = oApp.NormalTemplate.AutoTextEntries.Add _
- '' ("MyLabelLayout", oDoc.Content)
- '' oDoc.Content.Delete
- '' .MainDocumentType = 1  ' 1 = wdMailingLabels
+  Dim oAutoText
+  Set oAutoText = oApp.NormalTemplate.AutoTextEntries.Add _
+  ("MyLabelLayout", oDoc.Content)
+  oDoc.Content.Delete
+  .MainDocumentType = 1  ' 1 = wdMailingLabels
 	   
   ' Open the saved data source.
-''  .OpenDataSource "C:\data.doc"
+  .OpenDataSource "C:\data.txt"
 
   ' Create a new document.
-''  oApp.MailingLabel.CreateNewDocument "5160", "", _
-''	   "MyLabelLayout", , 4  ' 4 = wdPrinterManualFeed
+  oApp.MailingLabel.CreateNewDocument "5160", "", _
+	   "MyLabelLayout", , 4  ' 4 = wdPrinterManualFeed
 
-''  .Destination = 0  ' 0 = wdSendToNewDocument
+  .Destination = 0  ' 0 = wdSendToNewDocument
   ' Execute the mail merge.
-''  .Execute
+  .Execute
 
-''  oAutoText.Delete
-'End With
+  oAutoText.Delete
+End With
 
+
+'http://stackoverflow.com/questions/9012529/if-file-exists-then-delete-the-file'
