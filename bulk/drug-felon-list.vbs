@@ -46,7 +46,7 @@ Call get_county_code	'gets county name to input into the 1st col of the spreadsh
 
 county_name = left(county_name, len(county_name)-7)
 
-
+developer_mode = TRUE
 	
 	
 'Runs the dialog'
@@ -412,70 +412,71 @@ back_to_self
 For person = 0 to Ubound(dfln_to_process_array, 2)
 	MAXIS_case_number = dfln_to_process_array(case_numb, person)
 	Call navigate_to_MAXIS_screen ("STAT", "DFLN")
-	pf9
-	mx_row = 6
-	If dfln_to_process_array(cty_court_01, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
-		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_01, person)), 2)  
-		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_01, person)), 2)
-		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_01, person)), 2)    
-		EMWriteScreen sent_day, mx_row, 30
-		EMWriteScreen sent_mth, mx_row, 27
-		EMWriteScreen sent_year, mx_row, 33
-		EMWriteScreen dfln_to_process_array(state_01, person), mx_row, 75  
-		mx_row = mx_row + 1
-	End If 	
-	     
-	If dfln_to_process_array(cty_court_02, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_02, person), mx_row, 41
-		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_02, person)), 2)  
-		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_02, person)), 2)
-		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_02, person)), 2)    
-		EMWriteScreen sent_day, mx_row, 30
-		EMWriteScreen sent_mth, mx_row, 27
-		EMWriteScreen sent_year, mx_row, 33
-		EMWriteScreen dfln_to_process_array(state_02, person), 6, 75  
-		mx_row = mx_row + 1
-	End If 	
-	
-	If dfln_to_process_array(cty_court_03, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_03, person), mx_row, 41
-		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_03, person)), 2)  
-		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_03, person)), 2)
-		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_03, person)), 2)    
-		EMWriteScreen sent_day, mx_row, 30
-		EMWriteScreen sent_mth, mx_row, 27
-		EMWriteScreen sent_year, mx_row, 33
-		EMWriteScreen dfln_to_process_array(state_03, person), mx_row, 75  
-		mx_row = mx_row + 1
-	End If 	
-	
-	If dfln_to_process_array(cty_court_04, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
-		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_04, person)), 2)  
-		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_04, person)), 2)
-		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_04, person)), 2)    
-		EMWriteScreen sent_day, mx_row, 30
-		EMWriteScreen sent_mth, mx_row, 27
-		EMWriteScreen sent_year, mx_row, 33
-		EMWriteScreen dfln_to_process_array(state_04, person), mx_row, 75  
-		mx_row = mx_row + 1
-	End If 	
-	
-	If dfln_to_process_array(cty_court_05, person) <> "?" Then 
-		EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
-		sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_05, person)), 2)  
-		sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_05, person)), 2)
-		sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_05, person)), 2)    
-		EMWriteScreen sent_day, mx_row, 30
-		EMWriteScreen sent_mth, mx_row, 27
-		EMWriteScreen sent_year, mx_row, 33
-		EMWriteScreen dfln_to_process_array(state_05, person), mx_row, 75  
-		mx_row = mx_row + 1
-	End If 	
-	
-''	MsgBox "Pause"
-	PF10
+	If developer_mode <> TRUE Then 
+		pf9
+		mx_row = 6
+		If dfln_to_process_array(cty_court_01, person) <> "?" Then 
+			EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
+			sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_01, person)), 2)  
+			sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_01, person)), 2)
+			sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_01, person)), 2)    
+			EMWriteScreen sent_day, mx_row, 30
+			EMWriteScreen sent_mth, mx_row, 27
+			EMWriteScreen sent_year, mx_row, 33
+			EMWriteScreen dfln_to_process_array(state_01, person), mx_row, 75  
+			mx_row = mx_row + 1
+		End If 	
+		     
+		If dfln_to_process_array(cty_court_02, person) <> "?" Then 
+			EMWriteScreen dfln_to_process_array(cty_court_02, person), mx_row, 41
+			sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_02, person)), 2)  
+			sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_02, person)), 2)
+			sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_02, person)), 2)    
+			EMWriteScreen sent_day, mx_row, 30
+			EMWriteScreen sent_mth, mx_row, 27
+			EMWriteScreen sent_year, mx_row, 33
+			EMWriteScreen dfln_to_process_array(state_02, person), 6, 75  
+			mx_row = mx_row + 1
+		End If 	
+		
+		If dfln_to_process_array(cty_court_03, person) <> "?" Then 
+			EMWriteScreen dfln_to_process_array(cty_court_03, person), mx_row, 41
+			sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_03, person)), 2)  
+			sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_03, person)), 2)
+			sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_03, person)), 2)    
+			EMWriteScreen sent_day, mx_row, 30
+			EMWriteScreen sent_mth, mx_row, 27
+			EMWriteScreen sent_year, mx_row, 33
+			EMWriteScreen dfln_to_process_array(state_03, person), mx_row, 75  
+			mx_row = mx_row + 1
+		End If 	
+		
+		If dfln_to_process_array(cty_court_04, person) <> "?" Then 
+			EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
+			sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_04, person)), 2)  
+			sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_04, person)), 2)
+			sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_04, person)), 2)    
+			EMWriteScreen sent_day, mx_row, 30
+			EMWriteScreen sent_mth, mx_row, 27
+			EMWriteScreen sent_year, mx_row, 33
+			EMWriteScreen dfln_to_process_array(state_04, person), mx_row, 75  
+			mx_row = mx_row + 1
+		End If 	
+		
+		If dfln_to_process_array(cty_court_05, person) <> "?" Then 
+			EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
+			sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_05, person)), 2)  
+			sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_05, person)), 2)
+			sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_05, person)), 2)    
+			EMWriteScreen sent_day, mx_row, 30
+			EMWriteScreen sent_mth, mx_row, 27
+			EMWriteScreen sent_year, mx_row, 33
+			EMWriteScreen dfln_to_process_array(state_05, person), mx_row, 75  
+			mx_row = mx_row + 1
+		End If 	
+		
+	''	MsgBox "Pause"
+	End If
 ''	MsgBox "Undo"
 	back_to_self
 Next
@@ -658,8 +659,13 @@ Set objWord = CreateObject("Word.Application")
 'Const end_of_doc = 6
 objWord.Caption = "DFLN Mailing Labels"
 objWord.Visible = True
-objWord.Documents.Add
+Set objDoc = objWord.Documents.Add
 objWord.MailingLabel.CreateNewDocument "30 Per Page"
+Set objLabels = objDoc.Tables(1)
+
+objLabels.Cell(1, 1).Range.Text = "Box 1"
+objLabels.Cell(1, 2).Range.Text = "Box 2"
+objLabels.Cell(1, 3).Range.Text = "Box 3"
 
 'Set oApp = CreateObject("Word.Application")
 'CreateDataDoc oApp
