@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/6/2016", "Corrected bug which was leaving appointment time off of case notes for in office interviews.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Enabled access to Hennepin County users. Added TIKL, and added variables to allow DAIL scrubber support. Updated error message handling within dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/20/2016", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -1072,6 +1073,7 @@ IF interview_location = "PHONE" then
 		call write_variable_in_CASE_NOTE("* Interview will take place by telephone.")
 	End if
 Else
+	call write_bullet_and_variable_in_CASE_NOTE("Appointment time", interview_time)
 	call write_bullet_and_variable_in_CASE_NOTE("Appointment location", interview_location)
 End if
 call write_bullet_and_variable_in_CASE_NOTE("Why interview is more than six days from now", expedited_explanation)
