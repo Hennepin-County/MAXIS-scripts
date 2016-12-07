@@ -382,6 +382,7 @@ If auth_error = "YOUR ARE" then script_end_procedure("You are not authorized to 
 EMWriteScreen "MF", 5, 17		'enters mandatory codes per HG instruction
 EMWriteScreen "MF", 5, 21		'enters mandatory codes per HG instruction
 EMWriteScreen "31", 5, 32		'restored payment code per the HG instruction
+EMWriteScreen "N", 8, 27		'enters N for migrant status for cases that are now inactive, and prog has been cleared. 
 
 'total # eligible house hold members from MFBF needs to be inputted
 EMWriteScreen number_eligible_members, 7, 27			'enters the number of eligible HH members
