@@ -276,6 +276,9 @@ If issuance_reason = "" then script_end_procedure("Case does not meet criteria f
 
 transmit  'Transmits to exit the MFIP Person Test Results back to MFPR
 Call navigate_to_MAXIS_screen("ELIG", "MFBF")
+EMWriteScreen vers_number, 20, 79
+transmit
+
 'ensures the user is indeed on MFBF otherwise the array will not be filled and the script will suffer from an epic fail
 DO
 	EMReadScreen MFBF_check, 4, 3, 47
@@ -426,6 +429,7 @@ transmit 'transmits twice to get to the restoration of benefits screen
 EMReadScreen update_TIME_panel_check, 4, 14, 32
 If update_TIME_panel_check = "TIME" then
 	transmit
+	PF10	'PF10 twice to ensure that cases do not get stuck in TIME panel
 	PF10
 	PF3
 END IF
