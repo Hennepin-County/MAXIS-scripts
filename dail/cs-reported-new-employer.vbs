@@ -155,16 +155,21 @@ If jobs_check <> "JOBS" or jobs_memb_check <> HH_memb then script_end_procedure(
 EMWriteScreen "nn", 20, 79
 transmit
 
-'Default info (wage income, no verification)
-EMWriteScreen "w", 5, 38
-EMWriteScreen "n", 6, 38
-
 'Adding employer info
 EMWriteScreen employer, 7, 42
 
 'Reading footer month/year, to be used in the prospective column
 EMReadScreen MAXIS_footer_month, 2, 20, 55
 EMReadScreen MAXIS_footer_year, 2, 20, 58
+
+'Default info (wage income, no verification)
+IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+	EMWriteScreen "w", 5, 34				'Wage income is the type
+	EMWriteScreen "n", 6, 34				'No proof has been provided
+ELSE
+	EMWriteScreen "w", 5, 38				'Wage income is the type
+	EMWriteScreen "n", 6, 38				'No proof has been provided
+END IF
 
 'Writing the first day of the footer month as the prospective paydate, and 0 for both wage and hours
 EMWriteScreen MAXIS_footer_month, 12, 54
