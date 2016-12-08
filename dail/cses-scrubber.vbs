@@ -398,15 +398,17 @@ excel_row = 3
 
 'Associates panel with each message
 Do
-	'If the script could not match the PMI to a reference number this would be blank. If it is not blank, it will find the UNEA penel for this income.
+	'If the script could not match the PMI to a reference number this would be blank. The worker will be asked to assign the reference number
 	If ObjExcel.Cells(excel_row, col_HH_memb_number) = "" Then 
 	
+		'Creates a dropdown list to select a client from the case
 		Call Generate_Client_List(HH_Memb_DropDown)
-		'Running the dialog for case number and client
+		
+		'Asking the worker to select who this income should be listed under.
 		Do
 			err_msg = ""
-			'Dialog defined here so the dropdown can be changed
-			BeginDialog cses_memb_missing_dialog, 0, 0, 276, 105, "Missing HH Member"
+			'Dialog defined here because it needs to come after the dropdown creation.
+			BeginDialog cses_memb_missing_dialog, 0, 0, 285, 105, "Missing HH Member"
 			  OptionGroup RadioGroup1
 				RadioButton 20, 35, 50, 10, "Yes", radio_yes
 				RadioButton 20, 50, 50, 10, "No", radio_no
@@ -414,7 +416,7 @@ Do
 			  ButtonGroup ButtonPressed
 				OkButton 200, 85, 35, 15
 				CancelButton 240, 85, 30, 15
-			  Text 5, 5, 275, 10, "Income has ben reported for PMI " & ObjExcel.Cells(excel_row, col_PMI_number) & ". No one listed in STAT has this PMI Number."
+			  Text 5, 5, 280, 10, "Income has ben reported for PMI " & ObjExcel.Cells(excel_row, col_PMI_number) & ". No one listed in STAT has this PMI Number."
 			  Text 5, 20, 160, 10, "Should this income be budgeted in this case?"
 			  Text 5, 70, 260, 10, "If yes, which HH member has (or should have) the UNEA panel for this income?"
 			  Text 10, 85, 70, 10, "Household member"
@@ -427,6 +429,7 @@ Do
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 		Loop until err_msg = ""
 
+		'If the worker says the income should be budgeted
 		If radio_yes = 1 Then
 			ObjExcel.Cells(excel_row, col_HH_memb_number).Value = left(memb_w_unea, 2)
 			
@@ -443,6 +446,7 @@ Do
 			call navigate_to_MAXIS_screen ("STAT", "UNEA")
 		End If 
 		
+		'If the income should not be budgeted - we don't have a process for this - the script ends.
 		If radio_no = 1 Then script_end_procedure ("CS DAILS indicate income that you have selected should not be budgeted. At this time, these messages must be processed manually.")
 		
 	End If 
