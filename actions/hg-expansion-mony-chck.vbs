@@ -45,6 +45,7 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 
+call changelog_update("12/08/2016", "Updated handling for exiting the TIME panel, confirming version number and MFBF panel, added handling for migrant indicator on MONY/CHCK. Also added comments to code, and removed outdated coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Added ACTIONS script that will create a MONY/CHCK for cases that meet the Housing Grant expansion criteria.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
 
