@@ -81,10 +81,8 @@ EndDialog
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-'initial_month = CM_minus_1_mo  'defaulting date to current month - one
-'initial_year = CM_minus_1_yr
-initial_month = "10"
-initial_year = "16"
+initial_month = CM_minus_1_mo  'defaulting date to current month - one
+initial_year = CM_minus_1_yr
 
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
 DO
@@ -144,7 +142,7 @@ DO
 		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
-'navigates to ELIG/MFIP once the footer month and date are the selected dates: ELIG/MFIP----------------------------------------------------------------------------------------------------
+'navigates to STAT/MEMB to check for PARIS matches for all people on the case----------------------------------------------------------------------------------------------------
 back_to_SELF
 EMWritescreen initial_month, 20, 43			'enters footer month/year user selected since you have to be in the same footer month/year as the CHCK is being issued for
 EMWritescreen initial_year, 20, 46
@@ -193,6 +191,7 @@ FOR each SSN_for_PARIS in HH_member_array						'for each person who we found on 
 	END IF
 NEXT																														'looping back with the for next to check the next SSN.
 
+'navigates to ELIG/MFIP once the footer month and date are the selected dates: ELIG/MFIP----------------------------------------------------------------------------------------------------
 Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 'Ensures that users is in the most recently approved version of MFIP
 EMReadScreen no_MFIP, 10, 24, 2
@@ -268,9 +267,6 @@ If issuance_reason = "" then script_end_procedure("Case does not meet criteria f
 
 transmit  'Transmits to exit the MFIP Person Test Results back to MFPR
 Call navigate_to_MAXIS_screen("ELIG", "MFBF")
-EMWriteScreen vers_number, 20, 79
-transmit
-
 'ensures the user is indeed on MFBF otherwise the array will not be filled and the script will suffer from an epic fail
 DO
 	EMReadScreen MFBF_check, 4, 3, 47
@@ -279,6 +275,9 @@ DO
 		transmit
 	END IF
 LOOP until MFBF_check = "MFBF"
+
+EMWriteScreen vers_number, 20, 79 'enters the version number of the elig and approved version of the script once it's confirmed that we're back in MFBF
+transmit
 
 'establishes values for variables and declaring the arrays for newly added population cases
 number_eligible_members = 0
