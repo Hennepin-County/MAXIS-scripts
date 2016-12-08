@@ -70,6 +70,31 @@ FUNCTION create_mainframe_friendly_date(date_variable, screen_row, screen_col, y
 	EMWriteScreen var_year, screen_row, screen_col + 6
 END FUNCTION
 
+Function Generate_Client_List(list_for_dropdown)
+
+	memb_row = 5
+
+	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+	Do
+		EMReadScreen ref_numb, 2, memb_row, 3
+		If ref_numb = "  " Then Exit Do
+		EMWriteScreen ref_numb, 20, 76
+		transmit
+		EMReadScreen first_name, 12, 6, 63
+		EMReadScreen last_name, 25, 6, 30
+		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
+		memb_row = memb_row + 1
+	Loop until memb_row = 20
+
+	client_info = right(client_info, len(client_info) - 1)
+	client_list_array = split(client_info, "~")
+
+	For each person in client_list_array
+		list_for_dropdown = list_for_dropdown & chr(9) & person
+	Next
+
+End Function
+
 'END FUNCTIONS=============================================================================================================
 
 'DIALOGS===================================================================================================================
@@ -373,6 +398,55 @@ excel_row = 3
 
 'Associates panel with each message
 Do
+	'If the script could not match the PMI to a reference number this would be blank. If it is not blank, it will find the UNEA penel for this income.
+	If ObjExcel.Cells(excel_row, col_HH_memb_number) = "" Then 
+	
+		Call Generate_Client_List(HH_Memb_DropDown)
+		'Running the dialog for case number and client
+		Do
+			err_msg = ""
+			'Dialog defined here so the dropdown can be changed
+			BeginDialog cses_memb_missing_dialog, 0, 0, 276, 105, "Missing HH Member"
+			  OptionGroup RadioGroup1
+				RadioButton 20, 35, 50, 10, "Yes", radio_yes
+				RadioButton 20, 50, 50, 10, "No", radio_no
+			  DropListBox 85, 85, 105, 45, "Select One..." & HH_Memb_DropDown, memb_w_unea
+			  ButtonGroup ButtonPressed
+				OkButton 200, 85, 35, 15
+				CancelButton 240, 85, 30, 15
+			  Text 5, 5, 275, 10, "Income has ben reported for PMI " & ObjExcel.Cells(excel_row, col_PMI_number) & ". No one listed in STAT has this PMI Number."
+			  Text 5, 20, 160, 10, "Should this income be budgeted in this case?"
+			  Text 5, 70, 260, 10, "If yes, which HH member has (or should have) the UNEA panel for this income?"
+			  Text 10, 85, 70, 10, "Household member"
+			EndDialog
+			
+			Dialog cses_memb_missing_dialog
+			If ButtonPressed = cancel Then StopScript
+
+			If memb_w_unea = "Select One..." AND radio_yes = 1 Then err_msg = err_msg & vbNewLine & "Please pick a client who should have the UNEA panel for this income."
+			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+		Loop until err_msg = ""
+
+		If radio_yes = 1 Then
+			ObjExcel.Cells(excel_row, col_HH_memb_number).Value = left(memb_w_unea, 2)
+			
+			
+			excel_message_row =  excel_row + 1
+			
+			
+			Do 
+				'If...	the PMI from the CSES message equals...						the PMI from the MEMB list...									then the HH member column in the message list...					should equal the ref nbr from the HH memb list.
+				If 		ObjExcel.Cells(excel_row, col_PMI_number).Value = 	ObjExcel.Cells(excel_message_row, col_PMI_number).Value then 	ObjExcel.Cells(excel_message_row, col_HH_memb_number ).Value = 		ObjExcel.Cells(excel_row, col_HH_memb_number ).Value
+				excel_message_row = excel_message_row + 1
+			Loop until ObjExcel.Cells(excel_message_row, col_PMI_number).Value = ""		'Out of messages
+			
+			call navigate_to_MAXIS_screen ("STAT", "UNEA")
+		End If 
+		
+		If radio_no = 1 Then script_end_procedure ("CS DAILS indicate income that you have selected should not be budgeted. At this time, these messages must be processed manually.")
+		
+	End If 
+	
 	'Creates a UNEA_number variable using the right two characters of a string consisting of "0" and the HH memb column. This prevents issues when running on membs 01-09, which show on Excel as "1-9"
     UNEA_number = right("0" & ObjExcel.Cells(excel_row, col_HH_memb_number).Value, 2)
 
@@ -437,8 +511,7 @@ Do
 	excel_row_for_UNEA_panel_autofill = ""
 	income_type_on_UNEA = ""
 	excel_row = excel_row + 1
-
-
+		
 
 Loop until ObjExcel.Cells(excel_row, col_msg_number).Value = ""			'Loop until we're out of messages
 
@@ -719,29 +792,29 @@ If SNAP_active = true then
 
 				If message_array(i).UNEAPanel = "NONE" then
 
-					ObjExcel.Cells(1, 6 ).Value = "MESSAGES WITHOUT UNEA PANELS (SPLIT BY HH MEMB)"
+					ObjExcel.Cells(1, 11 ).Value = "MESSAGES WITHOUT UNEA PANELS (SPLIT BY HH MEMB)"
 
-					ObjExcel.Cells(2, 6 ).Value = "HH member #"
-					ObjExcel.Cells(2, 7 ).Value = "CS type"
-					ObjExcel.Cells(2, 8 ).Value = "Amount alloted"
-					ObjExcel.Cells(2, 9 ).Value = "Issue date"
-					ObjExcel.Cells(2, 10).Value = "Message #"
+					ObjExcel.Cells(2, 11 ).Value = "HH member #"
+					ObjExcel.Cells(2, 12 ).Value = "CS type"
+					ObjExcel.Cells(2, 13 ).Value = "Amount alloted"
+					ObjExcel.Cells(2, 14 ).Value = "Issue date"
+					ObjExcel.Cells(2, 15).Value = "Message #"
 
-					ObjExcel.Cells(2, 6 ).Font.Bold	= True
-					ObjExcel.Cells(2, 7 ).Font.Bold	= True
-					ObjExcel.Cells(2, 8 ).Font.Bold	= True
-					ObjExcel.Cells(2, 9 ).Font.Bold	= True
-					ObjExcel.Cells(2, 10).Font.Bold	= True
+					ObjExcel.Cells(2, 11 ).Font.Bold	= True
+					ObjExcel.Cells(2, 12 ).Font.Bold	= True
+					ObjExcel.Cells(2, 13 ).Font.Bold	= True
+					ObjExcel.Cells(2, 14 ).Font.Bold	= True
+					ObjExcel.Cells(2, 15).Font.Bold	= True
 
 
 
-					ObjExcel.Cells(excel_row_no_panel_found, 6 ).Value = "'0" & message_array(i).MEMBNum
-					ObjExcel.Cells(excel_row_no_panel_found, 7 ).Value = message_array(i).CSType
-					ObjExcel.Cells(excel_row_no_panel_found, 8 ).Value = message_array(i).AmtAlloted
-					ObjExcel.Cells(excel_row_no_panel_found, 9 ).Value = message_array(i).IssueDate
-					ObjExcel.Cells(excel_row_no_panel_found, 10).Value = message_array(i).MsgNum
+					ObjExcel.Cells(excel_row_no_panel_found, 11 ).Value = "'0" & message_array(i).MEMBNum
+					ObjExcel.Cells(excel_row_no_panel_found, 12 ).Value = message_array(i).CSType
+					ObjExcel.Cells(excel_row_no_panel_found, 13 ).Value = message_array(i).AmtAlloted
+					ObjExcel.Cells(excel_row_no_panel_found, 14 ).Value = message_array(i).IssueDate
+					ObjExcel.Cells(excel_row_no_panel_found, 15).Value = message_array(i).MsgNum
 
-					ObjExcel.Cells(excel_row_no_panel_found, 8).NumberFormat = "$#,##0.00"
+					ObjExcel.Cells(excel_row_no_panel_found, 13).NumberFormat = "$#,##0.00"
 
 					excel_row_no_panel_found = excel_row_no_panel_found + 1
 
