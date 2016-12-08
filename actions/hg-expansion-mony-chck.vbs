@@ -81,9 +81,10 @@ EndDialog
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-member_number = "01"	'defaults the member number to 01
-initial_month = CM_minus_1_mo  'defaulting date to current month - one
-initial_year = CM_minus_1_yr
+'initial_month = CM_minus_1_mo  'defaulting date to current month - one
+'initial_year = CM_minus_1_yr
+initial_month = "10"
+initial_year = "16"
 
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
 DO
@@ -249,17 +250,8 @@ Loop until app_status = "APPROVED" or trim(app_status) = ""
 'If no elig results are found, then the script ends.
 If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
 
-'goes into ELIG/MFIP, and checks for the reason for the manual MONY/CHCK: either emps exempt populations or the newly added populations
-MAXIS_row = 7	'establishing the row to start searching
-DO
-	EMReadscreen memb_number, 2, MAXIS_row, 6		'searching for member number from initial dialog
-	If memb_number = "  " then script_end_procedure("The member number you entered does not appear to be valid. Please check your member number and try again.")
-	IF member_number = memb_number then exit do				'exits do if member number matches
-	MAXIS_row = MAXIS_row + 1	'otherwise it searches again on the next row
-LOOP until MAXIS_row = 18
-
 'The recipient isevaluated as meeting one of the 2 newly added population inelgible codes
-EMWritescreen "x", MAXIS_row, 3			'selects the member number to navigate to the MFIP Person Test Results
+EMWritescreen "x", 7, 3			'selects the member number to navigate to the MFIP Person Test Results
 transmit
 'Checking FAILED reason for newly added population (SSI recipients and undocumented non-citizens with eligible children)
 issuance_reason = ""	'issuance_reason = "" will determine what path the script takes. If "" then case is an emps exempt person, if not person is newly added population person
@@ -309,7 +301,7 @@ DO
 	If ref_num = "  " then exit do				'exits do if member number matches
 	EMReadScreen member_elig_status, 1, MAXIS_row, 27
 	'Adding members to array to gather information for the MONY/CHCK (member number, adult vs child, cash and state food coding)
-	If ref_num = member_number then
+	If ref_num = "01" then
 		add_to_array = True						'MEMB 01 needs to be added to MONY/CHCK weather they are eligible or not
 	Elseif trim(member_elig_status) = "A" then
 		add_to_array = True						'all eligible HH members need to be added to MONY/CHCK
@@ -429,9 +421,11 @@ transmit 'transmits twice to get to the restoration of benefits screen
 EMReadScreen update_TIME_panel_check, 4, 14, 32
 If update_TIME_panel_check = "TIME" then
 	transmit
-	PF10	'PF10 twice to ensure that cases do not get stuck in TIME panel
-	PF10
-	PF3
+	Do 
+		PF10
+		PF3
+		EMReadScreen TIME_panel, 4, 2, 46
+	LOOP until TIME_panel <> "TIME"
 END IF
 PF3
 PF3 	'PF3's twice to NOT send the notice
