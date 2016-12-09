@@ -62,20 +62,18 @@ CM_minus_11_mo =  left("0" &            DatePart("m",           DateAdd("m", -11
 CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
 
 'DIALOG===========================================================================================================================
-BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 135, "Housing grant Expansion"
-  EditBox 60, 10, 55, 15, MAXIS_case_number
-  EditBox 245, 10, 25, 15, initial_month
-  EditBox 275, 10, 25, 15, initial_year
-  EditBox 80, 110, 110, 15, worker_signature
+BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 351, 90, "Housing grant Expansion MONY-CHCK"
+  EditBox 65, 70, 55, 15, MAXIS_case_number
+  EditBox 175, 70, 25, 15, initial_month
+  EditBox 205, 70, 25, 15, initial_year
   ButtonGroup ButtonPressed
-    OkButton 195, 110, 50, 15
-    CancelButton 250, 110, 50, 15
-  Text 15, 80, 280, 20, "Before you use the script, please review the case for eligibility for the MFIP housing grant."
-  Text 200, 15, 40, 10, "month/year:"
-  Text 15, 115, 60, 10, "Worker signature:"
-  GroupBox 10, 35, 290, 70, "Housing grant Expansion:"
-  Text 10, 15, 50, 10, "Case Number:"
-  Text 15, 55, 280, 20, "This script should be used when the MFIP housing grant should have been issued on an eligible case for months prior to the current month or current month plus one. "
+    OkButton 240, 70, 50, 15
+    CancelButton 295, 70, 50, 15
+  Text 15, 45, 320, 10, "Before you use the script, please review the case for eligibility for the MFIP housing grant."
+  Text 130, 75, 40, 10, "month/year:"
+  GroupBox 10, 5, 335, 55, "Housing grant Expansion:"
+  Text 15, 75, 50, 10, "Case Number:"
+  Text 15, 20, 325, 20, "This script should be used when the MFIP housing grant should have been issued on an eligible case for months prior to the current month or current month plus one. "
 EndDialog
 
 'The script============================================================================================================================
@@ -94,7 +92,6 @@ DO
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."		'mandatory field
 		IF len(initial_month) <> 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit month."	'mandatory field
 		IF len(initial_year) <> 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit year."		'mandatory field
-		IF worker_signature = ""  then err_msg = err_msg & vbCr & "You must sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
