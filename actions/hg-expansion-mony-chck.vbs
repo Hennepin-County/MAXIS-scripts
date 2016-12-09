@@ -82,7 +82,7 @@ EndDialog
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-initial_month = CM_minus_1_mo  'defaulting date to current month - one
+initial_month = CM_minus_1_mo	'defaulting to current month - 1 
 initial_year = CM_minus_1_yr
 
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
@@ -198,6 +198,15 @@ Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 EMReadScreen no_MFIP, 10, 24, 2
 If no_MFIP = "NO VERSION" then script_end_procedure("There are no eligibilty results for this case. Please check your case number/case for accuracy.")
 
+'Signficant change cases do not automatically open to the MFPR panel. This ensures that we get there. 
+Do 
+	EMReadscreen MFPR_panel_check, 4, 3, 47
+	If MFPR_panel_check <> "MFPR" then 
+		EMWritescreen "MFPR", 20, 71
+		transmit
+	END IF 
+LOOP until MFPR_panel_check = "MFPR"
+
 'Script will check for Fraud on most recent unappproved version that may have been added after report was generated as you cannot approve negative actions in previous months
 fraud_row = 7											'dummy variable to count what row we are on for do loop
 DO
@@ -226,31 +235,46 @@ Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 EMReadScreen no_MFIP, 10, 24, 2
 If no_MFIP = "NO VERSION" then script_end_procedure("There are no eligibilty results for this case. Please check your case number/case for accuracy.")
 
-EMWriteScreen "99", 20, 79 		'this is the most amount of eligibility results that elig can contain, so all versions appear in the next pop up
-transmit
-
-'This brings up the MFIP versions of eligibilty results to search for approved versions
-MAXIS_row = 7
-Do
-	EMReadScreen app_status, 8, MAXIS_row, 50
-	If trim(app_status) = "" then exit do 	'if end of the list is reached then exits the do loop
-	If app_status = "UNAPPROV" Then MAXIS_row = MAXIS_row + 1
-	If app_status = "APPROVED" then
-		EMReadScreen elig_status, 8, MAXIS_row, 37
-		If elig_status = "ELIGIBLE" then
-			EMReadScreen vers_number, 1, MAXIS_row, 23
-			EMWriteScreen vers_number, 18, 54
-			transmit		'transmits to approved and eligible veresion of MFIP
-			exit do
-		ELSE
-		 	MAXIS_row = MAXIS_row + 1
-		END IF
-	END IF
-Loop until app_status = "APPROVED" or trim(app_status) = ""
-'If no elig results are found, then the script ends.
-If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
+'if case is signficatnt change, then user will need to transmit past to the MFPR
+EMReadScreen sign_change, 6, 4, 15
+If sign_change = "CHANGE" then 
+	msgbox "THIS IS A SIGN CHANGE CASE"
+	transmit
+Else 
+	EMWriteScreen "99", 20, 79 		'this is the most amount of eligibility results that elig can contain, so all versions appear in the next pop up
+	transmit
+    'This brings up the MFIP versions of eligibilty results to search for approved versions
+    MAXIS_row = 7
+    Do
+    	EMReadScreen app_status, 8, MAXIS_row, 50
+    	If trim(app_status) = "" then exit do 	'if end of the list is reached then exits the do loop
+    	If app_status = "UNAPPROV" Then MAXIS_row = MAXIS_row + 1
+    	If app_status = "APPROVED" then
+    		EMReadScreen elig_status, 8, MAXIS_row, 37
+    		If elig_status = "ELIGIBLE" then
+    			EMReadScreen vers_number, 1, MAXIS_row, 23
+    			EMWriteScreen vers_number, 18, 54
+    			transmit		'transmits to approved and eligible veresion of MFIP
+    			exit do
+    		ELSE
+    		 	MAXIS_row = MAXIS_row + 1
+    		END IF
+    	END IF
+    Loop until app_status = "APPROVED" or trim(app_status) = ""
+    'If no elig results are found, then the script ends.
+    If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
+End if 
 
 'The recipient isevaluated as meeting one of the 2 newly added population inelgible codes
+'Signficant change cases do not automatically open to the MFPR panel. This ensures that we get there. 
+Do 
+	EMReadscreen MFPR_panel_check, 4, 3, 47
+	If MFPR_panel_check <> "MFPR" then 
+		EMWritescreen "MFPR", 20, 71
+		transmit
+	END IF 
+LOOP until MFPR_panel_check = "MFPR"
+
 EMWritescreen "x", 7, 3			'selects the member number to navigate to the MFIP Person Test Results
 transmit
 'Checking FAILED reason for newly added population (SSI recipients and undocumented non-citizens with eligible children)
