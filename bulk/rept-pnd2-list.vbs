@@ -51,22 +51,25 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG-----------------------------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
-  EditBox 150, 20, 130, 15, worker_number
+BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 135, "Pull REPT data into Excel dialog"
+  EditBox 135, 20, 145, 15, worker_number
   CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 50, 40, 10, "Cash?", cash_check
-  CheckBox 10, 65, 40, 10, "HC?", HC_check
-  CheckBox 10, 80, 40, 10, "EA?", EA_check
-  CheckBox 10, 95, 40, 10, "GRH?", GRH_check
+  CheckBox 70, 80, 205, 10, "Check here to add last case note information to spreadsheet.", Check7
+  CheckBox 10, 20, 40, 10, "SNAP?", SNAP_check
+  CheckBox 10, 35, 40, 10, "Cash?", cash_check
+  CheckBox 10, 50, 40, 10, "HC?", HC_check
+  CheckBox 10, 65, 40, 10, "EA?", EA_check
+  CheckBox 10, 80, 40, 10, "GRH?", GRH_check
+  CheckBox 10, 95, 40, 10, "IV-E?", IVE_check
+  CheckBox 10, 110, 50, 10, "Child care?", CC_check
   ButtonGroup ButtonPressed
-    OkButton 175, 100, 50, 15
-    CancelButton 230, 100, 50, 15
-  GroupBox 5, 20, 60, 90, "Progs to scan"
-  Text 70, 25, 65, 10, "Worker(s) to check:"
-  Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+    OkButton 175, 115, 50, 15
+    CancelButton 230, 115, 50, 15
   Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
   Text 70, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+  GroupBox 5, 5, 60, 120, "Progs to scan"
+  Text 70, 25, 65, 10, "Worker(s) to check:"
+  Text 70, 95, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
@@ -77,8 +80,11 @@ get_county_code
 EMConnect ""
 
 'Dialog asks what stats are being pulled
-Dialog pull_REPT_data_into_excel_dialog
-If buttonpressed = cancel then stopscript
+Do 	
+	Dialog pull_REPT_data_into_excel_dialog
+	If buttonpressed = cancel then stopscript
+	Call check_for_password(are_we_passworded_out)
+Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -146,6 +152,20 @@ If GRH_check = checked then
 	col_to_use = col_to_use + 1
 	GRH_letter_col = convert_digit_to_excel_column(GRH_pends_col)
 End if
+If IVE_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "IV-E?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	ive_pends_col = col_to_use
+	col_to_use = col_to_use + 1
+	IVE_letter_col = convert_digit_to_excel_column(ive_pends_col)
+End if
+If CC_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "CC?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	CC_pends_col = col_to_use
+	col_to_use = col_to_use + 1
+	CC_letter_col = convert_digit_to_excel_column(CC_pends_col)
+End if
 
 'Setting the variable for what's to come
 excel_row = 2
@@ -183,15 +203,17 @@ For each worker in worker_array
 		Do
 			MAXIS_row = 7
 			Do
-				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5			'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5	'Reading case number
 				EMReadScreen client_name, 22, MAXIS_row, 16		'Reading client name
-				EMReadScreen APPL_date, 8, MAXIS_row, 38			'Reading application date
+				EMReadScreen APPL_date, 8, MAXIS_row, 38		'Reading application date
 				EMReadScreen days_pending, 4, MAXIS_row, 49		'Reading days pending
 				EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
-				EMReadScreen HC_status, 1, MAXIS_row, 65			'Reading HC status
-				EMReadScreen EA_status, 1, MAXIS_row, 68			'Reading EA status
-				EMReadScreen GRH_status, 1, MAXIS_row, 72			'Reading GRH status
+				EMReadScreen HC_status, 1, MAXIS_row, 65		'Reading HC status
+				EMReadScreen EA_status, 1, MAXIS_row, 68		'Reading EA status
+				EMReadScreen GRH_status, 1, MAXIS_row, 72		'Reading GRH status
+				EMReadScreen IVE_status, 1, MAXIS_row, 76		'Reading IV-E status
+				EMReadScreen CC_status, 1, MAXIS_row, 80		'Reading CC status	
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				If trim(MAXIS_case_number) <> "" and (instr(all_case_numbers_array, MAXIS_case_number) <> 0 and client_name <> " ADDITIONAL APP       ") then exit do
@@ -205,6 +227,8 @@ For each worker in worker_array
 				HC_status = trim(replace(HC_status, "_", ""))
 				EA_status = trim(replace(EA_status, "_", ""))
 				GRH_status = trim(replace(GRH_status, "_", ""))
+				IVE_status = trim(replace(IVE_status, "_", ""))
+				CC_status = trim(replace(CC_status, "_", ""))
 
 				'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
 				If SNAP_status <> "" and SNAP_check = checked then add_case_info_to_Excel = True
@@ -212,7 +236,9 @@ For each worker in worker_array
 				If HC_status <> "" and HC_check = checked then add_case_info_to_Excel = True
 				If EA_status <> "" and EA_check = checked then add_case_info_to_Excel = True
 				If GRH_status <> "" and GRH_check = checked then add_case_info_to_Excel = True
-
+				If IVE_status <> "" and IVE_check = checked then add_case_info_to_Excel = True
+				If CC_status <> "" and CC_check = checked then add_case_info_to_Excel = True
+				
 				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
@@ -224,6 +250,8 @@ For each worker in worker_array
 					If HC_check = checked then ObjExcel.Cells(excel_row, HC_pends_col).Value = HC_status
 					If EA_check = checked then ObjExcel.Cells(excel_row, EA_pends_col).Value = EA_status
 					If GRH_check = checked then ObjExcel.Cells(excel_row, GRH_pends_col).Value = GRH_status
+					If IVE_check = checked then ObjExcel.Cells(excel_row, ive_pends_col).Value = IVE_status
+					If CC_check = checked then ObjExcel.Cells(excel_row, CC_pends_col).Value = CC_status
 					excel_row = excel_row + 1
 				End if
 				MAXIS_row = MAXIS_row + 1
@@ -312,6 +340,30 @@ If GRH_check = checked then
 	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the GRH stat takes up two rows
+End if
+
+'IVE info
+If IVE_check = checked then
+	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "IVE cases pending over 30 days:"	'Row header
+	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
+	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of SNAP cases pending over 30 days:"	'Row header
+	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
+	row_to_use = row_to_use + 2	'It's two rows we jump, because the IVE stat takes up two rows
+End if
+
+'CC
+If CC_check = checked then
+	ObjExcel.Cells(row_to_use, col_to_use - 1).Value = "SNAP cases pending over 30 days:"	'Row header
+	objExcel.Cells(row_to_use, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
+	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of SNAP cases pending over 30 days:"	'Row header
+	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
+	row_to_use = row_to_use + 2	'It's two rows we jump, because the CC stat takes up two rows
 End if
 
 'Autofitting columns
@@ -515,6 +567,92 @@ If GRH_check = checked then
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
 		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
 		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	Next
+
+	'Merging header cell.
+	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+
+	'Centering the cell
+	objExcel.Cells(1, 2).HorizontalAlignment = -4108
+
+	'Autofitting columns
+	For col_to_autofit = 1 to 20
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+End if
+
+'Provides additional statistics for IV-E cases
+If IVE_check = checked then
+
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Worksheets.Add().Name = "IV-E stats by worker"
+
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "IV-E STATS BY WORKER"
+	ObjExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "PENDING <= 30 DAYS"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "TOTAL PENDING"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "% PENDING <= 30 DAYS"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For x = 0 to ubound(worker_array)
+		ObjExcel.Cells(x + 3, 1) = worker_array(x)
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & IVE_letter_col & ":" & IVE_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & IVE_letter_col & ":" & IVE_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
+		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
+		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
+		ObjExcel.Cells(x + 3, 5).NumberFormat = "0.00%"		'Formula should be percent
+	Next
+
+	'Merging header cell.
+	ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 5)).Merge
+
+	'Centering the cell
+	objExcel.Cells(1, 2).HorizontalAlignment = -4108
+
+	'Autofitting columns
+	For col_to_autofit = 1 to 20
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+End if
+
+'Provides additional statistics for CC cases
+If CC_check = checked then
+
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Worksheets.Add().Name = "CC stats by worker"
+
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "CC STATS BY WORKER"
+	ObjExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "PENDING <= 30 DAYS"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "TOTAL PENDING"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "% PENDING <= 30 DAYS"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF SAMPLED WORKLOAD"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For x = 0 to ubound(worker_array)
+		ObjExcel.Cells(x + 3, 1) = worker_array(x)
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & CC_letter_col & ":" & CC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & CC_letter_col & ":" & CC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
