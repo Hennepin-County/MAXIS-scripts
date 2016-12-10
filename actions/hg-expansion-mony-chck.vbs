@@ -45,6 +45,7 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 
+call changelog_update("12/08/2016", "Updated handling for exiting the TIME panel, confirming version number and MFBF panel, added handling for migrant indicator on MONY/CHCK. Also added comments to code, and removed outdated coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Added ACTIONS script that will create a MONY/CHCK for cases that meet the Housing Grant expansion criteria.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -81,7 +82,6 @@ EndDialog
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-member_number = "01"	'defaults the member number to 01
 initial_month = CM_minus_1_mo  'defaulting date to current month - one
 initial_year = CM_minus_1_yr
 
@@ -143,7 +143,7 @@ DO
 		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
-'navigates to ELIG/MFIP once the footer month and date are the selected dates: ELIG/MFIP----------------------------------------------------------------------------------------------------
+'navigates to STAT/MEMB to check for PARIS matches for all people on the case----------------------------------------------------------------------------------------------------
 back_to_SELF
 EMWritescreen initial_month, 20, 43			'enters footer month/year user selected since you have to be in the same footer month/year as the CHCK is being issued for
 EMWritescreen initial_year, 20, 46
@@ -192,6 +192,7 @@ FOR each SSN_for_PARIS in HH_member_array						'for each person who we found on 
 	END IF
 NEXT																														'looping back with the for next to check the next SSN.
 
+'navigates to ELIG/MFIP once the footer month and date are the selected dates: ELIG/MFIP----------------------------------------------------------------------------------------------------
 Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 'Ensures that users is in the most recently approved version of MFIP
 EMReadScreen no_MFIP, 10, 24, 2
@@ -249,17 +250,8 @@ Loop until app_status = "APPROVED" or trim(app_status) = ""
 'If no elig results are found, then the script ends.
 If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
 
-'goes into ELIG/MFIP, and checks for the reason for the manual MONY/CHCK: either emps exempt populations or the newly added populations
-MAXIS_row = 7	'establishing the row to start searching
-DO
-	EMReadscreen memb_number, 2, MAXIS_row, 6		'searching for member number from initial dialog
-	If memb_number = "  " then script_end_procedure("The member number you entered does not appear to be valid. Please check your member number and try again.")
-	IF member_number = memb_number then exit do				'exits do if member number matches
-	MAXIS_row = MAXIS_row + 1	'otherwise it searches again on the next row
-LOOP until MAXIS_row = 18
-
 'The recipient isevaluated as meeting one of the 2 newly added population inelgible codes
-EMWritescreen "x", MAXIS_row, 3			'selects the member number to navigate to the MFIP Person Test Results
+EMWritescreen "x", 7, 3			'selects the member number to navigate to the MFIP Person Test Results
 transmit
 'Checking FAILED reason for newly added population (SSI recipients and undocumented non-citizens with eligible children)
 issuance_reason = ""	'issuance_reason = "" will determine what path the script takes. If "" then case is an emps exempt person, if not person is newly added population person
@@ -285,6 +277,9 @@ DO
 	END IF
 LOOP until MFBF_check = "MFBF"
 
+EMWriteScreen vers_number, 20, 79 'enters the version number of the elig and approved version of the script once it's confirmed that we're back in MFBF
+transmit
+
 'establishes values for variables and declaring the arrays for newly added population cases
 number_eligible_members = 0
 entry_record = 0
@@ -306,7 +301,7 @@ DO
 	If ref_num = "  " then exit do				'exits do if member number matches
 	EMReadScreen member_elig_status, 1, MAXIS_row, 27
 	'Adding members to array to gather information for the MONY/CHCK (member number, adult vs child, cash and state food coding)
-	If ref_num = member_number then
+	If ref_num = "01" then
 		add_to_array = True						'MEMB 01 needs to be added to MONY/CHCK weather they are eligible or not
 	Elseif trim(member_elig_status) = "A" then
 		add_to_array = True						'all eligible HH members need to be added to MONY/CHCK
@@ -382,6 +377,7 @@ If auth_error = "YOUR ARE" then script_end_procedure("You are not authorized to 
 EMWriteScreen "MF", 5, 17		'enters mandatory codes per HG instruction
 EMWriteScreen "MF", 5, 21		'enters mandatory codes per HG instruction
 EMWriteScreen "31", 5, 32		'restored payment code per the HG instruction
+EMWriteScreen "N", 8, 27		'enters N for migrant status for cases that are now inactive, and prog has been cleared. 
 
 'total # eligible house hold members from MFBF needs to be inputted
 EMWriteScreen number_eligible_members, 7, 27			'enters the number of eligible HH members
@@ -425,8 +421,11 @@ transmit 'transmits twice to get to the restoration of benefits screen
 EMReadScreen update_TIME_panel_check, 4, 14, 32
 If update_TIME_panel_check = "TIME" then
 	transmit
-	PF10
-	PF3
+	Do 
+		PF10
+		PF3
+		EMReadScreen TIME_panel, 4, 2, 46
+	LOOP until TIME_panel <> "TIME"
 END IF
 PF3
 PF3 	'PF3's twice to NOT send the notice

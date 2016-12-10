@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/08/2016", "Bug Fix so that the income type and verification code if creating a new panel is in the correct place.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -155,16 +156,21 @@ If jobs_check <> "JOBS" or jobs_memb_check <> HH_memb then script_end_procedure(
 EMWriteScreen "nn", 20, 79
 transmit
 
-'Default info (wage income, no verification)
-EMWriteScreen "w", 5, 38
-EMWriteScreen "n", 6, 38
-
 'Adding employer info
 EMWriteScreen employer, 7, 42
 
 'Reading footer month/year, to be used in the prospective column
 EMReadScreen MAXIS_footer_month, 2, 20, 55
 EMReadScreen MAXIS_footer_year, 2, 20, 58
+
+'Default info (wage income, no verification)
+IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
+	EMWriteScreen "w", 5, 34				'Wage income is the type
+	EMWriteScreen "n", 6, 34				'No proof has been provided
+ELSE
+	EMWriteScreen "w", 5, 38				'Wage income is the type
+	EMWriteScreen "n", 6, 38				'No proof has been provided
+END IF
 
 'Writing the first day of the footer month as the prospective paydate, and 0 for both wage and hours
 EMWriteScreen MAXIS_footer_month, 12, 54
