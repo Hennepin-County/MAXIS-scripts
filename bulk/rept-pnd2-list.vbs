@@ -54,7 +54,7 @@ changelog_display
 BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 135, "Pull REPT data into Excel dialog"
   EditBox 135, 20, 145, 15, worker_number
   CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 70, 80, 205, 10, "Check here to add last case note information to spreadsheet.", Check7
+  CheckBox 70, 80, 205, 10, "Check here to add last case note information to spreadsheet.", case_note_check
   CheckBox 10, 20, 40, 10, "SNAP?", SNAP_check
   CheckBox 10, 35, 40, 10, "Cash?", cash_check
   CheckBox 10, 50, 40, 10, "HC?", HC_check
@@ -265,6 +265,22 @@ For each worker in worker_array
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
+'This section adds the most rencent case note information (date, x number and case note to the Excel list. The user will need to select this option in the checkbox on the dialog.)
+If case_note_check = checked then 		'all this fun stuff happens
+	col_to_use = col_to_use + 1			'scoots over 1 column 
+	ObjExcel.Cells(1, col_to_use).Value = "Most recent case note information"	'title of col info
+	
+	excel_row = 2		'starting with row 2 (1st cell with case information)
+	Do 
+		MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value		'establishing what the case number is for each case
+		If MAXIS_case_number = "" then exit do						'leaves do if no case number is on the next Excel row
+		Call navigate_to_MAXIS_screen("CASE", "NOTE")				'headin' over to CASE/NOTE
+		EMReadScreen case_note_info, 74 , 5, 6						'reads the most recent case note
+		If trim(case_note_info) <> "" then ObjExcel.Cells(excel_row, col_to_use).Value = case_note_info	'If it's not blank, then it writes the information into Excel 
+		excel_row = excel_row + 1									'moves Excel to next row 
+	LOOP until MAXIS_case_number = ""								'Loops until all the case have been noted 
+END IF 
+	
 'Resetting excel_row variable, now we need to start looking people up
 excel_row = 2
 
