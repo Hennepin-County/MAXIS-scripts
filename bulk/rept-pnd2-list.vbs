@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("12/10/2016", "Added IV-E and Child Care cases statuses to script, and checkbox option to add information about the last case note (date, x number, header of case note) to the spreadsheet. Added navigation so that the 'Case information' worksheet is the first worksheet that is visable to the user. Also added closing message informing user that script has ended sucessfully.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -687,6 +688,9 @@ If CC_check = checked then
 	Next
 End if
 
+'Navigates back to the case information worksheet so this is the 1st worksheet the user sees
+objExcel.worksheets("Case Information").Activate			'Activates the selected worksheet'
+
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("")
+script_end_procedure("Success! Your REPT/PND2 list has been created.")
