@@ -1,4 +1,4 @@
-'Required for statistical purposes=========================================================================================
+\'Required for statistical purposes=========================================================================================
 name_of_script = "DAIL - CSES SCRUBBER.vbs"
 start_time = timer
 STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
@@ -517,6 +517,15 @@ PF3
 '~~~~~~~~~~~~~~~~~~~~~~~Script to determine reporting threshhold
 'Navigates to ELIG directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
 If SNAP_active = TRUE Then
+	'Check to make sure we are back to our dail
+	EMReadScreen DAIL_check, 4, 2, 48
+	IF DAIL_check <> "DAIL" THEN
+		PF3 'This should bring us back from UNEA or other screens
+		EMReadScreen DAIL_check, 4, 2, 48
+		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%)
+			call navigate_to_MAXIS_screen("DAIL", "DAIL")
+		END IF
+	END IF
 	EMWriteScreen "e", 6, 3
 	transmit
 	EMWriteScreen "fs", 20, 71
@@ -541,6 +550,7 @@ If SNAP_active = TRUE Then
 	EMReadScreen BUDG_BUSI,	8, 6 , 33
 	EMReadScreen BUDG_PA,   8, 10, 33
 	EMReadScreen BUDG_RSDI, 8, 11, 33
+	msgbox "." & BUDG_RSDI & "."
 	EMReadScreen BUDG_SSI,  8, 12, 33
 	EMReadScreen BUDG_VA,   8, 13, 33
 	EMReadScreen BUDG_UCWC, 8, 14, 33
@@ -583,6 +593,15 @@ End If
 
 '~~~~~~~~~~~~~~~~~~~~Decision: Is SNAP open? IF YES...
 If SNAP_active = true then
+	'Check to make sure we are back to our dail
+	EMReadScreen DAIL_check, 4, 2, 48
+	IF DAIL_check <> "DAIL" THEN
+		PF3 'This should bring us back from UNEA or other screens
+		EMReadScreen DAIL_check, 4, 2, 48
+		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%)
+			call navigate_to_MAXIS_screen("DAIL", "DAIL")
+		END IF
+	END IF
 
 	EMWriteScreen "s", 6, 3
 	transmit
@@ -838,6 +857,15 @@ End if
 If SNAP_active = true AND UNEA_review_checkbox = checked then
 	Dim PIC_Payment_array()
 	ReDim PIC_Payment_array(5)
+	'Check to make sure we are back to our dail
+	EMReadScreen DAIL_check, 4, 2, 48
+	IF DAIL_check <> "DAIL" THEN
+		PF3 'This should bring us back from UNEA or other screens
+		EMReadScreen DAIL_check, 4, 2, 48
+		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%)
+			call navigate_to_MAXIS_screen("DAIL", "DAIL")
+		END IF
+	END IF
 	EMWriteScreen "s", 6, 3
 	transmit
 	counter = 0
@@ -949,6 +977,15 @@ End If
 
 '~~~~~~~~~~~~~~~~~~~~Decision: Is MFIP/DWP open? IF YES...
 If MFIP_active = true then
+	'Check to make sure we are back to our dail
+	EMReadScreen DAIL_check, 4, 2, 48
+	IF DAIL_check <> "DAIL" THEN
+		PF3 'This should bring us back from UNEA or other screens
+		EMReadScreen DAIL_check, 4, 2, 48
+		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%)
+			call navigate_to_MAXIS_screen("DAIL", "DAIL")
+		END IF
+	END IF
 
 	'Navigates to STAT directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
 	EMWriteScreen "s", 6, 3
