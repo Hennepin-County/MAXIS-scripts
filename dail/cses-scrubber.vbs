@@ -1,4 +1,4 @@
-\'Required for statistical purposes=========================================================================================
+'Required for statistical purposes=========================================================================================
 name_of_script = "DAIL - CSES SCRUBBER.vbs"
 start_time = timer
 STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
