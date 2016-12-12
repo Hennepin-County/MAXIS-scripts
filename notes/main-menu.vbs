@@ -101,15 +101,9 @@ script_array_LTC    = array()
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
 
 '-------------------------------------------------------------------------------------------------------------------------0 through C
+
 'Resetting the variable
 script_num = 0
-ReDim Preserve script_array_0_to_C(script_num)
-Set script_array_0_to_C(script_num) = new script
-script_array_0_to_C(script_num).script_name 			= "Appeal"																		'Script name
-script_array_0_to_C(script_num).file_name 				= "appeal.vbs"																	'Script URL
-script_array_0_to_C(script_num).description 			= "Template for documenting details about an appeal, and the appeal process.."
-
-script_num = script_num + 1
 ReDim Preserve script_array_0_to_C(script_num)
 Set script_array_0_to_C(script_num) = new script
 script_array_0_to_C(script_num).script_name 			= "Application Received"																		'Script name
