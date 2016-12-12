@@ -550,7 +550,6 @@ If SNAP_active = TRUE Then
 	EMReadScreen BUDG_BUSI,	8, 6 , 33
 	EMReadScreen BUDG_PA,   8, 10, 33
 	EMReadScreen BUDG_RSDI, 8, 11, 33
-	msgbox "." & BUDG_RSDI & "."
 	EMReadScreen BUDG_SSI,  8, 12, 33
 	EMReadScreen BUDG_VA,   8, 13, 33
 	EMReadScreen BUDG_UCWC, 8, 14, 33
