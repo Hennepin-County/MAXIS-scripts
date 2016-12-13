@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("12/10/2016", "Added IV-E, Child Care and FIATed case statuses to script. Also added closing message informing user that script has ended sucessfully.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -54,22 +55,25 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
-  EditBox 150, 20, 130, 15, worker_number
-  CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 50, 40, 10, "Cash?", cash_check
-  CheckBox 10, 65, 40, 10, "HC?", HC_check
-  CheckBox 10, 80, 40, 10, "EA?", EA_check
-  CheckBox 10, 95, 40, 10, "GRH?", GRH_check
+BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 150, "Pull REPT data into Excel dialog"
+  EditBox 135, 25, 145, 15, worker_number
+  CheckBox 70, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 70, 85, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
+  CheckBox 10, 25, 40, 10, "SNAP?", SNAP_check
+  CheckBox 10, 40, 40, 10, "Cash?", cash_check
+  CheckBox 10, 55, 40, 10, "HC?", HC_check
+  CheckBox 10, 70, 40, 10, "EA?", EA_check
+  CheckBox 10, 85, 40, 10, "GRH?", GRH_check
+  CheckBox 10, 100, 40, 10, "IV-E?", IVE_check
+  CheckBox 10, 115, 50, 10, "Child Care?", CC_check
   ButtonGroup ButtonPressed
-    OkButton 175, 100, 50, 15
-    CancelButton 230, 100, 50, 15
-  GroupBox 5, 20, 60, 90, "Progs to scan"
-  Text 70, 25, 65, 10, "Worker(s) to check:"
-  Text 70, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-  Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+    OkButton 175, 125, 50, 15
+    CancelButton 230, 125, 50, 15
+  Text 95, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
+  Text 70, 45, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+  GroupBox 5, 10, 60, 120, "Progs to scan"
+  Text 70, 30, 65, 10, "Worker(s) to check:"
+  Text 70, 100, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
@@ -149,6 +153,27 @@ If GRH_check = checked then
 	col_to_use = col_to_use + 1
 	GRH_letter_col = convert_digit_to_excel_column(GRH_actv_col)
 End if
+If IVE_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "IV-E?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	IVE_actv_col = col_to_use
+	col_to_use = col_to_use + 1
+	IVE_letter_col = convert_digit_to_excel_column(IVE_actv_col)
+End if
+If CC_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "CC?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	CC_actv_col = col_to_use
+	col_to_use = col_to_use + 1
+	CC_letter_col = convert_digit_to_excel_column(CC_actv_col)
+End if
+If FIAT_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "FIAT?"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	FIAT_actv_col = col_to_use
+	col_to_use = col_to_use + 1
+	FIAT_letter_col = convert_digit_to_excel_column(FIAT_actv_col)
+End if
 If collect_COLA_stats = true then
 	ObjExcel.Cells(1, col_to_use).Value = "COLA income types to verify"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
@@ -199,14 +224,17 @@ For each worker in worker_array
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 			Do
-				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
-				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12	'Reading case number
+				EMReadScreen client_name, 21, MAXIS_row, 21			'Reading client name
 				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
-				EMReadScreen cash_status, 9, MAXIS_row, 51		'Reading cash status
-				EMReadScreen SNAP_status, 1, MAXIS_row, 61		'Reading SNAP status
+				EMReadScreen cash_status, 9, MAXIS_row, 51			'Reading cash status
+				EMReadScreen SNAP_status, 1, MAXIS_row, 61			'Reading SNAP status
 				EMReadScreen HC_status, 1, MAXIS_row, 64			'Reading HC status
 				EMReadScreen EA_status, 1, MAXIS_row, 67			'Reading EA status
 				EMReadScreen GRH_status, 1, MAXIS_row, 70			'Reading GRH status
+				EMReadScreen IVE_status, 1, MAXIS_row, 73			'Reading IV-E status
+				EMReadScreen FIAT_status, 1, MAXIS_row, 77			'Reading the FIAT status of a case
+				EMReadScreen CC_status, 1, MAXIS_row, 80			'Reading CC status
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
@@ -219,6 +247,9 @@ For each worker in worker_array
 				If HC_status <> " " and HC_status <> "I" and HC_check = checked then add_case_info_to_Excel = True
 				If EA_status <> " " and EA_status <> "I" and EA_check = checked then add_case_info_to_Excel = True
 				If GRH_status <> " " and GRH_status <> "I" and GRH_check = checked then add_case_info_to_Excel = True
+				If IVE_status <> " " and IVE_status <> "I" and IVE_check = checked then add_case_info_to_Excel = True
+				If CC_status <> " " and CC_status <> "I" and CC_check = checked then add_case_info_to_Excel = True
+				If FIAT_status <> " " and FIAT_status <> "I" and FIAT_check = checked then add_case_info_to_Excel = True
 
 				'Cash requires different handling due to containing multiple program types in one column
 				If (instr(cash_status, " A ") <> 0 or instr(cash_status, " P ") <> 0) and cash_check = checked then add_case_info_to_Excel = True
@@ -234,6 +265,9 @@ For each worker in worker_array
 					If HC_check = checked then ObjExcel.Cells(excel_row, HC_actv_col).Value = HC_status
 					If EA_check = checked then ObjExcel.Cells(excel_row, EA_actv_col).Value = EA_status
 					If GRH_check = checked then ObjExcel.Cells(excel_row, GRH_actv_col).Value = GRH_status
+					If IVE_check = checked then ObjExcel.Cells(excel_row, IVE_actv_col).Value = IVE_status
+					If CC_check = checked then ObjExcel.Cells(excel_row, CC_actv_col).Value = CC_status
+					If FIAT_check = checked then ObjExcel.Cells(excel_row, FIAT_actv_col).Value = FIAT_status
 					excel_row = excel_row + 1
 				End if
 				MAXIS_row = MAXIS_row + 1
@@ -316,7 +350,6 @@ ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
-
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
@@ -324,4 +357,4 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("")
+script_end_procedure("Success! Your REPT/ACTV list has been created.")
