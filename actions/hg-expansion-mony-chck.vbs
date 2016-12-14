@@ -235,8 +235,13 @@ If no_MFIP = "NO VERSION" then script_end_procedure("There are no eligibilty res
 'if case is signficatnt change, then user will need to transmit past to the MFPR
 EMReadScreen sign_change, 6, 4, 15
 If sign_change = "CHANGE" then 
-	msgbox "THIS IS A SIGN CHANGE CASE"
-	transmit
+	EMReadScreen app_version, 8, 3, 3
+	IF app_version = "APPROVED" then 
+		msgbox "THIS IS A SIGN CHANGE CASE"
+		transmit
+	Else 
+		script_end_procedure("Case has significant change, but version is not approved. Process manually.")
+	END IF 
 Else 
 	EMWriteScreen "99", 20, 79 		'this is the most amount of eligibility results that elig can contain, so all versions appear in the next pop up
 	transmit
@@ -298,8 +303,11 @@ DO
 	END IF
 LOOP until MFBF_check = "MFBF"
 
-EMWriteScreen vers_number, 20, 79 'enters the version number of the elig and approved version of the script once it's confirmed that we're back in MFBF
-transmit
+'If case is signifcant change, then it does not enter the version number 
+If sign_change <> "CHANGE" then  
+	EMWriteScreen vers_number, 20, 79 'enters the version number of the elig and approved version of the script once it's confirmed that we're back in MFBF
+	transmit
+END IF 
 
 'establishes values for variables and declaring the arrays for newly added population cases
 number_eligible_members = 0
