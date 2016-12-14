@@ -45,6 +45,7 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 
+call changelog_update("12/14/2016", "Updated handling for signficant change cases, and for cases that have exceed the issuance amount (and require a supervisor to approve the housing grant supplment.)", "Ilse Ferris, Hennepin County")
 call changelog_update("12/08/2016", "Updated handling for exiting the TIME panel, confirming version number and MFBF panel, added handling for migrant indicator on MONY/CHCK. Also added comments to code, and removed outdated coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Added ACTIONS script that will create a MONY/CHCK for cases that meet the Housing Grant expansion criteria.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -62,27 +63,25 @@ CM_minus_11_mo =  left("0" &            DatePart("m",           DateAdd("m", -11
 CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
 
 'DIALOG===========================================================================================================================
-BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 311, 135, "Housing grant Expansion"
-  EditBox 60, 10, 55, 15, MAXIS_case_number
-  EditBox 245, 10, 25, 15, initial_month
-  EditBox 275, 10, 25, 15, initial_year
-  EditBox 80, 110, 110, 15, worker_signature
+BeginDialog housing_grant_MONY_CHCK_issuance_dialog, 0, 0, 351, 90, "Housing grant Expansion MONY-CHCK"
+  EditBox 65, 70, 55, 15, MAXIS_case_number
+  EditBox 175, 70, 25, 15, initial_month
+  EditBox 205, 70, 25, 15, initial_year
   ButtonGroup ButtonPressed
-    OkButton 195, 110, 50, 15
-    CancelButton 250, 110, 50, 15
-  Text 15, 80, 280, 20, "Before you use the script, please review the case for eligibility for the MFIP housing grant."
-  Text 200, 15, 40, 10, "month/year:"
-  Text 15, 115, 60, 10, "Worker signature:"
-  GroupBox 10, 35, 290, 70, "Housing grant Expansion:"
-  Text 10, 15, 50, 10, "Case Number:"
-  Text 15, 55, 280, 20, "This script should be used when the MFIP housing grant should have been issued on an eligible case for months prior to the current month or current month plus one. "
+    OkButton 240, 70, 50, 15
+    CancelButton 295, 70, 50, 15
+  Text 15, 45, 320, 10, "Before you use the script, please review the case for eligibility for the MFIP housing grant."
+  Text 130, 75, 40, 10, "month/year:"
+  GroupBox 10, 5, 335, 55, "Housing grant Expansion:"
+  Text 15, 75, 50, 10, "Case Number:"
+  Text 15, 20, 325, 20, "This script should be used when the MFIP housing grant should have been issued on an eligible case for months prior to the current month or current month plus one. "
 EndDialog
 
 'The script============================================================================================================================
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-initial_month = CM_minus_1_mo  'defaulting date to current month - one
+initial_month = CM_minus_1_mo	'defaulting to current month - 1
 initial_year = CM_minus_1_yr
 
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
@@ -94,7 +93,6 @@ DO
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."		'mandatory field
 		IF len(initial_month) <> 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit month."	'mandatory field
 		IF len(initial_year) <> 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit year."		'mandatory field
-		IF worker_signature = ""  then err_msg = err_msg & vbCr & "You must sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -198,6 +196,15 @@ Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 EMReadScreen no_MFIP, 10, 24, 2
 If no_MFIP = "NO VERSION" then script_end_procedure("There are no eligibilty results for this case. Please check your case number/case for accuracy.")
 
+'Signficant change cases do not automatically open to the MFPR panel. This ensures that we get there.
+Do
+	EMReadscreen MFPR_panel_check, 4, 3, 47
+	If MFPR_panel_check <> "MFPR" then
+		EMWritescreen "MFPR", 20, 71
+		transmit
+	END IF
+LOOP until MFPR_panel_check = "MFPR"
+
 'Script will check for Fraud on most recent unappproved version that may have been added after report was generated as you cannot approve negative actions in previous months
 fraud_row = 7											'dummy variable to count what row we are on for do loop
 DO
@@ -226,33 +233,53 @@ Call navigate_to_MAXIS_screen("ELIG", "MFIP")
 EMReadScreen no_MFIP, 10, 24, 2
 If no_MFIP = "NO VERSION" then script_end_procedure("There are no eligibilty results for this case. Please check your case number/case for accuracy.")
 
-EMWriteScreen "99", 20, 79 		'this is the most amount of eligibility results that elig can contain, so all versions appear in the next pop up
-transmit
-
-'This brings up the MFIP versions of eligibilty results to search for approved versions
-MAXIS_row = 7
-Do
-	EMReadScreen app_status, 8, MAXIS_row, 50
-	If trim(app_status) = "" then exit do 	'if end of the list is reached then exits the do loop
-	If app_status = "UNAPPROV" Then MAXIS_row = MAXIS_row + 1
-	If app_status = "APPROVED" then
-		EMReadScreen elig_status, 8, MAXIS_row, 37
-		If elig_status = "ELIGIBLE" then
-			EMReadScreen vers_number, 1, MAXIS_row, 23
-			EMWriteScreen vers_number, 18, 54
-			transmit		'transmits to approved and eligible veresion of MFIP
-			exit do
-		ELSE
-		 	MAXIS_row = MAXIS_row + 1
-		END IF
+'if case is signficatnt change, then user will need to transmit past to the MFPR
+EMReadScreen sign_change, 6, 4, 15
+If sign_change = "CHANGE" then
+	EMReadScreen app_version, 8, 3, 3
+	IF app_version = "APPROVED" then
+		transmit
+	Else
+		'If the most recent version is not approved, then the worker should be reviewing and processing this case manually
+		script_end_procedure("Case has significant change, but version is not approved. Process manually.")
 	END IF
-Loop until app_status = "APPROVED" or trim(app_status) = ""
-'If no elig results are found, then the script ends.
-If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
+Else
+	EMWriteScreen "99", 20, 79 		'this is the most amount of eligibility results that elig can contain, so all versions appear in the next pop up
+	transmit
+    'This brings up the MFIP versions of eligibilty results to search for approved versions
+    MAXIS_row = 7
+    Do
+    	EMReadScreen app_status, 8, MAXIS_row, 50
+    	If trim(app_status) = "" then exit do 	'if end of the list is reached then exits the do loop
+    	If app_status = "UNAPPROV" Then MAXIS_row = MAXIS_row + 1
+    	If app_status = "APPROVED" then
+    		EMReadScreen elig_status, 8, MAXIS_row, 37
+    		If elig_status = "ELIGIBLE" then
+    			EMReadScreen vers_number, 1, MAXIS_row, 23
+    			EMWriteScreen vers_number, 18, 54
+    			transmit		'transmits to approved and eligible veresion of MFIP
+    			exit do
+    		ELSE
+    		 	MAXIS_row = MAXIS_row + 1
+    		END IF
+    	END IF
+    Loop until app_status = "APPROVED" or trim(app_status) = ""
+    'If no elig results are found, then the script ends.
+    If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
+End if
 
-'The recipient isevaluated as meeting one of the 2 newly added population inelgible codes
+'Signficant change cases do not automatically open to the MFPR panel. This ensures that we get there.
+Do
+	EMReadscreen MFPR_panel_check, 4, 3, 47
+	If MFPR_panel_check <> "MFPR" then
+		EMWritescreen "MFPR", 20, 71
+		transmit
+	END IF
+LOOP until MFPR_panel_check = "MFPR"
+
 EMWritescreen "x", 7, 3			'selects the member number to navigate to the MFIP Person Test Results
 transmit
+'The recipient isevaluated as meeting one of the 2 newly added population inelgible codes
 'Checking FAILED reason for newly added population (SSI recipients and undocumented non-citizens with eligible children)
 issuance_reason = ""	'issuance_reason = "" will determine what path the script takes. If "" then case is an emps exempt person, if not person is newly added population person
 EMReadscreen cit_test_status, 6, 9, 17
@@ -277,8 +304,11 @@ DO
 	END IF
 LOOP until MFBF_check = "MFBF"
 
-EMWriteScreen vers_number, 20, 79 'enters the version number of the elig and approved version of the script once it's confirmed that we're back in MFBF
-transmit
+'If case is signifcant change, then it does not enter the version number since the approved version is the current version. Otherwise, the version # needs to be selected.
+If sign_change <> "CHANGE" then
+	EMWriteScreen vers_number, 20, 79 'enters the version number of the elig and approved version of the script once it's confirmed that we're back in MFBF
+	transmit
+END IF
 
 'establishes values for variables and declaring the arrays for newly added population cases
 number_eligible_members = 0
@@ -382,6 +412,10 @@ EMWriteScreen "N", 8, 27		'enters N for migrant status for cases that are now in
 'total # eligible house hold members from MFBF needs to be inputted
 EMWriteScreen number_eligible_members, 7, 27			'enters the number of eligible HH members
 transmit
+
+'Ensures that cases that have exceeded the issuance cannot continue.
+EMReadScreen issuance_exceeded, 5, 24, 2
+IF issuance_exceeded = "TOTAL" then script_end_procedure("Total issuance exceeds monthly maximum of $1500 for this case. Contact your supervisor to approve issuance.")
 
 EMReadScreen future_month_check, 6, 24, 2		'ensuring that issuances for current or future months are not being made
 IF future_month_check = "REASON" then script_end_procedure("You cannot issue a MONY/CHCK for the current or future month. Approve results in ELIG/MFIP.")
