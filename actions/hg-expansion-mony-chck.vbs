@@ -45,6 +45,7 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 
+call changelog_update("12/14/2016", "Updated handling for signficant change cases, and for cases that have exceed the issuance amount (and require a supervisor to approve the housing grant supplment.)", "Ilse Ferris, Hennepin County")
 call changelog_update("12/08/2016", "Updated handling for exiting the TIME panel, confirming version number and MFBF panel, added handling for migrant indicator on MONY/CHCK. Also added comments to code, and removed outdated coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Added ACTIONS script that will create a MONY/CHCK for cases that meet the Housing Grant expansion criteria.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -237,9 +238,9 @@ EMReadScreen sign_change, 6, 4, 15
 If sign_change = "CHANGE" then 
 	EMReadScreen app_version, 8, 3, 3
 	IF app_version = "APPROVED" then 
-		msgbox "THIS IS A SIGN CHANGE CASE"
 		transmit
 	Else 
+		'If the most recent version is not approved, then the worker should be reviewing and processing this case manually
 		script_end_procedure("Case has significant change, but version is not approved. Process manually.")
 	END IF 
 Else 
@@ -267,7 +268,6 @@ Else
     If trim(app_status) = "" then script_end_procedure("Eligible and approved MFIP results were not found. Please check your case for accuracy.")
 End if 
 
-'The recipient isevaluated as meeting one of the 2 newly added population inelgible codes
 'Signficant change cases do not automatically open to the MFPR panel. This ensures that we get there. 
 Do 
 	EMReadscreen MFPR_panel_check, 4, 3, 47
@@ -279,6 +279,7 @@ LOOP until MFPR_panel_check = "MFPR"
 
 EMWritescreen "x", 7, 3			'selects the member number to navigate to the MFIP Person Test Results
 transmit
+'The recipient isevaluated as meeting one of the 2 newly added population inelgible codes
 'Checking FAILED reason for newly added population (SSI recipients and undocumented non-citizens with eligible children)
 issuance_reason = ""	'issuance_reason = "" will determine what path the script takes. If "" then case is an emps exempt person, if not person is newly added population person
 EMReadscreen cit_test_status, 6, 9, 17
@@ -303,7 +304,7 @@ DO
 	END IF
 LOOP until MFBF_check = "MFBF"
 
-'If case is signifcant change, then it does not enter the version number 
+'If case is signifcant change, then it does not enter the version number since the approved version is the current version. Otherwise, the version # needs to be selected.
 If sign_change <> "CHANGE" then  
 	EMWriteScreen vers_number, 20, 79 'enters the version number of the elig and approved version of the script once it's confirmed that we're back in MFBF
 	transmit
