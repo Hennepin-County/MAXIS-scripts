@@ -34,6 +34,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_NOTES_menu_dialog(script_array)
 	BeginDialog NOTES_dialog, 0, 0, 516, 340, "NOTES Scripts"
@@ -377,8 +389,8 @@ script_array_G_to_L(script_num).description				= "Template for HRFs (for GRH, us
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "IEVS Notice Received"
-script_array_G_to_L(script_num).file_name				= "ievs-notice-received.vbs"
+script_array_G_to_L(script_num).script_name 			= "IEVS Match Received"
+script_array_G_to_L(script_num).file_name				= "ievs-match-received.vbs"
 script_array_G_to_L(script_num).description				= "Template to case note when a IEVS notice is returned."
 
 script_num = script_num + 1								'Increment by one
