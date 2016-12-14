@@ -412,6 +412,10 @@ EMWriteScreen "N", 8, 27		'enters N for migrant status for cases that are now in
 EMWriteScreen number_eligible_members, 7, 27			'enters the number of eligible HH members
 transmit
 
+'Ensures that cases that have exceeded the issuance cannot continue. 
+EMReadScreen issuance_exceeded, 5, 24, 2
+IF issuance_exceeded = "TOTAL" then script_end_procedure("Total issuance exceeds monthly maximum of $1500 for this case. Contact your supervisor to approve issuance.")
+	
 EMReadScreen future_month_check, 6, 24, 2		'ensuring that issuances for current or future months are not being made
 IF future_month_check = "REASON" then script_end_procedure("You cannot issue a MONY/CHCK for the current or future month. Approve results in ELIG/MFIP.")
 
