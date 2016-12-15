@@ -38,6 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/01/2016", "Checkbox added with the option to have 'Other Income' not listed on the word document.", "Casey Love, Ramsey County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 MAXIS_footer_month = datepart("m", next_month)
@@ -60,10 +73,10 @@ BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
   Text 10, 30, 65, 10, "Footer month/year:"
 EndDialog
 
-BeginDialog PA_verif_dialog, 0, 0, 316, 235, "PA Verif Dialog"
+BeginDialog PA_verif_dialog, 0, 0, 316, 255, "PA Verif Dialog"
   ButtonGroup ButtonPressed
-    OkButton 200, 215, 50, 15
-    CancelButton 255, 215, 50, 15
+    OkButton 200, 230, 50, 15
+    CancelButton 255, 230, 50, 15
   EditBox 40, 15, 30, 15, snap_grant
   EditBox 105, 15, 35, 15, MFIP_food
   EditBox 145, 15, 35, 15, MFIP_cash
@@ -76,14 +89,15 @@ BeginDialog PA_verif_dialog, 0, 0, 316, 235, "PA Verif Dialog"
   EditBox 285, 55, 20, 15, household_members
   EditBox 85, 75, 220, 15, other_income
   EditBox 105, 95, 20, 15, number_of_months
-  EditBox 55, 165, 250, 15, other_notes
-  EditBox 55, 190, 90, 15, completed_by
-  EditBox 210, 190, 95, 15, worker_phone
-  EditBox 120, 215, 75, 15, worker_signature
+  CheckBox 15, 155, 280, 10, "Check here to have the income and HH information withheld from the word doc.", no_income_checkbox
+  EditBox 55, 180, 250, 15, other_notes
+  EditBox 55, 205, 90, 15, completed_by
+  EditBox 210, 205, 95, 15, worker_phone
+  EditBox 120, 230, 75, 15, worker_signature
   CheckBox 10, 100, 95, 10, "Include screenshot of last", inqd_check
   Text 10, 20, 20, 10, "SNAP:"
   Text 110, 60, 20, 10, "DWP:"
-  Text 5, 170, 40, 10, "Other notes:"
+  Text 5, 185, 40, 10, "Other notes:"
   Text 10, 60, 20, 10, "GA:"
   Text 10, 40, 20, 10, "MSA:"
   Text 80, 20, 20, 10, "MFIP:"
@@ -95,11 +109,11 @@ BeginDialog PA_verif_dialog, 0, 0, 316, 235, "PA Verif Dialog"
   Text 110, 5, 25, 10, "Food:"
   Text 150, 5, 25, 10, "Cash:"
   Text 130, 100, 60, 10, "months' benefits"
-  Text 155, 195, 55, 10, "Worker phone #:"
-  Text 5, 195, 50, 10, "Completed by:"
-  Text 5, 220, 110, 10, "Worker Signature (for case note):"
+  Text 155, 210, 55, 10, "Worker phone #:"
+  Text 5, 210, 50, 10, "Completed by:"
+  Text 5, 235, 110, 10, "Worker Signature (for case note):"
   Text 15, 130, 280, 20, "Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
-  GroupBox 5, 120, 300, 35, "Warning!"
+  GroupBox 5, 120, 300, 50, "Warning!"
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -115,16 +129,16 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing case number dialog
 Do
-	Do 
+	Do
 		err_msg = ""
   		Dialog case_number_dialog
   		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine &  "* You need to type a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine								
-	LOOP until err_msg = ""	
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS				
-Loop until are_we_passworded_out = false					'loops until user passwords back in			
-					
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = ""
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 'Jumping to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
 'Creating a custom dialog for determining who the HH members are
@@ -323,11 +337,11 @@ Do
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please sign your case note."
 		If completed_by = "" then err_msg = err_msg & vbNewLine & "* Please fill out the completed by field."
 		If worker_phone = "" then err_msg = err_msg & vbNewLine & "* Please fill out the worker phone field."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine								
-	LOOP until err_msg = ""	
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS				
-Loop until are_we_passworded_out = false					'loops until user passwords back in			
-							
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 '****writing the word document
 Set objWord = CreateObject("Word.Application")
 Const wdDialogFilePrint = 88
@@ -371,22 +385,34 @@ objTable.Cell(7, 1).Range.Text = "DWP (Diversionary Work program) "
 objTable.Cell(7, 2).Range.Text = DWP_grant
 
 objTable.AutoFormat(16)
+If no_income_checkbox = unchecked Then 		'Only adding the detail from stat if the worker leaves the omit income unchecked
+	objSelection.EndKey end_of_doc
+	objSelection.TypeParagraph()
 
-objSelection.EndKey end_of_doc
-objSelection.TypeParagraph()
+	objSelection.TypeText "Other income known to agency: "
+	objSelection.TypeText other_income
+	objSelection.TypeParagraph()
+	objSelection.TypeText "Number of family members on cash grant: "
+	objSelection.TypeText cash_members
+	objSelection.TypeParagraph()
+	objSelection.TypeText "Number of persons in household: "
+	objSelection.TypeText household_members
+	objSelection.TypeParagraph()
+	ObjSelection.TypeText "Other Notes: "
+	objSelection.TypeText other_notes
+	objSelection.TypeParagraph()
+Else 										'If worker requests income from STAT to be omitted, the script only adds the cash grant size and other notes.
+	objSelection.EndKey end_of_doc
+	objSelection.TypeParagraph()
 
-objSelection.TypeText "Other income known to agency: "
-objSelection.TypeText other_income
-objSelection.TypeParagraph()
-objSelection.TypeText "Number of family members on cash grant: "
-objSelection.TypeText cash_members
-objSelection.TypeParagraph()
-objSelection.TypeText "Number of persons in household: "
-objSelection.TypeText household_members
-objSelection.TypeParagraph()
-ObjSelection.TypeText "Other Notes: "
-objSelection.TypeText other_notes
-objSelection.TypeParagraph()
+	objSelection.TypeText "Number of family members on cash grant: "
+	objSelection.TypeText cash_members
+	objSelection.TypeParagraph()
+
+	ObjSelection.TypeText "Other Notes: "
+	objSelection.TypeText other_notes
+	objSelection.TypeParagraph()
+End If
 
 'Writing INQX to the doc if selected
 IF inqd_check = checked THEN
