@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/15/2016", "Fixing a bug with counting household members and formatting the spreadsheet. Also adding ability to budget income for a person no longer in the household. For MFIP cases the script will attempt to see how the income changed the benefit.", "Casey Love, Ramsey County")
 call changelog_update("12/06/2016", "Fixing a bug to make sure correct month gets edited.", "Charles Potter, DHS")
 call changelog_update("12/05/2016", "Fixing a bug to prevent errors when processing in single digit months.", "Charles Potter, DHS")
 call changelog_update("11/20/2016", "Initial version.", "Charles Potter, DHS")
@@ -355,8 +356,10 @@ ObjExcel.Cells(2, col_HH_memb_PMI_list_PMI).Font.Bold 					= True
 Do
 	EMReadScreen ref_nbr_on_MEMB, 	2, 4, 33												'Ref nbr = HH memb number
 	EMReadScreen PMI_nbr_on_MEMB, 	8, 4, 46												'Reads PMI number on panel
-	EMReadScreen current_panel, 	1, 2, 73												'Sees what panel we're on at present
-	EMReadScreen amount_of_panels, 	1, 2, 78												'Sees the total number of panels
+	EMReadScreen current_panel, 	2, 2, 72												'Sees what panel we're on at present
+	EMReadScreen amount_of_panels, 	2, 2, 78												'Sees the total number of panels
+	current_panel = trim(current_panel)
+	amount_of_panels = trim(amount_of_panels)
 	PMI_nbr_on_MEMB = Replace(PMI_nbr_on_MEMB, "_", "")										'This allows Ramsey County to use the script. They have underscores here for some reason. Possibly "CAFE"?
 	ObjExcel.Cells(excel_row, col_HH_memb_PMI_list_memb_num).Value 	= ref_nbr_on_MEMB		'Adds ref nbr to Excel
 	ObjExcel.Cells(excel_row, col_HH_memb_PMI_list_PMI).Value 		= PMI_nbr_on_MEMB		'Adds PMI nbr to Excel
@@ -1218,6 +1221,33 @@ If MFIP_active = true then
 
 End if
 
+If MFIP_active = TRUE then 
+	'Check to make sure we are back to our dail
+	EMReadScreen DAIL_check, 4, 2, 48
+	IF DAIL_check <> "DAIL" THEN
+		PF3 'This should bring us back from UNEA or other screens
+		EMReadScreen DAIL_check, 4, 2, 48
+		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%)
+			call navigate_to_MAXIS_screen("DAIL", "DAIL")
+		END IF
+	END IF
+	EMWriteScreen "e", 6, 3
+	transmit
+	
+	EMWriteScreen "MFIP", 20, 71
+	transmit
+	EMReadScreen MFPR_check, 4, 3, 47
+	If MFPR_check = "MFPR" Then 
+		EMWriteScreen "MFSM", 20, 71
+		transmit
+		EMReadScreen impact_on_benefit, 12, 10, 31
+		impact_on_benefit = trim(impact_on_benefit)
+		MsgBox impact_on_benefit
+	End If 
+	PF3
+	
+
+End If 
 
 'Alert to worker that additional action is required.
 If Outside_the_realm = TRUE Then MsgBox "This is a SNAP case and you have indicated at least one of the UNEA panels needs to be reviewed for possible budget adjustment." & vbNewLine & vbNewLine & "At this time, this script does NOT update UNEA for SNAP cases. Case note will indicate that worker followup is needed."
@@ -1250,13 +1280,18 @@ If developer_mode <> TRUE Then
 		Call Write_Variable_in_CASE_NOTE (":::CSES Messages Reviewed::::")
 	End If
 	Call Write_Variable_in_CASE_NOTE ("* Income reported from PRISM Interface - details are listed in previous case notes.")
-	If MFIP_active = TRUE Then Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
-	If Exceed_130 = TRUE Then Call Write_Variable_in_CASE_NOTE ("* With this CS Income, it appears case income may exceed 130% FPG.")
-	If CS_Change = TRUE Then
-		Call Write_Variable_in_CASE_NOTE ("* CS Income listed in DAILs is different from the amount of CS Income Budgeted.")
-		Call Write_Bullet_and_Variable_in_Case_Note ("CS Income Budgeted", BUDG_CSES)
-		Call Write_Bullet_and_Variable_in_Case_Note ("CS Income From DAIL", amount_CS_reported)
-	End If
+	If MFIP_active = TRUE Then 
+		Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
+		Call Write_Bullet_and_Variable_in_Case_Note("Change to MFIP Benefit", impact_on_benefit)
+	End If 
+	If MFIP_active <> TRUE AND SNAP_active = TRUE Then 
+		If Exceed_130 = TRUE Then Call Write_Variable_in_CASE_NOTE ("* With this CS Income, it appears case income may exceed 130% FPG.")
+		If CS_Change = TRUE Then
+			Call Write_Variable_in_CASE_NOTE ("* CS Income listed in DAILs is different from the amount of CS Income Budgeted.")
+			Call Write_Bullet_and_Variable_in_Case_Note ("CS Income Budgeted", BUDG_CSES)
+			Call Write_Bullet_and_Variable_in_Case_Note ("CS Income From DAIL", amount_CS_reported)
+		End If
+	End If 
 
 'reading from excel sheet
 IF SNAP_active = TRUE Then
@@ -1278,9 +1313,11 @@ IF SNAP_active = TRUE Then
 	Loop Until blankCHECK = ""
 End IF
 
-	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
-	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Call Write_Variable_in_CASE_NOTE ("* FS Budget reviewed, adjustments to budget not needed.")
-	If Outside_the_realm = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC Reviewed, update needed - worker to process manually.")
+	If MFIP_active <> TRUE AND SNAP_active = TRUE Then 
+		If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
+		If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Call Write_Variable_in_CASE_NOTE ("* FS Budget reviewed, adjustments to budget not needed.")
+		If Outside_the_realm = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC Reviewed, update needed - worker to process manually.")
+	End If 
 	IF MFIP_active = TRUE  AND FS_active = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC not evaluated, as case also has MFIP.")
 	Call Write_Bullet_and_Variable_in_Case_Note ("Notes", other_notes)
 
