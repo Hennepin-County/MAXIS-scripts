@@ -281,7 +281,7 @@ DO
     DIALOG
     cancel_confirmation
 	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "Please enter a valid MAXIS case number."
-LOOP UNTIL
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 
 '...and now we burgle...
 back_to_SELF
