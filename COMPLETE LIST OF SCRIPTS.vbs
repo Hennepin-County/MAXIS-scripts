@@ -2262,7 +2262,7 @@ script_array(script_num).release_date           = #10/03/2016#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "Copy Case Data"
+script_array(script_num).script_name 			= "Copy Case Note Elsewhere"
 script_array(script_num).description 			= "Copies a CASE/NOTE to either a claims note or a SPEC/MEMO."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
