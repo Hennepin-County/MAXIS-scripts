@@ -46,24 +46,26 @@ Call get_county_code	'gets county name to input into the 1st col of the spreadsh
 
 county_name = left(county_name, len(county_name)-7)
 
-developer_mode = TRUE
-	
+developer_mode = FALSE
 	
 'Runs the dialog'
 Do
 	Do
 		Do
 			'The dialog is defined in the loop as it can change as buttons are pressed (populating the dropdown)'
-			BeginDialog dfln_selection_dialog, 0, 0, 266, 75, "Banked Month Report"
-			  EditBox 15, 25, 190, 15, dfln_list_excel_file_path
+			BeginDialog dfln_selection_dialog, 0, 0, 266, 115, "Banked Month Report"
+			  EditBox 15, 20, 190, 15, dfln_list_excel_file_path
 			  ButtonGroup ButtonPressed
-			    PushButton 215, 25, 45, 15, "Browse...", select_a_file_button
-			  DropListBox 15, 55, 140, 15, "select one..." & sheet_list, worksheet_dropdown
+			    PushButton 215, 20, 45, 15, "Browse...", select_a_file_button
+			  DropListBox 25, 50, 140, 15, "select one..." & sheet_list, worksheet_dropdown
+			  CheckBox 20, 70, 135, 10, "Check here to run in Developer Mode", dev_mode_checkbox
+			  EditBox 75, 90, 90, 15, worker_signature
 			  ButtonGroup ButtonPressed
-			    OkButton 175, 55, 40, 15
-			    CancelButton 220, 55, 40, 15
-			  Text 10, 10, 255, 10, "Select the Excel File that DHS provided with the list of Convicted Drug Felons."
-			  Text 10, 45, 150, 10, "Select the correct worksheet in the Excel file:"
+			    OkButton 175, 90, 40, 15
+			    CancelButton 220, 90, 40, 15
+			  Text 10, 5, 255, 10, "Select the Excel File that DHS provided with the list of Convicted Drug Felons."
+			  Text 20, 40, 150, 10, "Select the correct worksheet in the Excel file:"
+			  Text 10, 95, 60, 10, "Worker Signature"
 			EndDialog
 			err_msg = ""
 			Dialog dfln_selection_dialog
@@ -93,6 +95,11 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
+
+If dev_mode_checkbox = checked then 
+	developer_mode = TRUE
+	MsgBox "Developer Mode Activated!"
+End If 
 
 objExcel.worksheets(worksheet_dropdown).Activate			'Activates the selected worksheet'
 
@@ -412,7 +419,22 @@ back_to_self
 For person = 0 to Ubound(dfln_to_process_array, 2)
 	MAXIS_case_number = dfln_to_process_array(case_numb, person)
 	Call navigate_to_MAXIS_screen ("STAT", "DFLN")
-	If developer_mode <> TRUE Then 
+	EMWriteScreen dfln_to_process_array(ref_numb, person), 20, 76
+	transmit
+	If developer_mode = TRUE Then 
+		If dfln_to_process_array(cty_court_01, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_01, person) &_
+		   " sentanced on " & dfln_to_process_array(sent_dt_01, person) & " in " & dfln_to_process_array(state_01, person)& vbNewLine & vbNewLine 
+		If dfln_to_process_array(cty_court_02, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_02, person) &_
+		   " sentanced on " & dfln_to_process_array(sent_dt_02, person) & " in " & dfln_to_process_array(state_02, person)& vbNewLine & vbNewLine
+		If dfln_to_process_array(cty_court_03, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_03, person) &_
+		   " sentanced on " & dfln_to_process_array(sent_dt_03, person) & " in " & dfln_to_process_array(state_03, person)& vbNewLine & vbNewLine
+		If dfln_to_process_array(cty_court_04, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_04, person) & _
+		  " sentanced on " & dfln_to_process_array(sent_dt_04, person) & " in " & dfln_to_process_array(state_04, person)& vbNewLine & vbNewLine
+		If dfln_to_process_array(cty_court_05, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_05, person) &_
+		   " sentanced on " & dfln_to_process_array(sent_dt_05, person) & " in " & dfln_to_process_array(state_05, person)& vbNewLine & vbNewLine
+		 MsgBox "Update DFLN with:" & vbNewLine & vbNewLine & update_dfln_msg
+		 update_dfln_msg = ""
+	Else		'THIS NEEDS TO BE FIXED _ IT MIGHT OVERWRITE ANOTHER DFLN LISTING NOT ON THE SPREADSHEET'
 		pf9
 		mx_row = 6
 		If dfln_to_process_array(cty_court_01, person) <> "?" Then 
@@ -479,6 +501,57 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 	End If
 ''	MsgBox "Undo"
 	back_to_self
+	
+	If developer_mode = TRUE Then 
+		If dfln_to_process_array(cash_prog, person) = "NONE" Then 
+			case_note_text = case_note_text & "** DRUG FELON MATCH**" & vbNewLine
+			case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.") & vbNewLine
+			case_note_text = case_note_text & ("Notice of Drug Felon Match - " & county_name & " County Notice, DHS 3353 sent to Client.") & vbNewLine
+			case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " will need to provide requested information for future cash eligibility.") & vbNewLine
+			case_note_text = case_note_text & ("---") & vbNewLine
+			case_note_text = case_note_text & (worker_signature) & vbNewLine
+		ElseIf dfln_to_process_array(cash_prog, person) = "MFIP" Then
+			case_note_text = case_note_text & ("** DRUG FELON MATCH**") & vbNewLine
+			case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.") & vbNewLine
+			case_note_text = case_note_text & ("Notice of Drug Felon Match - " & county_name & " County Notice, DHS 3353, DHS 6749B sent to Client.") & vbNewLine
+			case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " has 10 days to cooperate by providing requested information.") & vbNewLine
+			case_note_text = case_note_text & ("---") & vbNewLine
+			case_note_text = case_note_text & (worker_signature) & vbNewLine
+		ElseIf dfln_to_process_array(cash_prog, person) = "GA" OR dfln_to_process_array(cash_prog, person) = "MSA" Then
+			case_note_text = case_note_text & ("** DRUG FELON MATCH**") & vbNewLine
+			case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.") & vbNewLine
+			case_note_text = case_note_text & ("Notice of Drug Felon Match - " & county_name & " County Notice, DHS 3353, DHS 6749A sent to Client.") & vbNewLine
+			case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " has 10 days to cooperate by providing requested information.") & vbNewLine
+			case_note_text = case_note_text & ("---") & vbNewLine
+			case_note_text = case_note_text & (worker_signature) & vbNewLine
+		End If 
+		MsgBox "Case note would say:" & vbNewLine & vbNewLine & case_note_text
+		case_note_text = ""
+	Else 
+		start_a_blank_case_note
+		If dfln_to_process_array(cash_prog, person) = "NONE" Then 
+			Call Write_variable_in_case_note ("** DRUG FELON MATCH**")
+			Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.")
+			Call Write_variable_in_case_note ("Notice of Drug Felon Match - " & county_name & " County Notice, DHS 3353 sent to Client.")
+			Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " will need to provide requested information for future cash eligibility.")
+			Call Write_variable_in_case_note ("---")
+			Call Write_variable_in_case_note (worker_signature)
+		ElseIf dfln_to_process_array(cash_prog, person) = "MFIP" Then
+			Call Write_variable_in_case_note ("** DRUG FELON MATCH**")
+			Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.")
+			Call Write_variable_in_case_note ("Notice of Drug Felon Match - " & county_name & " County Notice, DHS 3353, DHS 6749B sent to Client.")
+			Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " has 10 days to cooperate by providing requested information.")
+			Call Write_variable_in_case_note ("---")
+			Call Write_variable_in_case_note (worker_signature)
+		ElseIf dfln_to_process_array(cash_prog, person) = "GA" OR dfln_to_process_array(cash_prog, person) = "MSA" Then
+			Call Write_variable_in_case_note ("** DRUG FELON MATCH**")
+			Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.")
+			Call Write_variable_in_case_note ("Notice of Drug Felon Match - " & county_name & " County Notice, DHS 3353, DHS 6749A sent to Client.")
+			Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " has 10 days to cooperate by providing requested information.")
+			Call Write_variable_in_case_note ("---")
+			Call Write_variable_in_case_note (worker_signature)
+		End If 
+	End If 
 Next
 
 Set objNewExcel = CreateObject("Excel.Application")
@@ -551,7 +624,20 @@ stat_mail_col = 20
 objNewExcel.Cells(1, stat_mail_col).Value = "Mailing ADDR"
 objNewExcel.Cells(1, stat_mail_col).Font.Bold = True
 
-court2_col = 21
+county_notice_col = 21
+objNewExcel.Cells(1, county_notice_col).Value = "County DFLN Notice Needed"
+objNewExcel.Cells(1, county_notice_col).Font.Bold = True
+dhs_3353_col = 22
+objNewExcel.Cells(1, dhs_3353_col).Value = "DHS-3353 Needed"
+objNewExcel.Cells(1, dhs_3353_col).Font.Bold = True
+dhs_6749A_col = 23
+objNewExcel.Cells(1, dhs_6749A_col).Value = "DHS 6749A (GA/MSA) Needed"
+objNewExcel.Cells(1, dhs_6749A_col).Font.Bold = True
+dhs_6749B_col = 24
+objNewExcel.Cells(1, dhs_6749B_col).Value = "DHS 6749B (MFIP) Needed"
+objNewExcel.Cells(1, dhs_6749B_col).Font.Bold = True
+
+court2_col = 25
 objNewExcel.Cells(1, court2_col).Value = "County Court 2"
 objNewExcel.Cells(1, court2_col).Font.Bold = True
 sntc_dt_2_col = court2_col + 1
@@ -573,7 +659,7 @@ zip2_col = court2_col + 6
 objNewExcel.Cells(1, zip2_col).Value = "Zip 2"
 objNewExcel.Cells(1, zip2_col).Font.Bold = True
 
-court3_col = 28
+court3_col = 32
 objNewExcel.Cells(1, court3_col).Value = "County Court 3"
 objNewExcel.Cells(1, court3_col).Font.Bold = True
 sntc_dt_3_col = court3_col + 1
@@ -631,6 +717,30 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 		objNewExcel.Cells(excel_row, stat_mail_col).Value = mailing_entry
 	End If 
 	
+	If dfln_to_process_array(actv_cty, person) = right(worker_county_code, 2) Then 
+		objNewExcel.Cells(excel_row, county_notice_col).Value = "Yes"
+		objNewExcel.Cells(excel_row, dhs_3353_col).Value = "Yes"
+		If dfln_to_process_array(cash_prog, person) = "MSA" OR dfln_to_process_array(cash_prog, person) = "GA" Then 
+			objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "Yes"
+		Else 
+			objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "No"
+		End If 
+		If dfln_to_process_array(cash_prog, person) = "MFIP" Then 
+			objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "Yes"
+		Else 
+			objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "No"
+		End If 
+		If dfln_to_process_array(case_pop, person) = "UNKNOWN" Then 
+			objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "?"
+			objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "?"
+		End If 
+	Else 
+		objNewExcel.Cells(excel_row, county_notice_col).Value = "No"
+		objNewExcel.Cells(excel_row, dhs_3353_col).Value = "No"
+		objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "No"
+		objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "No"	
+	End If 
+	
 	objNewExcel.Cells(excel_row, court2_col).Value = dfln_to_process_array(cty_court_02, person) 
 	objNewExcel.Cells(excel_row, sntc_dt_2_col).Value = dfln_to_process_array(sent_dt_02, person)   
 	objNewExcel.Cells(excel_row, addr1_02_col).Value = dfln_to_process_array(addr1_02, person)  
@@ -652,98 +762,4 @@ Next
 For col_to_autofit = 1 to 34
 	ObjNewExcel.columns(col_to_autofit).AutoFit()
 Next
-'objNewExcel.columns(4).columnwidth = 850
 
-''		Set objWord = CreateObject("Word.Application")
-''		'Const wdDialogFilePrint = 88
-''		'Const end_of_doc = 6
-''		objWord.Caption = "DFLN Mailing Labels"
-''		objWord.Visible = True
-''		Set newDoc = objWord.Documents.Add
-''		Set objLabels = objWord.MailingLabel.CreateNewDocument "30 Per Page"
-''
-''		Set objSelection = objLabels.Selection
-''
-''		objSelection.TypeText "Box 1"
-''		SendKeys "{tab}"
-''		objSelection.TypeText "Box 2"
-''		SendKeys "{tab}"
-''		objSelection.TypeText "Box 3"
-''		SendKeys "{tab}"
-''
-
-
-
-'=======================================
-Set objFSO=CreateObject("Scripting.FileSystemObject")
-
-' How to write file  http://stackoverflow.com/questions/2198810/creating-and-writing-lines-to-a-file
-outFile="z:\data.txt"
-Set objFile = objFSO.CreateTextFile(outFile,True)
-For i = 0 to Ubound(dfln_to_process_array, 2)
-
-	objFile.Write dfln_to_process_array(clt_name, person) & vbCrLf
-	If dfln_to_process_array(stat_addr, person) <> "" Then 
-		stat_addr_array = split(dfln_to_process_array(stat_addr, person), "~")
-		objFile.Write stat_addr_array(0) & vbCrLf 'ADDR line 1'
-		objFile.Write stat_addr_array(1) & vbCrLf 'ADDR line 2'
-		objFile.Write stat_addr_array(2) & vbCrLf 'City'
-		objFile.Write stat_addr_array(3) & vbCrLf 'State'
-		objFile.Write stat_addr_array(4) & vbCrLf 'Zip'
-	End If
-Next 
-objFile.Close
-
-'How to read a file
-strFile = "c:\test\file"
-Set objFile = objFS.OpenTextFile(strFile)
-Do Until objFile.AtEndOfStream
-    strLine= objFile.ReadLine
-    Wscript.Echo strLine
-Loop
-objFile.Close
-
-
-
-Set oApp = CreateObject("Word.Application")
-CreateDataDoc oApp
-
-Set oDoc = oApp.Documents.Add
-With oDoc.MailMerge
-  ' Add our fields.
-  .Fields.Add oApp.Selection.Range, "clt_name"
-  oApp.Selection.TypeText " "
-  .Fields.Add oApp.Selection.Range, "addr1"
-  oApp.Selection.TypeParagraph
-  .Fields.Add oApp.Selection.Range, "addr2"
-  oApp.Selection.TypeParagraph
-  .Fields.Add oApp.Selection.Range, "city"
-  oApp.Selection.TypeText ", "
-  .Fields.Add oApp.Selection.Range, "state"
-  oApp.Selection.TypeParagraph
-  .Fields.Add oApp.Selection.Range, "zip"
-  oApp.Selection.TypeParagraph'
-		 
-  ' Create an autotext entry.
-  Dim oAutoText
-  Set oAutoText = oApp.NormalTemplate.AutoTextEntries.Add _
-  ("MyLabelLayout", oDoc.Content)
-  oDoc.Content.Delete
-  .MainDocumentType = 1  ' 1 = wdMailingLabels
-	   
-  ' Open the saved data source.
-  .OpenDataSource "C:\data.txt"
-
-  ' Create a new document.
-  oApp.MailingLabel.CreateNewDocument "5160", "", _
-	   "MyLabelLayout", , 4  ' 4 = wdPrinterManualFeed
-
-  .Destination = 0  ' 0 = wdSendToNewDocument
-  ' Execute the mail merge.
-  .Execute
-
-  oAutoText.Delete
-End With
-
-
-'http://stackoverflow.com/questions/9012529/if-file-exists-then-delete-the-file'

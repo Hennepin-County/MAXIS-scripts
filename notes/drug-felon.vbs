@@ -266,7 +266,7 @@ Case "Initial information Not Received"
 		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 	Loop until err_msg = "" 
 	
-	clt_ref_num = left(clt_to_update, 2)	'Settin the reference number
+	clt_ref_num = left(clt_to_update, 2)	'Setting the reference number
 
 Case "Testing Follow Up"
 
