@@ -270,7 +270,7 @@ IF swap_to_memo = vbYes THEN
       If GRH_check = 1 Then Write_variable_in_SPEC_MEMO("This amount is in addition to your room and board.")
       Write_variable_in_SPEC_MEMO("Please contact the agency with any questions. Thank you.")
 			PF4
-      script_end_procedure("Success! Your WCOM has been written. Please review it for accuracy, and PF4 to save.")
+      script_end_procedure("Success! Your MEMO has been written. Please review it for accuracy, and PF4 to save.")
 END IF
 
 'transmitting and putting wcom into edit mode
