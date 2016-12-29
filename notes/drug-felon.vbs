@@ -89,8 +89,6 @@ BeginDialog dfln_case_number_dialog, 0, 0, 186, 100, "Case Number and Informatio
   Text 10, 60, 60, 10, "Action to Process:"
 EndDialog
 
-
-
 BeginDialog dfln_testing_dialog, 0, 0, 271, 175, "Drug Felon Testing"
   EditBox 65, 5, 60, 15, conviction_date
   EditBox 65, 25, 135, 15, probation_officer
