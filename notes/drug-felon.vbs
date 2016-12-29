@@ -2,7 +2,7 @@
 name_of_script = "NOTES - DRUG FELON.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 90           'manual run time in seconds
+STATS_manualtime = 150           'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -64,6 +64,18 @@ Function Generate_Client_List(list_for_dropdown)
 
 End Function
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS-------------------------------------------------------------------------------------------------------------------------------
 BeginDialog dfln_case_number_dialog, 0, 0, 186, 100, "Case Number and Information"
   EditBox 75, 5, 70, 15, MAXIS_case_number
@@ -102,9 +114,6 @@ BeginDialog dfln_testing_dialog, 0, 0, 271, 175, "Drug Felon Testing"
   Text 5, 30, 60, 10, "Probation Officer:"
   Text 5, 80, 30, 10, "UA Date:"
 EndDialog
-
-
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone & grabbing case number & month/year
@@ -252,7 +261,7 @@ Case "Initial Information Received"
 
 'This is for when documentation about follow up has been requested but client failed to provide it within 10 days
 'This has no actions associated with it as no process was provided at this time. This is a great place for an enhancement
-Case "Initial information Not Received"
+Case "Initial Information Not Received"
 
 	'Dialog is defined here as the HH dropdown needs to be defined before the dialog is
 	BeginDialog info_fail_dialog, 0, 0, 191, 105, "Update FSS Information from the Status Update"

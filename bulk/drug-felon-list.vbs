@@ -4,7 +4,7 @@
 name_of_script = "BULK - BANKED MONTHS REPORT.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 219         'manual run time in seconds
+STATS_manualtime = 265         'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -39,6 +39,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/29/2016", "Initial version.", "Casey Love, Ramsey County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 EMConnect ""		'connecting to MAXIS
 Call get_county_code	'gets county name to input into the 1st col of the spreadsheet
@@ -210,6 +222,7 @@ Loop until end_of_list = ""
 
 'Now it will loop through each row identified with that county to gather all client data
 For person = 0 to Ubound(dfln_to_process_array, 2)
+	STATS_counter = STATS_counter + 1
 	For column = 0 to UBound(col_name_array, 2)
 		If col_name_array(Col_Name, column) = "REPORT_MONTH"             Then dfln_to_process_array(month_reptd, person)  = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)	
 		If col_name_array(Col_Name, column) = "CASENUMBER"               Then dfln_to_process_array(case_numb, person)    = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
@@ -459,7 +472,7 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 			transmit
 		End If 
 		EMReadScreen Edit_check, 8, 24, 21
-		If Edit_check = "INACTIVE" Then 		'1406696, 1485421'
+		If Edit_check = "INACTIVE" OR Edit_check = "ACCESS F" Then 		'1406696, 1485421'
 			DFLN_Updated = FALSE 
 		Else 
 			DFLN_Updated = TRUE 
@@ -826,21 +839,22 @@ If DFLN_fail_array <> "" Then
 	
 	
 	'Merging header cell.
-	ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 3)).Merge
-	ObjExcel.Range(ObjExcel.Cells(excel_row + 1, 1), ObjExcel.Cells(excel_row + 1, 3)).Merge
+	objNewExcel.Range(objNewExcel.Cells(excel_row, 1), objNewExcel.Cells(excel_row, 3)).Merge
+	objNewExcel.Range(objNewExcel.Cells(excel_row + 1, 1), objNewExcel.Cells(excel_row + 1, 3)).Merge
 	
 	'Centering the cell
-	objExcel.Cells(excel_row, 1).HorizontalAlignment = -4108
-	objExcel.Cells(excel_row + 1, 1).HorizontalAlignment = -4108
+	objNewExcel.Cells(excel_row, 1).HorizontalAlignment = -4108
+	objNewExcel.Cells(excel_row + 1, 1).HorizontalAlignment = -4108
 
 	excel_row = excel_row + 2
 	
 	For each number in DFLN_fail_array 
 	
-		objNewExcel.Cells(excel_row, 1).Value = number
+		objNewExcel.Cells(excel_row, 2).Value = number
 		excel_row = excel_row + 1
 	
 	Next
 End If 
 
+STATS_counter = STATS_counter - 1
 script_end_procedure("Success! Script has completed run. Excel spreadsheet created with DFLN matches for your county with additional information. DFLN updated per your responses and Case Notes created.")
