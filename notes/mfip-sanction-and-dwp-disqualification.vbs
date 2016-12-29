@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/28/2016", "Corrected DWP disqualification options and noting for policy compliance.", "David Courtright, Saint Louis County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -64,13 +65,13 @@ BeginDialog case_number_dialog, 0, 0, 171, 70, "Case number dialog"
 EndDialog
 
 BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP Disqualification"
-  DropListBox 65, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
+  DropListBox 65, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending"+chr(9)+"DWP disqual", sanction_status_droplist
   EditBox 265, 5, 50, 15, HH_Member_Number
   DropListBox 65, 25, 110, 15, "Select one..."+chr(9)+"CS"+chr(9)+"ES"+chr(9)+"Dual (ES & CS)"+chr(9)+"Failed to attend orientation"+chr(9)+"Minor mom truancy", sanction_type_droplist
   EditBox 265, 25, 50, 15, number_occurances
-  DropListBox 65, 45, 65, 15, "Select one..."+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
+  DropListBox 65, 45, 65, 15, ""+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
   EditBox 265, 45, 65, 15, Date_Sanction
-  DropListBox 65, 65, 65, 15, "Select one..."+chr(9)+"Pre 60"+chr(9)+"Post 60", pre_post_droplist
+  DropListBox 65, 65, 65, 15, ""+chr(9)+"Pre 60"+chr(9)+"Post 60", pre_post_droplist
   EditBox 220, 65, 110, 15, pre_post_notes
   DropListBox 90, 85, 240, 45, "Select one..."+chr(9)+"Failed to attend ES overview"+chr(9)+"Failed to develop employment plan"+chr(9)+"Non-compliance with employment plan"+chr(9)+"< 20, failed education requirement"+chr(9)+"Failed to accept suitable employment"+chr(9)+"Quit suitable employment w/o good cause"+chr(9)+"Failure to attend MFIP orientation"+chr(9)+"Non-cooperation with child support", sanction_reason_droplist
   EditBox 90, 105, 240, 15, sanction_information
@@ -195,15 +196,17 @@ If action_type = "Apply sanction/disq."	then
 			IF sanction_status_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction status type."
 			IF HH_Member_Number = "" THEN err_msg = err_msg & vbCr & "You must enter a HH member number."
 			IF sanction_type_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction type."
-			IF number_occurances = "" THEN err_msg = err_msg & vbCr & "You must enter the number of the sanction occurrence."
+			IF sanction_status_droplist <> "DWP disqual" THEN 'Thes are only mandatory for MFIP'
+				IF number_occurances = "" THEN err_msg = err_msg & vbCr & "You must enter the number of the sanction occurrence."
+				IF Sanction_Percentage_droplist = "" THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
+				IF pre_post_droplist = "" THEN err_msg = err_msg & vbCr & "You must select if case is either pre or post 60."
+			END IF
 			IF IsDate(Date_Sanction) = FALSE THEN
 				err_msg = err_msg & vbCr & "You need to enter a valid date of sanction (MM/DD/YYYY)."
 				'logic for figuring out if its the first of the month, if it's not, then it gives a more define date requirement
 			ELSEIF datepart("d", Date_Sanction) <> 1 THEN
 				err_msg = "You need to enter a valid date of sanction (MM/DD/YYYY), with DD = to first of the sanction month)"
 			END IF
-			IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
-			IF pre_post_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select if case is either pre or post 60."
 			IF sanction_information = "" THEN err_msg = err_msg & vbCr & "You must enter information about how the sanction information was received."
 			IF IsDate(Date_Sanction) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid date of sanction."
 			IF sanction_reason_droplist = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
@@ -233,6 +236,7 @@ If action_type = "Apply sanction/disq."	then
 	'This return the date the client has to be in compliance or comply by, and the date that workers need to inform client to cooperate by this date.
 	'This date is 10 days from the effective date if it is ES, No Show for Orientation, and/or Minor Mom Truancy, otherwise it is last day of the month prior to the effective month.
 	'consecutive months between 3 - 6 months, if they are consecutive months, client has up to the last day of the month prior to the effective date to resolve the sanction.
+	IF sanction_status_droplist <> "DWP disqual" THEN
 	IF consecutive_sanction_months = checked then
 		Resolution_date = DateAdd("d", -1, Date_Sanction)
 	ELSEIf (sanction_type_droplist = "CS") then
@@ -240,10 +244,14 @@ If action_type = "Apply sanction/disq."	then
 	ELSE
 		Resolution_date = DateAdd("d", -10, Date_Sanction)
 	End If
-
+	END IF
 	'case noting the droplist and editboxes
 	start_a_blank_CASE_NOTE
-	Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_type_droplist & " SANCTION " & sanction_status_droplist  & " for MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
+	IF sanction_status_droplist = "DWP disqual"  THEN
+		CALL write_variable_in_case_note("DWP Disqualification imposed effective " & Date_Sanction)
+	ELSE
+		Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_type_droplist & " SANCTION " & sanction_status_droplist  & " for MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
+	END IF
 	CALL write_bullet_and_variable_in_case_note("HH member number", HH_Member_Number)
 	Call write_bullet_and_variable_in_case_note("Sanction status", sanction_status_droplist)
 	CALL write_bullet_and_variable_in_case_note("Type of Sanction", sanction_type_droplist)
