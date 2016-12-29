@@ -1,5 +1,3 @@
-'Hard coding that needs to be updated each year: MAXIS_footer_year, counted_date_year 
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - BANKED MONTHS REPORT.vbs"
 start_time = timer
