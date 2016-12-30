@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Dialogs
 BeginDialog case_number_dialog, 0, 0, 151, 75, "MFIP To SNAP Transition Note"
   ButtonGroup ButtonPressed
@@ -112,7 +124,7 @@ DO
 		IF datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbCr & "The MFIP closure date should equal the last day of the month."
 	END IF
 	IF buttonpressed = 0 then stopscript
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP Until err_msg = ""
 
 'Setting the correct footer month and year (so snap budget is pulled from month snap is approved in)
@@ -145,7 +157,7 @@ Next
 
 'comparing dates, and giving a warning message if the closure wasn't approved today
 IF datediff("d", date, approval_date) <> 0 THEN msgbox "Warning! It appears the most recent MFIP version was not approved today. Approval of SNAP when closing MFIP must occur on the same day as closure."
- 
+
 'Next, check that there isn't a REVW due for at least 1 full month
 call navigate_to_MAXIS_screen("stat", "revw")
 EMReadscreen cash_revw_date, 8, 9, 37
@@ -161,8 +173,8 @@ If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array
 'Removing semicolons from HH_comp variable, it is not needed.
 HH_comp = replace(HH_comp, "; ", "")
 
-call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST) 
-call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST) 
+call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
+call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
@@ -209,7 +221,7 @@ IF WCOM_check = checked THEN
 			'Making sure the notice is actually a SNAP approval
 			document_end = "" 'resetting the variable
 			DO
-				notice_row = 1 
+				notice_row = 1
 				notice_col = 1
 				EMSearch "certified", notice_row, notice_col 'looking for an approval notice
 				IF notice_row = 0 THEN 'It didn't spot the word certified, checking the next page
@@ -217,7 +229,7 @@ IF WCOM_check = checked THEN
 					EMReadScreen document_end, 3, 24, 13
 					IF document_end <> "   " then EXIT DO
 				END IF
-			LOOP UNTIL notice_row > 1 OR document_end <> "   " 
+			LOOP UNTIL notice_row > 1 OR document_end <> "   "
 			IF notice_row > 1 THEN	'This means the word "certified" is contained in the notice, and it should be edited
 				PF9
 				Call write_variable_in_SPEC_MEMO("If you would like to decline SNAP benefits, please contact our office.")
@@ -248,8 +260,8 @@ IF WCOM_check = checked THEN
 	LOOP UNTIL row = 18 or last_month_check = "NOT"
 	IF notice_edited <> true THEN 'If the script couldn't find a SNAP notice to edit, something is wrong here.
 		msgbox "WARNING: You asked the script to edit the SNAP approval notice, but there are no waiting approval notices for the current month. " & vbCr _
-		& "Please check your results and try again." 
-		script_end_procedure("The script will now stop.") 
+		& "Please check your results and try again."
+		script_end_procedure("The script will now stop.")
 	END IF
 END IF
 
@@ -271,4 +283,3 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 
 
 script_end_procedure("")
-	

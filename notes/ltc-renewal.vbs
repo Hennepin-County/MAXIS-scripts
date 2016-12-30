@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 MAXIS_footer_month = datepart("m", next_month)
@@ -47,8 +59,8 @@ MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, MAXIS_case_number					
-  EditBox 80, 25, 25, 15, MAXIS_footer_month					
+  EditBox 80, 5, 60, 15, MAXIS_case_number
+  EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 35, 45, 50, 15
@@ -165,7 +177,7 @@ EMReadScreen client_gender, 1, 9, 42
 If client_gender = "F" then client_gender = "female"
 If client_gender = "M" then client_gender = "male"
 HH_comp = client_age & " y/o " & client_gender
-call navigate_to_MAXIS_screen("stat", "memi") 
+call navigate_to_MAXIS_screen("stat", "memi")
 EMReadScreen marital_status, 1, 7, 49
 If marital_status = "N" then marital_status = "never married"
 If marital_status = "M" then marital_status = "married"
@@ -206,8 +218,8 @@ End if
 
 
 'Scans for possible secondary programs (QMB/SLMB/QI1)
-EMReadScreen second_program_elig_result, 4, 9, 41 
-If second_program_elig_result = "ELIG" then 
+EMReadScreen second_program_elig_result, 4, 9, 41
+If second_program_elig_result = "ELIG" then
   EMReadScreen QMB_SLMB_check, 4, 9, 28
   If trim(QMB_SLMB_check) = "QMB" or trim(QMB_SLMB_check) = "SLMB" or trim(QMB_SLMB_check) = "QI1" then MEDI_reimbursement_prog = trim(QMB_SLMB_check)
 End if

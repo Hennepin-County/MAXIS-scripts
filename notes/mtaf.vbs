@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 'CASE NUMBER DIALOG
 BeginDialog case_number_dialog, 0, 0, 126, 45, "Case number dialog"
@@ -68,7 +80,7 @@ BeginDialog MTAF_dialog, 0, 0, 506, 345, "MTAF dialog"
   EditBox 125, 260, 210, 15, elig_results_fiated
   EditBox 75, 280, 260, 15, other_notes
   EditBox 75, 300, 260, 15, verifications_needed
-  If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 5, 325, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox  
+  If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 5, 325, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
   CheckBox 350, 45, 135, 10, "Rights and responsibilities explained.", RR_explained_checkbox
   CheckBox 350, 60, 55, 10, "MTAF signed.", mtaf_signed_checkbox
   CheckBox 350, 75, 140, 10, "MFIP/financial orientation completed.", mfip_financial_orientation_checkbox
@@ -108,7 +120,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'This is the running of the case number dialog.
-Do 
+Do
 	Dialog case_number_dialog 'Runs the "case number" dialog
 	If buttonpressed = 0 then stopscript 'If someone hits "cancel" the script stops.
 	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number." 'If the case number is blank, is not numeric, or is longer than 8 characters, then message box.

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'The Dialog--------------------------------------------------------------
 
 BeginDialog client_transportation_dialog, 0, 0, 146, 95, "Transportation Funds Issued"
@@ -125,19 +137,19 @@ Call check_for_MAXIS(True)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 
-'Starting with the 1st dialog box asking how funds were issued 
+'Starting with the 1st dialog box asking how funds were issued
 DO
 	Err_msg = ""
 	Dialog client_transportation_dialog
 	cancel_confirmation
 	If How_funds_issued_dropbox = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must select how transportation funds were issued"
 	If MAXIS_case_number = "" THEN err_msg = err_msg & vbNewLine & "*You must enter a case number"
-	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 
+	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
 Loop until err_msg = ""
 
 'Runs the Gas card dialog box if selected
 If How_funds_issued_dropbox = "Gas Card Issued" then
-	Do 
+	Do
 		err_msg = ""
 		Dialog gas_card_dialog
 		cancel_confirmation
@@ -147,16 +159,16 @@ If How_funds_issued_dropbox = "Gas Card Issued" then
 		If worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note"
 		'amt_given_yr_to_date = "$" & amt_given_yr_to_date
 		'card_amt_dropbox = "$" & card_amt_dropbox
-		If err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 
+		If err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
 	Loop until err_msg = ""
-End If 
+End If
 
 'Runs Mileage reimbursement dialog if selected
-If How_funds_issued_dropbox = "Mileage Reimbursement" Then	
-	Do 
+If How_funds_issued_dropbox = "Mileage Reimbursement" Then
+	Do
 		err_msg = ""
 		Dialog Mileage_dialog
-		cancel_confirmation	
+		cancel_confirmation
 		If MAXIS_case_number = "" THEN err_msg = err_msg & vbNewLine & "*You must enter a case number"
 		If worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note"
 		If err_msg <> "" Then Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
@@ -164,8 +176,8 @@ If How_funds_issued_dropbox = "Mileage Reimbursement" Then
 End if
 
 'Runs Bus Tokens dialog if selected
-If How_funds_issued_dropbox = "Bus Tokens Issued" THEN	
-	Do 
+If How_funds_issued_dropbox = "Bus Tokens Issued" THEN
+	Do
 		err_msg = ""
 		Dialog bus_tokens_dialog
 		cancel_confirmation
@@ -209,7 +221,7 @@ If How_funds_issued_dropbox = "Mileage Reimbursement" AND worker_county_code = "
 call write_bullet_and_variable_in_case_note("Date bus tokens issued", date_tokens_issued)
 call write_bullet_and_variable_in_case_note("Amount of tokens issued", Amount_tokens_given)
 
-CALL write_variable_in_case_note ("---")   
+CALL write_variable_in_case_note ("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)    'Writes worker signature in note
 
 script_end_procedure("")

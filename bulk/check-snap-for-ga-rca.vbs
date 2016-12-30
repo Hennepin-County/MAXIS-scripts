@@ -38,6 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Added safety functionality for if MAXIS is passworded out.", "Casey Love, Ramsey County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 
 BeginDialog check_snap_dlg, 0, 0, 166, 100, "Check SNAP for GA/RCA"
   EditBox 100, 10, 55, 15, worker_number
@@ -52,6 +65,8 @@ EndDialog
 
 EMConnect ""
 
+Call check_for_MAXIS(True)
+
 benefit_month = datepart("M", dateadd("M", 1, date))
 IF len(benefit_month) <> 2 THEN benefit_month = "0" & benefit_month
 benefit_year = datepart("YYYY", dateadd("M", 1, date))
@@ -62,9 +77,12 @@ EMWriteScreen benefit_month, 20, 43
 EMWriteScreen benefit_year, 20, 46
 
 DO
-	DIALOG check_snap_dlg
+	DO
+		DIALOG check_snap_dlg
 		IF ButtonPressed = 0 THEN stopscript
-LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
+	LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in 
 
 IF all_worker_check = 1 THEN
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
@@ -263,24 +281,24 @@ FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-IF supervisor_check = 1 THEN 
+IF supervisor_check = 1 THEN
 	'Adding additional manual time to the stats counter. I have timed this out to be about 25 seconds per case.
 	STATS_manualtime = STATS_manualtime + 25
-	
+
 	'Adding a column to the left of the data
 	SET objSheet = objWorkbook.Sheets("Sheet1")
 	objSheet.Columns("A:A").Insert -4161
 	objExcel.Cells(1, 1).Value = "SUPERVISOR NAME"
-	
+
 	'Going to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-	
+
 	'Starting back at the top of the page
 	excel_row = 2
 	DO
 		worker_id = objExcel.Cells(excel_row, 2).Value
 		prev_worker_id = objExcel.Cells(excel_row - 1, 2).Value
-		IF worker_id <> prev_worker_id THEN 
+		IF worker_id <> prev_worker_id THEN
 			'Entering the worker number into REPT/USER
 			CALL write_value_and_transmit(worker_id, 21, 12)
 			CALL write_value_and_transmit("X", 7, 3)
@@ -297,7 +315,7 @@ IF supervisor_check = 1 THEN
 		END IF
 		excel_row = excel_row + 1
 	LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
-	
+
 	objExcel.Columns(1).AutoFit()
 END IF
 

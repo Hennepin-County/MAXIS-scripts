@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - IEVS NOTICE RECEIVED.vbs"
+name_of_script = "NOTES - IEVS MATCH RECEIVED.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 90           'manual run time in seconds
@@ -37,6 +37,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Changed the name and case note header from IEVS Notice to IEVS Match.", "Casey Love, Ramsey County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog case_number_dlg, 0, 0, 206, 75, "Enter a Case Number"
   EditBox 70, 10, 70, 15, MAXIS_case_number
@@ -86,7 +99,7 @@ Call check_for_MAXIS(false)
 'grabs the case number and benefit month/year that is being worked on
 call MAXIS_case_number_finder(MAXIS_case_number)
 EMReadScreen at_self, 4, 2, 50
-IF at_self = "SELF" THEN 
+IF at_self = "SELF" THEN
 	EMReadScreen benefit_month, 2, 20, 43
 	IF len(benefit_month) <> 2 THEN benefit_month = "0" & benefit_month
 	EMReadScreen benefit_year, 2, 20, 46
@@ -101,7 +114,7 @@ DO
 	DIALOG case_number_dlg
 		IF ButtonPressed = 0 THEN stopscript
 		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
 CALL check_for_MAXIS(False)
@@ -114,7 +127,7 @@ DO
 	'asks if you want to cancel and if "yes" is selected sends StopScript
 	cancel_confirmation
 	'checks if an Option has been selected
-	IF OPTIONS = "Select one" THEN err_msg = err_msg & vbCr & "You must select an option."					
+	IF OPTIONS = "Select one" THEN err_msg = err_msg & vbCr & "You must select an option."
 	'checks if a HH Memb has been entered
 	IF MEMB = "" THEN err_msg = err_msg & vbCr & "You must enter a HHLD MEMB."
 	'checks if Quarter was selected.
@@ -125,11 +138,11 @@ DO
 	IF ADDR = "" THEN err_msg = err_msg & vbCr & "You must enter an address."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
-	
+
 'starts Resolved/Non Cooperation dialog if resolved/non coop selected
-IF OPTIONS = "Resolved" THEN 
+IF OPTIONS = "Resolved" THEN
 	DO
-		err_msg = ""			
+		err_msg = ""
 		Dialog Resolved_Non_Cooperation
 		'asks if you want to cancel and if "yes" is selected sends StopScript
 		cancel_confirmation
@@ -147,8 +160,8 @@ call check_for_MAXIS (false)
 'starts a blank case note
 call start_a_blank_case_note
 
-'this enters the actual case note info 
-call write_variable_in_CASE_NOTE("***IEVS Notice received: " & OPTIONS & "***")
+'this enters the actual case note info
+call write_variable_in_CASE_NOTE("***IEVS Match received: " & OPTIONS & "***")
 call write_bullet_and_variable_in_CASE_NOTE("HHLD MEMB", MEMB)
 call write_bullet_and_variable_in_CASE_NOTE("Quarter", Quarter)
 call write_bullet_and_variable_in_CASE_NOTE("Employer", Employer)

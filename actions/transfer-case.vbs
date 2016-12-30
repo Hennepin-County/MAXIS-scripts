@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'VARIABLES TO DECLARE----------------------------------------------------------------------------
 SPEC_MEMO_check = checked		'Should default to checked, as we usually want to send a new worker memo
 
@@ -165,8 +177,8 @@ IF XFERRadioGroup = 0 THEN
 			EMReadScreen MAXIS_check, 5, 1, 39
 			If MAXIS_check <> "MAXIS" and MAXIS_check <> "AXIS " then MsgBox "You appear to be locked out of MAXIS. Are you passworded out? Did you navigate away from MAXIS?"
 		Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-		
-		'----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases. 
+
+		'----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
 		call navigate_to_MAXIS_screen("REPT", "USER")
 		EMWriteScreen worker_to_transfer_to, 21, 12
 		transmit
@@ -182,7 +194,7 @@ IF XFERRadioGroup = 0 THEN
 	EMReadScreen worker_agency_name, 43, 8, 27
 		worker_agency_name = trim(worker_agency_name)
 	IF worker_agency_name = "" THEN 						'If we are unable to find the alias for the worker we will just use the worker name as it is what is used on notices anyway
-		EMReadScreen worker_agency_name, 43, 7, 27			
+		EMReadScreen worker_agency_name, 43, 7, 27
 		worker_agency_name = trim(worker_agency_name)
 		name_length = len(worker_agency_name)
 		comma_location = InStr(worker_agency_name, ",")
