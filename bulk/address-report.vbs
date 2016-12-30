@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/15/2016", "Adding column to excel file for homeless code, and checking MAXIS for homeless code.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -146,6 +147,8 @@ objExcel.Cells(1, 12).Value = "MAILING STATE"
 objExcel.Cells(1, 12).Font.Bold = True
 objExcel.Cells(1, 13).Value = "MAILING ZIP CODE"
 objExcel.Cells(1, 13).Font.Bold = True
+objExcel.Cells(1, 14).Value = "HOMELESS"
+objExcel.Cells(1, 14).Font.Bold = True
 
 excel_row = 2
 
@@ -218,6 +221,8 @@ Do
 		city = replace(city, "_", "")
 		State = replace(State, "_", "")
 		Zip_code = replace(Zip_code, "_", "")
+		'Reading homeless code
+		EMReadScreen homeless_code, 1, 10, 43
 		'Reading and cleaning up mailing address
 		EMReadScreen mailing_addr_line_1, 22, 13, 43
 		EMReadScreen mailing_addr_line_2, 22, 14, 43
@@ -240,6 +245,7 @@ Do
 		objExcel.Cells(excel_row, 11) = mailing_city
 		objExcel.Cells(excel_row, 12) = mailing_State
 		objExcel.Cells(excel_row, 13) = mailing_Zip_code
+		objExcel.Cells(excel_row, 14) = homeless_code
 	End IF
 
 	'Clearing variables for next loop.
@@ -253,13 +259,14 @@ Do
 	mailing_city = ""
 	mailing_State = ""
 	mailing_Zip_code = ""
+	homeless_code = ""
 
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 Loop until MAXIS_case_number = ""
 
 'formatting excel columns to fit
-FOR i = 1 to 13
+FOR i = 1 to 14
 	objExcel.Columns(i).AutoFit()
 NEXT
 

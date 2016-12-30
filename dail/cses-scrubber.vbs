@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/15/2016", "Fixing a bug with counting household members and formatting the spreadsheet. Also adding ability to budget income for a person no longer in the household. For MFIP cases the script will attempt to see how the income changed the benefit.", "Casey Love, Ramsey County")
 call changelog_update("12/06/2016", "Fixing a bug to make sure correct month gets edited.", "Charles Potter, DHS")
 call changelog_update("12/05/2016", "Fixing a bug to prevent errors when processing in single digit months.", "Charles Potter, DHS")
 call changelog_update("11/20/2016", "Initial version.", "Charles Potter, DHS")
@@ -69,6 +70,31 @@ FUNCTION create_mainframe_friendly_date(date_variable, screen_row, screen_col, y
 	END IF
 	EMWriteScreen var_year, screen_row, screen_col + 6
 END FUNCTION
+
+Function Generate_Client_List(list_for_dropdown)
+
+	memb_row = 5
+
+	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+	Do
+		EMReadScreen ref_numb, 2, memb_row, 3
+		If ref_numb = "  " Then Exit Do
+		EMWriteScreen ref_numb, 20, 76
+		transmit
+		EMReadScreen first_name, 12, 6, 63
+		EMReadScreen last_name, 25, 6, 30
+		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
+		memb_row = memb_row + 1
+	Loop until memb_row = 20
+
+	client_info = right(client_info, len(client_info) - 1)
+	client_list_array = split(client_info, "~")
+
+	For each person in client_list_array
+		list_for_dropdown = list_for_dropdown & chr(9) & person
+	Next
+
+End Function
 
 'END FUNCTIONS=============================================================================================================
 
@@ -330,8 +356,10 @@ ObjExcel.Cells(2, col_HH_memb_PMI_list_PMI).Font.Bold 					= True
 Do
 	EMReadScreen ref_nbr_on_MEMB, 	2, 4, 33												'Ref nbr = HH memb number
 	EMReadScreen PMI_nbr_on_MEMB, 	8, 4, 46												'Reads PMI number on panel
-	EMReadScreen current_panel, 	1, 2, 73												'Sees what panel we're on at present
-	EMReadScreen amount_of_panels, 	1, 2, 78												'Sees the total number of panels
+	EMReadScreen current_panel, 	2, 2, 72												'Sees what panel we're on at present
+	EMReadScreen amount_of_panels, 	2, 2, 78												'Sees the total number of panels
+	current_panel = trim(current_panel)
+	amount_of_panels = trim(amount_of_panels)
 	PMI_nbr_on_MEMB = Replace(PMI_nbr_on_MEMB, "_", "")										'This allows Ramsey County to use the script. They have underscores here for some reason. Possibly "CAFE"?
 	ObjExcel.Cells(excel_row, col_HH_memb_PMI_list_memb_num).Value 	= ref_nbr_on_MEMB		'Adds ref nbr to Excel
 	ObjExcel.Cells(excel_row, col_HH_memb_PMI_list_PMI).Value 		= PMI_nbr_on_MEMB		'Adds PMI nbr to Excel
@@ -373,6 +401,59 @@ excel_row = 3
 
 'Associates panel with each message
 Do
+	'If the script could not match the PMI to a reference number this would be blank. The worker will be asked to assign the reference number
+	If ObjExcel.Cells(excel_row, col_HH_memb_number) = "" Then 
+	
+		'Creates a dropdown list to select a client from the case
+		Call Generate_Client_List(HH_Memb_DropDown)
+		
+		'Asking the worker to select who this income should be listed under.
+		Do
+			err_msg = ""
+			'Dialog defined here because it needs to come after the dropdown creation.
+			BeginDialog cses_memb_missing_dialog, 0, 0, 285, 105, "Missing HH Member"
+			  OptionGroup RadioGroup1
+				RadioButton 20, 35, 50, 10, "Yes", radio_yes
+				RadioButton 20, 50, 50, 10, "No", radio_no
+			  DropListBox 85, 85, 105, 45, "Select One..." & HH_Memb_DropDown, memb_w_unea
+			  ButtonGroup ButtonPressed
+				OkButton 200, 85, 35, 15
+				CancelButton 240, 85, 30, 15
+			  Text 5, 5, 280, 10, "Income has ben reported for PMI " & ObjExcel.Cells(excel_row, col_PMI_number) & ". No one listed in STAT has this PMI Number."
+			  Text 5, 20, 160, 10, "Should this income be budgeted in this case?"
+			  Text 5, 70, 260, 10, "If yes, which HH member has (or should have) the UNEA panel for this income?"
+			  Text 10, 85, 70, 10, "Household member"
+			EndDialog
+			
+			Dialog cses_memb_missing_dialog
+			If ButtonPressed = cancel Then StopScript
+
+			If memb_w_unea = "Select One..." AND radio_yes = 1 Then err_msg = err_msg & vbNewLine & "Please pick a client who should have the UNEA panel for this income."
+			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+		Loop until err_msg = ""
+
+		'If the worker says the income should be budgeted
+		If radio_yes = 1 Then
+			ObjExcel.Cells(excel_row, col_HH_memb_number).Value = left(memb_w_unea, 2)
+			
+			
+			excel_message_row =  excel_row + 1
+			
+			
+			Do 
+				'If...	the PMI from the CSES message equals...						the PMI from the MEMB list...									then the HH member column in the message list...					should equal the ref nbr from the HH memb list.
+				If 		ObjExcel.Cells(excel_row, col_PMI_number).Value = 	ObjExcel.Cells(excel_message_row, col_PMI_number).Value then 	ObjExcel.Cells(excel_message_row, col_HH_memb_number ).Value = 		ObjExcel.Cells(excel_row, col_HH_memb_number ).Value
+				excel_message_row = excel_message_row + 1
+			Loop until ObjExcel.Cells(excel_message_row, col_PMI_number).Value = ""		'Out of messages
+			
+			call navigate_to_MAXIS_screen ("STAT", "UNEA")
+		End If 
+		
+		'If the income should not be budgeted - we don't have a process for this - the script ends.
+		If radio_no = 1 Then script_end_procedure ("CS DAILS indicate income that you have selected should not be budgeted. At this time, these messages must be processed manually.")
+		
+	End If 
+	
 	'Creates a UNEA_number variable using the right two characters of a string consisting of "0" and the HH memb column. This prevents issues when running on membs 01-09, which show on Excel as "1-9"
     UNEA_number = right("0" & ObjExcel.Cells(excel_row, col_HH_memb_number).Value, 2)
 
@@ -437,8 +518,7 @@ Do
 	excel_row_for_UNEA_panel_autofill = ""
 	income_type_on_UNEA = ""
 	excel_row = excel_row + 1
-
-
+		
 
 Loop until ObjExcel.Cells(excel_row, col_msg_number).Value = ""			'Loop until we're out of messages
 
@@ -737,29 +817,29 @@ If SNAP_active = true then
 
 				If message_array(i).UNEAPanel = "NONE" then
 
-					ObjExcel.Cells(1, 6 ).Value = "MESSAGES WITHOUT UNEA PANELS (SPLIT BY HH MEMB)"
+					ObjExcel.Cells(1, 11 ).Value = "MESSAGES WITHOUT UNEA PANELS (SPLIT BY HH MEMB)"
 
-					ObjExcel.Cells(2, 6 ).Value = "HH member #"
-					ObjExcel.Cells(2, 7 ).Value = "CS type"
-					ObjExcel.Cells(2, 8 ).Value = "Amount alloted"
-					ObjExcel.Cells(2, 9 ).Value = "Issue date"
-					ObjExcel.Cells(2, 10).Value = "Message #"
+					ObjExcel.Cells(2, 11 ).Value = "HH member #"
+					ObjExcel.Cells(2, 12 ).Value = "CS type"
+					ObjExcel.Cells(2, 13 ).Value = "Amount alloted"
+					ObjExcel.Cells(2, 14 ).Value = "Issue date"
+					ObjExcel.Cells(2, 15).Value = "Message #"
 
-					ObjExcel.Cells(2, 6 ).Font.Bold	= True
-					ObjExcel.Cells(2, 7 ).Font.Bold	= True
-					ObjExcel.Cells(2, 8 ).Font.Bold	= True
-					ObjExcel.Cells(2, 9 ).Font.Bold	= True
-					ObjExcel.Cells(2, 10).Font.Bold	= True
+					ObjExcel.Cells(2, 11 ).Font.Bold	= True
+					ObjExcel.Cells(2, 12 ).Font.Bold	= True
+					ObjExcel.Cells(2, 13 ).Font.Bold	= True
+					ObjExcel.Cells(2, 14 ).Font.Bold	= True
+					ObjExcel.Cells(2, 15).Font.Bold	= True
 
 
 
-					ObjExcel.Cells(excel_row_no_panel_found, 6 ).Value = "'0" & message_array(i).MEMBNum
-					ObjExcel.Cells(excel_row_no_panel_found, 7 ).Value = message_array(i).CSType
-					ObjExcel.Cells(excel_row_no_panel_found, 8 ).Value = message_array(i).AmtAlloted
-					ObjExcel.Cells(excel_row_no_panel_found, 9 ).Value = message_array(i).IssueDate
-					ObjExcel.Cells(excel_row_no_panel_found, 10).Value = message_array(i).MsgNum
+					ObjExcel.Cells(excel_row_no_panel_found, 11 ).Value = "'0" & message_array(i).MEMBNum
+					ObjExcel.Cells(excel_row_no_panel_found, 12 ).Value = message_array(i).CSType
+					ObjExcel.Cells(excel_row_no_panel_found, 13 ).Value = message_array(i).AmtAlloted
+					ObjExcel.Cells(excel_row_no_panel_found, 14 ).Value = message_array(i).IssueDate
+					ObjExcel.Cells(excel_row_no_panel_found, 15).Value = message_array(i).MsgNum
 
-					ObjExcel.Cells(excel_row_no_panel_found, 8).NumberFormat = "$#,##0.00"
+					ObjExcel.Cells(excel_row_no_panel_found, 13).NumberFormat = "$#,##0.00"
 
 					excel_row_no_panel_found = excel_row_no_panel_found + 1
 
@@ -1177,6 +1257,33 @@ If MFIP_active = true then
 
 End if
 
+If MFIP_active = TRUE then 
+	'Check to make sure we are back to our dail
+	EMReadScreen DAIL_check, 4, 2, 48
+	IF DAIL_check <> "DAIL" THEN
+		PF3 'This should bring us back from UNEA or other screens
+		EMReadScreen DAIL_check, 4, 2, 48
+		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%)
+			call navigate_to_MAXIS_screen("DAIL", "DAIL")
+		END IF
+	END IF
+	EMWriteScreen "e", 6, 3
+	transmit
+	
+	EMWriteScreen "MFIP", 20, 71
+	transmit
+	EMReadScreen MFPR_check, 4, 3, 47
+	If MFPR_check = "MFPR" Then 
+		EMWriteScreen "MFSM", 20, 71
+		transmit
+		EMReadScreen impact_on_benefit, 12, 10, 31
+		impact_on_benefit = trim(impact_on_benefit)
+		MsgBox impact_on_benefit
+	End If 
+	PF3
+	
+
+End If 
 
 'Alert to worker that additional action is required.
 If Outside_the_realm = TRUE Then MsgBox "This is a SNAP case and you have indicated at least one of the UNEA panels needs to be reviewed for possible budget adjustment." & vbNewLine & vbNewLine & "At this time, this script does NOT update UNEA for SNAP cases. Case note will indicate that worker followup is needed."
@@ -1209,13 +1316,18 @@ If developer_mode <> TRUE Then
 		Call Write_Variable_in_CASE_NOTE (":::CSES Messages Reviewed::::")
 	End If
 	Call Write_Variable_in_CASE_NOTE ("* Income reported from PRISM Interface - details are listed in previous case notes.")
-	If MFIP_active = TRUE Then Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
-	If Exceed_130 = TRUE Then Call Write_Variable_in_CASE_NOTE ("* With this CS Income, it appears case income may exceed 130% FPG.")
-	If CS_Change = TRUE Then
-		Call Write_Variable_in_CASE_NOTE ("* CS Income listed in DAILs is different from the amount of CS Income Budgeted.")
-		Call Write_Bullet_and_Variable_in_Case_Note ("CS Income Budgeted", BUDG_CSES)
-		Call Write_Bullet_and_Variable_in_Case_Note ("CS Income From DAIL", amount_CS_reported)
-	End If
+	If MFIP_active = TRUE Then 
+		Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
+		Call Write_Bullet_and_Variable_in_Case_Note("Change to MFIP Benefit", impact_on_benefit)
+	End If 
+	If MFIP_active <> TRUE AND SNAP_active = TRUE Then 
+		If Exceed_130 = TRUE Then Call Write_Variable_in_CASE_NOTE ("* With this CS Income, it appears case income may exceed 130% FPG.")
+		If CS_Change = TRUE Then
+			Call Write_Variable_in_CASE_NOTE ("* CS Income listed in DAILs is different from the amount of CS Income Budgeted.")
+			Call Write_Bullet_and_Variable_in_Case_Note ("CS Income Budgeted", BUDG_CSES)
+			Call Write_Bullet_and_Variable_in_Case_Note ("CS Income From DAIL", amount_CS_reported)
+		End If
+	End If 
 
 'reading from excel sheet
 IF SNAP_active = TRUE Then
@@ -1237,9 +1349,11 @@ IF SNAP_active = TRUE Then
 	Loop Until blankCHECK = ""
 End IF
 
-	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
-	If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Call Write_Variable_in_CASE_NOTE ("* FS Budget reviewed, adjustments to budget not needed.")
-	If Outside_the_realm = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC Reviewed, update needed - worker to process manually.")
+	If MFIP_active <> TRUE AND SNAP_active = TRUE Then 
+		If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
+		If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Call Write_Variable_in_CASE_NOTE ("* FS Budget reviewed, adjustments to budget not needed.")
+		If Outside_the_realm = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC Reviewed, update needed - worker to process manually.")
+	End If 
 	IF MFIP_active = TRUE  AND FS_active = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC not evaluated, as case also has MFIP.")
 	Call Write_Bullet_and_Variable_in_Case_Note ("Notes", other_notes)
 

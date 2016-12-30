@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "UTILITIES - COPY MAXIS CASE DATA TO EXCEL.vbs"
+name_of_script = "UTILITIES - COPY CASE DATA FOR TRAINING.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 38                      'manual run time in seconds  this run time only includes opening the spreadsheet, copying the template, and renaming it...more to come...
@@ -281,7 +281,7 @@ DO
     DIALOG
     cancel_confirmation
 	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "Please enter a valid MAXIS case number."
-LOOP UNTIL
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
 
 '...and now we burgle...
 back_to_SELF
