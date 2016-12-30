@@ -38,24 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
-FUNCTION date_array_generator(initial_month, initial_year, date_array)
-	'defines an intial date from the initial_month and initial_year parameters
-	initial_date = initial_month & "/1/" & initial_year
-	'defines a date_list, which starts with just the initial date
-	date_list = initial_date
-
-	'This loop creates a list of dates
-	Do
-		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
-		working_date = dateadd("m", 1, right(date_list, len(date_list) - InStrRev(date_list,"|")))	'the working_date is the last-added date + 1 month. We use dateadd, then grab the rightmost characters after the "|" delimiter, which we determine the location of using InStrRev
-		date_list = date_list & "|" & working_date	'Adds the working_date to the date_list
-	Loop until datediff("m", date, working_date) = 1	'Loops until we're at current month plus one
-
-	'Splits this into an array
-	date_array = split(date_list, "|")
-End function
-
 'This prompts the user to determine whether an item with verification code ? should be counted on expedited cases
 'verif is the variable that was read from maxis, verif_name is the name that will be displayed to user '
 FUNCTION verif_confirm_message(verif, verif_name)
@@ -715,4 +697,3 @@ For i = 0 to ubound(footer_month_array)
 		END IF
 next
 
-script_end_procedure("Success. The FIAT results have been generated. Please review before approving.")
