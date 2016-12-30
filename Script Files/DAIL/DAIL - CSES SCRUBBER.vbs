@@ -548,6 +548,7 @@ If SNAP_active = TRUE Then
 	transmit
 
 	EMReadScreen FPG_130, 8, 8, 73
+	If FPG_130 = "        " THEN FPG_130 = "9999"
 	transmit
 	EMReadScreen REPT_status, 9, 8, 31
 	amount_CS_reported = 0
