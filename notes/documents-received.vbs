@@ -52,7 +52,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS--------------------------------------------------------------------------------------------------
-BeginDialog documents_rec_Hennepin_dialog, 0, 0, 366, 395, "Documents received"
+BeginDialog documents_rec_dialog, 0, 0, 366, 395, "Documents received"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 225, 5, 60, 15, doc_date_stamp
   If worker_county_code = "x127" then CheckBox 295, 10, 55, 10, "HSR scanner", HSR_scanner_checkbox
@@ -98,7 +98,7 @@ BeginDialog documents_rec_Hennepin_dialog, 0, 0, 366, 395, "Documents received"
   Text 10, 95, 65, 10, "SCHL/STIN/STEC:"
 EndDialog
 
-BeginDialog documents_received_Hennepin_LTC, 0, 0, 361, 425, "Documents received LTC"
+BeginDialog documents_received_LTC, 0, 0, 361, 425, "Documents received LTC"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 230, 5, 60, 15, doc_date_stamp
   If worker_county_code = "x127" then CheckBox 300, 10, 55, 10, "HSR scanner", HSR_scanner_checkbox
@@ -168,8 +168,8 @@ DO
 	Do
 		Do
 			Do
-				If LTC_case = vbYes then dialog documents_received_Hennepin_LTC					'Shows dialog if LTC
-				If LTC_case = vbNo then Dialog documents_rec_Hennepin_dialog					'Shows dialog if not LTC
+				If LTC_case = vbYes then dialog documents_received_LTC					'Shows dialog if LTC
+				If LTC_case = vbNo then Dialog documents_rec_dialog					'Shows dialog if not LTC
 				cancel_confirmation																'quits if cancel is pressed
 				If worker_signature = "" Then MsgBox "You must sign your case note."
 			LOOP until worker_signature <> ""
