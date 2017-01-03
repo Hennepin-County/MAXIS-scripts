@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/03/2017", "Added HSR scanner option for Hennepin County users only.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,101 +52,102 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS--------------------------------------------------------------------------------------------------
-BeginDialog documents_rec_GEN_dialog, 0, 0, 351, 405, "Documents received"
-  EditBox 55, 5, 70, 15, MAXIS_case_number
+BeginDialog documents_rec_dialog, 0, 0, 366, 395, "Documents received"
+  EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 225, 5, 60, 15, doc_date_stamp
+  If worker_county_code = "x127" then CheckBox 295, 10, 55, 10, "HSR scanner", HSR_scanner_checkbox
   EditBox 80, 25, 265, 15, docs_rec
-  EditBox 30, 70, 315, 15, ADDR
-  EditBox 70, 90, 275, 15, SCHL
-  EditBox 30, 110, 315, 15, DISA
-  EditBox 30, 130, 315, 15, JOBS
-  EditBox 30, 150, 315, 15, BUSI
-  EditBox 30, 170, 315, 15, UNEA
-  EditBox 30, 190, 315, 15, ACCT
-  EditBox 55, 210, 290, 15, other_assets
-  EditBox 30, 230, 315, 15, SHEL
-  EditBox 30, 250, 315, 15, INSA
-  EditBox 50, 270, 295, 15, other_verifs
-  EditBox 75, 310, 270, 15, notes
-  EditBox 75, 330, 270, 15, actions_taken
-  EditBox 75, 350, 270, 15, verifs_needed
+  EditBox 35, 70, 315, 15, ADDR
+  EditBox 75, 90, 275, 15, SCHL
+  EditBox 35, 110, 315, 15, DISA
+  EditBox 35, 130, 315, 15, JOBS
+  EditBox 35, 150, 315, 15, BUSI
+  EditBox 35, 170, 315, 15, UNEA
+  EditBox 35, 190, 315, 15, ACCT
+  EditBox 60, 210, 290, 15, other_assets
+  EditBox 35, 230, 315, 15, SHEL
+  EditBox 35, 250, 315, 15, INSA
+  EditBox 55, 270, 295, 15, other_verifs
+  EditBox 80, 310, 270, 15, notes
+  EditBox 80, 330, 270, 15, actions_taken
+  EditBox 80, 350, 270, 15, verifs_needed
   EditBox 155, 375, 80, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 240, 375, 50, 15
     CancelButton 295, 375, 50, 15
-  Text 5, 95, 65, 10, "SCHL/STIN/STEC:"
-  Text 5, 115, 25, 10, "DISA:"
-  Text 5, 135, 25, 10, "JOBS:"
-  Text 5, 155, 20, 10, "BUSI:"
-  Text 5, 175, 25, 10, "UNEA:"
-  Text 5, 195, 25, 10, "ACCT:"
-  Text 5, 215, 45, 10, "Other assets:"
-  Text 5, 235, 25, 10, "SHEL:"
-  Text 5, 255, 25, 10, "INSA:"
-  Text 5, 270, 45, 10, "Other verif's:"
-  Text 95, 380, 60, 10, "Worker signature:"
-  Text 5, 75, 25, 10, "ADDR:"
-  Text 5, 315, 70, 10, "Notes on your doc's:"
-  Text 5, 10, 50, 10, "Case number:"
-  Text 5, 335, 50, 10, "Actions taken:"
+  Text 10, 115, 25, 10, "DISA:"
+  Text 10, 135, 25, 10, "JOBS:"
+  Text 10, 155, 20, 10, "BUSI:"
+  Text 10, 175, 25, 10, "UNEA:"
+  Text 10, 195, 25, 10, "ACCT:"
+  Text 10, 215, 45, 10, "Other assets:"
+  Text 10, 235, 25, 10, "SHEL:"
+  Text 10, 255, 20, 10, "INSA:"
+  Text 10, 275, 45, 10, "Other verif's:"
+  Text 90, 380, 60, 10, "Worker signature:"
+  Text 10, 75, 25, 10, "ADDR:"
+  Text 10, 315, 70, 10, "Notes on your doc's:"
+  Text 30, 10, 45, 10, "Case number:"
+  Text 10, 335, 50, 10, "Actions taken:"
   Text 140, 45, 205, 10, "Note: What you enter above will become the case note header."
-  Text 5, 30, 70, 10, "Documents received: "
-  Text 145, 10, 75, 10, "Document date stamp:"
-  Text 5, 355, 65, 10, "Verif's still needed:"
-  GroupBox 0, 60, 350, 230, "Breakdown of Documents received"
-  GroupBox 0, 300, 345, 70, "Additional information"
+  Text 10, 30, 70, 10, "Documents received: "
+  Text 150, 10, 75, 10, "Document date stamp:"
+  Text 10, 355, 65, 10, "Verif's still needed:"
+  GroupBox 5, 55, 350, 235, "Breakdown of Documents received"
+  GroupBox 5, 295, 350, 75, "Additional information"
+  Text 10, 95, 65, 10, "SCHL/STIN/STEC:"
 EndDialog
 
-
-BeginDialog documents_received_LTC_dialog, 0, 0, 356, 425, "Documents received LTC"
-  EditBox 55, 5, 70, 15, MAXIS_case_number
-  EditBox 225, 5, 60, 15, doc_date_stamp
-  EditBox 80, 25, 265, 15, docs_rec
-  EditBox 30, 60, 315, 15, FACI
-  EditBox 30, 80, 135, 15, JOBS
-  EditBox 210, 80, 135, 15, BUSI_RBIC
-  EditBox 30, 100, 315, 15, UNEA
-  EditBox 30, 120, 315, 15, ACCT
-  EditBox 30, 140, 315, 15, SECU
-  EditBox 30, 160, 315, 15, CARS
-  EditBox 30, 180, 315, 15, REST
-  EditBox 60, 200, 285, 15, OTHR
-  EditBox 30, 220, 315, 15, SHEL
-  EditBox 30, 240, 315, 15, INSA
-  EditBox 75, 260, 270, 15, medical_expenses
-  EditBox 50, 280, 295, 15, veterans_info
-  EditBox 50, 300, 295, 15, other_verifs
-  EditBox 75, 335, 270, 15, notes
-  EditBox 75, 355, 270, 15, actions_taken
-  EditBox 75, 375, 270, 15, verifs_needed
-  EditBox 155, 400, 80, 15, worker_signature
+BeginDialog documents_received_LTC, 0, 0, 361, 425, "Documents received LTC"
+  EditBox 80, 5, 60, 15, MAXIS_case_number
+  EditBox 230, 5, 60, 15, doc_date_stamp
+  If worker_county_code = "x127" then CheckBox 300, 10, 55, 10, "HSR scanner", HSR_scanner_checkbox
+  EditBox 80, 25, 270, 15, docs_rec
+  EditBox 35, 65, 315, 15, FACI
+  EditBox 35, 85, 135, 15, JOBS
+  EditBox 215, 85, 135, 15, BUSI_RBIC
+  EditBox 35, 105, 315, 15, UNEA
+  EditBox 35, 125, 315, 15, ACCT
+  EditBox 35, 145, 315, 15, SECU
+  EditBox 35, 165, 315, 15, CARS
+  EditBox 35, 185, 315, 15, REST
+  EditBox 65, 205, 285, 15, OTHR
+  EditBox 35, 225, 315, 15, SHEL
+  EditBox 35, 245, 315, 15, INSA
+  EditBox 80, 265, 270, 15, medical_expenses
+  EditBox 55, 285, 295, 15, veterans_info
+  EditBox 55, 305, 295, 15, other_verifs
+  EditBox 80, 340, 270, 15, notes
+  EditBox 80, 360, 270, 15, actions_taken
+  EditBox 80, 380, 270, 15, verifs_needed
+  EditBox 160, 405, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 240, 400, 50, 15
-    CancelButton 295, 400, 50, 15
-  Text 5, 145, 20, 10, "SECU:"
-  Text 5, 165, 20, 10, "CARS:"
-  Text 5, 185, 20, 10, "REST:"
-  Text 5, 205, 50, 10, "BURIAL/OTHR:"
-  Text 5, 225, 25, 10, "SHEL:"
-  Text 5, 245, 25, 10, "INSA:"
-  Text 5, 305, 45, 10, "Other verif's:"
-  Text 95, 405, 60, 10, "Worker signature:"
-  Text 5, 65, 25, 10, "FACI:"
-  Text 5, 340, 70, 10, "Notes on your doc's:"
-  Text 5, 10, 50, 10, "Case number:"
-  Text 5, 360, 50, 10, "Actions taken:"
+    OkButton 245, 405, 50, 15
+    CancelButton 300, 405, 50, 15
+  Text 10, 170, 20, 10, "CARS:"
+  Text 10, 190, 20, 10, "REST:"
+  Text 10, 210, 50, 10, "BURIAL/OTHR:"
+  Text 10, 230, 25, 10, "SHEL:"
+  Text 10, 250, 25, 10, "INSA:"
+  Text 10, 310, 45, 10, "Other verif's:"
+  Text 100, 410, 60, 10, "Worker signature:"
+  Text 10, 70, 25, 10, "FACI:"
+  Text 10, 345, 70, 10, "Notes on your doc's:"
+  Text 30, 10, 50, 10, "Case number:"
+  Text 10, 365, 50, 10, "Actions taken:"
   Text 145, 40, 205, 10, "Note: What you enter above will become the case note header."
   Text 5, 30, 70, 10, "Documents received: "
-  Text 145, 10, 75, 10, "Document date stamp:"
-  Text 5, 380, 70, 10, "Verif's still needed:"
-  GroupBox 0, 50, 350, 270, "Breakdown of Documents received"
-  Text 5, 125, 20, 10, "ACCT:"
-  Text 170, 85, 40, 10, "BUSI/RBIC:"
-  Text 5, 105, 25, 10, "UNEA:"
-  Text 5, 285, 45, 10, "Veteran info:"
-  Text 5, 85, 20, 10, "JOBS:"
-  Text 5, 265, 65, 10, "Medical expenses:"
-  GroupBox 0, 325, 350, 70, "Additional information"
+  Text 155, 10, 75, 10, "Document date stamp:"
+  Text 10, 385, 70, 10, "Verif's still needed:"
+  GroupBox 5, 50, 350, 275, "Breakdown of Documents received"
+  Text 10, 130, 20, 10, "ACCT:"
+  Text 175, 90, 40, 10, "BUSI/RBIC:"
+  Text 10, 110, 25, 10, "UNEA:"
+  Text 10, 290, 45, 10, "Veteran info:"
+  Text 10, 90, 20, 10, "JOBS:"
+  Text 10, 270, 65, 10, "Medical expenses:"
+  GroupBox 5, 330, 350, 70, "Additional information"
+  Text 10, 150, 20, 10, "SECU:"
 EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
@@ -164,26 +166,26 @@ DO
 	Do
 		Do
 			Do
-				If LTC_case = vbYes then dialog documents_received_LTC_dialog					'Shows dialog if LTC
-				If LTC_case = vbNo then Dialog documents_rec_GEN_dialog							'Shows dialog if not LTC
+				If LTC_case = vbYes then dialog documents_received_LTC					'Shows dialog if LTC
+				If LTC_case = vbNo then Dialog documents_rec_dialog					'Shows dialog if not LTC
 				cancel_confirmation																'quits if cancel is pressed
 				If worker_signature = "" Then MsgBox "You must sign your case note."
 			LOOP until worker_signature <> ""
-			If actions_taken = "" Then MsgBox "You must case note your actions taken."
-		LOOP until actions_taken <> ""
+			If HSR_scanner_checkbox = 0 and actions_taken = "" Then MsgBox "You must case note your actions taken."
+		LOOP until actions_taken <> "" or HSR_scanner_checkbox = 1
 		If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
 	Loop until MAXIS_case_number <> ""														'Loops until that case number exists
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(FALSE)
-
+LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists	
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
 call start_a_blank_CASE_NOTE
-Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
+If HSR_scanner_checkbox = 1 then 
+    Call write_variable_in_case_note("Docs Rec'd & scanned: " & docs_rec)
+else    
+    Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
+END IF
 call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
 call write_bullet_and_variable_in_case_note("ADDR", ADDR)
 call write_bullet_and_variable_in_case_note("FACI", FACI)
@@ -207,6 +209,7 @@ call write_bullet_and_variable_in_case_note("Other verifications", other_verifs)
 Call write_variable_in_case_note("---")
 call write_bullet_and_variable_in_case_note("Notes on your doc's", notes)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+IF HSR_scanner_checkbox = 1 then Call write_variable_in_case_note("* Documents imaged to ECF.")
 call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
