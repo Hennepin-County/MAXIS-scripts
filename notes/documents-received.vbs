@@ -160,8 +160,6 @@ EMConnect ""
 'Calls a MAXIS case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-doc_date_stamp = date & ", " & time 
-
 'Displays the dialog and navigates to case note
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
 DO
