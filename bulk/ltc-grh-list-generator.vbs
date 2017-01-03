@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/03/2017", "Added FACI type column. Reordered GRH DOC amt, waiver type and AREP columns.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -112,25 +113,19 @@ Set objWorkbook = objExcel.Workbooks.Add()
 
 'FORMATS THE EXCEL SPREADSHEET WITH THE HEADERS, AND SETS THE COLUMN WIDTH
 ObjExcel.Cells(1, 1).Value = "WORKER"
-objExcel.Cells(1, 1).Font.Bold = TRUE
-ObjExcel.Cells(1, 2).Value = "M#"
-objExcel.Cells(1, 2).Font.Bold = TRUE
-objExcel.Cells(1, 2).ColumnWidth = 9
+ObjExcel.Cells(1, 2).Value = "MAXIS case #"
 ObjExcel.Cells(1, 3).Value = "Name"
-objExcel.Cells(1, 3).Font.Bold = TRUE
-objExcel.Cells(1, 3).ColumnWidth = 27
 ObjExcel.Cells(1, 4).Value = "FACI name"
-objExcel.Cells(1, 4).Font.Bold = TRUE
-objExcel.Cells(1, 4).ColumnWidth = 47
-ObjExcel.Cells(1, 5).Value = "AREP name"
-objExcel.Cells(1, 5).Font.Bold = TRUE
-objExcel.Cells(1, 5).ColumnWidth = 35
-ObjExcel.Cells(1, 6).Value = "Waiver type on first DISA panel found"
-objExcel.Cells(1, 6).Font.Bold = TRUE
-objExcel.Cells(1, 6).ColumnWidth = 35
-ObjExcel.Cells(1, 7).Value = "GRH DOC Amount"
-objExcel.Cells(1, 7).Font.Bold = TRUE
-objExcel.Cells(1, 7).ColumnWidth = 35
+ObjExcel.Cells(1, 5).Value = "FACI type"
+ObjExcel.Cells(1, 6).Value = "GRH DOC Amt"
+ObjExcel.Cells(1, 7).Value = "Waiver type on first DISA panel found"
+ObjExcel.Cells(1, 8).Value = "AREP name"
+
+'formatting the cells
+FOR i = 1 to 8
+	objExcel.Cells(1, i).Font.Bold = True		'bold font
+	objExcel.Columns(i).AutoFit()				'sizing the columns
+NEXT
 
 'Splitting array for use by the for...next statement
 worker_number_array = split(worker_number, ",")
@@ -214,7 +209,8 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 		EMReadScreen out_year_check_03, 4, 16, 77
 		EMReadScreen out_year_check_04, 4, 17, 77
 		EMReadScreen out_year_check_05, 4, 18, 77
-		If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or (in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+		If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+		(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
 			currently_in_FACI = True
 			exit do
 		Elseif FACI_current_panel = FACI_total_check then
@@ -228,9 +224,35 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
 	If currently_in_FACI = True then
 		EMReadScreen FACI_name, 30, 6, 43
+		EMReadScreen FACI_type, 2, 7, 43
+		
+		'List of FACI types
+		IF FACI_type = "41" then FACI_type = "41: NF-I"
+		IF FACI_type = "42" then FACI_type = "42: NF-II"
+		IF FACI_type = "43" then FACI_type = "43: ICF-DD"
+		IF FACI_type = "44" then FACI_type = "44: Short stay in NF-I"
+		IF FACI_type = "45" then FACI_type = "45: Short stay in NF-II"
+		IF FACI_type = "46" then FACI_type = "46: Short stay in ICF-DD"
+		IF FACI_type = "47" then FACI_type = "47: RTC - Not IMD"
+		IF FACI_type = "48" then FACI_type = "48: Medical Hospital"
+		IF FACI_type = "49" then FACI_type = "49: MSOP"
+		IF FACI_type = "50" then FACI_type = "50: IMD/RTC"
+		IF FACI_type = "51" then FACI_type = "51: Rule 31 CD_IMD"
+		IF FACI_type = "52" then FACI_type = "52: Rule 36 MI-IMD"
+		IF FACI_type = "53" then FACI_type = "53: IMD Hospitals"
+		IF FACI_type = "55" then FACI_type = "55: Adult Foster Care/Rule 203"
+		IF FACI_type = "56" then FACI_type = "56: GRH (Not FC or Rule 36)"
+		IF FACI_type = "57" then FACI_type = "57: Rule 36 MI - Non-IMD"
+		IF FACI_type = "60" then FACI_type = "60: Non-GRH"
+		IF FACI_type = "61" then FACI_type = "61: Rule 31 CD - Non-IMD"
+		IF FACI_type = "67" then FACI_type = "67: Family Violence Shelter"
+		IF FACI_type = "68" then FACI_type = "68: County Correctional Facility"
+		IF FACI_type = "69" then FACI_type = "69: Non-Cty Adult Correctional"
+		
 		EMReadScreen GRH_DOC, 8, 13, 45
 		ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_name, "_", ""))
-		ObjExcel.Cells(excel_row, 7).Value = trim(replace(GRH_DOC, "_", ""))
+		ObjExcel.Cells(excel_row, 5).Value = trim(replace(FACI_type, "_", ""))
+		ObjExcel.Cells(excel_row, 6).Value = trim(replace(GRH_DOC, "_", ""))
 	End if
 
 	'NAVIGATES TO AREP, READS THE NAME, AND ADDS TO SPREADSHEET
@@ -238,18 +260,23 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	transmit
 	EMReadScreen AREP_name, 37, 4, 32
 	AREP_name = replace(AREP_name, "_", "")
-	ObjExcel.Cells(excel_row, 5).Value = AREP_name
+	ObjExcel.Cells(excel_row, 8).Value = AREP_name
 
 	'Navigates to DISA and checks the waiver type
 	EMWriteScreen "DISA", 20, 71
 	transmit
 	EMReadScreen DISA_waiver_type, 1, 14, 59
 	If DISA_waiver_type = "_" then DISA_waiver_type = ""
-	ObjExcel.Cells(excel_row, 6).Value = DISA_waiver_type
+	ObjExcel.Cells(excel_row, 7).Value = DISA_waiver_type
 
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 loop
+
+'formatting the cells
+FOR i = 1 to 8
+	objExcel.Columns(i).AutoFit()				'sizing the columns
+NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your list has been created.")
