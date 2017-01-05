@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - BANKED MONTHS REPORT.vbs"
+name_of_script = "BULK - DRUG FELON LIST.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 265         'manual run time in seconds
@@ -63,7 +63,7 @@ Do
 	Do
 		Do
 			'The dialog is defined in the loop as it can change as buttons are pressed (populating the dropdown)'
-			BeginDialog dfln_selection_dialog, 0, 0, 266, 115, "Banked Month Report"
+			BeginDialog dfln_selection_dialog, 0, 0, 266, 115, "Select Drug Felon List"
 			  EditBox 15, 20, 190, 15, dfln_list_excel_file_path
 			  ButtonGroup ButtonPressed
 			    PushButton 215, 20, 45, 15, "Browse...", select_a_file_button
