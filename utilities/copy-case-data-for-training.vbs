@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("1/5/2017", "fixing bug with a message box.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -217,7 +218,7 @@ DO
     objExcel.DisplayAlerts = FALSE
 
 	'Asking the user to confirm the spreadsheet
-	confirm_spreadsheet = MsgBox ("Is this the correct spreadsheet? Press YES to confirm and continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel, vbQuestion + vbSystemModal, "Confirm SpreadSheet")
+	confirm_spreadsheet = MsgBox ("Is this the correct spreadsheet? Press YES to confirm and continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel + vbQuestion + vbSystemModal, "Confirm SpreadSheet")
 	IF confirm_spreadsheet = vbCancel THEN script_end_procedure("Script cancelled.")
 	IF confirm_spreadsheet = vbNo THEN
 		objWorkbook.Close
