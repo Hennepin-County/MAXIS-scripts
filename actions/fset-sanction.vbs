@@ -63,8 +63,8 @@ BeginDialog SNAP_sanction_type_dialog, 0, 0, 181, 75, "SNAP Sanction type dialog
 EndDialog
 
 BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 306, 205, "SNAP sanction imposed dialog"
-  EditBox 125, 10, 20, 15, sanction_month
-  EditBox 150, 10, 20, 15, sanction_year
+  EditBox 125, 10, 20, 15, MAXIS_footer_month
+  EditBox 150, 10, 20, 15, MAXIS_footer_year
   EditBox 240, 10, 20, 15, HH_Member_Number
   EditBox 125, 35, 50, 15, agency_informed_sanction
   CheckBox 190, 40, 110, 10, "Sanctioned individual is PWE", PWE_check
@@ -87,8 +87,8 @@ BeginDialog SNAP_sanction_imposed_dialog, 0, 0, 306, 205, "SNAP sanction imposed
 EndDialog
 
 BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 250, "SNAP sanction resolved dialog"
-  EditBox 90, 10, 20, 15, sanction_month
-   EditBox 115, 10, 20, 15, sanction_year
+  EditBox 90, 10, 20, 15, MAXIS_footer_month
+   EditBox 115, 10, 20, 15, MAXIS_footer_year
   EditBox 200, 10, 20, 15, resolved_HH_Member_Number
   CheckBox 230, 15, 110, 10, "Sanctioned individual is PWE", resolved_PWE_check
   DropListBox 90, 30, 245, 15, "Select one..."+chr(9)+"Member served minimum sanction & verbally agrees to comply with SNAP E&T "+chr(9)+"Member leaves the unit's home"+chr(9)+"Member becomes exempt (work registration or E & T)", sanction_resolved_reason_droplist
@@ -99,8 +99,7 @@ BeginDialog SNAP_sanction_resolved_dialog, 0, 0, 346, 250, "SNAP sanction resolv
   EditBox 145, 170, 55, 15, FSET_orientation_date
   CheckBox 210, 175, 125, 10, "SNAP E and T orientation letter sent", orientation_letter_check
   DropListBox 145, 190, 190, 15, "Select one..."+chr(9)+"04 Permanent Ill Or Incap"+chr(9)+"05 Temporary Ill Or Incap"+chr(9)+"06 Care Of Ill Or Incap Mbr"+chr(9)+"07 Resident Of Facility"+chr(9)+"08 Family Violence Indc"+chr(9)+"09 Mntl Ill Or Dev Disabled"+chr(9)+"10 SSI/RSDI Pend "+chr(9)+"11 Appealing SSI/RSDI Denial"+chr(9)+"12 Advanced Age"+chr(9)+"13 Learning Disability"+chr(9)+"15 Pregnant, 3rd Trimester"+chr(9)+"17 Protect/Court Ordered"+chr(9)+"20 Age 16 Or 17 SS Approval"+chr(9)+"25 Emancipated Minor"+chr(9)+"28 Unemployable"+chr(9)+"29 Displaced Hmkr (Ft Student)"+chr(9)+"30 Minor W/ Adult Unrelated"+chr(9)+"32 ESL, Adult/HS At Least Half Time, Adult"+chr(9)+"99 No Elig Basis", GA_basis_droplist
-  CheckBox 5, 215, 335, 10, "Sanction resolved prior to being imposed. This deletes the 'number of sanctions' field on STAT/WREG.", resolved_before_sanction_period_checbox
-  EditBox 165, 230, 60, 15, worker_signature
+    EditBox 165, 230, 60, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 230, 230, 50, 15
     CancelButton 285, 230, 50, 15
@@ -125,10 +124,6 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'defaulting the footer month/year user is in into the sanction month/year
-sanction_month = MAXIS_footer_month & ""
-sanction_year  = MAXIS_footer_year & ""
-
 'Initial dialog giving the user the option to select the type of sanction (imposed or resolved)
 Do
 	Do
@@ -149,8 +144,8 @@ If sanction_type_droplist = "Imposing sanction" THEN
 			err_msg = ""
 			dialog SNAP_sanction_imposed_dialog
 			cancel_confirmation
-			If isnumeric(sanction_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin the sanction."
-			If isnumeric(sanction_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin the sanction."
+			If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin the sanction."
+			If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin the sanction."
 			If isnumeric(HH_Member_Number) = False or len(HH_Member_Number) <> 2 then err_msg = err_msg & vbnewline & "* You must enter the client's two-digit member number"
 			If number_of_sanction_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must choose the number of sanctions."
 			If sanction_reason_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must choose the reason for the sanction."
@@ -163,17 +158,13 @@ If sanction_type_droplist = "Imposing sanction" THEN
 
 'If worker selects to resolve a sanction, they will get this dialog
 ELSEIf sanction_type_droplist = "Resolving sanction" THEN
-	'defaulting the footer month/year user is in into the sanction end month/year
-	sanction_month = MAXIS_footer_month & ""
-	sanction_year  = MAXIS_footer_year & ""
-	
 	DO
 		DO
 			err_msg = ""
 			dialog SNAP_sanction_resolved_dialog
 			cancel_confirmation
-			If isnumeric(sanction_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to end the sanction."
-			If isnumeric(sanction_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to end the sanction."
+			If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to end the sanction."
+			If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to end the sanction."
 			If isnumeric(resolved_HH_Member_Number) = false or len(resolved_HH_Member_Number) <> 2 then err_msg = err_msg & vbnewline & "* You must enter the client's two-digit member number."
 			If sanction_resolved_reason_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must choose the reason the sanction has been resolved."
 			If ABAWD_status_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* You must enter the ABAWD status."
@@ -192,7 +183,7 @@ IF sanction_resolved_reason_droplist = "Member served minimum sanction & verball
 start_a_blank_CASE_NOTE
 'Case note if imposing sanction
 If sanction_type_droplist = "Imposing sanction" THEN
-	Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & HH_Member_Number & " eff: " & sanction_month & "/" & sanction_year & "--")
+	Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & HH_Member_Number & " eff: " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
 	Call write_bullet_and_variable_in_CASE_NOTE("HH MEMB #", HH_Member_Number)
 	If PWE_check = 1 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is the PWE. Entire household is sanctioned.")
 	If PWE_check = 0 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is NOT the PWE. Only the HH MEMB is sanctioned.")
@@ -205,12 +196,11 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	Call write_variable_in_CASE_NOTE(worker_signature)
 'Case note if resolving sanction
 ELSEIF sanction_type_droplist = "Resolving sanction" THEN
-	Call write_variable_in_CASE_NOTE("--SNAP sanction ended for MEMB " & resolved_HH_Member_Number & " eff: " & sanction_month & "/" & sanction_year & "--")
+	Call write_variable_in_CASE_NOTE("--SNAP sanction ended for MEMB " & resolved_HH_Member_Number & " eff: " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
 	Call write_bullet_and_variable_in_CASE_NOTE("HH MEMB #", resolved_HH_Member_Number)
 	If resolved_PWE_check = 1 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is the PWE. Entire household's sanction is resolved.")
 	IF resolved_PWE_check = 0 THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is NOT the PWE. Only this HH MEMB's sanction is resolved.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Sanction resolution reason", sanction_resolved_reason_droplist)
-	If resolved_before_sanction_period_checbox = 1 then call write_variable_in_CASE_NOTE("* No sanction recorded as client resolved prior to sanction imposed date.")
     Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_resolved_sanction_notes)
 	Call write_variable_in_CASE_NOTE("=======WORK REGISTRATION INFO=======")
 	IF Exempt_FSET_WREG_droplist <> "Select one..." THEN Call write_bullet_and_variable_in_CASE_NOTE("New FSET Work Reg Status", Exempt_FSET_WREG_droplist)
@@ -238,19 +228,9 @@ IF sanction_reason_droplist = "(03) Failed to follow work plan"   then sanction_
 GA_basis_droplist = Left(GA_basis_droplist, 2)
 
 'Updating WREG panel----------------------------------------------------------------------------------------------------
-Call navigate_to_MAXIS_screen("STAT", "WREG")
+MAXIS_footer_month_confirmation                 'confirming that we are in the correct footer month/year
 
-'Confirming that we're in the correct footer month
-EMReadScreen panel_footer_month, 2, 20, 55
-EMReadScreen panel_footer_year, 2, 20, 58
-panel_date = panel_footer_month & panel_footer_year	'creating new variable combining month and year for the date listed on the MAXIS panel
-dialog_date = sanction_month & sanction_year		'creating new variable to measure against the panel date
-IF panel_date <> dialog_date then 					'if dates are not equal
-	back_to_SELF
-	EMWriteScreen sanction_month, 20, 43			'goes back to self and enters the date that the user selcted'
-	EMWriteScreen sanction_year, 20, 46
-	Call navigate_to_MAXIS_screen("STAT", "WREG")
-END IF
+Call navigate_to_MAXIS_screen("STAT", "WREG")
 
 'Updates WREG if sanction is imposed
 If sanction_type_droplist = "Imposing sanction" THEN
@@ -262,8 +242,8 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	'if MEMB number is correct the WREG is updated
 	PF9
 	EMWriteScreen "02", 8, 50							'Enters sanction FSET code of "02"
-	EMWriteScreen sanction_month, 10, 50			'sanction begin month
-	EMWriteScreen sanction_year, 10, 56			'sanction begin year
+	EMWriteScreen MAXIS_footer_month, 10, 50			'sanction begin month
+	EMWriteScreen MAXIS_footer_year, 10, 56			'sanction begin year
 	EMWriteScreen number_of_sanction_droplist, 11, 50	'sanction #
 	EMWriteScreen sanction_reason_droplist, 12, 50		'new field - reason for sanction. This adds information to the notice
 	EMWriteScreen "_", 8, 80							'blanks out Defer FSET/No funds field 
@@ -283,7 +263,6 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	EMWriteScreen "______", 10, 56
 	EMWriteScreen "__", 	11, 50		'removed number of sanctions field
 	EMWriteScreen "__", 	12, 50		'new field - reason for sanction. Removes this info when sanction is cleared
-	If resolved_before_sanction_period_checbox = 1 then EMWriteScreen"__", 11, 50			'removes the 'number of sanctions' field
 
 	EMWriteScreen ABAWD_status_droplist, 13, 50 ' updates the ABAWD status
 	'updating the Defer FSET/No Funds (Y/N) field on WREG
