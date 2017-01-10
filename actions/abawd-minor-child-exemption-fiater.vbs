@@ -206,6 +206,7 @@ For i = 0 to ubound(footer_month_array)
 
 	Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
 	EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
+	
 	IF HEST_heat <> "      " then						'<<<<< If there is an amount on the hest line then the electric and phone allowances are not used
 		HEST_elect = ""
 		HEST_phone = ""				'<<<<< Ignores the electric and phone standards if HEAT/AC is used
@@ -487,6 +488,9 @@ For i = 0 to ubound(footer_month_array)
 	gross_BUSI = trim(gross_BUSI)
 	total_COEX_deduction = trim(total_COEX_deduction)
 	fmed_total_amt = trim(fmed_total_amt)
+	HEST_heat = trim(HEST_heat)
+	HEST_elect = trim(HEST_elect)
+	HEST_phone = trim(HEST_phone)
 
  '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
 		BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD minor child income and deductions dialog"
@@ -659,6 +663,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen ABAWD_months_array(i).gross_other, 16, 32
 		EMWritescreen ABAWD_months_array(i).deduction_FMED, 12, 72
 		EMWritescreen ABAWD_months_array(i).deduction_COEX, 14, 72
+	
 		transmit
 		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
@@ -668,12 +673,14 @@ For i = 0 to ubound(footer_month_array)
 		EMwritescreen "FFB2", 20, 70 'This is to make sure we end up in the right place'
 		transmit
 		'Now on FFB2
-		EMWriteScreen "         ", 5, 29
-		EMWriteScreen "         ", 6, 29
-		EMWriteScreen "         ", 7, 29
-		EMWriteScreen "         ", 8, 29
-		EMWriteScreen "         ", 9, 29
+		EMWriteScreen "         ",  5, 29
+		EMWriteScreen "         ",  6, 29
+		EMWriteScreen "         ",  7, 29
+		EMWriteScreen "         ",  8, 29
+		EMWriteScreen "         ",  9, 29
 		EMWriteScreen "         ", 10, 29
+		EMWriteScreen "         ", 11, 29
+		EMWriteScreen "         ", 12, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_rent, 5, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_tax, 6, 29
 		EMWritescreen ABAWD_months_array(i).SHEL_insa, 7, 29
