@@ -38,8 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/28/2016", "Added new column to allow sorting via HC status from the selected REPT screen.", "Charles Potter, DHS")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'CONNECTS TO MAXIS & grabs footer month/year
 EMConnect ""
@@ -118,6 +128,7 @@ ObjExcel.Cells(1, 10).Value = "Widow/ers Disregard"
 ObjExcel.Cells(1, 11).Value = "Other Unearned Income Disregard"
 ObjExcel.Cells(1, 12).Value = "Other Earned Income Disregard"
 ObjExcel.Cells(1, 13).Value = "Shel/spec need"
+ObjExcel.Cells(1, 14).Value = "HC Status"
 
 FOR i = 1 to 13		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
@@ -156,10 +167,12 @@ For each worker in worker_number_array
 				EMReadScreen MAXIS_case_number, 8, row, 12 'grabbing case number
 				EMReadScreen client_name, 18, row, 21 'grabbing client name
 				EMReadScreen next_REVW_date, 8, row, 42	'grabbing the revw date'
+				EMReadScreen HC_status, 1, row, 64   'grabbing HC status'
 			Else
 				EMReadScreen MAXIS_case_number, 8, row, 6 'grabbing case number
 				EMReadScreen client_name, 15, row, 16 'grabbing client name
 				EMReadScreen next_REVW_date, 8, 2, 42
+				EMReadScreen HC_status, 1, row, 49	'grabbing HC status'
 			End if
 			IF trim(MAXIS_case_number) <> "" THEN
 				STATS_counter = STATS_counter + 1
@@ -167,6 +180,7 @@ For each worker in worker_number_array
 				ObjExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
 				ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
 				ObjExcel.Cells(excel_row, 4).Value = replace(next_REVW_date, " ", "/")
+				ObjExcel.Cells(excel_row, 14).Value = HC_status
 			END IF
 			excel_row = excel_row + 1
 			row = row + 1
@@ -174,7 +188,7 @@ For each worker in worker_number_array
 		If trim(MAXIS_case_number) = "" then exit do		'exisis the do loop if case number is blank otherwise it will read/write last page again
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
-	
+
 	Next
 
 'NOW THE SCRIPT IS CHECKING STAT/PDED FOR EACH CASE.----------------------------------------------------------------------------------------------------

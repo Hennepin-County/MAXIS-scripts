@@ -38,6 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/28/2016", "Fixed bug with cancel handling for initial dialog.", "David Courtright, Saint Louis County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'this function converts excel column letters to numeric values'
 FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	IF isnumeric(excel_col) = FALSE THEN
@@ -55,22 +68,14 @@ END FUNCTION
 
 '------------------'
 
-BeginDialog Dialog1, 0, 0, 191, 85, "REPT/EOMC List Update"
- ButtonGroup ButtonPressed
-    OkButton 45, 60, 50, 15
-    CancelButton 95, 60, 50, 15
-  Text 15, 5, 170, 45, "This script will check all cases in a saved REPT/EOMC excel file and update the file with current case status.  Press ok to select the saved file to check.  NOTE: The file must maintain the original formatting as created by the REPT/EOMC Bulk script."
+opening_msg = MsgBox("This script will check all cases in a saved REPT/EOMC excel file and update the file with current case status.  Press ok to select the saved file to check.  NOTE: The file must maintain the original formatting as created by the REPT/EOMC Bulk script.", vbOkCancel)
+IF opening_msg = vbcancel then stopscript
 
-EndDialog
-
-
-
-dialog dialog1
 DO 'THIS loop makes sure this is a valid file created by EOMC'
 	DO 'This loop opens the file browser and asks user to confirm'
-	
+
 		call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
-	
+
 		Set objExcel = CreateObject("Excel.Application")
 		Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
 		objExcel.Visible = True
