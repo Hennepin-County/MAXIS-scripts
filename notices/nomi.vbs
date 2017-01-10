@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/10/2017", "Updated TIKL functionality. A TIKL is created for Application Day 30 if NOMI is sent prior to Application Day 30. Otherwise a TIKL is created for an additional 10 days .", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Resolved merge conflict error.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/21/2016", "Removed Hennepin County specific NOMI process. Users will follow the process documented in POLI/TEMP TE02.05.15. Added TIKL to follow up on the application's progress. Added intial case number dialog to allow for the application date to be autofilled into the NOMI dialog. Removed message box to identify if case is a renewal. Replaced with a check box on the initial dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/20/2016", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -273,29 +274,23 @@ Else
 			client_delay_check = 0
 		End if
 	End if
-    'date variables for the TIKL
-    check_date = dateadd("d", 21, application_date)
-    pending_sixty_days_date = dateadd("d", 60, application_date)
-    ten_day_date = dateadd("d", 10, date)
+	
+	'date variables for the TIKL
+	day30_date = dateadd("d", 31, application_date)
 
 	'Sets TIKL
-    call navigate_to_MAXIS_screen("DAIL", "WRIT")
-    IF date =< check_date then
-    	days_pending = "30 days"
-    	call create_MAXIS_friendly_date(application_date, 31, 5, 18)	'sets a 30 day pending TIKL if the date if at least 10 days exists between the NOMI sent and pending day 30
-    ELSEif pending_sixty_days_date =< date then
-    	call create_MAXIS_friendly_date(date, 10, 5, 18)				'sets a 10 day TIKL if the current date is over or equal to 60 days
-    	days_pending = "another 10 days"
-    ELSEif pending_sixty_days_date < ten_day_date then
-    	call create_MAXIS_friendly_date(date, 10, 5, 18)				'sets a 10 day TIKL if the application period is pending between 51-60 days, allowing for 10 day notice to client
-    	days_pending = "60 days allowing for 10 day notice"
-    else
-    	call create_MAXIS_friendly_date(application_date, 61, 5, 18)	'otherwise a pending day 60 TIKL is set
-    	days_pending = "60 days"
-    END IF
-    Call write_variable_in_TIKL("A NOMI was sent & case has been pending for " & days_pending & ". Check case notes to see if interview has been completed. Deny the case if the client has not completed the interview.")
-    transmit
-    PF3
+	call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	IF date < day30_date then											'if current date is less than the application date 
+		days_pending = "30 days"										'value of variable for case note & TIKL to "30 days"
+		call create_MAXIS_friendly_date(application_date, 31, 5, 18)	'sets a 30 day pending TIKL if the date if at least 10 days exists between the NOMI sent and pending day 30
+	ELSE 
+		days_pending = "10 additional days"								'value of variable for case note & TIKL to "10 additional days"
+		call create_MAXIS_friendly_date(date, 10, 5, 18)				'sets a 10 day TIKL if the current date is equal to over over the application date 
+	END IF
+	
+	Call write_variable_in_TIKL("A NOMI was sent & case has been pending for " & days_pending & ". Check case notes to see if interview has been completed. Deny the case if the client has not completed the interview.")
+	transmit
+	PF3
 
 	'THE CASE NOTE
 	Call start_a_blank_CASE_NOTE
