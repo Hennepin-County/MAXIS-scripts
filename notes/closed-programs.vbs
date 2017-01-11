@@ -144,56 +144,94 @@ Call check_for_MAXIS(False)
 'WCOM informing users that they may be subject to probate claims for their HC case
 IF worker_county_code = "x127" THEN
 	IF (HC_check = 1 AND death_check = 1) THEN
-		'creating date variables
-		approval_month = datepart("m", closure_date)
-		approval_year = datepart("YYYY", closure_date)
-		approval_year = right(approval_year, 2)
-		call navigate_to_MAXIS_screen("SPEC", "WCOM")
-		EMWriteScreen "Y", 3, 74 'sorts notices by HC only
-		EMWriteScreen approval_month, 3, 46
-		EMWriteScreen approval_year, 3, 51
-		transmit
-		DO 	'This DO/LOOP resets to the first page of notices in SPEC/WCOM
-			EMReadScreen more_pages, 8, 18, 72
-			IF more_pages = "MORE:</>" THEN
-				PF8
-				EMReadScreen future_month_error, 14, 24, 2
-			END IF
-		LOOP until future_month_error = "NOTICE BENEFIT"
-
-		read_row = 7 ' sets the variable for the row since this doesn't change in the search for notices
-		DO
-			waiting_check = ""
-			EMReadscreen prog_type, 2, read_row, 26
-			EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
-		If waiting_check = "Waiting" and prog_type = "HC" THEN 'checking program type and if it's been printed
-			EMSetcursor read_row, 13
-			EMSendKey "x"
-			Transmit
-			pf9
-			EMSetCursor 03, 15
-			'Writing the verifs needed into the notice
-			Call write_variable_in_spec_memo("************************************************************")
-			call write_variable_in_spec_memo("Medical Assistance eligibility ends on: " & hc_close_for_death_date & ".")
-			call write_variable_in_spec_memo("Hennepin County may have claims against any assets left after funeral expenses.")
-			call write_variable_in_spec_memo("Please contact the Probate Unit at 612-348-3244 for more information. Thank you.")
-			Call write_variable_in_spec_memo("************************************************************")
-			notice_edited = true 'Setting this true lets us know that we successfully edited the notice
-			pf4
-			pf3
-			WCOM_check = 1 'This makes sure to case note that the notice was edited, even if user doesn't check the box.
-			WCOM_count = WCOM_count + 1
-			exit do
-		ELSE
-			read_row = read_row + 1
-		END IF
-		IF read_row = 18 THEN
-			PF8    'Navigates to the next page of notices.  DO/LOOP until read_row = 18
-			read_row = 7
-		End if
-		LOOP until prog_type = "  "
-	END IF
-END IF
+		
+        CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
+        Emwritescreen "Y", 3, 74  'sorts by HC notices
+        Transmit
+        'Searching for waiting HC notice
+        wcom_row = 6
+        Do
+        	wcom_row = wcom_row + 1
+        	Emreadscreen program_type, 2, wcom_row, 26
+        	Emreadscreen print_status, 7, wcom_row, 71
+        	If program_type = "HC" then
+        		If print_status = "Waiting" then
+        			Emwritescreen "x", wcom_row, 13
+					'transmitting and putting wcom into edit mode
+					Transmit
+					PF9
+					
+					'Worker Comment Input
+					Call write_variable_in_spec_memo("************************************************************")
+					call write_variable_in_spec_memo("Medical Assistance eligibility ends on: " & hc_close_for_death_date & ".")
+					call write_variable_in_spec_memo("Hennepin County may have claims against any assets left after funeral expenses.")
+					call write_variable_in_spec_memo("Please contact the Probate Unit at 612-348-3244 for more information. Thank you.")
+					Call write_variable_in_spec_memo("************************************************************")
+					PF4
+					back_to_SELF
+					Hennepin_probate_notes = "* Added Hennepin County probate information to the client's notice."
+        			exit Do
+        		End If
+        	End If 
+        	If wcom_row = 17 then
+        		PF8
+        		Emreadscreen spec_edit_check, 6, 24, 2
+        		wcom_row = 6
+        	end if
+        	If spec_edit_check = "NOTICE" THEN no_hc_waiting = true
+        Loop until spec_edit_check = "NOTICE"
+        
+        ' If no notice was found then we give the option to write the message in a SPEC MEMO instead
+        If no_hc_waiting = true then
+            swap_to_memo = msgbox ("No waiting HC results were found for the requested month. Would you like to send MEMO in place of WCOM?", vbYesNo)  'fancy message box with yes/no
+        End if 
+		
+        'based on output of fancy message box we either end the script or write the WCOM
+        IF swap_to_memo = vbNo THEN 
+			Hennepin_probate_notes = "* Hennepin County probate information was not added to the client's notice."
+			msgbox "Information about Hennepin County's probate information has not been sent to the client/family."
+		END IF 
+		
+        IF swap_to_memo = vbYes THEN
+        	CALL navigate_to_MAXIS_screen("SPEC","MEMO")
+        	PF5
+        	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+        	row = 4                             'Defining row and col for the search feature.
+        	col = 1
+        	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+        	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+        		arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+        		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+        		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+        		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+        		PF5                                                     'PF5s again to initiate the new memo process
+        	END IF
+        	'Checking for SWKR
+        	row = 4                             'Defining row and col for the search feature.
+        	col = 1
+        	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+        	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+        		swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+        		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+        		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+        		call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+        		PF5                                           'PF5s again to initiate the new memo process
+        	END IF
+        	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+        	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+        	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+        	transmit
+			'Worker Comment Input
+	  	  	Call write_variable_in_spec_memo("************************************************************")
+	  	  	call write_variable_in_spec_memo("Medical Assistance eligibility ends on: " & hc_close_for_death_date & ".")
+	  	  	call write_variable_in_spec_memo("Hennepin County may have claims against any assets left after funeral expenses.")
+	  	  	call write_variable_in_spec_memo("Please contact the Probate Unit at 612-348-3244 for more information. Thank you.")
+	  	  	Call write_variable_in_spec_memo("************************************************************")
+            PF4
+			Hennepin_probate_notes = "* Added Hennepin County probate information to a SPEC/MEMO."
+        End if 
+	End if 
+End if 
 '******END OF HENNEPIN COUNTY SPECIFIC INFORMATION*********
 
 'LOGIC and calculations----------------------------------------------------------------------------------------------------
@@ -278,7 +316,6 @@ Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 Call write_bullet_and_variable_in_case_note("ABAWD/Banked Months info", ABAWD_BankedMonths)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
-IF (worker_county_code = "x127" AND HC_check = 1 AND death_check = 1) THEN call write_variable_in_case_note("* Added Hennepin County probate information to the client's notice.")
 If CSR_check = 1 then call write_bullet_and_variable_in_case_note("Case is at renewal", "Client has an additional month to turn in the document and any required proofs.")
 If HC_ER_check = 1 then call write_variable_in_case_note("* Case is at HC ER.")
 If case_noting_intake_dates = True or case_noting_intake_dates = "" then  																								'Updated bug. With new/updated, scripts this functionality was not being accessed.'
@@ -299,6 +336,7 @@ Else
 	If open_progs <> "" and len(open_progs) > 1 and open_progs <> "no" and open_progs <> "NO" and open_progs <> "No" and open_progs <> "n/a" and open_progs <> "N/A" and open_progs <> "NA" and open_progs <> "na" then call write_bullet_and_variable_in_case_note("Open programs", open_progs)
 End if
 
+IF (worker_county_code = "x127" AND HC_check = 1 AND death_check = 1) THEN call write_variable_in_case_note(Hennepin_probate_notes)		'Hennepin stuff again based on the notice options above
 IF sent_5181_check = 1 then call write_variable_in_case_note ("* Sent DHS-5181 LTC communication to Case Manager")
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
