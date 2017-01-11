@@ -87,7 +87,11 @@ End If
 
 'Checking for 12 month contact TIKL from CAF and CAR scripts(loads NOTICES - 12 month contact)
 EMReadScreen twelve_mo_contact_check, 57, 6, 20
-IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT LETTER" THEN run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
+IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT LETTER" THEN
+	EMReadScreen MAXIS_case_number, 8, 5, 73									'reading the case number for ease of use
+	MAXIS_case_number = TRIM(MAXIS_case_number)							'trimming the blank spaces
+	run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
+END IF
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
