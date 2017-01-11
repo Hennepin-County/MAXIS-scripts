@@ -131,7 +131,7 @@ DO
 		IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN err_msg = err_msg & vbNewline & "* Enter the client's date of death."
 		IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for client death, remove the client's date of death."
 		If Sanction_checkbox = 1 and trim(sanction_months) = "" then err_msg = err_msg & vbNewline & "* Enter the number of sanction months."
-		IF (Sanction_checkbox <> 1 AND sanction_months <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for santion, or remove the number of sanction months."
+		IF (Sanction_checkbox <> 1 AND sanction_months <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for sanction, or remove the number of sanction months."
 		If SNAP_check = 0 and HC_check = 0 and cash_check = 0 THEN err_msg = err_msg & vbNewline & "* Select a program(s) to close."
 		If SNAP_check = 1 and trim(ABAWD_BankedMonths) = "" then err_msg = err_msg & vbNewline & "* Please enter ABAWD info, or banked months info if applicable."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
