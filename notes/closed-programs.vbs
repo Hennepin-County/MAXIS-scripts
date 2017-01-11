@@ -57,52 +57,49 @@ get_county_code
 If case_noting_intake_dates = False then dialog_shrink_amt = 65
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog closed_dialog, 0, 0, 471, 285, "Closed Programs Dialog"
+BeginDialog closed_dialog, 0, 0, 481, 265, "Closed Programs Dialog"
   EditBox 70, 5, 55, 15, MAXIS_case_number
-  CheckBox 185, 10, 35, 10, "SNAP", SNAP_check
-  CheckBox 220, 10, 35, 10, "Cash", cash_check
-  CheckBox 255, 10, 25, 10, "HC", HC_check
+  CheckBox 180, 10, 30, 10, "SNAP", SNAP_check
+  CheckBox 215, 10, 30, 10, "Cash", cash_check
+  CheckBox 250, 10, 25, 10, "HC", HC_check
   EditBox 70, 25, 55, 15, closure_date
   EditBox 85, 45, 180, 15, reason_for_closure
-  EditBox 115, 65, 150, 15, verifs_needed
-  EditBox 180, 85, 85, 15, open_progs
-  CheckBox 10, 120, 210, 10, "Case is at cash/SNAP renewal (monthy, six-month, annual)", CSR_check
-  CheckBox 10, 135, 115, 10, "Case is at HC annual renewal.", HC_ER_check
-  CheckBox 10, 150, 215, 10, "Case is entering Sanction.     Enter number of Sanction months:", Sanction_checkbox
-  EditBox 230, 145, 30, 15, sanction_months
-  CheckBox 10, 165, 195, 10, "Case is closing for not providing postoned verifications.", postponed_verif_checkbox
-  CheckBox 10, 195, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
-  CheckBox 10, 215, 190, 10, "Check here if closure is due to client death (enter date):", death_check
-  EditBox 205, 210, 60, 15, hc_close_for_death_date
-  CheckBox 10, 230, 90, 10, "WCOM Added To Notice:", WCOM_check
+  EditBox 110, 65, 155, 15, verifs_needed
+  EditBox 110, 85, 155, 15, ABAWD_BankedMonths
+  EditBox 175, 105, 90, 15, open_progs
+  CheckBox 10, 140, 210, 10, "Case is at cash/SNAP renewal (monthy, six-month, annual)", CSR_check
+  CheckBox 10, 155, 115, 10, "Case is at HC annual renewal.", HC_ER_check
+  CheckBox 10, 170, 215, 10, "Case is entering Sanction. Enter number of Sanction months:", Sanction_checkbox
+  EditBox 230, 165, 30, 15, sanction_months
+  CheckBox 10, 185, 195, 10, "Case is closing for not providing postoned verifications.", postponed_verif_checkbox
+  CheckBox 10, 210, 190, 10, "Check here if closure is due to client death (enter date):", death_check
+  EditBox 205, 205, 60, 15, hc_close_for_death_date
+  CheckBox 15, 240, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+  CheckBox 280, 205, 90, 10, "WCOM Added To Notice:", WCOM_check
+  CheckBox 280, 220, 65, 10, "Updated MMIS?", updated_MMIS_check
+  EditBox 260, 240, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 105, 230, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
-  CheckBox 10, 245, 65, 10, "Updated MMIS?", updated_MMIS_check
-  EditBox 75, 260, 50, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 365, 245, 50, 15
-    CancelButton 415, 245, 50, 15
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 130, 10, 50, 10, "Progs Closed:"
+    OkButton 370, 240, 50, 15
+    CancelButton 425, 240, 50, 15
+    PushButton 385, 175, 50, 10, "HCPM - EPM", HC_EPM_Button
+    PushButton 375, 205, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
   Text 10, 30, 55, 10, "Date Of Closure:"
   Text 10, 50, 70, 10, "Reason For Closure:"
-  Text 10, 70, 105, 10, "Verifications/Info Still Needed:"
-  Text 10, 90, 165, 10, "Are any programs still open? If so, list them here:"
-  GroupBox 5, 105, 260, 75, "Elements That May Affect REIN Date:"
-  GroupBox 5, 185, 130, 25, "For LTC Cases"
-  GroupBox 270, 40, 195, 105, "IMPORTANT - Note for SNAP:"
-  Text 275, 100, 180, 45, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
-  Text 275, 50, 180, 50, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
-  GroupBox 270, 145, 195, 90, "IMPORTANT - Note for HC: "
-  ButtonGroup ButtonPressed
-    PushButton 275, 220, 50, 10, "HCPM", HC_EPM_Button
-  Text 275, 155, 180, 50, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. Please refer to current policy. "
-  Text 10, 265, 60, 10, "Worker Signature: "
-  Text 275, 210, 180, 10, "For more information refer to:"
+  Text 10, 70, 100, 10, "Verifications/Info Still Needed:"
+  Text 10, 110, 165, 10, "Are any programs still open? If so, list them here:"
+  GroupBox 5, 125, 260, 75, "Elements That May Affect REIN Date:"
+  GroupBox 10, 230, 130, 25, "For LTC Cases"
+  GroupBox 280, 10, 200, 115, "IMPORTANT - Note for SNAP:"
+  Text 285, 75, 180, 40, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
+  Text 285, 25, 180, 50, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
+  GroupBox 280, 130, 195, 65, "IMPORTANT - Note for HC: "
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 285, 140, 180, 25, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. Please refer to current policy. "
+  Text 195, 245, 60, 10, "Worker Signature: "
+  Text 285, 175, 95, 10, "For more information refer to:"
+  Text 130, 10, 50, 10, "Progs Closed:"
+  Text 10, 90, 100, 10, "ABAWD/Banked Months info: "
 EndDialog
-
-
-
 
 'The script----------------------------------------------------------------------------------------------------
 'Connects to BlueZone
@@ -116,26 +113,28 @@ HC_check = 0
 'Autofills case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Dialog starts. Checks for MAXIS, includes nav button for SPEC/WCOM, validates the date of closure, confirms that date
-'    of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE.
+'Dialog starts: includes nav button for SPEC/WCOM, validates the date of closure, confirms that date of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE 
 DO
 	DO
-		DO
-			DO
-				DO
-					Dialog closed_dialog
-					cancel_confirmation
-					If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
-					If ButtonPressed = HC_EPM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/epm/#t=index_1.htm")
-				Loop until ButtonPressed = -1
-				If isdate(closure_date) = False then MsgBox "You need to enter a valid date of closure (MM/DD/YYYY)."
-				IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN MsgBox "Please enter a date in the correct format (MM/DD/YYYY)."
-				IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN MsgBox "Please check the box for client death."
-			Loop until isdate(closure_date) = True AND ((death_check = 1 AND isdate(hc_close_for_death_date) = TRUE) OR (death_check <> 1 AND hc_close_for_death_date = ""))
-			If datepart("d", dateadd("d", 1, closure_date)) <> 1 then MsgBox "Please use the last date of eligibility, which for an open case, should be the last day of the month. If this is a denial, use the denial script."
-	    Loop until datepart("d", dateadd("d", 1, closure_date)) = 1
-		If SNAP_check = 0 and HC_check = 0 and cash_check = 0 then MsgBox "You need to select a program to close."
-	Loop until SNAP_check = 1 or HC_check = 1 or cash_check = 1
+		err_msg = ""		'establishing value of varaible, this is necessary for the Do...LOOP
+		DO	
+			Do 
+				Dialog closed_dialog
+				cancel_confirmation
+				If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
+				If ButtonPressed = HC_EPM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/epm/#t=index_1.htm")
+			Loop until ButtonPressed = -1 							
+			If isdate(closure_date) = False THEN msgbox "* Enter a valid date of closure (MM/DD/YYYY)."	'This condition is here instead of in the next do loop 
+		Loop until isdate(closure_date) = True 
+		If datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbNewline & "* Enter the last date of eligibility, which for an open case, should be the last day of the month. If this is a denial, use the denial script."
+		IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN err_msg = err_msg & vbNewline & "* Enter the client's date of death."
+		IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for client death, remove the client's date of death."
+		If Sanction_checkbox = 1 and trim(sanction_months) = "" then err_msg = err_msg & vbNewline & "* Enter the number of sanction months."
+		IF (Sanction_checkbox <> 1 AND sanction_months <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for santion, or remove the number of sanction months."
+		If SNAP_check = 0 and HC_check = 0 and cash_check = 0 THEN err_msg = err_msg & vbNewline & "* Select a program(s) to close."
+		If SNAP_check = 1 and trim(ABAWD_BankedMonths) = "" then err_msg = err_msg & vbNewline & "* Please enter ABAWD info, or banked months info if applicable."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
@@ -275,7 +274,8 @@ IF death_check = 1 AND HC_check = 1 THEN call write_bullet_and_variable_in_case_
 IF death_check = 1 AND snap_check = 1 THEN call write_bullet_and_variable_in_case_note("SNAP Closure Date", closure_date)
 IF death_check = 1 AND cash_check = 1 THEN call write_bullet_and_variable_in_case_note("CASH Closure Date", closure_date)
 call write_bullet_and_variable_in_case_note("Reason for closure", reason_for_closure)
-If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+Call write_bullet_and_variable_in_case_note("ABAWD/Banked Months info", ABAWD_BankedMonths)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
 IF (worker_county_code = "x127" AND HC_check = 1 AND death_check = 1) THEN call write_variable_in_case_note("* Added Hennepin County probate information to the client's notice.")
@@ -300,12 +300,8 @@ Else
 End if
 
 IF sent_5181_check = 1 then call write_variable_in_case_note ("* Sent DHS-5181 LTC communication to Case Manager")
-
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
-
-'Runs denied progs if selected
-If denied_progs_check = 1 then run_another_script("C:\DHS-MAXIS-Scripts\Script Files\NOTE - denied progs.vbs")
 
 'Script end procedure
 script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly." & vbnewline & vbnewline & "This script does not case note information related to HC REIN dates due to the ever changing nature of these programs at this time. For more information please refer to the IAPM or HCPM, both are buttons available on the powerpad.")
