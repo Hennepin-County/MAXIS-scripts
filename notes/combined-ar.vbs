@@ -258,7 +258,7 @@ CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/revw that the next SNAP recert date isn't 12 months beyond the entered footer month/year
-	TIKL_for_24_month = msgbox("Your SNAP recertification date is listed as " & SNAP_recert_date & " on STAT/REVW. Do you want set a TIKL on " & dateadd("m", "-1", SNAP_recert_compare_date) & " for 12 month contact?" & vbCR & vbCR & "NOTE: Cicking yes will navigate away from CASE/NOTE saving your case note.", VBYesNo)
+	TIKL_for_24_month = msgbox("Your SNAP recertification date is listed as " & SNAP_recert_date & " on STAT/REVW. Do you want set a TIKL on " & dateadd("m", "-1", SNAP_recert_compare_date) & " for 12 month contact?" & vbCR & vbCR & "NOTE: Clicking yes will navigate away from CASE/NOTE saving your case note.", VBYesNo)
 	IF TIKL_for_24_month = vbYes THEN 												'if the select YES then we TIKL using our custom functions.
 		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 		CALL create_MAXIS_friendly_date(dateadd("m", "-1", SNAP_recert_compare_date), 0, 5, 18)
