@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/11/2017", "Adding functionality to offer a TIKL for 12 month contact on 24 month SNAP renewals.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -319,6 +320,19 @@ call HH_member_custom_dialog(HH_member_array)
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
 	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
+	IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
+		EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
+		transmit
+		EMReadScreen SNAP_recert_date, 8, 9, 64
+		PF3
+		SNAP_recert_date = replace(SNAP_recert_date, " ", "/")																		'replacing the read blank spaces with / to make it a date
+		SNAP_recert_compare_date = dateadd("m", "12", MAXIS_footer_month & "/01/" & MAXIS_footer_year)		'making a dummy variable to compare with, by adding 12 months to the requested footer month/year.
+		IF datediff("d", SNAP_recert_compare_date, SNAP_recert_date) > 0 THEN											'If the read recert date is more than 0 days away from 12 months plus the MAXIS footer month/year then it is likely a 24 month period.'
+			SNAP_recert_is_likely_24_months = TRUE
+		ELSE
+			SNAP_recert_is_likely_24_months = FALSE																									'otherwise if we don't we set it as false
+		END IF
+	END IF
 Else
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
 End if
@@ -606,5 +620,14 @@ IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+
+IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/revw that the next SNAP recert date isn't 12 months beyond the entered footer month/year
+	TIKL_for_24_month = msgbox("Your SNAP recertification date is listed as " & SNAP_recert_date & " on STAT/REVW. Do you want set a TIKL on " & dateadd("m", "-1", SNAP_recert_compare_date) & " for 12 month contact?" & vbCR & vbCR & "NOTE: Clicking yes will navigate away from CASE/NOTE saving your case note.", VBYesNo)
+	IF TIKL_for_24_month = vbYes THEN 												'if the select YES then we TIKL using our custom functions.
+		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+		CALL create_MAXIS_friendly_date(dateadd("m", "-1", SNAP_recert_compare_date), 0, 5, 18)
+		CALL write_variable_in_TIKL("If SNAP is open, review to see if 12 month contact letter is needed. DAIL scrubber can send 12 Month Contact Letter if used on this TIKL.")
+	END IF
+END IF
 
 script_end_procedure("Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd.")
