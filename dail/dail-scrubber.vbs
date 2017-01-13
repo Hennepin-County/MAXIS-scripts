@@ -44,6 +44,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
 
@@ -72,6 +84,14 @@ If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_che
 		call run_from_GitHub(script_repository & "dail/affiliated-case-lookup.vbs")
 	End If
 End If
+
+'Checking for 12 month contact TIKL from CAF and CAR scripts(loads NOTICES - 12 month contact)
+EMReadScreen twelve_mo_contact_check, 57, 6, 20
+IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT LETTER" THEN
+	EMReadScreen MAXIS_case_number, 8, 5, 73									'reading the case number for ease of use
+	MAXIS_case_number = TRIM(MAXIS_case_number)							'trimming the blank spaces
+	run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
+END IF
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
@@ -154,4 +174,3 @@ IF wage_match = "WAGE" THEN CALL run_from_GitHub(script_repository & "dail/wage-
 
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
 script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message)
-
