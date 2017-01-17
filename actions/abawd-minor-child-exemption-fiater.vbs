@@ -70,7 +70,7 @@ BeginDialog case_number_dialog, 0, 0, 251, 140, "ABAWD minor child exemption FIA
   Text 65, 15, 50, 10, "Case Number:"
   Text 20, 35, 100, 10, "Initial month/year of package:"
   GroupBox 5, 75, 240, 60, "ABAWD STAT/WREG CODING - CHILD UNDER 18"
-  Text 10, 90, 230, 25, "This FIATer is to be used when there are more than 2 adults in the SNAP unit with a child under the age of 6, and only 1 adult is the parent of the child. FSET/ABAWD coding for the non-parent will be 21/04."
+  Text 10, 90, 230, 25, "This FIATer is to be used when there is non-parent adult(s) in the SNAP unit with at least one child under the age of 18. FSET/ABAWD coding for the non-parent will be 21/04."
   Text 10, 120, 225, 10, " See POLI/TEMP TE02.05.70.03 for detailed information."
 EndDialog
 
