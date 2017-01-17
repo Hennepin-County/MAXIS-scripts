@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/17/2017", "Added program type (DWP or MFIP) into case note header.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -73,7 +74,6 @@ IF collecting_ES_statistics = true THEN
 	call convert_array_to_droplist_items (ES_agencies, ES_agency_list) 'This converts the array of ES Agencies into a droplist for dialog
 END IF
 
-'Dim MAXIS_case_number, program, referral_date, plan_deadline, ES_provider, other_notes, TIKL_check, dwp_referral_check, es_referral_check, worker_signature, county_collecting_ES_stats
 'DIALOGS----------------------------------------------------------------------------------------------------
   BeginDialog ES_referral_dialog, 0, 0, 286, 250, "Employment services referral"
    EditBox 70, 10, 50, 15, MAXIS_case_number
@@ -124,7 +124,7 @@ DO
 	    IF isnumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr &  "Please enter a valid case number."
         If select_program = "Select one..." THEN err_msg = err_msg & vbCr & "* Select the cash program."
         IF referral_date = "" THEN err_msg = err_msg & vbCr & "* Please enter a referral date."
-	    if appt_type <> "Select one..." and appt_date = "" THEN err_msg = err_msg & vbCr & "* Please enter the appointment date."
+	    if (appt_type <> "Select one..." and isdate(appt_date) = False) THEN err_msg = err_msg & vbCr & "* Please enter the appointment date."
         IF appt_date <> "" and appt_type = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select the appointment type."
 	    IF ES_provider = "" THEN err_msg = err_msg & vbCr &  "Please enter an employment services provider."
 	    IF worker_signature = "" THEN err_msg = err_msg & vbCr &  "Please sign your case note."
@@ -133,13 +133,13 @@ DO
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
 IF TIKL_check = checked THEN
 	call navigate_to_MAXIS_screen("DAIL", "WRIT")
 	call create_maxis_friendly_date(plan_deadline, 0, 5, 18)
 	call write_variable_in_TIKL("If employment plan has not been received, deny DWP.")
 	PF3
 END IF
+
 'Setting up the HH member list from dialog input
 member_array = split(hh_member_list, ",")
 'assigning values for database (necessary to redefine these later so one member doesn't rewrite over existing data)
@@ -147,16 +147,20 @@ ESDate = referral_date
 ESProvider = ES_Provider
 
 'variable for case note header based on the appt type selected
-If appt_type = "Select one..." then case_note_header = "**ES REFERRAL SENT**"
-If appt_type = "Scheduled" then case_note_header = "**ES Appointment Scheduled for " & appt_date & "**"
-If appt_type = "Rescheduled" then case_note_header = "**ES Appointment Rescheduled for " & appt_date & "**"
+If appt_type = "Select one..." then case_note_header = "**ES referral sent for " & select_program & "**"
+If appt_type = "Scheduled" then case_note_header = "**" & select_program & " ES Appt Scheduled for " & appt_date & "**"
+If appt_type = "Rescheduled" then case_note_header = "**" & select_program & " ES Appt Rescheduled for " & appt_date & "**"
 
 'The case note --------- -------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE(case_note_header)
-If appt_type = "Select one..." then call write_variable_in_CASE_NOTE("*" & program & " referral sent to " & ES_provider & " on " & referral_date & ".")
+If appt_type = "Select one..." then 
+	call write_variable_in_CASE_NOTE("* Referral sent to " & ES_provider & " on " & referral_date & ".")
+Else 
+	call write_bullet_and_variable_in_CASE_NOTE("ES provider", ES_provider)
+End if 
 call write_bullet_and_variable_in_CASE_NOTE("Members referred", hh_member_list)
-IF program = "DWP" THEN call write_bullet_and_variable_in_CASE_NOTE("Employment plan due back on", plan_deadline)
+IF select_program = "DWP" THEN call write_bullet_and_variable_in_CASE_NOTE("Employment plan due back on", plan_deadline)
 IF dwp_referral_check = 1 THEN CALL write_variable_in_CASE_NOTE("* DHS 4161 sent to client.")
 IF TIKL_check = 1 THEN CALL write_variable_in_CASE_NOTE("* TIKL to deny DWP this date if employment plan has not been completed.")
 IF es_referral_check = 1 THEN CALL write_variable_in_CASE_NOTE("* Paper referral sent to ES provider.")
