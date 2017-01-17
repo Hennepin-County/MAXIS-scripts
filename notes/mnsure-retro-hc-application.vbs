@@ -38,10 +38,23 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/12/2017", "Changed verbiage from Curam to METS.", "Ilse Ferris, Hennepin County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THE Dialog--------------------------------------------------------------------------------------------------------------------
 BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 265, "MNSure Retro HC Application"
   EditBox 85, 25, 55, 15, MAXIS_case_number
-  EditBox 240, 25, 75, 15, curam_case_number
+EditBox 240, 25, 75, 15, METS_case_number
   EditBox 120, 50, 60, 15, HC_Appl_date_Recvd
   EditBox 235, 50, 75, 15, time_gap_between
   DropListBox 135, 70, 60, 15, "Select One..."+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", retro_coverage_months
@@ -57,7 +70,7 @@ BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 265, "MNSure Retro HC Application"
   ButtonGroup ButtonPressed
     OkButton 210, 240, 50, 15
     CancelButton 265, 240, 50, 15
-  Text 165, 30, 70, 10, "Curam Case Number:"
+Text 165, 30, 70, 10, "METS Case Number:"
   Text 10, 55, 105, 10, "MNSure Application Rec'd Date:"
   Text 10, 115, 115, 10, "Retro HC Coverage Requested for:"
   Text 10, 135, 75, 10, "HC Application Status:"
@@ -68,7 +81,7 @@ BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 265, "MNSure Retro HC Application"
   Text 10, 75, 120, 10, "Number of Retro Months Requested:"
   Text 10, 195, 50, 10, "Action Taken:"
   Text 10, 175, 80, 10, "Other Comments/Notes:"
-  Text 10, 10, 220, 10, "MA application in Curam, Retro eligibility determination requested "
+Text 10, 10, 220, 10, "MA application in METS, Retro eligibility determination requested "
   Text 10, 245, 75, 10, "Sign Your Case Note:"
 EndDialog
 
@@ -92,10 +105,10 @@ DO
 				Dialog MNSure_HC_Appl_dialog
 				cancel_confirmation
 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!" 
+				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!"
 				IF retro_coverage_months = "Select One..." THEN MsgBox "Please select how many retro months are requested!"
-				IF len(curam_case_number)<> 8 THEN MsgBox "Please enter an 8 digit Curam case number!"
-			Loop until len(curam_case_number) = 8
+				IF len(METS_case_number)<> 8 THEN MsgBox "Please enter an 8 digit METS case number!"
+			Loop until len(METS_case_number) = 8
 		Loop until retro_coverage_months <> "Select One..."
 		IF HH_members_requesting = "" THEN MsgBox "Enter HH members requesting retro HC coverage!"
 	Loop until HH_members_requesting <> ""
@@ -103,12 +116,12 @@ DO
 Loop until HC_Appl_status <> "Select One..."
 
 
-'Opens a New Case Note					
+'Opens a New Case Note
 call start_a_blank_CASE_NOTE
 
 'Writes the Case Note
 CALL write_variable_in_CASE_NOTE("---MNSure Retro HC Application---")
-Call write_bullet_and_variable_in_CASE_NOTE("Curam Case Number", curam_case_number)
+Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", METS_case_number)
 Call write_bullet_and_variable_in_CASE_NOTE("MNSure Application Rec'd", HC_Appl_date_Recvd)
 Call write_bullet_and_variable_in_CASE_NOTE("Gap Month", time_gap_between)
 Call write_bullet_and_variable_in_CASE_NOTE("Number of Retro Months Requested", retro_coverage_months)
@@ -128,6 +141,6 @@ IF tikl_checkbox = 1 THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_maxis_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
-END IF	
+END IF
 
 script_end_procedure ("")
