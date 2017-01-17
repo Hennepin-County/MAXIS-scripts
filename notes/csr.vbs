@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/17/2017", "This script has been updated to clean up the case note. The script was case noting the ''Verifs Needed'' section twice. This has been resolved.", "Robert Fewins-Kalb, Anoka County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -367,11 +368,11 @@ call write_bullet_and_variable_in_case_note("Changes", changes)
 If HRF_checkbox = checked then call write_variable_in_case_note("* CSR and cash supplement used as HRF.")
 If eDRS_sent_checkbox = checked then call write_variable_in_case_note("* eDRS sent.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
-call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
 If MADE_checkbox = checked then call write_variable_in_case_note("* Emailed MADE through DHS-SIR.")
 IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
+call write_variable_in_case_note("---")
 If grab_FS_info_checkbox = 1 AND FSPR_check = "FSPR" then
 	call write_variable_in_case_note("   " & FSSM_line_01)
 	call write_variable_in_case_note("   " & FSSM_line_02)
