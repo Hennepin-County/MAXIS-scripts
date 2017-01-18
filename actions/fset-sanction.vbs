@@ -261,8 +261,6 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	If FSET_orientation_date <> "" THEN Call create_MAXIS_friendly_date(FSET_orientation_date, 0, 9, 50)
 	EMWriteScreen "______", 10, 50 'deletes out the sanction date
 	EMWriteScreen "______", 10, 56
-	EMWriteScreen "__", 	11, 50		'removed number of sanctions field
-	EMWriteScreen "__", 	12, 50		'new field - reason for sanction. Removes this info when sanction is cleared
 
 	EMWriteScreen ABAWD_status_droplist, 13, 50 ' updates the ABAWD status
 	'updating the Defer FSET/No Funds (Y/N) field on WREG
