@@ -1,8 +1,8 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTICES - DUPLICATE ASSISTANCE WCOM.vbs"
+name_of_script = "NOTICES - RETURNED MAIL WCOM.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
+STATS_manualtime = 70                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block=========================================================================================================
 
@@ -44,44 +44,42 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/17/2017", "Added new option to write out of state duplicate assistance alternate text in SNAP WCOMS.", "Charles Potter, DHS")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+call changelog_update("01/17/2017", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'Dialog--------------------------------------------
-BeginDialog dup_dlg, 0, 0, 156, 115, "Duplicate Assistance WCOM"
+BeginDialog returned_mail_dlg, 0, 0, 156, 120, "Returned Mail WCOM"
   EditBox 65, 5, 75, 15, MAXIS_case_number
-  EditBox 75, 25, 65, 15, worker_signature
-  EditBox 60, 45, 20, 15, MAXIS_footer_month
-  EditBox 130, 45, 20, 15, MAXIS_footer_year
-  CheckBox 15, 70, 125, 10, "Out of State Duplicate Assistance?", out_of_state_checkbox
+  EditBox 60, 25, 20, 15, MAXIS_footer_month
+  EditBox 130, 25, 20, 15, MAXIS_footer_year
+  EditBox 80, 50, 70, 15, contact_request_date
+  EditBox 80, 70, 70, 15, contact_due_date
   ButtonGroup ButtonPressed
-    OkButton 25, 90, 50, 15
-    CancelButton 80, 90, 50, 15
+    OkButton 25, 95, 50, 15
+    CancelButton 80, 95, 50, 15
+  Text 85, 25, 40, 20, "Footer Year (YY):"
+  Text 5, 55, 70, 10, "Contact request date:"
   Text 10, 10, 55, 10, "Case Number: "
-  Text 10, 30, 60, 10, "Worker Signature: "
-  Text 10, 45, 45, 20, "Footer Month (MM):"
-  Text 85, 45, 40, 20, "Footer Year (YY):"
+  Text 10, 25, 45, 20, "Footer Month (MM):"
+  Text 5, 75, 60, 10, "Contact Due date:"
 EndDialog
+
 
 
 'The script-------------------------------------
 EMConnect ""
 
 'warning box
-Msgbox "Warning: If you have multiple waiting SNAP or MFIP results this script may be unable to find the most recent one. Please process manually in those instances." & vbNewLine & vbNewLine &_
-		"- If this case includes members who are residing in a battered women's shelter please review approval." & vbNewLine &_
-		"- If this was an expedited case where client reported they did not receive benefits in another state please review approval" & vbNewLine &_
-		"- See CM 001.21 for more details on these two situations and how they qualify for duplicate assistance."
+Msgbox "Warning: If you have multiple waiting SNAP results this script may be unable to find the most recent one. Please process manually in those instances."
 
 'the dialog
 Do
 	Do
 		Do
-			dialog dup_dlg
+			dialog returned_mail_dlg
 			cancel_confirmation
 			If MAXIS_footer_month = "" or MAXIS_footer_year = "" THEN Msgbox "Please fill in footer month and year (MM YY format)."
 			If MAXIS_case_number = "" THEN MsgBox "Please enter a case number."
@@ -119,31 +117,11 @@ Do
 			If program_type = "FS" AND print_status = "Waiting" then
 				fs_wcom_writen = true
 				'This will write if the notice is for SNAP only
-				IF out_of_state_checkbox = checked THEN
-					state_of_assistance = inputbox("Please enter the other state where client received SNAP")
-					CALL write_variable_in_SPEC_MEMO("******************************************************")
-					CALL write_variable_in_SPEC_MEMO("Dear Client,")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("You received SNAP benefits from the state of " & state_of_assistance & " during the month of " & MAXIS_footer_month & "/" & MAXIS_footer_year & "You cannot received SNAP benefits from two states at the same time.")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("If you have any questions or concerns please feel free to contact your worker.")
-					CALL write_variable_in_SPEC_MEMO("---")
-					CALL write_variable_in_SPEC_MEMO(worker_signature)
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("******************************************************")
-				ELSE
-					CALL write_variable_in_SPEC_MEMO("******************************************************")
-					CALL write_variable_in_SPEC_MEMO("Dear Client,")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("You will not be eligible for SNAP benefits this month since you have received SNAP benefits on another case for the same month.")
-					CALL write_variable_in_SPEC_MEMO("Per program rules SNAP participants are not eligible for duplicate benefits in the same benefit month.")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("If you have any questions or concerns please feel free to contact your worker.")
-					CALL write_variable_in_SPEC_MEMO("---")
-					CALL write_variable_in_SPEC_MEMO(worker_signature)
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("******************************************************")
-				END IF
+				CALL write_variable_in_SPEC_MEMO("******************************************************")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("Your mail as been returned to our agency. On " & contact_request_date & " you were sent a request for you to contact this agency because of this returned mail. You did not contact the agency by " & contact_due_date & " so your SNAP case has been closed.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("******************************************************")
 				PF4
 				PF3
 			End if
@@ -158,50 +136,6 @@ Do
 	If spec_edit_check = "NOTICE" THEN no_fs_waiting = true
 Loop until spec_edit_check = "NOTICE"
 
-program_type = " "
-print_status = " "
-spec_edit_check = " "
+If no_fs_waiting = true AND no_mf_waiting = true then script_end_procedure("No waiting FS notice was found for the requested month")
 
-wcom_row = 6
-Do
-	wcom_row = wcom_row + 1
-	Emreadscreen program_type, 2, wcom_row, 26
-	Emreadscreen print_status, 7, wcom_row, 71
-	If program_type = "MF" then
-		If print_status = "Waiting" then
-			Emwritescreen "x", wcom_row, 13
-			Transmit
-			PF9
-			Emreadscreen mf_wcom_exists, 3, 3, 15
-			If mf_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
-			If program_type = "MF" AND print_status = "Waiting" then
-				mf_wcom_writen = true
-				'This will write if it is for an MFIP notice
-				CALL write_variable_in_SPEC_MEMO("******************************************************")
-				CALL write_variable_in_SPEC_MEMO("Dear Client,")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("One or more of your household members will not be eligible for SNAP benefits in this month since you have received SNAP benefits on another case for the same month.")
-				CALL write_variable_in_SPEC_MEMO("Per program rules SNAP participants are not eligible for duplicate benefits in the same benefit month.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("If you have any questions or concerns please feel free to contact your worker.")
-				CALL write_variable_in_SPEC_MEMO("---")
-				CALL write_variable_in_SPEC_MEMO(worker_signature)
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("******************************************************")
-				PF4
-				PF3
-			End If
-		End If
-	End If
-	If mf_wcom_writen = true then Exit Do
-	If wcom_row = 17 then
-		PF8
-		Emreadscreen spec_edit_check, 6, 24, 2
-		wcom_row = 6
-	end if
-	If spec_edit_check = "NOTICE" THEN no_mf_waiting = true
-Loop until spec_edit_check = "NOTICE"
-
-If no_fs_waiting = true AND no_mf_waiting = true then script_end_procedure("No waiting FS or MFIP notices were found for the requested month")
-
-script_end_procedure("WCOM has been added to the first found waiting SNAP and/or MFIP notice for the month and case selected. Please review the notice.")
+script_end_procedure("WCOM has been added to the first found waiting SNAP notice for the month and case selected. Please review the notice.")

@@ -2228,6 +2228,16 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Client Death WCOM"
+script_array(script_num).description 			= "Adds a WCOM to a notice regarding SNAP closure due to death of last HH member."
+script_array(script_num).category               = "NOTICES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #01/18/2017#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Duplicate Assistance WCOM"
 script_array(script_num).description 			= "Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
 script_array(script_num).category               = "NOTICES"
@@ -2243,9 +2253,17 @@ script_array(script_num).description 			= "Sends a WCOM informing the client of 
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("SNAP WCOMS")
-script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).release_date           = #01/18/2017#
 
-
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Returned Mail WCOM"
+script_array(script_num).description 			= "Adds a WCOM to a notice for SNAP returned mail closure."
+script_array(script_num).category               = "NOTICES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #01/18/2017#
 
 
 
