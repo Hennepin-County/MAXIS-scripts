@@ -51,6 +51,9 @@ MAGI_cases_closed_four_month_TIKL_no_XFER = FALSE
 'This is a setting for the TYMA TIKLer script. When set to "true", TYMA TIKLer will TIKL all TYMA months simultaneously, as opposed to only the first month. Defaullt is "false".
 TYMA_TIKL_all_at_once = false
 
+'This is a setting to determine if changes to scripts will be displayed in messageboxes in real time to end users
+changelog_enabled = true
+
 'NAVIGATION SCRIPT CONFIGURATION================
 
 'If all users use "select a worker" nav scripts, this will be True. (Example: case banking county)
