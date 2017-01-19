@@ -176,6 +176,7 @@ If SMRT_actions = "ISDS referral completed" then
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
     Call write_variable_in_CASE_NOTE("---ISDS referral completed for SMRT---")
     call write_bullet_and_variable_in_CASE_NOTE("SMRT requested for", SMRT_member)
+    Call write_bullet_and_variable_in_CASE_NOTE("SMRT referral completed on", referral_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Program requested", prog_requested)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason for referral", referral_reason)
     Call write_bullet_and_variable_in_CASE_NOTE("SMRT start date", SMRT_start_date)
