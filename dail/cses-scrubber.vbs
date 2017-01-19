@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/10/2017", "Bug fix to make sure that the impact on the MFIP benefit is read from the corrct footer month. Handling for cases that are in pending status - these should be processed manually.", "Casey Love, Ramsey County")
 call changelog_update("12/15/2016", "Fixing a bug with counting household members and formatting the spreadsheet. Also adding ability to budget income for a person no longer in the household. For MFIP cases the script will attempt to see how the income changed the benefit.", "Casey Love, Ramsey County")
 call changelog_update("12/06/2016", "Fixing a bug to make sure correct month gets edited.", "Charles Potter, DHS")
 call changelog_update("12/05/2016", "Fixing a bug to prevent errors when processing in single digit months.", "Charles Potter, DHS")
@@ -295,7 +296,17 @@ row = 1
 col = 1
 EMSearch "MFIP:", row, col
 If row <> 0 then
-	MFIP_active = True
+	EMReadScreen mf_status, 7, row, 9			'checking for pending status
+	If mf_status = "PENDING" Then 				'MFIP cases that are pending are NOT typically retrospecively budgeted and the script process does not handly prospective budgeting for MFIP cases
+		objExcel.DisplayAlerts = False			'Close the Excel
+		objExcel.Workbooks.Close
+		objExcel.quit
+		objExcel.DisplayAlerts = True
+		PF3										'Back to DAIL
+		script_end_procedure("MFIP is pending and anticipated income should be determined manually at initial request. Process manually or if appropriate, approve MFIP and run the script again.")
+	Else
+		MFIP_active = True
+	End If
 Else
 	MFIP_active = False
 End if
@@ -305,7 +316,17 @@ row = 1
 col = 1
 EMSearch "FS:", row, col
 If row <> 0 then
-	SNAP_active = True
+	EMReadScreen fs_status, 7, row, 9		'Checking for pending status
+	If fs_status = "PENDING" Then 			'SNAP pending cases should have the CS budget determined manually as the realm needs to be set
+		objExcel.DisplayAlerts = False		'close the Excel
+		objExcel.Workbooks.Close
+		objExcel.quit
+		objExcel.DisplayAlerts = True
+		PF3									'Back to DAIL
+		script_end_procedure("SNAP is pending and anticipated income should be determined manually at initial request. Process manually or if appropriate, approve SNAP and run the script again.")
+	Else
+		SNAP_active = True
+	End If
 Else
 	SNAP_active = False
 End if
@@ -1269,7 +1290,9 @@ If MFIP_active = TRUE then
 	END IF
 	EMWriteScreen "e", 6, 3
 	transmit
-
+	EMWriteScreen MAXIS_footer_month, 20, 55		'Go to the correct footer month for ELIG
+	EMWriteScreen MAXIS_footer_year, 20, 58
+	transmit
 	EMWriteScreen "MFIP", 20, 71
 	transmit
 	EMReadScreen MFPR_check, 4, 3, 47
@@ -1278,7 +1301,6 @@ If MFIP_active = TRUE then
 		transmit
 		EMReadScreen impact_on_benefit, 12, 10, 31
 		impact_on_benefit = trim(impact_on_benefit)
-		MsgBox impact_on_benefit
 	End If
 	PF3
 
