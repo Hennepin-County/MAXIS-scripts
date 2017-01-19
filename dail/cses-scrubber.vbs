@@ -343,9 +343,11 @@ ObjExcel.Cells(3, col_open_program_titles).Value 				= "SNAP open:"
 ObjExcel.Cells(3, col_open_program_titles).Font.Bold 			= TRUE
 ObjExcel.Cells(3, col_open_program_status).Value 				= SNAP_active
 
-'If both SNAP and MFIP aren't open, the script will exit
-If SNAP_active = False and MFIP_active = False then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
-
+'If both SNAP and MFIP aren't open, the script will exit, after asking the user if they still wish to update.
+If SNAP_active = False and MFIP_active = False then
+	update_inactive = msgbox("Neither SNAP or MFIP are open.  Do you still wish to proceed with updating this case? This may be useful if the case is closed for late/incomplete HRF.", vbyesno)
+	if update_inactive = vbno then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
+END IF
 
 
 
