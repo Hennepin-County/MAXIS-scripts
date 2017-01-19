@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/19/2017", "Added ASSET REDUCTION case note script.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added SMRT case note script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -130,6 +131,13 @@ Set script_array_0_to_C(script_num) = new script		'Set this array element to be 
 script_array_0_to_C(script_num).script_name				= "AREP Form Received"
 script_array_0_to_C(script_num).file_name				= "arep-form-received.vbs"
 script_array_0_to_C(script_num).description				= "Template for when you receive an Authorized Representative (AREP) form."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name				= "Asset Reduction"
+script_array_0_to_C(script_num).file_name				= "asset-reduction.vbs"
+script_array_0_to_C(script_num).description				= "Template for documenting pending and resolving an asset reduction."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
