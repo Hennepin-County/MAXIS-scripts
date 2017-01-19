@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/19/2017", "Added ability to update cases without open MFIP or SNAP", "David Courtright, Saint Louis County")
 call changelog_update("01/10/2017", "Bug fix to make sure that the impact on the MFIP benefit is read from the corrct footer month. Handling for cases that are in pending status - these should be processed manually.", "Casey Love, Ramsey County")
 call changelog_update("12/15/2016", "Fixing a bug with counting household members and formatting the spreadsheet. Also adding ability to budget income for a person no longer in the household. For MFIP cases the script will attempt to see how the income changed the benefit.", "Casey Love, Ramsey County")
 call changelog_update("12/06/2016", "Fixing a bug to make sure correct month gets edited.", "Charles Potter, DHS")
@@ -343,9 +344,11 @@ ObjExcel.Cells(3, col_open_program_titles).Value 				= "SNAP open:"
 ObjExcel.Cells(3, col_open_program_titles).Font.Bold 			= TRUE
 ObjExcel.Cells(3, col_open_program_status).Value 				= SNAP_active
 
-'If both SNAP and MFIP aren't open, the script will exit
-If SNAP_active = False and MFIP_active = False then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
-
+'If both SNAP and MFIP aren't open, the script will exit, after asking the user if they still wish to update.
+If SNAP_active = False and MFIP_active = False then
+	update_inactive = msgbox("Neither SNAP or MFIP are open.  Do you still wish to proceed with updating this case? This may be useful if the case is closed for late/incomplete HRF.", vbyesno)
+	if update_inactive = vbno then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
+END IF
 
 
 
