@@ -94,6 +94,8 @@ If len(MAXIS_footer_year) > 2 THEN MAXIS_footer_year = right(MAXIS_footer_year, 
 
 'Navigating to the spec wcom screen
 CALL Check_for_MAXIS(false)
+									
+back_to_self
 
 Emwritescreen MAXIS_case_number, 18, 43
 Emwritescreen MAXIS_footer_month, 20, 43
