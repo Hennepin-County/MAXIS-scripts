@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/19/2017", "Updated functionality of script to include enhanced password handling and handling for all 8 pages of total marital assets.", "Ilse Ferris, Hennepin County")
+call changelog_update("01/19/2017", "Added 'New AA received' option, and updated functionality of script to include enhanced password handling, and handling for all 8 pages of total marital assets.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -103,56 +103,87 @@ Function write_new_line_in_person_note(x)
 End function
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog asset_assessment_dialog, 0, 0, 266, 280, "Asset assessment dialog"
-  DropListBox 5, 5, 60, 15, "REQUIRED"+chr(9)+"REQUESTED", asset_assessment_type
-  EditBox 195, 5, 65, 15, effective_date
-  EditBox 165, 35, 65, 15, MA_LTC_first_month_of_documented_need
-  EditBox 130, 55, 65, 15, month_MA_LTC_rules_applied
-  EditBox 50, 80, 65, 15, LTC_spouse
-  EditBox 195, 80, 65, 15, community_spouse
-  EditBox 65, 100, 195, 15, asset_summary
-  EditBox 80, 120, 60, 15, total_counted_assets
-  EditBox 200, 120, 60, 15, half_of_total
-  DropListBox 5, 140, 45, 15, "Actual"+chr(9)+"Estimated", CSAA_type
-  EditBox 85, 140, 75, 15, CSAA
-  EditBox 70, 160, 190, 15, asset_calculation
-  EditBox 60, 180, 200, 15, actions_taken
-  CheckBox 5, 205, 60, 10, "Sent 3340-A?", sent_3340A_check
-  CheckBox 80, 205, 60, 10, "Sent 3340-B?", sent_3340B_check
-  CheckBox 145, 205, 110, 10, "Sent 5181 to Case Manager?", sent_5181_check
-  EditBox 195, 220, 65, 15, worker_signature
-  CheckBox 5, 245, 175, 10, "Write MAXIS case note? If so, write case number:", write_MAXIS_case_note_check
-  EditBox 185, 240, 75, 15, MAXIS_case_number
+BeginDialog asset_assessment_dialog, 0, 0, 266, 270, "Asset assessment completed dialog"
+  DropListBox 5, 10, 60, 15, "REQUIRED"+chr(9)+"REQUESTED", asset_assessment_type
+  EditBox 195, 10, 65, 15, effective_date
+  EditBox 165, 40, 65, 15, MA_LTC_first_month_of_documented_need
+  EditBox 165, 60, 65, 15, month_MA_LTC_rules_applied
+  EditBox 50, 85, 65, 15, LTC_spouse
+  EditBox 195, 85, 65, 15, community_spouse
+  EditBox 65, 105, 195, 15, asset_summary
+  EditBox 80, 125, 60, 15, total_counted_assets
+  EditBox 200, 125, 60, 15, half_of_total
+  DropListBox 80, 145, 60, 15, "Actual"+chr(9)+"Estimated", CSAA_type
+  EditBox 200, 145, 60, 15, CSAA
+  EditBox 70, 165, 190, 15, asset_calculation
+  EditBox 60, 185, 200, 15, actions_taken
+  CheckBox 5, 210, 60, 10, "Sent 3340-A?", sent_3340A_check
+  CheckBox 80, 210, 60, 10, "Sent 3340-B?", sent_3340B_check
+  CheckBox 145, 210, 110, 10, "Sent 5181 to Case Manager?", sent_5181_check
+  CheckBox 5, 230, 175, 10, "Write MAXIS case note? If so, write case number:", write_MAXIS_case_note_check
+  EditBox 185, 225, 75, 15, MAXIS_case_number
+  EditBox 65, 245, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 150, 260, 50, 15
-    CancelButton 210, 260, 50, 15
-  Text 70, 10, 75, 10, "ASSET ASSESSMENT"
-  GroupBox 20, 25, 220, 50, "If this is a required assessment, fill out:"
-  Text 25, 40, 135, 10, "MA-LTC first month of documented need:"
-  Text 25, 60, 100, 10, "Month MA-LTC rules applied:"
-  Text 5, 85, 45, 10, "LTC spouse:"
-  Text 125, 85, 70, 10, "Community spouse:"
-  Text 5, 105, 55, 10, "Asset summary:"
-  Text 5, 125, 75, 10, "Total Counted Assets:"
-  Text 150, 125, 45, 10, "Half of Total:"
-  Text 5, 165, 65, 10, "Asset calculation:"
-  Text 5, 185, 50, 10, "Actions taken:"
-  Text 130, 225, 60, 10, "Worker signature:"
-  Text 55, 145, 25, 10, "CSAA:"
-  Text 160, 10, 30, 10, "Eff date:"
+    OkButton 155, 245, 50, 15
+    CancelButton 210, 245, 50, 15
+  Text 70, 15, 75, 10, "ASSET ASSESSMENT"
+  GroupBox 20, 30, 220, 50, "If this is a required assessment, fill out:"
+  Text 30, 45, 135, 10, "MA-LTC first month of documented need:"
+  Text 70, 65, 95, 10, "Month MA-LTC rules applied:"
+  Text 5, 90, 45, 10, "LTC spouse:"
+  Text 125, 90, 70, 10, "Community spouse:"
+  Text 5, 110, 55, 10, "Asset summary:"
+  Text 5, 130, 75, 10, "Total Counted Assets:"
+  Text 150, 130, 45, 10, "Half of Total:"
+  Text 5, 170, 65, 10, "Asset calculation:"
+  Text 5, 190, 50, 10, "Actions taken:"
+  Text 5, 250, 60, 10, "Worker signature:"
+  Text 160, 150, 25, 10, "CSAA:"
+  Text 155, 15, 40, 10, "AA Eff date:"
 EndDialog
 
-BeginDialog case_and_PMI_number_dialog, 0, 0, 196, 101, "Case and PMI number dialog"
-  EditBox 80, 5, 70, 15, LTC_spouse_PMI
-  EditBox 105, 25, 70, 15, community_spouse_PMI
-  EditBox 100, 45, 70, 15, MAXIS_case_number
-  CheckBox 5, 65, 190, 10, "Check here to enter ASET under the community spouse.", community_spouse_check
+BeginDialog AA_received_dialog, 0, 0, 266, 235, "AA received dialog"
+  DropListBox 5, 10, 60, 15, "REQUIRED"+chr(9)+"REQUESTED", asset_assessment_type
+  EditBox 195, 10, 65, 15, effective_date
+  EditBox 165, 40, 65, 15, MA_LTC_first_month_of_documented_need
+  EditBox 165, 60, 65, 15, month_MA_LTC_rules_applied
+  EditBox 50, 85, 70, 15, LTC_spouse
+  EditBox 195, 85, 65, 15, community_spouse
+  EditBox 80, 110, 180, 15, verifs_requested
+  EditBox 80, 130, 180, 15, actions_taken
+  CheckBox 80, 150, 145, 10, "Verification request sent to client/spouse", client_verif_checkbox
+  CheckBox 80, 165, 120, 10, "Verification request sent to AREP", AREP_verif_checkbox
+  CheckBox 15, 185, 170, 10, "Write MAXIS case note? If so, write case number:", write_MAXIS_case_note_check
+  EditBox 185, 180, 75, 15, MAXIS_case_number
+  EditBox 80, 205, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 45, 80, 50, 15
-    CancelButton 100, 80, 50, 15
-  Text 15, 10, 60, 10, "LTC spouse PMI:"
-  Text 15, 30, 85, 10, "Community spouse PMI:"
-  Text 15, 50, 80, 10, "Case number (if known):"
+    OkButton 155, 205, 50, 15
+    CancelButton 210, 205, 50, 15
+  Text 30, 45, 135, 10, "MA-LTC first month of documented need:"
+  Text 65, 65, 95, 10, "Month MA-LTC rules applied:"
+  Text 5, 90, 45, 10, "LTC spouse:"
+  Text 125, 90, 70, 10, "Community spouse:"
+  Text 10, 115, 70, 10, "Verifications needed: "
+  Text 30, 135, 50, 10, "Actions taken:"
+  Text 20, 210, 60, 10, "Worker signature:"
+  Text 155, 15, 40, 10, "AA Eff date:"
+  GroupBox 5, 30, 255, 50, "If this is a required assessment, fill out:"
+  Text 70, 15, 75, 10, "ASSET ASSESSMENT"
+EndDialog
+
+BeginDialog case_and_PMI_number_dialog, 0, 0, 201, 120, "Case and PMI number dialog"
+  EditBox 105, 5, 60, 15, LTC_spouse_PMI
+  EditBox 105, 25, 60, 15, community_spouse_PMI
+  EditBox 105, 45, 60, 15, MAXIS_case_number
+  DropListBox 105, 65, 75, 15, "Select one..."+chr(9)+"Completed AA"+chr(9)+"New AA received", AA_option
+  CheckBox 5, 85, 190, 10, "Check here to enter ASET under the community spouse.", community_spouse_check
+  ButtonGroup ButtonPressed
+    OkButton 45, 100, 50, 15
+    CancelButton 100, 100, 50, 15
+  Text 25, 30, 80, 10, "Community spouse PMI:"
+  Text 25, 50, 80, 10, "Case number (if known):"
+  Text 25, 70, 80, 10, "Choose an AA option:"
+  Text 45, 10, 60, 10, "LTC spouse PMI:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -161,8 +192,15 @@ EMConnect ""
 
 'initial dialog for case number and PMI
 Do 
-	Dialog case_and_PMI_number_dialog
-	If ButtonPressed = 0 then stopscript
+	Do 
+		err_msg = ""
+		Dialog case_and_PMI_number_dialog
+		If ButtonPressed = 0 then stopscript
+		If IsNumeric(LTC_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid LTC spouse PMI." 
+		If IsNumeric(community_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid Community spouse PMI." 
+		If AA_option = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select an Asset Assessment option." 
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
+	Loop until err_msg = ""	
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
@@ -263,18 +301,46 @@ PF3			'goes back into
 If left(asset_list, 2) = ", " then asset_list = right(asset_list, len(asset_list) - 2)
 assets_array = Split(asset_list, ",")
 		
-Do 
-	Do			
-		dialog asset_assessment_dialog	'calls the main asset assessment dialog
-		cancel_confirmation
-		transmit
-		EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function
-		If function_check <> "ASET" then
-			MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
-		END IF
-	Loop until function_check = "ASET"
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in			
+If AA_option = "Completed AA" then 
+	Do 
+		Do			
+			dialog asset_assessment_dialog	'calls the main asset assessment dialog
+			cancel_confirmation
+			transmit
+			EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function
+			If function_check <> "ASET" then
+				MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
+			END IF
+		Loop until function_check = "ASET"
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+	Loop until are_we_passworded_out = false					'loops until user passwords back in		
+END IF 
+
+IF AA_option = "New AA received" then 
+    Do 
+    	Do	
+			Do 
+				err_msg = ""
+    			dialog AA_received_dialog	'calls the main asset assessment dialog
+    			cancel_confirmation
+				If effective_date = "" THEN err_msg = err_msg & vbNewLine & "* Enter the AA effective date."
+				If (asset_assessment_type = "REQUIRED" AND MA_LTC_first_month_of_documented_need = "") THEN err_msg = err_msg & vbNewLine & "* Enter the first month of documented need of MA-LTC."
+				If (asset_assessment_type = "REQUIRED" AND month_MA_LTC_rules_applied = "") THEN err_msg = err_msg & vbNewLine & "* Enter the first month MA-LTC rules applied."
+				If verifs_requested = "" THEN err_msg = err_msg & vbNewLine & "* Enter the verifications requested."
+				If actions_taken = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
+				If (write_MAXIS_case_note_check = 1 and MAXIS_case_number = "") THEN err_msg = err_msg & vbNewLine & "* Enter the MAXIS case number or uncheck the option to write the case note." 
+				IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
+			Loop until err_msg = ""	
+			transmit
+    		EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function
+    		If function_check <> "ASET" then
+    			MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
+    		END IF
+    	Loop until function_check = "ASET"
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+    Loop until are_we_passworded_out = false					'loops until user passwords back in		
+END IF 
 
 PF5 	'navigates to person note
 PF9		'puts person note into edit mode
@@ -283,63 +349,73 @@ If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
 If sent_3340A_check = 1 then actions_taken = "Sent 3340-A. " & actions_taken
 
 'PERSON NOTE----------------------------------------------------------------------------------------------------
-EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT***" & "<newline>"
+If AA_option = "Completed AA" then 
+	EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT COMPELTED***" & "<newline>"
+Else 
+	EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT RECEIVED***" & "<newline>"
+END IF 
 call write_editbox_in_person_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-If MA_LTC_first_month_of_documented_need <> "" then call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
-If month_MA_LTC_rules_applied <> "" then call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
-If LTC_spouse <> "" then call write_editbox_in_person_note("LTC spouse", LTC_spouse)
-If community_spouse <> "" then call write_editbox_in_person_note("Community spouse", community_spouse)
-If asset_summary <> "" then call write_editbox_in_person_note("Asset summary", asset_summary)
-If total_counted_assets <> "" then call write_editbox_in_person_note("Total counted assets", total_counted_assets)
-If half_of_total <> "" then call write_editbox_in_person_note("Half of total", half_of_total)
-If CSAA_type <> "" then call write_new_line_in_person_note("* " & CSAA_type & " CSAA: " & CSAA)
-If asset_calculation <> "" then call write_editbox_in_person_note("Asset calculation", asset_calculation)
-If actions_taken <> "" then call write_editbox_in_person_note("Actions taken", actions_taken)
+call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
+call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
+call write_editbox_in_person_note("LTC spouse", LTC_spouse)
+call write_editbox_in_person_note("Community spouse", community_spouse)
+call write_editbox_in_person_note("Verifications requested", verifs_requested)
+call write_editbox_in_person_note("Asset summary", asset_summary)
+call write_editbox_in_person_note("Total counted assets", total_counted_assets)
+call write_editbox_in_person_note("Half of total", half_of_total)
+call write_new_line_in_person_note("* " & CSAA_type & " CSAA: " & CSAA)
+call write_editbox_in_person_note("Asset calculation", asset_calculation)
+call write_editbox_in_person_note("Actions taken", actions_taken)
+If client_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to client/spouse.")
+If AREP_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to AREP.")
 If sent_5181_check = 1 then call write_new_line_in_person_note("* DHS-5181 sent to Case Manager.")
 call write_new_line_in_person_note("---")
-If worker_signature <> "" then call write_new_line_in_person_note(worker_signature)
-Do
-  EMGetCursor row, col
-  If row < 18 then
-    EMSendKey "."
-    EMSendKey "<newline>"
-  End if
-Loop until row = 18
-EMSendKey ">>>>SPAA PASTED ON NEXT PAGE>>>>"
-PF8
-call write_new_line_in_person_note(SPAA_line_01)
-call write_new_line_in_person_note(SPAA_line_02)
-call write_new_line_in_person_note(SPAA_line_03)
-call write_new_line_in_person_note(SPAA_line_05)
-call write_new_line_in_person_note(SPAA_line_07)
-call write_new_line_in_person_note(SPAA_line_08)
-call write_new_line_in_person_note(SPAA_line_09)
-call write_new_line_in_person_note(SPAA_line_10)
-call write_new_line_in_person_note(SPAA_line_11)
-call write_new_line_in_person_note(SPAA_line_13)
-call write_new_line_in_person_note(SPAA_line_14)
-call write_new_line_in_person_note(SPAA_line_15)
-Do
-  EMGetCursor row, col
-  If row < 18 then
-    EMSendKey "."
-    EMSendKey "<newline>"
-  End if
-Loop until row = 18
-EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
-PF8
-'headers
-call write_new_line_in_person_note(total_marital_asset_list_line_99)
-call write_new_line_in_person_note(total_marital_asset_list_line_03)
-call write_new_line_in_person_note(total_marital_asset_list_line_04)
+call write_new_line_in_person_note(worker_signature)
 
-'Person notes the assets in the assets array
-For each asset in assets_array
-	Call write_new_line_in_person_note(asset)
-Next 
-
-PF3
-PF3
+If AA_option = "Completed AA" then 
+    Do
+      EMGetCursor row, col
+      If row < 18 then
+        EMSendKey "."
+        EMSendKey "<newline>"
+      End if
+    Loop until row = 18
+    EMSendKey ">>>>SPAA PASTED ON NEXT PAGE>>>>"
+    PF8
+    call write_new_line_in_person_note(SPAA_line_01)
+    call write_new_line_in_person_note(SPAA_line_02)
+    call write_new_line_in_person_note(SPAA_line_03)
+    call write_new_line_in_person_note(SPAA_line_05)
+    call write_new_line_in_person_note(SPAA_line_07)
+    call write_new_line_in_person_note(SPAA_line_08)
+    call write_new_line_in_person_note(SPAA_line_09)
+    call write_new_line_in_person_note(SPAA_line_10)
+    call write_new_line_in_person_note(SPAA_line_11)
+    call write_new_line_in_person_note(SPAA_line_13)
+    call write_new_line_in_person_note(SPAA_line_14)
+    call write_new_line_in_person_note(SPAA_line_15)
+    Do
+      EMGetCursor row, col
+      If row < 18 then
+        EMSendKey "."
+        EMSendKey "<newline>"
+      End if
+    Loop until row = 18
+    EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
+    PF8
+    'headers
+    call write_new_line_in_person_note(total_marital_asset_list_line_99)
+    call write_new_line_in_person_note(total_marital_asset_list_line_03)
+    call write_new_line_in_person_note(total_marital_asset_list_line_04)
+    
+    'Person notes the assets in the assets array
+    For each asset in assets_array
+    	Call write_new_line_in_person_note(asset)
+    Next 
+    
+    PF3
+    PF3
+END IF 
 'End of person note----------------------------------------------------------------------------------------------------
 
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
@@ -352,6 +428,7 @@ call write_bullet_and_variable_in_CASE_NOTE("MA-LTC first month of documented ne
 call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
 call write_bullet_and_variable_in_CASE_NOTE("LTC spouse", LTC_spouse)
 call write_bullet_and_variable_in_CASE_NOTE("Community spouse", community_spouse)
+Call write_bullet_and_variable_in_CASE_NOTE("Verifications requested", verifs_requested)
 call write_bullet_and_variable_in_CASE_NOTE("Asset summary", asset_summary)
 call write_bullet_and_variable_in_CASE_NOTE("Total counted assets", total_counted_assets)
 call write_bullet_and_variable_in_CASE_NOTE("Half of total", half_of_total)
@@ -359,49 +436,53 @@ call write_bullet_and_variable_in_CASE_NOTE(CSAA_type & " CSAA", CSAA)
 call write_bullet_and_variable_in_CASE_NOTE("Asset calculation", asset_calculation)
 call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 If sent_5181_check = 1 then call write_variable_in_CASE_NOTE("* DHS-5181 sent to Case Manager.")
+If client_verif_checkbox = 1 then call write_variable_in_CASE_NOTE("* Verification request sent to client/spouse.")
+If AREP_verif_checkbox = 1 then call write_variable_in_CASE_NOTE("* Verification request sent to AREP.")
 call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_case_note(worker_signature)
 
-Do
-  EMGetCursor row, col
-  If row < 17 then
-    EMSendKey "."
-    EMSendKey "<newline>"
-  End if
-Loop until row = 17
-EMSendKey ">>>>SPAA PASTED ON NEXT PAGE>>>>"
-PF8
-call write_variable_in_CASE_NOTE(SPAA_line_01)
-call write_variable_in_CASE_NOTE(SPAA_line_02)
-call write_variable_in_CASE_NOTE(SPAA_line_03)
-call write_variable_in_CASE_NOTE(SPAA_line_05)
-call write_variable_in_CASE_NOTE(SPAA_line_07)
-call write_variable_in_CASE_NOTE(SPAA_line_08)
-call write_variable_in_CASE_NOTE(SPAA_line_09)
-call write_variable_in_CASE_NOTE(SPAA_line_10)
-call write_variable_in_CASE_NOTE(SPAA_line_11)
-call write_variable_in_CASE_NOTE(SPAA_line_13)
-call write_variable_in_CASE_NOTE(SPAA_line_14)
-call write_variable_in_CASE_NOTE(SPAA_line_15)
-
-Do
-  EMGetCursor row, col
-  If row < 17 then
-    EMSendKey "."
-    EMSendKey "<newline>"
-  End if
-Loop until row = 17
-
-EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
-PF8
-'headers and footer
-call write_variable_in_CASE_NOTE(total_marital_asset_list_line_99)
-call write_variable_in_CASE_NOTE(total_marital_asset_list_line_03)
-call write_variable_in_CASE_NOTE(total_marital_asset_list_line_04)
-
-'Case notes the assets in the assets array
-For each asset in assets_array
-	Call write_variable_in_CASE_NOTE(asset)
-Next 
+If AA_option = "Completed AA" then 
+    Do
+      EMGetCursor row, col
+      If row < 17 then
+        EMSendKey "."
+        EMSendKey "<newline>"
+      End if
+    Loop until row = 17
+    EMSendKey ">>>>SPAA PASTED ON NEXT PAGE>>>>"
+    PF8
+    call write_variable_in_CASE_NOTE(SPAA_line_01)
+    call write_variable_in_CASE_NOTE(SPAA_line_02)
+    call write_variable_in_CASE_NOTE(SPAA_line_03)
+    call write_variable_in_CASE_NOTE(SPAA_line_05)
+    call write_variable_in_CASE_NOTE(SPAA_line_07)
+    call write_variable_in_CASE_NOTE(SPAA_line_08)
+    call write_variable_in_CASE_NOTE(SPAA_line_09)
+    call write_variable_in_CASE_NOTE(SPAA_line_10)
+    call write_variable_in_CASE_NOTE(SPAA_line_11)
+    call write_variable_in_CASE_NOTE(SPAA_line_13)
+    call write_variable_in_CASE_NOTE(SPAA_line_14)
+    call write_variable_in_CASE_NOTE(SPAA_line_15)
+    
+    Do
+      EMGetCursor row, col
+      If row < 17 then
+        EMSendKey "."
+        EMSendKey "<newline>"
+      End if
+    Loop until row = 17
+    
+    EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
+    PF8
+    'headers and footer
+    call write_variable_in_CASE_NOTE(total_marital_asset_list_line_99)
+    call write_variable_in_CASE_NOTE(total_marital_asset_list_line_03)
+    call write_variable_in_CASE_NOTE(total_marital_asset_list_line_04)
+    
+    'Case notes the assets in the assets array
+    For each asset in assets_array
+    	Call write_variable_in_CASE_NOTE(asset)
+    Next 
+End if
 
 script_end_procedure("")
