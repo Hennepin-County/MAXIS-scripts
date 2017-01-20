@@ -86,7 +86,7 @@ BeginDialog reduction_dialog, 0, 0, 306, 285, "Asset reduction required/pending"
   EditBox 65, 135, 235, 15, assets
   EditBox 65, 155, 60, 15, current_asset_total
   EditBox 235, 155, 65, 15, amt_to_reduce
-  EditBox 65, 180, 235, 15, other_assets_notes
+  EditBox 65, 180, 235, 15, other_notes
   EditBox 65, 200, 235, 15, actions_taken
   CheckBox 65, 220, 175, 10, "Sent DHS-3341 Asset reduction worksheet to client", client_3341_checkbox
   CheckBox 65, 235, 175, 10, "Sent DHS-3341 Asset reduction worksheet to AREP", AREP_3341_checkbox
@@ -282,7 +282,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Total of all assets", current_asset
 call write_bullet_and_variable_in_CASE_NOTE("Amount to be reduced", amt_to_reduce)
 Call write_bullet_and_variable_in_CASE_NOTE("How assets were reduced", how_assets_reduced)
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes) 
-Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
+Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 If client_3341_checkbox = 1 then Call write_variable_in_CASE_NOTE("* DHS-3341 asset reduction worksheet sent to client.")
 If AREP_3341_checkbox = 1 then Call write_variable_in_CASE_NOTE("* DHS-3341 asset reduction worksheet sent to AREP.")
 If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Set TIKL for the asset reduction due date.") 
