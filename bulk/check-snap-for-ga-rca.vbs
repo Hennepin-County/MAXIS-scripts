@@ -82,7 +82,7 @@ DO
 		IF ButtonPressed = 0 THEN stopscript
 	LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in 
 
 IF all_worker_check = 1 THEN
 	CALL navigate_to_MAXIS_screen("REPT", "USER")

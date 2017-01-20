@@ -81,7 +81,7 @@ get_county_code
 EMConnect ""
 
 'Dialog asks what stats are being pulled
-Do
+Do 	
 	Dialog pull_REPT_data_into_excel_dialog
 	If buttonpressed = cancel then stopscript
 	Call check_for_password(are_we_passworded_out)
@@ -214,7 +214,7 @@ For each worker in worker_array
 				EMReadScreen EA_status, 1, MAXIS_row, 68		'Reading EA status
 				EMReadScreen GRH_status, 1, MAXIS_row, 72		'Reading GRH status
 				EMReadScreen IVE_status, 1, MAXIS_row, 76		'Reading IV-E status
-				EMReadScreen CC_status, 1, MAXIS_row, 80		'Reading CC status
+				EMReadScreen CC_status, 1, MAXIS_row, 80		'Reading CC status	
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				If trim(MAXIS_case_number) <> "" and (instr(all_case_numbers_array, MAXIS_case_number) <> 0 and client_name <> " ADDITIONAL APP       ") then exit do
@@ -239,7 +239,7 @@ For each worker in worker_array
 				If GRH_status <> "" and GRH_check = checked then add_case_info_to_Excel = True
 				If IVE_status <> "" and IVE_check = checked then add_case_info_to_Excel = True
 				If CC_status <> "" and CC_check = checked then add_case_info_to_Excel = True
-
+				
 				If add_case_info_to_Excel = True then
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
@@ -268,20 +268,20 @@ next
 
 'This section adds the most rencent case note information (date, x number and case note to the Excel list. The user will need to select this option in the checkbox on the dialog.)
 If case_note_check = checked then 		'all this fun stuff happens
-	col_to_use = col_to_use + 1			'scoots over 1 column
+	col_to_use = col_to_use + 1			'scoots over 1 column 
 	ObjExcel.Cells(1, col_to_use).Value = "Most recent case note information"	'title of col info
-
+	
 	excel_row = 2		'starting with row 2 (1st cell with case information)
-	Do
+	Do 
 		MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value		'establishing what the case number is for each case
 		If MAXIS_case_number = "" then exit do						'leaves do if no case number is on the next Excel row
 		Call navigate_to_MAXIS_screen("CASE", "NOTE")				'headin' over to CASE/NOTE
 		EMReadScreen case_note_info, 74 , 5, 6						'reads the most recent case note
-		If trim(case_note_info) <> "" then ObjExcel.Cells(excel_row, col_to_use).Value = case_note_info	'If it's not blank, then it writes the information into Excel
-		excel_row = excel_row + 1									'moves Excel to next row
-	LOOP until MAXIS_case_number = ""								'Loops until all the case have been noted
-END IF
-
+		If trim(case_note_info) <> "" then ObjExcel.Cells(excel_row, col_to_use).Value = case_note_info	'If it's not blank, then it writes the information into Excel 
+		excel_row = excel_row + 1									'moves Excel to next row 
+	LOOP until MAXIS_case_number = ""								'Loops until all the case have been noted 
+END IF 
+	
 'Resetting excel_row variable, now we need to start looking people up
 excel_row = 2
 

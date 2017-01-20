@@ -37,7 +37,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 'This script has only one dialog and so can be defined in the beginning but is unnamed
 BeginDialog , 0, 0, 226, 135, "AREP Case Note"
@@ -67,7 +80,7 @@ EMConnect ""
 'Calls a MAXIS case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Shows dialog and creates and displays an error message if worker completes things incorrectly. 
+'Shows dialog and creates and displays an error message if worker completes things incorrectly.
 Do
 	err_msg = ""
 	dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
@@ -78,7 +91,7 @@ Do
 	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & vbNewLine
 	IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & "You have requested the script to TIKL based on the signature date but you did not enter the signature date." & vbNewLine
 	IF err_msg <> "" THEN msgbox err_msg
-Loop until err_msg = ""													
+Loop until err_msg = ""
 
 
 'checking for an active MAXIS session

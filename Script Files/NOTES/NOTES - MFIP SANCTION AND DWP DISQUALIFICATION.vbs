@@ -38,11 +38,24 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/28/2016", "Corrected DWP disqualification options and noting for policy compliance.", "David Courtright, Saint Louis County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 DIM Resolution_date 'DIM this so that the "IF's" date calculation below to return a value and for case noting to have a variable place holder.
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 171, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, MAXIS_case_number					
+  EditBox 80, 5, 60, 15, MAXIS_case_number
   DropListBox 80, 25, 80, 15, "Select one..."+chr(9)+"Apply sanction/disq."+chr(9)+"Cure santion/disq.", action_type
   ButtonGroup ButtonPressed
     OkButton 55, 45, 50, 15
@@ -52,13 +65,13 @@ BeginDialog case_number_dialog, 0, 0, 171, 70, "Case number dialog"
 EndDialog
 
 BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP Disqualification"
-  DropListBox 65, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending", sanction_status_droplist
+  DropListBox 65, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending"+chr(9)+"DWP disqual", sanction_status_droplist
   EditBox 265, 5, 50, 15, HH_Member_Number
   DropListBox 65, 25, 110, 15, "Select one..."+chr(9)+"CS"+chr(9)+"ES"+chr(9)+"Dual (ES & CS)"+chr(9)+"Failed to attend orientation"+chr(9)+"Minor mom truancy", sanction_type_droplist
   EditBox 265, 25, 50, 15, number_occurances
-  DropListBox 65, 45, 65, 15, "Select one..."+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
+  DropListBox 65, 45, 65, 15, ""+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
   EditBox 265, 45, 65, 15, Date_Sanction
-  DropListBox 65, 65, 65, 15, "Select one..."+chr(9)+"Pre 60"+chr(9)+"Post 60", pre_post_droplist
+  DropListBox 65, 65, 65, 15, ""+chr(9)+"Pre 60"+chr(9)+"Post 60", pre_post_droplist
   EditBox 220, 65, 110, 15, pre_post_notes
   DropListBox 90, 85, 240, 45, "Select one..."+chr(9)+"Failed to attend ES overview"+chr(9)+"Failed to develop employment plan"+chr(9)+"Non-compliance with employment plan"+chr(9)+"< 20, failed education requirement"+chr(9)+"Failed to accept suitable employment"+chr(9)+"Quit suitable employment w/o good cause"+chr(9)+"Failure to attend MFIP orientation"+chr(9)+"Non-cooperation with child support", sanction_reason_droplist
   EditBox 90, 105, 240, 15, sanction_information
@@ -159,56 +172,58 @@ IF collecting_ES_statistics = true AND MAXIS_case_number <> "" THEN
 	objConnection.Close
 	set rs = nothing
 END IF
-		
-'Main dialog: user will input case number and initial month/year if not already auto-filled 										
-DO										
-	DO									
-		err_msg = ""							'establishing value of varaible, this is necessary for the Do...LOOP	
-		dialog case_number_dialog				'main dialog'				
-		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected'							
-		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."		'mandatory field			
-		If action_type = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select an action type."									'mandatory field			
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect						
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
-If action_type = "Apply sanction/disq."	then 
+'Main dialog: user will input case number and initial month/year if not already auto-filled
+DO
+	DO
+		err_msg = ""							'establishing value of varaible, this is necessary for the Do...LOOP
+		dialog case_number_dialog				'main dialog'
+		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected'
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."		'mandatory field
+		If action_type = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select an action type."									'mandatory field
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+If action_type = "Apply sanction/disq."	then
 	Do
 		'Shows dialog
 		DO
-			err_msg = ""						
+			err_msg = ""
 			Dialog MFIP_Sanction_DWP_Disq_Dialog
 			cancel_confirmation
 			IF sanction_status_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction status type."
 			IF HH_Member_Number = "" THEN err_msg = err_msg & vbCr & "You must enter a HH member number."
 			IF sanction_type_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction type."
-			IF number_occurances = "" THEN err_msg = err_msg & vbCr & "You must enter the number of the sanction occurrence."		
-			IF IsDate(Date_Sanction) = FALSE THEN 
+			IF sanction_status_droplist <> "DWP disqual" THEN 'Thes are only mandatory for MFIP'
+				IF number_occurances = "" THEN err_msg = err_msg & vbCr & "You must enter the number of the sanction occurrence."
+				IF Sanction_Percentage_droplist = "" THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
+				IF pre_post_droplist = "" THEN err_msg = err_msg & vbCr & "You must select if case is either pre or post 60."
+			END IF
+			IF IsDate(Date_Sanction) = FALSE THEN
 				err_msg = err_msg & vbCr & "You need to enter a valid date of sanction (MM/DD/YYYY)."
 				'logic for figuring out if its the first of the month, if it's not, then it gives a more define date requirement
-			ELSEIF datepart("d", Date_Sanction) <> 1 THEN  
+			ELSEIF datepart("d", Date_Sanction) <> 1 THEN
 				err_msg = "You need to enter a valid date of sanction (MM/DD/YYYY), with DD = to first of the sanction month)"
 			END IF
-			IF Sanction_Percentage_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
-			IF pre_post_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "You must select if case is either pre or post 60."
 			IF sanction_information = "" THEN err_msg = err_msg & vbCr & "You must enter information about how the sanction information was received."
 			IF IsDate(Date_Sanction) = FALSE THEN err_msg = err_msg & vbCr & "You must type a valid date of sanction."
 			IF sanction_reason_droplist = "Select One..." THEN err_msg = err_msg & vbCr & "You must select a sanction percentage."
 			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in					
-	
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 	'TIKL to change sanction status (check box selected)
-	If TIKL_next_month = checked THEN 
-	'navigates to DAIL/WRIT 
-		Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
-	
+	If TIKL_next_month = checked THEN
+	'navigates to DAIL/WRIT
+		Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+
 		TIKL_date = dateadd("m", 1, date)		'Creates a TIKL_date variable with the current date + 1 month (to determine what the month will be next month)
 		TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
-		
+
 		'The following will generate a TIKL formatted date for 10 days from now.
 		Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
 		'Writes TIKL to worker
@@ -217,10 +232,11 @@ If action_type = "Apply sanction/disq."	then
 		transmit
 		PF3
 	END If
-		
+
 	'This return the date the client has to be in compliance or comply by, and the date that workers need to inform client to cooperate by this date.
 	'This date is 10 days from the effective date if it is ES, No Show for Orientation, and/or Minor Mom Truancy, otherwise it is last day of the month prior to the effective month.
 	'consecutive months between 3 - 6 months, if they are consecutive months, client has up to the last day of the month prior to the effective date to resolve the sanction.
+	IF sanction_status_droplist <> "DWP disqual" THEN
 	IF consecutive_sanction_months = checked then
 		Resolution_date = DateAdd("d", -1, Date_Sanction)
 	ELSEIf (sanction_type_droplist = "CS") then
@@ -228,10 +244,14 @@ If action_type = "Apply sanction/disq."	then
 	ELSE
 		Resolution_date = DateAdd("d", -10, Date_Sanction)
 	End If
-	
+	END IF
 	'case noting the droplist and editboxes
 	start_a_blank_CASE_NOTE
-	Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_type_droplist & " SANCTION " & sanction_status_droplist  & " for MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
+	IF sanction_status_droplist = "DWP disqual"  THEN
+		CALL write_variable_in_case_note("DWP Disqualification imposed effective " & Date_Sanction)
+	ELSE
+		Call write_variable_in_case_note("***" & Sanction_Percentage_droplist & " " & sanction_type_droplist & " SANCTION " & sanction_status_droplist  & " for MEMB " & HH_Member_Number & " eff: " & Date_Sanction & "***")
+	END IF
 	CALL write_bullet_and_variable_in_case_note("HH member number", HH_Member_Number)
 	Call write_bullet_and_variable_in_case_note("Sanction status", sanction_status_droplist)
 	CALL write_bullet_and_variable_in_case_note("Type of Sanction", sanction_type_droplist)
@@ -247,7 +267,7 @@ If action_type = "Apply sanction/disq."	then
 	CALL write_bullet_and_variable_in_case_note("Impact to other programs", Impact_Other_Programs)
 	CALL write_bullet_and_variable_in_case_note("Vendoring information", Vendor_Information)
 	CALL write_bullet_and_variable_in_case_note("Last day to cure", Resolution_date)
-	
+
 	'case noting check boxes if checked
 	IF Update_Sent_ES_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Employment Services.")
 	IF Update_Sent_CCA_Checkbox = 1 THEN CALL write_variable_in_case_note("* Status update information was sent to Child Care Assistance.")
@@ -257,13 +277,13 @@ If action_type = "Apply sanction/disq."	then
 	IF Sent_SPEC_WCOM = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sanction for future closed month SPEC/WCOM to the sanctioned individual.")'Changed the SPEC/MEMO to SPEC/WCOM
 	CALL write_variable_in_case_note("---")
 	CALL write_variable_in_case_note(worker_signature)
-	
-	If notating_spec_wcom = checked THEN 
+
+	If notating_spec_wcom = checked THEN
 		Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
 		EMReadscreen CASH_check, 2, 7, 26  'checking to make sure that notice is for MFIP or DWP
 		EMReadScreen Print_status_check, 7, 7, 71 'checking to see if notice is in 'waiting status'
 		'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
-		If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN 
+		If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN
 			EMSetcursor read_row, 13
 			EMSendKey "x"
 			Transmit
@@ -277,28 +297,28 @@ If action_type = "Apply sanction/disq."	then
 			Call write_variable_in_SPEC_MEMO("")
 			PF4
 			PF3
-		ELSE 
+		ELSE
 			Msgbox "There is not a pending notice for this cash case. The script was unable to update your SPEC/WCOM notation."
 		END if
 		STATS_counter = STATS_counter + 1			'adding one count to the stats counter since the manual time for this option is 180 seconds, 90 seconds for the sanction cured option
 	END If
-		
+
 	'Updating database if applicable
 	IF collecting_ES_statistics = true THEN
 		IF Sanction_Percentage_droplist = "100%" THEN ESActive = "No" 'updating ESActive when case is sanctioned out
-		Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only                               
+		Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only
 		CALL write_MAXIS_info_to_ES_database(MAXIS_case_number, HH_Member_Number, ESMembName, Sanction_Percentage_droplist, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
 	END IF
-END IF 
+END IF
 
-If action_type = "Cure santion/disq." then 
+If action_type = "Cure santion/disq." then
 	'Shows dialog
 	DO
 		DO
-			DO 
+			DO
 				err_msg = ""
 				Dialog MFIP_sanction_cured_dialog
-				cancel_confirmation 
+				cancel_confirmation
 				MAXIS_dialog_navigation
 			Loop until ButtonPressed = -1
 			IF IsNumeric(MAXIS_case_number) = FALSE then err_msg = err_msg & vbnewLine & "* You must type a valid numeric case number."
@@ -309,19 +329,19 @@ If action_type = "Cure santion/disq." then
 			IF cured_reason = "Select one..." then err_msg = err_msg & vbnewLine & "* You must select 'Reason for Sanction being Cured.'"
 			IF notified_via = "Select one..." then err_msg = err_msg & vbnewLine & "* How was the client notified?"
 			IF worker_signature = "" then err_msg = err_msg & vbnewLine & "* You must sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect						
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in					
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	'TIKL to re-evaluate mandatory vendoring in 6 months today's date
-	If vendor_TIKL_checkbox = checked THEN 
-	'navigates to DAIL/WRIT 
-		Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
-	
+	If vendor_TIKL_checkbox = checked THEN
+	'navigates to DAIL/WRIT
+		Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+
 		TIKL_date = dateadd("m", 6, date)		'Creates a TIKL_date variable with the current date + 6 month (to determine what the month will be next month)
 		TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of month.
-		
+
 		'The following will generate a TIKL formatted date for 10 days from now.
 		Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
 		'Writes TIKL to worker
@@ -330,31 +350,31 @@ If action_type = "Cure santion/disq." then
 		transmit
 		PF3
 	END If
-	
+
 	'Seeting a monthly TIKL for next 6 months to FIAT mandatory vendor inforamtion into ELIG results
-	If monthly_TIKL_checkbox = 1 then 
+	If monthly_TIKL_checkbox = 1 then
 		month_increment = 1	'setting the dateadd variable- will start by adding one month
-		Do 
-			'navigates to DAIL/WRIT 
-			Call navigate_to_MAXIS_screen ("DAIL", "WRIT")	
-	
+		Do
+			'navigates to DAIL/WRIT
+			Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+
 			TIKL_date = dateadd("m", month_increment, date)		'Creates a TIKL_date variable with the current date + 6 month (to determine what the month will be next month)
 			TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of month.
-		
+
 			Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
 			'Writes TIKL to worker
 			Call write_variable_in_TIKL("!!Mandatory vendor in place due to sanction. FIAT into new elig results!!")
 			'Saves TIKL and enters out of TIKL function
 			transmit
 			PF3
-			month_increment = month_increment + 1	'adding one to variable to increase the amt to increase the month portion of the dateadd function  
+			month_increment = month_increment + 1	'adding one to variable to increase the amt to increase the month portion of the dateadd function
 		Loop until month_increment = 6
 	END If
-		
+
 	'adding a case note header variable depending on which cash program is selected
 	If select_program = "MFIP" then case_note_header = "~~$~~MFIP SANCTION CURED~~$~~"
 	If select_program = "DWP" then case_note_header = "~~$~~DWP DISQUALIFICATION CURED~~$~~"
-	
+
 	'Writes the case note
 	start_a_blank_CASE_NOTE
 	CALL write_variable_in_case_note (case_note_header)                                         'Writes title in Case note
@@ -369,7 +389,7 @@ If action_type = "Cure santion/disq." then
 	If monthly_TIKL_checkbox = 1 then call write_variable_in_case_note("* Created TIKL's for each month to FIAT vendor info into new elig results.")
 	CALL write_bullet_and_variable_in_case_note("Other Notes/Comments", other_notes)                           'Writes any other notes/comment
 	CALL write_bullet_and_variable_in_case_note("Actions Taken", action_taken)                                 'Writes any actions taken
-	CALL write_variable_in_case_note ("---")   
+	CALL write_variable_in_case_note ("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)                                                         'Writes worker signature in note
 End if
 script_end_procedure ("")

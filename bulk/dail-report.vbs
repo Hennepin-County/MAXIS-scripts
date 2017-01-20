@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 BeginDialog bulk_dail_report_dialog, 0, 0, 361, 150, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
   CheckBox 20, 85, 25, 10, "ALL", All_check
@@ -76,8 +88,8 @@ all_check = 1
 DO
 	dialog bulk_dail_report_dialog
 	cancel_confirmation
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'splits the results of the editbox into an array
 x_number_array = split(x_number_editbox, ",")
@@ -119,7 +131,7 @@ For each x_number in x_number_array
 	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 	EMWriteScreen x_number, 21, 6
 	transmit
-	
+
 	'selecting the type of DAIl message
 	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
 	transmit
@@ -146,7 +158,7 @@ For each x_number in x_number_array
 			objExcel.Cells(excel_row, 3).Value = "No DAILs for this worker."
 			excel_row = excel_row + 1
 			Exit Do
-		End If 
+		End If
 		'Reading and trimming the MAXIS case number and dumping it in Excel
 		EMReadScreen maxis_case_number, 8, 5, 73
 		maxis_case_number = trim(maxis_case_number)
@@ -264,15 +276,15 @@ IF all_check = checked OR cola_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "COLA"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	COLA_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	COLA_letter_col = convert_digit_to_excel_column(COLA_col)
 END IF
-	
+
 IF all_check = checked OR clms_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "CLMS"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	CLMS_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	CLMS_letter_col = convert_digit_to_excel_column(CLMS_col)
 END IF
 
@@ -280,110 +292,110 @@ IF all_check = checked OR cses_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "CSES"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	CSES_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	CSES_letter_col = convert_digit_to_excel_column(CSES_col)
 END IF
-	
+
 IF all_check = checked OR elig_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "ELIG"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	ELIG_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	ELIG_letter_col = convert_digit_to_excel_column(ELIG_col)
 END IF
-	
+
 IF all_check = checked OR ievs_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "IEVS"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	IEVS_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	IEVS_letter_col = convert_digit_to_excel_column(IEVS_col)
 END IF
-	
+
 IF all_check = checked OR info_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "INFO"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	INFO_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	INFO_letter_col = convert_digit_to_excel_column(INFO_col)
 END IF
-	
+
 IF all_check = checked OR iv3_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "IV-E"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	IV3_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	IV3_letter_col = convert_digit_to_excel_column(IV3_col)
 END IF
-	
+
 IF all_check = checked OR ma_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "MA"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	MA_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	MA_letter_col = convert_digit_to_excel_column(MA_col)
 END IF
-	
+
 IF all_check = checked OR mec2_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "MEC2"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	MEC2_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	MEC2_letter_col = convert_digit_to_excel_column(MEC2_col)
 END IF
-	
+
 IF all_check = checked OR pari_chck = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "PARI"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	PARI_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	PARI_letter_col = convert_digit_to_excel_column(PARI_col)
 END IF
-	
+
 IF all_check = checked OR pepr_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "PEPR"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	PEPR_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	PEPR_letter_col = convert_digit_to_excel_column(PEPR_col)
 END IF
-	
+
 IF all_check = checked OR tikl_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "TIKL"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	TIKL_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	TIKL_letter_col = convert_digit_to_excel_column(TIKL_col)
 END IF
-	
+
 IF all_check = checked OR wf1_check = checked THEN
 	ObjExcel.Cells(2, col_to_use).Value = "WF1"
 	objExcel.Cells(2, col_to_use).Font.Bold = TRUE
 	WF1_col = col_to_use
-	col_to_use = col_to_use + 1 
+	col_to_use = col_to_use + 1
 	WF1_letter_col = convert_digit_to_excel_column(WF1_col)
-END IF 
+END IF
 
 
 'Writes each worker from the worker_array in the Excel spreadsheet
 For x = 0 to ubound(x_number_array)
 	ObjExcel.Cells(x + 3, 1) = trim(x_number_array(x))
 	ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ")"
-	
+
 	'Counts the number of DAILs for each worker based on type and enters it into the correct cell
-	IF all_check = checked OR cola_check = checked THEN ObjExcel.Cells(x + 3, COLA_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "COLA" & Chr(34) & ")"	
-	IF all_check = checked OR clms_check = checked THEN ObjExcel.Cells(x + 3, CLMS_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "DMND" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CRAA" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "BILL" & Chr(34) & ")"	
-	IF all_check = checked OR cses_check = checked THEN ObjExcel.Cells(x + 3, CSES_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CSES" & Chr(34) & ")"	
-	IF all_check = checked OR elig_check = checked THEN ObjExcel.Cells(x + 3, ELIG_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "REIN" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "STAT" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "DWP " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "FS  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CASH" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HC  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CCOL" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "GA  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "GRH " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MSA " & Chr(34) & ")"	
-	IF all_check = checked OR ievs_check = checked THEN ObjExcel.Cells(x + 3, IEVS_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "WAGE" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "UNVI" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "BEER" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "UBEN" & Chr(34) & ")"	
-	IF all_check = checked OR info_check = checked THEN ObjExcel.Cells(x + 3, INFO_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "INFO" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "ISPI" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HIRE" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "SSN " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HC" & Chr(34) & ")"	
-	IF all_check = checked OR iv3_check  = checked THEN ObjExcel.Cells(x + 3, IV3_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "IV-E" & Chr(34) & ")"	
-	IF all_check = checked OR ma_check   = checked THEN ObjExcel.Cells(x + 3, MA_col)   = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MA  " & Chr(34) & ")"	
-	IF all_check = checked OR mec2_check = checked THEN ObjExcel.Cells(x + 3, MEC2_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MEC2" & Chr(34) & ")"	
-	IF all_check = checked OR pari_chck  = checked THEN ObjExcel.Cells(x + 3, PARI_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "PARI" & Chr(34) & ")"	
-	IF all_check = checked OR pepr_check = checked THEN ObjExcel.Cells(x + 3, PEPR_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "PEPR" & Chr(34) & ")"	
-	IF all_check = checked OR tikl_check = checked THEN ObjExcel.Cells(x + 3, TIKL_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "TIKL" & Chr(34) & ")"	
-	IF all_check = checked OR wf1_check  = checked THEN ObjExcel.Cells(x + 3, WF1_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "WF1 " & Chr(34) & ")"	
+	IF all_check = checked OR cola_check = checked THEN ObjExcel.Cells(x + 3, COLA_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "COLA" & Chr(34) & ")"
+	IF all_check = checked OR clms_check = checked THEN ObjExcel.Cells(x + 3, CLMS_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "DMND" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CRAA" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "BILL" & Chr(34) & ")"
+	IF all_check = checked OR cses_check = checked THEN ObjExcel.Cells(x + 3, CSES_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CSES" & Chr(34) & ")"
+	IF all_check = checked OR elig_check = checked THEN ObjExcel.Cells(x + 3, ELIG_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "REIN" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "STAT" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "DWP " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "FS  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CASH" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HC  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "CCOL" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "GA  " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "GRH " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MSA " & Chr(34) & ")"
+	IF all_check = checked OR ievs_check = checked THEN ObjExcel.Cells(x + 3, IEVS_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "WAGE" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "UNVI" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "BEER" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "UBEN" & Chr(34) & ")"
+	IF all_check = checked OR info_check = checked THEN ObjExcel.Cells(x + 3, INFO_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "INFO" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "ISPI" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HIRE" & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "SSN " & Chr(34) & ") + COUNTIFS('DAIL List'!A:A, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "HC" & Chr(34) & ")"
+	IF all_check = checked OR iv3_check  = checked THEN ObjExcel.Cells(x + 3, IV3_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "IV-E" & Chr(34) & ")"
+	IF all_check = checked OR ma_check   = checked THEN ObjExcel.Cells(x + 3, MA_col)   = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MA  " & Chr(34) & ")"
+	IF all_check = checked OR mec2_check = checked THEN ObjExcel.Cells(x + 3, MEC2_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "MEC2" & Chr(34) & ")"
+	IF all_check = checked OR pari_chck  = checked THEN ObjExcel.Cells(x + 3, PARI_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "PARI" & Chr(34) & ")"
+	IF all_check = checked OR pepr_check = checked THEN ObjExcel.Cells(x + 3, PEPR_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "PEPR" & Chr(34) & ")"
+	IF all_check = checked OR tikl_check = checked THEN ObjExcel.Cells(x + 3, TIKL_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "TIKL" & Chr(34) & ")"
+	IF all_check = checked OR wf1_check  = checked THEN ObjExcel.Cells(x + 3, WF1_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ", 'DAIL List'!D:D, " & Chr(34) & "WF1 " & Chr(34) & ")"
 Next
 
 'Merging header cell.

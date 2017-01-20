@@ -129,7 +129,7 @@ Do
 	Do
 		err_msg = ""
 		dialog SNAP_sanction_type_dialog
-		IF buttonpressed = 0 then stopscript
+		IF buttonpressed = 0 then stopscript 
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF sanction_type_droplist = "Select one..." then err_msg = err_msg & vbnewline & "* Select a sanction option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -222,7 +222,7 @@ IF number_of_sanction_droplist = "3rd (6 mo. or until compliance, whichever is l
 
 IF sanction_reason_droplist = "(01) Failed to attend orientation" then sanction_reason_droplist = "01"
 IF sanction_reason_droplist = "(02) Failed to develop work plan"  then sanction_reason_droplist = "02"
-IF sanction_reason_droplist = "(03) Failed to follow work plan"   then sanction_reason_droplist = "03"
+IF sanction_reason_droplist = "(03) Failed to follow work plan"   then sanction_reason_droplist = "03" 
 
 'Logic to change the GA_basis_droplist into correct coding for the WREG panel
 GA_basis_droplist = Left(GA_basis_droplist, 2)
@@ -246,7 +246,7 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	EMWriteScreen MAXIS_footer_year, 10, 56			'sanction begin year
 	EMWriteScreen number_of_sanction_droplist, 11, 50	'sanction #
 	EMWriteScreen sanction_reason_droplist, 12, 50		'new field - reason for sanction. This adds information to the notice
-	EMWriteScreen "_", 8, 80							'blanks out Defer FSET/No funds field
+	EMWriteScreen "_", 8, 80							'blanks out Defer FSET/No funds field 
 	'Updates WREG if sanction is resolved
 ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	'checking to make sure HH MEMB is valid
@@ -261,7 +261,7 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 	If FSET_orientation_date <> "" THEN Call create_MAXIS_friendly_date(FSET_orientation_date, 0, 9, 50)
 	EMWriteScreen "______", 10, 50 'deletes out the sanction date
 	EMWriteScreen "______", 10, 56
-
+	
 	EMWriteScreen ABAWD_status_droplist, 13, 50 ' updates the ABAWD status
 	'updating the Defer FSET/No Funds (Y/N) field on WREG
 	EMReadScreen ABAWD_status_check, 2, 13, 50	'checking for the coding on ABAWD status field

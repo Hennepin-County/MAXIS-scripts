@@ -249,37 +249,37 @@ pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = retro_month_name & "/" & pro_month_name
 
 'If a HRF is being run for a HC case, script will ask if this is a LTC case
-If HC_check = checked Then
+If HC_check = checked Then 
 	'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
 	LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have different fields in their dialog.", vbYesNoCancel)
 	If LTC_case = vbCancel then stopscript
-Else
+Else 
 	LTC_case = vbNo
-End If
+End If 
 
 'If workers answers yes to this is a LTC case - script runs this specific functionality
-If LTC_case = vbYes then
+If LTC_case = vbYes then 									
 
 	'LTC cases should not have these programs active
 	If MFIP_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* MFIP will be removed."
 	If SNAP_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* SNAP will be removed."
 	If GA_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* GA will be removed."
-
+	
 	'Alerting worker that these programs will be unchecked.
 	If uncheck_msg <> "" Then MsgBox "You have checked programs that should not be active with LTC. These programs will not be added to the note." & vbNewLine & uncheck_msg
-
+	
 	MFIP_check = unchecked
 	SNAP_check = unchecked
-	GA_check = unchecked
+	GA_check = unchecked 
 
 	'Getting some additional information for the dialog to be autofilled
 	call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
 	call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
 	call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
-
+	
 	'Going to find the current facility to autofil the dialog
 	Call navigate_to_MAXIS_screen ("STAT", "FACI")
-
+	
 	'LOOKS FOR MULTIPLE STAT/FACI PANELS, GOES TO THE MOST RECENT ONE
 	Do
 		EMReadScreen FACI_current_panel, 1, 2, 73
@@ -312,17 +312,17 @@ If LTC_case = vbYes then
 	If in_year_check_05 <> "____" and out_year_check_05 = "____" Then EMReadScreen date_in, 10, 18, 47
 
 	admit_date = replace(date_in, " ", "/")
-
-	'Gets Facility name and admit in date and enters it into the dialog
+	
+	'Gets Facility name and admit in date and enters it into the dialog 
 	If currently_in_FACI = True then
 		EMReadScreen FACI_name, 30, 6, 43
 		facility_info = trim(replace(FACI_name, "_", ""))
 	End if
-
+	
 	'confirms that case is in the footer month/year selected by the user
 	Call MAXIS_footer_month_confirmation
 	MAXIS_background_check
-
+	
 	'Goes to STAT WKEX to get deductions and possible FIAT reasons to autofil the dialog
 	Call navigate_to_MAXIS_screen("STAT", "WKEX")
 	EMReadScreen WKEX_check, 1, 2, 73
@@ -356,7 +356,7 @@ If LTC_case = vbYes then
 		EMReadScreen other_expense_verif_code, 1, 15, 69
 		EMReadScreen other_impair, 1, 15, 75
 	End IF
-
+	
 	'cleaning up the WKEX variables
 	federal_tax = replace(federal_tax, "_", "")
 	federal_tax = trim(federal_tax)
@@ -376,101 +376,101 @@ If LTC_case = vbYes then
 	dues_expense = trim(dues_expense)
 	other_expense = replace(other_expense, "_", "")
 	other_expense = trim(other_expense)
-
+	
 	'Gives unverified expenses and blank expenses the value of $0 and adds non-zero amounts to the dialog for autofil
-	If federal_tax = "" OR federal_tax_verif_code = "N" then
+	If federal_tax = "" OR federal_tax_verif_code = "N" then 
 		federal_tax = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Federal Tax - $" & federal_tax
-	End if
-	If state_tax = "" OR state_tax_verif_code = "N" then
+	End if 
+	If state_tax = "" OR state_tax_verif_code = "N" then 
 		state_tax = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; State Tax - $" & state_tax
-	End if
-	If FICA_witheld = "" OR FICA_witheld_verif_code = "N" then
+	End if 
+	If FICA_witheld = "" OR FICA_witheld_verif_code = "N" then 
 		FICA_witheld = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; FICA - $" & FICA_witheld
-	End if
-	If transportation_expense = "" OR transportation_expense_verif_code = "N" OR transportation_impair =  "_" OR transportation_impair = "N" then
+	End if 
+	If transportation_expense = "" OR transportation_expense_verif_code = "N" OR transportation_impair =  "_" OR transportation_impair = "N" then 
 		transportation_expense = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Transportation Expense - $" & transportation_expense
-	End if
-	If meals_expense = "" OR meals_expense_verif_code = "N" OR meals_impair = "_" OR meals_impair = "N" then
+	End if 
+	If meals_expense = "" OR meals_expense_verif_code = "N" OR meals_impair = "_" OR meals_impair = "N" then 
 		meals_expense = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Meals Expense - $" & meals_expense
-	End if
-	If uniform_expense = "" OR uniform_expense_verif_code = "N" OR uniform_impair = "_" OR uniform_impair = "N" then
+	End if 
+	If uniform_expense = "" OR uniform_expense_verif_code = "N" OR uniform_impair = "_" OR uniform_impair = "N" then 
 		uniform_expense = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Uniform Expense - $" & uniform_expense
-	End if
-	If tools_expense = "" OR tools_expense_verif_code = "N" OR tools_impair = "_" OR tools_impair = "N" then
+	End if 
+	If tools_expense = "" OR tools_expense_verif_code = "N" OR tools_impair = "_" OR tools_impair = "N" then 
 		tools_expense = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Tools Expense - $" & tools_expense
-	End if
-	If dues_expense = "" OR dues_expense_verif_code = "N" OR dues_impair = "_" OR dues_impair = "N" then
+	End if 
+	If dues_expense = "" OR dues_expense_verif_code = "N" OR dues_impair = "_" OR dues_impair = "N" then 
 		dues_expense = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Dues Expense - $" & dues_expense
-	End if
-	If other_expense = "" OR other_expense_verif_code = "N" OR other_impair = "_" OR other_impair = "N" then
+	End if 
+	If other_expense = "" OR other_expense_verif_code = "N" OR other_impair = "_" OR other_impair = "N" then 
 		other_expense = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Other Expense - $" & other_expense
-	End if
-
+	End if 
+	
 	'Checks PDED other expenses, will need to add PDED and WKEX other expenses together
 	Call navigate_to_MAXIS_screen("STAT", "PDED")
 	EMReadScreen other_earned_income_PDED, 8, 11, 62
-
+	
 	'cleaning up PDED variables
 	other_earned_income_PDED = replace(other_earned_income_PDED, "_", "")
 	other_earned_income_PDED = trim(other_earned_income_PDED)
-
+	
 	'Gives blank expenses the value of $0
-	If other_earned_income_PDED = "" then
+	If other_earned_income_PDED = "" then 
 		other_earned_income_PDED = "0"
-	Else
+	Else 
 		hc_deductions = hc_deductions & "; Other Earned Income Deductions - $" & other_earned_income_PDED
-	End If
+	End If 
 
 	'Determining if earned income is less than $80
 	Call navigate_to_MAXIS_screen ("STAT", "JOBS")
 	EMReadScreen JOBS_panel_income, 7, 17, 68
 	JOBS_panel_income = trim(JOBS_panel_income)
-	If IsNumeric(JOBS_panel_income) = TRUE Then
+	If IsNumeric(JOBS_panel_income) = TRUE Then 
 		If abs(JOBS_panel_income) < 80 then
 			special_pers_allow = JOBS_panel_income	'if less then $80 deduction is earned income amount
 		ELSE
 			special_pers_allow = "80.00"		'otherwise deduction is $80
 		END IF
-	Else
-		JOBS_panel_income = ""
-	End If
-
+	Else 
+		JOBS_panel_income = "" 
+	End If 
+	
 	If JOBS_panel_income <> "" Then hc_deductions = hc_deductions & "; Special Allowance - $" & special_pers_allow
-
+	
 	'All of the deductions found to this point need to be FIATed. Added these to the FIAT varirable.
 	FIAT_reasons = hc_deductions
-
+	
 	'Going to see if there is a deduction on MEDI. (This does not have to be FIATED)
 	Call navigate_to_MAXIS_screen ("STAT", "MEDI")
 	EMReadScreen medi_panel_exists, 1, 2, 78
-	If medi_panel_exists = "1" Then
+	If medi_panel_exists = "1" Then 
 		EMReadScreen part_b_premium, 9, 7, 72
 		part_b_premium = trim(part_b_premium)
 		If part_b_premium <> "________" Then hc_deductions = hc_deductions & "; Medicare Premium - $" & part_b_premium
-	End If
+	End If 
 
 	'Formatting the variables for the dialog
 	hc_deductions = right(hc_deductions, len(hc_deductions) - 2)
 	FIAT_reasons = right(FIAT_reasons, len(FIAT_reasons) - 2)
-
+	
 	'The case note dialog, complete with panel navigation, reading the ELIG/MSA or ELIG/HC screen, and navigation to case note, as well as logic for certain sections to be required.
 	DO
 		DO
@@ -505,138 +505,138 @@ If LTC_case = vbYes then
 			EMWriteScreen "99", 20, 78		'Finding the most recent approved version
 			transmit
 			mx_row = 7
-			Do
+			Do 
 				EMReadScreen appr_status, 8, mx_row, 50
-				If appr_status = "APPROVED" Then
+				If appr_status = "APPROVED" Then 
 					EMReadScreen appr_version, 2, mx_row, 22
 					appr_version = trim(appr_version)
 					appr_version = right("00"& appr_version, 2)
 					Exit Do
-				Else
+				Else 
 					mx_row = mx_row + 1
-				End If
+				End If 
 			Loop until appr_status = "        "
 			If appr_version = "" then
 				MsgBox "The script could not find an APPROVED version of MSA in the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". It will now go to case note."
-			Else
+			Else 
 				EMWriteScreen appr_version, 18, 54
 				transmit
 				EMReadScreen MSSM_line_01, 37, 11, 46	'Wordage for the case note
 				EMReadScreen MSA_grant, 8, 11, 73		'Checking the amount - if a supplement, getting additional detail
-				MSA_grant = trim(MSA_grant)
-				If MSA_grant <> "81.00" Then			'Anything other than 81 is typically a supplement
+				MSA_grant = trim(MSA_grant) 
+				If MSA_grant <> "81.00" Then			'Anything other than 81 is typically a supplement 
 					EMWriteScreen "x", 9, 44
 					transmit
 					mx_row = 8
 					'This will read each row in the supplement pop up to add deail to the case note
-					Do
+					Do 
 						EMReadScreen need_type, 2, mx_row, 6
 						If need_type = "__" Then Exit Do
 						EMReadScreen special_need, 21, mx_row, 9
 						EMReadScreen amount, 8, mx_row, 32
 						special_need = trim(special_need)
 						amount = trim(amount)
-						msa_elig = msa_elig & "; " & special_need & " - $" & amount
-						mx_row = mx_row + 1
-						If mx_row = 14 Then
+						msa_elig = msa_elig & "; " & special_need & " - $" & amount 
+						mx_row = mx_row + 1 
+						If mx_row = 14 Then 
 							PF20
 							mx_row = 8
-						End If
+						End If 
 						EMReadScreen list_end, 4, 19, 16
 					Loop until list_end = "LAST"
 					PF3
-				End If
+				End If 
 				If msa_elig <> "" Then msa_elig = "; Special Needs Supplements:" & msa_elig
-			End If
+			End If 
 		End if
 		msa_elig = MSSM_line_01 & msa_elig
-	End If
+	End If 
 	'Getting info about HC approval if requested
-	If grab_HC_info_check = checked Then
+	If grab_HC_info_check = checked Then 
 		For each member in HH_member_array
 			clt_ref_num = member
 			call navigate_to_MAXIS_screen("elig", "hc__")
 			EMReadScreen hc_elig_check, 4, 3, 51
 			If hc_elig_check <> "HHMM" then
 				MsgBox "The script couldn't find ELIG/HC. It will now jump to case note."
-			Else
+			Else	
 				EMWriteScreen MAXIS_footer_month, 20, 56            'Goes to the next month and checks that elig results exist
 				EMWriteScreen MAXIS_footer_year,  20, 59
 				transmit
 				row = 8                                          'Reads each line of Elig HC to find all the approved programs in a case
-				Do
+				Do 
 			    	EMReadScreen clt_ref_num, 2, row, 3
 			    	EMReadScreen clt_hc_prog, 4, row, 28
 			    	If clt_ref_num = "  " AND clt_hc_prog <> "    " then        'If a client has more than 1 program - the ref number is only listed at the top one
 			        	prev = 1
-			        	Do
+			        	Do 
 				            EMReadScreen clt_ref_num, 2, row - prev, 3
 				            prev = prev + 1
 				        Loop until clt_ref_num <> "  "
-				    End If
+				    End If 
 				    If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then     'Gets additional information for all clts with HC programs on this case
 				        Do
 				            EMReadScreen prog_status, 3, row, 68
-				            If prog_status <> "APP" Then                        'Finding the approved version
+				            If prog_status <> "APP" Then                        'Finding the approved version 
 				                EMReadScreen total_versions, 2, row, 64
-				                If total_versions = "01" Then
+				                If total_versions = "01" Then 
 				                    error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
-				                Else
+				                Else 
 				                    EMReadScreen current_version, 2, row, 58
-				                    If current_version = "01" Then
+				                    If current_version = "01" Then 
 				                        error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
-				                        Exit Do
+				                        Exit Do 
 				                    End If
 				                    prev_version = right ("00" & abs(current_version) - 1, 2)
 				                    EMWriteScreen prev_version, row, 58
 				                    transmit
-				                End If
-				            Else
+				                End If 
+				            Else 
 				                EMReadScreen elig_result, 8, row, 41        'Goes into the elig version to get the major program and elig type
 				                EMWriteScreen "x", row, 26
 				                transmit
-								If clt_hc_prog = "MA  " then
+								If clt_hc_prog = "MA  " then 
 									mx_col = 19
-									Do
+									Do 
 										EMReadScreen elig_month, 2, 6, mx_col
 										EMReadScreen elig_year, 2, 6, mx_col + 3
-										IF elig_month = MAXIS_footer_month AND elig_year = MAXIS_footer_year Then
+										IF elig_month = MAXIS_footer_month AND elig_year = MAXIS_footer_year Then 
 							                EMReadScreen waiver_check, 1, 14, mx_col + 2        'Checking to see if case may be LTC or Waiver'
 							                EMReadScreen method_check, 1, 13, mx_col + 2
 											EMReadScreen obligation, 8, 17, mx_col - 1			'Getting the spenddown amount
 											obligation = trim(obligation)
-											Exit Do
-										Else
+											Exit Do 
+										Else 
 											mx_col = mx_col + 11
-										End If
+										End If 
 									Loop until mx_col = 85
-								End If
-								Do
+								End If 
+								Do 
 				                    transmit
 				                    EMReadScreen hc_screen_check, 8, 5, 3
 				                Loop until hc_screen_check = "Program:"
-				                If clt_hc_prog = "SLMB" OR clt_hc_prog = "QMB " Then
+				                If clt_hc_prog = "SLMB" OR clt_hc_prog = "QMB " Then 
 				                    EMReadScreen elig_type, 2, 13, 78
 				                    EMReadScreen Majr_prog, 2, 14, 78
-				                End If
-				                If clt_hc_prog = "MA  " Then
+				                End If 
+				                If clt_hc_prog = "MA  " Then 
 				                    EMReadScreen elig_type, 2, 13, 76
 				                    EMReadScreen Majr_prog, 2, 14, 76
-				                End If
+				                End If 
 				                transmit
-				            End If
+				            End If 
 				        Loop until current_version = "01" OR prog_status = "APP"
 				        'Adds everything to a varriable so an array can be created
 				        HC_Elig_Info = HC_Elig_Info & "; Memb " & clt_ref_num & " is approved " & trim(clt_hc_prog) & " : " & Majr_prog & "-" & elig_type
 						If obligation <> "" Then HC_Elig_Info = HC_Elig_Info & " with obligation of $" & obligation
 				    	obligation = ""
-					End If
+					End If 
 				    row = row + 1
 				Loop until clt_hc_prog = "    "
-			End If
+			End If 
 		Next
 		HC_Elig_Info = right(HC_Elig_Info, len(HC_Elig_Info) - 2)
-	End If
+	End If 
 
 	'Setting up some variables for the case note
 	programs_list = "HC"
@@ -665,7 +665,7 @@ If LTC_case = vbYes then
 	call write_bullet_and_variable_in_case_note("HC Approval", HC_Elig_Info)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
-
+	
 	end_msg = "Success! Your HRF for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " on a LTC case has been case noted."
 
 
@@ -770,9 +770,9 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 		call write_variable_in_CASE_NOTE("---")
 	End If
 	call write_variable_in_CASE_NOTE(worker_signature)
-
+	
 	end_msg = "Success! Your HRF for " & HRF_month & " has been case noted."
 
-End If
+End If 
 
 script_end_procedure(end_msg)

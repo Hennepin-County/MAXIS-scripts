@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'SCRIPT----------------------------------------------------------------------------------------------------
 
 EMConnect ""
@@ -62,10 +74,10 @@ Do
 Loop until len(MAXIS_case_number) = 8
 
 'Checking to see if we are on the HC/APP screen, which is not supported at this time (case number is in different place)
-EMReadScreen HC_app_check, 16, 3, 33 
+EMReadScreen HC_app_check, 16, 3, 33
 If HC_app_check = "Approval Package" then script_end_procedure("The script needs to be on the previous or next screen to process this.")
 
-'Now it will look for MMIS on both screens, and enter into it.. 
+'Now it will look for MMIS on both screens, and enter into it..
 attn
 EMReadScreen MMIS_A_check, 7, 15, 15
 If MMIS_A_check = "RUNNING" then
@@ -76,7 +88,7 @@ Else
 	EMConnect "B"
 	attn
 	EMReadScreen MMIS_B_check, 7, 15, 15
-	If MMIS_B_check <> "RUNNING" then 
+	If MMIS_B_check <> "RUNNING" then
 		script_end_procedure("MMIS does not appear to be running. This script will now stop.")
 	Else
 		EMSendKey "10"
@@ -86,7 +98,7 @@ End if
 EMFocus 'Bringing window focus to the second screen if needed.
 
 'Sending MMIS back to the beginning screen and checking for a password prompt
-Do 
+Do
   PF6
   EMReadScreen password_prompt, 38, 2, 23
   IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
@@ -99,7 +111,7 @@ transmit
 transmit
 
 'Finding the right MMIS, if needed, by checking the header of the screen to see if it matches the security group selector
-EMReadScreen MMIS_security_group_check, 21, 1, 35 
+EMReadScreen MMIS_security_group_check, 21, 1, 35
 If MMIS_security_group_check = "MMIS MAIN MENU - MAIN" then
 	EMSendKey "x"
 	transmit

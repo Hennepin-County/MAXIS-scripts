@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 BeginDialog same_day_dialog, 0, 0, 191, 278, "Enter No Show Information"
   EditBox 80, 20, 95, 15, MAXIS_case_number
   EditBox 70, 55, 90, 15, interview_date
@@ -146,9 +158,9 @@ If Same_day_Interview = vbCancel then stopscript
 
 'Connects to BlueZone default screen
 EMConnect ""
-EMFocus														
+EMFocus
 
-'Pulls case number from MAXIS if worker has already selected a case														
+'Pulls case number from MAXIS if worker has already selected a case
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Defaults the Interview Date to today's date
@@ -173,40 +185,40 @@ EMReadScreen hc_pend, 4, 12, 74
 
 'Assigns a value so the programs pending will show up in check boxes
 IF cash1_pend = "PEND" THEN
-	cash1_pend = 1 
-Else 
-	cash1_pend = 0 
+	cash1_pend = 1
+Else
+	cash1_pend = 0
 End If
 
-If cash2_pend = "PEND" THEN 
+If cash2_pend = "PEND" THEN
 	cash2_pend = 1
-Else 
+Else
 	cash2_pend = 0
 End if
 
-If cash1_pend = 1 OR cash2_pend = 1 then cash_pend = 1 
+If cash1_pend = 1 OR cash2_pend = 1 then cash_pend = 1
 
-If emer_pend = "PEND" THEN 
+If emer_pend = "PEND" THEN
 	emer_pend = 1
-Else 
+Else
 	emer_pend = 0
 End if
 
-If grh_pend = "PEND" THEN 
+If grh_pend = "PEND" THEN
 	grh_pend = 1
-Else 
+Else
 	grh_pend = 0
 End if
 
-If fs_pend = "PEND" THEN 
+If fs_pend = "PEND" THEN
 	fs_pend = 1
-Else 
+Else
 	fs_pend = 0
 End if
 
-If hc_pend = "PEND" THEN 
+If hc_pend = "PEND" THEN
 	hc_pend = 1
-Else 
+Else
 	hc_pend = 0
 End if
 
@@ -214,8 +226,8 @@ End if
 
 'Display's the Dialog Box to imput variable information - includes safeguards for mandatory fields
 If same_day_interview = vbYes THEN
-	Do 
-		Do					
+	Do
+		Do
 			Do
 				err_msg = ""
 				Dialog same_day_dialog
@@ -247,10 +259,10 @@ If same_day_interview = vbYes THEN
 		Loop until abs(DateDiff("n", first_page, second_page))>=15 'and MAXIS_case_number <> "" and interview_date <> "" and IsDate(interview_date) = True and first_page <> "" and second_page <> "" and worker_signature <> ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = false
-	
+
 ELSEIF same_day_interview = vbNo THEN 'Begins dialog if client was no show for scheduled interview
 	Do
-		Do  
+		Do
 			err_msg = ""
 			Dialog Scheduled_interview_dialog
 			cancel_confirmation
@@ -259,23 +271,23 @@ ELSEIF same_day_interview = vbNo THEN 'Begins dialog if client was no show for s
 			If interview_date = "" Then err_msg = err_msg & vbNewLine & "*Please enter an interview date"
 			If Interview_time = "" then err_msg = err_msg & vbNewLine & "*Please enter an interview time"
 			If application_date = "" then err_msg = err_msg & vbNewLine & "*Please enter the application date"
-			If Phone_int_checkbox = checked and phone_number_scheduled = "" Then err_msg = err_msg & vbNewLine & "Enter the phone number you attempted to call" 
+			If Phone_int_checkbox = checked and phone_number_scheduled = "" Then err_msg = err_msg & vbNewLine & "Enter the phone number you attempted to call"
 			If Type_of_interview_droplist= "Select one..." then err_msg = err_msg & vbNewLine & "*Please select the type of interview"
 			If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
-		Loop Until err_msg = ""	
+		Loop Until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = false
 End if
 
-call check_for_MAXIS(False)	
+call check_for_MAXIS(False)
 
 'The NOMI dialog box will pop up if the client checks the box on the dialog box
 If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notice, vs. a SPEC/LETR for intakes and add-a-programs.
 	recert_check = MsgBox("Is this a missed SNAP recertification interview?" & Chr(13) & Chr(13) & "If yes, the SNAP missed recert interview notice will be sent. " & Chr(13) & "If no, the regular NOMI will be sent.", 3)
-	If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox		
-	If recert_check = 6 then			'This is the "yes" button on a MsgBox	
+	If recert_check = 2 then stopscript		'This is the cancel button on a MsgBox
+	If recert_check = 6 then			'This is the "yes" button on a MsgBox
   'Shows dialog, checks for password prompt
-	
+
 		Do
 			Do
 				err_msg = ""
@@ -287,15 +299,15 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 				If last_day_for_recert = "" then err_msg = err_msg & vbNewLine & "*You did not enter a date the recert must be completed by. Please try again."
 				If worker_signature = "" then err_msg = err_msg & vbNewLine & "*You did not sign your case note. Please try again."
 				If err_msg <> "" Then msgbox "***NOTICE!!!***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
-			Loop until err_msg = ""	
+			Loop until err_msg = ""
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = false
-   
+
 		'Navigates into SPEC/MEMO
 		call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
 		'Checks to make sure we're past the SELF menu
-		EMReadScreen still_self, 27, 2, 28 
+		EMReadScreen still_self, 27, 2, 28
 		If still_self = "Select Function Menu (SELF)" then script_end_procedure("Script was not able to get past SELF menu. Is case in background?")
 
 		'Creates a new MEMO. If it's unable the script will stop.
@@ -314,7 +326,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 		EMSendKey "************************************************************"
 		PF4
 
-	Elseif recert_check = 7 then		
+	Elseif recert_check = 7 then
 	'This is the "no" button on a MsgBox 'Shows dialog, checks for password prompt
 		Do
 			Do
@@ -330,12 +342,12 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 			Loop until err_msg = ""
 			call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = false
-	
+
 		'Navigates into SPEC/LETR
 		call navigate_to_MAXIS_screen("SPEC", "LETR")
-	
+
 		'Checks to make sure we're past the SELF menu
-		EMReadScreen still_self, 27, 2, 28 
+		EMReadScreen still_self, 27, 2, 28
 		If still_self = "Select Function Menu (SELF)" then script_end_procedure("Unable to get past the SELF screen. Is your case in background?")
 
 		'Opens up the NOMI LETR. If it's unable the script will stop.
@@ -346,8 +358,8 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 
 		'Writes the info into the NOMI.
 		EMWriteScreen "x", 7, 17
-		call create_MAXIS_friendly_date(application_date, 0, 12, 38) 
-		call create_MAXIS_friendly_date(interview_date, 0, 14, 38) 
+		call create_MAXIS_friendly_date(application_date, 0, 12, 38)
+		call create_MAXIS_friendly_date(interview_date, 0, 14, 38)
 		transmit
 		PF4
 
@@ -381,9 +393,9 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 				PF10
 				client_delay_check = 0
 			End if
-		End if	
+		End if
 	End if
-End if 
+End if
 
 'Formats the page times and time called to standard hh:mm for case note
 first_page = FormatDateTime (first_page, 4)
@@ -408,19 +420,19 @@ Call start_a_blank_case_note
 'Writes the case note for Same day interview no show
 If Same_day_Interview = vbYes Then
 	call write_variable_in_CASE_NOTE("***Attempted to Page Client in Lobby for Interview - No Show***")
-	call write_bullet_and_variable_in_CASE_NOTE("Date of application", application_date)						
-	call write_bullet_and_variable_in_CASE_NOTE("Client was scheduled for interview", interview_date)				
+	call write_bullet_and_variable_in_CASE_NOTE("Date of application", application_date)
+	call write_bullet_and_variable_in_CASE_NOTE("Client was scheduled for interview", interview_date)
 	call write_bullet_and_variable_in_CASE_NOTE("Paged client in the lobby to complete interview at", first_page & " & " & second_page)
 	IF pc_attempted = 1 THEN call write_bullet_and_variable_in_CASE_NOTE("Attempted to call client, no answer, called at provided number", phone_number & " at " & time_called)
 	IF left_vm = 1 THEN call write_variable_in_CASE_NOTE("* Left Voicemail for Client.")
-	IF nomi_sent = 1 THEN call write_variable_in_CASE_NOTE("* Sent NOMI to clt through SPEC/LETR.")			
+	IF nomi_sent = 1 THEN call write_variable_in_CASE_NOTE("* Sent NOMI to clt through SPEC/LETR.")
 	If client_delay_check = 1 then call write_variable_in_Case_note("* Updated PND2 for client delay.")
 	IF potential_xfs = 1 THEN call write_variable_in_CASE_NOTE("* Case is Potentially XFS")
-	call write_variable_in_CASE_NOTE("---")			
+	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 End if
 'Writes the case note for Scheduled interview no show
-If Same_day_Interview = vbNo then 
+If Same_day_Interview = vbNo then
 	If phone_int_checkbox = 1 then call write_variable_in_CASE_NOTE("Attempted Phone Interview- No Answer")
 	If In_person_checkbox = 1 then call write_variable_in_CASE_NOTE("No Show for In Person Interview")
 	call write_bullet_and_variable_in_CASE_NOTE("Appointment was scheduled for", interview_date & " at " & interview_time)
@@ -436,5 +448,5 @@ If Same_day_Interview = vbNo then
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 End if
-	
+
 script_end_procedure ("")

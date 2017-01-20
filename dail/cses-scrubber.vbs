@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/19/2017", "Added ability to update cases without open MFIP or SNAP", "David Courtright, Saint Louis County")
 call changelog_update("01/10/2017", "Bug fix to make sure that the impact on the MFIP benefit is read from the corrct footer month. Handling for cases that are in pending status - these should be processed manually.", "Casey Love, Ramsey County")
 call changelog_update("12/15/2016", "Fixing a bug with counting household members and formatting the spreadsheet. Also adding ability to budget income for a person no longer in the household. For MFIP cases the script will attempt to see how the income changed the benefit.", "Casey Love, Ramsey County")
 call changelog_update("12/06/2016", "Fixing a bug to make sure correct month gets edited.", "Charles Potter, DHS")
@@ -304,9 +305,9 @@ If row <> 0 then
 		objExcel.DisplayAlerts = True
 		PF3										'Back to DAIL
 		script_end_procedure("MFIP is pending and anticipated income should be determined manually at initial request. Process manually or if appropriate, approve MFIP and run the script again.")
-	Else
+	Else 
 		MFIP_active = True
-	End If
+	End If 
 Else
 	MFIP_active = False
 End if
@@ -324,9 +325,9 @@ If row <> 0 then
 		objExcel.DisplayAlerts = True
 		PF3									'Back to DAIL
 		script_end_procedure("SNAP is pending and anticipated income should be determined manually at initial request. Process manually or if appropriate, approve SNAP and run the script again.")
-	Else
+	Else 
 		SNAP_active = True
-	End If
+	End If 
 Else
 	SNAP_active = False
 End if
@@ -343,9 +344,11 @@ ObjExcel.Cells(3, col_open_program_titles).Value 				= "SNAP open:"
 ObjExcel.Cells(3, col_open_program_titles).Font.Bold 			= TRUE
 ObjExcel.Cells(3, col_open_program_status).Value 				= SNAP_active
 
-'If both SNAP and MFIP aren't open, the script will exit
-If SNAP_active = False and MFIP_active = False then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
-
+'If both SNAP and MFIP aren't open, the script will exit, after asking the user if they still wish to update.
+If SNAP_active = False and MFIP_active = False then
+	update_inactive = msgbox("Neither SNAP or MFIP are open.  Do you still wish to proceed with updating this case? This may be useful if the case is closed for late/incomplete HRF.", vbyesno)
+	if update_inactive = vbno then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
+END IF
 
 
 
@@ -423,11 +426,11 @@ excel_row = 3
 'Associates panel with each message
 Do
 	'If the script could not match the PMI to a reference number this would be blank. The worker will be asked to assign the reference number
-	If ObjExcel.Cells(excel_row, col_HH_memb_number) = "" Then
-
+	If ObjExcel.Cells(excel_row, col_HH_memb_number) = "" Then 
+	
 		'Creates a dropdown list to select a client from the case
 		Call Generate_Client_List(HH_Memb_DropDown)
-
+		
 		'Asking the worker to select who this income should be listed under.
 		Do
 			err_msg = ""
@@ -445,7 +448,7 @@ Do
 			  Text 5, 70, 260, 10, "If yes, which HH member has (or should have) the UNEA panel for this income?"
 			  Text 10, 85, 70, 10, "Household member"
 			EndDialog
-
+			
 			Dialog cses_memb_missing_dialog
 			If ButtonPressed = cancel Then StopScript
 
@@ -456,25 +459,25 @@ Do
 		'If the worker says the income should be budgeted
 		If radio_yes = 1 Then
 			ObjExcel.Cells(excel_row, col_HH_memb_number).Value = left(memb_w_unea, 2)
-
-
+			
+			
 			excel_message_row =  excel_row + 1
-
-
-			Do
+			
+			
+			Do 
 				'If...	the PMI from the CSES message equals...						the PMI from the MEMB list...									then the HH member column in the message list...					should equal the ref nbr from the HH memb list.
 				If 		ObjExcel.Cells(excel_row, col_PMI_number).Value = 	ObjExcel.Cells(excel_message_row, col_PMI_number).Value then 	ObjExcel.Cells(excel_message_row, col_HH_memb_number ).Value = 		ObjExcel.Cells(excel_row, col_HH_memb_number ).Value
 				excel_message_row = excel_message_row + 1
 			Loop until ObjExcel.Cells(excel_message_row, col_PMI_number).Value = ""		'Out of messages
-
+			
 			call navigate_to_MAXIS_screen ("STAT", "UNEA")
-		End If
-
+		End If 
+		
 		'If the income should not be budgeted - we don't have a process for this - the script ends.
 		If radio_no = 1 Then script_end_procedure ("CS DAILS indicate income that you have selected should not be budgeted. At this time, these messages must be processed manually.")
-
-	End If
-
+		
+	End If 
+	
 	'Creates a UNEA_number variable using the right two characters of a string consisting of "0" and the HH memb column. This prevents issues when running on membs 01-09, which show on Excel as "1-9"
     UNEA_number = right("0" & ObjExcel.Cells(excel_row, col_HH_memb_number).Value, 2)
 
@@ -539,7 +542,7 @@ Do
 	excel_row_for_UNEA_panel_autofill = ""
 	income_type_on_UNEA = ""
 	excel_row = excel_row + 1
-
+		
 
 Loop until ObjExcel.Cells(excel_row, col_msg_number).Value = ""			'Loop until we're out of messages
 
@@ -1278,7 +1281,7 @@ If MFIP_active = true then
 
 End if
 
-If MFIP_active = TRUE then
+If MFIP_active = TRUE then 
 	'Check to make sure we are back to our dail
 	EMReadScreen DAIL_check, 4, 2, 48
 	IF DAIL_check <> "DAIL" THEN
@@ -1296,16 +1299,16 @@ If MFIP_active = TRUE then
 	EMWriteScreen "MFIP", 20, 71
 	transmit
 	EMReadScreen MFPR_check, 4, 3, 47
-	If MFPR_check = "MFPR" Then
+	If MFPR_check = "MFPR" Then 
 		EMWriteScreen "MFSM", 20, 71
 		transmit
 		EMReadScreen impact_on_benefit, 12, 10, 31
 		impact_on_benefit = trim(impact_on_benefit)
-	End If
+	End If 
 	PF3
+	
 
-
-End If
+End If 
 
 'Alert to worker that additional action is required.
 If Outside_the_realm = TRUE Then MsgBox "This is a SNAP case and you have indicated at least one of the UNEA panels needs to be reviewed for possible budget adjustment." & vbNewLine & vbNewLine & "At this time, this script does NOT update UNEA for SNAP cases. Case note will indicate that worker followup is needed."
@@ -1338,18 +1341,18 @@ If developer_mode <> TRUE Then
 		Call Write_Variable_in_CASE_NOTE (":::CSES Messages Reviewed::::")
 	End If
 	Call Write_Variable_in_CASE_NOTE ("* Income reported from PRISM Interface - details are listed in previous case notes.")
-	If MFIP_active = TRUE Then
+	If MFIP_active = TRUE Then 
 		Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
 		Call Write_Bullet_and_Variable_in_Case_Note("Change to MFIP Benefit", impact_on_benefit)
-	End If
-	If MFIP_active <> TRUE AND SNAP_active = TRUE Then
+	End If 
+	If MFIP_active <> TRUE AND SNAP_active = TRUE Then 
 		If Exceed_130 = TRUE Then Call Write_Variable_in_CASE_NOTE ("* With this CS Income, it appears case income may exceed 130% FPG.")
 		If CS_Change = TRUE Then
 			Call Write_Variable_in_CASE_NOTE ("* CS Income listed in DAILs is different from the amount of CS Income Budgeted.")
 			Call Write_Bullet_and_Variable_in_Case_Note ("CS Income Budgeted", BUDG_CSES)
 			Call Write_Bullet_and_Variable_in_Case_Note ("CS Income From DAIL", amount_CS_reported)
 		End If
-	End If
+	End If 
 
 'reading from excel sheet
 IF SNAP_active = TRUE Then
@@ -1371,11 +1374,11 @@ IF SNAP_active = TRUE Then
 	Loop Until blankCHECK = ""
 End IF
 
-	If MFIP_active <> TRUE AND SNAP_active = TRUE Then
+	If MFIP_active <> TRUE AND SNAP_active = TRUE Then 
 		If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
 		If Outside_the_realm <> TRUE AND UNEA_review_checkbox = unchecked Then Call Write_Variable_in_CASE_NOTE ("* FS Budget reviewed, adjustments to budget not needed.")
 		If Outside_the_realm = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC Reviewed, update needed - worker to process manually.")
-	End If
+	End If 
 	IF MFIP_active = TRUE  AND FS_active = TRUE Then Call Write_Variable_in_CASE_NOTE ("* FS PIC not evaluated, as case also has MFIP.")
 	Call Write_Bullet_and_Variable_in_Case_Note ("Notes", other_notes)
 

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '=====FUNCTIONS=====
 FUNCTION build_hh_array(hh_array)
 	hh_array = ""
@@ -95,7 +107,7 @@ DO
 		DIALOG panel_update_check_dlg
 		cancel_confirmation
 		IF time_period = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select a date range for the script to analyze."
-	
+
 		'Breaking down the workers_list to determine if the user entered multiple workers or if the script is going to be run for just one worker.
 		IF InStr(workers_list, ",") <> 0 THEN
 		workers_list = replace(workers_list, " ", "")
@@ -104,7 +116,7 @@ DO
 		'multiple_workers = split(workers_list)
 		workers_list = split(workers_list)
 		END IF
-		
+
 		'>>>>> ADDING TO err_msg IF THE USER SELECTS NO STAT PANELS. <<<<<
 		IF JOBS_checkbox = 0 AND _
 		UNEA_checkbox = 0 AND _
@@ -121,11 +133,11 @@ DO
 	  	PBEN_checkbox = 0 AND _
 	  	STWK_checkbox = 0 AND _
 	  	WREG_checkbox = 0 THEN err_msg = err_msg & vbCr & "* You must select at least one STAT panel to check."
-		
+
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until re_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until re_we_passworded_out = false					'loops until user passwords back in
 
 '>>>>> EXECTING THE PANEL UPDATE SEARCH FOR EACH WORKER <<<<<
 FOR EACH maxis_worker IN workers_list
@@ -576,7 +588,7 @@ FOR EACH maxis_worker IN workers_list
 					updated_date = replace(updated_date, " ", "/")
 					IF updated_date <> "////////" THEN
 						IF time_period = "Updated in prev. 30 days" THEN
-							IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, PACT_col).Value = updated_date 
+							IF DateDiff("D", updated_date, date) <= 30 THEN objExcel.Cells(excel_row, PACT_col).Value = updated_date
 						ELSEIF time_period = "Updated in prev. 6 mos" THEN
 							IF DateDiff("D", updated_date, date) <= 180 THEN objExcel.Cells(excel_row, PACT_col).Value = updated_date
 						ELSEIF time_period = "Not updated more than 12 mos" THEN
@@ -709,26 +721,26 @@ FOR EACH maxis_worker IN workers_list
 			objExcel.Columns(i).AutoFit()
 		NEXT
 	END IF
-	
-	IF supervisor_check = 1 THEN 
+
+	IF supervisor_check = 1 THEN
 	'Adding additional manual time to the stats counter. I have timed this out to be about 25 seconds per case.
 	STATS_manualtime = STATS_manualtime + 25
-	
+
 	'Adding a column to the left of the data
 	SET objSheet = objWorkbook.Sheets("Sheet1")
 	objSheet.Columns("A:A").Insert -4161
 	objExcel.Cells(1, 1).Value = "SUPERVISOR NAME"
 	objExcel.Cells(1, 1).Font.Bold = True
-	
+
 	'Going to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-	
+
 	'Starting back at the top of the page
 	excel_row = 2
 	DO
 		worker_id = objExcel.Cells(excel_row, 2).Value
 		prev_worker_id = objExcel.Cells(excel_row - 1, 2).Value
-		IF worker_id <> prev_worker_id THEN 
+		IF worker_id <> prev_worker_id THEN
 			'Entering the worker number into REPT/USER
 			CALL write_value_and_transmit(worker_id, 21, 12)
 			CALL write_value_and_transmit("X", 7, 3)
@@ -745,10 +757,10 @@ FOR EACH maxis_worker IN workers_list
 		END IF
 		excel_row = excel_row + 1
 	LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
-	
+
 	objExcel.Columns(1).AutoFit()
 END IF
-	
+
 NEXT
 back_to_SELF
 

@@ -34,6 +34,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_NOTICES_menu_dialog(script_array)
 	BeginDialog NOTICES_dialog, 0, 0, 516, 340, "NOTICES Scripts"
@@ -210,6 +222,14 @@ script_array_NOTICES_list(script_num).description 			= "Adds various WCOMS to a 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_list(script_num).script_name 			= "  Client Death WCOM "
+script_array_NOTICES_list(script_num).file_name			= "client-death-wcom.vbs"
+script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice regarding SNAP closure due to death of last HH member."
+
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= "Duplicate assistance WCOM"
 script_array_NOTICES_list(script_num).file_name			= "duplicate-assistance-wcom.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
@@ -217,10 +237,16 @@ script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= "Postponed WREG Verif"
+script_array_NOTICES_list(script_num).script_name 			= " Postponed WREG Verif "
 script_array_NOTICES_list(script_num).file_name			= "postponed-wreg-verifs.vbs"
 script_array_NOTICES_list(script_num).description 			= "Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_list(script_num).script_name 			= " Returned Mail WCOM "
+script_array_NOTICES_list(script_num).file_name			= "returned-mail-wcom.vbs"
+script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for SNAP returned mail closure."
 
 
 

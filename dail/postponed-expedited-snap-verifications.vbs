@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
@@ -56,15 +68,15 @@ transmit
 EMReadScreen SNAP_application_date, 8, 10, 33	'Reads the date of application for SNAP and formats it
 SNAP_application_date = replace(SNAP_application_date, " ", "/")
 fifteen_of_appl_month = left(SNAP_application_date, 2) & "/15/" & right(SNAP_application_date, 2)
-IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'if rec'd ON or BEFORE 15th client gets 30 days from date of application to be reinstated. 
+IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'if rec'd ON or BEFORE 15th client gets 30 days from date of application to be reinstated.
 	progs_closed = progs_closed & "SNAP/"
 	SNAP_last_REIN_date = dateadd("d", 30, SNAP_application_date)
-	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."	
+	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
 	IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)			        'if cash is not being closed the intake date needs to be the day after the rein date
 Else
-	progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated. 
+	progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated.
 	SNAP_last_REIN_date = closure_date
-	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."	
+	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
 END IF
 
 PF3 						'Navigates to Case Notes from DAIL - maintaining the tie to the list - does this so worker can reveiw case notes while the next dialog is up
@@ -95,11 +107,11 @@ Loop until ButtonPressed = OK
 'The script checks to make sure it is on the NOTES main list
 EMReadScreen notes_check, 9, 2, 33
 EMReadScreen mode_check, 1, 20, 09
-If notes_check = "Case Note" AND mode_check = " " Then 
+If notes_check = "Case Note" AND mode_check = " " Then
 	PF9					'If so, it starts a new case note 'and maintains the tie to the DAIL list
-Else 
+Else
 	start_a_blank_CASE_NOTE		'If the worker navigated away from NOTES, this will get a new case note started but will not maintain the tie to the DAIL list
-End If 
+End If
 'This is the CASE NOTE --------------------------------------------------------------------'
 case_note_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose ---"
 call write_variable_in_case_note(case_note_header)

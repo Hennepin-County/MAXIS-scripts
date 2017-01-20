@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 'DIALOG=====================================================================================================================
@@ -69,7 +81,7 @@ EMReadScreen name_for_dail, 57, 5, 5			'Reading the name of the client
 'If the message is for someone other than M01 - the name is writen next to the name of M01
 other_person = InStr(name_for_dail, "--(")	'This determines if it for someone other than M01
 'This is for if the message is for M01'
-If other_person = 0 Then 
+If other_person = 0 Then
 	comma_loc = InStr(name_for_dail, ",")  	'Determines the end of the last name
 	dash_loc = InStr(name_for_dail, "-")	'Determines the end of the name
 	EMReadscreen last_name, comma_loc - 1, 5, 5									'Reading the last name
@@ -78,19 +90,19 @@ If other_person = 0 Then
 		EMReadscreen first_name, dash_loc - comma_loc - 5, 5, comma_loc + 5
 	Else 																		'If so - reads first name
 		EMReadScreen first_name, dash_loc - comma_loc - 3, 5, comma_loc + 5
-	End If 
+	End If
 'This is for if the message is for a different HH Member
-Else 
+Else
 	end_other = InStr(name_for_dail, ")--")
 	comma_loc = InStr(other_person, name_for_dail, ",")
 	EMReadscreen last_name, comma_loc - other_person - 3, 5, other_person + 7
 	EMReadscreen middle_exists, 1, 5, end_other + 2
-	If middle_exists = " " Then 
+	If middle_exists = " " Then
 		EMReadscreen first_name, end_other - comma_loc - 3, 5, comma_loc + 5
-	Else 
+	Else
 		EMReadScreen first_name, end_other - comma_loc - 1, 5, comma_loc + 5
-	End If 
-End If 
+	End If
+End If
 client_name = last_name & ", " & first_name		'putting the name into one string
 
 'Going to INFC WORK
@@ -102,32 +114,32 @@ transmit
 
 'Confirming we are at WORK
 EMReadScreen work_panel_check, 4, 2, 51
-If work_panel_check = "WORK" Then 
+If work_panel_check = "WORK" Then
 work_maxis_row = 7
 	DO
 		EMReadScreen work_name, 26, work_maxis_row, 7			'Reads the client name from INFC/WORK'
 		work_name = trim(work_name)
-		IF client_name = work_name then 
+		IF client_name = work_name then
 			memb_check = vbYes		'If the name on INFC/WORK exactly matches the name from the DAIL, the script does not need user input and will gather the Reference Number'
 			EMReadScreen ref_numb, 2, work_maxis_row, 3
 		ElseIf client_name <> work_name then 	'if name doesn't match the referral name the confirmation is required by the user
-			memb_check = MsgBox ("DAIL Message is for - " & client_name & vbNewLine & "Name on INFC/WORK - " & work_name & _ 
+			memb_check = MsgBox ("DAIL Message is for - " & client_name & vbNewLine & "Name on INFC/WORK - " & work_name & _
 			  vbNewLine & vbNewLine & "Is this the client you need ES Referral Information about?", vbYesNo + vbQuestion, "Confirm Client using Banked Monhts")
 			If memb_check = vbYes Then		'If the user confirms that this is the correct client, Ref number is gathered'
 				EMReadScreen ref_numb, 2, work_maxis_row, 3
 			ElseIf memb_check = vbNo Then	'If the user says NO the script will see if there are other clients listed on INFC/WORK and start back at the beginning of the loop to try to match'
 				EMReadScreen next_clt, 1, (work_maxis_row + 1), 7
 			END IF
-		End If 
+		End If
 		work_maxis_row = work_maxis_row + 1		'Increments to read the next row for a new client'
 		STATS_counter = STATS_counter + 1
-	Loop until next_clt = " " OR memb_check = vbYes	
-	
+	Loop until next_clt = " " OR memb_check = vbYes
+
 	'Reads the referral date from WORK for the client found above
 	If memb_check = vbYes Then EMReadScreen es_ref_date, 8, 7, 72
 	If es_ref_date = "__ __ __" Then es_ref_date = ""
 	es_ref_date = replace(es_ref_date, " ", "/")
-End If 
+End If
 
 PF3 	'Back to DAIL
 EMWriteScreen "s", 6, 3			'Goes to EMPS
@@ -138,13 +150,13 @@ transmit
 If ref_numb <> "" Then 		'gets to the right EMPS panel
 	EMWriteScreen ref_numb, 20, 76
 	transmit
-End If 
+End If
 
 'Defaulting to having the script update EMPS
-update_emps_checkbox = checked 
+update_emps_checkbox = checked
 
 'Runs the dialog
-Do 
+Do
 	err_msg = ""
 	Dialog ES_ref_dialog
 	cancel_confirmation
@@ -156,7 +168,7 @@ Do
 Loop until err_msg = ""
 
 'If the user requests the script to update
-If update_emps_checkbox = checked Then 
+If update_emps_checkbox = checked Then
 	Call Navigate_to_MAXIS_screen ("STAT", "EMPS")		'Makes sure we are still at EMPS
 	EMWriteScreen ref_numb, 20, 76						'And at the correct client
 	transmit
@@ -169,23 +181,23 @@ If update_emps_checkbox = checked Then
 	EMWriteScreen ref_year,  16, 46
 	transmit
 	PF3
-	
- 	'Check to make sure we are back to our dail 
- 	EMReadScreen DAIL_check, 4, 2, 48 
- 	IF DAIL_check <> "DAIL" THEN 
- 		PF3 'This should bring us back from UNEA or other screens 
- 		EMReadScreen DAIL_check, 4, 2, 48 
- 		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%) 
- 			call navigate_to_MAXIS_screen("DAIL", "DAIL") 
- 		END IF 
- 	END IF 
- 	EMWriteScreen "n", 6, 3 
- 	transmit 
- 
+
+ 	'Check to make sure we are back to our dail
+ 	EMReadScreen DAIL_check, 4, 2, 48
+ 	IF DAIL_check <> "DAIL" THEN
+ 		PF3 'This should bring us back from UNEA or other screens
+ 		EMReadScreen DAIL_check, 4, 2, 48
+ 		IF DAIL_check <> "DAIL" THEN 'If we are still not at the dail, try to get there using custom function, this should result in being on the correct dail (but not 100%)
+ 			call navigate_to_MAXIS_screen("DAIL", "DAIL")
+ 		END IF
+ 	END IF
+ 	EMWriteScreen "n", 6, 3
+ 	transmit
+
  	'Case noting
- 	PF9 
- 	EMReadScreen case_note_mode_check, 7, 20, 3 
- 	If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production." 
+ 	PF9
+ 	EMReadScreen case_note_mode_check, 7, 20, 3
+ 	If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production."
  	If case_note_mode_check <> "Mode: A" then stopscript
 
 	Call Write_Variable_in_CASE_NOTE ("DAIL Processed - ES Referal Date Updated for Memb " & ref_numb)
@@ -194,11 +206,11 @@ If update_emps_checkbox = checked Then
 	Call Write_Bullet_and_Variable_in_Case_Note ("Date Entered", es_ref_date)
 	Call Write_Bullet_and_Variable_in_Case_Note ("Notes", other_notes)
 	Call Write_Variable_in_CASE_NOTE ("---")
-	Call Write_Variable_in_CASE_NOTE (worker_signature) 
+	Call Write_Variable_in_CASE_NOTE (worker_signature)
 	end_msg = "Success! EMPS has been updated and Case Note Written"
-Else 
+Else
 	end_msg = "You have selected to not have the EMPS panel updated by the script." & vbNewLine & "You will need to process this DAIL manually."
 
-End If 
+End If
 
 script_end_procedure(end_msg)

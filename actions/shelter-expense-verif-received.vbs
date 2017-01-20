@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THE DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
@@ -124,15 +136,15 @@ hh_member = "01"
 
 DO
 	DO
-		Dialog case_number_dialog																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop' 
+		Dialog case_number_dialog																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop'
 		IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
 		IF MAXIS_case_number = "" THEN MsgBox "You must enter a case number"
 	LOOP UNTIL MAXIS_case_number <> ""
-	
+
 	'Getting to the correct benefit month
 	CALL find_variable("Month: ", benefit_month, 5)
 	benefit_month = replace(benefit_month, " ", "/")
-	IF benefit_month <> MAXIS_footer_month & "/" & MAXIS_footer_year THEN 
+	IF benefit_month <> MAXIS_footer_month & "/" & MAXIS_footer_year THEN
 		back_to_SELF
 		EMWriteScreen "STAT", 16, 43
 		EMWriteScreen "________", 18, 43
@@ -140,21 +152,21 @@ DO
 		EMWriteScreen MAXIS_footer_month, 20, 43
 		EMWriteScreen MAXIS_footer_year, 20, 46
 		transmit
-		
+
 		'Checking to see if the case is stuck in background.
 		row = 1
 		col = 1
 		EMSearch "BACKGROUND", row, col
-		IF row <> 0 THEN script_end_procedure("The case is stuck in background. Please try again.")	
+		IF row <> 0 THEN script_end_procedure("The case is stuck in background. Please try again.")
 		'Checking to see if the case is privileged.
 		EMReadScreen privileged_check, 60, 24, 2
 		IF InStr(privileged_check, "PRIVILEGE") <> 0 THEN script_end_procedure("You do not have access to this case. The script will now stop.")
-	END IF	
+	END IF
 	valid_case_number = True
 	row = 1
 	col = 1
 	EMSearch "INVALID CASE NUMBER", row, col
-	IF row <> 0 THEN 
+	IF row <> 0 THEN
 		MsgBox "The case number you entered is not a valid MAXIS case number. Please try again."
 		valid_case_number = False
 	END IF
@@ -168,7 +180,7 @@ DO
 		IF agency_received_date = "" THEN err_msg = err_msg & vbCr & "* Please indicate the date the document was received by the agency."
 		IF agency_received_date <> "" AND IsDate(agency_received_date) = TRUE THEN
 			IF DateDiff("D", agency_received_date, date) < 0 THEN err_msg = err_msg & vbCr & "* You may not enter a future date for the date the form was received by the agency."
-		ELSEIF agency_received_date <> "" AND IsDate(agency_received_date) = FALSE THEN 
+		ELSEIF agency_received_date <> "" AND IsDate(agency_received_date) = FALSE THEN
 			err_msg = err_msg & vbCr & "* Please enter a valid date for the date the form was received by the agency."
 		END IF
 		IF hh_member = "" THEN err_msg = err_msg & vbCr & "* Please indicate the household member."
@@ -178,7 +190,7 @@ DO
 		IF garage_check = 1 AND garage_amount = "" THEN err_msg = err_msg & vbCr & "* Please indicate the amount for the garage."
 		IF room_and_board_check = 1 AND room_board_notes = "" THEN err_msg = err_msg & vbCr & "* You indicated that the client's rent is room and board. Please provide detailed notes about the room and board situation."
 		IF utilities_paid_listbox = "Select one..." THEN err_msg = err_msg & vbCr & "* Please indicate which, if any, utilities are paid by the client."
-		IF move_in_date <> "" THEN 
+		IF move_in_date <> "" THEN
 			IF IsDate(move_in_date) = False THEN err_msg = err_msg & vbCr & "* Please enter the client move-in date as a valid date."
 		END IF
 		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
@@ -192,7 +204,7 @@ Call check_for_MAXIS(False)
 'Going through and updating MAXIS...
 'Not updating if room and board. That is more complex than we are taking on at this moment and should
 'probably receive more worker scrutiny
-IF room_and_board_check = 1 THEN 
+IF room_and_board_check = 1 THEN
 	MsgBox "The script will not update SHEL because this client is indicating room and board. Please update SHEL manually. Press OK to continue."
 ELSE
 	'Going to SHEL
@@ -200,7 +212,7 @@ ELSE
 	'...for the specific HH member
 	CALL write_value_and_transmit(hh_member, 20, 76)
 	EMReadScreen num_of_SHEL_panels, 1, 2, 78
-	IF num_of_SHEL_panels = "0" THEN 
+	IF num_of_SHEL_panels = "0" THEN
 		'If needed, creating a new panel...
 		EMWriteScreen hh_member, 20, 76
 		CALL write_value_and_transmit("NN", 20, 79)
@@ -208,12 +220,12 @@ ELSE
 		'...or just editing the one we already have.
 		PF9
 	END IF
-	
+
 	'If client_share is blank, the script will assume that the client pays the entire unit amount and convert that value to client_share.
 	IF client_share = "" THEN client_share = unit_rent
-	
+
 	'Writing the prospective subsidy amount.
-	IF subsidy_check = 1 THEN 
+	IF subsidy_check = 1 THEN
 		EMWriteScreen "Y", 6, 46
 		EMWriteScreen "________", 18, 56
 		EMWriteScreen subsidy_amount, 18, 56
@@ -223,9 +235,9 @@ ELSE
 		EMWriteScreen "________", 18, 56
 		EMWriteScreen "________", 18, 67
 	END IF
-	
+
 	'Writing the prospective garage amount.
-	IF garage_check = 1 THEN 
+	IF garage_check = 1 THEN
 		EMWriteScreen "________", 17, 56
 		EMWriteScreen garage_amount, 17, 56
 		EMWriteScreen "SF", 17, 67
@@ -233,12 +245,12 @@ ELSE
 		EMWriteScreen "________", 17, 56
 		EMWriteScreen "________", 17, 67
 	END IF
-	
+
 	'Writing the prospective rent amount.
 	EMWriteScreen "________", 11, 56
 	EMWriteScreen client_share, 11, 56
 	EMWriteScreen "SF", 11, 67
-	
+
 	'Grabbing the existing landlord name, the retrospective rent, garage and subsidy amounts.
 	EMReadScreen landlord_name, 25, 7, 50
 	landlord_name = replace(landlord_name, "_", "")
@@ -251,7 +263,7 @@ ELSE
 	EMReadScreen retro_subsidy, 8, 18, 37
 		retro_subsidy = replace(retro_subsidy, "_", "")
 		retro_subsidy = trim(retro_subsidy)
-	
+
 	'Running the retro dialog
 	DO
 		err_msg = ""
@@ -260,15 +272,15 @@ ELSE
 			IF landlord_name = "" THEN err_msg = err_msg & vbCr & "* Please enter a landlord name."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
-	
+
 	CALL check_for_MAXIS(false)
-	
+
 	'Writing the landlord and retrospective information
 	EMWriteScreen "____________________", 7, 50
 	EMWriteScreen landlord_name, 7, 50
 	EMWriteScreen "N", 6, 64
-	
-	IF retro_rent <> "" THEN 
+
+	IF retro_rent <> "" THEN
 		EMWriteScreen "________", 11, 37
 		EMWriteScreen retro_rent, 11, 37
 		EMWriteScreen "SF", 11, 48
@@ -277,7 +289,7 @@ ELSE
 		EMWriteScreen "__", 11, 48
 	END IF
 
-	IF retro_garage <> "" THEN 
+	IF retro_garage <> "" THEN
 		EMWriteScreen "________", 17, 37
 		EMWriteScreen retro_garage, 17, 37
 		EMWriteScreen "SF", 17, 48
@@ -285,29 +297,29 @@ ELSE
 		EMWriteScreen "________", 17, 37
 		EMWriteScreen "__", 17, 48
 	END IF
-	
-	IF retro_subsidy <> "" THEN 
+
+	IF retro_subsidy <> "" THEN
 		EMWriteScreen "________", 18, 37
 		EMWriteScreen retro_subsidy, 18, 37
 		EMWriteScreen "SF", 18, 48
-		EMWriteScreen "Y", 6, 46	     'accounting for retro only subsidy will cause inhibiting edit 
+		EMWriteScreen "Y", 6, 46	     'accounting for retro only subsidy will cause inhibiting edit
 	ELSE
 		EMWriteScreen "________", 18, 37
 		EMWriteScreen "__", 18, 48
 	END IF
-	
+
 	'Closing SHEL
 	transmit
 	transmit
 	transmit
-	
+
 END IF
 
 EMWriteScreen "HEST", 20, 71
 CALL write_value_and_transmit(hh_member, 20, 76)
 '>>>>> DETERMINING WHETHER HEST EXISTS <<<<<
 EMReadScreen num_of_HEST, 1, 2, 78
-IF num_of_HEST = "0" THEN 
+IF num_of_HEST = "0" THEN
 	CALL write_value_and_transmit("NN", 20, 79)
 ELSE
 	PF9
@@ -315,28 +327,28 @@ END IF
 
 EMWriteScreen hh_member, 06, 40
 CALL create_MAXIS_friendly_date(date, 0, 7, 40)
-IF utilities_paid_listbox = "Heat/AC" THEN 
+IF utilities_paid_listbox = "Heat/AC" THEN
 	EMWriteScreen "Y", 13, 60
 	EMWriteScreen "01", 13, 68
 	EMWriteScreen "_", 14, 60
 	EMWriteScreen "__", 14, 68
 	EMWriteScreen "_", 15, 60
 	EMWriteScreen "__", 15, 68
-ELSEIF utilities_paid_listbox = "Phone/Electric" THEN 
+ELSEIF utilities_paid_listbox = "Phone/Electric" THEN
 	EMWriteScreen "_", 13, 60
 	EMWriteScreen "__", 13, 68
 	EMWriteScreen "Y", 14, 60
 	EMWriteScreen "01", 14, 68
 	EMWriteScreen "Y", 15, 60
 	EMWriteScreen "01", 15, 68
-ELSEIF utilities_paid_listbox = "Electric ONLY" THEN 
+ELSEIF utilities_paid_listbox = "Electric ONLY" THEN
 	EMWriteScreen "_", 13, 60
 	EMWriteScreen "__", 13, 68
 	EMWriteScreen "Y", 14, 60
 	EMWriteScreen "01", 14, 68
 	EMWriteScreen "_", 15, 60
 	EMWriteScreen "__", 15, 68
-ELSEIF utilities_paid_listbox = "Phone ONLY" THEN 
+ELSEIF utilities_paid_listbox = "Phone ONLY" THEN
 	EMWriteScreen "_", 13, 60
 	EMWriteScreen "__", 13, 68
 	EMWriteScreen "_", 14, 60
@@ -350,16 +362,16 @@ END IF
 transmit
 
 'If the client has a new address reported on the form...
-IF new_address <> "" THEN 
+IF new_address <> "" THEN
 	CALL write_value_and_transmit("ADDR", 20, 71)
 	PF9
-	
+
 	EMReadScreen benefit_month, 2, 20, 55
 	EMReadScreen benefit_year, 2, 20, 58
 	EMWriteScreen benefit_month, 4, 43
 	EMWriteScreen "01", 4, 46
 	EMWriteScreen benefit_year, 4, 49
-	
+
 	EMWriteScreen "______________________", 6, 43
 	EMWriteScreen "______________________", 7, 43
 	EMWriteScreen new_address, 6, 43
@@ -372,17 +384,17 @@ IF new_address <> "" THEN
 	EMWriteScreen "SF", 9, 74
 	'Making sure that "homeless y/n" is "N"
 	EMWriteScreen "N", 10, 43
-	
+
 	transmit
-	
+
 	'Checking to see if the address can be standardized.
 	'The script will not accept addresses that are not standardized.
 	EMReadScreen standardized, 33, 24, 2
-	IF standardized <> "RESIDENCE ADDRESS IS STANDARDIZED" THEN 
+	IF standardized <> "RESIDENCE ADDRESS IS STANDARDIZED" THEN
 		row = 1
 		col = 1
 		EMSearch "RESIDENCE ADDRESS, CITY, STATE, AND ZIP ARE REQUIRED", row, col
-		IF row <> 0 THEN 
+		IF row <> 0 THEN
 			PF10
 			MsgBox "The address is not acceptable to MAXIS. The script has undid the update to ADDR. Press OK to continue to case note."
 			valid_addr = False
@@ -390,7 +402,7 @@ IF new_address <> "" THEN
 			row = 1
 			col = 1
 			EMSearch "Warning: Mail to this Residence address will not be", row, col
-			IF row <> 0 THEN 
+			IF row <> 0 THEN
 				PF10
 				PF10
 				valid_addr = False
@@ -410,14 +422,14 @@ IF client_share <> unit_rent AND client_share <> "" THEN CALL write_bullet_and_v
 IF subsidy_check = 1 THEN CALL write_bullet_and_variable_in_case_note("Unit is subsidized. Subsidy Amount", FormatCurrency(subsidy_amount))
 CALL write_bullet_and_variable_in_case_note("Utilities Paid by Client", utilities_paid_listbox)
 'Case noting information about client move
-IF move_in_date <> "" THEN 
+IF move_in_date <> "" THEN
 	CALL write_variable_in_case_note("---")
 	CALL write_bullet_and_variable_in_case_note("Client reports moving. Move date", move_in_date)
 	CALL write_bullet_and_variable_in_case_note("New Address", new_address)
 	CALL write_variable_in_case_note           ("               " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
 	IF landlord_name <> "" THEN CALL write_bullet_and_variable_in_case_note("Landlord/Ppty Owner", landlord_name)
 	CALL write_bullet_and_variable_in_case_note("County of Residence Code", county_code)
-	IF valid_addr = False AND update_MAXIS_check = 1 THEN 
+	IF valid_addr = False AND update_MAXIS_check = 1 THEN
 		CALL write_variable_in_case_note("**ADDRESS COULD NOT BE STANDARDIZED IN MAXIS.**")
 		CALL write_variable_in_case_note("**THE SCRIPT DID NOT UPDATE ADDR.**")
 	END IF
@@ -426,13 +438,13 @@ END IF
 CALL write_variable_in_case_note("---")
 
 'Case noting specificically what the script did depending on the outcome of the actions taken updating MAXIS
-IF valid_addr = False AND room_and_board_check = 0 THEN 
+IF valid_addr = False AND room_and_board_check = 0 THEN
 	CALL write_variable_in_case_note("* SHEL and HEST updated with script.")
-ELSEIF valid_addr = True AND room_and_board_check = 0 THEN 
+ELSEIF valid_addr = True AND room_and_board_check = 0 THEN
 	CALL write_variable_in_case_note("* SHEL, HEST, and ADDR updated with script.")
-ELSEIF valid_addr = False AND room_and_board_check = 1 THEN 
+ELSEIF valid_addr = False AND room_and_board_check = 1 THEN
 	CALL write_variable_in_case_note("* HEST updated with script.")
-ELSEIF valid_addr = True AND room_and_board_check = 1 THEN 
+ELSEIF valid_addr = True AND room_and_board_check = 1 THEN
 	CALL write_variable_in_case_note("* HEST and ADDR updated with script.")
 END IF
 

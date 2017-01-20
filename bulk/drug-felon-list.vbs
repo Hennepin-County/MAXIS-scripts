@@ -57,7 +57,7 @@ Call get_county_code	'gets county name to input into the 1st col of the spreadsh
 county_name = left(county_name, len(county_name)-7)
 
 developer_mode = FALSE
-
+	
 'Runs the dialog'
 Do
 	Do
@@ -80,15 +80,15 @@ Do
 			err_msg = ""
 			Dialog dfln_selection_dialog
 			cancel_confirmation
-			If ButtonPressed = select_a_file_button then
+			If ButtonPressed = select_a_file_button then 
 				err_msg = err_msg & "REDO"
 				If dfln_list_excel_file_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 					objExcel.Quit 'Closing the Excel file that was opened on the first push'
 					objExcel = "" 	'Blanks out the previous file path'
 					sheet_list = ""	'Blanks the Month list out so that the previous worksheets are not still included'
-				End If
+				End If 
 				call file_selection_system_dialog(dfln_list_excel_file_path, ".xlsx") 'allows the user to select the file'
-			End If
+			End If 
 			If dfln_list_excel_file_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
 			If err_msg <> "" AND left(err_msg, 4) <> "REDO" Then MsgBox err_msg
 		Loop until err_msg = "" OR left(err_msg, 4) = "REDO"
@@ -100,16 +100,16 @@ Do
 		If worksheet_dropdown = "select one..." then err_msg = err_msg & vbNewLine & "Please indicate which worksheet has the DFLN data."
 		If err_msg <> "" AND left(err_msg, 4) <> "REDO" Then MsgBox err_msg
 	Loop until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in					
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 
-If dev_mode_checkbox = checked then
+If dev_mode_checkbox = checked then 
 	developer_mode = TRUE
 	MsgBox "Developer Mode Activated!"
-End If
+End If 
 
 objExcel.worksheets(worksheet_dropdown).Activate			'Activates the selected worksheet'
 
@@ -203,16 +203,16 @@ array_counter = 0
 excel_row = 2
 
 'This loop will find all of the entries in the excel sheet that are associated with the county running the script and adds those rows to the array to get additional information from.
-Do
+Do 
 	For column = 0 to UBound(col_name_array, 2)
 		If col_name_array(Col_Name, column) = "COUNTIES" Then 	'If the header identifies the county
 			If UCase(objExcel.cells(excel_row, col_name_array(Col_Numb, column)).Value) = UCase(county_name) Then	'If the content matches the county then it saves the row number
 				ReDim Preserve dfln_to_process_array(54, array_counter)
 				dfln_to_process_array(row_numb, array_counter) = excel_row
 				array_counter = array_counter + 1
-			End If
+			End If 
 			Exit For
-		End If
+		End If 
 	Next
 	excel_row = excel_row + 1
 	end_of_list = objExcel.cells(excel_row, 2).Value
@@ -222,7 +222,7 @@ Loop until end_of_list = ""
 For person = 0 to Ubound(dfln_to_process_array, 2)
 	STATS_counter = STATS_counter + 1
 	For column = 0 to UBound(col_name_array, 2)
-		If col_name_array(Col_Name, column) = "REPORT_MONTH"             Then dfln_to_process_array(month_reptd, person)  = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
+		If col_name_array(Col_Name, column) = "REPORT_MONTH"             Then dfln_to_process_array(month_reptd, person)  = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)	
 		If col_name_array(Col_Name, column) = "CASENUMBER"               Then dfln_to_process_array(case_numb, person)    = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
 		If col_name_array(Col_Name, column) = "PERSONID"                 Then dfln_to_process_array(pers_id, person)      = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
 
@@ -233,7 +233,7 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 		If col_name_array(Col_Name, column) = "CITY01"                   Then dfln_to_process_array(city_01, person)      = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
 		If col_name_array(Col_Name, column) = "STATE01"                  Then dfln_to_process_array(state_01, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
 		If col_name_array(Col_Name, column) = "ZIP01"                    Then dfln_to_process_array(zip_01, person)       = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
-
+	
 		If col_name_array(Col_Name, column) = "COUNTYCOURTDESCRIPTION02" Then dfln_to_process_array(cty_court_02, person) = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
 		If col_name_array(Col_Name, column) = "SENTENCEDATE02"           Then dfln_to_process_array(sent_dt_02, person)   = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
 		If col_name_array(Col_Name, column) = "ADDRESS1_02"              Then dfln_to_process_array(addr1_02, person)     = trim(objExcel.cells(dfln_to_process_array(row_numb, person), col_name_array(Col_Numb, column)).Value)
@@ -283,9 +283,9 @@ For person = 0 to Ubound(dfln_to_process_array, 2)	'The script now needs to get 
 	MAXIS_case_number = dfln_to_process_array(case_numb, person)
 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 	EMReadScreen memb_confirm, 4, 2, 48
-	If memb_confirm = "MEMB" Then
+	If memb_confirm = "MEMB" Then 
 		memb_row = 5
-		Do
+		Do 
 			EMReadScreen ref_nbr, 2, memb_row, 3	'Reads each reference number from the member list in STAT
 			If ref_nbr = "  " Then Exit Do 			'Once it reaches the end, it exits out
 			EMWriteScreen ref_nbr, 20, 76			'Goes to MEMB for that reference number
@@ -298,68 +298,68 @@ For person = 0 to Ubound(dfln_to_process_array, 2)	'The script now needs to get 
 				EMReadScreen middile_i, 1, 6, 79
 				first_name = replace(first_name, "_", "")
 				last_nmae = replace(last_nmae, "_", "")
-				If middile_i <> "_" Then
+				If middile_i <> "_" Then 
 					middile_i = middile_i & "."
-				Else
+				Else 
 					middile_i = ""
-				End If
+				End If 
 				dfln_to_process_array(clt_name, person) = last_nmae & ", " & first_name & " " & middile_i
 				dfln_to_process_array(ref_numb, person) = ref_nbr
 				Exit Do
-			End If
+			End If 
 			memb_row = memb_row + 1
 		Loop until memb_row = 20
 
 		'Setting booleans for each loop
 		cash_active = FALSE
-		snap_active = FALSE
-		hc_active = FALSE
+		snap_active = FALSE 
+		hc_active = FALSE 
 
 		Call navigate_to_MAXIS_screen ("STAT", "PROG")		'Goes to prog to get program information
-
+		
 		EMReadScreen x_numb, 7, 21, 21
 		dfln_to_process_array(worker_nbr, person) = x_numb
-
+		
 		EMReadScreen cash_1_status, 4, 6, 74
 		EMReadScreen cash_2_status, 4, 7, 74
 		EMReadScreen snap_status,   4, 10, 74
 		EMReadScreen hc_status,     4, 12, 74
-
+		
 		If cash_1_status = "ACTV" OR cash_1_status = "PEND" Then EMReadScreen cash_1_prog, 2, 6, 67
-		If cash_2_status = "ACTV" OR cash_1_status = "PEND" Then EMReadScreen cash_2_prog, 2, 6, 67
+		If cash_2_status = "ACTV" OR cash_1_status = "PEND" Then EMReadScreen cash_2_prog, 2, 6, 67	
 		IF cash_1_status = "ACTV" OR cash_2_status = "ACTV" Then cash_active = TRUE
 		IF snap_status = "ACTV" Then snap_active = TRUE
-		IF hc_status = "ACTV" Then hc_active = TRUE
-
+		IF hc_status = "ACTV" Then hc_active = TRUE 
+		
 		IF cash_1_prog = "GA" OR cash_2_prog = "GA" Then dfln_to_process_array(cash_prog, person) = "GA"
 		IF cash_1_prog = "MS" OR cash_2_prog = "MS" Then dfln_to_process_array(cash_prog, person) = "MSA"
 		IF cash_1_prog = "RC" OR cash_2_prog = "RC" Then dfln_to_process_array(cash_prog, person) = "RCA"
 		IF cash_1_prog = "MF" OR cash_2_prog = "MF" Then dfln_to_process_array(cash_prog, person) = "MFIP"
 		IF cash_1_prog = "DW" OR cash_2_prog = "DW" Then dfln_to_process_array(cash_prog, person) = "DWP"
 		IF cash_active = FALSE Then dfln_to_process_array(cash_prog, person) = "NONE"
-
+		
 		IF cash_active = FALSE AND snap_active = FALSE AND hc_active = FALSE Then 	'If no programs are active, the case is considered CLOSED
 			dfln_to_process_array(actv_cty, person) = "Closed"
-		Else
+		Else 
 			EMReadScreen cty_code, 2, 21, 23										'If case is not closed the script gathers the county code of the worker that 'owns' the case
 			dfln_to_process_array(actv_cty, person) = cty_code
-		End If
+		End If 
 
 		'Identifying family vs adult cases if cash program is open
 		If dfln_to_process_array(cash_prog, person) = "GA" OR dfln_to_process_array(cash_prog, person) = "MSA" OR dfln_to_process_array(cash_prog, person) = "RCA" Then dfln_to_process_array(case_pop, person) = "Adult"
 		If dfln_to_process_array(cash_prog, person) = "MFIP" OR dfln_to_process_array(cash_prog, person) = "DWP" Then dfln_to_process_array(case_pop, person) = "Family"
-
+		
 		'If no cash program open, looks at PREG to determine if it is a family case
-		If dfln_to_process_array(case_pop, person) = "" then
+		If dfln_to_process_array(case_pop, person) = "" then 
 			dfln_to_process_array(case_pop, person) = "UNKNOWN"
-			Call navigate_to_MAXIS_screen ("STAT", "PREG")
+			Call navigate_to_MAXIS_screen ("STAT", "PREG") 
 			EMReadScreen due_dt, 8, 10, 53
-			If due_dt <> "__ __ __" Then
+			If due_dt <> "__ __ __" Then 
 				due_dt = replace(due_dt, " ", "/")
 				If DateDiff("d", date, due_dt) > 0 Then dfln_to_process_array(case_pop, person) = "Family"
-			End If
-		End If
-
+			End If 
+		End If 
+		
 		'Gathering address from STAT
 		Call navigate_to_MAXIS_screen ("STAT", "ADDR")
 		EMReadScreen stat_addr_1, 22, 6, 43
@@ -372,9 +372,9 @@ For person = 0 to Ubound(dfln_to_process_array, 2)	'The script now needs to get 
 		stat_addr_C = replace(stat_addr_C, "_", "")
 		stat_addr_S = replace(stat_addr_S, "_", "")
 		stat_addr_Z = replace(stat_addr_Z, "_", "")
-
+		
 		dfln_to_process_array(stat_addr, person) = stat_addr_1 & "~" & stat_addr_2 & "~" & stat_addr_C & "~" & stat_addr_S & "~" & stat_addr_Z
-
+		
 		'Gathering mailing address if different
 		EMReadScreen stat_mail_1, 22, 13, 43
 		stat_mail_1 = replace(stat_mail_1, "_", "")
@@ -389,14 +389,14 @@ For person = 0 to Ubound(dfln_to_process_array, 2)	'The script now needs to get 
 			stat_mail_Z = replace(stat_mail_Z, "_", "")
 			dfln_to_process_array(stat_mail, person) = stat_mail_1 & "~" & stat_mail_2 & "~" & stat_mail_C & "~" & stat_mail_S & "~" & stat_mail_Z
 		End If
-
-	End If
+		
+	End If 
 Next
 
 'Gathers the worker's supervisor x-number
 Call navigate_to_MAXIS_screen("REPT", "USER")
 For person = 0 to Ubound(dfln_to_process_array, 2)
-	If right(dfln_to_process_array(worker_nbr, person) , 3) <> "CLS" Then
+	If right(dfln_to_process_array(worker_nbr, person) , 3) <> "CLS" Then 
 		EMWriteScreen dfln_to_process_array(worker_nbr, person), 21, 12
 		transmit
 		EMWriteScreen "X", 7, 3
@@ -404,7 +404,7 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 		EMReadScreen x_numb, 7, 14, 61
 		dfln_to_process_array(superv_nbr, person) = x_numb
 		transmit
-	End If
+	End If 
 	x_numb = ""
 Next
 
@@ -416,38 +416,38 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 		MAXIS_case_number = dfln_to_process_array(case_numb, person)
 		Call navigate_to_MAXIS_screen ("CASE", "PERS")
 		EMReadScreen second_pers, 2, 13, 3
-		If second_pers = "  " Then
+		If second_pers = "  " Then 
 			dfln_to_process_array(case_pop, person) = "Adult"
 		Else
 			EMReadScreen relationship, 20, 14, 18
 			relationship = trim(relationship)
-			If relationship = "Child" Then
+			If relationship = "Child" Then 
 				dfln_to_process_array(case_pop, person) = "Family"
 				other_pers = "kid"
-			ElseIf relationship = "Spouse" Then
+			ElseIf relationship = "Spouse" Then 
 				EMReadscreen other_pers, 2, 16, 3
 				If other_pers = "  " Then dfln_to_process_array(case_pop, person) = "Adult"
-			End If
-		End If
-	End If
+			End If 
+		End If 
+	End If 
 Next
 
 back_to_self
 
 'Goes to update DFLN
 For person = 0 to Ubound(dfln_to_process_array, 2)
-	DFLN_Updated = FALSE
+	DFLN_Updated = FALSE 
 	MAXIS_case_number = dfln_to_process_array(case_numb, person)
 	Call navigate_to_MAXIS_screen ("STAT", "DFLN")
 	EMWriteScreen dfln_to_process_array(ref_numb, person), 20, 76
 	transmit
-
+	
 	EMReadScreen listed_date, 8, 6, 27	'Checks to see if there is already DFLN information on the panel
 	If listed_date <> "__ __ __" Then 	'If there is, the script allows the worker to see what DFLN will be updated with and answer yes or no to having the script update
-
+		
 		'Creating a message with all the DFLN information from the spreadsheet
 		If dfln_to_process_array(cty_court_01, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_01, person) &_
-		   " sentanced on " & dfln_to_process_array(sent_dt_01, person) & " in " & dfln_to_process_array(state_01, person)& vbNewLine & vbNewLine
+		   " sentanced on " & dfln_to_process_array(sent_dt_01, person) & " in " & dfln_to_process_array(state_01, person)& vbNewLine & vbNewLine 
 		If dfln_to_process_array(cty_court_02, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_02, person) &_
 		   " sentanced on " & dfln_to_process_array(sent_dt_02, person) & " in " & dfln_to_process_array(state_02, person)& vbNewLine & vbNewLine
 		If dfln_to_process_array(cty_court_03, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_03, person) &_
@@ -456,101 +456,101 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 		  " sentanced on " & dfln_to_process_array(sent_dt_04, person) & " in " & dfln_to_process_array(state_04, person)& vbNewLine & vbNewLine
 		If dfln_to_process_array(cty_court_05, person) <> "?" Then update_dfln_msg = update_dfln_msg & dfln_to_process_array(cty_court_05, person) &_
 		   " sentanced on " & dfln_to_process_array(sent_dt_05, person) & " in " & dfln_to_process_array(state_05, person)& vbNewLine & vbNewLine
-
+	   
 		replace_DFLN_msg = MsgBox("It appears the DFLN information is already listed on this case. Do you want the script to replace the listed information with:" &vbNewLine & vbNewLine &_
 		  update_dfln_msg & vbNewLine & vbNewLine & "Replacement is recommended if the convictions on the panel are repeated here.", vbYesNo + vbQuestion, "DFLN Exists")
-
-	End If
-
+		  
+	End If 
+	
 	If listed_date = "__ __ __" OR replace_DFLN_msg = vbYes Then 	'If DFLN is blank OR if the worker requested it to be updated the scrpt will update
 		EMReadScreen dfln_verion, 1, 2, 78							'Puts panel in edit OR creates a new panel
 		If dfln_verion = "1" then PF9
-		IF dfln_verion = "0" then
+		IF dfln_verion = "0" then 
 			EMWriteScreen "NN", 20, 79
 			transmit
-		End If
+		End If 
 		EMReadScreen Edit_check, 8, 24, 21
 		If Edit_check = "INACTIVE" OR Edit_check = "ACCESS F" Then 		'1406696, 1485421'
-			DFLN_Updated = FALSE
-		Else
-			DFLN_Updated = TRUE
+			DFLN_Updated = FALSE 
+		Else 
+			DFLN_Updated = TRUE 
 			mx_row = 6
-			If dfln_to_process_array(cty_court_01, person) <> "?" Then
+			If dfln_to_process_array(cty_court_01, person) <> "?" Then 
 				EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
-				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_01, person)), 2)
+				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_01, person)), 2)  
 				sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_01, person)), 2)
-				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_01, person)), 2)
+				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_01, person)), 2)    
 				EMWriteScreen sent_day, mx_row, 30
 				EMWriteScreen sent_mth, mx_row, 27
 				EMWriteScreen sent_year, mx_row, 33
-				EMWriteScreen dfln_to_process_array(state_01, person), mx_row, 75
+				EMWriteScreen dfln_to_process_array(state_01, person), mx_row, 75  
 				mx_row = mx_row + 1
-			End If
-
-			If dfln_to_process_array(cty_court_02, person) <> "?" Then
+			End If 	
+			     
+			If dfln_to_process_array(cty_court_02, person) <> "?" Then 
 				EMWriteScreen dfln_to_process_array(cty_court_02, person), mx_row, 41
-				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_02, person)), 2)
+				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_02, person)), 2)  
 				sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_02, person)), 2)
-				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_02, person)), 2)
+				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_02, person)), 2)    
 				EMWriteScreen sent_day, mx_row, 30
 				EMWriteScreen sent_mth, mx_row, 27
 				EMWriteScreen sent_year, mx_row, 33
-				EMWriteScreen dfln_to_process_array(state_02, person), 6, 75
+				EMWriteScreen dfln_to_process_array(state_02, person), 6, 75  
 				mx_row = mx_row + 1
-			End If
-
-			If dfln_to_process_array(cty_court_03, person) <> "?" Then
+			End If 	
+			
+			If dfln_to_process_array(cty_court_03, person) <> "?" Then 
 				EMWriteScreen dfln_to_process_array(cty_court_03, person), mx_row, 41
-				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_03, person)), 2)
+				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_03, person)), 2)  
 				sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_03, person)), 2)
-				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_03, person)), 2)
+				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_03, person)), 2)    
 				EMWriteScreen sent_day, mx_row, 30
 				EMWriteScreen sent_mth, mx_row, 27
 				EMWriteScreen sent_year, mx_row, 33
-				EMWriteScreen dfln_to_process_array(state_03, person), mx_row, 75
+				EMWriteScreen dfln_to_process_array(state_03, person), mx_row, 75  
 				mx_row = mx_row + 1
-			End If
-
-			If dfln_to_process_array(cty_court_04, person) <> "?" Then
+			End If 	
+			
+			If dfln_to_process_array(cty_court_04, person) <> "?" Then 
 				EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
-				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_04, person)), 2)
+				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_04, person)), 2)  
 				sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_04, person)), 2)
-				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_04, person)), 2)
+				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_04, person)), 2)    
 				EMWriteScreen sent_day, mx_row, 30
 				EMWriteScreen sent_mth, mx_row, 27
 				EMWriteScreen sent_year, mx_row, 33
-				EMWriteScreen dfln_to_process_array(state_04, person), mx_row, 75
+				EMWriteScreen dfln_to_process_array(state_04, person), mx_row, 75  
 				mx_row = mx_row + 1
-			End If
-
-			If dfln_to_process_array(cty_court_05, person) <> "?" Then
+			End If 	
+			
+			If dfln_to_process_array(cty_court_05, person) <> "?" Then 
 				EMWriteScreen dfln_to_process_array(cty_court_01, person), mx_row, 41
-				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_05, person)), 2)
+				sent_day = right("00" & DatePart("d", dfln_to_process_array(sent_dt_05, person)), 2)  
 				sent_mth = right("00" & DatePart("m", dfln_to_process_array(sent_dt_05, person)), 2)
-				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_05, person)), 2)
+				sent_year = right(DatePart("yyyy", dfln_to_process_array(sent_dt_05, person)), 2)    
 				EMWriteScreen sent_day, mx_row, 30
 				EMWriteScreen sent_mth, mx_row, 27
 				EMWriteScreen sent_year, mx_row, 33
-				EMWriteScreen dfln_to_process_array(state_05, person), mx_row, 75
+				EMWriteScreen dfln_to_process_array(state_05, person), mx_row, 75  
 				mx_row = mx_row + 1
-			End If
-			If developer_mode = TRUE then
+			End If 	
+			If developer_mode = TRUE then 
 				MsgBox "This is what DLFN will be updated to."
 				PF10
 				MsgBox "Entry undone."
-			End If
-		End If
-	End If
+			End If 
+		End If 
+	End If 
 
 	update_dfln_msg = ""
-	If DFLN_Updated = FALSE Then
-		DFLN_fail_array = DFLN_fail_array & "~" & dfln_to_process_array(case_numb, person)
-	End If
+	If DFLN_Updated = FALSE Then 
+		DFLN_fail_array = DFLN_fail_array & "~" & dfln_to_process_array(case_numb, person)   
+	End If 
 
 	back_to_self
-
-	If developer_mode = TRUE Then
-		If dfln_to_process_array(cash_prog, person) = "NONE" Then
+	
+	If developer_mode = TRUE Then 
+		If dfln_to_process_array(cash_prog, person) = "NONE" Then 
 			case_note_text = case_note_text & "** DRUG FELON MATCH**" & vbNewLine
 			If DFLN_Updated = TRUE Then case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.") & vbNewLine
 			If DFLN_Updated = FALSE Then case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list.") & vbNewLine
@@ -574,12 +574,12 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 			case_note_text = case_note_text & ("MEMB " & dfln_to_process_array(ref_numb, person) & " has 10 days to cooperate by providing requested information.") & vbNewLine
 			case_note_text = case_note_text & ("---") & vbNewLine
 			case_note_text = case_note_text & (worker_signature) & vbNewLine
-		End If
+		End If 
 		MsgBox "Case note would say:" & vbNewLine & vbNewLine & case_note_text
 		case_note_text = ""
-	Else
+	Else 
 		start_a_blank_case_note
-		If dfln_to_process_array(cash_prog, person) = "NONE" Then
+		If dfln_to_process_array(cash_prog, person) = "NONE" Then 
 			Call Write_variable_in_case_note ("** DRUG FELON MATCH**")
 			If DFLN_Updated = TRUE Then Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list. DFLN Updated.")
 			If DFLN_Updated = FALSE Then Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " reported on Drug Felon list.")
@@ -603,8 +603,8 @@ For person = 0 to Ubound(dfln_to_process_array, 2)
 			Call Write_variable_in_case_note ("MEMB " & dfln_to_process_array(ref_numb, person) & " has 10 days to cooperate by providing requested information.")
 			Call Write_variable_in_case_note ("---")
 			Call Write_variable_in_case_note (worker_signature)
-		End If
-	End If
+		End If 
+	End If 
 Next
 
 Set objNewExcel = CreateObject("Excel.Application")
@@ -641,7 +641,7 @@ objNewExcel.Cells(1, name_col).Font.Bold = True
 pop_col = 9
 objNewExcel.Cells(1, pop_col).Value = "Population"
 objNewExcel.Cells(1, pop_col).Font.Bold = True
-cash_prog_col = 10
+cash_prog_col = 10 
 objNewExcel.Cells(1, cash_prog_col).Value = "Cash Program"
 objNewExcel.Cells(1, cash_prog_col).Font.Bold = True
 actv_cty_col = 11
@@ -739,84 +739,84 @@ excel_row = 2
 For person = 0 to Ubound(dfln_to_process_array, 2)
 
 	objNewExcel.Cells(excel_row, county_col).Value = county_name
-	objNewExcel.Cells(excel_row, month_col).Value  = dfln_to_process_array(month_reptd, person)
+	objNewExcel.Cells(excel_row, month_col).Value  = dfln_to_process_array(month_reptd, person) 
 	objNewExcel.Cells(excel_row, county_code_col).Value = right(worker_county_code, 2)
 	objNewExcel.Cells(excel_row, supervisor_col).Value = dfln_to_process_array(superv_nbr, person)
 	objNewExcel.Cells(excel_row, worker_col).Value = dfln_to_process_array(worker_nbr, person)
-	objNewExcel.Cells(excel_row, case_nbr_col).Value = dfln_to_process_array(case_numb, person)
-	objNewExcel.Cells(excel_row, pers_id_col).Value = dfln_to_process_array(pers_id, person)
-	objNewExcel.Cells(excel_row, name_col).Value = dfln_to_process_array(clt_name, person)
+	objNewExcel.Cells(excel_row, case_nbr_col).Value = dfln_to_process_array(case_numb, person)   
+	objNewExcel.Cells(excel_row, pers_id_col).Value = dfln_to_process_array(pers_id, person) 
+	objNewExcel.Cells(excel_row, name_col).Value = dfln_to_process_array(clt_name, person) 
+	
+	objNewExcel.Cells(excel_row, pop_col).Value = dfln_to_process_array(case_pop, person)   
+	objNewExcel.Cells(excel_row, cash_prog_col).Value = dfln_to_process_array(cash_prog, person) 
+	objNewExcel.Cells(excel_row, actv_cty_col).Value = dfln_to_process_array(actv_cty, person) 
+	
+	objNewExcel.Cells(excel_row, court1_col).Value = dfln_to_process_array(cty_court_01, person) 
+	objNewExcel.Cells(excel_row, sntc_dt_1_col).Value = dfln_to_process_array(sent_dt_01, person)   
+	objNewExcel.Cells(excel_row, addr1_01_col).Value = dfln_to_process_array(addr1_01, person)  
+	objNewExcel.Cells(excel_row, addr2_01_col).Value = dfln_to_process_array(addr2_01, person)    
+	objNewExcel.Cells(excel_row, city1_col).Value = dfln_to_process_array(city_01, person)   
+	objNewExcel.Cells(excel_row, state1_col).Value = dfln_to_process_array(state_01, person)   
+	objNewExcel.Cells(excel_row, zip1_col).Value = dfln_to_process_array(zip_01, person)     
 
-	objNewExcel.Cells(excel_row, pop_col).Value = dfln_to_process_array(case_pop, person)
-	objNewExcel.Cells(excel_row, cash_prog_col).Value = dfln_to_process_array(cash_prog, person)
-	objNewExcel.Cells(excel_row, actv_cty_col).Value = dfln_to_process_array(actv_cty, person)
-
-	objNewExcel.Cells(excel_row, court1_col).Value = dfln_to_process_array(cty_court_01, person)
-	objNewExcel.Cells(excel_row, sntc_dt_1_col).Value = dfln_to_process_array(sent_dt_01, person)
-	objNewExcel.Cells(excel_row, addr1_01_col).Value = dfln_to_process_array(addr1_01, person)
-	objNewExcel.Cells(excel_row, addr2_01_col).Value = dfln_to_process_array(addr2_01, person)
-	objNewExcel.Cells(excel_row, city1_col).Value = dfln_to_process_array(city_01, person)
-	objNewExcel.Cells(excel_row, state1_col).Value = dfln_to_process_array(state_01, person)
-	objNewExcel.Cells(excel_row, zip1_col).Value = dfln_to_process_array(zip_01, person)
-
-	If dfln_to_process_array(stat_addr, person) <> "" Then
+	If dfln_to_process_array(stat_addr, person) <> "" Then 
 		stat_addr_array = split(dfln_to_process_array(stat_addr, person), "~")
 		address_entry = stat_addr_array(0) & " " & stat_addr_array(1) & " " & stat_addr_array(2) & ", " & stat_addr_array(3) & " " & stat_addr_array(4)
 		objNewExcel.Cells(excel_row, stat_addr_col).Value = address_entry
-	End If
-	If dfln_to_process_array(stat_mail, person) <> "" Then
+	End If 
+	If dfln_to_process_array(stat_mail, person) <> "" Then 
 		stat_mail_array = split(dfln_to_process_array(stat_mail, person), "~")
 		mailing_entry = stat_mail_array(0) & " " & stat_mail_array(1) & " " & stat_mail_array(2) & ", " & stat_mail_array(3) & " " & stat_mail_array(4)
 		objNewExcel.Cells(excel_row, stat_mail_col).Value = mailing_entry
-	End If
-
-	If dfln_to_process_array(actv_cty, person) = right(worker_county_code, 2) Then
+	End If 
+	
+	If dfln_to_process_array(actv_cty, person) = right(worker_county_code, 2) Then 
 		objNewExcel.Cells(excel_row, county_notice_col).Value = "Yes"
 		objNewExcel.Cells(excel_row, dhs_3353_col).Value = "Yes"
-
+		
 		objNewExcel.Cells(excel_row, county_notice_col).Interior.ColorIndex = 6	'Highlights cell
 		objNewExcel.Cells(excel_row, dhs_3353_col).Interior.ColorIndex = 6			'Highlights cell
-		If dfln_to_process_array(cash_prog, person) = "MSA" OR dfln_to_process_array(cash_prog, person) = "GA" Then
+		If dfln_to_process_array(cash_prog, person) = "MSA" OR dfln_to_process_array(cash_prog, person) = "GA" Then 
 			objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "Yes"
 			objNewExcel.Cells(excel_row, dhs_6749A_col).Interior.ColorIndex = 6	'Highlights cell
-		Else
+		Else 
 			objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "No"
-		End If
-		If dfln_to_process_array(cash_prog, person) = "MFIP" Then
+		End If 
+		If dfln_to_process_array(cash_prog, person) = "MFIP" Then 
 			objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "Yes"
 			objNewExcel.Cells(excel_row, dhs_6749B_col).Interior.ColorIndex = 6	'Highlights cell
-		Else
+		Else 
 			objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "No"
-		End If
-		If dfln_to_process_array(case_pop, person) = "UNKNOWN" Then
+		End If 
+		If dfln_to_process_array(case_pop, person) = "UNKNOWN" Then 
 			objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "?"
 			objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "?"
 			objNewExcel.Cells(excel_row, dhs_6749A_col).Interior.ColorIndex = 3	'Fills the row with red
 			objNewExcel.Cells(excel_row, dhs_6749B_col).Interior.ColorIndex = 3	'Fills the row with red
-		End If
-	Else
+		End If 
+	Else 
 		objNewExcel.Cells(excel_row, county_notice_col).Value = "No"
 		objNewExcel.Cells(excel_row, dhs_3353_col).Value = "No"
 		objNewExcel.Cells(excel_row, dhs_6749A_col).Value = "No"
-		objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "No"
-	End If
-
-	objNewExcel.Cells(excel_row, court2_col).Value = dfln_to_process_array(cty_court_02, person)
-	objNewExcel.Cells(excel_row, sntc_dt_2_col).Value = dfln_to_process_array(sent_dt_02, person)
-	objNewExcel.Cells(excel_row, addr1_02_col).Value = dfln_to_process_array(addr1_02, person)
-	objNewExcel.Cells(excel_row, addr2_02_col).Value = dfln_to_process_array(addr2_02, person)
-	objNewExcel.Cells(excel_row, city2_col).Value = dfln_to_process_array(city_02, person)
-	objNewExcel.Cells(excel_row, state2_col).Value = dfln_to_process_array(state_02, person)
-	objNewExcel.Cells(excel_row, zip2_col).Value = dfln_to_process_array(zip_02, person)
-
-	objNewExcel.Cells(excel_row, court3_col).Value = dfln_to_process_array(cty_court_03, person)
-	objNewExcel.Cells(excel_row, sntc_dt_3_col).Value = dfln_to_process_array(sent_dt_03, person)
-	objNewExcel.Cells(excel_row, addr1_03_col).Value = dfln_to_process_array(addr1_03, person)
-	objNewExcel.Cells(excel_row, addr2_03_col).Value = dfln_to_process_array(addr2_03, person)
-	objNewExcel.Cells(excel_row, city3_col).Value = dfln_to_process_array(city_03, person)
-	objNewExcel.Cells(excel_row, state3_col).Value = dfln_to_process_array(state_03, person)
-	objNewExcel.Cells(excel_row, zip3_col).Value = dfln_to_process_array(zip_03, person)
-
+		objNewExcel.Cells(excel_row, dhs_6749B_col).Value = "No"	
+	End If 
+	
+	objNewExcel.Cells(excel_row, court2_col).Value = dfln_to_process_array(cty_court_02, person) 
+	objNewExcel.Cells(excel_row, sntc_dt_2_col).Value = dfln_to_process_array(sent_dt_02, person)   
+	objNewExcel.Cells(excel_row, addr1_02_col).Value = dfln_to_process_array(addr1_02, person)  
+	objNewExcel.Cells(excel_row, addr2_02_col).Value = dfln_to_process_array(addr2_02, person)    
+	objNewExcel.Cells(excel_row, city2_col).Value = dfln_to_process_array(city_02, person)   
+	objNewExcel.Cells(excel_row, state2_col).Value = dfln_to_process_array(state_02, person)   
+	objNewExcel.Cells(excel_row, zip2_col).Value = dfln_to_process_array(zip_02, person) 
+	
+	objNewExcel.Cells(excel_row, court3_col).Value = dfln_to_process_array(cty_court_03, person) 
+	objNewExcel.Cells(excel_row, sntc_dt_3_col).Value = dfln_to_process_array(sent_dt_03, person)   
+	objNewExcel.Cells(excel_row, addr1_03_col).Value = dfln_to_process_array(addr1_03, person)  
+	objNewExcel.Cells(excel_row, addr2_03_col).Value = dfln_to_process_array(addr2_03, person)    
+	objNewExcel.Cells(excel_row, city3_col).Value = dfln_to_process_array(city_03, person)   
+	objNewExcel.Cells(excel_row, state3_col).Value = dfln_to_process_array(state_03, person)   
+	objNewExcel.Cells(excel_row, zip3_col).Value = dfln_to_process_array(zip_03, person) 
+	
 	excel_row = excel_row + 1
 Next
 
@@ -824,35 +824,35 @@ For col_to_autofit = 1 to 34
 	ObjNewExcel.columns(col_to_autofit).AutoFit()
 Next
 
-If DFLN_fail_array <> "" Then
+If DFLN_fail_array <> "" Then 
 	DFLN_fail_array = right(DFLN_fail_array, len(DFLN_fail_array)-1)
 	DFLN_fail_array = split(DFLN_fail_array, "~")
-
+	
 	excel_row = excel_row + 2
-
+	
 	objNewExcel.Cells(excel_row, 1).Value = "Cases in which DFLN was NOT updated."
 	objNewExcel.Cells(excel_row, 1).Font.Bold = True
 	objNewExcel.Cells(excel_row + 1, 1).Value = "Process Manually"
 	objNewExcel.Cells(excel_row + 1, 1).Font.Bold = True
-
-
+	
+	
 	'Merging header cell.
 	objNewExcel.Range(objNewExcel.Cells(excel_row, 1), objNewExcel.Cells(excel_row, 3)).Merge
 	objNewExcel.Range(objNewExcel.Cells(excel_row + 1, 1), objNewExcel.Cells(excel_row + 1, 3)).Merge
-
+	
 	'Centering the cell
 	objNewExcel.Cells(excel_row, 1).HorizontalAlignment = -4108
 	objNewExcel.Cells(excel_row + 1, 1).HorizontalAlignment = -4108
 
 	excel_row = excel_row + 2
-
-	For each number in DFLN_fail_array
-
+	
+	For each number in DFLN_fail_array 
+	
 		objNewExcel.Cells(excel_row, 2).Value = number
 		excel_row = excel_row + 1
-
+	
 	Next
-End If
+End If 
 
 STATS_counter = STATS_counter - 1
 script_end_procedure("Success! Script has completed run. Excel spreadsheet created with DFLN matches for your county with additional information. DFLN updated per your responses and Case Notes created.")

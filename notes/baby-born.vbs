@@ -38,7 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 'This script currently only has one dialog and so it can be defined in the beginning but is unnamedBeginDialog , 0, 0, 211, 310, "BABY BORN"
   EditBox 55, 5, 95, 15, MAXIS_case_number
@@ -113,10 +125,10 @@ CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 
 'Send PF9 to case note
 PF9
- 
+
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 CALL write_variable_in_Case_Note("--Client reports birth of baby--")
-CALL write_bullet_and_variable_in_Case_Note("Baby's name", babys_name)	
+CALL write_bullet_and_variable_in_Case_Note("Baby's name", babys_name)
 CALL write_bullet_and_variable_in_Case_Note("Date of birth", date_of_birth)
 CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name)
 CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
@@ -131,4 +143,3 @@ CALL write_variable_in_Case_Note("----")
 CALL write_variable_in_Case_Note(worker_signature)
 
 script_end_procedure ("")
-

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THE DIALOG----------------------------------------------------------------------------------------------------------
 BeginDialog msq_dialog, 0, 0, 321, 125, "MSQ"
   EditBox 80, 5, 70, 15, MAXIS_case_number
@@ -63,12 +75,12 @@ EndDialog
 'Connects to BLUEZONE
 EMConnect ""
 
-'Grabs the MAXIS case number            
+'Grabs the MAXIS case number
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog
 DO
-	err_msg = ""		
+	err_msg = ""
 	Dialog msq_dialog
 		IF ButtonPressed = 0 THEN StopScript
 		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."

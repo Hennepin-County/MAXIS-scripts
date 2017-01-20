@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 BeginDialog Good_Cause_Claimed_Results_Dialog, 0, 0, 276, 300, "Good Cause Claim Determination"
   EditBox 205, 20, 65, 15, MAXIS_case_number
   EditBox 135, 40, 60, 15, Claim_Committee_Date
@@ -90,7 +102,7 @@ DO
 	IF worker_signature = "" THEN err_Msg = err_msg & vbCr & "You must sign your case note!"
 	IF err_msg <> "" THEN Msgbox err_msg
 LOOP UNTIL err_msg = ""
-	
+
 
 
 'seting variables for the programs included
@@ -112,7 +124,7 @@ IF Determination_droplist = "APPROVED" THEN CALL write_bullet_and_variable_in_ca
 CALL write_bullet_and_variable_in_case_note("Reason for denial", denial_reason)
 CALL write_bullet_and_variable_in_case_note("Applicable Programs", programs_included)
 CALL write_bullet_and_variable_in_case_note("Date DHS-3629 was sent", dhs3629_sent_DATE)
-CALL write_bullet_and_variable_in_case_note("Date DHS-3628 & DHS-0033 were sent", Date_DHS_docs_sent) 
+CALL write_bullet_and_variable_in_case_note("Date DHS-3628 & DHS-0033 were sent", Date_DHS_docs_sent)
 CALL write_bullet_and_variable_in_case_note("Additional information", Other_Comments)
 
 

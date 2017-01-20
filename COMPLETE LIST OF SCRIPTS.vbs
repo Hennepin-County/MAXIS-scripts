@@ -86,6 +86,17 @@ script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)
+Set script_array(script_num) = new script_bowie
+script_array(script_num).script_name 			= "ABAWD FIATer"																		'Script name
+script_array(script_num).description 			= "FIATS SNAP eligibility, income, and deductions for HH members with more than 3 counted months on the ABAWD tracking record."
+script_array(script_num).category               = "ACTIONS"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("ABAWD")
+script_array(script_num).release_date           = #01/17/2017#
+
+
+script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "ABAWD FSET Exemption Check"																		'Script name
@@ -1386,6 +1397,16 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Asset Reduction"
+script_array(script_num).description			= "Template for documenting pending and resolving an asset reduction."
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).release_date           = #01/19/2017#
+
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
@@ -1889,6 +1910,15 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "SMRT"
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #01/19/2017#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Verifications Needed"
 script_array(script_num).description				= "Template for when verifications are needed (enters each verification clearly)."
 script_array(script_num).category               = "NOTES"
@@ -2217,6 +2247,16 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Client Death WCOM"
+script_array(script_num).description 			= "Adds a WCOM to a notice regarding SNAP closure due to death of last HH member."
+script_array(script_num).category               = "NOTICES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #01/18/2017#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Duplicate Assistance WCOM"
 script_array(script_num).description 			= "Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
 script_array(script_num).category               = "NOTICES"
@@ -2232,9 +2272,17 @@ script_array(script_num).description 			= "Sends a WCOM informing the client of 
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("SNAP WCOMS")
-script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).release_date           = #01/18/2017#
 
-
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Returned Mail WCOM"
+script_array(script_num).description 			= "Adds a WCOM to a notice for SNAP returned mail closure."
+script_array(script_num).category               = "NOTICES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("SNAP WCOMS")
+script_array(script_num).release_date           = #01/18/2017#
 
 
 
