@@ -191,18 +191,18 @@ EndDialog
 EMConnect ""
 
 'initial dialog for case number and PMI
-Do 
-	Do 
+Do
+	Do
 		err_msg = ""
 		Dialog case_and_PMI_number_dialog
 		If ButtonPressed = 0 then stopscript
-		If IsNumeric(LTC_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid LTC spouse PMI." 
-		If IsNumeric(community_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid Community spouse PMI." 
-		If AA_option = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select an Asset Assessment option." 
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-	Loop until err_msg = ""	
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+		If IsNumeric(LTC_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid LTC spouse PMI."
+		If IsNumeric(community_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid Community spouse PMI."
+		If AA_option = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select an Asset Assessment option."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False)
 call navigate_to_MAXIS_screen("aset", "____")
@@ -228,98 +228,11 @@ LTC_spouse = left(LTC_spouse, 1) & lcase(right(LTC_spouse, len(LTC_spouse) - 1))
 EMReadScreen community_spouse, 13, 15, 63
 community_spouse = trim(community_spouse)
 community_spouse = left(community_spouse, 1) & lcase(right(community_spouse, len(community_spouse) - 1))
-EMWriteScreen "SPAA", 20, 71
-transmit
-EMReadScreen total_counted_assets, 10, 6, 66
-total_counted_assets = trim(total_counted_assets)
-total_counted_assets = replace(total_counted_assets, ",", "")
-half_of_total = "$" & round(ccur(total_counted_assets)/2, 2)
-total_counted_assets = "$" & total_counted_assets
-EMReadScreen CSAA, 10, 8, 66
-CSAA = trim(CSAA)
-CSAA = replace(CSAA, ",", "")
-CSAA = "$" & round(ccur(CSAA), 2)
 
-'Now it's going to read the entire SPAA screen, to enter it into a case note. Skips the fourth, sixth, and twelfth line as they're blank!
-EMReadScreen SPAA_line_01, 55, 4, 24
-If trim(SPAA_line_01) = "" then SPAA_line_01 = "."
-EMReadScreen SPAA_line_02, 55, 5, 24
-If trim(SPAA_line_02) = "" then SPAA_line_02 = "."
-EMReadScreen SPAA_line_03, 55, 6, 24
-If trim(SPAA_line_03) = "" then SPAA_line_03 = "."
-EMReadScreen SPAA_line_05, 55, 8, 24
-If trim(SPAA_line_05) = "" then SPAA_line_05 = "."
-EMReadScreen SPAA_line_07, 55, 10, 24
-If trim(SPAA_line_07) = "" then SPAA_line_07 = "."
-EMReadScreen SPAA_line_08, 55, 11, 24
-If trim(SPAA_line_08) = "" then SPAA_line_08 = "."
-EMReadScreen SPAA_line_09, 55, 12, 24
-If trim(SPAA_line_09) = "" then SPAA_line_09 = "."
-EMReadScreen SPAA_line_10, 55, 13, 24
-If trim(SPAA_line_10) = "" then SPAA_line_10 = "."
-EMReadScreen SPAA_line_11, 55, 14, 24
-If trim(SPAA_line_11) = "" then SPAA_line_11 = "."
-EMReadScreen SPAA_line_13, 55, 16, 24
-If trim(SPAA_line_13) = "" then SPAA_line_13 = "."
-EMReadScreen SPAA_line_14, 55, 17, 24
-If trim(SPAA_line_14) = "" then SPAA_line_14 = "."
-EMReadScreen SPAA_line_15, 55, 18, 24
-If trim(SPAA_line_15) = "" then SPAA_line_15 = "."
-
-'Now it's going to get the marital asset list. Skips lines 2 and 16 as they are blank.
-EMWriteScreen "x", 4, 33
-transmit
-'these lines are not included in the DO LOOP since they are headers and footers
-
-EMReadScreen total_marital_asset_list_line_01, 53, 2, 25	'TOTAL MARITAL ASSET LIST (header)
-EMReadScreen total_marital_asset_list_line_03, 53, 4, 25	'Asset Description (header)
-EMReadScreen total_marital_asset_list_line_99, 53, 18, 25	'Assets Total: (footer) --made this '99' as to not cause conflict with other variable titles
-EMReadScreen total_marital_asset_list_line_04, 53, 5, 25	'-------------------- (header)
-'1st page of the total marital asset list
-
-'Gathering information from the total maritial asset list and adding to an array
-MAXIS_row = 6
-asset_list = ""
-Do 
-	EMReadScreen asset_check, 20, MAXIS_row, 27				'chekcing to make sure the asset line is not an underscore line
-	If asset_check <> "____________________" then 			
-		EMReadScreen listed_asset, 53, MAXIS_row, 25		'reads the assets
-		listed_asset = replace(listed_asset, "_", " ")		'relaces the underscores 	
-		MAXIS_row = MAXIS_row + 1
-		asset_list = asset_list & listed_asset & ", "		'increments the asset_list variable by the listed_asset variable
-		EMReadScreen last_page_check, 7, 23, 4		'checking to make sure that no more assets need to be copied for the case note
-		If last_page_check = "NO MORE" then exit do
-		If MAXIS_row = 16 then 
-			PF8
-			MAXIS_row = 6							'accounts for more than one page
-		END If 
-	END IF 
-LOOP UNTIL asset_check = "____________________"		'loops until all the assets are accounted for 
-PF3			'goes back into 		
-
-'declaring & splitting the array
-If left(asset_list, 2) = ", " then asset_list = right(asset_list, len(asset_list) - 2)
-assets_array = Split(asset_list, ",")
-		
-If AA_option = "Completed AA" then 
-	Do 
-		Do			
-			dialog asset_assessment_dialog	'calls the main asset assessment dialog
-			cancel_confirmation
-			transmit
-			EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function
-			If function_check <> "ASET" then
-				MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
-			END IF
-		Loop until function_check = "ASET"
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in		
-END IF 
-
-IF AA_option = "New AA received" then 
-    Do 
-    	Do	
-			Do 
+IF AA_option = "New AA received" then
+    Do
+    	Do
+			Do
 				err_msg = ""
     			dialog AA_received_dialog	'calls the main asset assessment dialog
     			cancel_confirmation
@@ -328,51 +241,151 @@ IF AA_option = "New AA received" then
 				If (asset_assessment_type = "REQUIRED" AND month_MA_LTC_rules_applied = "") THEN err_msg = err_msg & vbNewLine & "* Enter the first month MA-LTC rules applied."
 				If verifs_requested = "" THEN err_msg = err_msg & vbNewLine & "* Enter the verifications requested."
 				If actions_taken = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
-				If (write_MAXIS_case_note_check = 1 and MAXIS_case_number = "") THEN err_msg = err_msg & vbNewLine & "* Enter the MAXIS case number or uncheck the option to write the case note." 
+				If (write_MAXIS_case_note_check = 1 and MAXIS_case_number = "") THEN err_msg = err_msg & vbNewLine & "* Enter the MAXIS case number or uncheck the option to write the case note."
 				IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-			Loop until err_msg = ""	
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
 			transmit
     		EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function
     		If function_check <> "ASET" then
     			MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
     		END IF
     	Loop until function_check = "ASET"
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    Loop until are_we_passworded_out = false					'loops until user passwords back in		
-END IF 
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-PF5 	'navigates to person note
-PF9		'puts person note into edit mode
-'case/person notes information about forms sent to client
-If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
-If sent_3340A_check = 1 then actions_taken = "Sent 3340-A. " & actions_taken
+	PF5 	'navigates to person note
+	PF9		'puts person note into edit mode
 
-'PERSON NOTE----------------------------------------------------------------------------------------------------
-If AA_option = "Completed AA" then 
-	EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT COMPELTED***" & "<newline>"
-Else 
 	EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT RECEIVED***" & "<newline>"
-END IF 
-call write_editbox_in_person_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
-call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
-call write_editbox_in_person_note("LTC spouse", LTC_spouse)
-call write_editbox_in_person_note("Community spouse", community_spouse)
-call write_editbox_in_person_note("Verifications requested", verifs_requested)
-call write_editbox_in_person_note("Asset summary", asset_summary)
-call write_editbox_in_person_note("Total counted assets", total_counted_assets)
-call write_editbox_in_person_note("Half of total", half_of_total)
-call write_new_line_in_person_note("* " & CSAA_type & " CSAA: " & CSAA)
-call write_editbox_in_person_note("Asset calculation", asset_calculation)
-call write_editbox_in_person_note("Actions taken", actions_taken)
-If client_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to client/spouse.")
-If AREP_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to AREP.")
-If sent_5181_check = 1 then call write_new_line_in_person_note("* DHS-5181 sent to Case Manager.")
-call write_new_line_in_person_note("---")
-call write_new_line_in_person_note(worker_signature)
+	call write_editbox_in_person_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+	call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
+	call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
+	call write_editbox_in_person_note("LTC spouse", LTC_spouse)
+	call write_editbox_in_person_note("Community spouse", community_spouse)
+	call write_editbox_in_person_note("Verifications requested", verifs_requested)
+	call write_editbox_in_person_note("Actions taken", actions_taken)
+	If client_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to client/spouse.")
+	If AREP_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to AREP.")
+	call write_new_line_in_person_note("---")
+	call write_new_line_in_person_note(worker_signature)
+	PF3
+	PF3
+ELse
 
-If AA_option = "Completed AA" then 
+    EMWriteScreen "SPAA", 20, 71
+    transmit
+    EMReadScreen total_counted_assets, 10, 6, 66
+    total_counted_assets = trim(total_counted_assets)
+    total_counted_assets = replace(total_counted_assets, ",", "")
+    half_of_total = "$" & round(ccur(total_counted_assets)/2, 2)
+    total_counted_assets = "$" & total_counted_assets
+    EMReadScreen CSAA, 10, 8, 66
+    CSAA = trim(CSAA)
+    CSAA = replace(CSAA, ",", "")
+    CSAA = "$" & round(ccur(CSAA), 2)
+
+    'Now it's going to read the entire SPAA screen, to enter it into a case note. Skips the fourth, sixth, and twelfth line as they're blank!
+    EMReadScreen SPAA_line_01, 55, 4, 24
+    If trim(SPAA_line_01) = "" then SPAA_line_01 = "."
+    EMReadScreen SPAA_line_02, 55, 5, 24
+    If trim(SPAA_line_02) = "" then SPAA_line_02 = "."
+    EMReadScreen SPAA_line_03, 55, 6, 24
+    If trim(SPAA_line_03) = "" then SPAA_line_03 = "."
+    EMReadScreen SPAA_line_05, 55, 8, 24
+    If trim(SPAA_line_05) = "" then SPAA_line_05 = "."
+    EMReadScreen SPAA_line_07, 55, 10, 24
+    If trim(SPAA_line_07) = "" then SPAA_line_07 = "."
+    EMReadScreen SPAA_line_08, 55, 11, 24
+    If trim(SPAA_line_08) = "" then SPAA_line_08 = "."
+    EMReadScreen SPAA_line_09, 55, 12, 24
+    If trim(SPAA_line_09) = "" then SPAA_line_09 = "."
+    EMReadScreen SPAA_line_10, 55, 13, 24
+    If trim(SPAA_line_10) = "" then SPAA_line_10 = "."
+    EMReadScreen SPAA_line_11, 55, 14, 24
+    If trim(SPAA_line_11) = "" then SPAA_line_11 = "."
+    EMReadScreen SPAA_line_13, 55, 16, 24
+    If trim(SPAA_line_13) = "" then SPAA_line_13 = "."
+    EMReadScreen SPAA_line_14, 55, 17, 24
+    If trim(SPAA_line_14) = "" then SPAA_line_14 = "."
+    EMReadScreen SPAA_line_15, 55, 18, 24
+    If trim(SPAA_line_15) = "" then SPAA_line_15 = "."
+
+    'Now it's going to get the marital asset list. Skips lines 2 and 16 as they are blank.
+    EMWriteScreen "x", 4, 33
+    transmit
+    'these lines are not included in the DO LOOP since they are headers and footers
+
+    EMReadScreen total_marital_asset_list_line_01, 53, 2, 25	'TOTAL MARITAL ASSET LIST (header)
+    EMReadScreen total_marital_asset_list_line_03, 53, 4, 25	'Asset Description (header)
+    EMReadScreen total_marital_asset_list_line_99, 53, 18, 25	'Assets Total: (footer) --made this '99' as to not cause conflict with other variable titles
+    EMReadScreen total_marital_asset_list_line_04, 53, 5, 25	'-------------------- (header)
+    '1st page of the total marital asset list
+
+    'Gathering information from the total maritial asset list and adding to an array
+    MAXIS_row = 6
+    asset_list = ""
+    Do
+    	EMReadScreen asset_check, 20, MAXIS_row, 27				'chekcing to make sure the asset line is not an underscore line
+    	If asset_check <> "____________________" then
+    		EMReadScreen listed_asset, 53, MAXIS_row, 25		'reads the assets
+    		listed_asset = replace(listed_asset, "_", " ")		'relaces the underscores
+    		MAXIS_row = MAXIS_row + 1
+    		asset_list = asset_list & listed_asset & ", "		'increments the asset_list variable by the listed_asset variable
+    		EMReadScreen last_page_check, 7, 23, 4		'checking to make sure that no more assets need to be copied for the case note
+    		If last_page_check = "NO MORE" then exit do
+    		If MAXIS_row = 16 then
+    			PF8
+    			MAXIS_row = 6							'accounts for more than one page
+    		END If
+    	END IF
+    LOOP UNTIL asset_check = "____________________"		'loops until all the assets are accounted for
+    PF3			'goes back into
+
+    'declaring & splitting the array
+    If left(asset_list, 2) = ", " then asset_list = right(asset_list, len(asset_list) - 2)
+    assets_array = Split(asset_list, ",")
+
+    If AA_option = "Completed AA" then
+    	Do
+    		Do
+    			dialog asset_assessment_dialog	'calls the main asset assessment dialog
+    			cancel_confirmation
+    			transmit
+    			EMReadScreen function_check, 4, 20, 21		'checking to make sure that we're still in ASET function
+    			If function_check <> "ASET" then
+    				MsgBox "You do not appear to be in the ASET function any more. You might be locked out of your case, or have navigated away. Re-enter the ASET function before proceeding."
+    			END IF
+    		Loop until function_check = "ASET"
+    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    	Loop until are_we_passworded_out = false					'loops until user passwords back in
+    END IF
+
+    PF5 	'navigates to person note
+    PF9		'puts person note into edit mode
+    'case/person notes information about forms sent to client
+    If sent_3340B_check = 1 then actions_taken = "Sent 3340-B. " & actions_taken
+    If sent_3340A_check = 1 then actions_taken = "Sent 3340-A. " & actions_taken
+
+    'PERSON NOTE----------------------------------------------------------------------------------------------------
+    EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT COMPELTED***" & "<newline>"
+    call write_editbox_in_person_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+    call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
+    call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
+    call write_editbox_in_person_note("LTC spouse", LTC_spouse)
+    call write_editbox_in_person_note("Community spouse", community_spouse)
+    If trim(asset_summary) <> "" then call write_editbox_in_person_note("Asset summary", asset_summary)
+    If trim(total_counted_assets) <> "" then call write_editbox_in_person_note("Total counted assets", total_counted_assets)
+    If trim(half_of_total) <> "" then call write_editbox_in_person_note("Half of total", half_of_total)
+    If trim(CSAA) <> "" then call write_new_line_in_person_note("* " & CSAA_type & " CSAA: " & CSAA)
+    If trim(asset_calculation) <> "" then call write_editbox_in_person_note("Asset calculation", asset_calculation)
+    call write_editbox_in_person_note("Actions taken", actions_taken)
+    If client_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to client/spouse.")
+    If AREP_verif_checkbox = 1 then call write_new_line_in_person_note("* Verification request sent to AREP.")
+    If sent_5181_check = 1 then call write_new_line_in_person_note("* DHS-5181 sent to Case Manager.")
+    call write_new_line_in_person_note("---")
+    call write_new_line_in_person_note(worker_signature)
+
     Do
       EMGetCursor row, col
       If row < 18 then
@@ -407,22 +420,26 @@ If AA_option = "Completed AA" then
     call write_new_line_in_person_note(total_marital_asset_list_line_99)
     call write_new_line_in_person_note(total_marital_asset_list_line_03)
     call write_new_line_in_person_note(total_marital_asset_list_line_04)
-    
+
     'Person notes the assets in the assets array
     For each asset in assets_array
     	Call write_new_line_in_person_note(asset)
-    Next 
-    
+    Next
+
     PF3
     PF3
-END IF 
+END IF
 'End of person note----------------------------------------------------------------------------------------------------
 
 If write_MAXIS_case_note_check = 0 then script_end_procedure("")
 
 'CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_case_note
-Call write_variable_in_CASE_NOTE ("***" & asset_assessment_type & " ASSET ASSESSMENT***")
+If AA_option = "Completed AA" then
+	Call write_variable_in_CASE_NOTE ("***" & asset_assessment_type & " ASSET ASSESSMENT COMPLETED***")
+Else
+	Call write_variable_in_CASE_NOTE ("***" & asset_assessment_type & " ASSET ASSESSMENT RECEIVED***")
+END IF
 call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
 call write_bullet_and_variable_in_CASE_NOTE("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
 call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
@@ -441,7 +458,7 @@ If AREP_verif_checkbox = 1 then call write_variable_in_CASE_NOTE("* Verification
 call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_case_note(worker_signature)
 
-If AA_option = "Completed AA" then 
+If AA_option = "Completed AA" then
     Do
       EMGetCursor row, col
       If row < 17 then
@@ -463,7 +480,7 @@ If AA_option = "Completed AA" then
     call write_variable_in_CASE_NOTE(SPAA_line_13)
     call write_variable_in_CASE_NOTE(SPAA_line_14)
     call write_variable_in_CASE_NOTE(SPAA_line_15)
-    
+
     Do
       EMGetCursor row, col
       If row < 17 then
@@ -471,18 +488,18 @@ If AA_option = "Completed AA" then
         EMSendKey "<newline>"
       End if
     Loop until row = 17
-    
+
     EMSendKey ">>>>TOTAL MARITAL ASSET LIST PASTED ON NEXT PAGE>>>>"
     PF8
     'headers and footer
     call write_variable_in_CASE_NOTE(total_marital_asset_list_line_99)
     call write_variable_in_CASE_NOTE(total_marital_asset_list_line_03)
     call write_variable_in_CASE_NOTE(total_marital_asset_list_line_04)
-    
+
     'Case notes the assets in the assets array
     For each asset in assets_array
     	Call write_variable_in_CASE_NOTE(asset)
-    Next 
+    Next
 End if
 
 script_end_procedure("")
